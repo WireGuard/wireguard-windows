@@ -1,6 +1,6 @@
 include $(GOROOT)/src/Make.inc
 
-TARG=walk/winapi
+TARG=winapi
 GOFILES=\
 	advapi32.go\
 	combobox.go\
