@@ -15,6 +15,7 @@ GOFILES=\
 	menu.go\
 	ole32.go\
 	oleaut32.go\
+	opengl32.go\
 	shdocvw.go\
 	shell32.go\
 	tab.go\

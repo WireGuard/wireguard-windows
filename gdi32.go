@@ -681,6 +681,38 @@ const CBM_INIT = 4
 
 const CLR_INVALID = 0xFFFFFFFF
 
+const (
+	/* pixel types */
+	PFD_TYPE_RGBA       = 0
+	PFD_TYPE_COLORINDEX = 1
+
+	/* layer types */
+	PFD_MAIN_PLANE     = 0
+	PFD_OVERLAY_PLANE  = 1
+	PFD_UNDERLAY_PLANE = (-1)
+
+	/* PIXELFORMATDESCRIPTOR flags */
+	PFD_DOUBLEBUFFER        = 0x00000001
+	PFD_STEREO              = 0x00000002
+	PFD_DRAW_TO_WINDOW      = 0x00000004
+	PFD_DRAW_TO_BITMAP      = 0x00000008
+	PFD_SUPPORT_GDI         = 0x00000010
+	PFD_SUPPORT_OPENGL      = 0x00000020
+	PFD_GENERIC_FORMAT      = 0x00000040
+	PFD_NEED_PALETTE        = 0x00000080
+	PFD_NEED_SYSTEM_PALETTE = 0x00000100
+	PFD_SWAP_EXCHANGE       = 0x00000200
+	PFD_SWAP_COPY           = 0x00000400
+	PFD_SWAP_LAYER_BUFFERS  = 0x00000800
+	PFD_GENERIC_ACCELERATED = 0x00001000
+	PFD_SUPPORT_DIRECTDRAW  = 0x00002000
+
+	/* PIXELFORMATDESCRIPTOR flags for use in ChoosePixelFormat only */
+	PFD_DEPTH_DONTCARE        = 0x20000000
+	PFD_DOUBLEBUFFER_DONTCARE = 0x40000000
+	PFD_STEREO_DONTCARE       = 0x80000000
+)
+
 type (
 	COLORREF     uint32
 	HBITMAP      HGDIOBJ
@@ -693,6 +725,35 @@ type (
 	HPEN         HGDIOBJ
 	HREGION      HGDIOBJ
 )
+
+type PIXELFORMATDESCRIPTOR struct {
+	NSize           uint16
+	NVersion        uint16
+	DwFlags         uint32
+	IPixelType      byte
+	CColorBits      byte
+	CRedBits        byte
+	CRedShift       byte
+	CGreenBits      byte
+	CGreenShift     byte
+	CBlueBits       byte
+	CBlueShift      byte
+	CAlphaBits      byte
+	CAlphaShift     byte
+	CAccumBits      byte
+	CAccumRedBits   byte
+	CAccumGreenBits byte
+	CAccumBlueBits  byte
+	CAccumAlphaBits byte
+	CDepthBits      byte
+	CStencilBits    byte
+	CAuxBuffers     byte
+	ILayerType      byte
+	BReserved       byte
+	DwLayerMask     uint32
+	DwVisibleMask   uint32
+	DwDamageMask    uint32
+}
 
 type LOGFONT struct {
 	LfHeight         int32
@@ -870,6 +931,7 @@ var (
 	// Functions
 	abortDoc             uintptr
 	bitBlt               uintptr
+	choosePixelFormat    uintptr
 	closeEnhMetaFile     uintptr
 	copyEnhMetaFile      uintptr
 	createBrushIndirect  uintptr
@@ -902,11 +964,13 @@ var (
 	selectObject         uintptr
 	setBkMode            uintptr
 	setBrushOrgEx        uintptr
+	setPixelFormat       uintptr
 	setStretchBltMode    uintptr
 	setTextColor         uintptr
 	startDoc             uintptr
 	startPage            uintptr
 	stretchBlt           uintptr
+	swapBuffers          uintptr
 )
 
 func init() {
@@ -916,6 +980,7 @@ func init() {
 	// Functions
 	abortDoc = MustGetProcAddress(libgdi32, "AbortDoc")
 	bitBlt = MustGetProcAddress(libgdi32, "BitBlt")
+	choosePixelFormat = MustGetProcAddress(libgdi32, "ChoosePixelFormat")
 	closeEnhMetaFile = MustGetProcAddress(libgdi32, "CloseEnhMetaFile")
 	copyEnhMetaFile = MustGetProcAddress(libgdi32, "CopyEnhMetaFileW")
 	createBrushIndirect = MustGetProcAddress(libgdi32, "CreateBrushIndirect")
@@ -948,11 +1013,13 @@ func init() {
 	selectObject = MustGetProcAddress(libgdi32, "SelectObject")
 	setBkMode = MustGetProcAddress(libgdi32, "SetBkMode")
 	setBrushOrgEx = MustGetProcAddress(libgdi32, "SetBrushOrgEx")
+	setPixelFormat = MustGetProcAddress(libgdi32, "SetPixelFormat")
 	setStretchBltMode = MustGetProcAddress(libgdi32, "SetStretchBltMode")
 	setTextColor = MustGetProcAddress(libgdi32, "SetTextColor")
 	startDoc = MustGetProcAddress(libgdi32, "StartDocW")
 	startPage = MustGetProcAddress(libgdi32, "StartPage")
 	stretchBlt = MustGetProcAddress(libgdi32, "StretchBlt")
+	swapBuffers = MustGetProcAddress(libgdi32, "SwapBuffers")
 }
 
 func AbortDoc(hdc HDC) int32 {
@@ -977,6 +1044,15 @@ func BitBlt(hdcDest HDC, nXDest, nYDest, nWidth, nHeight int32, hdcSrc HDC, nXSr
 		uintptr(dwRop))
 
 	return ret != 0
+}
+
+func ChoosePixelFormat(hdc HDC, ppfd *PIXELFORMATDESCRIPTOR) int32 {
+	ret, _, _ := syscall.Syscall(choosePixelFormat, 2,
+		uintptr(hdc),
+		uintptr(unsafe.Pointer(ppfd)),
+		0)
+
+	return int32(ret)
 }
 
 func CloseEnhMetaFile(hdc HDC) HENHMETAFILE {
@@ -1303,6 +1379,15 @@ func SetBrushOrgEx(hdc HDC, nXOrg, nYOrg int32, lppt *POINT) bool {
 	return ret != 0
 }
 
+func SetPixelFormat(hdc HDC, iPixelFormat int32, ppfd *PIXELFORMATDESCRIPTOR) bool {
+	ret, _, _ := syscall.Syscall(setPixelFormat, 3,
+		uintptr(hdc),
+		uintptr(iPixelFormat),
+		uintptr(unsafe.Pointer(ppfd)))
+
+	return ret != 0
+}
+
 func SetStretchBltMode(hdc HDC, iStretchMode int32) int32 {
 	ret, _, _ := syscall.Syscall(setStretchBltMode, 2,
 		uintptr(hdc),
@@ -1352,6 +1437,15 @@ func StretchBlt(hdcDest HDC, nXOriginDest, nYOriginDest, nWidthDest, nHeightDest
 		uintptr(nWidthSrc),
 		uintptr(nHeightSrc),
 		uintptr(dwRop),
+		0)
+
+	return ret != 0
+}
+
+func SwapBuffers(hdc HDC) bool {
+	ret, _, _ := syscall.Syscall(swapBuffers, 1,
+		uintptr(hdc),
+		0,
 		0)
 
 	return ret != 0
