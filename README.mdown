@@ -9,26 +9,7 @@ project.
 Setup
 =====
 
-1. Make sure you have a working Go installation.
+Make sure you have a working Go installation.
+See [Getting Started](http://golang.org/doc/install.html)
 
-   The easiest option for building Go programs on Windows is to use a stable 
-   [pre-built Go release](http://code.google.com/p/gomingw/downloads/list).
-   
-   Because Go is still changing rapidly, you may prefer to use a weekly Go 
-   snapshot instead. The unofficial [Go Wiki](http://code.google.com/p/go-wiki/)
-   has some guides for building on Windows and cross-compiling.
-   
-   The official [Getting Started](http://golang.org/doc/install.html) guide,
-   while not focused on Windows, is a recommended read for developers new to Go.
-   
-2. Either run
-   `goinstall github.com/lxn/go-winapi` 
-   and import the package like this:
-   `import "github.com/lxn/go-winapi"`
-   
-   Or run
-   `git clone http://github.com/lxn/go-winapi.git`
-   and
-   `cd go-winapi && gomake install`
-   and import the package like this:
-   `import "winapi"`
+Now run `go get github.com/lxn/go-winapi`
