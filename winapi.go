@@ -5,7 +5,6 @@
 package winapi
 
 import (
-	"fmt"
 	"syscall"
 	"unsafe"
 )
@@ -44,18 +43,18 @@ type GUID struct {
 }
 
 func MustLoadLibrary(name string) uintptr {
-	lib, errno := syscall.LoadLibrary(name)
-	if errno != 0 {
-		panic(fmt.Sprintf(`syscall.LoadLibrary("%s") failed: %s`, name, syscall.Errstr(errno)))
+	lib, err := syscall.LoadLibrary(name)
+	if err != nil {
+		panic(err)
 	}
 
 	return uintptr(lib)
 }
 
 func MustGetProcAddress(lib uintptr, name string) uintptr {
-	addr, errno := syscall.GetProcAddress(syscall.Handle(lib), name)
-	if errno != 0 {
-		panic(fmt.Sprintf(`syscall.GetProcAddress(%d, "%s") failed: %s`, lib, name, syscall.Errstr(errno)))
+	addr, err := syscall.GetProcAddress(syscall.Handle(lib), name)
+	if err != nil {
+		panic(err)
 	}
 
 	return uintptr(addr)
@@ -82,7 +81,7 @@ func HIWORD(dw uint32) uint16 {
 }
 
 func UTF16PtrToString(s *uint16) string {
-	return syscall.UTF16ToString((*[1 << 30]uint16)(unsafe.Pointer(s))[0:])
+	return syscall.UTF16ToString((*[1 << 29]uint16)(unsafe.Pointer(s))[0:])
 }
 
 func MAKEINTRESOURCE(id uintptr) *uint16 {

@@ -128,6 +128,7 @@ type VARIANT struct {
 type VARIANTARG VARIANT
 
 type VARIANT_BOOL int16
+
 //type BSTR *uint16
 
 func StringToBSTR(value string) *uint16 /*BSTR*/ {
@@ -137,7 +138,7 @@ func StringToBSTR(value string) *uint16 /*BSTR*/ {
 
 func BSTRToString(value *uint16 /*BSTR*/ ) string {
 	// ISSUE: Is this really ok?
-	bstrArrPtr := (*[2000000000]uint16)(unsafe.Pointer(value))
+	bstrArrPtr := (*[200000000]uint16)(unsafe.Pointer(value))
 
 	bstrSlice := make([]uint16, SysStringLen(value))
 	copy(bstrSlice, bstrArrPtr[:])

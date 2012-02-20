@@ -163,7 +163,6 @@ func init() {
 	}
 }
 
-
 func GdipCreateBitmapFromFile(filename *uint16, bitmap **GpBitmap) GpStatus {
 	ret, _, _ := syscall.Syscall(gdipCreateBitmapFromFile, 2,
 		uintptr(unsafe.Pointer(filename)),

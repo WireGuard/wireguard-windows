@@ -4,7 +4,6 @@
 
 package winapi
 
-
 import (
 	"syscall"
 	"unsafe"

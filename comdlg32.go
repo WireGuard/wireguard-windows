@@ -202,7 +202,6 @@ type PRINTDLGEX struct {
 	DwResultAction      uint32
 }
 
-
 var (
 	// Library
 	libcomdlg32 uintptr

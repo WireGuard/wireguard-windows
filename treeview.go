@@ -177,7 +177,6 @@ type TVITEM struct {
 	iExpandedImage int
 }*/
 
-
 type TVINSERTSTRUCT struct {
 	HParent      HTREEITEM
 	HInsertAfter HTREEITEM
