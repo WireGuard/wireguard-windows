@@ -192,6 +192,12 @@ const (
 	BS_FLAT            = 0X8000
 )
 
+const (
+	PM_NOREMOVE = 0x0000
+	PM_REMOVE   = 0x0001
+	PM_NOYIELD  = 0x0002
+)
+
 // Button state constants
 const (
 	BST_CHECKED       = 1
@@ -1094,6 +1100,7 @@ var (
 	libuser32 uintptr
 
 	// Functions
+	adjustWindowRect     uintptr
 	beginDeferWindowPos  uintptr
 	beginPaint           uintptr
 	callWindowProc       uintptr
@@ -1136,6 +1143,7 @@ var (
 	loadImage            uintptr
 	messageBox           uintptr
 	moveWindow           uintptr
+	peekMessage          uintptr
 	postMessage          uintptr
 	postQuitMessage      uintptr
 	registerClassEx      uintptr
@@ -1153,6 +1161,7 @@ var (
 	setMenuInfo          uintptr
 	setMenuItemInfo      uintptr
 	setParent            uintptr
+	setRect              uintptr
 	setTimer             uintptr
 	setWindowLong        uintptr
 	setWindowLongPtr     uintptr
@@ -1169,6 +1178,7 @@ func init() {
 	libuser32 = MustLoadLibrary("user32.dll")
 
 	// Functions
+	adjustWindowRect = MustGetProcAddress(libuser32, "AdjustWindowRect")
 	beginDeferWindowPos = MustGetProcAddress(libuser32, "BeginDeferWindowPos")
 	beginPaint = MustGetProcAddress(libuser32, "BeginPaint")
 	callWindowProc = MustGetProcAddress(libuser32, "CallWindowProcW")
@@ -1212,6 +1222,7 @@ func init() {
 	loadImage = MustGetProcAddress(libuser32, "LoadImageW")
 	messageBox = MustGetProcAddress(libuser32, "MessageBoxW")
 	moveWindow = MustGetProcAddress(libuser32, "MoveWindow")
+	peekMessage = MustGetProcAddress(libuser32, "PeekMessageW")
 	postMessage = MustGetProcAddress(libuser32, "PostMessageW")
 	postQuitMessage = MustGetProcAddress(libuser32, "PostQuitMessage")
 	registerClassEx = MustGetProcAddress(libuser32, "RegisterClassExW")
@@ -1228,6 +1239,7 @@ func init() {
 	setMenu = MustGetProcAddress(libuser32, "SetMenu")
 	setMenuInfo = MustGetProcAddress(libuser32, "SetMenuInfo")
 	setMenuItemInfo = MustGetProcAddress(libuser32, "SetMenuItemInfoW")
+	setRect = MustGetProcAddress(libuser32, "SetRect")
 	setParent = MustGetProcAddress(libuser32, "SetParent")
 	setTimer = MustGetProcAddress(libuser32, "SetTimer")
 	setWindowLong = MustGetProcAddress(libuser32, "SetWindowLongW")
@@ -1239,6 +1251,15 @@ func init() {
 	systemParametersInfo = MustGetProcAddress(libuser32, "SystemParametersInfoW")
 	trackPopupMenuEx = MustGetProcAddress(libuser32, "TrackPopupMenuEx")
 	translateMessage = MustGetProcAddress(libuser32, "TranslateMessage")
+}
+
+func AdjustWindowRect(lpRect *RECT, dwStyle uint32, bMenu bool) bool {
+	ret, _, _ := syscall.Syscall(adjustWindowRect, 3,
+		uintptr(unsafe.Pointer(lpRect)),
+		uintptr(dwStyle),
+		uintptr(BoolToBOOL(bMenu)))
+
+	return ret != 0
 }
 
 func BeginDeferWindowPos(nNumWindows int32) HDWP {
@@ -1658,6 +1679,18 @@ func MoveWindow(hWnd HWND, x, y, width, height int32, repaint bool) bool {
 	return ret != 0
 }
 
+func PeekMessage(lpMsg *MSG, hWnd HWND, wMsgFilterMin, wMsgFilterMax, wRemoveMsg uint32) bool {
+	ret, _, _ := syscall.Syscall6(peekMessage, 5,
+		uintptr(unsafe.Pointer(lpMsg)),
+		uintptr(hWnd),
+		uintptr(wMsgFilterMin),
+		uintptr(wMsgFilterMax),
+		uintptr(wRemoveMsg),
+		0)
+
+	return ret != 0
+}
+
 func PostMessage(hWnd HWND, msg uint32, wParam, lParam uintptr) uintptr {
 	ret, _, _ := syscall.Syscall6(postMessage, 4,
 		uintptr(hWnd),
@@ -1816,6 +1849,18 @@ func SetParent(hWnd HWND, parentHWnd HWND) HWND {
 		0)
 
 	return HWND(ret)
+}
+
+func SetRect(lprc *RECT, xLeft, yTop, xRight, yBottom uint32) BOOL {
+	ret, _, _ := syscall.Syscall6(setRect, 5,
+		uintptr(unsafe.Pointer(lprc)),
+		uintptr(xLeft),
+		uintptr(yTop),
+		uintptr(xRight),
+		uintptr(yBottom),
+		0)
+
+	return BOOL(ret)
 }
 
 func SetTimer(hWnd HWND, nIDEvent uintptr, uElapse uint32, lpTimerFunc uintptr) uintptr {
