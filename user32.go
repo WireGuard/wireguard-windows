@@ -1174,6 +1174,8 @@ var (
 )
 
 func init() {
+	is64bit := unsafe.Sizeof(uintptr(0)) == 8
+
 	// Library
 	libuser32 = MustLoadLibrary("user32.dll")
 
@@ -1206,8 +1208,12 @@ func init() {
 	getMessage = MustGetProcAddress(libuser32, "GetMessageW")
 	getSystemMetrics = MustGetProcAddress(libuser32, "GetSystemMetrics")
 	getWindowLong = MustGetProcAddress(libuser32, "GetWindowLongW")
-	// FIXME: on 32 bit GetWindowLongPtrW is not available
-	getWindowLongPtr = MustGetProcAddress(libuser32, "GetWindowLongW")
+	// On 32 bit GetWindowLongPtrW is not available
+	if is64bit {
+		getWindowLongPtr = MustGetProcAddress(libuser32, "GetWindowLongPtrW")
+	} else {
+		getWindowLongPtr = MustGetProcAddress(libuser32, "GetWindowLongW")
+	}
 	getWindowPlacement = MustGetProcAddress(libuser32, "GetWindowPlacement")
 	getWindowRect = MustGetProcAddress(libuser32, "GetWindowRect")
 	insertMenuItem = MustGetProcAddress(libuser32, "InsertMenuItemW")
@@ -1243,8 +1249,12 @@ func init() {
 	setParent = MustGetProcAddress(libuser32, "SetParent")
 	setTimer = MustGetProcAddress(libuser32, "SetTimer")
 	setWindowLong = MustGetProcAddress(libuser32, "SetWindowLongW")
-	// FIXME: on 32 bit SetWindowLongPtrW is not available
-	setWindowLongPtr = MustGetProcAddress(libuser32, "SetWindowLongW")
+	// On 32 bit SetWindowLongPtrW is not available
+	if is64bit {
+		setWindowLongPtr = MustGetProcAddress(libuser32, "SetWindowLongPtrW")
+	} else {
+		setWindowLongPtr = MustGetProcAddress(libuser32, "SetWindowLongW")
+	}
 	setWindowPlacement = MustGetProcAddress(libuser32, "SetWindowPlacement")
 	setWindowPos = MustGetProcAddress(libuser32, "SetWindowPos")
 	showWindow = MustGetProcAddress(libuser32, "ShowWindow")

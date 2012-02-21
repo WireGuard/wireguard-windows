@@ -176,13 +176,6 @@ func VariantBoolToBool(value *VAR_BOOL) bool {
 	return value.boolVal != 0
 }
 
-type VAR_BSTR struct {
-	vt        VARTYPE
-	reserved1 [6]byte
-	bstrVal   *uint16 /*BSTR*/
-	reserved2 [4]byte // 32-bit specific
-}
-
 func StringToVariantBSTR(value string) *VAR_BSTR {
 	// IMPORTANT: Don't forget to free the BSTR value when no longer needed!
 	return &VAR_BSTR{vt: VT_BSTR, bstrVal: StringToBSTR(value)}
