@@ -136,7 +136,7 @@ func StringToBSTR(value string) *uint16 /*BSTR*/ {
 	return SysAllocString(value)
 }
 
-func BSTRToString(value *uint16 /*BSTR*/ ) string {
+func BSTRToString(value *uint16 /*BSTR*/) string {
 	// ISSUE: Is this really ok?
 	bstrArrPtr := (*[200000000]uint16)(unsafe.Pointer(value))
 
@@ -221,14 +221,14 @@ func SysAllocString(s string) *uint16 /*BSTR*/ {
 	return (*uint16) /*BSTR*/ (unsafe.Pointer(ret))
 }
 
-func SysFreeString(bstr *uint16 /*BSTR*/ ) {
+func SysFreeString(bstr *uint16 /*BSTR*/) {
 	syscall.Syscall(sysFreeString, 1,
 		uintptr(unsafe.Pointer(bstr)),
 		0,
 		0)
 }
 
-func SysStringLen(bstr *uint16 /*BSTR*/ ) uint32 {
+func SysStringLen(bstr *uint16 /*BSTR*/) uint32 {
 	ret, _, _ := syscall.Syscall(sysStringLen, 1,
 		uintptr(unsafe.Pointer(bstr)),
 		0,

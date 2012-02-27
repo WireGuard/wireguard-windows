@@ -240,7 +240,7 @@ func (wb2 *IWebBrowser2) Put_Height(Height int32) HRESULT {
 	return HRESULT(ret)
 }
 
-func (wb2 *IWebBrowser2) Get_LocationURL(pbstrLocationURL **uint16 /*BSTR*/ ) HRESULT {
+func (wb2 *IWebBrowser2) Get_LocationURL(pbstrLocationURL **uint16 /*BSTR*/) HRESULT {
 	ret, _, _ := syscall.Syscall(wb2.LpVtbl.Get_LocationURL, 2,
 		uintptr(unsafe.Pointer(wb2)),
 		uintptr(unsafe.Pointer(pbstrLocationURL)),

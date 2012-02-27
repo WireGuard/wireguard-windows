@@ -1100,77 +1100,78 @@ var (
 	libuser32 uintptr
 
 	// Functions
-	adjustWindowRect     uintptr
-	beginDeferWindowPos  uintptr
-	beginPaint           uintptr
-	callWindowProc       uintptr
-	createMenu           uintptr
-	createPopupMenu      uintptr
-	createWindowEx       uintptr
-	deferWindowPos       uintptr
-	defWindowProc        uintptr
-	destroyIcon          uintptr
-	destroyMenu          uintptr
-	destroyWindow        uintptr
-	dispatchMessage      uintptr
-	drawMenuBar          uintptr
-	drawTextEx           uintptr
-	enableWindow         uintptr
-	endDeferWindowPos    uintptr
-	endPaint             uintptr
-	enumChildWindows     uintptr
-	getAncestor          uintptr
-	getClientRect        uintptr
-	getCursorPos         uintptr
-	getDC                uintptr
-	getFocus             uintptr
-	getMenuInfo          uintptr
-	getMessage           uintptr
-	getSystemMetrics     uintptr
-	getWindowLong        uintptr
-	getWindowLongPtr     uintptr
-	getWindowPlacement   uintptr
-	getWindowRect        uintptr
-	insertMenuItem       uintptr
-	invalidateRect       uintptr
-	isChild              uintptr
-	isDialogMessage      uintptr
-	isWindowEnabled      uintptr
-	isWindowVisible      uintptr
-	killTimer            uintptr
-	loadCursor           uintptr
-	loadIcon             uintptr
-	loadImage            uintptr
-	messageBox           uintptr
-	moveWindow           uintptr
-	peekMessage          uintptr
-	postMessage          uintptr
-	postQuitMessage      uintptr
-	registerClassEx      uintptr
-	releaseCapture       uintptr
-	releaseDC            uintptr
-	removeMenu           uintptr
-	screenToClient       uintptr
-	sendMessage          uintptr
-	setActiveWindow      uintptr
-	setCapture           uintptr
-	setCursor            uintptr
-	setFocus             uintptr
-	setForegroundWindow  uintptr
-	setMenu              uintptr
-	setMenuInfo          uintptr
-	setMenuItemInfo      uintptr
-	setParent            uintptr
-	setRect              uintptr
-	setTimer             uintptr
-	setWindowLong        uintptr
-	setWindowLongPtr     uintptr
-	setWindowPlacement   uintptr
-	setWindowPos         uintptr
-	showWindow           uintptr
-	systemParametersInfo uintptr
-	trackPopupMenuEx     uintptr
-	translateMessage     uintptr
+	adjustWindowRect      uintptr
+	beginDeferWindowPos   uintptr
+	beginPaint            uintptr
+	callWindowProc        uintptr
+	createMenu            uintptr
+	createPopupMenu       uintptr
+	createWindowEx        uintptr
+	deferWindowPos        uintptr
+	defWindowProc         uintptr
+	destroyIcon           uintptr
+	destroyMenu           uintptr
+	destroyWindow         uintptr
+	dispatchMessage       uintptr
+	drawMenuBar           uintptr
+	drawTextEx            uintptr
+	enableWindow          uintptr
+	endDeferWindowPos     uintptr
+	endPaint              uintptr
+	enumChildWindows      uintptr
+	getAncestor           uintptr
+	getClientRect         uintptr
+	getCursorPos          uintptr
+	getDC                 uintptr
+	getFocus              uintptr
+	getMenuInfo           uintptr
+	getMessage            uintptr
+	getSystemMetrics      uintptr
+	getWindowLong         uintptr
+	getWindowLongPtr      uintptr
+	getWindowPlacement    uintptr
+	getWindowRect         uintptr
+	insertMenuItem        uintptr
+	invalidateRect        uintptr
+	isChild               uintptr
+	isDialogMessage       uintptr
+	isWindowEnabled       uintptr
+	isWindowVisible       uintptr
+	killTimer             uintptr
+	loadCursor            uintptr
+	loadIcon              uintptr
+	loadImage             uintptr
+	messageBox            uintptr
+	moveWindow            uintptr
+	peekMessage           uintptr
+	postMessage           uintptr
+	postQuitMessage       uintptr
+	registerClassEx       uintptr
+	registerWindowMessage uintptr
+	releaseCapture        uintptr
+	releaseDC             uintptr
+	removeMenu            uintptr
+	screenToClient        uintptr
+	sendMessage           uintptr
+	setActiveWindow       uintptr
+	setCapture            uintptr
+	setCursor             uintptr
+	setFocus              uintptr
+	setForegroundWindow   uintptr
+	setMenu               uintptr
+	setMenuInfo           uintptr
+	setMenuItemInfo       uintptr
+	setParent             uintptr
+	setRect               uintptr
+	setTimer              uintptr
+	setWindowLong         uintptr
+	setWindowLongPtr      uintptr
+	setWindowPlacement    uintptr
+	setWindowPos          uintptr
+	showWindow            uintptr
+	systemParametersInfo  uintptr
+	trackPopupMenuEx      uintptr
+	translateMessage      uintptr
 )
 
 func init() {
@@ -1232,6 +1233,7 @@ func init() {
 	postMessage = MustGetProcAddress(libuser32, "PostMessageW")
 	postQuitMessage = MustGetProcAddress(libuser32, "PostQuitMessage")
 	registerClassEx = MustGetProcAddress(libuser32, "RegisterClassExW")
+	registerWindowMessage = MustGetProcAddress(libuser32, "RegisterWindowMessageW")
 	releaseCapture = MustGetProcAddress(libuser32, "ReleaseCapture")
 	releaseDC = MustGetProcAddress(libuser32, "ReleaseDC")
 	removeMenu = MustGetProcAddress(libuser32, "RemoveMenu")
@@ -1727,6 +1729,15 @@ func RegisterClassEx(windowClass *WNDCLASSEX) ATOM {
 		0)
 
 	return ATOM(ret)
+}
+
+func RegisterWindowMessage(lpString *uint16) uint32 {
+	ret, _, _ := syscall.Syscall(registerWindowMessage, 1,
+		uintptr(unsafe.Pointer(lpString)),
+		0,
+		0)
+
+	return uint32(ret)
 }
 
 func ReleaseCapture() bool {
