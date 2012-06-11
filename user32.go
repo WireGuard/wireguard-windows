@@ -991,6 +991,17 @@ const (
 	WA_INACTIVE    = 0
 )
 
+// Owner drawing states
+const (
+	ODS_CHECKED      = 0x0001
+	ODS_COMBOBOXEDIT = 0x0002
+	ODS_DEFAULT      = 0x0004
+	ODS_DISABLED     = 0x0008
+	ODS_FOCUS        = 0x0010
+	ODS_GRAYED       = 0x0020
+	ODS_SELECTED     = 0x0040
+)
+
 type (
 	HACCEL  HANDLE
 	HCURSOR HANDLE
@@ -1087,6 +1098,27 @@ type NONCLIENTMETRICS struct {
 	LfMessageFont    LOGFONT
 }
 
+type MEASUREITEMSTRUCT struct {
+	CtlType    uint32
+	CtlID      uint32
+	ItemID     int32
+	ItemWidth  uint32
+	ItemHeight uint32
+	ItemData   uintptr
+}
+
+type DRAWITEMSTRUCT struct {
+	CtlType    uint32
+	CtlID      uint32
+	ItemID     int32
+	ItemAction uint32
+	ItemState  uint32
+	HwndItem   HWND
+	HDC        HDC
+	RcItem     RECT
+	ItemData   uintptr
+}
+
 func GET_X_LPARAM(lp uintptr) int32 {
 	return int32(int16(LOWORD(uint32(lp))))
 }
@@ -1114,6 +1146,7 @@ var (
 	destroyWindow         uintptr
 	dispatchMessage       uintptr
 	drawMenuBar           uintptr
+	drawFocusRect         uintptr
 	drawTextEx            uintptr
 	enableWindow          uintptr
 	endDeferWindowPos     uintptr
@@ -1126,6 +1159,7 @@ var (
 	getFocus              uintptr
 	getMenuInfo           uintptr
 	getMessage            uintptr
+	getSysColor           uintptr
 	getSystemMetrics      uintptr
 	getWindowLong         uintptr
 	getWindowLongPtr      uintptr
@@ -1194,6 +1228,7 @@ func init() {
 	destroyMenu = MustGetProcAddress(libuser32, "DestroyMenu")
 	destroyWindow = MustGetProcAddress(libuser32, "DestroyWindow")
 	dispatchMessage = MustGetProcAddress(libuser32, "DispatchMessageW")
+	drawFocusRect = MustGetProcAddress(libuser32, "DrawFocusRect")
 	drawMenuBar = MustGetProcAddress(libuser32, "DrawMenuBar")
 	drawTextEx = MustGetProcAddress(libuser32, "DrawTextExW")
 	enableWindow = MustGetProcAddress(libuser32, "EnableWindow")
@@ -1207,6 +1242,7 @@ func init() {
 	getFocus = MustGetProcAddress(libuser32, "GetFocus")
 	getMenuInfo = MustGetProcAddress(libuser32, "GetMenuInfo")
 	getMessage = MustGetProcAddress(libuser32, "GetMessageW")
+	getSysColor = MustGetProcAddress(libuser32, "GetSysColor")
 	getSystemMetrics = MustGetProcAddress(libuser32, "GetSystemMetrics")
 	getWindowLong = MustGetProcAddress(libuser32, "GetWindowLongW")
 	// On 32 bit GetWindowLongPtrW is not available
@@ -1403,6 +1439,15 @@ func DispatchMessage(msg *MSG) uintptr {
 	return ret
 }
 
+func DrawFocusRect(hDC HDC, lprc *RECT) bool {
+	ret, _, _ := syscall.Syscall(drawFocusRect, 2,
+		uintptr(hDC),
+		uintptr(unsafe.Pointer(lprc)),
+		0)
+
+	return ret != 0
+}
+
 func DrawMenuBar(hWnd HWND) bool {
 	ret, _, _ := syscall.Syscall(drawMenuBar, 1,
 		uintptr(hWnd),
@@ -1524,6 +1569,15 @@ func GetMessage(msg *MSG, hWnd HWND, msgFilterMin, msgFilterMax uint32) BOOL {
 		0)
 
 	return BOOL(ret)
+}
+
+func GetSysColor(nIndex int) uint32 {
+	ret, _, _ := syscall.Syscall(getSysColor, 1,
+		uintptr(nIndex),
+		0,
+		0)
+
+	return uint32(ret)
 }
 
 func GetSystemMetrics(nIndex int32) int32 {
