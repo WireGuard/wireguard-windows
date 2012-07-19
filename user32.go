@@ -1002,6 +1002,26 @@ const (
 	ODS_SELECTED     = 0x0040
 )
 
+// Raw input device flags
+const (
+	RIDEV_APPKEYS      = 0x00000400
+	RIDEV_CAPTUREMOUSE = 0x00000200
+	RIDEV_DEVNOTIFY    = 0x00002000
+	RIDEV_EXCLUDE      = 0x00000010
+	RIDEV_EXINPUTSINK  = 0x00001000
+	RIDEV_INPUTSINK    = 0x00000100
+	RIDEV_NOHOTKEYS    = 0x00000200
+	RIDEV_NOLEGACY     = 0x00000030
+	RIDEV_PAGEONLY     = 0x00000020
+	RIDEV_REMOVE       = 0x00000001
+)
+
+// Raw input device command flags
+const (
+	RID_HEADER = 0x10000005
+	RID_INPUT  = 0x10000003
+)
+
 type (
 	HACCEL    HANDLE
 	HCURSOR   HANDLE
@@ -1026,6 +1046,13 @@ type RAWINPUTDEVICE struct {
 	UsUsage     uint16
 	DwFlags     uint32
 	HwndTarget  HWND
+}
+
+type RAWINPUTHEADER struct {
+	dwType  uint32
+	dwSize  uint32
+	hDevice HANDLE
+	wParam  uintptr
 }
 
 type NMHDR struct {
