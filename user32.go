@@ -1815,7 +1815,7 @@ func RegisterRawInputDevices(pRawInputDevices *RAWINPUTDEVICE, uiNumDevices uint
 		uintptr(uiNumDevices),
 		uintptr(cbSize))
 
-	return ret
+	return ret != 0
 }
 
 func RegisterWindowMessage(lpString *uint16) uint32 {
