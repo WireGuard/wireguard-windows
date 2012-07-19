@@ -1003,12 +1003,13 @@ const (
 )
 
 type (
-	HACCEL  HANDLE
-	HCURSOR HANDLE
-	HDWP    HANDLE
-	HICON   HANDLE
-	HMENU   HANDLE
-	HWND    HANDLE
+	HACCEL    HANDLE
+	HCURSOR   HANDLE
+	HDWP      HANDLE
+	HICON     HANDLE
+	HMENU     HANDLE
+	HRAWINPUT HANDLE
+	HWND      HANDLE
 )
 
 type MSG struct {
@@ -1018,6 +1019,13 @@ type MSG struct {
 	LParam  uintptr
 	Time    uint32
 	Pt      POINT
+}
+
+type RAWINPUTDEVICE struct {
+	UsUsagePage	uint16
+	UsUsage     uint16
+	DwFlags     uint32
+	HwndTarget  HWND
 }
 
 type NMHDR struct {
@@ -1132,80 +1140,82 @@ var (
 	libuser32 uintptr
 
 	// Functions
-	adjustWindowRect      uintptr
-	beginDeferWindowPos   uintptr
-	beginPaint            uintptr
-	callWindowProc        uintptr
-	createMenu            uintptr
-	createPopupMenu       uintptr
-	createWindowEx        uintptr
-	deferWindowPos        uintptr
-	defWindowProc         uintptr
-	destroyIcon           uintptr
-	destroyMenu           uintptr
-	destroyWindow         uintptr
-	dispatchMessage       uintptr
-	drawMenuBar           uintptr
-	drawFocusRect         uintptr
-	drawTextEx            uintptr
-	enableWindow          uintptr
-	endDeferWindowPos     uintptr
-	endPaint              uintptr
-	enumChildWindows      uintptr
-	getAncestor           uintptr
-	getClientRect         uintptr
-	getCursorPos          uintptr
-	getDC                 uintptr
-	getFocus              uintptr
-	getMenuInfo           uintptr
-	getMessage            uintptr
-	getSysColor           uintptr
-	getSystemMetrics      uintptr
-	getWindowLong         uintptr
-	getWindowLongPtr      uintptr
-	getWindowPlacement    uintptr
-	getWindowRect         uintptr
-	insertMenuItem        uintptr
-	invalidateRect        uintptr
-	isChild               uintptr
-	isDialogMessage       uintptr
-	isWindowEnabled       uintptr
-	isWindowVisible       uintptr
-	killTimer             uintptr
-	loadCursor            uintptr
-	loadIcon              uintptr
-	loadImage             uintptr
-	messageBox            uintptr
-	moveWindow            uintptr
-	peekMessage           uintptr
-	postMessage           uintptr
-	postQuitMessage       uintptr
-	registerClassEx       uintptr
-	registerWindowMessage uintptr
-	releaseCapture        uintptr
-	releaseDC             uintptr
-	removeMenu            uintptr
-	screenToClient        uintptr
-	sendMessage           uintptr
-	setActiveWindow       uintptr
-	setCapture            uintptr
-	setCursor             uintptr
-	setFocus              uintptr
-	setForegroundWindow   uintptr
-	setMenu               uintptr
-	setMenuInfo           uintptr
-	setMenuItemInfo       uintptr
-	setParent             uintptr
-	setRect               uintptr
-	setTimer              uintptr
-	setWindowLong         uintptr
-	setWindowLongPtr      uintptr
-	setWindowPlacement    uintptr
-	setWindowPos          uintptr
-	showWindow            uintptr
-	systemParametersInfo  uintptr
-	trackPopupMenuEx      uintptr
-	translateMessage      uintptr
+	adjustWindowRect        uintptr
+	beginDeferWindowPos     uintptr
+	beginPaint              uintptr
+	callWindowProc          uintptr
+	createMenu              uintptr
+	createPopupMenu         uintptr
+	createWindowEx          uintptr
+	deferWindowPos          uintptr
+	defWindowProc           uintptr
+	destroyIcon             uintptr
+	destroyMenu             uintptr
+	destroyWindow           uintptr
+	dispatchMessage         uintptr
+	drawMenuBar             uintptr
+	drawFocusRect           uintptr
+	drawTextEx              uintptr
+	enableWindow            uintptr
+	endDeferWindowPos       uintptr
+	endPaint                uintptr
+	enumChildWindows        uintptr
+	getAncestor             uintptr
+	getClientRect           uintptr
+	getCursorPos            uintptr
+	getDC                   uintptr
+	getFocus                uintptr
+	getMenuInfo             uintptr
+	getMessage              uintptr
+	getRawInputData         uintptr
+	getSysColor             uintptr
+	getSystemMetrics        uintptr
+	getWindowLong           uintptr
+	getWindowLongPtr        uintptr
+	getWindowPlacement      uintptr
+	getWindowRect           uintptr
+	insertMenuItem          uintptr
+	invalidateRect          uintptr
+	isChild                 uintptr
+	isDialogMessage         uintptr
+	isWindowEnabled         uintptr
+	isWindowVisible         uintptr
+	killTimer               uintptr
+	loadCursor              uintptr
+	loadIcon                uintptr
+	loadImage               uintptr
+	messageBox              uintptr
+	moveWindow              uintptr
+	peekMessage             uintptr
+	postMessage             uintptr
+	postQuitMessage         uintptr
+	registerClassEx         uintptr
+	registerRawInputDevices uintptr
+	registerWindowMessage   uintptr
+	releaseCapture          uintptr
+	releaseDC               uintptr
+	removeMenu              uintptr
+	screenToClient          uintptr
+	sendMessage             uintptr
+	setActiveWindow         uintptr
+	setCapture              uintptr
+	setCursor               uintptr
+	setFocus                uintptr
+	setForegroundWindow     uintptr
+	setMenu                 uintptr
+	setMenuInfo             uintptr
+	setMenuItemInfo         uintptr
+	setParent               uintptr
+	setRect                 uintptr
+	setTimer                uintptr
+	setWindowLong           uintptr
+	setWindowLongPtr        uintptr
+	setWindowPlacement      uintptr
+	setWindowPos            uintptr
+	showWindow              uintptr
+	systemParametersInfo    uintptr
+	trackPopupMenuEx        uintptr
+	translateMessage        uintptr
 )
 
 func init() {
@@ -1242,6 +1252,7 @@ func init() {
 	getFocus = MustGetProcAddress(libuser32, "GetFocus")
 	getMenuInfo = MustGetProcAddress(libuser32, "GetMenuInfo")
 	getMessage = MustGetProcAddress(libuser32, "GetMessageW")
+	getRawInputData = MustGetProcAddress(libuser32, "GetRawInputData")
 	getSysColor = MustGetProcAddress(libuser32, "GetSysColor")
 	getSystemMetrics = MustGetProcAddress(libuser32, "GetSystemMetrics")
 	getWindowLong = MustGetProcAddress(libuser32, "GetWindowLongW")
@@ -1269,6 +1280,7 @@ func init() {
 	postMessage = MustGetProcAddress(libuser32, "PostMessageW")
 	postQuitMessage = MustGetProcAddress(libuser32, "PostQuitMessage")
 	registerClassEx = MustGetProcAddress(libuser32, "RegisterClassExW")
+	registerRawInputDevices = MustGetProcAddress(libuser32, "RegisterRawInputDevices")
 	registerWindowMessage = MustGetProcAddress(libuser32, "RegisterWindowMessageW")
 	releaseCapture = MustGetProcAddress(libuser32, "ReleaseCapture")
 	releaseDC = MustGetProcAddress(libuser32, "ReleaseDC")
@@ -1571,6 +1583,18 @@ func GetMessage(msg *MSG, hWnd HWND, msgFilterMin, msgFilterMax uint32) BOOL {
 	return BOOL(ret)
 }
 
+func GetRawInputData(hRawInput HRAWINPUT, uiCommand uint32, pData unsafe.Pointer, pcbSize *uint32, cBSizeHeader uint32) uint32 {
+	ret, _, _ := syscall.Syscall6(getRawInputData, 5,
+		uintptr(hRawInput),
+		uintptr(uiCommand),
+		uintptr(pData),
+		uintptr(unsafe.Pointer(pcbSize)),
+		uintptr(cBSizeHeader),
+		0)
+
+	return uint32(ret)
+}
+
 func GetSysColor(nIndex int) uint32 {
 	ret, _, _ := syscall.Syscall(getSysColor, 1,
 		uintptr(nIndex),
@@ -1783,6 +1807,15 @@ func RegisterClassEx(windowClass *WNDCLASSEX) ATOM {
 		0)
 
 	return ATOM(ret)
+}
+
+func RegisterRawInputDevices(pRawInputDevices *RAWINPUTDEVICE, uiNumDevices uint32, cbSize uint32) bool {
+	ret, _, _ := syscall.Syscall(registerRawInputDevices, 3,
+		uintptr(unsafe.Pointer(pRawInputDevices)),
+		uintptr(uiNumDevices),
+		uintptr(cbSize))
+
+	return ret
 }
 
 func RegisterWindowMessage(lpString *uint16) uint32 {
