@@ -1022,6 +1022,50 @@ const (
 	RID_INPUT  = 0x10000003
 )
 
+// Raw input type
+const (
+	RIM_TYPEHID      = 2
+	RIM_TYPEKEYBOARD = 1
+	RIM_TYPEMOUSE    = 0
+)
+
+// Raw input scan code information
+const (
+	RI_KEY_MAKE  = 0
+	RI_KEY_BREAK = 1
+	RI_KEY_E0    = 2
+	RI_KEY_E1    = 4
+)
+
+// Raw input mouse state
+const (
+	MOUSE_MOVE_RELATIVE      = 0x00
+	MOUSE_MOVE_ABSOLUTE      = 0x01
+	MOUSE_VIRTUAL_DESKTOP    = 0x02
+	MOUSE_ATTRIBUTES_CHANGED = 0x04
+)
+
+// Raw input transistion state of mouse buttons
+const (
+	RI_MOUSE_LEFT_BUTTON_DOWN   = 0x0001
+	RI_MOUSE_LEFT_BUTTON_UP     = 0x0002
+	RI_MOUSE_MIDDLE_BUTTON_DOWN = 0x0010
+	RI_MOUSE_MIDDLE_BUTTON_UP   = 0x0020
+	RI_MOUSE_RIGHT_BUTTON_DOWN  = 0x0004
+	RI_MOUSE_RIGHT_BUTTON_UP    = 0x0008
+	RI_MOUSE_BUTTON_1_DOWN      = 0x0001
+	RI_MOUSE_BUTTON_1_UP        = 0x0002
+	RI_MOUSE_BUTTON_2_DOWN      = 0x0004
+	RI_MOUSE_BUTTON_2_UP        = 0x0008
+	RI_MOUSE_BUTTON_3_DOWN      = 0x0010
+	RI_MOUSE_BUTTON_3_UP        = 0x0020
+	RI_MOUSE_BUTTON_4_DOWN      = 0x0040
+	RI_MOUSE_BUTTON_4_UP        = 0x0080
+	RI_MOUSE_BUTTON_5_DOWN      = 0x0100
+	RI_MOUSE_BUTTON_5_UP        = 0x0200
+	RI_MOUSE_WHEEL              = 0x0400
+)
+
 type (
 	HACCEL    HANDLE
 	HCURSOR   HANDLE
@@ -1049,10 +1093,51 @@ type RAWINPUTDEVICE struct {
 }
 
 type RAWINPUTHEADER struct {
-	dwType  uint32
-	dwSize  uint32
-	hDevice HANDLE
-	wParam  uintptr
+	DwType  uint32
+	DwSize  uint32
+	HDevice HANDLE
+	WParam  uintptr
+}
+
+type RAWINPUTMOUSE struct {
+	Header RAWINPUTHEADER
+	Data   RAWMOUSE
+}
+
+type RAWINPUTKEYBOARD struct {
+	Header RAWINPUTHEADER
+	Data   RAWKEYBOARD
+}
+
+type RAWINPUTHID struct {
+	Header RAWINPUTHEADER
+	Data   RAWHID
+}
+
+type RAWMOUSE struct {
+	UsFlags            uint16
+	UsButtonFlags      uint16
+	UsButtonData       uint16
+	Pad_cgo_0          [2]byte
+	UlRawButtons       uint32
+	LLastX             int32
+	LLastY             int32
+	UlExtraInformation uint32
+}
+
+type RAWKEYBOARD struct {
+	MakeCode         uint16
+	Flags            uint16
+	Reserved         int16
+	VKey             uint16
+	Message          uint32
+	ExtraInformation uint32
+}
+
+type RAWHID struct {
+	DwSizeHid uint32
+	DwCount   uint32
+	BRawData  [1]byte
 }
 
 type NMHDR struct {
