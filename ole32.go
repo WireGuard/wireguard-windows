@@ -435,13 +435,6 @@ func init() {
 	oleInitialize = MustGetProcAddress(libole32, "OleInitialize")
 	oleSetContainedObject = MustGetProcAddress(libole32, "OleSetContainedObject")
 	oleUninitialize = MustGetProcAddress(libole32, "OleUninitialize")
-
-	// Initialize OLE stuff
-	// FIXME: Find a way to call OleUninitialize at app shutdown
-	// Maybe we should require explicit walk.Initialize/walk.Shutdown?
-	if hr := OleInitialize(); FAILED(hr) {
-		panic(fmt.Sprint("OleInitialize Error: ", hr))
-	}
 }
 
 func CoGetClassObject(rclsid REFCLSID, dwClsContext uint32, pServerInfo *COSERVERINFO, riid REFIID, ppv *unsafe.Pointer) HRESULT {
