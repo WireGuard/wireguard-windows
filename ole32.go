@@ -5,7 +5,6 @@
 package winapi
 
 import (
-	"fmt"
 	"syscall"
 	"unsafe"
 )
