@@ -211,7 +211,7 @@ func WglGetLayerPaletteEntries(hdc HDC, iLayerPlane, iStart, cEntries int, pcr *
 	return int(ret)
 }
 
-func WglGetProcAddress(lpszProc *uint16) uintptr {
+func WglGetProcAddress(lpszProc *byte) uintptr {
 	ret, _, _ := syscall.Syscall(wglGetProcAddress, 1,
 		uintptr(unsafe.Pointer(lpszProc)),
 		0,
