@@ -32,7 +32,7 @@ const (
 
 type (
 	BOOL    int32
-	HRESULT uint32
+	HRESULT int32
 )
 
 type GUID struct {
