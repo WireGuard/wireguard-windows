@@ -1086,7 +1086,7 @@ type MSG struct {
 }
 
 type RAWINPUTDEVICE struct {
-	UsUsagePage	uint16
+	UsUsagePage uint16
 	UsUsage     uint16
 	DwFlags     uint32
 	HwndTarget  HWND
