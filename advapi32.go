@@ -1,4 +1,4 @@
-// Copyright 2010 The Walk Authors. All rights reserved.
+// Copyright 2010 The go-winapi Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -21,6 +21,10 @@ const (
 	HKEY_DYN_DATA         HKEY = 0x80000006
 )
 
+const (
+	ERROR_NO_MORE_ITEMS = 259
+)
+
 type (
 	ACCESS_MASK uint32
 	HKEY        HANDLE
@@ -35,6 +39,7 @@ var (
 	regCloseKey     uintptr
 	regOpenKeyEx    uintptr
 	regQueryValueEx uintptr
+	regEnumValue    uintptr
 )
 
 func init() {
@@ -45,6 +50,7 @@ func init() {
 	regCloseKey = MustGetProcAddress(libadvapi32, "RegCloseKey")
 	regOpenKeyEx = MustGetProcAddress(libadvapi32, "RegOpenKeyExW")
 	regQueryValueEx = MustGetProcAddress(libadvapi32, "RegQueryValueExW")
+	regEnumValue = MustGetProcAddress(libadvapi32, "RegEnumValueW")
 }
 
 func RegCloseKey(hKey HKEY) int32 {
@@ -79,3 +85,18 @@ func RegQueryValueEx(hKey HKEY, lpValueName *uint16, lpReserved, lpType *uint32,
 
 	return int32(ret)
 }
+
+func RegEnumValue(hKey HKEY,  index uint32, lpValueName *uint16, lpcchValueName *uint32, lpReserved, lpType *uint32, lpData *byte, lpcbData *uint32) int32 {
+	ret, _, _ := syscall.Syscall9(regEnumValue, 8,
+		uintptr(hKey),
+		uintptr(index),
+		uintptr(unsafe.Pointer(lpValueName)),
+		uintptr(unsafe.Pointer(lpcchValueName)),
+		uintptr(unsafe.Pointer(lpReserved)),
+		uintptr(unsafe.Pointer(lpType)),
+		uintptr(unsafe.Pointer(lpData)),
+		uintptr(unsafe.Pointer(lpcbData)),
+		0)
+	return int32(ret)
+}
+
