@@ -5,9 +5,22 @@
 package winapi
 
 import (
-	"fmt"
-	"syscall"
 	"unsafe"
+	"syscall"
+)
+
+var (
+	CLSID_TaskbarList = CLSID{0x56FDF344, 0xFD6D, 0x11d0, [8]byte{0x95, 0x8A, 0x00, 0x60, 0x97, 0xC9, 0xA0, 0x90}}
+	IID_ITaskbarList3 = IID{0xea1afb91, 0x9e28, 0x4b86, [8]byte{0x90, 0xe9, 0x9e, 0x9f, 0x8a, 0x5e, 0xef, 0xaf}}
+)
+
+//TBPFLAG
+const (
+    TBPF_NOPROGRESS	    = 0
+	TBPF_INDETERMINATE	= 0x1
+	TBPF_NORMAL	= 0x2
+	TBPF_ERROR	= 0x4
+	TBPF_PAUSED	= 0x8
 )
 
 type ITaskbarList3Vtbl struct {
@@ -37,3 +50,22 @@ type ITaskbarList3Vtbl struct {
 type ITaskbarList3 struct {
     LpVtbl *ITaskbarList3Vtbl
 } 
+
+func (obj *ITaskbarList3) SetProgressState(hwnd HWND, state int) HRESULT {
+	ret, _, _ := syscall.Syscall(obj.LpVtbl.SetProgressState, 3,
+		uintptr(unsafe.Pointer(obj)),
+		uintptr(hwnd),
+		uintptr(state))
+	return HRESULT(ret)
+}
+
+func (obj *ITaskbarList3) SetProgressValue(hwnd HWND, current uint, length uint) HRESULT{
+	ret, _, _ := syscall.Syscall6(obj.LpVtbl.SetProgressValue, 4,
+		uintptr(unsafe.Pointer(obj)),
+		uintptr(hwnd),
+		uintptr(current),
+		uintptr(length),
+		0,
+		0)
+	return HRESULT(ret)
+}

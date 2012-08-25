@@ -39,6 +39,7 @@ var (
 	getLogicalDriveStrings uintptr
 	getModuleHandle        uintptr
 	getThreadLocale        uintptr
+	getVersion             uintptr
 	globalAlloc            uintptr
 	globalFree             uintptr
 	globalLock             uintptr
@@ -83,6 +84,7 @@ func init() {
 	getLogicalDriveStrings = MustGetProcAddress(libkernel32, "GetLogicalDriveStringsW")
 	getModuleHandle = MustGetProcAddress(libkernel32, "GetModuleHandleW")
 	getThreadLocale = MustGetProcAddress(libkernel32, "GetThreadLocale")
+	getVersion = MustGetProcAddress(libkernel32, "GetVersion")
 	globalAlloc = MustGetProcAddress(libkernel32, "GlobalAlloc")
 	globalFree = MustGetProcAddress(libkernel32, "GlobalFree")
 	globalLock = MustGetProcAddress(libkernel32, "GlobalLock")
@@ -136,6 +138,14 @@ func GetThreadLocale() LCID {
 		0)
 
 	return LCID(ret)
+}
+
+func GetVersion() int64 {
+	ret, _, _:= syscall.Syscall(getVersion, 0,
+		0, 
+		0, 
+		0)
+	return int64(ret)
 }
 
 func GlobalAlloc(uFlags uint32, dwBytes uintptr) HGLOBAL {
