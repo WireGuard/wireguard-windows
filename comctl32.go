@@ -117,7 +117,7 @@ const (
 
 // TextEdit messages
 const (
-    //TEM_APPENDTEXT  = WM_USER + 6
+    TEM_APPENDTEXT  = WM_USER + 6
 )
 
 // ImageList creation flags
