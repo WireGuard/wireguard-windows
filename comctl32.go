@@ -141,11 +141,12 @@ var (
 	libcomctl32 uintptr
 
 	// Functions
-	imageList_Add        uintptr
-	imageList_AddMasked  uintptr
-	imageList_Create     uintptr
-	imageList_Destroy    uintptr
-	initCommonControlsEx uintptr
+	imageList_Add         uintptr
+	imageList_AddMasked   uintptr
+	imageList_Create      uintptr
+	imageList_Destroy     uintptr
+	imageList_ReplaceIcon uintptr
+	initCommonControlsEx  uintptr
 )
 
 func init() {
@@ -157,6 +158,7 @@ func init() {
 	imageList_AddMasked = MustGetProcAddress(libcomctl32, "ImageList_AddMasked")
 	imageList_Create = MustGetProcAddress(libcomctl32, "ImageList_Create")
 	imageList_Destroy = MustGetProcAddress(libcomctl32, "ImageList_Destroy")
+	imageList_ReplaceIcon = MustGetProcAddress(libcomctl32, "ImageList_ReplaceIcon")
 	initCommonControlsEx = MustGetProcAddress(libcomctl32, "InitCommonControlsEx")
 
 	// Initialize the common controls we support
@@ -204,6 +206,15 @@ func ImageList_Destroy(hIml HIMAGELIST) bool {
 		0)
 
 	return ret != 0
+}
+
+func ImageList_ReplaceIcon(himl HIMAGELIST, i int32, hicon HICON) int32 {
+	ret, _, _ := syscall.Syscall(imageList_ReplaceIcon, 3,
+		uintptr(himl),
+		uintptr(i),
+		uintptr(hicon))
+
+	return int32(ret)
 }
 
 func InitCommonControlsEx(lpInitCtrls *INITCOMMONCONTROLSEX) bool {
