@@ -10,6 +10,7 @@ import (
 )
 
 const KEY_READ REGSAM = 0x20019
+const KEY_WRITE REGSAM = 0x20006
 
 const (
 	HKEY_CLASSES_ROOT     HKEY = 0x80000000
@@ -31,6 +32,24 @@ type (
 	REGSAM      ACCESS_MASK
 )
 
+const (
+	REG_NONE  uint64     =               0   // No value type
+	REG_SZ            =           1   // Unicode nul terminated string
+	REG_EXPAND_SZ          =      2   // Unicode nul terminated string
+                                      // (with environment variable references)
+	REG_BINARY                  = 3   // Free form binary
+	REG_DWORD                    =4   // 32-bit number
+	REG_DWORD_LITTLE_ENDIAN =    =4   // 32-bit number (same as REG_DWORD)
+	REG_DWORD_BIG_ENDIAN         =5   // 32-bit number
+	REG_LINK                     =6   // Symbolic Link (unicode)
+	REG_MULTI_SZ                 =7   // Multiple Unicode strings
+	REG_RESOURCE_LIST            =8   // Resource list in the resource map
+	REG_FULL_RESOURCE_DESCRIPTOR  =9   // Resource list in the hardware description
+	REG_RESOURCE_REQUIREMENTS_LIST  =10 
+	REG_QWORD                    =11   // 64-bit number
+	REG_QWORD_LITTLE_ENDIAN      =11   // 64-bit number (same as REG_QWORD)
+
+)
 var (
 	// Library
 	libadvapi32 uintptr
@@ -40,6 +59,8 @@ var (
 	regOpenKeyEx    uintptr
 	regQueryValueEx uintptr
 	regEnumValue    uintptr
+	regSetValueEx   uintptr
+
 )
 
 func init() {
@@ -51,6 +72,7 @@ func init() {
 	regOpenKeyEx = MustGetProcAddress(libadvapi32, "RegOpenKeyExW")
 	regQueryValueEx = MustGetProcAddress(libadvapi32, "RegQueryValueExW")
 	regEnumValue = MustGetProcAddress(libadvapi32, "RegEnumValueW")
+	regSetValueEx = MustGetProcAddress(libadvapi32, "RegSetValueExW")
 }
 
 func RegCloseKey(hKey HKEY) int32 {
@@ -100,3 +122,13 @@ func RegEnumValue(hKey HKEY,  index uint32, lpValueName *uint16, lpcchValueName 
 	return int32(ret)
 }
 
+func RegSetValueEx(hKey HKEY, lpValueName *uint16, reserved, datatype uint64 , lpData *byte, cbData uint32) int32 {
+	ret, _, _ := syscall.Syscall6(regSetValueEx, 6,
+		uintptr(hKey),
+		uintptr(unsafe.Pointer(lpValueName)),
+		uintptr(unsafe.Pointer(lpReserved)),
+		uintptr(unsafe.Pointer(lpType)),
+		uintptr(unsafe.Pointer(lpData)),
+		uintptr(cbData))
+	return int32(ret)
+}
