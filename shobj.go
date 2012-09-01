@@ -59,7 +59,7 @@ func (obj *ITaskbarList3) SetProgressState(hwnd HWND, state int) HRESULT {
 	return HRESULT(ret)
 }
 
-func (obj *ITaskbarList3) SetProgressValue(hwnd HWND, current uint, length uint) HRESULT{
+func (obj *ITaskbarList3) SetProgressValue(hwnd HWND, current uint64, length uint64) HRESULT{
 	ret, _, _ := syscall.Syscall6(obj.LpVtbl.SetProgressValue, 4,
 		uintptr(unsafe.Pointer(obj)),
 		uintptr(hwnd),
