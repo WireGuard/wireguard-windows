@@ -29,6 +29,13 @@ const (
 	GPTR          = 0x004
 )
 
+// Predefined locale ids
+const (
+	LOCALE_INVARIANT      = 0x007f
+	LOCALE_USER_DEFAULT   = 0x0400
+	LOCALE_SYSTEM_DEFAULT = 0x0800
+)
+
 var (
 	// Library
 	libkernel32 uintptr
@@ -38,6 +45,7 @@ var (
 	getLastError           uintptr
 	getLogicalDriveStrings uintptr
 	getModuleHandle        uintptr
+	getNumberFormat        uintptr
 	getThreadLocale        uintptr
 	globalAlloc            uintptr
 	globalFree             uintptr
@@ -62,6 +70,15 @@ type FILETIME struct {
 	DwHighDateTime uint32
 }
 
+type NUMBERFMT struct {
+	NumDigits     uint32
+	LeadingZero   uint32
+	Grouping      uint32
+	LpDecimalSep  *uint16
+	LpThousandSep *uint16
+	NegativeOrder uint32
+}
+
 type SYSTEMTIME struct {
 	WYear         uint16
 	WMonth        uint16
@@ -82,6 +99,7 @@ func init() {
 	getLastError = MustGetProcAddress(libkernel32, "GetLastError")
 	getLogicalDriveStrings = MustGetProcAddress(libkernel32, "GetLogicalDriveStringsW")
 	getModuleHandle = MustGetProcAddress(libkernel32, "GetModuleHandleW")
+	getNumberFormat = MustGetProcAddress(libkernel32, "GetNumberFormatW")
 	getThreadLocale = MustGetProcAddress(libkernel32, "GetThreadLocale")
 	globalAlloc = MustGetProcAddress(libkernel32, "GlobalAlloc")
 	globalFree = MustGetProcAddress(libkernel32, "GlobalFree")
@@ -127,6 +145,18 @@ func GetModuleHandle(lpModuleName *uint16) HINSTANCE {
 		0)
 
 	return HINSTANCE(ret)
+}
+
+func GetNumberFormat(Locale LCID, dwFlags uint32, lpValue *uint16, lpFormat *NUMBERFMT, lpNumberStr *uint16, cchNumber int32) int32 {
+	ret, _, _ := syscall.Syscall6(getNumberFormat, 6,
+		uintptr(Locale),
+		uintptr(dwFlags),
+		uintptr(unsafe.Pointer(lpValue)),
+		uintptr(unsafe.Pointer(lpFormat)),
+		uintptr(unsafe.Pointer(lpNumberStr)),
+		uintptr(cchNumber))
+
+	return int32(ret)
 }
 
 func GetThreadLocale() LCID {
