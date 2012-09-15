@@ -41,6 +41,7 @@ var (
 	libkernel32 uintptr
 
 	// Functions
+	closeHandle            uintptr
 	fileTimeToSystemTime   uintptr
 	getLastError           uintptr
 	getLogicalDriveStrings uintptr
@@ -95,6 +96,7 @@ func init() {
 	libkernel32 = MustLoadLibrary("kernel32.dll")
 
 	// Functions
+	closeHandle = MustGetProcAddress(libkernel32, "CloseHandle")
 	fileTimeToSystemTime = MustGetProcAddress(libkernel32, "FileTimeToSystemTime")
 	getLastError = MustGetProcAddress(libkernel32, "GetLastError")
 	getLogicalDriveStrings = MustGetProcAddress(libkernel32, "GetLogicalDriveStringsW")
@@ -109,6 +111,15 @@ func init() {
 	mulDiv = MustGetProcAddress(libkernel32, "MulDiv")
 	setLastError = MustGetProcAddress(libkernel32, "SetLastError")
 	systemTimeToFileTime = MustGetProcAddress(libkernel32, "SystemTimeToFileTime")
+}
+
+func CloseHandle(hObject HANDLE) bool {
+	ret, _, _ := syscall.Syscall(closeHandle, 1,
+		uintptr(hObject),
+		0,
+		0)
+
+	return ret != 0
 }
 
 func FileTimeToSystemTime(lpFileTime *FILETIME, lpSystemTime *SYSTEMTIME) bool {
