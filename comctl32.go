@@ -135,10 +135,36 @@ const (
 	ILC_PERITEMMIRROR = 0x00008000
 )
 
+const (
+	CDDS_PREPAINT     = 0x00000001
+	CDDS_ITEM         = 0x00010000
+	CDDS_ITEMPREPAINT = CDDS_ITEM | CDDS_PREPAINT
+)
+
+const (
+	CDRF_DODEFAULT         = 0x00000000
+	CDRF_NEWFONT           = 0x00000002
+	CDRF_SKIPDEFAULT       = 0x00000004
+	CDRF_NOTIFYPOSTPAINT   = 0x00000010
+	CDRF_NOTIFYITEMDRAW    = 0x00000020
+	CDRF_NOTIFYSUBITEMDRAW = 0x00000020
+	CDRF_NOTIFYPOSTERASE   = 0x00000040
+)
+
 type HIMAGELIST HANDLE
 
 type INITCOMMONCONTROLSEX struct {
 	DwSize, DwICC uint32
+}
+
+type NMCUSTOMDRAW struct {
+	Hdr         NMHDR
+	DwDrawStage uint32
+	Hdc         HDC
+	Rc          RECT
+	DwItemSpec  uintptr
+	UItemState  uint32
+	LItemlParam uintptr
 }
 
 var (
@@ -146,11 +172,12 @@ var (
 	libcomctl32 uintptr
 
 	// Functions
-	imageList_Add        uintptr
-	imageList_AddMasked  uintptr
-	imageList_Create     uintptr
-	imageList_Destroy    uintptr
-	initCommonControlsEx uintptr
+	imageList_Add         uintptr
+	imageList_AddMasked   uintptr
+	imageList_Create      uintptr
+	imageList_Destroy     uintptr
+	imageList_ReplaceIcon uintptr
+	initCommonControlsEx  uintptr
 )
 
 func init() {
@@ -162,6 +189,7 @@ func init() {
 	imageList_AddMasked = MustGetProcAddress(libcomctl32, "ImageList_AddMasked")
 	imageList_Create = MustGetProcAddress(libcomctl32, "ImageList_Create")
 	imageList_Destroy = MustGetProcAddress(libcomctl32, "ImageList_Destroy")
+	imageList_ReplaceIcon = MustGetProcAddress(libcomctl32, "ImageList_ReplaceIcon")
 	initCommonControlsEx = MustGetProcAddress(libcomctl32, "InitCommonControlsEx")
 
 	// Initialize the common controls we support
@@ -209,6 +237,15 @@ func ImageList_Destroy(hIml HIMAGELIST) bool {
 		0)
 
 	return ret != 0
+}
+
+func ImageList_ReplaceIcon(himl HIMAGELIST, i int32, hicon HICON) int32 {
+	ret, _, _ := syscall.Syscall(imageList_ReplaceIcon, 3,
+		uintptr(himl),
+		uintptr(i),
+		uintptr(hicon))
+
+	return int32(ret)
 }
 
 func InitCommonControlsEx(lpInitCtrls *INITCOMMONCONTROLSEX) bool {

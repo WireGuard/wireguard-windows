@@ -341,6 +341,21 @@ type NMLISTVIEW struct {
 	LParam    uintptr
 }
 
+type NMLVCUSTOMDRAW struct {
+	Nmcd        NMCUSTOMDRAW
+	ClrText     COLORREF
+	ClrTextBk   COLORREF
+	ISubItem    int32
+	DwItemType  uint32
+	ClrFace     COLORREF
+	IIconEffect int32
+	IIconPhase  int32
+	IPartId     int32
+	IStateId    int32
+	RcText      RECT
+	UAlign      uint32
+}
+
 type NMLVDISPINFO struct {
 	Hdr  NMHDR
 	Item LVITEM

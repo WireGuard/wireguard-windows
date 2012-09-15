@@ -5,7 +5,6 @@
 package winapi
 
 import (
-	"fmt"
 	"syscall"
 	"unsafe"
 )
@@ -421,6 +420,7 @@ var (
 	libole32 uintptr
 
 	// Functions
+	coCreateInstance      uintptr
 	coGetClassObject      uintptr
 	oleInitialize         uintptr
 	oleSetContainedObject uintptr
@@ -432,17 +432,23 @@ func init() {
 	libole32 = MustLoadLibrary("ole32.dll")
 
 	// Functions
+	coCreateInstance = MustGetProcAddress(libole32, "CoCreateInstance")
 	coGetClassObject = MustGetProcAddress(libole32, "CoGetClassObject")
 	oleInitialize = MustGetProcAddress(libole32, "OleInitialize")
 	oleSetContainedObject = MustGetProcAddress(libole32, "OleSetContainedObject")
 	oleUninitialize = MustGetProcAddress(libole32, "OleUninitialize")
+}
 
-	// Initialize OLE stuff
-	// FIXME: Find a way to call OleUninitialize at app shutdown
-	// Maybe we should require explicit walk.Initialize/walk.Shutdown?
-	if hr := OleInitialize(); FAILED(hr) {
-		panic(fmt.Sprint("OleInitialize Error: ", hr))
-	}
+func CoCreateInstance(rclsid REFCLSID, pUnkOuter *IUnknown, dwClsContext uint32, riid REFIID, ppv *unsafe.Pointer) HRESULT {
+	ret, _, _ := syscall.Syscall6(coCreateInstance, 5,
+		uintptr(unsafe.Pointer(rclsid)),
+		uintptr(unsafe.Pointer(pUnkOuter)),
+		uintptr(dwClsContext),
+		uintptr(unsafe.Pointer(riid)),
+		uintptr(unsafe.Pointer(ppv)),
+		0)
+
+	return HRESULT(ret)
 }
 
 func CoGetClassObject(rclsid REFCLSID, dwClsContext uint32, pServerInfo *COSERVERINFO, riid REFIID, ppv *unsafe.Pointer) HRESULT {

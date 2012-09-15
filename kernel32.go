@@ -29,15 +29,24 @@ const (
 	GPTR          = 0x004
 )
 
+// Predefined locale ids
+const (
+	LOCALE_INVARIANT      = 0x007f
+	LOCALE_USER_DEFAULT   = 0x0400
+	LOCALE_SYSTEM_DEFAULT = 0x0800
+)
+
 var (
 	// Library
 	libkernel32 uintptr
 
 	// Functions
+	closeHandle            uintptr
 	fileTimeToSystemTime   uintptr
 	getLastError           uintptr
 	getLogicalDriveStrings uintptr
 	getModuleHandle        uintptr
+	getNumberFormat        uintptr
 	getThreadLocale        uintptr
 	getVersion             uintptr
 	globalAlloc            uintptr
@@ -63,6 +72,15 @@ type FILETIME struct {
 	DwHighDateTime uint32
 }
 
+type NUMBERFMT struct {
+	NumDigits     uint32
+	LeadingZero   uint32
+	Grouping      uint32
+	LpDecimalSep  *uint16
+	LpThousandSep *uint16
+	NegativeOrder uint32
+}
+
 type SYSTEMTIME struct {
 	WYear         uint16
 	WMonth        uint16
@@ -79,10 +97,12 @@ func init() {
 	libkernel32 = MustLoadLibrary("kernel32.dll")
 
 	// Functions
+	closeHandle = MustGetProcAddress(libkernel32, "CloseHandle")
 	fileTimeToSystemTime = MustGetProcAddress(libkernel32, "FileTimeToSystemTime")
 	getLastError = MustGetProcAddress(libkernel32, "GetLastError")
 	getLogicalDriveStrings = MustGetProcAddress(libkernel32, "GetLogicalDriveStringsW")
 	getModuleHandle = MustGetProcAddress(libkernel32, "GetModuleHandleW")
+	getNumberFormat = MustGetProcAddress(libkernel32, "GetNumberFormatW")
 	getThreadLocale = MustGetProcAddress(libkernel32, "GetThreadLocale")
 	getVersion = MustGetProcAddress(libkernel32, "GetVersion")
 	globalAlloc = MustGetProcAddress(libkernel32, "GlobalAlloc")
@@ -93,6 +113,15 @@ func init() {
 	mulDiv = MustGetProcAddress(libkernel32, "MulDiv")
 	setLastError = MustGetProcAddress(libkernel32, "SetLastError")
 	systemTimeToFileTime = MustGetProcAddress(libkernel32, "SystemTimeToFileTime")
+}
+
+func CloseHandle(hObject HANDLE) bool {
+	ret, _, _ := syscall.Syscall(closeHandle, 1,
+		uintptr(hObject),
+		0,
+		0)
+
+	return ret != 0
 }
 
 func FileTimeToSystemTime(lpFileTime *FILETIME, lpSystemTime *SYSTEMTIME) bool {
@@ -129,6 +158,18 @@ func GetModuleHandle(lpModuleName *uint16) HINSTANCE {
 		0)
 
 	return HINSTANCE(ret)
+}
+
+func GetNumberFormat(Locale LCID, dwFlags uint32, lpValue *uint16, lpFormat *NUMBERFMT, lpNumberStr *uint16, cchNumber int32) int32 {
+	ret, _, _ := syscall.Syscall6(getNumberFormat, 6,
+		uintptr(Locale),
+		uintptr(dwFlags),
+		uintptr(unsafe.Pointer(lpValue)),
+		uintptr(unsafe.Pointer(lpFormat)),
+		uintptr(unsafe.Pointer(lpNumberStr)),
+		uintptr(cchNumber))
+
+	return int32(ret)
 }
 
 func GetThreadLocale() LCID {
