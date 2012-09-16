@@ -115,10 +115,7 @@ const (
 	PBS_VERTICAL    = 4
 )
 
-// TextEdit messages
-const (
-    TEM_APPENDTEXT  = WM_USER + 6
-)
+
 
 // ImageList creation flags
 const (
