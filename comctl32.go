@@ -115,8 +115,6 @@ const (
 	PBS_VERTICAL    = 4
 )
 
-
-
 // ImageList creation flags
 const (
 	ILC_MASK          = 0x00000001

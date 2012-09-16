@@ -5,8 +5,8 @@
 package winapi
 
 import (
-	"unsafe"
 	"syscall"
+	"unsafe"
 )
 
 var (
@@ -16,40 +16,40 @@ var (
 
 //TBPFLAG
 const (
-    TBPF_NOPROGRESS	    = 0
-	TBPF_INDETERMINATE	= 0x1
-	TBPF_NORMAL	= 0x2
-	TBPF_ERROR	= 0x4
-	TBPF_PAUSED	= 0x8
+	TBPF_NOPROGRESS    = 0
+	TBPF_INDETERMINATE = 0x1
+	TBPF_NORMAL        = 0x2
+	TBPF_ERROR         = 0x4
+	TBPF_PAUSED        = 0x8
 )
 
 type ITaskbarList3Vtbl struct {
-	QueryInterface         uintptr
-	AddRef                 uintptr
-	Release                uintptr
-    HrInit                 uintptr
-	AddTab                 uintptr
-    DeleteTab              uintptr
-    ActivateTab            uintptr
-	SetActiveAlt           uintptr
-	MarkFullscreenWindow   uintptr
-	SetProgressValue       uintptr
-	SetProgressState       uintptr
-	RegisterTab            uintptr
-	UnregisterTab          uintptr
-	SetTabOrder            uintptr
-	SetTabActive           uintptr
-	ThumbBarAddButtons     uintptr
-	ThumbBarUpdateButtons  uintptr
-	ThumbBarSetImageList   uintptr
-	SetOverlayIcon         uintptr
-	SetThumbnailTooltip    uintptr
-	SetThumbnailClip       uintptr
+	QueryInterface        uintptr
+	AddRef                uintptr
+	Release               uintptr
+	HrInit                uintptr
+	AddTab                uintptr
+	DeleteTab             uintptr
+	ActivateTab           uintptr
+	SetActiveAlt          uintptr
+	MarkFullscreenWindow  uintptr
+	SetProgressValue      uintptr
+	SetProgressState      uintptr
+	RegisterTab           uintptr
+	UnregisterTab         uintptr
+	SetTabOrder           uintptr
+	SetTabActive          uintptr
+	ThumbBarAddButtons    uintptr
+	ThumbBarUpdateButtons uintptr
+	ThumbBarSetImageList  uintptr
+	SetOverlayIcon        uintptr
+	SetThumbnailTooltip   uintptr
+	SetThumbnailClip      uintptr
 }
 
 type ITaskbarList3 struct {
-    LpVtbl *ITaskbarList3Vtbl
-} 
+	LpVtbl *ITaskbarList3Vtbl
+}
 
 func (obj *ITaskbarList3) SetProgressState(hwnd HWND, state int) HRESULT {
 	ret, _, _ := syscall.Syscall(obj.LpVtbl.SetProgressState, 3,

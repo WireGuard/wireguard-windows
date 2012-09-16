@@ -182,9 +182,9 @@ func GetThreadLocale() LCID {
 }
 
 func GetVersion() int64 {
-	ret, _, _:= syscall.Syscall(getVersion, 0,
-		0, 
-		0, 
+	ret, _, _ := syscall.Syscall(getVersion, 0,
+		0,
+		0,
 		0)
 	return int64(ret)
 }
