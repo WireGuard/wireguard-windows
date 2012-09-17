@@ -1281,6 +1281,7 @@ var (
 	getMessage              uintptr
 	getRawInputData         uintptr
 	getSysColor             uintptr
+	getSysColorBrush        uintptr
 	getSystemMetrics        uintptr
 	getWindowLong           uintptr
 	getWindowLongPtr        uintptr
@@ -1366,6 +1367,7 @@ func init() {
 	getMessage = MustGetProcAddress(libuser32, "GetMessageW")
 	getRawInputData = MustGetProcAddress(libuser32, "GetRawInputData")
 	getSysColor = MustGetProcAddress(libuser32, "GetSysColor")
+	getSysColorBrush = MustGetProcAddress(libuser32, "GetSysColorBrush")
 	getSystemMetrics = MustGetProcAddress(libuser32, "GetSystemMetrics")
 	getWindowLong = MustGetProcAddress(libuser32, "GetWindowLongW")
 	// On 32 bit GetWindowLongPtrW is not available
@@ -1714,6 +1716,15 @@ func GetSysColor(nIndex int) uint32 {
 		0)
 
 	return uint32(ret)
+}
+
+func GetSysColorBrush(nIndex int) HBRUSH {
+	ret, _, _ := syscall.Syscall(getSysColorBrush, 1,
+		uintptr(nIndex),
+		0,
+		0)
+
+	return HBRUSH(ret)
 }
 
 func GetSystemMetrics(nIndex int32) int32 {
