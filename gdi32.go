@@ -858,6 +858,14 @@ type LOGBRUSH struct {
 	LbHatch uintptr
 }
 
+type CIEXYZ struct {
+	CiexyzX, CiexyzY, CiexyzZ int32 // FXPT2DOT30
+}
+
+type CIEXYZTRIPLE struct {
+	CiexyzRed, CiexyzGreen, CiexyzBlue CIEXYZ
+}
+
 type BITMAPINFOHEADER struct {
 	BiSize          uint32
 	BiWidth         int32
@@ -870,6 +878,27 @@ type BITMAPINFOHEADER struct {
 	BiYPelsPerMeter int32
 	BiClrUsed       uint32
 	BiClrImportant  uint32
+}
+
+type BITMAPV4HEADER struct {
+	BITMAPINFOHEADER
+	BV4RedMask    uint32
+	BV4GreenMask  uint32
+	BV4BlueMask   uint32
+	BV4AlphaMask  uint32
+	BV4CSType     uint32
+	BV4Endpoints  CIEXYZTRIPLE
+	BV4GammaRed   uint32
+	BV4GammaGreen uint32
+	BV4GammaBlue  uint32
+}
+
+type BITMAPV5HEADER struct {
+	BITMAPV4HEADER
+	BV5Intent      uint32
+	BV5ProfileData uint32
+	BV5ProfileSize uint32
+	BV5Reserved    uint32
 }
 
 type RGBQUAD struct {
@@ -934,6 +963,7 @@ var (
 	choosePixelFormat    uintptr
 	closeEnhMetaFile     uintptr
 	copyEnhMetaFile      uintptr
+	createBitmap         uintptr
 	createBrushIndirect  uintptr
 	createCompatibleDC   uintptr
 	createDC             uintptr
@@ -983,6 +1013,7 @@ func init() {
 	choosePixelFormat = MustGetProcAddress(libgdi32, "ChoosePixelFormat")
 	closeEnhMetaFile = MustGetProcAddress(libgdi32, "CloseEnhMetaFile")
 	copyEnhMetaFile = MustGetProcAddress(libgdi32, "CopyEnhMetaFileW")
+	createBitmap = MustGetProcAddress(libgdi32, "CreateBitmap")
 	createBrushIndirect = MustGetProcAddress(libgdi32, "CreateBrushIndirect")
 	createCompatibleDC = MustGetProcAddress(libgdi32, "CreateCompatibleDC")
 	createDC = MustGetProcAddress(libgdi32, "CreateDCW")
@@ -1073,6 +1104,18 @@ func CopyEnhMetaFile(hemfSrc HENHMETAFILE, lpszFile *uint16) HENHMETAFILE {
 	return HENHMETAFILE(ret)
 }
 
+func CreateBitmap(nWidth, nHeight int32, cPlanes, cBitsPerPel uint32, lpvBits unsafe.Pointer) HBITMAP {
+	ret, _, _ := syscall.Syscall6(createBitmap, 5,
+		uintptr(nWidth),
+		uintptr(nHeight),
+		uintptr(cPlanes),
+		uintptr(cBitsPerPel),
+		uintptr(lpvBits),
+		0)
+
+	return HBITMAP(ret)
+}
+
 func CreateBrushIndirect(lplb *LOGBRUSH) HBRUSH {
 	ret, _, _ := syscall.Syscall(createBrushIndirect, 1,
 		uintptr(unsafe.Pointer(lplb)),
@@ -1103,10 +1146,10 @@ func CreateDC(lpszDriver, lpszDevice, lpszOutput *uint16, lpInitData *DEVMODE) H
 	return HDC(ret)
 }
 
-func CreateDIBSection(hdc HDC, pbmi *BITMAPINFO, iUsage uint32, ppvBits *unsafe.Pointer, hSection HANDLE, dwOffset uint32) HBITMAP {
+func CreateDIBSection(hdc HDC, pbmih *BITMAPINFOHEADER, iUsage uint32, ppvBits *unsafe.Pointer, hSection HANDLE, dwOffset uint32) HBITMAP {
 	ret, _, _ := syscall.Syscall6(createDIBSection, 6,
 		uintptr(hdc),
-		uintptr(unsafe.Pointer(pbmi)),
+		uintptr(unsafe.Pointer(pbmih)),
 		uintptr(iUsage),
 		uintptr(unsafe.Pointer(ppvBits)),
 		uintptr(hSection),
