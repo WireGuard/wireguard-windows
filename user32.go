@@ -1239,6 +1239,14 @@ type DRAWITEMSTRUCT struct {
 	ItemData   uintptr
 }
 
+type ICONINFO struct {
+	FIcon     BOOL
+	XHotspot  uint32
+	YHotspot  uint32
+	HbmMask   HBITMAP
+	HbmColor  HBITMAP
+}
+
 func GET_X_LPARAM(lp uintptr) int32 {
 	return int32(int16(LOWORD(uint32(lp))))
 }
@@ -1256,6 +1264,7 @@ var (
 	beginDeferWindowPos     uintptr
 	beginPaint              uintptr
 	callWindowProc          uintptr
+	createIconIndirect      uintptr
 	createMenu              uintptr
 	createPopupMenu         uintptr
 	createWindowEx          uintptr
@@ -1342,6 +1351,7 @@ func init() {
 	beginDeferWindowPos = MustGetProcAddress(libuser32, "BeginDeferWindowPos")
 	beginPaint = MustGetProcAddress(libuser32, "BeginPaint")
 	callWindowProc = MustGetProcAddress(libuser32, "CallWindowProcW")
+	createIconIndirect = MustGetProcAddress(libuser32, "CreateIconIndirect")
 	createMenu = MustGetProcAddress(libuser32, "CreateMenu")
 	createPopupMenu = MustGetProcAddress(libuser32, "CreatePopupMenu")
 	createWindowEx = MustGetProcAddress(libuser32, "CreateWindowExW")
@@ -1464,6 +1474,15 @@ func CallWindowProc(lpPrevWndFunc uintptr, hWnd HWND, Msg uint32, wParam, lParam
 		0)
 
 	return ret
+}
+
+func CreateIconIndirect(lpiconinfo *ICONINFO) HICON {
+	ret, _, _ := syscall.Syscall(createIconIndirect, 1,
+		uintptr(unsafe.Pointer(lpiconinfo)),
+		0,
+		0)
+
+	return HICON(ret)
 }
 
 func CreateMenu() HMENU {
