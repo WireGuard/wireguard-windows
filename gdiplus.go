@@ -154,13 +154,6 @@ func init() {
 	gdipDisposeImage = MustGetProcAddress(libgdiplus, "GdipDisposeImage")
 	gdiplusShutdown = MustGetProcAddress(libgdiplus, "GdiplusShutdown")
 	gdiplusStartup = MustGetProcAddress(libgdiplus, "GdiplusStartup")
-
-	// Startup and remember token for shutdown.
-	var si GdiplusStartupInput
-	si.GdiplusVersion = 1
-	if status := GdiplusStartup(&si, nil); status != Ok {
-		panic("GdiplusStartup failed with status " + status.String())
-	}
 }
 
 func GdipCreateBitmapFromFile(filename *uint16, bitmap **GpBitmap) GpStatus {
