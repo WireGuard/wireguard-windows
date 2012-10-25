@@ -869,6 +869,17 @@ const (
 	WM_MOUSELEAVE             = 0X2A3
 )
 
+// mouse button constants
+const (
+	MK_CONTROL  = 0x0008
+	MK_LBUTTON  = 0x0001
+	MK_MBUTTON  = 0x0010
+	MK_RBUTTON  = 0x0002
+	MK_SHIFT    = 0x0004
+	MK_XBUTTON1 = 0x0020
+	MK_XBUTTON2 = 0x0040
+)
+
 // TrackPopupMenu[Ex] flags
 const (
 	TPM_CENTERALIGN     = 0x0004
@@ -1240,11 +1251,11 @@ type DRAWITEMSTRUCT struct {
 }
 
 type ICONINFO struct {
-	FIcon     BOOL
-	XHotspot  uint32
-	YHotspot  uint32
-	HbmMask   HBITMAP
-	HbmColor  HBITMAP
+	FIcon    BOOL
+	XHotspot uint32
+	YHotspot uint32
+	HbmMask  HBITMAP
+	HbmColor HBITMAP
 }
 
 func GET_X_LPARAM(lp uintptr) int32 {
