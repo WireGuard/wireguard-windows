@@ -152,6 +152,22 @@ const (
 	TVN_ASYNCDRAW      = TVN_FIRST - 20
 )
 
+// TreeView hit test constants
+const (
+	TVHT_NOWHERE         = 1
+	TVHT_ONITEMICON      = 2
+	TVHT_ONITEMLABEL     = 4
+	TVHT_ONITEM          = TVHT_ONITEMICON | TVHT_ONITEMLABEL | TVHT_ONITEMSTATEICON
+	TVHT_ONITEMINDENT    = 8
+	TVHT_ONITEMBUTTON    = 16
+	TVHT_ONITEMRIGHT     = 32
+	TVHT_ONITEMSTATEICON = 64
+	TVHT_ABOVE           = 256
+	TVHT_BELOW           = 512
+	TVHT_TORIGHT         = 1024
+	TVHT_TOLEFT          = 2048
+)
+
 type HTREEITEM HANDLE
 
 type TVITEM struct {
@@ -202,4 +218,10 @@ type NMTREEVIEW struct {
 type NMTVDISPINFO struct {
 	Hdr  NMHDR
 	Item TVITEM
+}
+
+type TVHITTESTINFO struct {
+	Pt    POINT
+	Flags uint32
+	HItem HTREEITEM
 }
