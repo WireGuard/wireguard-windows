@@ -37,6 +37,8 @@ const (
 	TVIF_EXPANDEDIMAGE = 0x0200
 )
 
+const I_CHILDRENCALLBACK = -1
+
 const (
 	TVIS_SELECTED       = 0x0002
 	TVIS_CUT            = 0x0004
@@ -70,6 +72,10 @@ const (
 	TVE_TOGGLE        = 0x0003
 	TVE_EXPANDPARTIAL = 0x4000
 	TVE_COLLAPSERESET = 0x8000
+)
+
+const (
+	TVGN_CARET = 9
 )
 
 // TreeView messages
@@ -130,6 +136,7 @@ const (
 
 	TVN_SELCHANGING    = TVN_FIRST - 50
 	TVN_SELCHANGED     = TVN_FIRST - 51
+	TVN_GETDISPINFO    = TVN_FIRST - 52
 	TVN_ITEMEXPANDING  = TVN_FIRST - 54
 	TVN_ITEMEXPANDED   = TVN_FIRST - 55
 	TVN_BEGINDRAG      = TVN_FIRST - 56
@@ -190,4 +197,9 @@ type NMTREEVIEW struct {
 	ItemOld TVITEM
 	ItemNew TVITEM
 	PtDrag  POINT
+}
+
+type NMTVDISPINFO struct {
+	Hdr  NMHDR
+	Item TVITEM
 }
