@@ -1299,6 +1299,7 @@ var (
 	getFocus                uintptr
 	getMenuInfo             uintptr
 	getMessage              uintptr
+	getParent               uintptr
 	getRawInputData         uintptr
 	getSysColor             uintptr
 	getSysColorBrush        uintptr
@@ -1386,6 +1387,7 @@ func init() {
 	getFocus = MustGetProcAddress(libuser32, "GetFocus")
 	getMenuInfo = MustGetProcAddress(libuser32, "GetMenuInfo")
 	getMessage = MustGetProcAddress(libuser32, "GetMessageW")
+	getParent = MustGetProcAddress(libuser32, "GetParent")
 	getRawInputData = MustGetProcAddress(libuser32, "GetRawInputData")
 	getSysColor = MustGetProcAddress(libuser32, "GetSysColor")
 	getSysColorBrush = MustGetProcAddress(libuser32, "GetSysColorBrush")
@@ -1725,6 +1727,15 @@ func GetMessage(msg *MSG, hWnd HWND, msgFilterMin, msgFilterMax uint32) BOOL {
 		0)
 
 	return BOOL(ret)
+}
+
+func GetParent(hWnd HWND) HWND {
+	ret, _, _ := syscall.Syscall(getParent, 1,
+		uintptr(hWnd),
+		0,
+		0)
+
+	return HWND(ret)
 }
 
 func GetRawInputData(hRawInput HRAWINPUT, uiCommand uint32, pData unsafe.Pointer, pcbSize *uint32, cBSizeHeader uint32) uint32 {
