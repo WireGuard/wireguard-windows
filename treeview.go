@@ -37,8 +37,6 @@ const (
 	TVIF_EXPANDEDIMAGE = 0x0200
 )
 
-const I_CHILDRENCALLBACK = -1
-
 const (
 	TVIS_SELECTED       = 0x0002
 	TVIS_CUT            = 0x0004
@@ -175,7 +173,7 @@ type TVITEM struct {
 	HItem          HTREEITEM
 	State          uint32
 	StateMask      uint32
-	PszText        *uint16
+	PszText        uintptr
 	CchTextMax     int32
 	IImage         int32
 	ISelectedImage int32
