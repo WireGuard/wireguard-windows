@@ -71,46 +71,13 @@ var (
 )
 
 type DWebBrowserEvents2Vtbl struct {
-	QueryInterface             uintptr
-	AddRef                     uintptr
-	Release                    uintptr
-	GetTypeInfoCount           uintptr
-	GetTypeInfo                uintptr
-	GetIDsOfNames              uintptr
-	Invoke                     uintptr
-	StatusTextChange           uintptr
-	ProgressChange             uintptr
-	CommandStateChange         uintptr
-	DownloadBegin              uintptr
-	DownloadComplete           uintptr
-	TitleChange                uintptr
-	PropertyChange             uintptr
-	BeforeNavigate2            uintptr
-	NewWindow2                 uintptr
-	NavigateComplete2          uintptr
-	DocumentComplete           uintptr
-	OnQuit                     uintptr
-	OnVisible                  uintptr
-	OnToolBar                  uintptr
-	OnMenuBar                  uintptr
-	OnStatusBar                uintptr
-	OnFullScreen               uintptr
-	OnTheaterMode              uintptr
-	WindowSetResizable         uintptr
-	WindowSetLeft              uintptr
-	WindowSetTop               uintptr
-	WindowSetWidth             uintptr
-	WindowSetHeight            uintptr
-	WindowClosing              uintptr
-	ClientToHostWindow         uintptr
-	SetSecureLockIcon          uintptr
-	FileDownload               uintptr
-	NavigateError              uintptr
-	PrintTemplateInstantiation uintptr
-	PrintTemplateTeardown      uintptr
-	UpdatePageStatus           uintptr
-	PrivacyImpactedStateChange uintptr
-	NewWindow3                 uintptr
+	QueryInterface   uintptr
+	AddRef           uintptr
+	Release          uintptr
+	GetTypeInfoCount uintptr
+	GetTypeInfo      uintptr
+	GetIDsOfNames    uintptr
+	Invoke           uintptr
 }
 
 type DWebBrowserEvents2 struct {
