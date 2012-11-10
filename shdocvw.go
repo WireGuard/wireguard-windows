@@ -171,6 +171,15 @@ func (wb2 *IWebBrowser2) Release() HRESULT {
 	return HRESULT(ret)
 }
 
+func (wb2 *IWebBrowser2) Refresh() HRESULT {
+	ret, _, _ := syscall.Syscall(wb2.LpVtbl.Refresh, 1,
+		uintptr(unsafe.Pointer(wb2)),
+		0,
+		0)
+
+	return HRESULT(ret)
+}
+
 func (wb2 *IWebBrowser2) Put_Left(Left int32) HRESULT {
 	ret, _, _ := syscall.Syscall(wb2.LpVtbl.Put_Left, 2,
 		uintptr(unsafe.Pointer(wb2)),
