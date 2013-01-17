@@ -1001,6 +1001,9 @@ var (
 	startPage            uintptr
 	stretchBlt           uintptr
 	swapBuffers          uintptr
+	textOut              uintptr
+	saveDC               uintptr
+	restoreDC            uintptr
 )
 
 func init() {
@@ -1051,6 +1054,9 @@ func init() {
 	startPage = MustGetProcAddress(libgdi32, "StartPage")
 	stretchBlt = MustGetProcAddress(libgdi32, "StretchBlt")
 	swapBuffers = MustGetProcAddress(libgdi32, "SwapBuffers")
+	textOut = MustGetProcAddress(libgdi32, "TextOutW")
+	saveDC = MustGetProcAddress(libgdi32, "SaveDC")
+	restoreDC = MustGetProcAddress(libgdi32, "RestoreDC")
 }
 
 func AbortDoc(hdc HDC) int32 {
@@ -1492,4 +1498,19 @@ func SwapBuffers(hdc HDC) bool {
 		0)
 
 	return ret != 0
+}
+
+func TextOut(hdc HDC, nXStart, nYStart int32, lpString *uint16, cchString int32) int32 {
+	ret, _, _ := syscall.Syscall6(textOut, 5, uintptr(hdc), uintptr(nXStart), uintptr(nYStart), uintptr(unsafe.Pointer(lpString)), uintptr(cchString), 0)
+	return int32(ret)
+}
+
+func SaveDC(hdc HDC) int32 {
+	ret, _, _ := syscall.Syscall(saveDC, 1, uintptr(hdc), 0, 0)
+	return int32(ret)
+}
+
+func RestoreDC(hdc HDC, nSaveDC int32) int32 {
+	ret, _, _ := syscall.Syscall(restoreDC, 2, uintptr(hdc), uintptr(nSaveDC), 0)
+	return int32(ret)
 }

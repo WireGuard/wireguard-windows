@@ -57,6 +57,7 @@ var (
 	mulDiv                 uintptr
 	setLastError           uintptr
 	systemTimeToFileTime   uintptr
+	getProfileString       uintptr
 )
 
 type (
@@ -113,6 +114,7 @@ func init() {
 	mulDiv = MustGetProcAddress(libkernel32, "MulDiv")
 	setLastError = MustGetProcAddress(libkernel32, "SetLastError")
 	systemTimeToFileTime = MustGetProcAddress(libkernel32, "SystemTimeToFileTime")
+	getProfileString = MustGetProcAddress(libkernel32, "GetProfileStringW")
 }
 
 func CloseHandle(hObject HANDLE) bool {
@@ -169,6 +171,17 @@ func GetNumberFormat(Locale LCID, dwFlags uint32, lpValue *uint16, lpFormat *NUM
 		uintptr(unsafe.Pointer(lpNumberStr)),
 		uintptr(cchNumber))
 
+	return int32(ret)
+}
+
+func GetProfileString(lpAppName, lpKeyName, lpDefault *uint16,lpReturnedString uintptr, nSize uint32) int32 {
+	ret, _, _ := syscall.Syscall6(getProfileString, 5,
+		uintptr(unsafe.Pointer(lpAppName)),
+		uintptr(unsafe.Pointer(lpKeyName)),
+		uintptr(unsafe.Pointer(lpDefault)),
+		lpReturnedString,
+		uintptr(nSize),
+		0)
 	return int32(ret)
 }
 
