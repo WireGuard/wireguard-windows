@@ -174,7 +174,7 @@ func GetNumberFormat(Locale LCID, dwFlags uint32, lpValue *uint16, lpFormat *NUM
 	return int32(ret)
 }
 
-func GetProfileString(lpAppName, lpKeyName, lpDefault *uint16,lpReturnedString uintptr, nSize uint32) int32 {
+func GetProfileString(lpAppName, lpKeyName, lpDefault *uint16, lpReturnedString uintptr, nSize uint32) int32 {
 	ret, _, _ := syscall.Syscall6(getProfileString, 5,
 		uintptr(unsafe.Pointer(lpAppName)),
 		uintptr(unsafe.Pointer(lpKeyName)),
