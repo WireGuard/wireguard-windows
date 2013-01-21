@@ -991,16 +991,19 @@ var (
 	playEnhMetaFile      uintptr
 	rectangle            uintptr
 	resetDC              uintptr
+	restoreDC            uintptr
 	selectObject         uintptr
 	setBkMode            uintptr
 	setBrushOrgEx        uintptr
 	setPixelFormat       uintptr
 	setStretchBltMode    uintptr
 	setTextColor         uintptr
+	saveDC               uintptr
 	startDoc             uintptr
 	startPage            uintptr
 	stretchBlt           uintptr
 	swapBuffers          uintptr
+	textOut              uintptr
 )
 
 func init() {
@@ -1041,6 +1044,8 @@ func init() {
 	playEnhMetaFile = MustGetProcAddress(libgdi32, "PlayEnhMetaFile")
 	rectangle = MustGetProcAddress(libgdi32, "Rectangle")
 	resetDC = MustGetProcAddress(libgdi32, "ResetDCW")
+	restoreDC = MustGetProcAddress(libgdi32, "RestoreDC")
+	saveDC = MustGetProcAddress(libgdi32, "SaveDC")
 	selectObject = MustGetProcAddress(libgdi32, "SelectObject")
 	setBkMode = MustGetProcAddress(libgdi32, "SetBkMode")
 	setBrushOrgEx = MustGetProcAddress(libgdi32, "SetBrushOrgEx")
@@ -1051,6 +1056,8 @@ func init() {
 	startPage = MustGetProcAddress(libgdi32, "StartPage")
 	stretchBlt = MustGetProcAddress(libgdi32, "StretchBlt")
 	swapBuffers = MustGetProcAddress(libgdi32, "SwapBuffers")
+	textOut = MustGetProcAddress(libgdi32, "TextOutW")
+
 }
 
 func AbortDoc(hdc HDC) int32 {
@@ -1392,6 +1399,22 @@ func ResetDC(hdc HDC, lpInitData *DEVMODE) HDC {
 	return HDC(ret)
 }
 
+func RestoreDC(hdc HDC, nSaveDC int32) bool {
+	ret, _, _ := syscall.Syscall(restoreDC, 2,
+		uintptr(hdc),
+		uintptr(nSaveDC),
+		0)
+	return ret != 0
+}
+
+func SaveDC(hdc HDC) int32 {
+	ret, _, _ := syscall.Syscall(saveDC, 1,
+		uintptr(hdc),
+		0,
+		0)
+	return int32(ret)
+}
+
 func SelectObject(hdc HDC, hgdiobj HGDIOBJ) HGDIOBJ {
 	ret, _, _ := syscall.Syscall(selectObject, 2,
 		uintptr(hdc),
@@ -1491,5 +1514,16 @@ func SwapBuffers(hdc HDC) bool {
 		0,
 		0)
 
+	return ret != 0
+}
+
+func TextOut(hdc HDC, nXStart, nYStart int32, lpString *uint16, cchString int32) bool {
+	ret, _, _ := syscall.Syscall6(textOut, 5,
+		uintptr(hdc),
+		uintptr(nXStart),
+		uintptr(nYStart),
+		uintptr(unsafe.Pointer(lpString)),
+		uintptr(cchString),
+		0)
 	return ret != 0
 }
