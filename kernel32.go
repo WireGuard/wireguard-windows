@@ -104,6 +104,7 @@ func init() {
 	getLogicalDriveStrings = MustGetProcAddress(libkernel32, "GetLogicalDriveStringsW")
 	getModuleHandle = MustGetProcAddress(libkernel32, "GetModuleHandleW")
 	getNumberFormat = MustGetProcAddress(libkernel32, "GetNumberFormatW")
+	getProfileString = MustGetProcAddress(libkernel32, "GetProfileStringW")
 	getThreadLocale = MustGetProcAddress(libkernel32, "GetThreadLocale")
 	getVersion = MustGetProcAddress(libkernel32, "GetVersion")
 	globalAlloc = MustGetProcAddress(libkernel32, "GlobalAlloc")
@@ -114,7 +115,7 @@ func init() {
 	mulDiv = MustGetProcAddress(libkernel32, "MulDiv")
 	setLastError = MustGetProcAddress(libkernel32, "SetLastError")
 	systemTimeToFileTime = MustGetProcAddress(libkernel32, "SystemTimeToFileTime")
-	getProfileString = MustGetProcAddress(libkernel32, "GetProfileStringW")
+
 }
 
 func CloseHandle(hObject HANDLE) bool {
@@ -174,7 +175,7 @@ func GetNumberFormat(Locale LCID, dwFlags uint32, lpValue *uint16, lpFormat *NUM
 	return int32(ret)
 }
 
-func GetProfileString(lpAppName, lpKeyName, lpDefault *uint16, lpReturnedString uintptr, nSize uint32) int32 {
+func GetProfileString(lpAppName, lpKeyName, lpDefault *uint16, lpReturnedString uintptr, nSize uint32) bool {
 	ret, _, _ := syscall.Syscall6(getProfileString, 5,
 		uintptr(unsafe.Pointer(lpAppName)),
 		uintptr(unsafe.Pointer(lpKeyName)),
@@ -182,7 +183,7 @@ func GetProfileString(lpAppName, lpKeyName, lpDefault *uint16, lpReturnedString 
 		lpReturnedString,
 		uintptr(nSize),
 		0)
-	return int32(ret)
+	return ret != 0
 }
 
 func GetThreadLocale() LCID {
