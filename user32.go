@@ -1292,6 +1292,7 @@ var (
 	endDeferWindowPos       uintptr
 	endPaint                uintptr
 	enumChildWindows        uintptr
+	findWindow              uintptr
 	getAncestor             uintptr
 	getClientRect           uintptr
 	getCursorPos            uintptr
@@ -1334,6 +1335,7 @@ var (
 	setActiveWindow         uintptr
 	setCapture              uintptr
 	setCursor               uintptr
+	setCursorPos            uintptr
 	setFocus                uintptr
 	setForegroundWindow     uintptr
 	setMenu                 uintptr
@@ -1350,6 +1352,7 @@ var (
 	systemParametersInfo    uintptr
 	trackPopupMenuEx        uintptr
 	translateMessage        uintptr
+	windowFromPoint         uintptr
 )
 
 func init() {
@@ -1380,6 +1383,7 @@ func init() {
 	endDeferWindowPos = MustGetProcAddress(libuser32, "EndDeferWindowPos")
 	endPaint = MustGetProcAddress(libuser32, "EndPaint")
 	enumChildWindows = MustGetProcAddress(libuser32, "EnumChildWindows")
+	findWindow = MustGetProcAddress(libuser32, "FindWindowW")
 	getAncestor = MustGetProcAddress(libuser32, "GetAncestor")
 	getClientRect = MustGetProcAddress(libuser32, "GetClientRect")
 	getCursorPos = MustGetProcAddress(libuser32, "GetCursorPos")
@@ -1427,6 +1431,7 @@ func init() {
 	setActiveWindow = MustGetProcAddress(libuser32, "SetActiveWindow")
 	setCapture = MustGetProcAddress(libuser32, "SetCapture")
 	setCursor = MustGetProcAddress(libuser32, "SetCursor")
+	setCursorPos = MustGetProcAddress(libuser32, "SetCursorPos")
 	setFocus = MustGetProcAddress(libuser32, "SetFocus")
 	setForegroundWindow = MustGetProcAddress(libuser32, "SetForegroundWindow")
 	setMenu = MustGetProcAddress(libuser32, "SetMenu")
@@ -1448,6 +1453,7 @@ func init() {
 	systemParametersInfo = MustGetProcAddress(libuser32, "SystemParametersInfoW")
 	trackPopupMenuEx = MustGetProcAddress(libuser32, "TrackPopupMenuEx")
 	translateMessage = MustGetProcAddress(libuser32, "TranslateMessage")
+	windowFromPoint = MustGetProcAddress(libuser32, "WindowFromPoint")
 }
 
 func AdjustWindowRect(lpRect *RECT, dwStyle uint32, bMenu bool) bool {
@@ -1661,6 +1667,15 @@ func EnumChildWindows(hWndParent HWND, lpEnumFunc, lParam uintptr) bool {
 		lParam)
 
 	return ret != 0
+}
+
+func FindWindow(lpClassName, lpWindowName *uint16) HWND {
+	ret, _, _ := syscall.Syscall(findWindow, 2,
+		uintptr(unsafe.Pointer(lpClassName)),
+		uintptr(unsafe.Pointer(lpWindowName)),
+		0)
+
+	return HWND(ret)
 }
 
 func GetAncestor(hWnd HWND, gaFlags uint32) HWND {
@@ -2066,6 +2081,15 @@ func SetCursor(hCursor HCURSOR) HCURSOR {
 	return HCURSOR(ret)
 }
 
+func SetCursorPos(X, Y int32) bool {
+	ret, _, _ := syscall.Syscall(setCursorPos, 2,
+		uintptr(X),
+		uintptr(Y),
+		0)
+
+	return ret != 0
+}
+
 func SetFocus(hWnd HWND) HWND {
 	ret, _, _ := syscall.Syscall(setFocus, 1,
 		uintptr(hWnd),
@@ -2229,4 +2253,13 @@ func TranslateMessage(msg *MSG) bool {
 		0)
 
 	return ret != 0
+}
+
+func WindowFromPoint(Point POINT) HWND {
+	ret, _, _ := syscall.Syscall(windowFromPoint, 2,
+		uintptr(Point.X),
+		uintptr(Point.Y),
+		0)
+
+	return HWND(ret)
 }
