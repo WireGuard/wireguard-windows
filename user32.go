@@ -1077,12 +1077,32 @@ const (
 	RI_MOUSE_WHEEL              = 0x0400
 )
 
+// Multi monitor constants
+const (
+	MONITOR_DEFAULTTONULL    = 0x0
+	MONITOR_DEFAULTTOPRIMARY = 0x1
+	MONITOR_DEFAULTTONEAREST = 0x2
+)
+
+// MONITORINFO flags
+const (
+	MONITORINFOF_PRIMARY = 0x1
+)
+
+type MONITORINFO struct {
+	CbSize    uint32
+	RcMonitor RECT
+	RcWork    RECT
+	DwFlags   uint32
+}
+
 type (
 	HACCEL    HANDLE
 	HCURSOR   HANDLE
 	HDWP      HANDLE
 	HICON     HANDLE
 	HMENU     HANDLE
+	HMONITOR  HANDLE
 	HRAWINPUT HANDLE
 	HWND      HANDLE
 )
@@ -1300,6 +1320,7 @@ var (
 	getFocus                uintptr
 	getMenuInfo             uintptr
 	getMessage              uintptr
+	getMonitorInfo          uintptr
 	getParent               uintptr
 	getRawInputData         uintptr
 	getSysColor             uintptr
@@ -1320,6 +1341,7 @@ var (
 	loadIcon                uintptr
 	loadImage               uintptr
 	messageBox              uintptr
+	monitorFromWindow       uintptr
 	moveWindow              uintptr
 	peekMessage             uintptr
 	postMessage             uintptr
@@ -1391,6 +1413,7 @@ func init() {
 	getFocus = MustGetProcAddress(libuser32, "GetFocus")
 	getMenuInfo = MustGetProcAddress(libuser32, "GetMenuInfo")
 	getMessage = MustGetProcAddress(libuser32, "GetMessageW")
+	getMonitorInfo = MustGetProcAddress(libuser32, "GetMonitorInfoW")
 	getParent = MustGetProcAddress(libuser32, "GetParent")
 	getRawInputData = MustGetProcAddress(libuser32, "GetRawInputData")
 	getSysColor = MustGetProcAddress(libuser32, "GetSysColor")
@@ -1416,6 +1439,7 @@ func init() {
 	loadIcon = MustGetProcAddress(libuser32, "LoadIconW")
 	loadImage = MustGetProcAddress(libuser32, "LoadImageW")
 	messageBox = MustGetProcAddress(libuser32, "MessageBoxW")
+	monitorFromWindow = MustGetProcAddress(libuser32, "MonitorFromWindow")
 	moveWindow = MustGetProcAddress(libuser32, "MoveWindow")
 	peekMessage = MustGetProcAddress(libuser32, "PeekMessageW")
 	postMessage = MustGetProcAddress(libuser32, "PostMessageW")
@@ -1744,6 +1768,15 @@ func GetMessage(msg *MSG, hWnd HWND, msgFilterMin, msgFilterMax uint32) BOOL {
 	return BOOL(ret)
 }
 
+func GetMonitorInfo(hMonitor HMONITOR, lpmi *MONITORINFO) bool {
+	ret, _, _ := syscall.Syscall(getMonitorInfo, 2,
+		uintptr(hMonitor),
+		uintptr(unsafe.Pointer(lpmi)),
+		0)
+
+	return ret != 0
+}
+
 func GetParent(hWnd HWND) HWND {
 	ret, _, _ := syscall.Syscall(getParent, 1,
 		uintptr(hWnd),
@@ -1934,6 +1967,15 @@ func MessageBox(hWnd HWND, lpText, lpCaption *uint16, uType uint32) int32 {
 		0)
 
 	return int32(ret)
+}
+
+func MonitorFromWindow(hwnd HWND, dwFlags uint32) HMONITOR {
+	ret, _, _ := syscall.Syscall(monitorFromWindow, 2,
+		uintptr(hwnd),
+		uintptr(dwFlags),
+		0)
+
+	return HMONITOR(ret)
 }
 
 func MoveWindow(hWnd HWND, x, y, width, height int32, repaint bool) bool {
