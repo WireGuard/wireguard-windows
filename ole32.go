@@ -422,6 +422,7 @@ var (
 	// Functions
 	coCreateInstance      uintptr
 	coGetClassObject      uintptr
+	coTaskMemFree         uintptr
 	oleInitialize         uintptr
 	oleSetContainedObject uintptr
 	oleUninitialize       uintptr
@@ -434,6 +435,7 @@ func init() {
 	// Functions
 	coCreateInstance = MustGetProcAddress(libole32, "CoCreateInstance")
 	coGetClassObject = MustGetProcAddress(libole32, "CoGetClassObject")
+	coTaskMemFree = MustGetProcAddress(libole32, "CoTaskMemFree")
 	oleInitialize = MustGetProcAddress(libole32, "OleInitialize")
 	oleSetContainedObject = MustGetProcAddress(libole32, "OleSetContainedObject")
 	oleUninitialize = MustGetProcAddress(libole32, "OleUninitialize")
@@ -461,6 +463,13 @@ func CoGetClassObject(rclsid REFCLSID, dwClsContext uint32, pServerInfo *COSERVE
 		0)
 
 	return HRESULT(ret)
+}
+
+func CoTaskMemFree(pv uintptr) {
+	syscall.Syscall(coTaskMemFree, 1,
+		pv,
+		0,
+		0)
 }
 
 func OleInitialize() HRESULT {

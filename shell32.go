@@ -159,12 +159,25 @@ type SHFILEINFO struct {
 	SzTypeName    [80]uint16
 }
 
+type BROWSEINFO struct {
+	HwndOwner      HWND
+	PidlRoot       uintptr
+	PszDisplayName *uint16
+	LpszTitle      *uint16
+	UlFlags        uint32
+	Lpfn           uintptr
+	LParam         uintptr
+	IImage         int32
+}
+
 var (
 	// Library
 	libshell32 uintptr
 
 	// Functions
-	sHGetFileInfo          uintptr
+	shBrowseForFolder      uintptr
+	shGetFileInfo          uintptr
+	shGetPathFromIDList    uintptr
 	shGetSpecialFolderPath uintptr
 	shell_NotifyIcon       uintptr
 )
@@ -174,13 +187,24 @@ func init() {
 	libshell32 = MustLoadLibrary("shell32.dll")
 
 	// Functions
+	shBrowseForFolder = MustGetProcAddress(libshell32, "SHBrowseForFolderW")
+	shGetFileInfo = MustGetProcAddress(libshell32, "SHGetFileInfoW")
+	shGetPathFromIDList = MustGetProcAddress(libshell32, "SHGetPathFromIDListW")
 	shGetSpecialFolderPath = MustGetProcAddress(libshell32, "SHGetSpecialFolderPathW")
-	sHGetFileInfo = MustGetProcAddress(libshell32, "SHGetFileInfoW")
 	shell_NotifyIcon = MustGetProcAddress(libshell32, "Shell_NotifyIconW")
 }
 
+func SHBrowseForFolder(lpbi *BROWSEINFO) uintptr {
+	ret, _, _ := syscall.Syscall(shBrowseForFolder, 1,
+		uintptr(unsafe.Pointer(lpbi)),
+		0,
+		0)
+
+	return ret
+}
+
 func SHGetFileInfo(pszPath *uint16, dwFileAttributes uint32, psfi *SHFILEINFO, cbFileInfo, uFlags uint32) uintptr {
-	ret, _, _ := syscall.Syscall6(sHGetFileInfo, 5,
+	ret, _, _ := syscall.Syscall6(shGetFileInfo, 5,
 		uintptr(unsafe.Pointer(pszPath)),
 		uintptr(dwFileAttributes),
 		uintptr(unsafe.Pointer(psfi)),
@@ -191,7 +215,16 @@ func SHGetFileInfo(pszPath *uint16, dwFileAttributes uint32, psfi *SHFILEINFO, c
 	return ret
 }
 
-func ShGetSpecialFolderPath(hwndOwner HWND, lpszPath *uint16, csidl CSIDL, fCreate bool) bool {
+func SHGetPathFromIDList(pidl uintptr, pszPath *uint16) bool {
+	ret, _, _ := syscall.Syscall(shGetPathFromIDList, 2,
+		pidl,
+		uintptr(unsafe.Pointer(pszPath)),
+		0)
+
+	return ret != 0
+}
+
+func SHGetSpecialFolderPath(hwndOwner HWND, lpszPath *uint16, csidl CSIDL, fCreate bool) bool {
 	ret, _, _ := syscall.Syscall6(shGetSpecialFolderPath, 4,
 		uintptr(hwndOwner),
 		uintptr(unsafe.Pointer(lpszPath)),
