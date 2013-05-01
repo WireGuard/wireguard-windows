@@ -19,6 +19,10 @@ const (
 	HDM_SETITEM = HDM_FIRST + 12
 )
 
+const (
+	HDS_NOSIZING = 0x0800
+)
+
 type HDITEM struct {
 	Mask       uint32
 	Cxy        int32
