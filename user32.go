@@ -1128,6 +1128,17 @@ const (
 	KEYEVENTF_UNICODE     = 0x0004
 )
 
+// GetWindow uCmd constants
+const (
+	GW_CHILD        = 5
+	GW_ENABLEDPOPUP = 6
+	GW_HWNDFIRST    = 0
+	GW_HWNDLAST     = 1
+	GW_HWNDNEXT     = 2
+	GW_HWNDPREV     = 3
+	GW_OWNER        = 4
+)
+
 type MONITORINFO struct {
 	CbSize    uint32
 	RcMonitor RECT
@@ -1405,6 +1416,7 @@ var (
 	getSysColor             uintptr
 	getSysColorBrush        uintptr
 	getSystemMetrics        uintptr
+	getWindow               uintptr
 	getWindowLong           uintptr
 	getWindowLongPtr        uintptr
 	getWindowPlacement      uintptr
@@ -1499,6 +1511,7 @@ func init() {
 	getSysColor = MustGetProcAddress(libuser32, "GetSysColor")
 	getSysColorBrush = MustGetProcAddress(libuser32, "GetSysColorBrush")
 	getSystemMetrics = MustGetProcAddress(libuser32, "GetSystemMetrics")
+	getWindow = MustGetProcAddress(libuser32, "GetWindow")
 	getWindowLong = MustGetProcAddress(libuser32, "GetWindowLongW")
 	// On 32 bit GetWindowLongPtrW is not available
 	if is64bit {
@@ -1904,6 +1917,15 @@ func GetSystemMetrics(nIndex int32) int32 {
 		0)
 
 	return int32(ret)
+}
+
+func GetWindow(hWnd HWND, uCmd uint32) HWND {
+	ret, _, _ := syscall.Syscall(getWindow, 2,
+		uintptr(hWnd),
+		uintptr(uCmd),
+		0)
+
+	return HWND(ret)
 }
 
 func GetWindowLong(hWnd HWND, index int32) int32 {
