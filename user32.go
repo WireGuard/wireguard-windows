@@ -1408,6 +1408,7 @@ var (
 	getCursorPos            uintptr
 	getDC                   uintptr
 	getFocus                uintptr
+	getKeyState             uintptr
 	getMenuInfo             uintptr
 	getMessage              uintptr
 	getMonitorInfo          uintptr
@@ -1503,6 +1504,7 @@ func init() {
 	getCursorPos = MustGetProcAddress(libuser32, "GetCursorPos")
 	getDC = MustGetProcAddress(libuser32, "GetDC")
 	getFocus = MustGetProcAddress(libuser32, "GetFocus")
+	getKeyState = MustGetProcAddress(libuser32, "GetKeyState")
 	getMenuInfo = MustGetProcAddress(libuser32, "GetMenuInfo")
 	getMessage = MustGetProcAddress(libuser32, "GetMessageW")
 	getMonitorInfo = MustGetProcAddress(libuser32, "GetMonitorInfoW")
@@ -1839,6 +1841,15 @@ func GetFocus() HWND {
 		0)
 
 	return HWND(ret)
+}
+
+func GetKeyState(nVirtKey int32) int16 {
+	ret, _, _ := syscall.Syscall(getKeyState, 1,
+		uintptr(nVirtKey),
+		0,
+		0)
+
+	return int16(ret)
 }
 
 func GetMenuInfo(hmenu HMENU, lpcmi *MENUINFO) bool {
