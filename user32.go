@@ -1404,6 +1404,7 @@ var (
 	enumChildWindows        uintptr
 	findWindow              uintptr
 	getAncestor             uintptr
+	getCaretPos             uintptr
 	getClientRect           uintptr
 	getCursorPos            uintptr
 	getDC                   uintptr
@@ -1500,6 +1501,7 @@ func init() {
 	enumChildWindows = MustGetProcAddress(libuser32, "EnumChildWindows")
 	findWindow = MustGetProcAddress(libuser32, "FindWindowW")
 	getAncestor = MustGetProcAddress(libuser32, "GetAncestor")
+	getCaretPos = MustGetProcAddress(libuser32, "GetCaretPos")
 	getClientRect = MustGetProcAddress(libuser32, "GetClientRect")
 	getCursorPos = MustGetProcAddress(libuser32, "GetCursorPos")
 	getDC = MustGetProcAddress(libuser32, "GetDC")
@@ -1805,6 +1807,15 @@ func GetAncestor(hWnd HWND, gaFlags uint32) HWND {
 		0)
 
 	return HWND(ret)
+}
+
+func GetCaretPos(lpPoint *POINT) bool {
+	ret, _, _ := syscall.Syscall(getCaretPos, 1,
+		uintptr(unsafe.Pointer(lpPoint)),
+		0,
+		0)
+
+	return ret != 0
 }
 
 func GetClientRect(hWnd HWND, rect *RECT) bool {
