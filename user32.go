@@ -1139,6 +1139,36 @@ const (
 	GW_OWNER        = 4
 )
 
+// Standard clipboard formats
+const (
+	CF_BITMAP          = 2
+	CF_DIB             = 8
+	CF_DIBV5           = 17
+	CF_DIF             = 5
+	CF_DSPBITMAP       = 0x0082
+	CF_DSPENHMETAFILE  = 0x008E
+	CF_DSPMETAFILEPICT = 0x0083
+	CF_DSPTEXT         = 0x0081
+	CF_ENHMETAFILE     = 14
+	CF_GDIOBJFIRST     = 0x0300
+	CF_GDIOBJLAST      = 0x03FF
+	CF_HDROP           = 15
+	CF_LOCALE          = 16
+	CF_METAFILEPICT    = 3
+	CF_OEMTEXT         = 7
+	CF_OWNERDISPLAY    = 0x0080
+	CF_PALETTE         = 9
+	CF_PENDATA         = 10
+	CF_PRIVATEFIRST    = 0x0200
+	CF_PRIVATELAST     = 0x02FF
+	CF_RIFF            = 11
+	CF_SYLK            = 4
+	CF_TEXT            = 1
+	CF_TIFF            = 6
+	CF_UNICODETEXT     = 13
+	CF_WAVE            = 12
+)
+
 type MONITORINFO struct {
 	CbSize    uint32
 	RcMonitor RECT
@@ -1381,94 +1411,100 @@ var (
 	libuser32 uintptr
 
 	// Functions
-	adjustWindowRect        uintptr
-	beginDeferWindowPos     uintptr
-	beginPaint              uintptr
-	callWindowProc          uintptr
-	createIconIndirect      uintptr
-	createMenu              uintptr
-	createPopupMenu         uintptr
-	createWindowEx          uintptr
-	deferWindowPos          uintptr
-	defWindowProc           uintptr
-	destroyIcon             uintptr
-	destroyMenu             uintptr
-	destroyWindow           uintptr
-	dispatchMessage         uintptr
-	drawMenuBar             uintptr
-	drawFocusRect           uintptr
-	drawTextEx              uintptr
-	enableWindow            uintptr
-	endDeferWindowPos       uintptr
-	endPaint                uintptr
-	enumChildWindows        uintptr
-	findWindow              uintptr
-	getAncestor             uintptr
-	getCaretPos             uintptr
-	getClientRect           uintptr
-	getCursorPos            uintptr
-	getDC                   uintptr
-	getFocus                uintptr
-	getKeyState             uintptr
-	getMenuInfo             uintptr
-	getMessage              uintptr
-	getMonitorInfo          uintptr
-	getParent               uintptr
-	getRawInputData         uintptr
-	getSysColor             uintptr
-	getSysColorBrush        uintptr
-	getSystemMetrics        uintptr
-	getWindow               uintptr
-	getWindowLong           uintptr
-	getWindowLongPtr        uintptr
-	getWindowPlacement      uintptr
-	getWindowRect           uintptr
-	insertMenuItem          uintptr
-	invalidateRect          uintptr
-	isChild                 uintptr
-	isDialogMessage         uintptr
-	isWindowEnabled         uintptr
-	isWindowVisible         uintptr
-	killTimer               uintptr
-	loadCursor              uintptr
-	loadIcon                uintptr
-	loadImage               uintptr
-	messageBox              uintptr
-	monitorFromWindow       uintptr
-	moveWindow              uintptr
-	peekMessage             uintptr
-	postMessage             uintptr
-	postQuitMessage         uintptr
-	registerClassEx         uintptr
-	registerRawInputDevices uintptr
-	registerWindowMessage   uintptr
-	releaseCapture          uintptr
-	releaseDC               uintptr
-	removeMenu              uintptr
-	screenToClient          uintptr
-	sendInput               uintptr
-	sendMessage             uintptr
-	setActiveWindow         uintptr
-	setCapture              uintptr
-	setCursor               uintptr
-	setCursorPos            uintptr
-	setFocus                uintptr
-	setForegroundWindow     uintptr
-	setMenu                 uintptr
-	setMenuInfo             uintptr
-	setMenuItemInfo         uintptr
-	setParent               uintptr
-	setRect                 uintptr
-	setTimer                uintptr
-	setWindowLong           uintptr
-	setWindowLongPtr        uintptr
-	setWindowPlacement      uintptr
-	setWindowPos            uintptr
-	showWindow              uintptr
-	systemParametersInfo    uintptr
-	trackPopupMenuEx        uintptr
-	translateMessage        uintptr
-	windowFromPoint         uintptr
+	adjustWindowRect           uintptr
+	beginDeferWindowPos        uintptr
+	beginPaint                 uintptr
+	callWindowProc             uintptr
+	closeClipboard             uintptr
+	createIconIndirect         uintptr
+	createMenu                 uintptr
+	createPopupMenu            uintptr
+	createWindowEx             uintptr
+	deferWindowPos             uintptr
+	defWindowProc              uintptr
+	destroyIcon                uintptr
+	destroyMenu                uintptr
+	destroyWindow              uintptr
+	dispatchMessage            uintptr
+	drawMenuBar                uintptr
+	drawFocusRect              uintptr
+	drawTextEx                 uintptr
+	emptyClipboard             uintptr
+	enableWindow               uintptr
+	endDeferWindowPos          uintptr
+	endPaint                   uintptr
+	enumChildWindows           uintptr
+	findWindow                 uintptr
+	getAncestor                uintptr
+	getCaretPos                uintptr
+	getClientRect              uintptr
+	getClipboardData           uintptr
+	getCursorPos               uintptr
+	getDC                      uintptr
+	getFocus                   uintptr
+	getKeyState                uintptr
+	getMenuInfo                uintptr
+	getMessage                 uintptr
+	getMonitorInfo             uintptr
+	getParent                  uintptr
+	getRawInputData            uintptr
+	getSysColor                uintptr
+	getSysColorBrush           uintptr
+	getSystemMetrics           uintptr
+	getWindow                  uintptr
+	getWindowLong              uintptr
+	getWindowLongPtr           uintptr
+	getWindowPlacement         uintptr
+	getWindowRect              uintptr
+	insertMenuItem             uintptr
+	invalidateRect             uintptr
+	isChild                    uintptr
+	isClipboardFormatAvailable uintptr
+	isDialogMessage            uintptr
+	isWindowEnabled            uintptr
+	isWindowVisible            uintptr
+	killTimer                  uintptr
+	loadCursor                 uintptr
+	loadIcon                   uintptr
+	loadImage                  uintptr
+	messageBox                 uintptr
+	monitorFromWindow          uintptr
+	moveWindow                 uintptr
+	openClipboard              uintptr
+	peekMessage                uintptr
+	postMessage                uintptr
+	postQuitMessage            uintptr
+	registerClassEx            uintptr
+	registerRawInputDevices    uintptr
+	registerWindowMessage      uintptr
+	releaseCapture             uintptr
+	releaseDC                  uintptr
+	removeMenu                 uintptr
+	screenToClient             uintptr
+	sendInput                  uintptr
+	sendMessage                uintptr
+	setActiveWindow            uintptr
+	setCapture                 uintptr
+	setClipboardData           uintptr
+	setCursor                  uintptr
+	setCursorPos               uintptr
+	setFocus                   uintptr
+	setForegroundWindow        uintptr
+	setMenu                    uintptr
+	setMenuInfo                uintptr
+	setMenuItemInfo            uintptr
+	setParent                  uintptr
+	setRect                    uintptr
+	setTimer                   uintptr
+	setWindowLong              uintptr
+	setWindowLongPtr           uintptr
+	setWindowPlacement         uintptr
+	setWindowPos               uintptr
+	showWindow                 uintptr
+	systemParametersInfo       uintptr
+	trackPopupMenuEx           uintptr
+	translateMessage           uintptr
+	windowFromPoint            uintptr
 )
 
 func init() {
@@ -1482,6 +1518,7 @@ func init() {
 	beginDeferWindowPos = MustGetProcAddress(libuser32, "BeginDeferWindowPos")
 	beginPaint = MustGetProcAddress(libuser32, "BeginPaint")
 	callWindowProc = MustGetProcAddress(libuser32, "CallWindowProcW")
+	closeClipboard = MustGetProcAddress(libuser32, "CloseClipboard")
 	createIconIndirect = MustGetProcAddress(libuser32, "CreateIconIndirect")
 	createMenu = MustGetProcAddress(libuser32, "CreateMenu")
 	createPopupMenu = MustGetProcAddress(libuser32, "CreatePopupMenu")
@@ -1495,6 +1532,7 @@ func init() {
 	drawFocusRect = MustGetProcAddress(libuser32, "DrawFocusRect")
 	drawMenuBar = MustGetProcAddress(libuser32, "DrawMenuBar")
 	drawTextEx = MustGetProcAddress(libuser32, "DrawTextExW")
+	emptyClipboard = MustGetProcAddress(libuser32, "EmptyClipboard")
 	enableWindow = MustGetProcAddress(libuser32, "EnableWindow")
 	endDeferWindowPos = MustGetProcAddress(libuser32, "EndDeferWindowPos")
 	endPaint = MustGetProcAddress(libuser32, "EndPaint")
@@ -1503,6 +1541,7 @@ func init() {
 	getAncestor = MustGetProcAddress(libuser32, "GetAncestor")
 	getCaretPos = MustGetProcAddress(libuser32, "GetCaretPos")
 	getClientRect = MustGetProcAddress(libuser32, "GetClientRect")
+	getClipboardData = MustGetProcAddress(libuser32, "GetClipboardData")
 	getCursorPos = MustGetProcAddress(libuser32, "GetCursorPos")
 	getDC = MustGetProcAddress(libuser32, "GetDC")
 	getFocus = MustGetProcAddress(libuser32, "GetFocus")
@@ -1528,6 +1567,7 @@ func init() {
 	insertMenuItem = MustGetProcAddress(libuser32, "InsertMenuItemW")
 	invalidateRect = MustGetProcAddress(libuser32, "InvalidateRect")
 	isChild = MustGetProcAddress(libuser32, "IsChild")
+	isClipboardFormatAvailable = MustGetProcAddress(libuser32, "IsClipboardFormatAvailable")
 	isDialogMessage = MustGetProcAddress(libuser32, "IsDialogMessageW")
 	isWindowEnabled = MustGetProcAddress(libuser32, "IsWindowEnabled")
 	isWindowVisible = MustGetProcAddress(libuser32, "IsWindowVisible")
@@ -1538,6 +1578,7 @@ func init() {
 	messageBox = MustGetProcAddress(libuser32, "MessageBoxW")
 	monitorFromWindow = MustGetProcAddress(libuser32, "MonitorFromWindow")
 	moveWindow = MustGetProcAddress(libuser32, "MoveWindow")
+	openClipboard = MustGetProcAddress(libuser32, "OpenClipboard")
 	peekMessage = MustGetProcAddress(libuser32, "PeekMessageW")
 	postMessage = MustGetProcAddress(libuser32, "PostMessageW")
 	postQuitMessage = MustGetProcAddress(libuser32, "PostQuitMessage")
@@ -1552,6 +1593,7 @@ func init() {
 	sendMessage = MustGetProcAddress(libuser32, "SendMessageW")
 	setActiveWindow = MustGetProcAddress(libuser32, "SetActiveWindow")
 	setCapture = MustGetProcAddress(libuser32, "SetCapture")
+	setClipboardData = MustGetProcAddress(libuser32, "SetClipboardData")
 	setCursor = MustGetProcAddress(libuser32, "SetCursor")
 	setCursorPos = MustGetProcAddress(libuser32, "SetCursorPos")
 	setFocus = MustGetProcAddress(libuser32, "SetFocus")
@@ -1615,6 +1657,15 @@ func CallWindowProc(lpPrevWndFunc uintptr, hWnd HWND, Msg uint32, wParam, lParam
 		0)
 
 	return ret
+}
+
+func CloseClipboard() bool {
+	ret, _, _ := syscall.Syscall(closeClipboard, 0,
+		0,
+		0,
+		0)
+
+	return ret != 0
 }
 
 func CreateIconIndirect(lpiconinfo *ICONINFO) HICON {
@@ -1755,6 +1806,15 @@ func DrawTextEx(hdc HDC, lpchText *uint16, cchText int32, lprc *RECT, dwDTFormat
 	return int32(ret)
 }
 
+func EmptyClipboard() bool {
+	ret, _, _ := syscall.Syscall(emptyClipboard, 0,
+		0,
+		0,
+		0)
+
+	return ret != 0
+}
+
 func EnableWindow(hWnd HWND, bEnable bool) bool {
 	ret, _, _ := syscall.Syscall(enableWindow, 2,
 		uintptr(hWnd),
@@ -1825,6 +1885,15 @@ func GetClientRect(hWnd HWND, rect *RECT) bool {
 		0)
 
 	return ret != 0
+}
+
+func GetClipboardData(uFormat uint32) HANDLE {
+	ret, _, _ := syscall.Syscall(getClipboardData, 1,
+		uintptr(uFormat),
+		0,
+		0)
+
+	return HANDLE(ret)
 }
 
 func GetCursorPos(lpPoint *POINT) bool {
@@ -2007,19 +2076,28 @@ func InvalidateRect(hWnd HWND, lpRect *RECT, bErase bool) bool {
 	return ret != 0
 }
 
-func IsDialogMessage(hWnd HWND, msg *MSG) bool {
-	ret, _, _ := syscall.Syscall(isDialogMessage, 2,
+func IsChild(hWndParent, hWnd HWND) bool {
+	ret, _, _ := syscall.Syscall(isChild, 2,
+		uintptr(hWndParent),
 		uintptr(hWnd),
-		uintptr(unsafe.Pointer(msg)),
 		0)
 
 	return ret != 0
 }
 
-func IsChild(hWndParent, hWnd HWND) bool {
-	ret, _, _ := syscall.Syscall(isChild, 2,
-		uintptr(hWndParent),
+func IsClipboardFormatAvailable(format uint32) bool {
+	ret, _, _ := syscall.Syscall(isClipboardFormatAvailable, 1,
+		uintptr(format),
+		0,
+		0)
+
+	return ret != 0
+}
+
+func IsDialogMessage(hWnd HWND, msg *MSG) bool {
+	ret, _, _ := syscall.Syscall(isDialogMessage, 2,
 		uintptr(hWnd),
+		uintptr(unsafe.Pointer(msg)),
 		0)
 
 	return ret != 0
@@ -2111,6 +2189,15 @@ func MoveWindow(hWnd HWND, x, y, width, height int32, repaint bool) bool {
 		uintptr(width),
 		uintptr(height),
 		uintptr(BoolToBOOL(repaint)))
+
+	return ret != 0
+}
+
+func OpenClipboard(hWndNewOwner HWND) bool {
+	ret, _, _ := syscall.Syscall(openClipboard, 1,
+		uintptr(hWndNewOwner),
+		0,
+		0)
 
 	return ret != 0
 }
@@ -2246,6 +2333,15 @@ func SetCapture(hWnd HWND) HWND {
 		0)
 
 	return HWND(ret)
+}
+
+func SetClipboardData(uFormat uint32, hMem HANDLE) HANDLE {
+	ret, _, _ := syscall.Syscall(setClipboardData, 2,
+		uintptr(uFormat),
+		uintptr(hMem),
+		0)
+
+	return HANDLE(ret)
 }
 
 func SetCursor(hCursor HCURSOR) HCURSOR {
