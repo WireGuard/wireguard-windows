@@ -9,6 +9,12 @@ const (
 	LVSCW_AUTOSIZE_USEHEADER = ^uintptr(1)
 )
 
+// LVM_SETITEMCOUNT flags
+const (
+	LVSICF_NOINVALIDATEALL = 0x0001
+	LVSICF_NOSCROLL        = 0x0002
+)
+
 // ListView messages
 const (
 	LVM_FIRST                    = 0x1000
