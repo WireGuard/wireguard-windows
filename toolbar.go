@@ -89,6 +89,19 @@ const (
 	TB_GETUNICODEFORMAT      = CCM_GETUNICODEFORMAT
 )
 
+// ToolBar notifications
+const (
+	TBN_FIRST    = -700
+	TBN_DROPDOWN = TBN_FIRST - 10
+)
+
+// TBN_DROPDOWN return codes
+const (
+	TBDDRET_DEFAULT      = 0
+	TBDDRET_NODEFAULT    = 1
+	TBDDRET_TREATPRESSED = 2
+)
+
 // ToolBar state constants
 const (
 	TBSTATE_CHECKED       = 1
@@ -161,6 +174,15 @@ type NMMOUSE struct {
 	DwItemData uintptr
 	Pt         POINT
 	DwHitInfo  uintptr
+}
+
+type NMTOOLBAR struct {
+	Hdr      NMHDR
+	IItem    int32
+	TbButton TBBUTTON
+	CchText  int32
+	PszText  *uint16
+	RcButton RECT
 }
 
 type TBBUTTON struct {
