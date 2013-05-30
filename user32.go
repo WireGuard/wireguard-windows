@@ -1415,6 +1415,7 @@ var (
 	beginDeferWindowPos        uintptr
 	beginPaint                 uintptr
 	callWindowProc             uintptr
+	clientToScreen             uintptr
 	closeClipboard             uintptr
 	createIconIndirect         uintptr
 	createMenu                 uintptr
@@ -1518,6 +1519,7 @@ func init() {
 	beginDeferWindowPos = MustGetProcAddress(libuser32, "BeginDeferWindowPos")
 	beginPaint = MustGetProcAddress(libuser32, "BeginPaint")
 	callWindowProc = MustGetProcAddress(libuser32, "CallWindowProcW")
+	clientToScreen = MustGetProcAddress(libuser32, "ClientToScreen")
 	closeClipboard = MustGetProcAddress(libuser32, "CloseClipboard")
 	createIconIndirect = MustGetProcAddress(libuser32, "CreateIconIndirect")
 	createMenu = MustGetProcAddress(libuser32, "CreateMenu")
@@ -1657,6 +1659,15 @@ func CallWindowProc(lpPrevWndFunc uintptr, hWnd HWND, Msg uint32, wParam, lParam
 		0)
 
 	return ret
+}
+
+func ClientToScreen(hwnd HWND, lpPoint *POINT) bool {
+	ret, _, _ := syscall.Syscall(clientToScreen, 2,
+		uintptr(hwnd),
+		uintptr(unsafe.Pointer(lpPoint)),
+		0)
+
+	return ret != 0
 }
 
 func CloseClipboard() bool {
