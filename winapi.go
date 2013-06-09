@@ -73,6 +73,18 @@ func FAILED(hr HRESULT) bool {
 	return hr < 0
 }
 
+func MAKEWORD(lo, hi byte) uint16 {
+	return uint16(uint16(lo) | ((uint16(hi)) << 8))
+}
+
+func LOBYTE(w uint16) byte {
+	return byte(w)
+}
+
+func HIBYTE(w uint16) byte {
+	return byte(w >> 8 & 0xff)
+}
+
 func MAKELONG(lo, hi uint16) uint32 {
 	return uint32(uint32(lo) | ((uint32(hi)) << 16))
 }
