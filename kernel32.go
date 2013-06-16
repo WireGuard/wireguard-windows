@@ -31,9 +31,15 @@ const (
 
 // Predefined locale ids
 const (
-	LOCALE_INVARIANT      = 0x007f
-	LOCALE_USER_DEFAULT   = 0x0400
-	LOCALE_SYSTEM_DEFAULT = 0x0800
+	LOCALE_INVARIANT      LCID = 0x007f
+	LOCALE_USER_DEFAULT   LCID = 0x0400
+	LOCALE_SYSTEM_DEFAULT LCID = 0x0800
+)
+
+// LCTYPE constants
+const (
+	LOCALE_SDECIMAL  LCTYPE = 14
+	LOCALE_STHOUSAND LCTYPE = 15
 )
 
 var (
@@ -44,6 +50,7 @@ var (
 	closeHandle            uintptr
 	fileTimeToSystemTime   uintptr
 	getLastError           uintptr
+	getLocaleInfo          uintptr
 	getLogicalDriveStrings uintptr
 	getModuleHandle        uintptr
 	getNumberFormat        uintptr
@@ -66,6 +73,7 @@ type (
 	HGLOBAL   HANDLE
 	HINSTANCE HANDLE
 	LCID      uint32
+	LCTYPE    uint32
 )
 
 type FILETIME struct {
@@ -101,6 +109,7 @@ func init() {
 	closeHandle = MustGetProcAddress(libkernel32, "CloseHandle")
 	fileTimeToSystemTime = MustGetProcAddress(libkernel32, "FileTimeToSystemTime")
 	getLastError = MustGetProcAddress(libkernel32, "GetLastError")
+	getLocaleInfo = MustGetProcAddress(libkernel32, "GetLocaleInfoW")
 	getLogicalDriveStrings = MustGetProcAddress(libkernel32, "GetLogicalDriveStringsW")
 	getModuleHandle = MustGetProcAddress(libkernel32, "GetModuleHandleW")
 	getNumberFormat = MustGetProcAddress(libkernel32, "GetNumberFormatW")
@@ -143,6 +152,18 @@ func GetLastError() uint32 {
 		0)
 
 	return uint32(ret)
+}
+
+func GetLocaleInfo(Locale LCID, LCType LCTYPE, lpLCData *uint16, cchData int32) int32 {
+	ret, _, _ := syscall.Syscall6(getLocaleInfo, 4,
+		uintptr(Locale),
+		uintptr(LCType),
+		uintptr(unsafe.Pointer(lpLCData)),
+		uintptr(cchData),
+		0,
+		0)
+
+	return int32(ret)
 }
 
 func GetLogicalDriveStrings(nBufferLength uint32, lpBuffer *uint16) uint32 {
