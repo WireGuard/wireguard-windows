@@ -1185,7 +1185,6 @@ type (
 	HMONITOR  HANDLE
 	HRAWINPUT HANDLE
 	HWND      HANDLE
-	LRESULT   int
 )
 
 type MSG struct {
