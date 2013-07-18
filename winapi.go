@@ -5,11 +5,8 @@
 package winapi
 
 import (
-	"reflect"
 	"runtime"
-	"strconv"
 	"syscall"
-	"unicode/utf16"
 	"unsafe"
 )
 
@@ -117,85 +114,4 @@ func BoolToBOOL(value bool) BOOL {
 	}
 
 	return 0
-}
-
-func GoStringToPtr(v string) uintptr {
-	if v == "" {
-		return 0
-	}
-
-	u := utf16.Encode([]rune(v))
-	u = append(u, 0)
-
-	return uintptr(unsafe.Pointer(&u[0]))
-}
-
-func PtrToGoString(v uintptr) string {
-	if v == 0 {
-		return ""
-	}
-
-	vp := (*[1 << 29]uint16)(unsafe.Pointer(v))
-	size := 0
-	for ; vp[size] != 0; size++ {
-	}
-
-	return string(utf16.Decode(vp[:size]))
-}
-
-func Ptr(i interface{}) (ret uintptr) {
-	v := reflect.ValueOf(i)
-	switch v.Kind() {
-	case reflect.Slice, reflect.Func, reflect.Ptr, reflect.UnsafePointer:
-		ret = v.Pointer()
-		break
-
-	case reflect.Uintptr, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uint:
-		ret = uintptr(v.Uint())
-		break
-
-	case reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64, reflect.Int:
-		ret = uintptr(v.Int())
-		break
-
-	case reflect.String:
-		ret = GoStringToPtr(v.String())
-		break
-
-	case reflect.Bool:
-		if v.Bool() {
-			ret = 1
-		} else {
-			ret = 0
-		}
-		break
-	}
-
-	return
-}
-
-func allNumber(s string) bool {
-	for _, v := range s {
-		if !(v >= '0' && v <= '9') {
-			return false
-		}
-	}
-
-	return true
-}
-
-func ResourceNameToUTF16Ptr(name string) (id *uint16) {
-	number := allNumber(name)
-	if number {
-		idNumber, err := strconv.Atoi(name)
-		if err != nil {
-			id = syscall.StringToUTF16Ptr(name)
-		} else {
-			id = MAKEINTRESOURCE(uintptr(idNumber))
-		}
-	} else {
-		id = syscall.StringToUTF16Ptr(name)
-	}
-
-	return
 }

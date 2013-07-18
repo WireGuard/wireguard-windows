@@ -1186,9 +1186,6 @@ type (
 	HRAWINPUT HANDLE
 	HWND      HANDLE
 	LRESULT   int
-	WPARAM    uintptr
-	LPARAM    uintptr
-	UINT      uint32
 )
 
 type MSG struct {
@@ -1714,11 +1711,11 @@ func CloseClipboard() bool {
 }
 
 func CreateDialogParam(instRes HINSTANCE, name *uint16, parent HWND,
-	proc uintptr, param uintptr) HWND {
+	proc, param uintptr) HWND {
 	ret, _, _ := syscall.Syscall6(createDialogParam, 5,
-		Ptr(instRes),
-		Ptr(name),
-		Ptr(parent),
+		uintptr(instRes),
+		uintptr(unsafe.Pointer(name)),
+		uintptr(parent),
 		proc,
 		param,
 		0)
@@ -1825,11 +1822,11 @@ func DestroyWindow(hWnd HWND) bool {
 	return ret != 0
 }
 
-func DialogBoxParam(instRes HINSTANCE, name *uint16, parent HWND, proc uintptr, param uintptr) int {
+func DialogBoxParam(instRes HINSTANCE, name *uint16, parent HWND, proc, param uintptr) int {
 	ret, _, _ := syscall.Syscall6(dialogBoxParam, 5,
-		Ptr(instRes),
-		Ptr(name),
-		Ptr(parent),
+		uintptr(instRes),
+		uintptr(unsafe.Pointer(name)),
+		uintptr(parent),
 		proc,
 		param,
 		0)
@@ -1905,8 +1902,8 @@ func EndDeferWindowPos(hWinPosInfo HDWP) bool {
 
 func EndDialog(hwnd HWND, result int) bool {
 	ret, _, _ := syscall.Syscall(endDialog, 2,
-		Ptr(hwnd),
-		Ptr(result),
+		uintptr(hwnd),
+		uintptr(result),
 		0)
 
 	return ret != 0
@@ -2241,23 +2238,23 @@ func LoadImage(hinst HINSTANCE, lpszName *uint16, uType uint32, cxDesired, cyDes
 
 func LoadMenu(hinst HINSTANCE, name *uint16) HMENU {
 	ret, _, _ := syscall.Syscall(loadMenu, 2,
-		Ptr(hinst),
-		Ptr(name),
+		uintptr(hinst),
+		uintptr(unsafe.Pointer(name)),
 		0)
 
 	return HMENU(ret)
 }
 
-func LoadString(instRes HINSTANCE, id uint, buf *uint16, length int) int {
+func LoadString(instRes HINSTANCE, id uint32, buf *uint16, length int32) int32 {
 	ret, _, _ := syscall.Syscall6(loadString, 4,
-		Ptr(instRes),
-		Ptr(id),
-		Ptr(buf),
-		Ptr(length),
+		uintptr(instRes),
+		uintptr(id),
+		uintptr(unsafe.Pointer(buf)),
+		uintptr(length),
 		0,
 		0)
 
-	return int(ret)
+	return int32(ret)
 }
 
 func MessageBox(hWnd HWND, lpText, lpCaption *uint16, uType uint32) int32 {
@@ -2295,7 +2292,7 @@ func MoveWindow(hWnd HWND, x, y, width, height int32, repaint bool) bool {
 
 func UnregisterClass(name *uint16) bool {
 	ret, _, _ := syscall.Syscall(unregisterClass, 1,
-		Ptr(name),
+		uintptr(unsafe.Pointer(name)),
 		0,
 		0)
 
@@ -2405,16 +2402,16 @@ func ScreenToClient(hWnd HWND, point *POINT) bool {
 	return ret != 0
 }
 
-func SendDlgItemMessage(hWnd HWND, id int, msg UINT, wParam WPARAM, lParam LPARAM) LRESULT {
+func SendDlgItemMessage(hWnd HWND, id int32, msg uint32, wParam, lParam uintptr) uintptr {
 	ret, _, _ := syscall.Syscall6(sendDlgItemMessage, 5,
 		uintptr(hWnd),
 		uintptr(id),
 		uintptr(msg),
-		uintptr(wParam),
-		uintptr(lParam),
+		wParam,
+		lParam,
 		0)
 
-	return LRESULT(ret)
+	return ret
 }
 
 func SendInput(nInputs uint32, pInputs unsafe.Pointer, cbSize int32) uint32 {
@@ -2650,7 +2647,7 @@ func TranslateMessage(msg *MSG) bool {
 
 func UpdateWindow(hwnd HWND) bool {
 	ret, _, _ := syscall.Syscall(updateWindow, 1,
-		Ptr(hwnd),
+		uintptr(hwnd),
 		0,
 		0)
 
