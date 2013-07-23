@@ -5,12 +5,11 @@
 package winapi
 
 import (
-	"unsafe"
 	"syscall"
+	"unsafe"
 )
 
-
-func (obj *ITaskbarList3) SetProgressValue(hwnd HWND, current uint32, length uint32) HRESULT{
+func (obj *ITaskbarList3) SetProgressValue(hwnd HWND, current uint32, length uint32) HRESULT {
 	ret, _, _ := syscall.Syscall6(obj.LpVtbl.SetProgressValue, 4,
 		uintptr(unsafe.Pointer(obj)),
 		uintptr(hwnd),

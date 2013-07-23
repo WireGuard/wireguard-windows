@@ -1258,6 +1258,20 @@ type NMHDR struct {
 	Code     uint32
 }
 
+type CREATESTRUCT struct {
+	CreateParams    uintptr
+	Instance        HINSTANCE
+	Menu            HMENU
+	Parent          HWND
+	Cy              int32
+	Cx              int32
+	Y               int32
+	X               int32
+	Style           int32
+	Name, ClassName uintptr
+	ExStyle         uint32
+}
+
 type WNDCLASSEX struct {
 	CbSize        uint32
 	Style         uint32
@@ -1418,6 +1432,7 @@ var (
 	callWindowProc             uintptr
 	clientToScreen             uintptr
 	closeClipboard             uintptr
+	createDialogParam          uintptr
 	createIconIndirect         uintptr
 	createMenu                 uintptr
 	createPopupMenu            uintptr
@@ -1427,6 +1442,7 @@ var (
 	destroyIcon                uintptr
 	destroyMenu                uintptr
 	destroyWindow              uintptr
+	dialogBoxParam             uintptr
 	dispatchMessage            uintptr
 	drawMenuBar                uintptr
 	drawFocusRect              uintptr
@@ -1434,6 +1450,7 @@ var (
 	emptyClipboard             uintptr
 	enableWindow               uintptr
 	endDeferWindowPos          uintptr
+	endDialog                  uintptr
 	endPaint                   uintptr
 	enumChildWindows           uintptr
 	findWindow                 uintptr
@@ -1469,9 +1486,12 @@ var (
 	loadCursor                 uintptr
 	loadIcon                   uintptr
 	loadImage                  uintptr
+	loadMenu                   uintptr
+	loadString                 uintptr
 	messageBox                 uintptr
 	monitorFromWindow          uintptr
 	moveWindow                 uintptr
+	unregisterClass            uintptr
 	openClipboard              uintptr
 	peekMessage                uintptr
 	postMessage                uintptr
@@ -1483,6 +1503,7 @@ var (
 	releaseDC                  uintptr
 	removeMenu                 uintptr
 	screenToClient             uintptr
+	sendDlgItemMessage         uintptr
 	sendInput                  uintptr
 	sendMessage                uintptr
 	setActiveWindow            uintptr
@@ -1506,6 +1527,7 @@ var (
 	systemParametersInfo       uintptr
 	trackPopupMenuEx           uintptr
 	translateMessage           uintptr
+	updateWindow               uintptr
 	windowFromPoint            uintptr
 )
 
@@ -1522,6 +1544,7 @@ func init() {
 	callWindowProc = MustGetProcAddress(libuser32, "CallWindowProcW")
 	clientToScreen = MustGetProcAddress(libuser32, "ClientToScreen")
 	closeClipboard = MustGetProcAddress(libuser32, "CloseClipboard")
+	createDialogParam = MustGetProcAddress(libuser32, "CreateDialogParamW")
 	createIconIndirect = MustGetProcAddress(libuser32, "CreateIconIndirect")
 	createMenu = MustGetProcAddress(libuser32, "CreateMenu")
 	createPopupMenu = MustGetProcAddress(libuser32, "CreatePopupMenu")
@@ -1531,6 +1554,7 @@ func init() {
 	destroyIcon = MustGetProcAddress(libuser32, "DestroyIcon")
 	destroyMenu = MustGetProcAddress(libuser32, "DestroyMenu")
 	destroyWindow = MustGetProcAddress(libuser32, "DestroyWindow")
+	dialogBoxParam = MustGetProcAddress(libuser32, "DialogBoxParamW")
 	dispatchMessage = MustGetProcAddress(libuser32, "DispatchMessageW")
 	drawFocusRect = MustGetProcAddress(libuser32, "DrawFocusRect")
 	drawMenuBar = MustGetProcAddress(libuser32, "DrawMenuBar")
@@ -1538,6 +1562,7 @@ func init() {
 	emptyClipboard = MustGetProcAddress(libuser32, "EmptyClipboard")
 	enableWindow = MustGetProcAddress(libuser32, "EnableWindow")
 	endDeferWindowPos = MustGetProcAddress(libuser32, "EndDeferWindowPos")
+	endDialog = MustGetProcAddress(libuser32, "EndDialog")
 	endPaint = MustGetProcAddress(libuser32, "EndPaint")
 	enumChildWindows = MustGetProcAddress(libuser32, "EnumChildWindows")
 	findWindow = MustGetProcAddress(libuser32, "FindWindowW")
@@ -1578,9 +1603,12 @@ func init() {
 	loadCursor = MustGetProcAddress(libuser32, "LoadCursorW")
 	loadIcon = MustGetProcAddress(libuser32, "LoadIconW")
 	loadImage = MustGetProcAddress(libuser32, "LoadImageW")
+	loadMenu = MustGetProcAddress(libuser32, "LoadMenuW")
+	loadString = MustGetProcAddress(libuser32, "LoadStringW")
 	messageBox = MustGetProcAddress(libuser32, "MessageBoxW")
 	monitorFromWindow = MustGetProcAddress(libuser32, "MonitorFromWindow")
 	moveWindow = MustGetProcAddress(libuser32, "MoveWindow")
+	unregisterClass = MustGetProcAddress(libuser32, "UnregisterClassW")
 	openClipboard = MustGetProcAddress(libuser32, "OpenClipboard")
 	peekMessage = MustGetProcAddress(libuser32, "PeekMessageW")
 	postMessage = MustGetProcAddress(libuser32, "PostMessageW")
@@ -1592,6 +1620,7 @@ func init() {
 	releaseDC = MustGetProcAddress(libuser32, "ReleaseDC")
 	removeMenu = MustGetProcAddress(libuser32, "RemoveMenu")
 	screenToClient = MustGetProcAddress(libuser32, "ScreenToClient")
+	sendDlgItemMessage = MustGetProcAddress(libuser32, "SendDlgItemMessageW")
 	sendInput = MustGetProcAddress(libuser32, "SendInput")
 	sendMessage = MustGetProcAddress(libuser32, "SendMessageW")
 	setActiveWindow = MustGetProcAddress(libuser32, "SetActiveWindow")
@@ -1620,6 +1649,7 @@ func init() {
 	systemParametersInfo = MustGetProcAddress(libuser32, "SystemParametersInfoW")
 	trackPopupMenuEx = MustGetProcAddress(libuser32, "TrackPopupMenuEx")
 	translateMessage = MustGetProcAddress(libuser32, "TranslateMessage")
+	updateWindow = MustGetProcAddress(libuser32, "UpdateWindow")
 	windowFromPoint = MustGetProcAddress(libuser32, "WindowFromPoint")
 }
 
@@ -1678,6 +1708,19 @@ func CloseClipboard() bool {
 		0)
 
 	return ret != 0
+}
+
+func CreateDialogParam(instRes HINSTANCE, name *uint16, parent HWND,
+	proc, param uintptr) HWND {
+	ret, _, _ := syscall.Syscall6(createDialogParam, 5,
+		uintptr(instRes),
+		uintptr(unsafe.Pointer(name)),
+		uintptr(parent),
+		proc,
+		param,
+		0)
+
+	return HWND(ret)
 }
 
 func CreateIconIndirect(lpiconinfo *ICONINFO) HICON {
@@ -1779,6 +1822,18 @@ func DestroyWindow(hWnd HWND) bool {
 	return ret != 0
 }
 
+func DialogBoxParam(instRes HINSTANCE, name *uint16, parent HWND, proc, param uintptr) int {
+	ret, _, _ := syscall.Syscall6(dialogBoxParam, 5,
+		uintptr(instRes),
+		uintptr(unsafe.Pointer(name)),
+		uintptr(parent),
+		proc,
+		param,
+		0)
+
+	return int(ret)
+}
+
 func DispatchMessage(msg *MSG) uintptr {
 	ret, _, _ := syscall.Syscall(dispatchMessage, 1,
 		uintptr(unsafe.Pointer(msg)),
@@ -1840,6 +1895,15 @@ func EndDeferWindowPos(hWinPosInfo HDWP) bool {
 	ret, _, _ := syscall.Syscall(endDeferWindowPos, 1,
 		uintptr(hWinPosInfo),
 		0,
+		0)
+
+	return ret != 0
+}
+
+func EndDialog(hwnd HWND, result int) bool {
+	ret, _, _ := syscall.Syscall(endDialog, 2,
+		uintptr(hwnd),
+		uintptr(result),
 		0)
 
 	return ret != 0
@@ -2172,6 +2236,27 @@ func LoadImage(hinst HINSTANCE, lpszName *uint16, uType uint32, cxDesired, cyDes
 	return HANDLE(ret)
 }
 
+func LoadMenu(hinst HINSTANCE, name *uint16) HMENU {
+	ret, _, _ := syscall.Syscall(loadMenu, 2,
+		uintptr(hinst),
+		uintptr(unsafe.Pointer(name)),
+		0)
+
+	return HMENU(ret)
+}
+
+func LoadString(instRes HINSTANCE, id uint32, buf *uint16, length int32) int32 {
+	ret, _, _ := syscall.Syscall6(loadString, 4,
+		uintptr(instRes),
+		uintptr(id),
+		uintptr(unsafe.Pointer(buf)),
+		uintptr(length),
+		0,
+		0)
+
+	return int32(ret)
+}
+
 func MessageBox(hWnd HWND, lpText, lpCaption *uint16, uType uint32) int32 {
 	ret, _, _ := syscall.Syscall6(messageBox, 4,
 		uintptr(hWnd),
@@ -2201,6 +2286,15 @@ func MoveWindow(hWnd HWND, x, y, width, height int32, repaint bool) bool {
 		uintptr(width),
 		uintptr(height),
 		uintptr(BoolToBOOL(repaint)))
+
+	return ret != 0
+}
+
+func UnregisterClass(name *uint16) bool {
+	ret, _, _ := syscall.Syscall(unregisterClass, 1,
+		uintptr(unsafe.Pointer(name)),
+		0,
+		0)
 
 	return ret != 0
 }
@@ -2306,6 +2400,18 @@ func ScreenToClient(hWnd HWND, point *POINT) bool {
 		0)
 
 	return ret != 0
+}
+
+func SendDlgItemMessage(hWnd HWND, id int32, msg uint32, wParam, lParam uintptr) uintptr {
+	ret, _, _ := syscall.Syscall6(sendDlgItemMessage, 5,
+		uintptr(hWnd),
+		uintptr(id),
+		uintptr(msg),
+		wParam,
+		lParam,
+		0)
+
+	return ret
 }
 
 func SendInput(nInputs uint32, pInputs unsafe.Pointer, cbSize int32) uint32 {
@@ -2539,6 +2645,14 @@ func TranslateMessage(msg *MSG) bool {
 	return ret != 0
 }
 
+func UpdateWindow(hwnd HWND) bool {
+	ret, _, _ := syscall.Syscall(updateWindow, 1,
+		uintptr(hwnd),
+		0,
+		0)
+
+	return ret != 0
+}
 func WindowFromPoint(Point POINT) HWND {
 	ret, _, _ := syscall.Syscall(windowFromPoint, 2,
 		uintptr(Point.X),
