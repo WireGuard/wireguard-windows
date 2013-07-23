@@ -982,6 +982,7 @@ var (
 	getEnhMetaFile       uintptr
 	getEnhMetaFileHeader uintptr
 	getObject            uintptr
+	getPixel             uintptr
 	getStockObject       uintptr
 	getTextExtentExPoint uintptr
 	getTextExtentPoint32 uintptr
@@ -995,6 +996,7 @@ var (
 	selectObject         uintptr
 	setBkMode            uintptr
 	setBrushOrgEx        uintptr
+	setPixel             uintptr
 	setPixelFormat       uintptr
 	setStretchBltMode    uintptr
 	setTextColor         uintptr
@@ -1035,6 +1037,7 @@ func init() {
 	getEnhMetaFile = MustGetProcAddress(libgdi32, "GetEnhMetaFileW")
 	getEnhMetaFileHeader = MustGetProcAddress(libgdi32, "GetEnhMetaFileHeader")
 	getObject = MustGetProcAddress(libgdi32, "GetObjectW")
+	getPixel = MustGetProcAddress(libgdi32, "GetPixel")
 	getStockObject = MustGetProcAddress(libgdi32, "GetStockObject")
 	getTextExtentExPoint = MustGetProcAddress(libgdi32, "GetTextExtentExPointW")
 	getTextExtentPoint32 = MustGetProcAddress(libgdi32, "GetTextExtentPoint32W")
@@ -1049,6 +1052,7 @@ func init() {
 	selectObject = MustGetProcAddress(libgdi32, "SelectObject")
 	setBkMode = MustGetProcAddress(libgdi32, "SetBkMode")
 	setBrushOrgEx = MustGetProcAddress(libgdi32, "SetBrushOrgEx")
+	setPixel = MustGetProcAddress(libgdi32, "SetPixel")
 	setPixelFormat = MustGetProcAddress(libgdi32, "SetPixelFormat")
 	setStretchBltMode = MustGetProcAddress(libgdi32, "SetStretchBltMode")
 	setTextColor = MustGetProcAddress(libgdi32, "SetTextColor")
@@ -1303,6 +1307,15 @@ func GetObject(hgdiobj HGDIOBJ, cbBuffer uintptr, lpvObject unsafe.Pointer) int3
 	return int32(ret)
 }
 
+func GetPixel(hdc HDC, nXPos, nYPos int32) COLORREF {
+	ret, _, _ := syscall.Syscall(getPixel, 3,
+		uintptr(hdc),
+		uintptr(nXPos),
+		uintptr(nYPos))
+
+	return COLORREF(ret)
+}
+
 func GetStockObject(fnObject int32) HGDIOBJ {
 	ret, _, _ := syscall.Syscall(getDeviceCaps, 1,
 		uintptr(fnObject),
@@ -1443,6 +1456,18 @@ func SetBrushOrgEx(hdc HDC, nXOrg, nYOrg int32, lppt *POINT) bool {
 		0)
 
 	return ret != 0
+}
+
+func SetPixel(hdc HDC, X, Y int32, crColor COLORREF) COLORREF {
+	ret, _, _ := syscall.Syscall6(setPixel, 4,
+		uintptr(hdc),
+		uintptr(X),
+		uintptr(Y),
+		uintptr(crColor),
+		0,
+		0)
+
+	return COLORREF(ret)
 }
 
 func SetPixelFormat(hdc HDC, iPixelFormat int32, ppfd *PIXELFORMATDESCRIPTOR) bool {
