@@ -1,8 +1,8 @@
-// Copyright 2012 The go-winapi Authors. All rights reserved.
+// Copyright 2012 The win Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package winapi
+package win
 
 // ListBox style
 const (
