@@ -11,12 +11,13 @@ import (
 
 // PDH error codes, which can be returned by all Pdh* functions.
 const (
-	PDH_CSTATUS_VALID_DATA   = 0x00000000 // the returned data is valid.
-	PDH_CSTATUS_INVALID_DATA = 0xC0000BBA // The counter was successfully found, but the data returned is not valid.
-	PDH_CSTATUS_NEW_DATA     = 0x00000001 // the return data value is valid and different from the last sample.
-	PDH_CSTATUS_NO_MACHINE   = 0x800007D0
-	PDH_INVALID_ARGUMENT     = 0xC0000BBD // required argument is missing or incorrect.
-	PDH_INVALID_DATA         = 0xC0000BC6 // specified counter does not contain valid data or a successful status code.
+	PDH_CSTATUS_VALID_DATA      = 0x00000000 // The returned data is valid.
+	PDH_CSTATUS_INVALID_DATA    = 0xC0000BBA // The counter was successfully found, but the data returned is not valid.
+	PDH_CSTATUS_NEW_DATA        = 0x00000001 // The return data value is valid and different from the last sample.
+	PDH_CSTATUS_NO_MACHINE      = 0x800007D0 // Unable to connect to the specified computer, or the computer is offline.
+	PDH_CSTATUS_BAD_COUNTERNAME = 0xC0000BC0 // Unable to parse the counter path. Check the format and syntax of the specified path.
+	PDH_INVALID_ARGUMENT        = 0xC0000BBD // Required argument is missing or incorrect.
+	PDH_INVALID_DATA            = 0xC0000BC6 // specified counter does not contain valid data or a successful status code.
 )
 
 // Formatting options for GetFormattedCounterValue().
@@ -103,7 +104,7 @@ func init() {
 	pdh_ValidatePath = libpdhDll.MustFindProc("PdhValidatePathW")
 }
 
-// Adds the specified counter to the query. This is the NON-ENGLISH version. Preferrably, use the
+// Adds the specified counter to the query. This is the NON-ENGLISH version. Preferably, use the
 // function PdhAddEnglishCounterW instead. hQuery is the query handle, which has been fetched by PdhOpenQuery.
 // szFullCounterPath is a full, internationalized counter path (this will differ per Windows language version).
 // dwUserData is a 'user-defined value', which becomes part of the counter information. To retrieve this value
@@ -201,6 +202,15 @@ func PdhGetFormattedCounterValue(hCounter PDH_HCOUNTER, dwFormat uint32, lpdwTyp
 // a practical 'unfilled' struct, but that's all I've tested.
 func PdhBrowseCounters(pBrowseDlgData *PDH_BROWSE_DLG_CONFIG_W) uint32 {
 	ret, _, _ := pdh_BrowseCounters.Call(uintptr(unsafe.Pointer(pBrowseDlgData)))
+
+	return uint32(ret)
+}
+
+// Validates a path. Will return ERROR_SUCCESS when ok, or PDH_CSTATUS_BAD_COUNTERNAME when the path is
+// erroneous.
+func PdhValidatePathW(path string) uint32 {
+	ptxt, _ := syscall.UTF16PtrFromString(path)
+	ret, _, _ := pdh_ValidatePath.Call(uintptr(unsafe.Pointer(ptxt)))
 
 	return uint32(ret)
 }
