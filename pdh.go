@@ -1,4 +1,4 @@
-// Copyright 2010 The win Authors. All rights reserved.
+// Copyright 2013 The win Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -25,9 +25,9 @@ const (
 	PDH_FMT_RAW          = 0x00010
 	PDH_FMT_ANSI         = 0x00020
 	PDH_FMT_UNICODE      = 0x00040
-	PDH_FMT_LONG         = 0x00100
-	PDH_FMT_DOUBLE       = 0x00200
-	PDH_FMT_LARGE        = 0x00400
+	PDH_FMT_LONG         = 0x00100 // Return data as a long int.
+	PDH_FMT_DOUBLE       = 0x00200 // Return data as a double precision floating point real. 
+	PDH_FMT_LARGE        = 0x00400 // Return data as a 64 bit integer.
 	PDH_FMT_NOSCALE      = 0x01000 // can be OR-ed: Do not apply the counter's default scaling factor.
 	PDH_FMT_1000         = 0x02000 // can be OR-ed: multiply the actual value by 1,000.
 	PDH_FMT_NODATA       = 0x04000 // can be OR-ed: unknown what this is for, MSDN says nothing.
@@ -46,12 +46,12 @@ type PDH_FMT_COUNTERVALUE struct {
 	LongValue       int32
 	DoubleValue     float64
 	LargeValue      int64
-	AnsiStringValue uintptr //
-	WideStringValue uintptr
+	AnsiStringValue uintptr // Not supported according to MSDN
+	WideStringValue uintptr // Not supported according to MSDN
 }
 
 // PdhBrowseCounters configuration struct. Untested.
-type PDH_BROWSE_DLG_CONFIG_W struct {
+type PDH_BROWSE_DLG_CONFIG struct {
 	BIncludeInstanceIndex    uint32
 	BSingleCounterPerAdd     uint32
 	BSingleCounterPerDialog  uint32
@@ -105,7 +105,7 @@ func init() {
 }
 
 // Adds the specified counter to the query. This is the NON-ENGLISH version. Preferably, use the
-// function PdhAddEnglishCounterW instead. hQuery is the query handle, which has been fetched by PdhOpenQuery.
+// function PdhAddEnglishCounter instead. hQuery is the query handle, which has been fetched by PdhOpenQuery.
 // szFullCounterPath is a full, internationalized counter path (this will differ per Windows language version).
 // dwUserData is a 'user-defined value', which becomes part of the counter information. To retrieve this value
 // later, call PdhGetCounterInfo() and access dwQueryUserData of the PDH_COUNTER_INFO structure.
@@ -117,7 +117,7 @@ func init() {
 //	\\LogicalDisk(C:)\% Free Space
 //
 // To view all available counters on a system, try the PdhBrowseCounters() function.
-func PdhAddCounterW(hQuery PDH_HQUERY, szFullCounterPath string, dwUserData uintptr, phCounter *PDH_HCOUNTER) uint32 {
+func PdhAddCounter(hQuery PDH_HQUERY, szFullCounterPath string, dwUserData uintptr, phCounter *PDH_HCOUNTER) uint32 {
 	ptxt, _ := syscall.UTF16PtrFromString(szFullCounterPath)
 	ret, _, _ := pdh_AddCounterW.Call(uintptr(hQuery),
 		uintptr(unsafe.Pointer(ptxt)),
@@ -127,8 +127,8 @@ func PdhAddCounterW(hQuery PDH_HQUERY, szFullCounterPath string, dwUserData uint
 	return uint32(ret)
 }
 
-// Adds the specified language-neutral counter to the query. See the PdhAddCounterW function.
-func PdhAddEnglishCounterW(hQuery PDH_HQUERY, szFullCounterPath string, dwUserData uintptr, phCounter *PDH_HCOUNTER) uint32 {
+// Adds the specified language-neutral counter to the query. See the PdhAddCounter function.
+func PdhAddEnglishCounter(hQuery PDH_HQUERY, szFullCounterPath string, dwUserData uintptr, phCounter *PDH_HCOUNTER) uint32 {
 	ptxt, _ := syscall.UTF16PtrFromString(szFullCounterPath)
 	ret, _, _ := pdh_AddEnglishCounterW.Call(uintptr(hQuery),
 		uintptr(unsafe.Pointer(ptxt)),
@@ -157,6 +157,7 @@ func PdhOpenQuery(szDataSource uintptr, dwUserData uintptr, phQuery *PDH_HQUERY)
 // and frees all memory associated with the query.
 func PdhCloseQuery(hQuery PDH_HQUERY) uint32 {
 	ret, _, _ := pdh_CloseQuery.Call(uintptr(hQuery))
+
 	return uint32(ret)
 }
 
@@ -168,7 +169,7 @@ func PdhCloseQuery(hQuery PDH_HQUERY) uint32 {
 // 	var handle win.PDH_HQUERY
 // 	var counterHandle win.PDH_HCOUNTER
 // 	ret := win.PdhOpenQuery(0, 0, &handle)
-//	ret = win.PdhAddEnglishCounterW(handle, "\\Processor(_Total)\\% Idle Time", 0, &counterHandle)
+//	ret = win.PdhAddEnglishCounter(handle, "\\Processor(_Total)\\% Idle Time", 0, &counterHandle)
 //	var derp win.PDH_FMT_COUNTERVALUE
 //
 //	ret = win.PdhCollectQueryData(handle)
@@ -183,6 +184,7 @@ func PdhCloseQuery(hQuery PDH_HQUERY) uint32 {
 // displaying the correct data for the processor idle time. The second call will have a 0 return code.
 func PdhCollectQueryData(hQuery PDH_HQUERY) uint32 {
 	ret, _, _ := pdh_CollectQueryData.Call(uintptr(hQuery))
+
 	return uint32(ret)
 }
 
@@ -200,7 +202,7 @@ func PdhGetFormattedCounterValue(hCounter PDH_HCOUNTER, dwFormat uint32, lpdwTyp
 // that they want to add to the query. This function returns a PDH error code, or 0 of the call succeeded.
 // This call is pretty much untested. On my machine, it displays a dialog box perfectly with specifying
 // a practical 'unfilled' struct, but that's all I've tested.
-func PdhBrowseCounters(pBrowseDlgData *PDH_BROWSE_DLG_CONFIG_W) uint32 {
+func PdhBrowseCounters(pBrowseDlgData *PDH_BROWSE_DLG_CONFIG) uint32 {
 	ret, _, _ := pdh_BrowseCounters.Call(uintptr(unsafe.Pointer(pBrowseDlgData)))
 
 	return uint32(ret)
@@ -208,7 +210,7 @@ func PdhBrowseCounters(pBrowseDlgData *PDH_BROWSE_DLG_CONFIG_W) uint32 {
 
 // Validates a path. Will return ERROR_SUCCESS when ok, or PDH_CSTATUS_BAD_COUNTERNAME when the path is
 // erroneous.
-func PdhValidatePathW(path string) uint32 {
+func PdhValidatePath(path string) uint32 {
 	ptxt, _ := syscall.UTF16PtrFromString(path)
 	ret, _, _ := pdh_ValidatePath.Call(uintptr(unsafe.Pointer(ptxt)))
 
