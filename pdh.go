@@ -149,7 +149,7 @@ type PDH_FMT_COUNTERVALUE_LARGE struct {
 
 // Union specialization for double values, used by PdhGetFormattedCounterArray()
 type PDH_FMT_COUNTERVALUE_ITEM_DOUBLE struct {
-	SzName   uintptr // pointer to a string
+	SzName   *uint16 // pointer to a string
 	FmtValue PDH_FMT_COUNTERVALUE_DOUBLE
 }
 
