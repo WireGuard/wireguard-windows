@@ -9,15 +9,94 @@ import (
 	"unsafe"
 )
 
-// PDH error codes, which can be returned by all Pdh* functions.
+// PDH error codes, which can be returned by all Pdh* functions. Taken from mingw-w64 pdhmsg.h
 const (
-	PDH_CSTATUS_VALID_DATA      = 0x00000000 // The returned data is valid.
-	PDH_CSTATUS_INVALID_DATA    = 0xC0000BBA // The counter was successfully found, but the data returned is not valid.
-	PDH_CSTATUS_NEW_DATA        = 0x00000001 // The return data value is valid and different from the last sample.
-	PDH_CSTATUS_NO_MACHINE      = 0x800007D0 // Unable to connect to the specified computer, or the computer is offline.
-	PDH_CSTATUS_BAD_COUNTERNAME = 0xC0000BC0 // Unable to parse the counter path. Check the format and syntax of the specified path.
-	PDH_INVALID_ARGUMENT        = 0xC0000BBD // Required argument is missing or incorrect.
-	PDH_INVALID_DATA            = 0xC0000BC6 // specified counter does not contain valid data or a successful status code.
+	PDH_CSTATUS_VALID_DATA                     = 0x00000000 // The returned data is valid.
+	PDH_CSTATUS_NEW_DATA                       = 0x00000001 // The return data value is valid and different from the last sample.
+	PDH_CSTATUS_NO_MACHINE                     = 0x800007D0 // Unable to connect to the specified computer, or the computer is offline.
+	PDH_CSTATUS_NO_INSTANCE                    = 0x800007D1
+	PDH_MORE_DATA                              = 0x800007D2
+	PDH_CSTATUS_ITEM_NOT_VALIDATED             = 0x800007D3
+	PDH_RETRY                                  = 0x800007D4
+	PDH_NO_DATA                                = 0x800007D5
+	PDH_CALC_NEGATIVE_DENOMINATOR              = 0x800007D6
+	PDH_CALC_NEGATIVE_TIMEBASE                 = 0x800007D7
+	PDH_CALC_NEGATIVE_VALUE                    = 0x800007D8
+	PDH_DIALOG_CANCELLED                       = 0x800007D9
+	PDH_END_OF_LOG_FILE                        = 0x800007DA
+	PDH_ASYNC_QUERY_TIMEOUT                    = 0x800007DB
+	PDH_CANNOT_SET_DEFAULT_REALTIME_DATASOURCE = 0x800007DC
+	PDH_CSTATUS_NO_OBJECT                      = 0xC0000BB8
+	PDH_CSTATUS_NO_COUNTER                     = 0xC0000BB9 // The specified counter could not be found.
+	PDH_CSTATUS_INVALID_DATA                   = 0xC0000BBA // The counter was successfully found, but the data returned is not valid.
+	PDH_MEMORY_ALLOCATION_FAILURE              = 0xC0000BBB
+	PDH_INVALID_HANDLE                         = 0xC0000BBC
+	PDH_INVALID_ARGUMENT                       = 0xC0000BBD // Required argument is missing or incorrect.
+	PDH_FUNCTION_NOT_FOUND                     = 0xC0000BBE
+	PDH_CSTATUS_NO_COUNTERNAME                 = 0xC0000BBF
+	PDH_CSTATUS_BAD_COUNTERNAME                = 0xC0000BC0 // Unable to parse the counter path. Check the format and syntax of the specified path.
+	PDH_INVALID_BUFFER                         = 0xC0000BC1
+	PDH_INSUFFICIENT_BUFFER                    = 0xC0000BC2
+	PDH_CANNOT_CONNECT_MACHINE                 = 0xC0000BC3
+	PDH_INVALID_PATH                           = 0xC0000BC4
+	PDH_INVALID_INSTANCE                       = 0xC0000BC5
+	PDH_INVALID_DATA                           = 0xC0000BC6 // specified counter does not contain valid data or a successful status code.
+	PDH_NO_DIALOG_DATA                         = 0xC0000BC7
+	PDH_CANNOT_READ_NAME_STRINGS               = 0xC0000BC8
+	PDH_LOG_FILE_CREATE_ERROR                  = 0xC0000BC9
+	PDH_LOG_FILE_OPEN_ERROR                    = 0xC0000BCA
+	PDH_LOG_TYPE_NOT_FOUND                     = 0xC0000BCB
+	PDH_NO_MORE_DATA                           = 0xC0000BCC
+	PDH_ENTRY_NOT_IN_LOG_FILE                  = 0xC0000BCD
+	PDH_DATA_SOURCE_IS_LOG_FILE                = 0xC0000BCE
+	PDH_DATA_SOURCE_IS_REAL_TIME               = 0xC0000BCF
+	PDH_UNABLE_READ_LOG_HEADER                 = 0xC0000BD0
+	PDH_FILE_NOT_FOUND                         = 0xC0000BD1
+	PDH_FILE_ALREADY_EXISTS                    = 0xC0000BD2
+	PDH_NOT_IMPLEMENTED                        = 0xC0000BD3
+	PDH_STRING_NOT_FOUND                       = 0xC0000BD4
+	PDH_UNABLE_MAP_NAME_FILES                  = 0x80000BD5
+	PDH_UNKNOWN_LOG_FORMAT                     = 0xC0000BD6
+	PDH_UNKNOWN_LOGSVC_COMMAND                 = 0xC0000BD7
+	PDH_LOGSVC_QUERY_NOT_FOUND                 = 0xC0000BD8
+	PDH_LOGSVC_NOT_OPENED                      = 0xC0000BD9
+	PDH_WBEM_ERROR                             = 0xC0000BDA
+	PDH_ACCESS_DENIED                          = 0xC0000BDB
+	PDH_LOG_FILE_TOO_SMALL                     = 0xC0000BDC
+	PDH_INVALID_DATASOURCE                     = 0xC0000BDD
+	PDH_INVALID_SQLDB                          = 0xC0000BDE
+	PDH_NO_COUNTERS                            = 0xC0000BDF
+	PDH_SQL_ALLOC_FAILED                       = 0xC0000BE0
+	PDH_SQL_ALLOCCON_FAILED                    = 0xC0000BE1
+	PDH_SQL_EXEC_DIRECT_FAILED                 = 0xC0000BE2
+	PDH_SQL_FETCH_FAILED                       = 0xC0000BE3
+	PDH_SQL_ROWCOUNT_FAILED                    = 0xC0000BE4
+	PDH_SQL_MORE_RESULTS_FAILED                = 0xC0000BE5
+	PDH_SQL_CONNECT_FAILED                     = 0xC0000BE6
+	PDH_SQL_BIND_FAILED                        = 0xC0000BE7
+	PDH_CANNOT_CONNECT_WMI_SERVER              = 0xC0000BE8
+	PDH_PLA_COLLECTION_ALREADY_RUNNING         = 0xC0000BE9
+	PDH_PLA_ERROR_SCHEDULE_OVERLAP             = 0xC0000BEA
+	PDH_PLA_COLLECTION_NOT_FOUND               = 0xC0000BEB
+	PDH_PLA_ERROR_SCHEDULE_ELAPSED             = 0xC0000BEC
+	PDH_PLA_ERROR_NOSTART                      = 0xC0000BED
+	PDH_PLA_ERROR_ALREADY_EXISTS               = 0xC0000BEE
+	PDH_PLA_ERROR_TYPE_MISMATCH                = 0xC0000BEF
+	PDH_PLA_ERROR_FILEPATH                     = 0xC0000BF0
+	PDH_PLA_SERVICE_ERROR                      = 0xC0000BF1
+	PDH_PLA_VALIDATION_ERROR                   = 0xC0000BF2
+	PDH_PLA_VALIDATION_WARNING                 = 0x80000BF3
+	PDH_PLA_ERROR_NAME_TOO_LONG                = 0xC0000BF4
+	PDH_INVALID_SQL_LOG_FORMAT                 = 0xC0000BF5
+	PDH_COUNTER_ALREADY_IN_QUERY               = 0xC0000BF6
+	PDH_BINARY_LOG_CORRUPT                     = 0xC0000BF7
+	PDH_LOG_SAMPLE_TOO_SMALL                   = 0xC0000BF8
+	PDH_OS_LATER_VERSION                       = 0xC0000BF9
+	PDH_OS_EARLIER_VERSION                     = 0xC0000BFA
+	PDH_INCORRECT_APPEND_TIME                  = 0xC0000BFB
+	PDH_UNMATCHED_APPEND_COUNTER               = 0xC0000BFC
+	PDH_SQL_ALTER_DETAIL_FAILED                = 0xC0000BFD
+	PDH_QUERY_PERF_DATA_TIMEOUT                = 0xC0000BFE
 )
 
 // Formatting options for GetFormattedCounterValue().
@@ -26,7 +105,7 @@ const (
 	PDH_FMT_ANSI         = 0x00020
 	PDH_FMT_UNICODE      = 0x00040
 	PDH_FMT_LONG         = 0x00100 // Return data as a long int.
-	PDH_FMT_DOUBLE       = 0x00200 // Return data as a double precision floating point real. 
+	PDH_FMT_DOUBLE       = 0x00200 // Return data as a double precision floating point real.
 	PDH_FMT_LARGE        = 0x00400 // Return data as a 64 bit integer.
 	PDH_FMT_NOSCALE      = 0x01000 // can be OR-ed: Do not apply the counter's default scaling factor.
 	PDH_FMT_1000         = 0x02000 // can be OR-ed: multiply the actual value by 1,000.
@@ -50,28 +129,28 @@ type PDH_FMT_COUNTERVALUE struct {
 	WideStringValue uintptr // Not supported according to MSDN
 }
 
-// PdhBrowseCounters configuration struct. Untested.
-type PDH_BROWSE_DLG_CONFIG struct {
-	BIncludeInstanceIndex    uint32
-	BSingleCounterPerAdd     uint32
-	BSingleCounterPerDialog  uint32
-	BLocalCountersOnly       uint32
-	BWildCardInstance        uint32
-	BHideDetailBox           uint32
-	BInitializePath          uint32
-	BDisableMachineSelection uint32
-	BIncludeCostlyObjects    uint32
-	BShowObjectBrowser       uint32
-	BReserved                uint32
-	HwndOwner                HWND
-	SzDataSource             uintptr
-	SzReturnPathBuffer       uintptr
-	CchReturnPathLength      uint32
-	PCallBack                int // CounterPathCallBack
-	DwCallBackArg            uintptr
-	CallBackStatus           uint32 // PDH error status code
-	DwDefaultDetailLevel     uint32
-	SzDialogBoxCaption       uintptr // pointer to a string
+// Union specialization for double values
+type PDH_FMT_COUNTERVALUE_DOUBLE struct {
+	CStatus     uint32
+	DoubleValue float64
+}
+
+// Union specialization for long values
+type PDH_FMT_COUNTERVALUE_LONG struct {
+	CStatus   uint32
+	LongValue int32
+}
+
+// Union specialization for 64 bit integer values
+type PDH_FMT_COUNTERVALUE_LARGE struct {
+	CStatus    uint32
+	LargeValue int64
+}
+
+// Union specialization for double values, used by PdhGetFormattedCounterArray()
+type PDH_FMT_COUNTERVALUE_ITEM_DOUBLE struct {
+	SzName   uintptr // pointer to a string
+	FmtValue PDH_FMT_COUNTERVALUE_DOUBLE
 }
 
 var (
@@ -79,14 +158,14 @@ var (
 	libpdhDll *syscall.DLL
 
 	// Functions
-	pdh_AddCounterW              *syscall.Proc
-	pdh_AddEnglishCounterW       *syscall.Proc
-	pdh_BrowseCounters           *syscall.Proc
-	pdh_CloseQuery               *syscall.Proc
-	pdh_CollectQueryData         *syscall.Proc
-	pdh_GetFormattedCounterValue *syscall.Proc
-	pdh_OpenQuery                *syscall.Proc
-	pdh_ValidatePath             *syscall.Proc
+	pdh_AddCounterW               *syscall.Proc
+	pdh_AddEnglishCounterW        *syscall.Proc
+	pdh_CloseQuery                *syscall.Proc
+	pdh_CollectQueryData          *syscall.Proc
+	pdh_GetFormattedCounterValue  *syscall.Proc
+	pdh_GetFormattedCounterArrayW *syscall.Proc
+	pdh_OpenQuery                 *syscall.Proc
+	pdh_ValidatePathW             *syscall.Proc
 )
 
 func init() {
@@ -96,15 +175,15 @@ func init() {
 	// Functions
 	pdh_AddCounterW = libpdhDll.MustFindProc("PdhAddCounterW")
 	pdh_AddEnglishCounterW = libpdhDll.MustFindProc("PdhAddEnglishCounterW")
-	pdh_BrowseCounters = libpdhDll.MustFindProc("PdhBrowseCountersW")
 	pdh_CloseQuery = libpdhDll.MustFindProc("PdhCloseQuery")
 	pdh_CollectQueryData = libpdhDll.MustFindProc("PdhCollectQueryData")
 	pdh_GetFormattedCounterValue = libpdhDll.MustFindProc("PdhGetFormattedCounterValue")
+	pdh_GetFormattedCounterArrayW = libpdhDll.MustFindProc("PdhGetFormattedCounterArrayW")
 	pdh_OpenQuery = libpdhDll.MustFindProc("PdhOpenQuery")
-	pdh_ValidatePath = libpdhDll.MustFindProc("PdhValidatePathW")
+	pdh_ValidatePathW = libpdhDll.MustFindProc("PdhValidatePathW")
 }
 
-// Adds the specified counter to the query. This is the NON-ENGLISH version. Preferably, use the
+// Adds the specified counter to the query. This is the internationalized version. Preferably, use the
 // function PdhAddEnglishCounter instead. hQuery is the query handle, which has been fetched by PdhOpenQuery.
 // szFullCounterPath is a full, internationalized counter path (this will differ per Windows language version).
 // dwUserData is a 'user-defined value', which becomes part of the counter information. To retrieve this value
@@ -116,7 +195,32 @@ func init() {
 //	\\Processor(_Total)\\% Processor Time
 //	\\LogicalDisk(C:)\% Free Space
 //
-// To view all available counters on a system, try the PdhBrowseCounters() function.
+// To view all (internationalized...) counters on a system, there are three non-programmatic ways: perfmon utility,
+// the typeperf command, and the the registry editor. perfmon.exe is perhaps the easiest way, because it's basically a
+// full implemention of the pdh.dll API, except with a GUI and all that. The registry setting also provides an
+// interface to the available counters, and can be found at the following key:
+//
+// 	HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Perflib\CurrentLanguage
+//
+// This registry key contains several values as follows:
+//
+//	1
+//	1847
+//	2
+//	System
+//	4
+//	Memory
+//	6
+//	% Processor Time
+//	... many, many more
+//
+// Somehow, these numeric values can be used as szFullCounterPath too:
+//
+//	\2\6 will correspond to \\System\% Processor Time
+//
+// The typeperf command may also be pretty easy. To find all performance counters, simply execute:
+//
+//	typeperf -qx
 func PdhAddCounter(hQuery PDH_HQUERY, szFullCounterPath string, dwUserData uintptr, phCounter *PDH_HCOUNTER) uint32 {
 	ptxt, _ := syscall.UTF16PtrFromString(szFullCounterPath)
 	ret, _, _ := pdh_AddCounterW.Call(uintptr(hQuery),
@@ -170,15 +274,15 @@ func PdhCloseQuery(hQuery PDH_HQUERY) uint32 {
 // 	var counterHandle win.PDH_HCOUNTER
 // 	ret := win.PdhOpenQuery(0, 0, &handle)
 //	ret = win.PdhAddEnglishCounter(handle, "\\Processor(_Total)\\% Idle Time", 0, &counterHandle)
-//	var derp win.PDH_FMT_COUNTERVALUE
+//	var derp win.PDH_FMT_COUNTERVALUE_DOUBLE
 //
 //	ret = win.PdhCollectQueryData(handle)
 //	fmt.Printf("Collect return code is %x\n", ret) // return code will be PDH_CSTATUS_INVALID_DATA
-//	ret = win.PdhGetFormattedCounterValue(counterHandle, win.PDH_FMT_DOUBLE, 0, &derp)
+//	ret = win.PdhGetFormattedCounterValueDouble(counterHandle, 0, &derp)
 //
 //	ret = win.PdhCollectQueryData(handle)
 //	fmt.Printf("Collect return code is %x\n", ret) // return code will be ERROR_SUCCESS
-//	ret = win.PdhGetFormattedCounterValue(counterHandle, win.PDH_FMT_DOUBLE, 0, &derp)
+//	ret = win.PdhGetFormattedCounterValueDouble(counterHandle, 0, &derp)
 //
 // The PdhCollectQueryData will return an error in the first call because it needs two values for
 // displaying the correct data for the processor idle time. The second call will have a 0 return code.
@@ -188,22 +292,46 @@ func PdhCollectQueryData(hQuery PDH_HQUERY) uint32 {
 	return uint32(ret)
 }
 
-// Formats a counter hCounter according the dwFormat. The result is set in the PDH_FMT_COUNTERVALUE struct, pValue.
-func PdhGetFormattedCounterValue(hCounter PDH_HCOUNTER, dwFormat uint32, lpdwType uintptr, pValue *PDH_FMT_COUNTERVALUE) uint32 {
+// Formats the given hCounter using a 'double'. The result is set into the specialized union struct pValue.
+// This function does not directly translate to a Windows counterpart due to union specialization tricks.
+func PdhGetFormattedCounterValueDouble(hCounter PDH_HCOUNTER, lpdwType uintptr, pValue *PDH_FMT_COUNTERVALUE_DOUBLE) uint32 {
 	ret, _, _ := pdh_GetFormattedCounterValue.Call(uintptr(hCounter),
-		uintptr(dwFormat),
+		uintptr(PDH_FMT_DOUBLE),
 		uintptr(unsafe.Pointer(lpdwType)),
 		uintptr(unsafe.Pointer(pValue)))
 
 	return uint32(ret)
 }
 
-// Displays a Browse Counters dialog box that the user can use to select one or more counters
-// that they want to add to the query. This function returns a PDH error code, or 0 of the call succeeded.
-// This call is pretty much untested. On my machine, it displays a dialog box perfectly with specifying
-// a practical 'unfilled' struct, but that's all I've tested.
-func PdhBrowseCounters(pBrowseDlgData *PDH_BROWSE_DLG_CONFIG) uint32 {
-	ret, _, _ := pdh_BrowseCounters.Call(uintptr(unsafe.Pointer(pBrowseDlgData)))
+// Formats the given hCounter using a 'long'. The result is set into the specialized union struct pValue.
+// This function does not directly translate to a Windows counterpart due to union specialization tricks.
+func PdhGetFormattedCounterValueLong(hCounter PDH_HCOUNTER, lpdwType uintptr, pValue *PDH_FMT_COUNTERVALUE_LONG) uint32 {
+	ret, _, _ := pdh_GetFormattedCounterValue.Call(uintptr(hCounter),
+		uintptr(PDH_FMT_LONG),
+		uintptr(unsafe.Pointer(lpdwType)),
+		uintptr(unsafe.Pointer(pValue)))
+
+	return uint32(ret)
+}
+
+// Formats the given hCounter using a large int (int64). The result is set into the specialized union struct pValue.
+// This function does not directly translate to a Windows counterpart due to union specialization tricks.
+func PdhGetFormattedCounterValueLarge(hCounter PDH_HCOUNTER, lpdwType uintptr, pValue *PDH_FMT_COUNTERVALUE_LARGE) uint32 {
+	ret, _, _ := pdh_GetFormattedCounterValue.Call(uintptr(hCounter),
+		uintptr(PDH_FMT_LARGE),
+		uintptr(unsafe.Pointer(lpdwType)),
+		uintptr(unsafe.Pointer(pValue)))
+
+	return uint32(ret)
+}
+
+// Experimental
+func PdhGetFormattedCounterArrayDouble(hCounter PDH_HCOUNTER, lpdwBufferSize *uint32, lpdwBufferCount *uint32, itemBuffer unsafe.Pointer) uint32 {
+	ret, _, _ := pdh_GetFormattedCounterArrayW.Call(uintptr(hCounter),
+		uintptr(PDH_FMT_DOUBLE),
+		uintptr(unsafe.Pointer(lpdwBufferSize)),
+		uintptr(unsafe.Pointer(lpdwBufferCount)),
+		uintptr(itemBuffer))
 
 	return uint32(ret)
 }
@@ -212,7 +340,7 @@ func PdhBrowseCounters(pBrowseDlgData *PDH_BROWSE_DLG_CONFIG) uint32 {
 // erroneous.
 func PdhValidatePath(path string) uint32 {
 	ptxt, _ := syscall.UTF16PtrFromString(path)
-	ret, _, _ := pdh_ValidatePath.Call(uintptr(unsafe.Pointer(ptxt)))
+	ret, _, _ := pdh_ValidatePathW.Call(uintptr(unsafe.Pointer(ptxt)))
 
 	return uint32(ret)
 }
