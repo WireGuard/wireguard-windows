@@ -101,18 +101,18 @@ const (
 
 // Formatting options for GetFormattedCounterValue().
 const (
-	PDH_FMT_RAW          = 0x00010
-	PDH_FMT_ANSI         = 0x00020
-	PDH_FMT_UNICODE      = 0x00040
-	PDH_FMT_LONG         = 0x00100 // Return data as a long int.
-	PDH_FMT_DOUBLE       = 0x00200 // Return data as a double precision floating point real.
-	PDH_FMT_LARGE        = 0x00400 // Return data as a 64 bit integer.
-	PDH_FMT_NOSCALE      = 0x01000 // can be OR-ed: Do not apply the counter's default scaling factor.
-	PDH_FMT_1000         = 0x02000 // can be OR-ed: multiply the actual value by 1,000.
-	PDH_FMT_NODATA       = 0x04000 // can be OR-ed: unknown what this is for, MSDN says nothing.
-	PDH_FMT_NOCAP100     = 0x08000 // can be OR-ed: do not cap values > 100.
-	PERF_DETAIL_COSTLY   = 0x10000
-	PERF_DETAIL_STANDARD = 0x0FFFF
+	PDH_FMT_RAW          = 0x00000010
+	PDH_FMT_ANSI         = 0x00000020
+	PDH_FMT_UNICODE      = 0x00000040
+	PDH_FMT_LONG         = 0x00000100 // Return data as a long int.
+	PDH_FMT_DOUBLE       = 0x00000200 // Return data as a double precision floating point real.
+	PDH_FMT_LARGE        = 0x00000400 // Return data as a 64 bit integer.
+	PDH_FMT_NOSCALE      = 0x00001000 // can be OR-ed: Do not apply the counter's default scaling factor.
+	PDH_FMT_1000         = 0x00002000 // can be OR-ed: multiply the actual value by 1,000.
+	PDH_FMT_NODATA       = 0x00004000 // can be OR-ed: unknown what this is for, MSDN says nothing.
+	PDH_FMT_NOCAP100     = 0x00008000 // can be OR-ed: do not cap values > 100.
+	PERF_DETAIL_COSTLY   = 0x00010000
+	PERF_DETAIL_STANDARD = 0x0000FFFF
 )
 
 type (
@@ -147,10 +147,22 @@ type PDH_FMT_COUNTERVALUE_LARGE struct {
 	LargeValue int64
 }
 
-// Union specialization for double values, used by PdhGetFormattedCounterArray()
+// Union specialization for double values, used by PdhGetFormattedCounterArrayDouble()
 type PDH_FMT_COUNTERVALUE_ITEM_DOUBLE struct {
 	SzName   *uint16 // pointer to a string
 	FmtValue PDH_FMT_COUNTERVALUE_DOUBLE
+}
+
+// Union specialization for long values, used by PdhGetFormattedCounterArrayLong()
+type PDH_FMT_COUNTERVALUE_ITEM_LONG struct {
+	SzName   *uint16 // pointer to a string
+	FmtValue PDH_FMT_COUNTERVALUE_LONG
+}
+
+// Union specialization for 'large' values, used by PdhGetFormattedCounterArrayLarge()
+type PDH_FMT_COUNTERVALUE_ITEM_LARGE struct {
+	SzName   *uint16 // pointer to a string
+	FmtValue PDH_FMT_COUNTERVALUE_LARGE
 }
 
 var (
@@ -325,10 +337,72 @@ func PdhGetFormattedCounterValueLarge(hCounter PDH_HCOUNTER, lpdwType uintptr, p
 	return uint32(ret)
 }
 
-// Experimental
+// Returns an array of formatted counter values. Use this function when you want to format the counter values of a
+// counter that contains a wildcard character for the instance name. The itemBuffer must a slice of type PDH_FMT_COUNTERVALUE_ITEM_DOUBLE.
+// An example of how this function can be used:
+//
+//	okPath := "\\Process(*)\\% Processor Time" // notice the wildcard * character
+//
+//	// ommitted all necessary stuff ...
+//
+//	var bufSize uint32
+//	var bufCount uint32
+//	var size uint32 = uint32(unsafe.Sizeof(win.PDH_FMT_COUNTERVALUE_ITEM_DOUBLE{}))
+//
+//	for {
+//		// collect
+//		ret = win.PdhCollectQueryData(queryHandle)
+//		if ret == win.ERROR_SUCCESS {
+//			ret = win.PdhGetFormattedCounterArrayDouble(counterHandle, &bufSize, &bufCount, unsafe.Pointer(uintptr(0)))
+//			if ret == win.PDH_MORE_DATA {
+//				mybuf := make([]win.PDH_FMT_COUNTERVALUE_ITEM_DOUBLE, bufSize/size)
+//				ret = win.PdhGetFormattedCounterArrayDouble(counterHandle, &bufSize, &bufCount, unsafe.Pointer(&mybuf[0]))
+//				for i := 0; i < int(bufCount); i++ {
+//					c := mybuf[i]
+//					var s string = win.UTF16PtrToString(c.SzName)
+//					// do something with s, which is the name of the counter
+//					// do something with c.FmtValue.DoubleValue which is the value of the counter.
+//				}
+//
+//				mybuf = nil
+//				// MUST set these to 0, or else the next invocation of the PdhGetFormattedCounterArrayDouble
+//				// function in this loop will return an error code.
+//				bufCount = 0
+//				bufSize = 0
+//			}
+//
+//			time.Sleep(1000 * time.Millisecond)
+//		}
+//	}
 func PdhGetFormattedCounterArrayDouble(hCounter PDH_HCOUNTER, lpdwBufferSize *uint32, lpdwBufferCount *uint32, itemBuffer unsafe.Pointer) uint32 {
 	ret, _, _ := pdh_GetFormattedCounterArrayW.Call(uintptr(hCounter),
 		uintptr(PDH_FMT_DOUBLE),
+		uintptr(unsafe.Pointer(lpdwBufferSize)),
+		uintptr(unsafe.Pointer(lpdwBufferCount)),
+		uintptr(itemBuffer))
+
+	return uint32(ret)
+}
+
+// Returns an array of formatted counter values. Use this function when you want to format the counter values of a
+// counter that contains a wildcard character for the instance name. The itemBuffer must a slice of type PDH_FMT_COUNTERVALUE_ITEM_LONG.
+// For an example usage, see PdhGetFormattedCounterArrayDouble.
+func PdhGetFormattedCounterArrayLong(hCounter PDH_HCOUNTER, lpdwBufferSize *uint32, lpdwBufferCount *uint32, itemBuffer unsafe.Pointer) uint32 {
+	ret, _, _ := pdh_GetFormattedCounterArrayW.Call(uintptr(hCounter),
+		uintptr(PDH_FMT_LONG),
+		uintptr(unsafe.Pointer(lpdwBufferSize)),
+		uintptr(unsafe.Pointer(lpdwBufferCount)),
+		uintptr(itemBuffer))
+
+	return uint32(ret)
+}
+
+// Returns an array of formatted counter values. Use this function when you want to format the counter values of a
+// counter that contains a wildcard character for the instance name. The itemBuffer must a slice of type PDH_FMT_COUNTERVALUE_ITEM_LARGE.
+// For an example usage, see PdhGetFormattedCounterArrayDouble.
+func PdhGetFormattedCounterArrayLarge(hCounter PDH_HCOUNTER, lpdwBufferSize *uint32, lpdwBufferCount *uint32, itemBuffer unsafe.Pointer) uint32 {
+	ret, _, _ := pdh_GetFormattedCounterArrayW.Call(uintptr(hCounter),
+		uintptr(PDH_FMT_LARGE),
 		uintptr(unsafe.Pointer(lpdwBufferSize)),
 		uintptr(unsafe.Pointer(lpdwBufferCount)),
 		uintptr(itemBuffer))
