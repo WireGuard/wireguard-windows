@@ -1488,6 +1488,7 @@ var (
 	loadImage                  uintptr
 	loadMenu                   uintptr
 	loadString                 uintptr
+	messageBeep                uintptr
 	messageBox                 uintptr
 	monitorFromWindow          uintptr
 	moveWindow                 uintptr
@@ -1605,6 +1606,7 @@ func init() {
 	loadImage = MustGetProcAddress(libuser32, "LoadImageW")
 	loadMenu = MustGetProcAddress(libuser32, "LoadMenuW")
 	loadString = MustGetProcAddress(libuser32, "LoadStringW")
+	messageBeep = MustGetProcAddress(libuser32, "MessageBeep")
 	messageBox = MustGetProcAddress(libuser32, "MessageBoxW")
 	monitorFromWindow = MustGetProcAddress(libuser32, "MonitorFromWindow")
 	moveWindow = MustGetProcAddress(libuser32, "MoveWindow")
@@ -2255,6 +2257,29 @@ func LoadString(instRes HINSTANCE, id uint32, buf *uint16, length int32) int32 {
 		0)
 
 	return int32(ret)
+}
+
+// Plays a waveform sound. uType is the sound to be played. The sounds are set by the user through the Sound control panel application.
+// The following values can be used as a sound:
+//
+//	MB_ICONASTERISK (see MB_ICONINFORMATION)
+//	MB_ICONEXCLAMATION (see MB_ICONWARNING)
+//	MB_ICONERROR (The sound specified as the Windows Critical Stop sound)
+//	MB_ICONHAND (See MB_ICONERROR)
+//	MB_ICONINFORMATION (The sounds specified as the Windows Asterisk sound)
+//	MB_ICONQUESTION (The sound specified as the Windows Question sound)
+// 	MB_ICONSTOP (See MB_ICONERROR)
+//	MB_ICONWARNING (The sounds specified as the Windows Exclamation sound)
+//	MB_OK (The sound specified as the Windows Default Beep sound)
+//
+// The function will return true if the function succeeds, false if otherwise.
+func MessageBeep(uType uint32) bool {
+	ret, _, _ := syscall.Syscall(messageBeep, 2,
+		uintptr(uType),
+		0,
+		0)
+
+	return ret != 0
 }
 
 func MessageBox(hWnd HWND, lpText, lpCaption *uint16, uType uint32) int32 {
