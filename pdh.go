@@ -120,15 +120,6 @@ type (
 	PDH_HCOUNTER HANDLE // counter handle
 )
 
-type PDH_FMT_COUNTERVALUE struct {
-	CStatus         uint32
-	LongValue       int32
-	DoubleValue     float64
-	LargeValue      int64
-	AnsiStringValue uintptr // Not supported according to MSDN
-	WideStringValue uintptr // Not supported according to MSDN
-}
-
 // Union specialization for double values
 type PDH_FMT_COUNTERVALUE_DOUBLE struct {
 	CStatus     uint32
@@ -139,6 +130,7 @@ type PDH_FMT_COUNTERVALUE_DOUBLE struct {
 type PDH_FMT_COUNTERVALUE_LONG struct {
 	CStatus   uint32
 	LongValue int32
+	padding   [4]byte
 }
 
 // Union specialization for 64 bit integer values
@@ -317,6 +309,9 @@ func PdhGetFormattedCounterValueDouble(hCounter PDH_HCOUNTER, lpdwType uintptr, 
 
 // Formats the given hCounter using a 'long'. The result is set into the specialized union struct pValue.
 // This function does not directly translate to a Windows counterpart due to union specialization tricks.
+// Testing this function on multiple systems yielded inconsistent results. For instance, the pValue.LongValue
+// kept the value '192' on test system A, but on B this was '0', while the padding bytes of the struct got
+// the correct value. When in doubt, use the Double or Large counterparts instead.
 func PdhGetFormattedCounterValueLong(hCounter PDH_HCOUNTER, lpdwType uintptr, pValue *PDH_FMT_COUNTERVALUE_LONG) uint32 {
 	ret, _, _ := pdh_GetFormattedCounterValue.Call(uintptr(hCounter),
 		uintptr(PDH_FMT_LONG),
