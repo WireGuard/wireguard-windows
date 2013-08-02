@@ -15,10 +15,10 @@ const (
 	PDH_CSTATUS_NEW_DATA                       = 0x00000001 // The return data value is valid and different from the last sample.
 	PDH_CSTATUS_NO_MACHINE                     = 0x800007D0 // Unable to connect to the specified computer, or the computer is offline.
 	PDH_CSTATUS_NO_INSTANCE                    = 0x800007D1
-	PDH_MORE_DATA                              = 0x800007D2
+	PDH_MORE_DATA                              = 0x800007D2 // The PdhGetFormattedCounterArray* function can return this if there's 'more data to be displayed'.
 	PDH_CSTATUS_ITEM_NOT_VALIDATED             = 0x800007D3
 	PDH_RETRY                                  = 0x800007D4
-	PDH_NO_DATA                                = 0x800007D5
+	PDH_NO_DATA                                = 0x800007D5 // The query does not currently contain any counters (ex. limited access)
 	PDH_CALC_NEGATIVE_DENOMINATOR              = 0x800007D6
 	PDH_CALC_NEGATIVE_TIMEBASE                 = 0x800007D7
 	PDH_CALC_NEGATIVE_VALUE                    = 0x800007D8
