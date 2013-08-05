@@ -18,7 +18,7 @@ const (
 	PDH_MORE_DATA                              = 0x800007D2 // The PdhGetFormattedCounterArray* function can return this if there's 'more data to be displayed'.
 	PDH_CSTATUS_ITEM_NOT_VALIDATED             = 0x800007D3
 	PDH_RETRY                                  = 0x800007D4
-	PDH_NO_DATA                                = 0x800007D5 // The query does not currently contain any counters (ex. limited access)
+	PDH_NO_DATA                                = 0x800007D5 // The query does not currently contain any counters (for example, limited access)
 	PDH_CALC_NEGATIVE_DENOMINATOR              = 0x800007D6
 	PDH_CALC_NEGATIVE_TIMEBASE                 = 0x800007D7
 	PDH_CALC_NEGATIVE_VALUE                    = 0x800007D8
@@ -126,17 +126,17 @@ type PDH_FMT_COUNTERVALUE_DOUBLE struct {
 	DoubleValue float64
 }
 
+// Union specialization for 64 bit integer values
+type PDH_FMT_COUNTERVALUE_LARGE struct {
+	CStatus    uint32
+	LargeValue int64
+}
+
 // Union specialization for long values
 type PDH_FMT_COUNTERVALUE_LONG struct {
 	CStatus   uint32
 	LongValue int32
 	padding   [4]byte
-}
-
-// Union specialization for 64 bit integer values
-type PDH_FMT_COUNTERVALUE_LARGE struct {
-	CStatus    uint32
-	LargeValue int64
 }
 
 // Union specialization for double values, used by PdhGetFormattedCounterArrayDouble()
@@ -145,16 +145,16 @@ type PDH_FMT_COUNTERVALUE_ITEM_DOUBLE struct {
 	FmtValue PDH_FMT_COUNTERVALUE_DOUBLE
 }
 
-// Union specialization for long values, used by PdhGetFormattedCounterArrayLong()
-type PDH_FMT_COUNTERVALUE_ITEM_LONG struct {
-	SzName   *uint16 // pointer to a string
-	FmtValue PDH_FMT_COUNTERVALUE_LONG
-}
-
 // Union specialization for 'large' values, used by PdhGetFormattedCounterArrayLarge()
 type PDH_FMT_COUNTERVALUE_ITEM_LARGE struct {
 	SzName   *uint16 // pointer to a string
 	FmtValue PDH_FMT_COUNTERVALUE_LARGE
+}
+
+// Union specialization for long values, used by PdhGetFormattedCounterArrayLong()
+type PDH_FMT_COUNTERVALUE_ITEM_LONG struct {
+	SzName   *uint16 // pointer to a string
+	FmtValue PDH_FMT_COUNTERVALUE_LONG
 }
 
 var (
@@ -178,7 +178,7 @@ func init() {
 
 	// Functions
 	pdh_AddCounterW = libpdhDll.MustFindProc("PdhAddCounterW")
-	pdh_AddEnglishCounterW = libpdhDll.MustFindProc("PdhAddEnglishCounterW")
+	pdh_AddEnglishCounterW = libpdhDll.MustFindProc("PdhAddEnglishCounterW") // XXX: only supported on versions > Vista.
 	pdh_CloseQuery = libpdhDll.MustFindProc("PdhCloseQuery")
 	pdh_CollectQueryData = libpdhDll.MustFindProc("PdhCollectQueryData")
 	pdh_GetFormattedCounterValue = libpdhDll.MustFindProc("PdhGetFormattedCounterValue")
@@ -227,7 +227,8 @@ func init() {
 //	typeperf -qx
 func PdhAddCounter(hQuery PDH_HQUERY, szFullCounterPath string, dwUserData uintptr, phCounter *PDH_HCOUNTER) uint32 {
 	ptxt, _ := syscall.UTF16PtrFromString(szFullCounterPath)
-	ret, _, _ := pdh_AddCounterW.Call(uintptr(hQuery),
+	ret, _, _ := pdh_AddCounterW.Call(
+		uintptr(hQuery),
 		uintptr(unsafe.Pointer(ptxt)),
 		dwUserData,
 		uintptr(unsafe.Pointer(phCounter)))
@@ -235,28 +236,15 @@ func PdhAddCounter(hQuery PDH_HQUERY, szFullCounterPath string, dwUserData uintp
 	return uint32(ret)
 }
 
-// Adds the specified language-neutral counter to the query. See the PdhAddCounter function.
+// Adds the specified language-neutral counter to the query. See the PdhAddCounter function. This function only exists on
+// Windows versions higher than Vista.
 func PdhAddEnglishCounter(hQuery PDH_HQUERY, szFullCounterPath string, dwUserData uintptr, phCounter *PDH_HCOUNTER) uint32 {
 	ptxt, _ := syscall.UTF16PtrFromString(szFullCounterPath)
-	ret, _, _ := pdh_AddEnglishCounterW.Call(uintptr(hQuery),
+	ret, _, _ := pdh_AddEnglishCounterW.Call(
+		uintptr(hQuery),
 		uintptr(unsafe.Pointer(ptxt)),
 		dwUserData,
 		uintptr(unsafe.Pointer(phCounter)))
-
-	return uint32(ret)
-}
-
-// Creates a new query that is used to manage the collection of performance data.
-// szDataSource is a null terminated string that specifies the name of the log file from which to
-// retrieve the performance data. If 0, performance data is collected from a real-time data source.
-// dwUserData is a user-defined value to associate with this query. To retrieve the user data later,
-// call PdhGetCounterInfo and access dwQueryUserData of the PDH_COUNTER_INFO structure. phQuery is
-// the handle to the query, and must be used in subsequent calls. This function returns a PDH_
-// constant error code, or 0 if the call succeeded.
-func PdhOpenQuery(szDataSource uintptr, dwUserData uintptr, phQuery *PDH_HQUERY) uint32 {
-	ret, _, _ := pdh_OpenQuery.Call(szDataSource,
-		dwUserData,
-		uintptr(unsafe.Pointer(phQuery)))
 
 	return uint32(ret)
 }
@@ -298,9 +286,22 @@ func PdhCollectQueryData(hQuery PDH_HQUERY) uint32 {
 
 // Formats the given hCounter using a 'double'. The result is set into the specialized union struct pValue.
 // This function does not directly translate to a Windows counterpart due to union specialization tricks.
-func PdhGetFormattedCounterValueDouble(hCounter PDH_HCOUNTER, lpdwType uintptr, pValue *PDH_FMT_COUNTERVALUE_DOUBLE) uint32 {
-	ret, _, _ := pdh_GetFormattedCounterValue.Call(uintptr(hCounter),
+func PdhGetFormattedCounterValueDouble(hCounter PDH_HCOUNTER, lpdwType *uint32, pValue *PDH_FMT_COUNTERVALUE_DOUBLE) uint32 {
+	ret, _, _ := pdh_GetFormattedCounterValue.Call(
+		uintptr(hCounter),
 		uintptr(PDH_FMT_DOUBLE),
+		uintptr(unsafe.Pointer(lpdwType)),
+		uintptr(unsafe.Pointer(pValue)))
+
+	return uint32(ret)
+}
+
+// Formats the given hCounter using a large int (int64). The result is set into the specialized union struct pValue.
+// This function does not directly translate to a Windows counterpart due to union specialization tricks.
+func PdhGetFormattedCounterValueLarge(hCounter PDH_HCOUNTER, lpdwType *uint32, pValue *PDH_FMT_COUNTERVALUE_LARGE) uint32 {
+	ret, _, _ := pdh_GetFormattedCounterValue.Call(
+		uintptr(hCounter),
+		uintptr(PDH_FMT_LARGE),
 		uintptr(unsafe.Pointer(lpdwType)),
 		uintptr(unsafe.Pointer(pValue)))
 
@@ -310,25 +311,15 @@ func PdhGetFormattedCounterValueDouble(hCounter PDH_HCOUNTER, lpdwType uintptr, 
 // Formats the given hCounter using a 'long'. The result is set into the specialized union struct pValue.
 // This function does not directly translate to a Windows counterpart due to union specialization tricks.
 //
-// BUG(krpors): Testing this function on multiple systems yielded inconsistent results. For instance, 
+// BUG(krpors): Testing this function on multiple systems yielded inconsistent results. For instance,
 // the pValue.LongValue kept the value '192' on test system A, but on B this was '0', while the padding
 // bytes of the struct got the correct value. Until someone can figure out this behaviour, prefer to use
 // the Double or Large counterparts instead. These functions provide actually the same data, except in
 // a different, working format.
-func PdhGetFormattedCounterValueLong(hCounter PDH_HCOUNTER, lpdwType uintptr, pValue *PDH_FMT_COUNTERVALUE_LONG) uint32 {
-	ret, _, _ := pdh_GetFormattedCounterValue.Call(uintptr(hCounter),
+func PdhGetFormattedCounterValueLong(hCounter PDH_HCOUNTER, lpdwType *uint32, pValue *PDH_FMT_COUNTERVALUE_LONG) uint32 {
+	ret, _, _ := pdh_GetFormattedCounterValue.Call(
+		uintptr(hCounter),
 		uintptr(PDH_FMT_LONG),
-		uintptr(unsafe.Pointer(lpdwType)),
-		uintptr(unsafe.Pointer(pValue)))
-
-	return uint32(ret)
-}
-
-// Formats the given hCounter using a large int (int64). The result is set into the specialized union struct pValue.
-// This function does not directly translate to a Windows counterpart due to union specialization tricks.
-func PdhGetFormattedCounterValueLarge(hCounter PDH_HCOUNTER, lpdwType uintptr, pValue *PDH_FMT_COUNTERVALUE_LARGE) uint32 {
-	ret, _, _ := pdh_GetFormattedCounterValue.Call(uintptr(hCounter),
-		uintptr(PDH_FMT_LARGE),
 		uintptr(unsafe.Pointer(lpdwType)),
 		uintptr(unsafe.Pointer(pValue)))
 
@@ -346,51 +337,39 @@ func PdhGetFormattedCounterValueLarge(hCounter PDH_HCOUNTER, lpdwType uintptr, p
 //	var bufSize uint32
 //	var bufCount uint32
 //	var size uint32 = uint32(unsafe.Sizeof(win.PDH_FMT_COUNTERVALUE_ITEM_DOUBLE{}))
+//	var emptyBuf [1]win.PDH_FMT_COUNTERVALUE_ITEM_DOUBLE // need at least 1 addressable null ptr.
 //
 //	for {
 //		// collect
-//		ret = win.PdhCollectQueryData(queryHandle)
+//		ret := win.PdhCollectQueryData(queryHandle)
 //		if ret == win.ERROR_SUCCESS {
-//			ret = win.PdhGetFormattedCounterArrayDouble(counterHandle, &bufSize, &bufCount, unsafe.Pointer(uintptr(0)))
+//			ret = win.PdhGetFormattedCounterArrayDouble(counterHandle, &bufSize, &bufCount, &emptyBuf[0]) // uses null ptr here according to MSDN.
 //			if ret == win.PDH_MORE_DATA {
-//				mybuf := make([]win.PDH_FMT_COUNTERVALUE_ITEM_DOUBLE, bufSize/size)
-//				ret = win.PdhGetFormattedCounterArrayDouble(counterHandle, &bufSize, &bufCount, unsafe.Pointer(&mybuf[0]))
+//				filledBuf := make([]win.PDH_FMT_COUNTERVALUE_ITEM_DOUBLE, bufCount*size)
+//				ret = win.PdhGetFormattedCounterArrayDouble(counterHandle, &bufSize, &bufCount, &filledBuf[0])
 //				for i := 0; i < int(bufCount); i++ {
-//					c := mybuf[i]
+//					c := filledBuf[i]
 //					var s string = win.UTF16PtrToString(c.SzName)
-//					// do something with s, which is the name of the counter
-//					// do something with c.FmtValue.DoubleValue which is the value of the counter.
+//					fmt.Printf("Index %d -> %s, value %v\n", i, s, c.FmtValue.DoubleValue)
 //				}
 //
-//				mybuf = nil
-//				// MUST set these to 0, or else the next invocation of the PdhGetFormattedCounterArrayDouble
-//				// function in this loop will return an error code.
+//				filledBuf = nil
+//				// Need to at least set bufSize to zero, because if not, the function will not
+//				// return PDH_MORE_DATA and will not set the bufSize.
 //				bufCount = 0
 //				bufSize = 0
 //			}
 //
-//			time.Sleep(1000 * time.Millisecond)
+//			time.Sleep(2000 * time.Millisecond)
 //		}
 //	}
-func PdhGetFormattedCounterArrayDouble(hCounter PDH_HCOUNTER, lpdwBufferSize *uint32, lpdwBufferCount *uint32, itemBuffer unsafe.Pointer) uint32 {
-	ret, _, _ := pdh_GetFormattedCounterArrayW.Call(uintptr(hCounter),
+func PdhGetFormattedCounterArrayDouble(hCounter PDH_HCOUNTER, lpdwBufferSize *uint32, lpdwBufferCount *uint32, itemBuffer *PDH_FMT_COUNTERVALUE_ITEM_DOUBLE) uint32 {
+	ret, _, _ := pdh_GetFormattedCounterArrayW.Call(
+		uintptr(hCounter),
 		uintptr(PDH_FMT_DOUBLE),
 		uintptr(unsafe.Pointer(lpdwBufferSize)),
 		uintptr(unsafe.Pointer(lpdwBufferCount)),
-		uintptr(itemBuffer))
-
-	return uint32(ret)
-}
-
-// Returns an array of formatted counter values. Use this function when you want to format the counter values of a
-// counter that contains a wildcard character for the instance name. The itemBuffer must a slice of type PDH_FMT_COUNTERVALUE_ITEM_LONG.
-// For an example usage, see PdhGetFormattedCounterArrayDouble.
-func PdhGetFormattedCounterArrayLong(hCounter PDH_HCOUNTER, lpdwBufferSize *uint32, lpdwBufferCount *uint32, itemBuffer unsafe.Pointer) uint32 {
-	ret, _, _ := pdh_GetFormattedCounterArrayW.Call(uintptr(hCounter),
-		uintptr(PDH_FMT_LONG),
-		uintptr(unsafe.Pointer(lpdwBufferSize)),
-		uintptr(unsafe.Pointer(lpdwBufferCount)),
-		uintptr(itemBuffer))
+		uintptr(unsafe.Pointer(itemBuffer)))
 
 	return uint32(ret)
 }
@@ -398,12 +377,45 @@ func PdhGetFormattedCounterArrayLong(hCounter PDH_HCOUNTER, lpdwBufferSize *uint
 // Returns an array of formatted counter values. Use this function when you want to format the counter values of a
 // counter that contains a wildcard character for the instance name. The itemBuffer must a slice of type PDH_FMT_COUNTERVALUE_ITEM_LARGE.
 // For an example usage, see PdhGetFormattedCounterArrayDouble.
-func PdhGetFormattedCounterArrayLarge(hCounter PDH_HCOUNTER, lpdwBufferSize *uint32, lpdwBufferCount *uint32, itemBuffer unsafe.Pointer) uint32 {
-	ret, _, _ := pdh_GetFormattedCounterArrayW.Call(uintptr(hCounter),
+func PdhGetFormattedCounterArrayLarge(hCounter PDH_HCOUNTER, lpdwBufferSize *uint32, lpdwBufferCount *uint32, itemBuffer *PDH_FMT_COUNTERVALUE_ITEM_LARGE) uint32 {
+	ret, _, _ := pdh_GetFormattedCounterArrayW.Call(
+		uintptr(hCounter),
 		uintptr(PDH_FMT_LARGE),
 		uintptr(unsafe.Pointer(lpdwBufferSize)),
 		uintptr(unsafe.Pointer(lpdwBufferCount)),
-		uintptr(itemBuffer))
+		uintptr(unsafe.Pointer(itemBuffer)))
+
+	return uint32(ret)
+}
+
+// Returns an array of formatted counter values. Use this function when you want to format the counter values of a
+// counter that contains a wildcard character for the instance name. The itemBuffer must a slice of type PDH_FMT_COUNTERVALUE_ITEM_LONG.
+// For an example usage, see PdhGetFormattedCounterArrayDouble.
+//
+// BUG(krpors): See description of PdhGetFormattedCounterValueLong().
+func PdhGetFormattedCounterArrayLong(hCounter PDH_HCOUNTER, lpdwBufferSize *uint32, lpdwBufferCount *uint32, itemBuffer *PDH_FMT_COUNTERVALUE_ITEM_LONG) uint32 {
+	ret, _, _ := pdh_GetFormattedCounterArrayW.Call(
+		uintptr(hCounter),
+		uintptr(PDH_FMT_LONG),
+		uintptr(unsafe.Pointer(lpdwBufferSize)),
+		uintptr(unsafe.Pointer(lpdwBufferCount)),
+		uintptr(unsafe.Pointer(itemBuffer)))
+
+	return uint32(ret)
+}
+
+// Creates a new query that is used to manage the collection of performance data.
+// szDataSource is a null terminated string that specifies the name of the log file from which to
+// retrieve the performance data. If 0, performance data is collected from a real-time data source.
+// dwUserData is a user-defined value to associate with this query. To retrieve the user data later,
+// call PdhGetCounterInfo and access dwQueryUserData of the PDH_COUNTER_INFO structure. phQuery is
+// the handle to the query, and must be used in subsequent calls. This function returns a PDH_
+// constant error code, or ERROR_SUCCESS if the call succeeded.
+func PdhOpenQuery(szDataSource uintptr, dwUserData uintptr, phQuery *PDH_HQUERY) uint32 {
+	ret, _, _ := pdh_OpenQuery.Call(
+		szDataSource,
+		dwUserData,
+		uintptr(unsafe.Pointer(phQuery)))
 
 	return uint32(ret)
 }
