@@ -178,7 +178,7 @@ func init() {
 
 	// Functions
 	pdh_AddCounterW = libpdhDll.MustFindProc("PdhAddCounterW")
-	pdh_AddEnglishCounterW = libpdhDll.MustFindProc("PdhAddEnglishCounterW") // XXX: only supported on versions > Vista.
+	pdh_AddEnglishCounterW, _ = libpdhDll.FindProc("PdhAddEnglishCounterW") // XXX: only supported on versions > Vista.
 	pdh_CloseQuery = libpdhDll.MustFindProc("PdhCloseQuery")
 	pdh_CollectQueryData = libpdhDll.MustFindProc("PdhCollectQueryData")
 	pdh_GetFormattedCounterValue = libpdhDll.MustFindProc("PdhGetFormattedCounterValue")
@@ -239,6 +239,10 @@ func PdhAddCounter(hQuery PDH_HQUERY, szFullCounterPath string, dwUserData uintp
 // Adds the specified language-neutral counter to the query. See the PdhAddCounter function. This function only exists on
 // Windows versions higher than Vista.
 func PdhAddEnglishCounter(hQuery PDH_HQUERY, szFullCounterPath string, dwUserData uintptr, phCounter *PDH_HCOUNTER) uint32 {
+	if pdh_AddEnglishCounterW == nil {
+		return ERROR_INVALID_FUNCTION
+	}
+
 	ptxt, _ := syscall.UTF16PtrFromString(szFullCounterPath)
 	ret, _, _ := pdh_AddEnglishCounterW.Call(
 		uintptr(hQuery),
