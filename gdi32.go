@@ -1317,7 +1317,7 @@ func GetPixel(hdc HDC, nXPos, nYPos int32) COLORREF {
 }
 
 func GetStockObject(fnObject int32) HGDIOBJ {
-	ret, _, _ := syscall.Syscall(getDeviceCaps, 1,
+	ret, _, _ := syscall.Syscall(getStockObject, 1,
 		uintptr(fnObject),
 		0,
 		0)
