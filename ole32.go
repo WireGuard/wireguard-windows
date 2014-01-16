@@ -53,8 +53,8 @@ const (
 	OLECLOSE_PROMPTSAVE  = 2
 )
 
-type IID GUID
-type CLSID GUID
+type IID syscall.GUID
+type CLSID syscall.GUID
 type REFIID *IID
 type REFCLSID *CLSID
 
