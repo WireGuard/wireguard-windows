@@ -148,7 +148,7 @@ type NOTIFYICONDATA struct {
 	UVersion         uint32
 	SzInfoTitle      [64]uint16
 	DwInfoFlags      uint32
-	GuidItem         GUID
+	GuidItem         syscall.GUID
 }
 
 type SHFILEINFO struct {
