@@ -2439,6 +2439,7 @@ func SendDlgItemMessage(hWnd HWND, id int32, msg uint32, wParam, lParam uintptr)
 	return ret
 }
 
+// pInputs expects a unsafe.Pointer to a slice of MOUSE_INPUT or KEYBD_INPUT or HARDWARE_INPUT structs.
 func SendInput(nInputs uint32, pInputs unsafe.Pointer, cbSize int32) uint32 {
 	ret, _, _ := syscall.Syscall(sendInput, 3,
 		uintptr(nInputs),
