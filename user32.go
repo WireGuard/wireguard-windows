@@ -1170,6 +1170,43 @@ const (
 	CF_WAVE            = 12
 )
 
+// ScrollBar constants
+const (
+	SB_HORZ = 0
+	SB_VERT = 1
+	SB_CTL  = 2
+	SB_BOTH = 3
+)
+
+// ScrollBar commands
+const (
+	SB_LINEUP        = 0
+	SB_LINELEFT      = 0
+	SB_LINEDOWN      = 1
+	SB_LINERIGHT     = 1
+	SB_PAGEUP        = 2
+	SB_PAGELEFT      = 2
+	SB_PAGEDOWN      = 3
+	SB_PAGERIGHT     = 3
+	SB_THUMBPOSITION = 4
+	SB_THUMBTRACK    = 5
+	SB_TOP           = 6
+	SB_LEFT          = 6
+	SB_BOTTOM        = 7
+	SB_RIGHT         = 7
+	SB_ENDSCROLL     = 8
+)
+
+// [Get|Set]ScrollInfo mask constants
+const (
+	SIF_RANGE           = 1
+	SIF_PAGE            = 2
+	SIF_POS             = 4
+	SIF_DISABLENOSCROLL = 8
+	SIF_TRACKPOS        = 16
+	SIF_ALL             = SIF_RANGE + SIF_PAGE + SIF_POS + SIF_TRACKPOS
+)
+
 type MONITORINFO struct {
 	CbSize    uint32
 	RcMonitor RECT
@@ -1413,6 +1450,16 @@ type HARDWAREINPUT struct {
 	Unused  [16]byte
 }
 
+type SCROLLINFO struct {
+	CbSize    uint32
+	FMask     uint32
+	NMin      int32
+	NMax      int32
+	NPage     uint32
+	NPos      int32
+	NTrackPos int32
+}
+
 func GET_X_LPARAM(lp uintptr) int32 {
 	return int32(int16(LOWORD(uint32(lp))))
 }
@@ -1467,6 +1514,7 @@ var (
 	getMonitorInfo             uintptr
 	getParent                  uintptr
 	getRawInputData            uintptr
+	getScrollInfo              uintptr
 	getSysColor                uintptr
 	getSysColorBrush           uintptr
 	getSystemMetrics           uintptr
@@ -1519,6 +1567,7 @@ var (
 	setMenuItemInfo            uintptr
 	setParent                  uintptr
 	setRect                    uintptr
+	setScrollInfo              uintptr
 	setTimer                   uintptr
 	setWindowLong              uintptr
 	setWindowLongPtr           uintptr
@@ -1580,6 +1629,7 @@ func init() {
 	getMonitorInfo = MustGetProcAddress(libuser32, "GetMonitorInfoW")
 	getParent = MustGetProcAddress(libuser32, "GetParent")
 	getRawInputData = MustGetProcAddress(libuser32, "GetRawInputData")
+	getScrollInfo = MustGetProcAddress(libuser32, "GetScrollInfo")
 	getSysColor = MustGetProcAddress(libuser32, "GetSysColor")
 	getSysColorBrush = MustGetProcAddress(libuser32, "GetSysColorBrush")
 	getSystemMetrics = MustGetProcAddress(libuser32, "GetSystemMetrics")
@@ -1637,6 +1687,7 @@ func init() {
 	setMenuItemInfo = MustGetProcAddress(libuser32, "SetMenuItemInfoW")
 	setRect = MustGetProcAddress(libuser32, "SetRect")
 	setParent = MustGetProcAddress(libuser32, "SetParent")
+	setScrollInfo = MustGetProcAddress(libuser32, "SetScrollInfo")
 	setTimer = MustGetProcAddress(libuser32, "SetTimer")
 	setWindowLong = MustGetProcAddress(libuser32, "SetWindowLongW")
 	// On 32 bit SetWindowLongPtrW is not available
@@ -2059,6 +2110,15 @@ func GetRawInputData(hRawInput HRAWINPUT, uiCommand uint32, pData unsafe.Pointer
 		0)
 
 	return uint32(ret)
+}
+
+func GetScrollInfo(hwnd HWND, fnBar int32, lpsi *SCROLLINFO) bool {
+	ret, _, _ := syscall.Syscall(getScrollInfo, 3,
+		uintptr(hwnd),
+		uintptr(fnBar),
+		uintptr(unsafe.Pointer(lpsi)))
+
+	return ret != 0
 }
 
 func GetSysColor(nIndex int) uint32 {
@@ -2572,6 +2632,18 @@ func SetRect(lprc *RECT, xLeft, yTop, xRight, yBottom uint32) BOOL {
 		0)
 
 	return BOOL(ret)
+}
+
+func SetScrollInfo(hwnd HWND, fnBar int32, lpsi *SCROLLINFO, fRedraw bool) int32 {
+	ret, _, _ := syscall.Syscall6(setScrollInfo, 4,
+		uintptr(hwnd),
+		uintptr(fnBar),
+		uintptr(unsafe.Pointer(lpsi)),
+		uintptr(BoolToBOOL(fRedraw)),
+		0,
+		0)
+
+	return int32(ret)
 }
 
 func SetTimer(hWnd HWND, nIDEvent uintptr, uElapse uint32, lpTimerFunc uintptr) uintptr {
