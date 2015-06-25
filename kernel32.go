@@ -57,6 +57,8 @@ var (
 	// Functions
 	closeHandle            uintptr
 	fileTimeToSystemTime   uintptr
+	getConsoleTitle        uintptr
+	getConsoleWindow       uintptr
 	getLastError           uintptr
 	getLocaleInfo          uintptr
 	getLogicalDriveStrings uintptr
@@ -116,6 +118,8 @@ func init() {
 	// Functions
 	closeHandle = MustGetProcAddress(libkernel32, "CloseHandle")
 	fileTimeToSystemTime = MustGetProcAddress(libkernel32, "FileTimeToSystemTime")
+	getConsoleTitle = MustGetProcAddress(libkernel32, "GetConsoleTitleW")
+	getConsoleWindow = MustGetProcAddress(libkernel32, "GetConsoleWindow")
 	getLastError = MustGetProcAddress(libkernel32, "GetLastError")
 	getLocaleInfo = MustGetProcAddress(libkernel32, "GetLocaleInfoW")
 	getLogicalDriveStrings = MustGetProcAddress(libkernel32, "GetLogicalDriveStringsW")
@@ -151,6 +155,24 @@ func FileTimeToSystemTime(lpFileTime *FILETIME, lpSystemTime *SYSTEMTIME) bool {
 		0)
 
 	return ret != 0
+}
+
+func GetConsoleTitle(lpConsoleTitle *uint16, nSize uint32) uint32 {
+	ret, _, _ := syscall.Syscall(getConsoleTitle, 2,
+		uintptr(unsafe.Pointer(lpConsoleTitle)),
+		uintptr(nSize),
+		0)
+
+	return uint32(ret)
+}
+
+func GetConsoleWindow() HWND {
+	ret, _, _ := syscall.Syscall(getConsoleWindow, 0,
+		0,
+		0,
+		0)
+
+	return HWND(ret)
 }
 
 func GetLastError() uint32 {

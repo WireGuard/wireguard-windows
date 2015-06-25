@@ -1207,6 +1207,16 @@ const (
 	SIF_ALL             = SIF_RANGE + SIF_PAGE + SIF_POS + SIF_TRACKPOS
 )
 
+// DrawIconEx flags
+const (
+	DI_COMPAT      = 0x0004
+	DI_DEFAULTSIZE = 0x0008
+	DI_IMAGE       = 0x0002
+	DI_MASK        = 0x0001
+	DI_NOMIRROR    = 0x0010
+	DI_NORMAL      = DI_IMAGE | DI_MASK
+)
+
 type MONITORINFO struct {
 	CbSize    uint32
 	RcMonitor RECT
@@ -1491,6 +1501,7 @@ var (
 	destroyWindow              uintptr
 	dialogBoxParam             uintptr
 	dispatchMessage            uintptr
+	drawIconEx                 uintptr
 	drawMenuBar                uintptr
 	drawFocusRect              uintptr
 	drawTextEx                 uintptr
@@ -1606,6 +1617,7 @@ func init() {
 	destroyWindow = MustGetProcAddress(libuser32, "DestroyWindow")
 	dialogBoxParam = MustGetProcAddress(libuser32, "DialogBoxParamW")
 	dispatchMessage = MustGetProcAddress(libuser32, "DispatchMessageW")
+	drawIconEx = MustGetProcAddress(libuser32, "DrawIconEx")
 	drawFocusRect = MustGetProcAddress(libuser32, "DrawFocusRect")
 	drawMenuBar = MustGetProcAddress(libuser32, "DrawMenuBar")
 	drawTextEx = MustGetProcAddress(libuser32, "DrawTextExW")
@@ -1901,6 +1913,21 @@ func DrawFocusRect(hDC HDC, lprc *RECT) bool {
 		uintptr(hDC),
 		uintptr(unsafe.Pointer(lprc)),
 		0)
+
+	return ret != 0
+}
+
+func DrawIconEx(hdc HDC, xLeft, yTop int32, hIcon HICON, cxWidth, cyWidth int32, istepIfAniCur uint32, hbrFlickerFreeDraw HBRUSH, diFlags uint32) bool {
+	ret, _, _ := syscall.Syscall9(drawIconEx, 9,
+		uintptr(hdc),
+		uintptr(xLeft),
+		uintptr(yTop),
+		uintptr(hIcon),
+		uintptr(cxWidth),
+		uintptr(cyWidth),
+		uintptr(istepIfAniCur),
+		uintptr(hbrFlickerFreeDraw),
+		uintptr(diFlags))
 
 	return ret != 0
 }

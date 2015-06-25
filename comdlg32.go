@@ -26,6 +26,31 @@ const (
 	CDERR_STRUCTSIZE      = 0x0001
 )
 
+// CHOOSECOLOR flags
+const (
+	CC_ANYCOLOR             = 0x00000100
+	CC_ENABLEHOOK           = 0x00000010
+	CC_ENABLETEMPLATE       = 0x00000020
+	CC_ENABLETEMPLATEHANDLE = 0x00000040
+	CC_FULLOPEN             = 0x00000002
+	CC_PREVENTFULLOPEN      = 0x00000004
+	CC_RGBINIT              = 0x00000001
+	CC_SHOWHELP             = 0x00000008
+	CC_SOLIDCOLOR           = 0x00000080
+)
+
+type CHOOSECOLOR struct {
+	LStructSize    uint32
+	HwndOwner      HWND
+	HInstance      HWND
+	RgbResult      COLORREF
+	LpCustColors   *COLORREF
+	Flags          uint32
+	LCustData      uintptr
+	LpfnHook       uintptr
+	LpTemplateName *uint16
+}
+
 // PrintDlg specific error codes
 const (
 	PDERR_CREATEICFAILURE  = 0x100A
@@ -207,6 +232,7 @@ var (
 	libcomdlg32 uintptr
 
 	// Functions
+	chooseColor          uintptr
 	commDlgExtendedError uintptr
 	getOpenFileName      uintptr
 	getSaveFileName      uintptr
@@ -218,10 +244,20 @@ func init() {
 	libcomdlg32 = MustLoadLibrary("comdlg32.dll")
 
 	// Functions
+	chooseColor = MustGetProcAddress(libcomdlg32, "ChooseColorW")
 	commDlgExtendedError = MustGetProcAddress(libcomdlg32, "CommDlgExtendedError")
 	getOpenFileName = MustGetProcAddress(libcomdlg32, "GetOpenFileNameW")
 	getSaveFileName = MustGetProcAddress(libcomdlg32, "GetSaveFileNameW")
 	printDlgEx = MustGetProcAddress(libcomdlg32, "PrintDlgExW")
+}
+
+func ChooseColor(lpcc *CHOOSECOLOR) bool {
+	ret, _, _ := syscall.Syscall(chooseColor, 1,
+		uintptr(unsafe.Pointer(lpcc)),
+		0,
+		0)
+
+	return ret != 0
 }
 
 func CommDlgExtendedError() uint32 {
