@@ -868,6 +868,7 @@ const (
 	WM_MOUSELAST              = 525
 	WM_MOUSEHOVER             = 0X2A1
 	WM_MOUSELEAVE             = 0X2A3
+	WM_CLIPBOARDUPDATE        = 0x031D
 )
 
 // mouse button constants
@@ -1483,6 +1484,7 @@ var (
 	libuser32 uintptr
 
 	// Functions
+	addClipboardFormatListener uintptr
 	adjustWindowRect           uintptr
 	beginDeferWindowPos        uintptr
 	beginPaint                 uintptr
@@ -1599,6 +1601,7 @@ func init() {
 	libuser32 = MustLoadLibrary("user32.dll")
 
 	// Functions
+	addClipboardFormatListener = MustGetProcAddress(libuser32, "AddClipboardFormatListener")
 	adjustWindowRect = MustGetProcAddress(libuser32, "AdjustWindowRect")
 	beginDeferWindowPos = MustGetProcAddress(libuser32, "BeginDeferWindowPos")
 	beginPaint = MustGetProcAddress(libuser32, "BeginPaint")
@@ -1716,6 +1719,15 @@ func init() {
 	translateMessage = MustGetProcAddress(libuser32, "TranslateMessage")
 	updateWindow = MustGetProcAddress(libuser32, "UpdateWindow")
 	windowFromPoint = MustGetProcAddress(libuser32, "WindowFromPoint")
+}
+
+func AddClipboardFormatListener(hwnd HWND) bool {
+	ret, _, _ := syscall.Syscall(addClipboardFormatListener, 1,
+		uintptr(hwnd),
+		0,
+		0)
+
+	return ret != 0
 }
 
 func AdjustWindowRect(lpRect *RECT, dwStyle uint32, bMenu bool) bool {
