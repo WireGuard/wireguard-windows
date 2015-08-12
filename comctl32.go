@@ -81,23 +81,23 @@ const (
 // WM_NOTITY messages
 const (
 	NM_FIRST           = 0
-	NM_OUTOFMEMORY     = NM_FIRST - 1
-	NM_CLICK           = NM_FIRST - 2
-	NM_DBLCLK          = NM_FIRST - 3
-	NM_RETURN          = NM_FIRST - 4
-	NM_RCLICK          = NM_FIRST - 5
-	NM_RDBLCLK         = NM_FIRST - 6
-	NM_SETFOCUS        = NM_FIRST - 7
-	NM_KILLFOCUS       = NM_FIRST - 8
-	NM_CUSTOMDRAW      = NM_FIRST - 12
-	NM_HOVER           = NM_FIRST - 13
-	NM_NCHITTEST       = NM_FIRST - 14
-	NM_KEYDOWN         = NM_FIRST - 15
-	NM_RELEASEDCAPTURE = NM_FIRST - 16
-	NM_SETCURSOR       = NM_FIRST - 17
-	NM_CHAR            = NM_FIRST - 18
-	NM_TOOLTIPSCREATED = NM_FIRST - 19
-	NM_LAST            = NM_FIRST - 99
+	NM_OUTOFMEMORY     = ^uint32(0)  // NM_FIRST - 1
+	NM_CLICK           = ^uint32(1)  // NM_FIRST - 2
+	NM_DBLCLK          = ^uint32(2)  // NM_FIRST - 3
+	NM_RETURN          = ^uint32(3)  // NM_FIRST - 4
+	NM_RCLICK          = ^uint32(4)  // NM_FIRST - 5
+	NM_RDBLCLK         = ^uint32(5)  // NM_FIRST - 6
+	NM_SETFOCUS        = ^uint32(6)  // NM_FIRST - 7
+	NM_KILLFOCUS       = ^uint32(7)  // NM_FIRST - 8
+	NM_CUSTOMDRAW      = ^uint32(11) // NM_FIRST - 12
+	NM_HOVER           = ^uint32(12) // NM_FIRST - 13
+	NM_NCHITTEST       = ^uint32(13) // NM_FIRST - 14
+	NM_KEYDOWN         = ^uint32(14) // NM_FIRST - 15
+	NM_RELEASEDCAPTURE = ^uint32(15) // NM_FIRST - 16
+	NM_SETCURSOR       = ^uint32(16) // NM_FIRST - 17
+	NM_CHAR            = ^uint32(17) // NM_FIRST - 18
+	NM_TOOLTIPSCREATED = ^uint32(18) // NM_FIRST - 19
+	NM_LAST            = ^uint32(98) // NM_FIRST - 99
 )
 
 // ProgressBar messages

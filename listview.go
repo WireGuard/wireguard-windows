@@ -133,7 +133,7 @@ const (
 
 // ListView notifications
 const (
-	LVN_FIRST = -100
+	LVN_FIRST = ^uint32(99) // -100
 
 	LVN_ITEMCHANGING      = LVN_FIRST - 0
 	LVN_ITEMCHANGED       = LVN_FIRST - 1

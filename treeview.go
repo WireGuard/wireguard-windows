@@ -232,6 +232,12 @@ type NMTVDISPINFO struct {
 	Item TVITEM
 }
 
+type NMTVKEYDOWN struct {
+	Hdr   NMHDR
+	WVKey uint16
+	Flags uint32
+}
+
 type TVHITTESTINFO struct {
 	Pt    POINT
 	Flags uint32
