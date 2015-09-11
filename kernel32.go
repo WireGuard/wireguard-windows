@@ -129,7 +129,7 @@ func init() {
 	getNumberFormat = MustGetProcAddress(libkernel32, "GetNumberFormatW")
 	getProfileString = MustGetProcAddress(libkernel32, "GetProfileStringW")
 	getThreadLocale = MustGetProcAddress(libkernel32, "GetThreadLocale")
-	getThreadUILanguage = MustGetProcAddress(libkernel32, "GetThreadUILanguage")
+	getThreadUILanguage, _ = syscall.GetProcAddress(syscall.Handle(libkernel32), "GetThreadUILanguage")
 	getVersion = MustGetProcAddress(libkernel32, "GetVersion")
 	globalAlloc = MustGetProcAddress(libkernel32, "GlobalAlloc")
 	globalFree = MustGetProcAddress(libkernel32, "GlobalFree")
@@ -250,6 +250,10 @@ func GetThreadLocale() LCID {
 }
 
 func GetThreadUILanguage() LANGID {
+	if getThreadUILanguage == 0 {
+		return 0
+	}
+
 	ret, _, _ := syscall.Syscall(getThreadUILanguage, 0,
 		0,
 		0,
