@@ -1601,7 +1601,7 @@ func init() {
 	libuser32 = MustLoadLibrary("user32.dll")
 
 	// Functions
-	addClipboardFormatListener = MustGetProcAddress(libuser32, "AddClipboardFormatListener")
+	addClipboardFormatListener, _ = syscall.GetProcAddress(syscall.Handle(libuser32), "AddClipboardFormatListener")
 	adjustWindowRect = MustGetProcAddress(libuser32, "AdjustWindowRect")
 	beginDeferWindowPos = MustGetProcAddress(libuser32, "BeginDeferWindowPos")
 	beginPaint = MustGetProcAddress(libuser32, "BeginPaint")
@@ -1722,6 +1722,10 @@ func init() {
 }
 
 func AddClipboardFormatListener(hwnd HWND) bool {
+	if addClipboardFormatListener == 0 {
+		return false
+	}
+
 	ret, _, _ := syscall.Syscall(addClipboardFormatListener, 1,
 		uintptr(hwnd),
 		0,
