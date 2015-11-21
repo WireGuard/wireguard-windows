@@ -958,54 +958,55 @@ var (
 	libgdi32 uintptr
 
 	// Functions
-	abortDoc             uintptr
-	bitBlt               uintptr
-	choosePixelFormat    uintptr
-	closeEnhMetaFile     uintptr
-	copyEnhMetaFile      uintptr
-	createBitmap         uintptr
-	createBrushIndirect  uintptr
-	createCompatibleDC   uintptr
-	createDC             uintptr
-	createDIBSection     uintptr
-	createFontIndirect   uintptr
-	createEnhMetaFile    uintptr
-	createIC             uintptr
-	deleteDC             uintptr
-	deleteEnhMetaFile    uintptr
-	deleteObject         uintptr
-	ellipse              uintptr
-	endDoc               uintptr
-	endPage              uintptr
-	extCreatePen         uintptr
-	getDeviceCaps        uintptr
-	getEnhMetaFile       uintptr
-	getEnhMetaFileHeader uintptr
-	getObject            uintptr
-	getPixel             uintptr
-	getStockObject       uintptr
-	getTextExtentExPoint uintptr
-	getTextExtentPoint32 uintptr
-	getTextMetrics       uintptr
-	lineTo               uintptr
-	moveToEx             uintptr
-	playEnhMetaFile      uintptr
-	rectangle            uintptr
-	resetDC              uintptr
-	restoreDC            uintptr
-	selectObject         uintptr
-	setBkMode            uintptr
-	setBrushOrgEx        uintptr
-	setPixel             uintptr
-	setPixelFormat       uintptr
-	setStretchBltMode    uintptr
-	setTextColor         uintptr
-	saveDC               uintptr
-	startDoc             uintptr
-	startPage            uintptr
-	stretchBlt           uintptr
-	swapBuffers          uintptr
-	textOut              uintptr
+	abortDoc               uintptr
+	bitBlt                 uintptr
+	choosePixelFormat      uintptr
+	closeEnhMetaFile       uintptr
+	copyEnhMetaFile        uintptr
+	createBitmap           uintptr
+	createCompatibleBitmap uintptr
+	createBrushIndirect    uintptr
+	createCompatibleDC     uintptr
+	createDC               uintptr
+	createDIBSection       uintptr
+	createFontIndirect     uintptr
+	createEnhMetaFile      uintptr
+	createIC               uintptr
+	deleteDC               uintptr
+	deleteEnhMetaFile      uintptr
+	deleteObject           uintptr
+	ellipse                uintptr
+	endDoc                 uintptr
+	endPage                uintptr
+	extCreatePen           uintptr
+	getDeviceCaps          uintptr
+	getEnhMetaFile         uintptr
+	getEnhMetaFileHeader   uintptr
+	getObject              uintptr
+	getPixel               uintptr
+	getStockObject         uintptr
+	getTextExtentExPoint   uintptr
+	getTextExtentPoint32   uintptr
+	getTextMetrics         uintptr
+	lineTo                 uintptr
+	moveToEx               uintptr
+	playEnhMetaFile        uintptr
+	rectangle              uintptr
+	resetDC                uintptr
+	restoreDC              uintptr
+	selectObject           uintptr
+	setBkMode              uintptr
+	setBrushOrgEx          uintptr
+	setPixel               uintptr
+	setPixelFormat         uintptr
+	setStretchBltMode      uintptr
+	setTextColor           uintptr
+	saveDC                 uintptr
+	startDoc               uintptr
+	startPage              uintptr
+	stretchBlt             uintptr
+	swapBuffers            uintptr
+	textOut                uintptr
 )
 
 func init() {
@@ -1019,6 +1020,7 @@ func init() {
 	closeEnhMetaFile = MustGetProcAddress(libgdi32, "CloseEnhMetaFile")
 	copyEnhMetaFile = MustGetProcAddress(libgdi32, "CopyEnhMetaFileW")
 	createBitmap = MustGetProcAddress(libgdi32, "CreateBitmap")
+	createCompatibleBitmap = MustGetProcAddress(libgdi32, "CreateCompatibleBitmap")
 	createBrushIndirect = MustGetProcAddress(libgdi32, "CreateBrushIndirect")
 	createCompatibleDC = MustGetProcAddress(libgdi32, "CreateCompatibleDC")
 	createDC = MustGetProcAddress(libgdi32, "CreateDCW")
@@ -1123,6 +1125,15 @@ func CreateBitmap(nWidth, nHeight int32, cPlanes, cBitsPerPel uint32, lpvBits un
 		uintptr(cBitsPerPel),
 		uintptr(lpvBits),
 		0)
+
+	return HBITMAP(ret)
+}
+
+func CreateCompatibleBitmap(hdc HDC, nWidth, nHeight int32) HBITMAP {
+	ret, _, _ := syscall.Syscall(createCompatibleBitmap, 3,
+		uintptr(hdc),
+		uintptr(nWidth),
+		uintptr(nHeight))
 
 	return HBITMAP(ret)
 }
