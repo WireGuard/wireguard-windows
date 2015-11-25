@@ -988,6 +988,7 @@ var (
 	getTextExtentExPoint   uintptr
 	getTextExtentPoint32   uintptr
 	getTextMetrics         uintptr
+	getViewportOrgEx       uintptr
 	lineTo                 uintptr
 	moveToEx               uintptr
 	playEnhMetaFile        uintptr
@@ -1001,6 +1002,7 @@ var (
 	setPixelFormat         uintptr
 	setStretchBltMode      uintptr
 	setTextColor           uintptr
+	setViewportOrgEx       uintptr
 	saveDC                 uintptr
 	startDoc               uintptr
 	startPage              uintptr
@@ -1044,6 +1046,7 @@ func init() {
 	getTextExtentExPoint = MustGetProcAddress(libgdi32, "GetTextExtentExPointW")
 	getTextExtentPoint32 = MustGetProcAddress(libgdi32, "GetTextExtentPoint32W")
 	getTextMetrics = MustGetProcAddress(libgdi32, "GetTextMetricsW")
+	getViewportOrgEx = MustGetProcAddress(libgdi32, "GetViewportOrgEx")
 	lineTo = MustGetProcAddress(libgdi32, "LineTo")
 	moveToEx = MustGetProcAddress(libgdi32, "MoveToEx")
 	playEnhMetaFile = MustGetProcAddress(libgdi32, "PlayEnhMetaFile")
@@ -1058,6 +1061,7 @@ func init() {
 	setPixelFormat = MustGetProcAddress(libgdi32, "SetPixelFormat")
 	setStretchBltMode = MustGetProcAddress(libgdi32, "SetStretchBltMode")
 	setTextColor = MustGetProcAddress(libgdi32, "SetTextColor")
+	setViewportOrgEx = MustGetProcAddress(libgdi32, "SetViewportOrgEx")
 	startDoc = MustGetProcAddress(libgdi32, "StartDocW")
 	startPage = MustGetProcAddress(libgdi32, "StartPage")
 	stretchBlt = MustGetProcAddress(libgdi32, "StretchBlt")
@@ -1372,6 +1376,15 @@ func GetTextMetrics(hdc HDC, lptm *TEXTMETRIC) bool {
 	return ret != 0
 }
 
+func GetViewportOrgEx(hdc HDC, lpPoint *POINT) bool {
+	ret, _, _ := syscall.Syscall(getViewportOrgEx, 2,
+		uintptr(hdc),
+		uintptr(unsafe.Pointer(lpPoint)),
+		0)
+
+	return ret != 0
+}
+
 func LineTo(hdc HDC, nXEnd, nYEnd int32) bool {
 	ret, _, _ := syscall.Syscall(lineTo, 3,
 		uintptr(hdc),
@@ -1503,6 +1516,18 @@ func SetTextColor(hdc HDC, crColor COLORREF) COLORREF {
 	ret, _, _ := syscall.Syscall(setTextColor, 2,
 		uintptr(hdc),
 		uintptr(crColor),
+		0)
+
+	return COLORREF(ret)
+}
+
+func SetViewportOrgEx(hdc HDC, x, y int32, lpPoint *POINT) COLORREF {
+	ret, _, _ := syscall.Syscall6(setViewportOrgEx, 4,
+		uintptr(hdc),
+		uintptr(x),
+		uintptr(y),
+		uintptr(unsafe.Pointer(lpPoint)),
+		0,
 		0)
 
 	return COLORREF(ret)
