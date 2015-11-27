@@ -12,6 +12,7 @@ import (
 )
 
 type CSIDL uint32
+type HDROP HANDLE
 
 const (
 	CSIDL_DESKTOP                 = 0x00
@@ -182,6 +183,9 @@ var (
 	shGetPathFromIDList    uintptr
 	shGetSpecialFolderPath uintptr
 	shell_NotifyIcon       uintptr
+	dragAcceptFiles        uintptr
+	dragQueryFile          uintptr
+	dragFinish             uintptr
 )
 
 func init() {
@@ -194,6 +198,9 @@ func init() {
 	shGetPathFromIDList = MustGetProcAddress(libshell32, "SHGetPathFromIDListW")
 	shGetSpecialFolderPath = MustGetProcAddress(libshell32, "SHGetSpecialFolderPathW")
 	shell_NotifyIcon = MustGetProcAddress(libshell32, "Shell_NotifyIconW")
+	dragAcceptFiles = MustGetProcAddress(libshell32, "DragAcceptFiles")
+	dragQueryFile = MustGetProcAddress(libshell32, "DragQueryFileW")
+	dragFinish = MustGetProcAddress(libshell32, "DragFinish")
 }
 
 func SHBrowseForFolder(lpbi *BROWSEINFO) uintptr {
@@ -245,4 +252,32 @@ func Shell_NotifyIcon(dwMessage uint32, lpdata *NOTIFYICONDATA) bool {
 		0)
 
 	return ret != 0
+}
+
+func DragAcceptFiles(hWnd HWND, fAccept bool) bool {
+	ret, _, _ := syscall.Syscall(dragAcceptFiles, 2,
+		uintptr(hWnd),
+		uintptr(BoolToBOOL(fAccept)),
+		0)
+
+	return ret != 0
+}
+
+func DragQueryFile(hDrop HDROP, iFile uint, lpszFile *uint16, cch uint) uint {
+	ret, _, _ := syscall.Syscall6(dragQueryFile, 4,
+		uintptr(hDrop),
+		uintptr(iFile),
+		uintptr(unsafe.Pointer(lpszFile)),
+		uintptr(cch),
+		0,
+		0)
+
+	return uint(ret)
+}
+
+func DragFinish(hDrop HDROP) {
+	syscall.Syscall(dragAcceptFiles, 1,
+		uintptr(hDrop),
+		0,
+		0)
 }
