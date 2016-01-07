@@ -123,6 +123,22 @@ const (
 	PBS_MARQUEE  = 0x08
 )
 
+// TrackBar messages
+const (
+	TBM_GETPOS      = WM_USER
+	TBM_GETRANGEMIN = WM_USER + 1
+	TBM_GETRANGEMAX = WM_USER + 2
+	TBM_SETPOS      = WM_USER + 5
+	TBM_SETRANGEMIN = WM_USER + 7
+	TBM_SETRANGEMAX = WM_USER + 8
+)
+
+// TrackBar styles
+const (
+	TBS_VERT     = 0x002
+	TBS_TOOLTIPS = 0x100
+)
+
 // ImageList creation flags
 const (
 	ILC_MASK          = 0x00000001
