@@ -1,4 +1,4 @@
-// Copyright 2010 The win Authors. All rights reserved.
+// Copyright 2016 The win Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -82,24 +82,25 @@ const (
 
 // WM_NOTITY messages
 const (
-	NM_FIRST           = 0
-	NM_OUTOFMEMORY     = ^uint32(0)  // NM_FIRST - 1
-	NM_CLICK           = ^uint32(1)  // NM_FIRST - 2
-	NM_DBLCLK          = ^uint32(2)  // NM_FIRST - 3
-	NM_RETURN          = ^uint32(3)  // NM_FIRST - 4
-	NM_RCLICK          = ^uint32(4)  // NM_FIRST - 5
-	NM_RDBLCLK         = ^uint32(5)  // NM_FIRST - 6
-	NM_SETFOCUS        = ^uint32(6)  // NM_FIRST - 7
-	NM_KILLFOCUS       = ^uint32(7)  // NM_FIRST - 8
-	NM_CUSTOMDRAW      = ^uint32(11) // NM_FIRST - 12
-	NM_HOVER           = ^uint32(12) // NM_FIRST - 13
-	NM_NCHITTEST       = ^uint32(13) // NM_FIRST - 14
-	NM_KEYDOWN         = ^uint32(14) // NM_FIRST - 15
-	NM_RELEASEDCAPTURE = ^uint32(15) // NM_FIRST - 16
-	NM_SETCURSOR       = ^uint32(16) // NM_FIRST - 17
-	NM_CHAR            = ^uint32(17) // NM_FIRST - 18
-	NM_TOOLTIPSCREATED = ^uint32(18) // NM_FIRST - 19
-	NM_LAST            = ^uint32(98) // NM_FIRST - 99
+	NM_FIRST              = 0
+	NM_OUTOFMEMORY        = ^uint32(0)  // NM_FIRST - 1
+	NM_CLICK              = ^uint32(1)  // NM_FIRST - 2
+	NM_DBLCLK             = ^uint32(2)  // NM_FIRST - 3
+	NM_RETURN             = ^uint32(3)  // NM_FIRST - 4
+	NM_RCLICK             = ^uint32(4)  // NM_FIRST - 5
+	NM_RDBLCLK            = ^uint32(5)  // NM_FIRST - 6
+	NM_SETFOCUS           = ^uint32(6)  // NM_FIRST - 7
+	NM_KILLFOCUS          = ^uint32(7)  // NM_FIRST - 8
+	NM_CUSTOMDRAW         = ^uint32(11) // NM_FIRST - 12
+	NM_HOVER              = ^uint32(12) // NM_FIRST - 13
+	NM_NCHITTEST          = ^uint32(13) // NM_FIRST - 14
+	NM_KEYDOWN            = ^uint32(14) // NM_FIRST - 15
+	NM_RELEASEDCAPTURE    = ^uint32(15) // NM_FIRST - 16
+	NM_SETCURSOR          = ^uint32(16) // NM_FIRST - 17
+	NM_CHAR               = ^uint32(17) // NM_FIRST - 18
+	NM_TOOLTIPSCREATED    = ^uint32(18) // NM_FIRST - 19
+	NM_LAST               = ^uint32(98) // NM_FIRST - 99
+	TRBN_THUMBPOSCHANGING = 0xfffffa22  // TRBN_FIRST - 1
 )
 
 // ProgressBar messages
@@ -121,6 +122,22 @@ const (
 	PBS_SMOOTH   = 0x01
 	PBS_VERTICAL = 0x04
 	PBS_MARQUEE  = 0x08
+)
+
+// TrackBar (Slider) messages
+const (
+	TBM_GETPOS      = WM_USER
+	TBM_GETRANGEMIN = WM_USER + 1
+	TBM_GETRANGEMAX = WM_USER + 2
+	TBM_SETPOS      = WM_USER + 5
+	TBM_SETRANGEMIN = WM_USER + 7
+	TBM_SETRANGEMAX = WM_USER + 8
+)
+
+// TrackBar (Slider) styles
+const (
+	TBS_VERT     = 0x002
+	TBS_TOOLTIPS = 0x100
 )
 
 // ImageList creation flags
