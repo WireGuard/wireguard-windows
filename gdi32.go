@@ -994,6 +994,7 @@ var (
 	lineTo                 uintptr
 	moveToEx               uintptr
 	playEnhMetaFile        uintptr
+	polyline               uintptr
 	rectangle              uintptr
 	resetDC                uintptr
 	restoreDC              uintptr
@@ -1052,6 +1053,7 @@ func init() {
 	lineTo = MustGetProcAddress(libgdi32, "LineTo")
 	moveToEx = MustGetProcAddress(libgdi32, "MoveToEx")
 	playEnhMetaFile = MustGetProcAddress(libgdi32, "PlayEnhMetaFile")
+	polyline = MustGetProcAddress(libgdi32, "Polyline")
 	rectangle = MustGetProcAddress(libgdi32, "Rectangle")
 	resetDC = MustGetProcAddress(libgdi32, "ResetDCW")
 	restoreDC = MustGetProcAddress(libgdi32, "RestoreDC")
@@ -1413,6 +1415,15 @@ func PlayEnhMetaFile(hdc HDC, hemf HENHMETAFILE, lpRect *RECT) bool {
 		uintptr(hdc),
 		uintptr(hemf),
 		uintptr(unsafe.Pointer(lpRect)))
+
+	return ret != 0
+}
+
+func Polyline(hdc HDC, lppt unsafe.Pointer, cPoints int32) bool {
+	ret, _, _ := syscall.Syscall(polyline, 3,
+		uintptr(hdc),
+		uintptr(lppt),
+		uintptr(cPoints))
 
 	return ret != 0
 }
