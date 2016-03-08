@@ -982,6 +982,7 @@ var (
 	endPage                uintptr
 	extCreatePen           uintptr
 	getDeviceCaps          uintptr
+	getDIBits              uintptr
 	getEnhMetaFile         uintptr
 	getEnhMetaFileHeader   uintptr
 	getObject              uintptr
@@ -1041,6 +1042,7 @@ func init() {
 	endPage = MustGetProcAddress(libgdi32, "EndPage")
 	extCreatePen = MustGetProcAddress(libgdi32, "ExtCreatePen")
 	getDeviceCaps = MustGetProcAddress(libgdi32, "GetDeviceCaps")
+	getDIBits = MustGetProcAddress(libgdi32, "GetDIBits")
 	getEnhMetaFile = MustGetProcAddress(libgdi32, "GetEnhMetaFileW")
 	getEnhMetaFileHeader = MustGetProcAddress(libgdi32, "GetEnhMetaFileHeader")
 	getObject = MustGetProcAddress(libgdi32, "GetObjectW")
@@ -1296,6 +1298,20 @@ func GetDeviceCaps(hdc HDC, nIndex int32) int32 {
 		uintptr(nIndex),
 		0)
 
+	return int32(ret)
+}
+
+func GetDIBits(hdc HDC, hbmp HBITMAP, uStartScan uint32, cScanLines uint32, lpvBits *byte, lpbi *BITMAPINFO, uUsage uint32) int32 {
+	ret, _, _ := syscall.Syscall9(getDIBits, 7,
+		uintptr(hdc),
+		uintptr(hbmp),
+		uintptr(uStartScan),
+		uintptr(cScanLines),
+		uintptr(unsafe.Pointer(lpvBits)),
+		uintptr(unsafe.Pointer(lpbi)),
+		uintptr(uUsage),
+		0,
+		0)
 	return int32(ret)
 }
 
