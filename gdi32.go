@@ -226,6 +226,15 @@ const (
 	PS_JOIN_MASK  = 0x0000F000
 )
 
+// Print constants
+const (
+	PRF_NONCLIENT  = 0x00000002
+	PRF_CLIENT     = 0x00000004
+	PRF_ERASEBKGND = 0x00000008
+	PRF_CHILDREN   = 0x00000010
+	PRF_OWNED      = 0x00000020
+)
+
 // Stock logical objects
 const (
 	WHITE_BRUSH         = 0
