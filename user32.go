@@ -127,6 +127,7 @@ const (
 
 // Button notifications
 const (
+	BCN_DROPDOWN     = 0xfffffb20
 	BN_CLICKED       = 0
 	BN_PAINT         = 1
 	BN_HILITE        = 2
@@ -187,6 +188,7 @@ const (
 	BS_RADIOBUTTON     = 4
 	BS_RIGHT           = 512
 	BS_RIGHTBUTTON     = 32
+	BS_SPLITBUTTON     = 0x0000000c
 	BS_TEXT            = 0
 	BS_TOP             = 0X400
 	BS_USERBUTTON      = 8
@@ -1219,6 +1221,11 @@ const (
 	DI_NOMIRROR    = 0x0010
 	DI_NORMAL      = DI_IMAGE | DI_MASK
 )
+
+type NMBCDROPDOWN struct {
+	Hdr      NMHDR
+	RcButton RECT
+}
 
 type MONITORINFO struct {
 	CbSize    uint32
