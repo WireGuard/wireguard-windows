@@ -185,6 +185,7 @@ var (
 	shGetFileInfo          uintptr
 	shGetPathFromIDList    uintptr
 	shGetSpecialFolderPath uintptr
+	shParseDisplayName     uintptr
 	shell_NotifyIcon       uintptr
 )
 
@@ -200,6 +201,7 @@ func init() {
 	shGetFileInfo = MustGetProcAddress(libshell32, "SHGetFileInfoW")
 	shGetPathFromIDList = MustGetProcAddress(libshell32, "SHGetPathFromIDListW")
 	shGetSpecialFolderPath = MustGetProcAddress(libshell32, "SHGetSpecialFolderPathW")
+	shParseDisplayName = MustGetProcAddress(libshell32, "SHParseDisplayName")
 	shell_NotifyIcon = MustGetProcAddress(libshell32, "Shell_NotifyIconW")
 }
 
@@ -271,6 +273,18 @@ func SHGetSpecialFolderPath(hwndOwner HWND, lpszPath *uint16, csidl CSIDL, fCrea
 		0)
 
 	return ret != 0
+}
+
+func SHParseDisplayName(pszName *uint16, pbc uintptr, ppidl *uintptr, sfgaoIn uint32, psfgaoOut *uint32) HRESULT {
+	ret, _, _ := syscall.Syscall6(shParseDisplayName, 5,
+		uintptr(unsafe.Pointer(pszName)),
+		pbc,
+		uintptr(unsafe.Pointer(ppidl)),
+		0,
+		uintptr(unsafe.Pointer(psfgaoOut)),
+		0)
+
+	return HRESULT(ret)
 }
 
 func Shell_NotifyIcon(dwMessage uint32, lpdata *NOTIFYICONDATA) bool {
