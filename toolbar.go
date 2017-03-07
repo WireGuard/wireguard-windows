@@ -9,6 +9,7 @@ package win
 // ToolBar messages
 const (
 	TB_THUMBPOSITION         = 4
+	TB_THUMBTRACK            = 5
 	TB_ENDTRACK              = 8
 	TB_ENABLEBUTTON          = WM_USER + 1
 	TB_CHECKBUTTON           = WM_USER + 2
