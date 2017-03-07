@@ -1009,6 +1009,7 @@ var (
 	resetDC                uintptr
 	restoreDC              uintptr
 	selectObject           uintptr
+	setBkColor             uintptr
 	setBkMode              uintptr
 	setBrushOrgEx          uintptr
 	setPixel               uintptr
@@ -1070,6 +1071,7 @@ func init() {
 	restoreDC = MustGetProcAddress(libgdi32, "RestoreDC")
 	saveDC = MustGetProcAddress(libgdi32, "SaveDC")
 	selectObject = MustGetProcAddress(libgdi32, "SelectObject")
+	setBkColor = MustGetProcAddress(libgdi32, "SetBkColor")
 	setBkMode = MustGetProcAddress(libgdi32, "SetBkMode")
 	setBrushOrgEx = MustGetProcAddress(libgdi32, "SetBrushOrgEx")
 	setPixel = MustGetProcAddress(libgdi32, "SetPixel")
@@ -1497,6 +1499,15 @@ func SelectObject(hdc HDC, hgdiobj HGDIOBJ) HGDIOBJ {
 		0)
 
 	return HGDIOBJ(ret)
+}
+
+func SetBkColor(hdc HDC, crColor COLORREF) COLORREF {
+	ret, _, _ := syscall.Syscall(setBkColor, 2,
+		uintptr(hdc),
+		uintptr(crColor),
+		0)
+
+	return COLORREF(ret)
 }
 
 func SetBkMode(hdc HDC, iBkMode int32) int32 {
