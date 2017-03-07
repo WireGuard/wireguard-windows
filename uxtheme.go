@@ -64,6 +64,7 @@ var (
 	drawThemeBackground uintptr
 	drawThemeText       uintptr
 	getThemeTextExtent  uintptr
+	isAppThemed         uintptr
 	openThemeData       uintptr
 	setWindowTheme      uintptr
 )
@@ -77,6 +78,7 @@ func init() {
 	drawThemeBackground = MustGetProcAddress(libuxtheme, "DrawThemeBackground")
 	drawThemeText = MustGetProcAddress(libuxtheme, "DrawThemeText")
 	getThemeTextExtent = MustGetProcAddress(libuxtheme, "GetThemeTextExtent")
+	isAppThemed = MustGetProcAddress(libuxtheme, "IsAppThemed")
 	openThemeData = MustGetProcAddress(libuxtheme, "OpenThemeData")
 	setWindowTheme = MustGetProcAddress(libuxtheme, "SetWindowTheme")
 }
@@ -130,6 +132,15 @@ func GetThemeTextExtent(hTheme HTHEME, hdc HDC, iPartId, iStateId int32, pszText
 		uintptr(unsafe.Pointer(pExtentRect)))
 
 	return HRESULT(ret)
+}
+
+func IsAppThemed() bool {
+	ret, _, _ := syscall.Syscall(isAppThemed, 0,
+		0,
+		0,
+		0)
+
+	return ret != 0
 }
 
 func OpenThemeData(hwnd HWND, pszClassList *uint16) HTHEME {
