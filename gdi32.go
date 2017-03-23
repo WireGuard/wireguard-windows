@@ -724,6 +724,13 @@ const (
 	PFD_STEREO_DONTCARE       = 0x80000000
 )
 
+// GradientFill constants
+const (
+	GRADIENT_FILL_RECT_H   = 0x00
+	GRADIENT_FILL_RECT_V   = 0x01
+	GRADIENT_FILL_TRIANGLE = 0x02
+)
+
 type (
 	COLORREF     uint32
 	HBITMAP      HGDIOBJ
@@ -964,9 +971,30 @@ type ENHMETAHEADER struct {
 	SzlMicrometers SIZE
 }
 
+type TRIVERTEX struct {
+	X     int32
+	Y     int32
+	Red   uint16
+	Green uint16
+	Blue  uint16
+	Alpha uint16
+}
+
+type GRADIENT_RECT struct {
+	UpperLeft  uint32
+	LowerRight uint32
+}
+
+type GRADIENT_TRIANGLE struct {
+	Vertex1 uint32
+	Vertex2 uint32
+	Vertex3 uint32
+}
+
 var (
 	// Library
-	libgdi32 uintptr
+	libgdi32   uintptr
+	libmsimg32 uintptr
 
 	// Functions
 	abortDoc               uintptr
@@ -983,6 +1011,7 @@ var (
 	createFontIndirect     uintptr
 	createEnhMetaFile      uintptr
 	createIC               uintptr
+	createPatternBrush     uintptr
 	deleteDC               uintptr
 	deleteEnhMetaFile      uintptr
 	deleteObject           uintptr
@@ -1001,6 +1030,7 @@ var (
 	getTextExtentPoint32   uintptr
 	getTextMetrics         uintptr
 	getViewportOrgEx       uintptr
+	gradientFill           uintptr
 	lineTo                 uintptr
 	moveToEx               uintptr
 	playEnhMetaFile        uintptr
@@ -1028,6 +1058,7 @@ var (
 func init() {
 	// Library
 	libgdi32 = MustLoadLibrary("gdi32.dll")
+	libmsimg32 = MustLoadLibrary("msimg32.dll")
 
 	// Functions
 	abortDoc = MustGetProcAddress(libgdi32, "AbortDoc")
@@ -1044,6 +1075,7 @@ func init() {
 	createEnhMetaFile = MustGetProcAddress(libgdi32, "CreateEnhMetaFileW")
 	createFontIndirect = MustGetProcAddress(libgdi32, "CreateFontIndirectW")
 	createIC = MustGetProcAddress(libgdi32, "CreateICW")
+	createPatternBrush = MustGetProcAddress(libgdi32, "CreatePatternBrush")
 	deleteDC = MustGetProcAddress(libgdi32, "DeleteDC")
 	deleteEnhMetaFile = MustGetProcAddress(libgdi32, "DeleteEnhMetaFile")
 	deleteObject = MustGetProcAddress(libgdi32, "DeleteObject")
@@ -1085,6 +1117,7 @@ func init() {
 	swapBuffers = MustGetProcAddress(libgdi32, "SwapBuffers")
 	textOut = MustGetProcAddress(libgdi32, "TextOutW")
 
+	gradientFill = MustGetProcAddress(libmsimg32, "GradientFill")
 }
 
 func AbortDoc(hdc HDC) int32 {
@@ -1232,6 +1265,15 @@ func CreateIC(lpszDriver, lpszDevice, lpszOutput *uint16, lpdvmInit *DEVMODE) HD
 		0)
 
 	return HDC(ret)
+}
+
+func CreatePatternBrush(hbmp HBITMAP) HBRUSH {
+	ret, _, _ := syscall.Syscall(createPatternBrush, 1,
+		uintptr(hbmp),
+		0,
+		0)
+
+	return HBRUSH(ret)
 }
 
 func DeleteDC(hdc HDC) bool {
@@ -1412,6 +1454,18 @@ func GetViewportOrgEx(hdc HDC, lpPoint *POINT) bool {
 		uintptr(hdc),
 		uintptr(unsafe.Pointer(lpPoint)),
 		0)
+
+	return ret != 0
+}
+
+func GradientFill(hdc HDC, pVertex *TRIVERTEX, nVertex uint32, pMesh unsafe.Pointer, nMesh, ulMode uint32) bool {
+	ret, _, _ := syscall.Syscall6(gradientFill, 6,
+		uintptr(hdc),
+		uintptr(unsafe.Pointer(pVertex)),
+		uintptr(nVertex),
+		uintptr(pMesh),
+		uintptr(nMesh),
+		uintptr(ulMode))
 
 	return ret != 0
 }
