@@ -11,6 +11,16 @@ import (
 	"unsafe"
 )
 
+// CheckBox parts
+const (
+	BP_CHECKBOX = 3
+)
+
+// CheckBox states
+const (
+	CBS_UNCHECKEDNORMAL = 1
+)
+
 // LISTVIEW parts
 const (
 	LVP_LISTITEM         = 1
@@ -55,6 +65,14 @@ const (
 
 type HTHEME HANDLE
 
+type THEMESIZE int
+
+const (
+	TS_MIN THEMESIZE = iota
+	TS_TRUE
+	TS_DRAW
+)
+
 var (
 	// Library
 	libuxtheme uintptr
@@ -63,6 +81,7 @@ var (
 	closeThemeData      uintptr
 	drawThemeBackground uintptr
 	drawThemeText       uintptr
+	getThemePartSize    uintptr
 	getThemeTextExtent  uintptr
 	isAppThemed         uintptr
 	openThemeData       uintptr
@@ -77,6 +96,7 @@ func init() {
 	closeThemeData = MustGetProcAddress(libuxtheme, "CloseThemeData")
 	drawThemeBackground = MustGetProcAddress(libuxtheme, "DrawThemeBackground")
 	drawThemeText = MustGetProcAddress(libuxtheme, "DrawThemeText")
+	getThemePartSize = MustGetProcAddress(libuxtheme, "GetThemePartSize")
 	getThemeTextExtent = MustGetProcAddress(libuxtheme, "GetThemeTextExtent")
 	isAppThemed = MustGetProcAddress(libuxtheme, "IsAppThemed")
 	openThemeData = MustGetProcAddress(libuxtheme, "OpenThemeData")
@@ -115,6 +135,21 @@ func DrawThemeText(hTheme HTHEME, hdc HDC, iPartId, iStateId int32, pszText *uin
 		uintptr(dwTextFlags),
 		uintptr(dwTextFlags2),
 		uintptr(unsafe.Pointer(pRect)))
+
+	return HRESULT(ret)
+}
+
+func GetThemePartSize(hTheme HTHEME, hdc HDC, iPartId, iStateId int32, prc *RECT, eSize THEMESIZE, psz *SIZE) HRESULT {
+	ret, _, _ := syscall.Syscall9(getThemePartSize, 7,
+		uintptr(hTheme),
+		uintptr(hdc),
+		uintptr(iPartId),
+		uintptr(iStateId),
+		uintptr(unsafe.Pointer(prc)),
+		uintptr(eSize),
+		uintptr(unsafe.Pointer(psz)),
+		0,
+		0)
 
 	return HRESULT(ret)
 }
