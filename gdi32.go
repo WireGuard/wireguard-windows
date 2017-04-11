@@ -1018,6 +1018,7 @@ var (
 	ellipse                uintptr
 	endDoc                 uintptr
 	endPage                uintptr
+	excludeClipRect        uintptr
 	extCreatePen           uintptr
 	getDeviceCaps          uintptr
 	getDIBits              uintptr
@@ -1031,6 +1032,7 @@ var (
 	getTextMetrics         uintptr
 	getViewportOrgEx       uintptr
 	gradientFill           uintptr
+	intersectClipRect      uintptr
 	lineTo                 uintptr
 	moveToEx               uintptr
 	playEnhMetaFile        uintptr
@@ -1082,6 +1084,7 @@ func init() {
 	ellipse = MustGetProcAddress(libgdi32, "Ellipse")
 	endDoc = MustGetProcAddress(libgdi32, "EndDoc")
 	endPage = MustGetProcAddress(libgdi32, "EndPage")
+	excludeClipRect = MustGetProcAddress(libgdi32, "ExcludeClipRect")
 	extCreatePen = MustGetProcAddress(libgdi32, "ExtCreatePen")
 	getDeviceCaps = MustGetProcAddress(libgdi32, "GetDeviceCaps")
 	getDIBits = MustGetProcAddress(libgdi32, "GetDIBits")
@@ -1094,6 +1097,7 @@ func init() {
 	getTextExtentPoint32 = MustGetProcAddress(libgdi32, "GetTextExtentPoint32W")
 	getTextMetrics = MustGetProcAddress(libgdi32, "GetTextMetricsW")
 	getViewportOrgEx = MustGetProcAddress(libgdi32, "GetViewportOrgEx")
+	intersectClipRect = MustGetProcAddress(libgdi32, "IntersectClipRect")
 	lineTo = MustGetProcAddress(libgdi32, "LineTo")
 	moveToEx = MustGetProcAddress(libgdi32, "MoveToEx")
 	playEnhMetaFile = MustGetProcAddress(libgdi32, "PlayEnhMetaFile")
@@ -1333,6 +1337,18 @@ func EndPage(hdc HDC) int32 {
 	return int32(ret)
 }
 
+func ExcludeClipRect(hdc HDC, nLeftRect, nTopRect, nRightRect, nBottomRect int32) int32 {
+	ret, _, _ := syscall.Syscall6(excludeClipRect, 5,
+		uintptr(hdc),
+		uintptr(nLeftRect),
+		uintptr(nTopRect),
+		uintptr(nRightRect),
+		uintptr(nBottomRect),
+		0)
+
+	return int32(ret)
+}
+
 func ExtCreatePen(dwPenStyle, dwWidth uint32, lplb *LOGBRUSH, dwStyleCount uint32, lpStyle *uint32) HPEN {
 	ret, _, _ := syscall.Syscall6(extCreatePen, 5,
 		uintptr(dwPenStyle),
@@ -1468,6 +1484,18 @@ func GradientFill(hdc HDC, pVertex *TRIVERTEX, nVertex uint32, pMesh unsafe.Poin
 		uintptr(ulMode))
 
 	return ret != 0
+}
+
+func IntersectClipRect(hdc HDC, nLeftRect, nTopRect, nRightRect, nBottomRect int32) int32 {
+	ret, _, _ := syscall.Syscall6(intersectClipRect, 5,
+		uintptr(hdc),
+		uintptr(nLeftRect),
+		uintptr(nTopRect),
+		uintptr(nRightRect),
+		uintptr(nBottomRect),
+		0)
+
+	return int32(ret)
 }
 
 func LineTo(hdc HDC, nXEnd, nYEnd int32) bool {
