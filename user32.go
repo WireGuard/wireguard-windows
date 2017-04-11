@@ -1523,6 +1523,7 @@ var (
 	endPaint                   uintptr
 	enumChildWindows           uintptr
 	findWindow                 uintptr
+	getActiveWindow            uintptr
 	getAncestor                uintptr
 	getCaretPos                uintptr
 	getClientRect              uintptr
@@ -1530,6 +1531,7 @@ var (
 	getCursorPos               uintptr
 	getDC                      uintptr
 	getFocus                   uintptr
+	getForegroundWindow        uintptr
 	getKeyState                uintptr
 	getMenuInfo                uintptr
 	getMessage                 uintptr
@@ -1640,6 +1642,7 @@ func init() {
 	endPaint = MustGetProcAddress(libuser32, "EndPaint")
 	enumChildWindows = MustGetProcAddress(libuser32, "EnumChildWindows")
 	findWindow = MustGetProcAddress(libuser32, "FindWindowW")
+	getActiveWindow = MustGetProcAddress(libuser32, "GetActiveWindow")
 	getAncestor = MustGetProcAddress(libuser32, "GetAncestor")
 	getCaretPos = MustGetProcAddress(libuser32, "GetCaretPos")
 	getClientRect = MustGetProcAddress(libuser32, "GetClientRect")
@@ -1647,6 +1650,7 @@ func init() {
 	getCursorPos = MustGetProcAddress(libuser32, "GetCursorPos")
 	getDC = MustGetProcAddress(libuser32, "GetDC")
 	getFocus = MustGetProcAddress(libuser32, "GetFocus")
+	getForegroundWindow = MustGetProcAddress(libuser32, "GetForegroundWindow")
 	getKeyState = MustGetProcAddress(libuser32, "GetKeyState")
 	getMenuInfo = MustGetProcAddress(libuser32, "GetMenuInfo")
 	getMessage = MustGetProcAddress(libuser32, "GetMessageW")
@@ -2041,6 +2045,15 @@ func FindWindow(lpClassName, lpWindowName *uint16) HWND {
 	return HWND(ret)
 }
 
+func GetActiveWindow() HWND {
+	ret, _, _ := syscall.Syscall(getActiveWindow, 0,
+		0,
+		0,
+		0)
+
+	return HWND(ret)
+}
+
 func GetAncestor(hWnd HWND, gaFlags uint32) HWND {
 	ret, _, _ := syscall.Syscall(getAncestor, 2,
 		uintptr(hWnd),
@@ -2097,6 +2110,15 @@ func GetDC(hWnd HWND) HDC {
 
 func GetFocus() HWND {
 	ret, _, _ := syscall.Syscall(getFocus, 0,
+		0,
+		0,
+		0)
+
+	return HWND(ret)
+}
+
+func GetForegroundWindow() HWND {
+	ret, _, _ := syscall.Syscall(getForegroundWindow, 0,
 		0,
 		0,
 		0)
