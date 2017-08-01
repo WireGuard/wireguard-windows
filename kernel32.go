@@ -57,27 +57,28 @@ var (
 	libkernel32 uintptr
 
 	// Functions
-	closeHandle            uintptr
-	fileTimeToSystemTime   uintptr
-	getConsoleTitle        uintptr
-	getConsoleWindow       uintptr
-	getLastError           uintptr
-	getLocaleInfo          uintptr
-	getLogicalDriveStrings uintptr
-	getModuleHandle        uintptr
-	getNumberFormat        uintptr
-	getThreadLocale        uintptr
-	getThreadUILanguage    uintptr
-	getVersion             uintptr
-	globalAlloc            uintptr
-	globalFree             uintptr
-	globalLock             uintptr
-	globalUnlock           uintptr
-	moveMemory             uintptr
-	mulDiv                 uintptr
-	setLastError           uintptr
-	systemTimeToFileTime   uintptr
-	getProfileString       uintptr
+	closeHandle                        uintptr
+	fileTimeToSystemTime               uintptr
+	getConsoleTitle                    uintptr
+	getConsoleWindow                   uintptr
+	getLastError                       uintptr
+	getLocaleInfo                      uintptr
+	getLogicalDriveStrings             uintptr
+	getModuleHandle                    uintptr
+	getNumberFormat                    uintptr
+	getThreadLocale                    uintptr
+	getThreadUILanguage                uintptr
+	getVersion                         uintptr
+	globalAlloc                        uintptr
+	globalFree                         uintptr
+	globalLock                         uintptr
+	globalUnlock                       uintptr
+	moveMemory                         uintptr
+	mulDiv                             uintptr
+	setLastError                       uintptr
+	systemTimeToFileTime               uintptr
+	getProfileString                   uintptr
+	getPhysicallyInstalledSystemMemory uintptr
 )
 
 type (
@@ -141,6 +142,7 @@ func init() {
 	mulDiv = MustGetProcAddress(libkernel32, "MulDiv")
 	setLastError = MustGetProcAddress(libkernel32, "SetLastError")
 	systemTimeToFileTime = MustGetProcAddress(libkernel32, "SystemTimeToFileTime")
+	getPhysicallyInstalledSystemMemory = MustGetProcAddress(libkernel32, "GetPhysicallyInstalledSystemMemory")
 
 }
 
@@ -335,6 +337,15 @@ func SystemTimeToFileTime(lpSystemTime *SYSTEMTIME, lpFileTime *FILETIME) bool {
 	ret, _, _ := syscall.Syscall(systemTimeToFileTime, 2,
 		uintptr(unsafe.Pointer(lpSystemTime)),
 		uintptr(unsafe.Pointer(lpFileTime)),
+		0)
+
+	return ret != 0
+}
+
+func GetPhysicallyInstalledSystemMemory(totalMemoryInKilobytes *uint64) bool {
+	ret, _, _ := syscall.Syscall(getPhysicallyInstalledSystemMemory, 1,
+		uintptr(unsafe.Pointer(totalMemoryInKilobytes)),
+		0,
 		0)
 
 	return ret != 0
