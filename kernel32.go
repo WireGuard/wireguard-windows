@@ -142,8 +142,7 @@ func init() {
 	mulDiv = MustGetProcAddress(libkernel32, "MulDiv")
 	setLastError = MustGetProcAddress(libkernel32, "SetLastError")
 	systemTimeToFileTime = MustGetProcAddress(libkernel32, "SystemTimeToFileTime")
-	getPhysicallyInstalledSystemMemory = MustGetProcAddress(libkernel32, "GetPhysicallyInstalledSystemMemory")
-
+	getPhysicallyInstalledSystemMemory, _ = syscall.GetProcAddress(syscall.Handle(libkernel32), "GetPhysicallyInstalledSystemMemory")
 }
 
 func CloseHandle(hObject HANDLE) bool {

@@ -10,7 +10,7 @@ const (
 	INVALID_LINK_INDEX = -1
 	MAX_LINKID_TEXT    = 48
 	L_MAX_URL_LENGTH   = 2048 + 32 + len("://")
-	WC_LINK = "SysLink"
+	WC_LINK            = "SysLink"
 )
 
 const (
