@@ -158,7 +158,7 @@ func init() {
 	// Functions
 	closeThemeData = MustGetProcAddress(libuxtheme, "CloseThemeData")
 	drawThemeBackground = MustGetProcAddress(libuxtheme, "DrawThemeBackground")
-	drawThemeTextEx = MustGetProcAddress(libuxtheme, "DrawThemeTextEx")
+	drawThemeTextEx, _ = syscall.GetProcAddress(syscall.Handle(libuxtheme), "DrawThemeTextEx")
 	getThemePartSize = MustGetProcAddress(libuxtheme, "GetThemePartSize")
 	getThemeTextExtent = MustGetProcAddress(libuxtheme, "GetThemeTextExtent")
 	isAppThemed = MustGetProcAddress(libuxtheme, "IsAppThemed")
