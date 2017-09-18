@@ -124,14 +124,14 @@ type DTTOPTS struct {
 	CrText              COLORREF
 	CrBorder            COLORREF
 	CrShadow            COLORREF
-	ITextShadowType     int
+	ITextShadowType     int32
 	PtShadowOffset      POINT
-	IBorderSize         int
-	IFontPropId         int
-	IColorPropId        int
-	IStateId            int
+	IBorderSize         int32
+	IFontPropId         int32
+	IColorPropId        int32
+	IStateId            int32
 	FApplyOverlay       BOOL
-	IGlowSize           int
+	IGlowSize           int32
 	PfnDrawTextCallback uintptr
 	LParam              uintptr
 }
