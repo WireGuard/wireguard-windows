@@ -1252,6 +1252,19 @@ const (
 	HTZOOM        = 9
 )
 
+// AnimateWindow flags
+const (
+	AW_ACTIVATE     = 0x00020000
+	AW_BLEND        = 0x00080000
+	AW_CENTER       = 0x00000010
+	AW_HIDE         = 0x00010000
+	AW_HOR_POSITIVE = 0x00000001
+	AW_HOR_NEGATIVE = 0x00000002
+	AW_SLIDE        = 0x00040000
+	AW_VER_POSITIVE = 0x00000004
+	AW_VER_NEGATIVE = 0x00000008
+)
+
 type NMBCDROPDOWN struct {
 	Hdr      NMHDR
 	RcButton RECT
@@ -1525,6 +1538,7 @@ var (
 	// Functions
 	addClipboardFormatListener uintptr
 	adjustWindowRect           uintptr
+	animateWindow              uintptr
 	beginDeferWindowPos        uintptr
 	beginPaint                 uintptr
 	callWindowProc             uintptr
@@ -1644,6 +1658,7 @@ func init() {
 	// Functions
 	addClipboardFormatListener, _ = syscall.GetProcAddress(syscall.Handle(libuser32), "AddClipboardFormatListener")
 	adjustWindowRect = MustGetProcAddress(libuser32, "AdjustWindowRect")
+	animateWindow = MustGetProcAddress(libuser32, "AnimateWindow")
 	beginDeferWindowPos = MustGetProcAddress(libuser32, "BeginDeferWindowPos")
 	beginPaint = MustGetProcAddress(libuser32, "BeginPaint")
 	callWindowProc = MustGetProcAddress(libuser32, "CallWindowProcW")
@@ -1782,6 +1797,15 @@ func AdjustWindowRect(lpRect *RECT, dwStyle uint32, bMenu bool) bool {
 		uintptr(unsafe.Pointer(lpRect)),
 		uintptr(dwStyle),
 		uintptr(BoolToBOOL(bMenu)))
+
+	return ret != 0
+}
+
+func AnimateWindow(hwnd HWND, dwTime, dwFlags uint32) bool {
+	ret, _, _ := syscall.Syscall(animateWindow, 3,
+		uintptr(hwnd),
+		uintptr(dwTime),
+		uintptr(dwFlags))
 
 	return ret != 0
 }
