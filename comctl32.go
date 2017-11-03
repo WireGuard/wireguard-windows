@@ -155,6 +155,12 @@ const (
 	ILC_PERITEMMIRROR = 0x00008000
 )
 
+// LoadIconMetric flags
+const (
+	LIM_SMALL = 0
+	LIM_LARGE = 1
+)
+
 const (
 	CDDS_PREPAINT      = 0x00000001
 	CDDS_POSTPAINT     = 0x00000002
@@ -228,6 +234,8 @@ var (
 	imageList_Destroy     uintptr
 	imageList_ReplaceIcon uintptr
 	initCommonControlsEx  uintptr
+	loadIconMetric        uintptr
+	loadIconWithScaleDown uintptr
 )
 
 func init() {
@@ -241,6 +249,8 @@ func init() {
 	imageList_Destroy = MustGetProcAddress(libcomctl32, "ImageList_Destroy")
 	imageList_ReplaceIcon = MustGetProcAddress(libcomctl32, "ImageList_ReplaceIcon")
 	initCommonControlsEx = MustGetProcAddress(libcomctl32, "InitCommonControlsEx")
+	loadIconMetric = MustGetProcAddress(libcomctl32, "LoadIconMetric")
+	loadIconWithScaleDown = MustGetProcAddress(libcomctl32, "LoadIconWithScaleDown")
 
 	// Initialize the common controls we support
 	var initCtrls INITCOMMONCONTROLSEX
@@ -305,4 +315,28 @@ func InitCommonControlsEx(lpInitCtrls *INITCOMMONCONTROLSEX) bool {
 		0)
 
 	return ret != 0
+}
+
+func LoadIconMetric(hInstance HINSTANCE, lpIconName *uint16, lims int32, hicon *HICON) HRESULT {
+	ret, _, _ := syscall.Syscall6(loadIconMetric, 4,
+		uintptr(hInstance),
+		uintptr(unsafe.Pointer(lpIconName)),
+		uintptr(lims),
+		uintptr(unsafe.Pointer(hicon)),
+		0,
+		0)
+
+	return HRESULT(ret)
+}
+
+func LoadIconWithScaleDown(hInstance HINSTANCE, lpIconName *uint16, w int32, h int32, hicon *HICON) HRESULT {
+	ret, _, _ := syscall.Syscall6(loadIconWithScaleDown, 5,
+		uintptr(hInstance),
+		uintptr(unsafe.Pointer(lpIconName)),
+		uintptr(w),
+		uintptr(h),
+		uintptr(unsafe.Pointer(hicon)),
+		0)
+
+	return HRESULT(ret)
 }
