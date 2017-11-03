@@ -25,6 +25,7 @@ const (
 	BCM_SETNOTE          = BCM_FIRST + 0x0009
 	BCM_GETNOTE          = BCM_FIRST + 0x000A
 	BCM_GETNOTELENGTH    = BCM_FIRST + 0x000B
+	BCM_SETSHIELD        = BCM_FIRST + 0x000C
 )
 
 const (
