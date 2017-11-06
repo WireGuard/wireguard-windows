@@ -1646,6 +1646,7 @@ var (
 	trackPopupMenuEx           uintptr
 	translateMessage           uintptr
 	updateWindow               uintptr
+	windowFromDC               uintptr
 	windowFromPoint            uintptr
 )
 
@@ -1776,6 +1777,7 @@ func init() {
 	trackPopupMenuEx = MustGetProcAddress(libuser32, "TrackPopupMenuEx")
 	translateMessage = MustGetProcAddress(libuser32, "TranslateMessage")
 	updateWindow = MustGetProcAddress(libuser32, "UpdateWindow")
+	windowFromDC = MustGetProcAddress(libuser32, "WindowFromDC")
 	windowFromPoint = MustGetProcAddress(libuser32, "WindowFromPoint")
 }
 
@@ -2879,6 +2881,16 @@ func UpdateWindow(hwnd HWND) bool {
 
 	return ret != 0
 }
+
+func WindowFromDC(hDC HDC) HWND {
+	ret, _, _ := syscall.Syscall(windowFromDC, 1,
+		uintptr(hDC),
+		0,
+		0)
+
+	return HWND(ret)
+}
+
 func WindowFromPoint(Point POINT) HWND {
 	ret, _, _ := syscall.Syscall(windowFromPoint, 2,
 		uintptr(Point.X),
