@@ -748,6 +748,11 @@ const (
 	COMPLEXREGION = 3
 )
 
+// AlphaBlend operations
+const (
+	AC_SRC_ALPHA = 0x1
+)
+
 type (
 	COLORREF     uint32
 	HBITMAP      HGDIOBJ
@@ -1008,6 +1013,13 @@ type GRADIENT_TRIANGLE struct {
 	Vertex3 uint32
 }
 
+type BLENDFUNCTION struct {
+	BlendOp             byte
+	BlendFlags          byte
+	SourceConstantAlpha byte
+	AlphaFormat         byte
+}
+
 var (
 	// Library
 	libgdi32   uintptr
@@ -1015,6 +1027,7 @@ var (
 
 	// Functions
 	abortDoc               uintptr
+	alphaBlend             uintptr
 	bitBlt                 uintptr
 	choosePixelFormat      uintptr
 	closeEnhMetaFile       uintptr
@@ -1147,6 +1160,7 @@ func init() {
 	swapBuffers = MustGetProcAddress(libgdi32, "SwapBuffers")
 	textOut = MustGetProcAddress(libgdi32, "TextOutW")
 
+	alphaBlend = MustGetProcAddress(libmsimg32, "AlphaBlend")
 	gradientFill = MustGetProcAddress(libmsimg32, "GradientFill")
 	transparentBlt = MustGetProcAddress(libmsimg32, "TransparentBlt")
 }
@@ -1158,6 +1172,24 @@ func AbortDoc(hdc HDC) int32 {
 		0)
 
 	return int32(ret)
+}
+
+func AlphaBlend(hdcDest HDC, nXOriginDest, nYOriginDest, nWidthDest, nHeightDest int32, hdcSrc HDC, nXOriginSrc, nYOriginSrc, nWidthSrc, nHeightSrc int32, ftn BLENDFUNCTION) bool {
+	ret, _, _ := syscall.Syscall12(alphaBlend, 11,
+		uintptr(hdcDest),
+		uintptr(nXOriginDest),
+		uintptr(nYOriginDest),
+		uintptr(nWidthDest),
+		uintptr(nHeightDest),
+		uintptr(hdcSrc),
+		uintptr(nXOriginSrc),
+		uintptr(nYOriginSrc),
+		uintptr(nWidthSrc),
+		uintptr(nHeightSrc),
+		uintptr(*(*uint32)(unsafe.Pointer(uintptr(unsafe.Pointer(&ftn))))),
+		0)
+
+	return ret != 0
 }
 
 func BitBlt(hdcDest HDC, nXDest, nYDest, nWidth, nHeight int32, hdcSrc HDC, nXSrc, nYSrc int32, dwRop uint32) bool {
