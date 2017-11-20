@@ -60,6 +60,12 @@ func MustGetProcAddress(lib uintptr, name string) uintptr {
 	return uintptr(addr)
 }
 
+func MaybeGetProcAddress(lib uintptr, name string) uintptr {
+	addr, _ := syscall.GetProcAddress(syscall.Handle(lib), name)
+
+	return uintptr(addr)
+}
+
 func SUCCEEDED(hr HRESULT) bool {
 	return hr >= 0
 }

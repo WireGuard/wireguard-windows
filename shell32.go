@@ -320,9 +320,9 @@ func init() {
 	shGetFileInfo = MustGetProcAddress(libshell32, "SHGetFileInfoW")
 	shGetPathFromIDList = MustGetProcAddress(libshell32, "SHGetPathFromIDListW")
 	shGetSpecialFolderPath = MustGetProcAddress(libshell32, "SHGetSpecialFolderPathW")
-	shParseDisplayName = MustGetProcAddress(libshell32, "SHParseDisplayName")
-	shGetStockIconInfo = MustGetProcAddress(libshell32, "SHGetStockIconInfo")
+	shGetStockIconInfo = MaybeGetProcAddress(libshell32, "SHGetStockIconInfo")
 	shell_NotifyIcon = MustGetProcAddress(libshell32, "Shell_NotifyIconW")
+	shParseDisplayName = MustGetProcAddress(libshell32, "SHParseDisplayName")
 }
 
 func DragAcceptFiles(hWnd HWND, fAccept bool) bool {

@@ -250,8 +250,8 @@ func init() {
 	imageList_Destroy = MustGetProcAddress(libcomctl32, "ImageList_Destroy")
 	imageList_ReplaceIcon = MustGetProcAddress(libcomctl32, "ImageList_ReplaceIcon")
 	initCommonControlsEx = MustGetProcAddress(libcomctl32, "InitCommonControlsEx")
-	loadIconMetric = MustGetProcAddress(libcomctl32, "LoadIconMetric")
-	loadIconWithScaleDown = MustGetProcAddress(libcomctl32, "LoadIconWithScaleDown")
+	loadIconMetric = MaybeGetProcAddress(libcomctl32, "LoadIconMetric")
+	loadIconWithScaleDown = MaybeGetProcAddress(libcomctl32, "LoadIconWithScaleDown")
 
 	// Initialize the common controls we support
 	var initCtrls INITCOMMONCONTROLSEX
