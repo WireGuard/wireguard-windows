@@ -29,7 +29,7 @@ const (
 	GMEM_FIXED    = 0x0000
 	GMEM_MOVEABLE = 0x0002
 	GMEM_ZEROINIT = 0x0040
-	GPTR          = 0x004
+	GPTR          = GMEM_FIXED | GMEM_ZEROINIT
 )
 
 // Predefined locale ids
