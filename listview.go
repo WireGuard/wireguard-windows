@@ -368,3 +368,9 @@ type NMLVDISPINFO struct {
 	Hdr  NMHDR
 	Item LVITEM
 }
+
+type NMLVSCROLL struct {
+	Hdr NMHDR
+	Dx  int32
+	Dy  int32
+}
