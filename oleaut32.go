@@ -7,6 +7,7 @@
 package win
 
 import (
+	"fmt"
 	"syscall"
 	"unsafe"
 )
@@ -55,6 +56,7 @@ const (
 	DISPID_FILEDOWNLOAD               DISPID = 270
 	DISPID_NAVIGATEERROR              DISPID = 271
 	DISPID_PRIVACYIMPACTEDSTATECHANGE DISPID = 272
+	DISPID_NEWWINDOW3                 DISPID = 273
 )
 
 var (
@@ -64,6 +66,26 @@ var (
 const (
 	DISP_E_MEMBERNOTFOUND = 0x80020003
 )
+
+const (
+	CSC_UPDATECOMMANDS  = int(0xFFFFFFFF)
+	CSC_NAVIGATEFORWARD = 0x1
+	CSC_NAVIGATEBACK    = 0x2
+)
+
+type IDispatchVtbl struct {
+	QueryInterface   uintptr
+	AddRef           uintptr
+	Release          uintptr
+	GetTypeInfoCount uintptr
+	GetTypeInfo      uintptr
+	GetIDsOfNames    uintptr
+	Invoke           uintptr
+}
+
+type IDispatch struct {
+	LpVtbl *IDispatchVtbl
+}
 
 type VARTYPE uint16
 
@@ -122,14 +144,16 @@ const (
 	VT_TYPEMASK         VARTYPE = 0xfff
 )
 
-type VARIANT struct {
-	Vt       VARTYPE
-	reserved [14]byte
+type VARIANTARG struct {
+	VARIANT
 }
 
-type VARIANTARG VARIANT
-
 type VARIANT_BOOL int16
+
+const (
+	VARIANT_TRUE  VARIANT_BOOL = -1
+	VARIANT_FALSE VARIANT_BOOL = 0
+)
 
 //type BSTR *uint16
 
@@ -148,26 +172,12 @@ func BSTRToString(value *uint16 /*BSTR*/) string {
 	return syscall.UTF16ToString(bstrSlice)
 }
 
-type VAR_I4 struct {
-	vt        VARTYPE
-	reserved1 [6]byte
-	lVal      int32
-	reserved2 [4]byte
-}
-
 func IntToVariantI4(value int32) *VAR_I4 {
 	return &VAR_I4{vt: VT_I4, lVal: value}
 }
 
 func VariantI4ToInt(value *VAR_I4) int32 {
 	return value.lVal
-}
-
-type VAR_BOOL struct {
-	vt        VARTYPE
-	reserved1 [6]byte
-	boolVal   VARIANT_BOOL
-	reserved2 [6]byte
 }
 
 func BoolToVariantBool(value bool) *VAR_BOOL {
@@ -185,6 +195,182 @@ func StringToVariantBSTR(value string) *VAR_BSTR {
 
 func VariantBSTRToString(value *VAR_BSTR) string {
 	return BSTRToString(value.bstrVal)
+}
+
+func (v *VARIANT) MustLong() int32 {
+	value, err := v.Long()
+	if err != nil {
+		panic(err)
+	}
+	return value
+}
+
+func (v *VARIANT) Long() (int32, error) {
+	if v.Vt != VT_I4 {
+		return 0, fmt.Errorf("Error: Long() v.Vt !=  VT_I4, ptr=%p, value=%+v", v, v)
+	}
+	p := (*VAR_I4)(unsafe.Pointer(v))
+	return p.lVal, nil
+}
+
+func (v *VARIANT) SetLong(value int32) {
+	v.Vt = VT_I4
+	p := (*VAR_I4)(unsafe.Pointer(v))
+	p.lVal = value
+}
+
+func (v *VARIANT) MustULong() uint32 {
+	value, err := v.ULong()
+	if err != nil {
+		panic(err)
+	}
+	return value
+}
+
+func (v *VARIANT) ULong() (uint32, error) {
+	if v.Vt != VT_UI4 {
+		return 0, fmt.Errorf("Error: ULong() v.Vt !=  VT_UI4, ptr=%p, value=%+v", v, v)
+	}
+	p := (*VAR_UI4)(unsafe.Pointer(v))
+	return p.ulVal, nil
+}
+
+func (v *VARIANT) SetULong(value uint32) {
+	v.Vt = VT_UI4
+	p := (*VAR_UI4)(unsafe.Pointer(v))
+	p.ulVal = value
+}
+
+func (v *VARIANT) MustBool() VARIANT_BOOL {
+	value, err := v.Bool()
+	if err != nil {
+		panic(err)
+	}
+	return value
+}
+
+func (v *VARIANT) Bool() (VARIANT_BOOL, error) {
+	if v.Vt != VT_BOOL {
+		return VARIANT_FALSE, fmt.Errorf("Error: Bool() v.Vt !=  VT_BOOL, ptr=%p, value=%+v", v, v)
+	}
+	p := (*VAR_BOOL)(unsafe.Pointer(v))
+	return p.boolVal, nil
+}
+
+func (v *VARIANT) SetBool(value VARIANT_BOOL) {
+	v.Vt = VT_BOOL
+	p := (*VAR_BOOL)(unsafe.Pointer(v))
+	p.boolVal = value
+}
+
+func (v *VARIANT) MustBSTR() *uint16 {
+	value, err := v.BSTR()
+	if err != nil {
+		panic(err)
+	}
+	return value
+}
+
+func (v *VARIANT) BSTR() (*uint16, error) {
+	if v.Vt != VT_BSTR {
+		return nil, fmt.Errorf("Error: BSTR() v.Vt !=  VT_BSTR, ptr=%p, value=%+v", v, v)
+	}
+	p := (*VAR_BSTR)(unsafe.Pointer(v))
+	return p.bstrVal, nil
+}
+
+func (v *VARIANT) SetBSTR(value *uint16) {
+	v.Vt = VT_BSTR
+	p := (*VAR_BSTR)(unsafe.Pointer(v))
+	p.bstrVal = value
+}
+
+func (v *VARIANT) MustPDispatch() *IDispatch {
+	value, err := v.PDispatch()
+	if err != nil {
+		panic(err)
+	}
+	return value
+}
+
+func (v *VARIANT) PDispatch() (*IDispatch, error) {
+	if v.Vt != VT_DISPATCH {
+		return nil, fmt.Errorf("Error: PDispatch() v.Vt !=  VT_DISPATCH, ptr=%p, value=%+v", v, v)
+	}
+	p := (*VAR_PDISP)(unsafe.Pointer(v))
+	return p.pdispVal, nil
+}
+
+func (v *VARIANT) SetPDispatch(value *IDispatch) {
+	v.Vt = VT_DISPATCH
+	p := (*VAR_PDISP)(unsafe.Pointer(v))
+	p.pdispVal = value
+}
+
+func (v *VARIANT) MustPVariant() *VARIANT {
+	value, err := v.PVariant()
+	if err != nil {
+		panic(err)
+	}
+	return value
+}
+
+func (v *VARIANT) PVariant() (*VARIANT, error) {
+	if v.Vt != VT_BYREF|VT_VARIANT {
+		return nil, fmt.Errorf("Error: PVariant() v.Vt !=  VT_BYREF|VT_VARIANT, ptr=%p, value=%+v", v, v)
+	}
+	p := (*VAR_PVAR)(unsafe.Pointer(v))
+	return p.pvarVal, nil
+}
+
+func (v *VARIANT) SetPVariant(value *VARIANT) {
+	v.Vt = VT_BYREF | VT_VARIANT
+	p := (*VAR_PVAR)(unsafe.Pointer(v))
+	p.pvarVal = value
+}
+
+func (v *VARIANT) MustPBool() *VARIANT_BOOL {
+	value, err := v.PBool()
+	if err != nil {
+		panic(err)
+	}
+	return value
+}
+
+func (v *VARIANT) PBool() (*VARIANT_BOOL, error) {
+	if v.Vt != VT_BYREF|VT_BOOL {
+		return nil, fmt.Errorf("Error: PBool() v.Vt !=  VT_BYREF|VT_BOOL, ptr=%p, value=%+v", v, v)
+	}
+	p := (*VAR_PBOOL)(unsafe.Pointer(v))
+	return p.pboolVal, nil
+}
+
+func (v *VARIANT) SetPBool(value *VARIANT_BOOL) {
+	v.Vt = VT_BYREF | VT_BOOL
+	p := (*VAR_PBOOL)(unsafe.Pointer(v))
+	p.pboolVal = value
+}
+
+func (v *VARIANT) MustPPDispatch() **IDispatch {
+	value, err := v.PPDispatch()
+	if err != nil {
+		panic(err)
+	}
+	return value
+}
+
+func (v *VARIANT) PPDispatch() (**IDispatch, error) {
+	if v.Vt != VT_BYREF|VT_DISPATCH {
+		return nil, fmt.Errorf("PPDispatch() v.Vt !=  VT_BYREF|VT_DISPATCH, ptr=%p, value=%+v", v, v)
+	}
+	p := (*VAR_PPDISP)(unsafe.Pointer(v))
+	return p.ppdispVal, nil
+}
+
+func (v *VARIANT) SetPPDispatch(value **IDispatch) {
+	v.Vt = VT_BYREF | VT_DISPATCH
+	p := (*VAR_PPDISP)(unsafe.Pointer(v))
+	p.ppdispVal = value
 }
 
 type DISPPARAMS struct {
