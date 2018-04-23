@@ -1523,6 +1523,16 @@ type SCROLLINFO struct {
 	NTrackPos int32
 }
 
+type WINDOWPOS struct {
+	Hwnd            HWND
+	HwndInsertAfter HWND
+	X               int32
+	Y               int32
+	Cx              int32
+	Cy              int32
+	Flags           uint32
+}
+
 func GET_X_LPARAM(lp uintptr) int32 {
 	return int32(int16(LOWORD(uint32(lp))))
 }
