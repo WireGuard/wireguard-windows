@@ -753,6 +753,12 @@ const (
 	AC_SRC_ALPHA = 0x1
 )
 
+// AddFontResourceEx flags
+const (
+	FR_PRIVATE  = 0x10
+	FR_NOT_ENUM = 0x20
+)
+
 type (
 	COLORREF     uint32
 	HBITMAP      HGDIOBJ
@@ -1027,6 +1033,7 @@ var (
 
 	// Functions
 	abortDoc               uintptr
+	addFontResourceEx      uintptr
 	alphaBlend             uintptr
 	bitBlt                 uintptr
 	choosePixelFormat      uintptr
@@ -1054,6 +1061,7 @@ var (
 	extCreatePen           uintptr
 	fillRgn                uintptr
 	gdiFlush               uintptr
+	getBkColor             uintptr
 	getDeviceCaps          uintptr
 	getDIBits              uintptr
 	getEnhMetaFile         uintptr
@@ -1062,6 +1070,7 @@ var (
 	getPixel               uintptr
 	getRgnBox              uintptr
 	getStockObject         uintptr
+	getTextColor           uintptr
 	getTextExtentExPoint   uintptr
 	getTextExtentPoint32   uintptr
 	getTextMetrics         uintptr
@@ -1073,6 +1082,7 @@ var (
 	playEnhMetaFile        uintptr
 	polyline               uintptr
 	rectangle              uintptr
+	removeFontResourceEx   uintptr
 	resetDC                uintptr
 	restoreDC              uintptr
 	roundRect              uintptr
@@ -1102,6 +1112,7 @@ func init() {
 
 	// Functions
 	abortDoc = MustGetProcAddress(libgdi32, "AbortDoc")
+	addFontResourceEx = MustGetProcAddress(libgdi32, "AddFontResourceExW")
 	bitBlt = MustGetProcAddress(libgdi32, "BitBlt")
 	choosePixelFormat = MustGetProcAddress(libgdi32, "ChoosePixelFormat")
 	closeEnhMetaFile = MustGetProcAddress(libgdi32, "CloseEnhMetaFile")
@@ -1128,6 +1139,7 @@ func init() {
 	extCreatePen = MustGetProcAddress(libgdi32, "ExtCreatePen")
 	fillRgn = MustGetProcAddress(libgdi32, "FillRgn")
 	gdiFlush = MustGetProcAddress(libgdi32, "GdiFlush")
+	getBkColor = MustGetProcAddress(libgdi32, "GetBkColor")
 	getDeviceCaps = MustGetProcAddress(libgdi32, "GetDeviceCaps")
 	getDIBits = MustGetProcAddress(libgdi32, "GetDIBits")
 	getEnhMetaFile = MustGetProcAddress(libgdi32, "GetEnhMetaFileW")
@@ -1136,6 +1148,7 @@ func init() {
 	getPixel = MustGetProcAddress(libgdi32, "GetPixel")
 	getRgnBox = MustGetProcAddress(libgdi32, "GetRgnBox")
 	getStockObject = MustGetProcAddress(libgdi32, "GetStockObject")
+	getTextColor = MustGetProcAddress(libgdi32, "GetTextColor")
 	getTextExtentExPoint = MustGetProcAddress(libgdi32, "GetTextExtentExPointW")
 	getTextExtentPoint32 = MustGetProcAddress(libgdi32, "GetTextExtentPoint32W")
 	getTextMetrics = MustGetProcAddress(libgdi32, "GetTextMetricsW")
@@ -1146,6 +1159,7 @@ func init() {
 	playEnhMetaFile = MustGetProcAddress(libgdi32, "PlayEnhMetaFile")
 	polyline = MustGetProcAddress(libgdi32, "Polyline")
 	rectangle = MustGetProcAddress(libgdi32, "Rectangle")
+	removeFontResourceEx = MustGetProcAddress(libgdi32, "RemoveFontResourceExW")
 	resetDC = MustGetProcAddress(libgdi32, "ResetDCW")
 	restoreDC = MustGetProcAddress(libgdi32, "RestoreDC")
 	roundRect = MustGetProcAddress(libgdi32, "RoundRect")
@@ -1176,6 +1190,15 @@ func AbortDoc(hdc HDC) int32 {
 		uintptr(hdc),
 		0,
 		0)
+
+	return int32(ret)
+}
+
+func AddFontResourceEx(lpszFilename *uint16, fl uint32, pdv unsafe.Pointer) int32 {
+	ret, _, _ := syscall.Syscall(addFontResourceEx, 3,
+		uintptr(unsafe.Pointer(lpszFilename)),
+		uintptr(fl),
+		uintptr(pdv))
 
 	return int32(ret)
 }
@@ -1468,6 +1491,15 @@ func GdiFlush() bool {
 	return ret != 0
 }
 
+func GetBkColor(hdc HDC) COLORREF {
+	ret, _, _ := syscall.Syscall(getBkColor, 1,
+		uintptr(hdc),
+		0,
+		0)
+
+	return COLORREF(ret)
+}
+
 func GetDeviceCaps(hdc HDC, nIndex int32) int32 {
 	ret, _, _ := syscall.Syscall(getDeviceCaps, 2,
 		uintptr(hdc),
@@ -1543,6 +1575,15 @@ func GetStockObject(fnObject int32) HGDIOBJ {
 		0)
 
 	return HGDIOBJ(ret)
+}
+
+func GetTextColor(hdc HDC) COLORREF {
+	ret, _, _ := syscall.Syscall(getTextColor, 1,
+		uintptr(hdc),
+		0,
+		0)
+
+	return COLORREF(ret)
 }
 
 func GetTextExtentExPoint(hdc HDC, lpszStr *uint16, cchString, nMaxExtent int32, lpnFit, alpDx *int32, lpSize *SIZE) bool {
@@ -1661,6 +1702,15 @@ func Rectangle_(hdc HDC, nLeftRect, nTopRect, nRightRect, nBottomRect int32) boo
 		uintptr(nRightRect),
 		uintptr(nBottomRect),
 		0)
+
+	return ret != 0
+}
+
+func RemoveFontResourceEx(lpszFilename *uint16, fl uint32, pdv unsafe.Pointer) bool {
+	ret, _, _ := syscall.Syscall(removeFontResourceEx, 3,
+		uintptr(unsafe.Pointer(lpszFilename)),
+		uintptr(fl),
+		uintptr(pdv))
 
 	return ret != 0
 }
