@@ -24,6 +24,11 @@ type HDITEM struct {
 	PvFilter   uintptr
 }
 
+type HDLAYOUT struct {
+	Prc   *RECT
+	Pwpos *WINDOWPOS
+}
+
 const (
 	HDI_WIDTH      = 0x0001
 	HDI_HEIGHT     = HDI_WIDTH
