@@ -155,6 +155,20 @@ const (
 	VARIANT_FALSE VARIANT_BOOL = 0
 )
 
+type SAFEARRAYBOUND struct {
+	CElements uint32
+	LLbound   int32
+}
+
+type SAFEARRAY struct {
+	CDims      uint16
+	FFeatures  uint16
+	CbElements uint32
+	CLocks     uint32
+	PvData     uintptr
+	Rgsabound  [1]SAFEARRAYBOUND
+}
+
 //type BSTR *uint16
 
 func StringToBSTR(value string) *uint16 /*BSTR*/ {
@@ -371,6 +385,28 @@ func (v *VARIANT) SetPPDispatch(value **IDispatch) {
 	v.Vt = VT_BYREF | VT_DISPATCH
 	p := (*VAR_PPDISP)(unsafe.Pointer(v))
 	p.ppdispVal = value
+}
+
+func (v *VARIANT) MustPSafeArray() *SAFEARRAY {
+	value, err := v.PSafeArray()
+	if err != nil {
+		panic(err)
+	}
+	return value
+}
+
+func (v *VARIANT) PSafeArray() (*SAFEARRAY, error) {
+	if (v.Vt & VT_ARRAY) != VT_ARRAY {
+		return nil, fmt.Errorf("Error: PSafeArray() (v.Vt & VT_ARRAY) != VT_ARRAY, ptr=%p, value=%+v", v, v)
+	}
+	p := (*VAR_PSAFEARRAY)(unsafe.Pointer(v))
+	return p.parray, nil
+}
+
+func (v *VARIANT) SetPSafeArray(value *SAFEARRAY, elementVt VARTYPE) {
+	v.Vt = VT_ARRAY | elementVt
+	p := (*VAR_PSAFEARRAY)(unsafe.Pointer(v))
+	p.parray = value
 }
 
 type DISPPARAMS struct {
