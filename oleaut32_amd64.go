@@ -46,6 +46,13 @@ type VAR_PDISP struct {
 	reserved2 [8]byte
 }
 
+type VAR_PSAFEARRAY struct {
+	vt        VARTYPE
+	reserved1 [6]byte
+	parray    *SAFEARRAY
+	reserved2 [8]byte
+}
+
 type VAR_PVAR struct {
 	vt        VARTYPE
 	reserved1 [6]byte
