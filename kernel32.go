@@ -79,6 +79,8 @@ var (
 	mulDiv                             uintptr
 	setLastError                       uintptr
 	systemTimeToFileTime               uintptr
+	createActCtx                       uintptr
+	activateActCtx                     uintptr
 )
 
 type (
@@ -89,6 +91,7 @@ type (
 	LCID      uint32
 	LCTYPE    uint32
 	LANGID    uint16
+	HMODULE   uintptr
 )
 
 type FILETIME struct {
@@ -114,6 +117,18 @@ type SYSTEMTIME struct {
 	WMinute       uint16
 	WSecond       uint16
 	WMilliseconds uint16
+}
+
+type ACTCTX struct {
+	size                  uint32
+	Flags                 uint32
+	Source                *uint16 // UTF-16 string
+	ProcessorArchitecture uint16
+	LangID                uint16
+	AssemblyDirectory     *uint16 // UTF-16 string
+	ResourceName          *uint16 // UTF-16 string
+	ApplicationName       *uint16 // UTF-16 string
+	Module                HMODULE
 }
 
 func init() {
@@ -143,6 +158,8 @@ func init() {
 	mulDiv = MustGetProcAddress(libkernel32, "MulDiv")
 	setLastError = MustGetProcAddress(libkernel32, "SetLastError")
 	systemTimeToFileTime = MustGetProcAddress(libkernel32, "SystemTimeToFileTime")
+	createActCtx = MustGetProcAddress(libkernel32, "CreateActCtxW")
+	activateActCtx = MustGetProcAddress(libkernel32, "ActivateActCtx")
 }
 
 func CloseHandle(hObject HANDLE) bool {
@@ -348,4 +365,26 @@ func SystemTimeToFileTime(lpSystemTime *SYSTEMTIME, lpFileTime *FILETIME) bool {
 		0)
 
 	return ret != 0
+}
+
+func ActivateActCtx(ctx HANDLE) (uintptr, bool) {
+	var cookie uintptr
+	ret, _, _ := syscall.Syscall(activateActCtx, 2,
+		uintptr(ctx),
+		uintptr(unsafe.Pointer(&cookie)),
+		0)
+	return cookie, ret != 0
+}
+
+func CreateActCtx(ctx *ACTCTX) HANDLE {
+	if ctx != nil {
+		ctx.size = uint32(unsafe.Sizeof(*ctx))
+	}
+	ret, _, _ := syscall.Syscall(
+		createActCtx,
+		1,
+		uintptr(unsafe.Pointer(ctx)),
+		0,
+		0)
+	return HANDLE(ret)
 }
