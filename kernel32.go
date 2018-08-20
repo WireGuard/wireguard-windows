@@ -57,7 +57,9 @@ var (
 	libkernel32 uintptr
 
 	// Functions
+	activateActCtx                     uintptr
 	closeHandle                        uintptr
+	createActCtx                       uintptr
 	fileTimeToSystemTime               uintptr
 	getConsoleTitle                    uintptr
 	getConsoleWindow                   uintptr
@@ -79,8 +81,6 @@ var (
 	mulDiv                             uintptr
 	setLastError                       uintptr
 	systemTimeToFileTime               uintptr
-	createActCtx                       uintptr
-	activateActCtx                     uintptr
 )
 
 type (
@@ -136,7 +136,9 @@ func init() {
 	libkernel32 = MustLoadLibrary("kernel32.dll")
 
 	// Functions
+	activateActCtx = MustGetProcAddress(libkernel32, "ActivateActCtx")
 	closeHandle = MustGetProcAddress(libkernel32, "CloseHandle")
+	createActCtx = MustGetProcAddress(libkernel32, "CreateActCtxW")
 	fileTimeToSystemTime = MustGetProcAddress(libkernel32, "FileTimeToSystemTime")
 	getConsoleTitle = MustGetProcAddress(libkernel32, "GetConsoleTitleW")
 	getConsoleWindow = MustGetProcAddress(libkernel32, "GetConsoleWindow")
@@ -158,8 +160,15 @@ func init() {
 	mulDiv = MustGetProcAddress(libkernel32, "MulDiv")
 	setLastError = MustGetProcAddress(libkernel32, "SetLastError")
 	systemTimeToFileTime = MustGetProcAddress(libkernel32, "SystemTimeToFileTime")
-	createActCtx = MustGetProcAddress(libkernel32, "CreateActCtxW")
-	activateActCtx = MustGetProcAddress(libkernel32, "ActivateActCtx")
+}
+
+func ActivateActCtx(ctx HANDLE) (uintptr, bool) {
+	var cookie uintptr
+	ret, _, _ := syscall.Syscall(activateActCtx, 2,
+		uintptr(ctx),
+		uintptr(unsafe.Pointer(&cookie)),
+		0)
+	return cookie, ret != 0
 }
 
 func CloseHandle(hObject HANDLE) bool {
@@ -169,6 +178,19 @@ func CloseHandle(hObject HANDLE) bool {
 		0)
 
 	return ret != 0
+}
+
+func CreateActCtx(ctx *ACTCTX) HANDLE {
+	if ctx != nil {
+		ctx.size = uint32(unsafe.Sizeof(*ctx))
+	}
+	ret, _, _ := syscall.Syscall(
+		createActCtx,
+		1,
+		uintptr(unsafe.Pointer(ctx)),
+		0,
+		0)
+	return HANDLE(ret)
 }
 
 func FileTimeToSystemTime(lpFileTime *FILETIME, lpSystemTime *SYSTEMTIME) bool {
@@ -365,26 +387,4 @@ func SystemTimeToFileTime(lpSystemTime *SYSTEMTIME, lpFileTime *FILETIME) bool {
 		0)
 
 	return ret != 0
-}
-
-func ActivateActCtx(ctx HANDLE) (uintptr, bool) {
-	var cookie uintptr
-	ret, _, _ := syscall.Syscall(activateActCtx, 2,
-		uintptr(ctx),
-		uintptr(unsafe.Pointer(&cookie)),
-		0)
-	return cookie, ret != 0
-}
-
-func CreateActCtx(ctx *ACTCTX) HANDLE {
-	if ctx != nil {
-		ctx.size = uint32(unsafe.Sizeof(*ctx))
-	}
-	ret, _, _ := syscall.Syscall(
-		createActCtx,
-		1,
-		uintptr(unsafe.Pointer(ctx)),
-		0,
-		0)
-	return HANDLE(ret)
 }
