@@ -1583,8 +1583,8 @@ var (
 	getClientRect              uintptr
 	getClipboardData           uintptr
 	getCursorPos               uintptr
-	getDesktopWindow           uintptr
 	getDC                      uintptr
+	getDesktopWindow           uintptr
 	getFocus                   uintptr
 	getForegroundWindow        uintptr
 	getKeyState                uintptr
@@ -1705,8 +1705,8 @@ func init() {
 	getClientRect = MustGetProcAddress(libuser32, "GetClientRect")
 	getClipboardData = MustGetProcAddress(libuser32, "GetClipboardData")
 	getCursorPos = MustGetProcAddress(libuser32, "GetCursorPos")
-	getDesktopWindow = MustGetProcAddress(libuser32, "GetDesktopWindow")
 	getDC = MustGetProcAddress(libuser32, "GetDC")
+	getDesktopWindow = MustGetProcAddress(libuser32, "GetDesktopWindow")
 	getFocus = MustGetProcAddress(libuser32, "GetFocus")
 	getForegroundWindow = MustGetProcAddress(libuser32, "GetForegroundWindow")
 	getKeyState = MustGetProcAddress(libuser32, "GetKeyState")
