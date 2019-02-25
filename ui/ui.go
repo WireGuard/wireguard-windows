@@ -12,6 +12,7 @@ import (
 	"golang.zx2c4.com/wireguard/windows/conf"
 	"golang.zx2c4.com/wireguard/windows/service"
 	"golang.zx2c4.com/wireguard/windows/ui/internal/walk"
+	"golang.zx2c4.com/wireguard/windows/ui/syntax"
 	"os"
 )
 
@@ -47,7 +48,7 @@ func RunUI() {
 	tl, _ := walk.NewTextLabel(mw)
 	tl.SetText("Public key: (unknown)")
 
-	se, _ := NewSyntaxEdit(mw)
+	se, _ := syntax.NewSyntaxEdit(mw)
 	lastPrivate := ""
 	se.PrivateKeyChanged().Attach(func(privateKey string) {
 		if privateKey == lastPrivate {
