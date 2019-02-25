@@ -1,0 +1,6 @@
+*.exe
+*.swp
+*.bak
+*.syso
+.tmp
+.idea
