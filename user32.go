@@ -1552,6 +1552,7 @@ var (
 	beginDeferWindowPos        uintptr
 	beginPaint                 uintptr
 	callWindowProc             uintptr
+	checkMenuRadioItem         uintptr
 	clientToScreen             uintptr
 	closeClipboard             uintptr
 	createDialogParam          uintptr
@@ -1674,6 +1675,7 @@ func init() {
 	beginDeferWindowPos = MustGetProcAddress(libuser32, "BeginDeferWindowPos")
 	beginPaint = MustGetProcAddress(libuser32, "BeginPaint")
 	callWindowProc = MustGetProcAddress(libuser32, "CallWindowProcW")
+	checkMenuRadioItem = MustGetProcAddress(libuser32, "CheckMenuRadioItem")
 	clientToScreen = MustGetProcAddress(libuser32, "ClientToScreen")
 	closeClipboard = MustGetProcAddress(libuser32, "CloseClipboard")
 	createDialogParam = MustGetProcAddress(libuser32, "CreateDialogParamW")
@@ -1852,6 +1854,18 @@ func CallWindowProc(lpPrevWndFunc uintptr, hWnd HWND, Msg uint32, wParam, lParam
 		0)
 
 	return ret
+}
+
+func CheckMenuRadioItem(hmenu HMENU, first, last, check, flags uint32) bool {
+	ret, _, _ := syscall.Syscall6(checkMenuRadioItem, 5,
+		uintptr(hmenu),
+		uintptr(first),
+		uintptr(last),
+		uintptr(check),
+		uintptr(flags),
+		0)
+
+	return ret != 0
 }
 
 func ClientToScreen(hwnd HWND, lpPoint *POINT) bool {
