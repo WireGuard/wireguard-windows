@@ -20,7 +20,7 @@ $ git clone --recursive https://git.zx2c4.com/wireguard-windows
 
 ### Building
 
-Currently a mess while we transition a few things, so you'll actually need to use WSL. Here are instructions for the latest Ubuntu from the Windows Store on WSL:
+Currently a mess while we transition a few things, so you'll actually need to use WSL. Here are instructions for [Ubuntu 18.04 from the Windows Store](https://www.microsoft.com/en-us/p/ubuntu-1804-lts/9n9tngvndl3q) on WSL:
 
 ```
 $ sudo add-apt-repository ppa:longsleep/golang-backports
