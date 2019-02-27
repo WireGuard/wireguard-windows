@@ -23,9 +23,10 @@ $ git clone --recursive https://git.zx2c4.com/wireguard-windows
 Currently a mess while we transition a few things, so you'll actually need to use WSL. Here are instructions for [Ubuntu 18.04 from the Windows Store](https://www.microsoft.com/en-us/p/ubuntu-1804-lts/9n9tngvndl3q) on WSL:
 
 ```
-$ sudo add-apt-repository ppa:longsleep/golang-backports
 $ sudo apt update
-$ sudo apt install mingw-w64 make golang-go
+$ sudo apt install mingw-w64 make
+$ curl https://dl.google.com/go/go1.12.linux-amd64.tar.gz | tar xzf -
+$ export PATH="$PWD/go/bin:$PATH"
 $ mkdir "$HOME/.go"
 $ export GOPATH="$HOME/.go"
 $ go get github.com/akavel/rsrc
