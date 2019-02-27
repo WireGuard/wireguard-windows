@@ -4,7 +4,7 @@ Nothing to see here yet. Come back later.
 
 ### Requirements
 
-  - [Go](https://www.golang.org) 1.11
+  - [Go ≥1.12](https://www.golang.org)
   - [rsrc tool](https://github.com/akavel/rsrc)
   - [Wintun](https://git.zx2c4.com/wintun)
 
