@@ -11,8 +11,8 @@ import (
 	"syscall"
 	"unsafe"
 
-	"golang.zx2c4.com/wireguard/windows/ui/internal/walk"
-	"golang.zx2c4.com/wireguard/windows/ui/internal/walk/win"
+	"github.com/lxn/walk"
+	"github.com/lxn/win"
 )
 
 // #include "syntaxedit.h"

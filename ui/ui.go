@@ -8,11 +8,11 @@ package ui
 import (
 	"encoding/base64"
 	"fmt"
+	"github.com/lxn/walk"
+	"github.com/lxn/win"
 	"golang.org/x/crypto/curve25519"
 	"golang.zx2c4.com/wireguard/windows/conf"
 	"golang.zx2c4.com/wireguard/windows/service"
-	"golang.zx2c4.com/wireguard/windows/ui/internal/walk"
-	"golang.zx2c4.com/wireguard/windows/ui/internal/walk/win"
 	"golang.zx2c4.com/wireguard/windows/ui/syntax"
 	"os"
 )
