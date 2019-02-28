@@ -46,8 +46,8 @@ func startWatchingConfigDir() {
 				log.Fatalf("Unable to wait on config directory watcher: %v", err)
 			}
 
-			for _, cb := range storeCallbacks {
-				cb()
+			for cb := range storeCallbacks {
+				cb.cb()
 			}
 
 			err = findNextChangeNotification(h)

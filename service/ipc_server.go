@@ -151,6 +151,10 @@ func IPCServerListen(reader *os.File, writer *os.File, events *os.File) error {
 }
 
 func notifyAll(notificationType NotificationType, iface interface{}) {
+	if len(managerServices) == 0 {
+		return
+	}
+
 	var buf bytes.Buffer
 	encoder := gob.NewEncoder(&buf)
 	err := encoder.Encode(notificationType)

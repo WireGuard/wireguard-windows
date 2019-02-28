@@ -9,6 +9,7 @@ import (
 	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/svc"
 	"golang.org/x/sys/windows/svc/eventlog"
+	"golang.zx2c4.com/wireguard/windows/conf"
 	"log"
 	"os"
 	"strconv"
@@ -127,6 +128,8 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 		exitCode = ERROR_FILE_NOT_FOUND
 		return
 	}
+
+	conf.RegisterStoreChangeCallback(IPCServerNotifyTunnelsChange)
 
 	procs := make(map[uint32]*os.Process)
 	procsLock := sync.Mutex{}
