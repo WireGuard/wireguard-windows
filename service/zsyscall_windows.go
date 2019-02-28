@@ -39,11 +39,14 @@ func errnoErr(e syscall.Errno) error {
 var (
 	modwtsapi32 = windows.NewLazySystemDLL("wtsapi32.dll")
 	modadvapi32 = windows.NewLazySystemDLL("advapi32.dll")
+	modkernel32 = windows.NewLazySystemDLL("kernel32.dll")
 
-	procWTSQueryUserToken     = modwtsapi32.NewProc("WTSQueryUserToken")
-	procWTSEnumerateSessionsW = modwtsapi32.NewProc("WTSEnumerateSessionsW")
-	procWTSFreeMemory         = modwtsapi32.NewProc("WTSFreeMemory")
-	procCreateWellKnownSid    = modadvapi32.NewProc("CreateWellKnownSid")
+	procWTSQueryUserToken          = modwtsapi32.NewProc("WTSQueryUserToken")
+	procWTSEnumerateSessionsW      = modwtsapi32.NewProc("WTSEnumerateSessionsW")
+	procWTSFreeMemory              = modwtsapi32.NewProc("WTSFreeMemory")
+	procCreateWellKnownSid         = modadvapi32.NewProc("CreateWellKnownSid")
+	procNotifyServiceStatusChangeW = modadvapi32.NewProc("NotifyServiceStatusChangeW")
+	procSleepEx                    = modkernel32.NewProc("SleepEx")
 )
 
 func wtfQueryUserToken(session uint32, token *windows.Token) (err error) {
@@ -78,6 +81,37 @@ func wtsFreeMemory(ptr uintptr) {
 func createWellKnownSid(sidType wellKnownSidType, domainSid *windows.SID, sid *windows.SID, sizeSid *uint32) (err error) {
 	r1, _, e1 := syscall.Syscall6(procCreateWellKnownSid.Addr(), 4, uintptr(sidType), uintptr(unsafe.Pointer(domainSid)), uintptr(unsafe.Pointer(sid)), uintptr(unsafe.Pointer(sizeSid)), 0, 0)
 	if r1 == 0 {
+		if e1 != 0 {
+			err = errnoErr(e1)
+		} else {
+			err = syscall.EINVAL
+		}
+	}
+	return
+}
+
+func notifyServiceStatusChange(service windows.Handle, notifyMask uint32, notifyBuffer uintptr) (err error) {
+	r1, _, e1 := syscall.Syscall(procNotifyServiceStatusChangeW.Addr(), 3, uintptr(service), uintptr(notifyMask), uintptr(notifyBuffer))
+	if r1 != 0 {
+		if e1 != 0 {
+			err = errnoErr(e1)
+		} else {
+			err = syscall.EINVAL
+		}
+	}
+	return
+}
+
+func sleepEx(milliseconds uint32, alertable bool) (ret uint32, err error) {
+	var _p0 uint32
+	if alertable {
+		_p0 = 1
+	} else {
+		_p0 = 0
+	}
+	r0, _, e1 := syscall.Syscall(procSleepEx.Addr(), 2, uintptr(milliseconds), uintptr(_p0), 0)
+	ret = uint32(r0)
+	if ret == 0 {
 		if e1 != 0 {
 			err = errnoErr(e1)
 		} else {

@@ -12,6 +12,7 @@ import (
 	"golang.zx2c4.com/wireguard/windows/conf"
 	"golang.zx2c4.com/wireguard/windows/service"
 	"golang.zx2c4.com/wireguard/windows/ui/internal/walk"
+	"golang.zx2c4.com/wireguard/windows/ui/internal/walk/win"
 	"golang.zx2c4.com/wireguard/windows/ui/syntax"
 	"os"
 )
@@ -34,7 +35,7 @@ func RunUI() {
 	tray, _ := walk.NewNotifyIcon(mw)
 	defer tray.Dispose()
 	tray.SetIcon(icon)
-	tray.SetToolTip("WireGuard: Disconnected")
+	tray.SetToolTip("WireGuard: Deactivated")
 	tray.SetVisible(true)
 
 	mw.SetSize(walk.Size{900, 800})
@@ -83,16 +84,16 @@ func RunUI() {
 	pb, _ := walk.NewPushButton(mw)
 	pb.SetText("Start")
 	var runningTunnel *service.Tunnel
+	var lastTunnel *service.Tunnel
 	pb.Clicked().Attach(func() {
 		if runningTunnel != nil {
+			pb.SetEnabled(false)
 			_, err := runningTunnel.Stop()
 			if err != nil {
 				walk.MsgBox(mw, "Unable to stop tunnel", err.Error(), walk.MsgBoxIconError)
 				return
 			}
 			runningTunnel = nil
-			pb.SetText("Start")
-			tray.SetToolTip("WireGuard: Disconnected")
 			return
 		}
 		c, err := conf.FromWgQuick(se.Text(), "test")
@@ -105,14 +106,15 @@ func RunUI() {
 			walk.MsgBox(mw, "Unable to create tunnel", err.Error(), walk.MsgBoxIconError)
 			return
 		}
+
+		pb.SetEnabled(false)
+		lastTunnel = &tunnel
 		_, err = tunnel.Start()
 		if err != nil {
 			walk.MsgBox(mw, "Unable to start tunnel", err.Error(), walk.MsgBoxIconError)
 			return
 		}
 		runningTunnel = &tunnel
-		pb.SetText("Stop")
-		tray.SetToolTip("WireGuard: Connected")
 	})
 
 	quitAction := walk.NewAction()
@@ -129,11 +131,35 @@ func RunUI() {
 	tray.MouseDown().Attach(func(x, y int, button walk.MouseButton) {
 		if button == walk.LeftButton {
 			mw.Show()
+			win.SetForegroundWindow(mw.Handle())
 		}
 	})
 
-	service.IPCClientRegisterTunnelChange(func(tunnel string) {
-		walk.MsgBox(mw, "Tunnel Changed", "The tunnel that changed is: "+tunnel, walk.MsgBoxIconInformation)
+	service.IPCClientRegisterTunnelChange(func(tunnel string, state service.TunnelState) {
+		if lastTunnel == nil || tunnel != lastTunnel.Name {
+			return
+		}
+		switch state {
+		case service.TunnelStarting:
+			pb.SetText("Starting...")
+			pb.SetEnabled(false)
+			tray.SetToolTip("WireGuard: Activating...")
+		case service.TunnelStarted:
+			pb.SetText("Stop")
+			pb.SetEnabled(true)
+			tray.SetToolTip("WireGuard: Activated")
+		case service.TunnelStopping:
+			pb.SetText("Stopping...")
+			pb.SetEnabled(false)
+			tray.SetToolTip("WireGuard: Deactivating...")
+		case service.TunnelStopped, service.TunnelDeleting:
+			lastTunnel.Delete()
+			runningTunnel = nil
+			lastTunnel = nil
+			pb.SetText("Start")
+			pb.SetEnabled(true)
+			tray.SetToolTip("WireGuard: Deactivated")
+		}
 	})
 
 	mw.Run()
