@@ -8,6 +8,7 @@ package service
 import (
 	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/svc"
+	"golang.org/x/sys/windows/svc/debug"
 	"golang.org/x/sys/windows/svc/eventlog"
 	"golang.zx2c4.com/wireguard/windows/conf"
 	"log"
@@ -82,7 +83,7 @@ func localWellKnownSid(sidType wellKnownSidType) (*windows.SID, error) {
 type managerService struct{}
 
 type elogger struct {
-	*eventlog.Log
+	debug.Log
 }
 
 func (elog elogger) Write(p []byte) (n int, err error) {
