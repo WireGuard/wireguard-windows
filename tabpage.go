@@ -12,7 +12,7 @@ import (
 	"github.com/lxn/win"
 )
 
-const tabPageWindowClass = `\o/ Walk_TabPage_Class \o/`
+const tabPageWindowClass = "WireGuard UI - TabPage"
 
 var tabPageBackgroundBrush Brush
 

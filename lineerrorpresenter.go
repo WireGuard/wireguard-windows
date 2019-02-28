@@ -15,7 +15,7 @@ import (
 	"github.com/lxn/win"
 )
 
-const lineErrorPresenterWindowClass = `\o/ Walk_LineErrorPresenter_Class \o/`
+const lineErrorPresenterWindowClass = "WireGuard UI - LineErrorPresenter"
 
 func init() {
 	MustRegisterWindowClass(lineErrorPresenterWindowClass)

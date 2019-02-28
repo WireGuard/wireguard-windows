@@ -12,7 +12,7 @@ import (
 	"github.com/lxn/win"
 )
 
-const staticWindowClass = `\o/ Walk_Static_Class \o/`
+const staticWindowClass = "WireGuard UI - Static"
 
 var staticWndProcPtr = syscall.NewCallback(staticWndProc)
 
