@@ -180,7 +180,8 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 				elog.Error(1, "Unable to create two inheritable pipes: "+err.Error())
 				return
 			}
-			err = IPCServerListen(ourReader, ourWriter)
+			ourEvents, theirEvents, theirEventStr, err := inheritableEvents()
+			err = IPCServerListen(ourReader, ourWriter, ourEvents)
 			if err != nil {
 				elog.Error(1, "Unable to listen on IPC pipes: "+err.Error())
 				return
@@ -193,9 +194,10 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 				},
 				Files: []*os.File{devNull, devNull, devNull},
 			}
-			proc, err := os.StartProcess(path, []string{path, "/ui", theirReaderStr, theirWriterStr}, attr)
+			proc, err := os.StartProcess(path, []string{path, "/ui", theirReaderStr, theirWriterStr, theirEventStr}, attr)
 			theirReader.Close()
 			theirWriter.Close()
+			theirEvents.Close()
 			if err != nil {
 				elog.Error(1, "Unable to start manager UI process: "+err.Error())
 				return
@@ -210,6 +212,7 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 			procsLock.Unlock()
 			ourReader.Close()
 			ourWriter.Close()
+			ourEvents.Close()
 		}
 	}
 

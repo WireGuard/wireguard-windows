@@ -132,10 +132,9 @@ func RunUI() {
 		}
 	})
 
-	err := service.IPCClientRegisterAsNotificationThread()
-	if err != nil {
-		walk.MsgBox(mw, "Unable to register for notifications", err.Error(), walk.MsgBoxIconError)
-		os.Exit(1)
-	}
+	service.IPCClientRegisterTunnelChange(func(tunnel string) {
+		walk.MsgBox(mw, "Tunnel Changed", "The tunnel that changed is: "+tunnel, walk.MsgBoxIconInformation)
+	})
+
 	mw.Run()
 }

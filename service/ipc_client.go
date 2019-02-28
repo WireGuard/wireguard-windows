@@ -6,7 +6,7 @@
 package service
 
 import (
-	"golang.org/x/sys/windows"
+	"encoding/gob"
 	"golang.zx2c4.com/wireguard/windows/conf"
 	"net/rpc"
 	"os"
@@ -27,10 +27,54 @@ const (
 	TunnelDeleting
 )
 
+type NotificationType int
+
+const (
+	TunnelChangeNotificationType NotificationType = iota
+	TunnelsChangeNotificationType
+)
+
 var rpcClient *rpc.Client
 
-func InitializeIPCClient(reader *os.File, writer *os.File) {
+type tunnelChangeCallback struct {
+	cb func(tunnel string)
+}
+
+var tunnelChangeCallbacks = make(map[*tunnelChangeCallback]bool)
+
+type tunnelsChangeCallback struct {
+	cb func()
+}
+
+var tunnelsChangeCallbacks = make(map[*tunnelsChangeCallback]bool)
+
+func InitializeIPCClient(reader *os.File, writer *os.File, events *os.File) {
 	rpcClient = rpc.NewClient(&pipeRWC{reader, writer})
+	go func() {
+		decoder := gob.NewDecoder(events)
+		for {
+			var notificationType NotificationType
+			err := decoder.Decode(&notificationType)
+			if err != nil {
+				return
+			}
+			switch notificationType {
+			case TunnelChangeNotificationType:
+				var tunnel string
+				err := decoder.Decode(&tunnel)
+				if err != nil || len(tunnel) == 0 {
+					continue
+				}
+				for cb := range tunnelChangeCallbacks {
+					cb.cb(tunnel)
+				}
+			case TunnelsChangeNotificationType:
+				for cb := range tunnelsChangeCallbacks {
+					cb.cb()
+				}
+			}
+		}
+	}()
 }
 
 func (t *Tunnel) StoredConfig() (c conf.Config, err error) {
@@ -78,10 +122,19 @@ func IPCClientQuit(stopTunnelsOnQuit bool) (bool, error) {
 	return alreadyQuit, rpcClient.Call("ManagerService.Quit", stopTunnelsOnQuit, &alreadyQuit)
 }
 
-func IPCClientRegisterAsNotificationThread() error {
-	return rpcClient.Call("ManagerService.RegisterAsNotificationThread", windows.GetCurrentThreadId(), nil)
+func IPCClientRegisterTunnelChange(cb func(tunnel string)) *tunnelChangeCallback {
+	s := &tunnelChangeCallback{cb}
+	tunnelChangeCallbacks[s] = true
+	return s
 }
-
-func IPCClientUnregisterAsNotificationThread() error {
-	return rpcClient.Call("ManagerService.UnregisterAsNotificationThread", windows.GetCurrentThreadId(), nil)
+func IPCClientUnregisterTunnelChange(cb *tunnelChangeCallback) {
+	delete(tunnelChangeCallbacks, cb)
+}
+func IPCClientRegisterTunnelsChange(cb func()) *tunnelsChangeCallback {
+	s := &tunnelsChangeCallback{cb}
+	tunnelsChangeCallbacks[s] = true
+	return s
+}
+func IPCClientUnregisterTunnelsChange(cb *tunnelsChangeCallback) {
+	delete(tunnelsChangeCallbacks, cb)
 }

@@ -33,26 +33,44 @@ func (p *pipeRWC) Close() error {
 	return err2
 }
 
+func makeInheritableAndGetStr(f *os.File) (str string, err error) {
+	sc, err := f.SyscallConn()
+	if err != nil {
+		return
+	}
+	err2 := sc.Control(func(fd uintptr) {
+		err = windows.SetHandleInformation(windows.Handle(fd), windows.HANDLE_FLAG_INHERIT, windows.HANDLE_FLAG_INHERIT)
+		str = strconv.FormatUint(uint64(fd), 10)
+	})
+	if err2 != nil {
+		err = err2
+	}
+	return
+}
+
+func inheritableEvents() (ourEvents *os.File, theirEvents *os.File, theirEventStr string, err error) {
+	theirEvents, ourEvents, err = os.Pipe()
+	if err != nil {
+		return
+	}
+	theirEventStr, err = makeInheritableAndGetStr(theirEvents)
+	return
+}
+
 func inheritableSocketpairEmulation() (ourReader *os.File, theirReader *os.File, theirReaderStr string, ourWriter *os.File, theirWriter *os.File, theirWriterStr string, err error) {
 	ourReader, theirWriter, err = os.Pipe()
 	if err != nil {
 		return
 	}
-	err = windows.SetHandleInformation(windows.Handle(theirWriter.Fd()), windows.HANDLE_FLAG_INHERIT, windows.HANDLE_FLAG_INHERIT)
+	theirWriterStr, err = makeInheritableAndGetStr(theirWriter)
 	if err != nil {
 		return
 	}
-	theirWriterStr = strconv.FormatUint(uint64(theirWriter.Fd()), 10)
 
 	theirReader, ourWriter, err = os.Pipe()
 	if err != nil {
 		return
 	}
-	err = windows.SetHandleInformation(windows.Handle(theirReader.Fd()), windows.HANDLE_FLAG_INHERIT, windows.HANDLE_FLAG_INHERIT)
-	if err != nil {
-		return
-	}
-	theirReaderStr = strconv.FormatUint(uint64(theirReader.Fd()), 10)
-
+	theirReaderStr, err = makeInheritableAndGetStr(theirReader)
 	return
 }

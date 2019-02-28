@@ -6,13 +6,15 @@
 package service
 
 import (
+	"bytes"
+	"encoding/gob"
 	"errors"
-	"golang.org/x/sys/windows"
 	"golang.zx2c4.com/wireguard/windows/conf"
 	"net/rpc"
 	"os"
 	"sync"
 	"sync/atomic"
+	"time"
 )
 
 var managerServices = make(map[*ManagerService]bool)
@@ -21,8 +23,7 @@ var haveQuit uint32
 var quitManagersChan = make(chan struct{}, 1)
 
 type ManagerService struct {
-	notifierHandles     map[windows.Handle]bool
-	notifierHandlesLock sync.RWMutex
+	events *os.File
 }
 
 func (s *ManagerService) StoredConfig(tunnelName string, config *conf.Config) error {
@@ -127,22 +128,8 @@ func (s *ManagerService) Quit(stopTunnelsOnQuit bool, alreadyQuit *bool) error {
 	return nil
 }
 
-func (s *ManagerService) RegisterAsNotificationThread(handle windows.Handle, unused *uintptr) error {
-	s.notifierHandlesLock.Lock()
-	s.notifierHandles[handle] = true
-	s.notifierHandlesLock.Unlock()
-	return nil
-}
-
-func (s *ManagerService) UnregisterAsNotificationThread(handle windows.Handle, unused *uintptr) error {
-	s.notifierHandlesLock.Lock()
-	delete(s.notifierHandles, handle)
-	s.notifierHandlesLock.Unlock()
-	return nil
-}
-
-func IPCServerListen(reader *os.File, writer *os.File) error {
-	service := &ManagerService{notifierHandles: make(map[windows.Handle]bool)}
+func IPCServerListen(reader *os.File, writer *os.File, events *os.File) error {
+	service := &ManagerService{events: events}
 
 	server := rpc.NewServer()
 	err := server.Register(service)
@@ -163,28 +150,34 @@ func IPCServerListen(reader *os.File, writer *os.File) error {
 	return nil
 }
 
-//sys postMessage(hwnd windows.Handle, msg uint, wparam uintptr, lparam uintptr) (err error) = user32.PostMessageW
-
-func notifyAll(f func(handle windows.Handle)) {
-	managerServicesLock.RLock()
-	for m, _ := range managerServices {
-		m.notifierHandlesLock.RLock()
-		for handle, _ := range m.notifierHandles {
-			f(handle)
+func notifyAll(notificationType NotificationType, iface interface{}) {
+	var buf bytes.Buffer
+	encoder := gob.NewEncoder(&buf)
+	err := encoder.Encode(notificationType)
+	if err != nil {
+		return
+	}
+	if iface != nil {
+		err = encoder.Encode(iface)
+		if err != nil {
+			return
 		}
-		m.notifierHandlesLock.RUnlock()
+	}
+
+	managerServicesLock.RLock()
+	for m := range managerServices {
+		go func() {
+			m.events.SetWriteDeadline(time.Now().Add(time.Second))
+			m.events.Write(buf.Bytes())
+		}()
 	}
 	managerServicesLock.RUnlock()
 }
 
 func IPCServerNotifyTunnelChange(name string) {
-	notifyAll(func(handle windows.Handle) {
-		//TODO: postthreadmessage
-	})
+	notifyAll(TunnelChangeNotificationType, name)
 }
 
 func IPCServerNotifyTunnelsChange() {
-	notifyAll(func(handle windows.Handle) {
-		postMessage(handle, tunnelsChangedMessage, 0, 0)
-	})
+	notifyAll(TunnelsChangeNotificationType, nil)
 }
