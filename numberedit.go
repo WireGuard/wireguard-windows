@@ -18,7 +18,7 @@ import (
 	"github.com/lxn/win"
 )
 
-const numberEditWindowClass = `\o/ Walk_NumberEdit_Class \o/`
+const numberEditWindowClass = "WireGuard UI - NumberEdit"
 
 func init() {
 	AppendToWalkInit(func() {

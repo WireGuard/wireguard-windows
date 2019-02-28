@@ -14,7 +14,7 @@ import (
 	"github.com/lxn/win"
 )
 
-const tabWidgetWindowClass = `\o/ Walk_TabWidget_Class \o/`
+const tabWidgetWindowClass = "WireGuard UI - TabWidget"
 
 func init() {
 	AppendToWalkInit(func() {

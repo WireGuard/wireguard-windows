@@ -13,7 +13,7 @@ import (
 	"github.com/lxn/win"
 )
 
-const clipboardWindowClass = `\o/ Walk_Clipboard_Class \o/`
+const clipboardWindowClass = "WireGuard UI - Clipboard"
 
 func init() {
 	AppendToWalkInit(func() {

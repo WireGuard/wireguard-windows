@@ -10,7 +10,7 @@ import (
 	"github.com/lxn/win"
 )
 
-const splitterHandleWindowClass = `\o/ Walk_SplitterHandle_Class \o/`
+const splitterHandleWindowClass = "WireGuard UI - SplitterHandle"
 
 func init() {
 	AppendToWalkInit(func() {

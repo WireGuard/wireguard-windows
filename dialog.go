@@ -28,7 +28,7 @@ const (
 	DlgCmdTimeout  = win.IDTIMEOUT
 )
 
-const dialogWindowClass = `\o/ Walk_Dialog_Class \o/`
+const dialogWindowClass = "WireGuard UI - Dialog"
 
 func init() {
 	AppendToWalkInit(func() {

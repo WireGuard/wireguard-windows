@@ -18,7 +18,7 @@ import (
 	"github.com/lxn/win"
 )
 
-const tableViewWindowClass = `\o/ Walk_TableView_Class \o/`
+const tableViewWindowClass = "WireGuard UI - TableView"
 
 var (
 	white                       = win.COLORREF(RGB(255, 255, 255))

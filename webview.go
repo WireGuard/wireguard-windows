@@ -16,7 +16,7 @@ import (
 	"github.com/lxn/win"
 )
 
-const webViewWindowClass = `\o/ Walk_WebView_Class \o/`
+const webViewWindowClass = "WireGuard UI - WebView"
 
 func init() {
 	AppendToWalkInit(func() {
