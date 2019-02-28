@@ -7,15 +7,17 @@ package service
 
 import (
 	"bufio"
+	"golang.org/x/sys/windows"
+	"golang.zx2c4.com/winipcfg"
 	"log"
 	"net"
+	"os"
 	"strings"
 
 	"golang.org/x/sys/windows/svc"
 	"golang.org/x/sys/windows/svc/debug"
 	"golang.org/x/sys/windows/svc/eventlog"
 
-	"golang.zx2c4.com/winipcfg"
 	"golang.zx2c4.com/wireguard/windows/conf"
 	"golang.zx2c4.com/wireguard/windows/service/tun"
 )
@@ -79,9 +81,9 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 	logger.Info.Println("Starting wireguard-go version", WireGuardGoVersion)
 	logger.Debug.Println("Debug log enabled")
 
-	tun, err := tun.CreateTUN(conf.Name)
+	wintun, err := tun.CreateTUN(conf.Name)
 	if err == nil {
-		realInterfaceName, err2 := tun.Name()
+		realInterfaceName, err2 := wintun.Name()
 		if err2 == nil {
 			conf.Name = realInterfaceName
 		}
@@ -92,7 +94,7 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 		return
 	}
 
-	device := NewDevice(tun, logger)
+	device := NewDevice(wintun, logger)
 	device.Up()
 	logger.Info.Println("Device started")
 
@@ -127,17 +129,77 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 	}
 	ipcSetOperation(device, bufio.NewReader(strings.NewReader(uapiConf)))
 
-	//TODO: configure addresses, routes, and DNS with winipcfg
-	iface, err := winipcfg.InterfaceFromFriendlyName(conf.Name)
-	if err == nil {
-		a := make([]*net.IPNet, len(conf.Interface.Addresses))
-		for i, addr := range conf.Interface.Addresses {
-			a[i] = &net.IPNet{addr.IP, net.CIDRMask(int(addr.Cidr), len(addr.IP))}
+	guid := wintun.(*tun.NativeTun).GUID()
+	iface, err := winipcfg.InterfaceFromGUID(&guid)
+	if err != nil {
+		logger.Error.Println("Unable to find Wintun device:", err)
+		changes <- svc.Status{State: svc.StopPending}
+		exitCode = ERROR_NETWORK_BUSY
+		device.Close()
+		return
+	}
+
+	routeCount := len(conf.Interface.Addresses)
+	for _, peer := range conf.Peers {
+		routeCount += len(peer.AllowedIPs)
+	}
+	routes := make([]winipcfg.RouteData, routeCount)
+	routeCount = 0
+	var firstGateway *net.IP
+	addresses := make([]*net.IPNet, len(conf.Interface.Addresses))
+	for i, addr := range conf.Interface.Addresses {
+		ipnet := addr.IPNet()
+		addresses[i] = &ipnet
+		gateway := ipnet.IP.Mask(ipnet.Mask)
+		if firstGateway == nil {
+			firstGateway = &gateway
 		}
-		err = iface.SetAddresses(a)
+		routes[routeCount] = winipcfg.RouteData{
+			Destination: net.IPNet{
+				IP:   gateway,
+				Mask: ipnet.Mask,
+			},
+			NextHop: gateway,
+			Metric:  1,
+		}
+		routeCount++
+	}
+
+	for _, peer := range conf.Peers {
+		for _, allowedip := range peer.AllowedIPs {
+			routes[routeCount] = winipcfg.RouteData{
+				Destination: allowedip.IPNet(),
+				NextHop:     *firstGateway,
+				Metric:      1,
+			}
+			routeCount++
+		}
+	}
+
+	err = iface.SetAddresses(addresses)
+	if err == nil {
+		err = iface.FlushRoutes()
+		if err == nil {
+			for _, route := range routes {
+				err = iface.AddRoute(&route, true)
+
+				//TODO: Ignoring duplicate errors like this maybe isn't very reasonable.
+				// instead we should make sure we're not adding duplicates ourselves when
+				// inserting the gateway routes.
+				if syserr, ok := err.(*os.SyscallError); ok {
+					if syserr.Err == windows.Errno(ERROR_OBJECT_ALREADY_EXISTS) {
+						err = nil
+					}
+				}
+
+				if err != nil {
+					break
+				}
+			}
+		}
 	}
 	if err != nil {
-		logger.Error.Println("Unable to setup interface addresses:", err)
+		logger.Error.Println("Unable to set interface addresses and routes:", err)
 		changes <- svc.Status{State: svc.StopPending}
 		exitCode = ERROR_NETWORK_BUSY
 		device.Close()
