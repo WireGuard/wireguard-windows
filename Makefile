@@ -1,11 +1,5 @@
 CFLAGS ?= -O3
 CFLAGS += -Wall -std=gnu11
-export CGO_ENABLED := 1
-export CGO_CFLAGS := $(CFLAGS)
-export CC := x86_64-w64-mingw32-gcc
-export GOOS := windows
-export GOARCH := amd64
-export PATH := $(PATH):$(GOPATH)/bin
 
 all: wireguard.exe
 
@@ -28,11 +22,11 @@ $(foreach FILE,$(DOWNSTREAM_FILES),$(eval $(call copy-src-to-build,,$(FILE))))
 $(BUILDDIR)/.prepared:
 	touch "$@"
 
-$(BUILDDIR)/resources.syso: ui/icon/icon.ico ui/manifest.xml
-	rsrc -manifest ui/manifest.xml -ico ui/icon/icon.ico -arch amd64 -o $@
+$(BUILDDIR)/resources.syso: ui/icon/icon.ico ui/manifest.xml $(BUILDDIR)/go.mod
+	cd "$(BUILDDIR)" && go run github.com/akavel/rsrc -manifest ../ui/manifest.xml -ico ../ui/icon/icon.ico -arch amd64 -o resources.syso
 
 wireguard.exe: $(BUILDDIR)/.prepared $(BUILDDIR)/resources.syso
-	cd "$(BUILDDIR)" && go build -ldflags="-H windowsgui" -o ../$@ -v
+	cd "$(BUILDDIR)" && CC=x86_64-w64-mingw32-gcc CGO_ENABLED=1 GOOS=windows GOARCH=amd64 go build -ldflags="-H windowsgui" -o ../$@
 
 run: wireguard.exe
 	wine wireguard.exe
