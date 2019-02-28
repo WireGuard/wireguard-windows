@@ -25,7 +25,7 @@ var flags = [...]string{
 	"/managerservice",
 	"/tunnelservice CONFIG_PATH",
 	"/tunneldebug CONFIG_PATH",
-	"/ui CMD_READ_HANDLE CMD_WRITE_HANDLE",
+	"/ui CMD_READ_HANDLE CMD_WRITE_HANDLE CMD_EVENT_HANDLE",
 }
 
 //sys messageBoxEx(hwnd windows.Handle, text *uint16, title *uint16, typ uint, languageId uint16) = user32.MessageBoxExW
@@ -146,7 +146,7 @@ func main() {
 		}
 		return
 	case "/ui":
-		if len(os.Args) != 4 {
+		if len(os.Args) != 5 {
 			usage()
 		}
 		readPipe, err := pipeFromHandleArgument(os.Args[2])
@@ -157,7 +157,11 @@ func main() {
 		if err != nil {
 			fatal(err)
 		}
-		service.InitializeIPCClient(readPipe, writePipe)
+		eventPipe, err := pipeFromHandleArgument(os.Args[4])
+		if err != nil {
+			fatal(err)
+		}
+		service.InitializeIPCClient(readPipe, writePipe, eventPipe)
 		ui.RunUI()
 		return
 	}

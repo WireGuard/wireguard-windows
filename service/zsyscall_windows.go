@@ -39,14 +39,11 @@ func errnoErr(e syscall.Errno) error {
 var (
 	modwtsapi32 = windows.NewLazySystemDLL("wtsapi32.dll")
 	modadvapi32 = windows.NewLazySystemDLL("advapi32.dll")
-	moduser32   = windows.NewLazySystemDLL("user32.dll")
 
-	procWTSQueryUserToken      = modwtsapi32.NewProc("WTSQueryUserToken")
-	procWTSEnumerateSessionsW  = modwtsapi32.NewProc("WTSEnumerateSessionsW")
-	procWTSFreeMemory          = modwtsapi32.NewProc("WTSFreeMemory")
-	procCreateWellKnownSid     = modadvapi32.NewProc("CreateWellKnownSid")
-	procPostMessageW           = moduser32.NewProc("PostMessageW")
-	procRegisterWindowMessageW = moduser32.NewProc("RegisterWindowMessageW")
+	procWTSQueryUserToken     = modwtsapi32.NewProc("WTSQueryUserToken")
+	procWTSEnumerateSessionsW = modwtsapi32.NewProc("WTSEnumerateSessionsW")
+	procWTSFreeMemory         = modwtsapi32.NewProc("WTSFreeMemory")
+	procCreateWellKnownSid    = modadvapi32.NewProc("CreateWellKnownSid")
 )
 
 func wtfQueryUserToken(session uint32, token *windows.Token) (err error) {
@@ -81,31 +78,6 @@ func wtsFreeMemory(ptr uintptr) {
 func createWellKnownSid(sidType wellKnownSidType, domainSid *windows.SID, sid *windows.SID, sizeSid *uint32) (err error) {
 	r1, _, e1 := syscall.Syscall6(procCreateWellKnownSid.Addr(), 4, uintptr(sidType), uintptr(unsafe.Pointer(domainSid)), uintptr(unsafe.Pointer(sid)), uintptr(unsafe.Pointer(sizeSid)), 0, 0)
 	if r1 == 0 {
-		if e1 != 0 {
-			err = errnoErr(e1)
-		} else {
-			err = syscall.EINVAL
-		}
-	}
-	return
-}
-
-func postMessage(hwnd windows.Handle, msg uint, wparam uintptr, lparam uintptr) (err error) {
-	r1, _, e1 := syscall.Syscall6(procPostMessageW.Addr(), 4, uintptr(hwnd), uintptr(msg), uintptr(wparam), uintptr(lparam), 0, 0)
-	if r1 == 0 {
-		if e1 != 0 {
-			err = errnoErr(e1)
-		} else {
-			err = syscall.EINVAL
-		}
-	}
-	return
-}
-
-func registerWindowMessage(name *uint16) (message uint, err error) {
-	r0, _, e1 := syscall.Syscall(procRegisterWindowMessageW.Addr(), 1, uintptr(unsafe.Pointer(name)), 0, 0)
-	message = uint(r0)
-	if message == 0 {
 		if e1 != 0 {
 			err = errnoErr(e1)
 		} else {
