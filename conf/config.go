@@ -64,6 +64,21 @@ func (r *IPCidr) String() string {
 	return fmt.Sprintf("%s/%d", r.IP.String(), r.Cidr)
 }
 
+func (r *IPCidr) Bits() uint8 {
+	if r.IP.To4() != nil {
+		return 32
+	} else {
+		return 128
+	}
+}
+
+func (r *IPCidr) IPNet() net.IPNet {
+	return net.IPNet{
+		IP:   r.IP,
+		Mask: net.CIDRMask(int(r.Cidr), int(r.Bits())),
+	}
+}
+
 func (e *Endpoint) String() string {
 	if strings.IndexByte(e.Host, ':') > 0 {
 		return fmt.Sprintf("[%s]:%d", e.Host, e.Port)

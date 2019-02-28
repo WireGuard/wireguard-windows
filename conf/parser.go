@@ -40,17 +40,21 @@ func parseIPCidr(s string) (ipcidr *IPCidr, err error) {
 	if addr == nil {
 		return
 	}
+	maybeV4 := addr.To4()
+	if maybeV4 != nil {
+		addr = maybeV4
+	}
 	if len(cidrStr) > 0 {
 		err = &ParseError{"Invalid network prefix length", s}
 		cidr, err = strconv.Atoi(cidrStr)
 		if err != nil || cidr < 0 || cidr > 128 {
 			return
 		}
-		if cidr > 32 && addr.To4() != nil {
+		if cidr > 32 && maybeV4 != nil {
 			return
 		}
 	} else {
-		if addr.To4() != nil {
+		if maybeV4 != nil {
 			cidr = 32
 		} else {
 			cidr = 128
