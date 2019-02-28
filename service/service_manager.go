@@ -129,6 +129,14 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 		return
 	}
 
+	err = trackExistingTunnels()
+	if err != nil {
+		elog.Error(1, "Unable to track existing tunnels: "+err.Error())
+		changes <- svc.Status{State: svc.StopPending}
+		exitCode = ERROR_NO_TRACKING_SERVICE
+		return
+	}
+
 	conf.RegisterStoreChangeCallback(func() { conf.MigrateUnencryptedConfigs() }) // Ignore return value for now, but could be useful later.
 	conf.RegisterStoreChangeCallback(IPCServerNotifyTunnelsChange)
 

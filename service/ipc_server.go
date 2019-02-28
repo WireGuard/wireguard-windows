@@ -150,7 +150,7 @@ func IPCServerListen(reader *os.File, writer *os.File, events *os.File) error {
 	return nil
 }
 
-func notifyAll(notificationType NotificationType, iface interface{}) {
+func notifyAll(notificationType NotificationType, ifaces ...interface{}) {
 	if len(managerServices) == 0 {
 		return
 	}
@@ -161,7 +161,7 @@ func notifyAll(notificationType NotificationType, iface interface{}) {
 	if err != nil {
 		return
 	}
-	if iface != nil {
+	for _, iface := range ifaces {
 		err = encoder.Encode(iface)
 		if err != nil {
 			return
@@ -178,10 +178,10 @@ func notifyAll(notificationType NotificationType, iface interface{}) {
 	managerServicesLock.RUnlock()
 }
 
-func IPCServerNotifyTunnelChange(name string) {
-	notifyAll(TunnelChangeNotificationType, name)
+func IPCServerNotifyTunnelChange(name string, state TunnelState) {
+	notifyAll(TunnelChangeNotificationType, name, state)
 }
 
 func IPCServerNotifyTunnelsChange() {
-	notifyAll(TunnelsChangeNotificationType, nil)
+	notifyAll(TunnelsChangeNotificationType)
 }

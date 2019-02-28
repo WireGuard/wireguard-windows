@@ -160,8 +160,8 @@ func InstallTunnel(configPath string) error {
 	if err != nil {
 		return err
 	}
-	service.Start()
-	return service.Close()
+	go trackTunnelService(name, service)
+	return service.Start()
 }
 
 func UninstallTunnel(name string) error {

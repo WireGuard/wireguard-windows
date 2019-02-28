@@ -37,7 +37,7 @@ const (
 var rpcClient *rpc.Client
 
 type tunnelChangeCallback struct {
-	cb func(tunnel string)
+	cb func(tunnel string, state TunnelState)
 }
 
 var tunnelChangeCallbacks = make(map[*tunnelChangeCallback]bool)
@@ -65,8 +65,13 @@ func InitializeIPCClient(reader *os.File, writer *os.File, events *os.File) {
 				if err != nil || len(tunnel) == 0 {
 					continue
 				}
+				var state TunnelState
+				err = decoder.Decode(&state)
+				if err != nil || state == TunnelUnknown {
+					continue
+				}
 				for cb := range tunnelChangeCallbacks {
-					cb.cb(tunnel)
+					cb.cb(tunnel, state)
 				}
 			case TunnelsChangeNotificationType:
 				for cb := range tunnelsChangeCallbacks {
@@ -122,7 +127,7 @@ func IPCClientQuit(stopTunnelsOnQuit bool) (bool, error) {
 	return alreadyQuit, rpcClient.Call("ManagerService.Quit", stopTunnelsOnQuit, &alreadyQuit)
 }
 
-func IPCClientRegisterTunnelChange(cb func(tunnel string)) *tunnelChangeCallback {
+func IPCClientRegisterTunnelChange(cb func(tunnel string, state TunnelState)) *tunnelChangeCallback {
 	s := &tunnelChangeCallback{cb}
 	tunnelChangeCallbacks[s] = true
 	return s
