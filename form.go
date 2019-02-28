@@ -405,13 +405,6 @@ func (fb *FormBase) Run() int {
 			return -1
 		}
 
-		switch msg.Message {
-		case win.WM_KEYDOWN:
-			if fb.webViewTranslateAccelerator(msg) {
-				// handled accelerator key of webview and its childen (ie IE)
-			}
-		}
-
 		if !win.IsDialogMessage(fb.hWnd, msg) {
 			win.TranslateMessage(msg)
 			win.DispatchMessage(msg)
@@ -421,23 +414,6 @@ func (fb *FormBase) Run() int {
 	}
 
 	return 0
-}
-
-func (fb *FormBase) webViewTranslateAccelerator(msg *win.MSG) bool {
-	ret := false
-	walkDescendants(fb.window, func(w Window) bool {
-		if webView, ok := w.(*WebView); ok {
-			webViewHWnd := webView.Handle()
-			if webViewHWnd == msg.HWnd || win.IsChild(webViewHWnd, msg.HWnd) {
-				_ret := webView.translateAccelerator(msg)
-				if _ret {
-					ret = _ret
-				}
-			}
-		}
-		return true
-	})
-	return ret
 }
 
 func (fb *FormBase) Starting() *Event {
