@@ -7,9 +7,9 @@ package ui
 
 import (
 	"fmt"
+	"github.com/lxn/walk"
+	"github.com/lxn/win"
 	"golang.org/x/sys/windows"
-	"golang.zx2c4.com/wireguard/windows/ui/internal/walk"
-	"golang.zx2c4.com/wireguard/windows/ui/internal/walk/win"
 	"os"
 	"runtime"
 )
