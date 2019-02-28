@@ -129,6 +129,7 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 		return
 	}
 
+	conf.RegisterStoreChangeCallback(func() { conf.MigrateUnencryptedConfigs() }) // Ignore return value for now, but could be useful later.
 	conf.RegisterStoreChangeCallback(IPCServerNotifyTunnelsChange)
 
 	procs := make(map[uint32]*os.Process)
