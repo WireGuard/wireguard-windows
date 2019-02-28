@@ -30,10 +30,8 @@ func (elog confElogger) Write(p []byte) (n int, err error) {
 	msg := elog.conf.Name + ": " + string(p)
 	n = len(msg)
 	switch elog.level {
-	case 1:
+	case 1, 2:
 		err = elog.elog.Info(1, msg)
-	case 2:
-		err = elog.elog.Warning(1, msg)
 	case 3:
 		err = elog.elog.Error(1, msg)
 	}
@@ -62,6 +60,7 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 			return
 		}
 	}
+	log.SetOutput(elogger{elog})
 
 	conf, err := conf.LoadFromPath(service.path)
 	if err != nil {
