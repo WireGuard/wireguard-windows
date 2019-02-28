@@ -10,7 +10,7 @@ import (
 	"github.com/lxn/win"
 )
 
-const customWidgetWindowClass = `\o/ Walk_CustomWidget_Class \o/`
+const customWidgetWindowClass = "WireGuard UI - CustomWidget"
 
 func init() {
 	MustRegisterWindowClass(customWidgetWindowClass)

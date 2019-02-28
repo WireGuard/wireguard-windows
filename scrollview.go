@@ -12,7 +12,7 @@ import (
 	"github.com/lxn/win"
 )
 
-const scrollViewWindowClass = `\o/ Walk_ScrollView_Class \o/`
+const scrollViewWindowClass = "WireGuard UI - ScrollView"
 
 func init() {
 	MustRegisterWindowClass(scrollViewWindowClass)

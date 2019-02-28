@@ -14,7 +14,7 @@ import (
 	"github.com/lxn/win"
 )
 
-const groupBoxWindowClass = `\o/ Walk_GroupBox_Class \o/`
+const groupBoxWindowClass = "WireGuard UI - GroupBox"
 
 func init() {
 	MustRegisterWindowClass(groupBoxWindowClass)

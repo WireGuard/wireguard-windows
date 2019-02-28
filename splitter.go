@@ -15,7 +15,7 @@ import (
 	"github.com/lxn/win"
 )
 
-const splitterWindowClass = `\o/ Walk_Splitter_Class \o/`
+const splitterWindowClass = "WireGuard UI - Splitter"
 
 var splitterHandleDraggingBrush *SolidColorBrush
 

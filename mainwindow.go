@@ -14,7 +14,7 @@ import (
 	"github.com/lxn/win"
 )
 
-const mainWindowWindowClass = `\o/ Walk_MainWindow_Class \o/`
+const mainWindowWindowClass = "WireGuard UI - MainWindow"
 
 func init() {
 	MustRegisterWindowClass(mainWindowWindowClass)

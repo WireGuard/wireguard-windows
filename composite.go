@@ -10,7 +10,7 @@ import (
 	"github.com/lxn/win"
 )
 
-const compositeWindowClass = `\o/ Walk_Composite_Class \o/`
+const compositeWindowClass = "WireGuard UI - Composite"
 
 func init() {
 	MustRegisterWindowClass(compositeWindowClass)
