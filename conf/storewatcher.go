@@ -5,34 +5,20 @@
 
 package conf
 
-import "reflect"
-
-type StoreCallback func()
-
-var storeCallbacks []StoreCallback
-
-func RegisterStoreChangeCallback(cb StoreCallback) {
-	startWatchingConfigDir()
-	cb()
-	storeCallbacks = append(storeCallbacks, cb)
+type storeCallback struct {
+	cb func()
 }
 
-func UnregisterStoreChangeCallback(cb StoreCallback) {
-	//TODO: this function is ridiculous, doing slow iteration like this and reflection too.
+var storeCallbacks = make(map[*storeCallback]bool)
 
-	index := -1
-	for i, e := range storeCallbacks {
-		if reflect.ValueOf(e).Pointer() == reflect.ValueOf(cb).Pointer() {
-			index = i
-			break
-		}
-	}
-	if index == -1 {
-		return
-	}
-	newList := storeCallbacks[0:index]
-	if index < len(storeCallbacks)-1 {
-		newList = append(newList, storeCallbacks[index+1:]...)
-	}
-	storeCallbacks = newList
+func RegisterStoreChangeCallback(cb func()) *storeCallback {
+	startWatchingConfigDir()
+	cb()
+	s := &storeCallback{cb}
+	storeCallbacks[s] = true
+	return s
+}
+
+func UnregisterStoreChangeCallback(cb *storeCallback) {
+	delete(storeCallbacks, cb)
 }
