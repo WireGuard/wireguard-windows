@@ -10,6 +10,7 @@ require (
 )
 
 replace (
+	github.com/akavel/rsrc => golang.zx2c4.com/wireguard/windows pkg/rsrc
 	github.com/lxn/walk => golang.zx2c4.com/wireguard/windows pkg/walk
 	github.com/lxn/win => golang.zx2c4.com/wireguard/windows pkg/walk-win
 )
