@@ -451,20 +451,6 @@ func (fb *FormBase) handleKeyDown(msg *win.MSG) bool {
 
 		hwnd = win.GetParent(hwnd)
 	}
-
-	// WebView
-	walkDescendants(fb.window, func(w Window) bool {
-		if webView, ok := w.(*WebView); ok {
-			webViewHWnd := webView.Handle()
-			if webViewHWnd == msg.HWnd || win.IsChild(webViewHWnd, msg.HWnd) {
-				_ret := webView.translateAccelerator(msg)
-				if _ret {
-					ret = _ret
-				}
-			}
-		}
-		return true
-	})
 	return ret
 }
 
