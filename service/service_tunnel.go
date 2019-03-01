@@ -9,11 +9,7 @@ import (
 	"bufio"
 	"encoding/binary"
 	"fmt"
-	"golang.org/x/sys/windows"
-	"golang.zx2c4.com/winipcfg"
 	"log"
-	"net"
-	"os"
 	"strings"
 	"unsafe"
 
@@ -144,131 +140,17 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 	}
 	ipcSetOperation(device, bufio.NewReader(strings.NewReader(uapiConf)))
 
-	//TODO: This needs more error checking and to be done in a notifier whenever the default route changes.
-	defaultV4, err := winipcfg.DefaultInterface(winipcfg.AF_INET)
-	if err == nil {
-		sysconn, _ := device.net.bind.(*NativeBind).ipv4.SyscallConn()
-		sysconn.Control(func(fd uintptr) {
-			err = windows.SetsockoptInt(windows.Handle(fd), windows.IPPROTO_IP, 31 /* IP_UNICAST_IF */, int(htonl(defaultV4.Index)))
-			if err != nil {
-				logger.Error.Println("Failed to set IPv4 default interface on socket:", err)
-			}
-		})
-	} else {
-		logger.Error.Println("Unable to determine default IPv4 interface:", err)
-	}
-	defaultV6, err := winipcfg.DefaultInterface(winipcfg.AF_INET6)
-	if err == nil {
-		sysconn, _ := device.net.bind.(*NativeBind).ipv6.SyscallConn()
-		sysconn.Control(func(fd uintptr) {
-			err = windows.SetsockoptInt(windows.Handle(fd), windows.IPPROTO_IPV6, 31 /* IPV6_UNICAST_IF */, int(defaultV6.Ipv6IfIndex))
-			if err != nil {
-				logger.Error.Println("Failed to set IPv6 default interface on socket:", err)
-			}
-		})
-	} else {
-		logger.Error.Println("Unable to determine default IPv6 interface:", err)
-	}
-
-	guid := wintun.(*tun.NativeTun).GUID()
-	iface, err := winipcfg.InterfaceFromGUID(&guid)
+	err = bindSocketToMonitoredDefault(device.net.bind.(*NativeBind))
 	if err != nil {
-		logger.Error.Println("Unable to find Wintun device:", err)
+		logger.Error.Println("Unable to bind sockets to default route:", err)
 		changes <- svc.Status{State: svc.StopPending}
 		exitCode = ERROR_NETWORK_BUSY
 		device.Close()
 		return
 	}
 
-	routeCount := len(conf.Interface.Addresses)
-	for _, peer := range conf.Peers {
-		routeCount += len(peer.AllowedIPs)
-	}
-	routes := make([]winipcfg.RouteData, routeCount)
-	routeCount = 0
-	var firstGateway *net.IP
-	addresses := make([]*net.IPNet, len(conf.Interface.Addresses))
-	for i, addr := range conf.Interface.Addresses {
-		ipnet := addr.IPNet()
-		addresses[i] = &ipnet
-		gateway := ipnet.IP.Mask(ipnet.Mask)
-		if firstGateway == nil {
-			firstGateway = &gateway
-		}
-		routes[routeCount] = winipcfg.RouteData{
-			Destination: net.IPNet{
-				IP:   gateway,
-				Mask: ipnet.Mask,
-			},
-			NextHop: gateway,
-			Metric:  0,
-		}
-		routeCount++
-	}
-
-	foundDefault := false
-	for _, peer := range conf.Peers {
-		for _, allowedip := range peer.AllowedIPs {
-			routes[routeCount] = winipcfg.RouteData{
-				Destination: allowedip.IPNet(),
-				NextHop:     *firstGateway,
-				Metric:      0,
-			}
-			if allowedip.Cidr == 0 {
-				foundDefault = true
-			}
-			routeCount++
-		}
-	}
-
-	err = iface.SetAddresses(addresses)
-	if err == nil {
-		err = iface.FlushRoutes()
-		if err == nil {
-			for _, route := range routes {
-				err = iface.AddRoute(&route, false)
-
-				//TODO: Ignoring duplicate errors like this maybe isn't very reasonable.
-				// instead we should make sure we're not adding duplicates ourselves when
-				// inserting the gateway routes.
-				if syserr, ok := err.(*os.SyscallError); ok {
-					if syserr.Err == windows.Errno(ERROR_OBJECT_ALREADY_EXISTS) {
-						err = nil
-					}
-				}
-
-				if err != nil {
-					break
-				}
-			}
-		}
-	}
-	if err == nil {
-		err = iface.SetDNS(conf.Interface.Dns)
-	}
-	if err == nil {
-		ipif, err := iface.GetIpInterface(winipcfg.AF_INET)
-		if err == nil {
-			if foundDefault {
-				ipif.UseAutomaticMetric = false
-				ipif.Metric = 0
-			}
-			err = ipif.Set()
-		}
-	}
-	if err == nil {
-		ipif, err := iface.GetIpInterface(winipcfg.AF_INET6)
-		if err == nil {
-			if foundDefault {
-				ipif.UseAutomaticMetric = false
-				ipif.Metric = 0
-			}
-			ipif.DadTransmits = 0
-			ipif.RouterDiscoveryBehavior = winipcfg.RouterDiscoveryDisabled
-			ipif.LinkLocalAddressBehavior = winipcfg.LinkLocalAlwaysOff
-			err = ipif.Set()
-		}
-	}
+	guid := wintun.(*tun.NativeTun).GUID()
+	err = configureInterface(conf, &guid)
 	if err != nil {
 		logger.Error.Println("Unable to set interface addresses, routes, DNS, or IP settings:", err)
 		changes <- svc.Status{State: svc.StopPending}
