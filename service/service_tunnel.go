@@ -239,8 +239,11 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 			}
 		}
 	}
+	if err == nil {
+		err = iface.SetDNS(conf.Interface.Dns)
+	}
 	if err != nil {
-		logger.Error.Println("Unable to set interface addresses and routes:", err)
+		logger.Error.Println("Unable to set interface addresses, routes, or DNSes:", err)
 		changes <- svc.Status{State: svc.StopPending}
 		exitCode = ERROR_NETWORK_BUSY
 		device.Close()
