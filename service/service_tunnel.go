@@ -201,17 +201,21 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 				Mask: ipnet.Mask,
 			},
 			NextHop: gateway,
-			Metric:  1,
+			Metric:  0,
 		}
 		routeCount++
 	}
 
+	foundDefault := false
 	for _, peer := range conf.Peers {
 		for _, allowedip := range peer.AllowedIPs {
 			routes[routeCount] = winipcfg.RouteData{
 				Destination: allowedip.IPNet(),
 				NextHop:     *firstGateway,
-				Metric:      1,
+				Metric:      0,
+			}
+			if allowedip.Cidr == 0 {
+				foundDefault = true
 			}
 			routeCount++
 		}
@@ -222,7 +226,7 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 		err = iface.FlushRoutes()
 		if err == nil {
 			for _, route := range routes {
-				err = iface.AddRoute(&route, true)
+				err = iface.AddRoute(&route, false)
 
 				//TODO: Ignoring duplicate errors like this maybe isn't very reasonable.
 				// instead we should make sure we're not adding duplicates ourselves when
@@ -242,8 +246,31 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 	if err == nil {
 		err = iface.SetDNS(conf.Interface.Dns)
 	}
+	if err == nil {
+		ipif, err := iface.GetIpInterface(winipcfg.AF_INET)
+		if err == nil {
+			if foundDefault {
+				ipif.UseAutomaticMetric = false
+				ipif.Metric = 0
+			}
+			err = ipif.Set()
+		}
+	}
+	if err == nil {
+		ipif, err := iface.GetIpInterface(winipcfg.AF_INET6)
+		if err == nil {
+			if foundDefault {
+				ipif.UseAutomaticMetric = false
+				ipif.Metric = 0
+			}
+			ipif.DadTransmits = 0
+			ipif.RouterDiscoveryBehavior = winipcfg.RouterDiscoveryDisabled
+			ipif.LinkLocalAddressBehavior = winipcfg.LinkLocalAlwaysOff
+			err = ipif.Set()
+		}
+	}
 	if err != nil {
-		logger.Error.Println("Unable to set interface addresses, routes, or DNSes:", err)
+		logger.Error.Println("Unable to set interface addresses, routes, DNS, or IP settings:", err)
 		changes <- svc.Status{State: svc.StopPending}
 		exitCode = ERROR_NETWORK_BUSY
 		device.Close()
