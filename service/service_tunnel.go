@@ -8,6 +8,7 @@ package service
 import (
 	"bufio"
 	"encoding/binary"
+	"fmt"
 	"golang.org/x/sys/windows"
 	"golang.zx2c4.com/winipcfg"
 	"log"
@@ -71,6 +72,12 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 		}
 	}
 	log.SetOutput(elogger{elog})
+	defer func() {
+		if x := recover(); x != nil {
+			elog.Error(1, fmt.Sprint(x))
+			panic(x)
+		}
+	}()
 
 	conf, err := conf.LoadFromPath(service.path)
 	if err != nil {
