@@ -107,6 +107,7 @@ func RunUI() {
 			return
 		}
 
+		se.SetEnabled(false)
 		pb.SetEnabled(false)
 		lastTunnel = &tunnel
 		_, err = tunnel.Start()
@@ -141,18 +142,22 @@ func RunUI() {
 		}
 		switch state {
 		case service.TunnelStarting:
+			se.SetEnabled(false)
 			pb.SetText("Starting...")
 			pb.SetEnabled(false)
 			tray.SetToolTip("WireGuard: Activating...")
 		case service.TunnelStarted:
+			se.SetEnabled(false)
 			pb.SetText("Stop")
 			pb.SetEnabled(true)
 			tray.SetToolTip("WireGuard: Activated")
 		case service.TunnelStopping:
+			se.SetEnabled(false)
 			pb.SetText("Stopping...")
 			pb.SetEnabled(false)
 			tray.SetToolTip("WireGuard: Deactivating...")
 		case service.TunnelStopped, service.TunnelDeleting:
+			se.SetEnabled(true)
 			lastTunnel.Delete()
 			runningTunnel = nil
 			lastTunnel = nil
