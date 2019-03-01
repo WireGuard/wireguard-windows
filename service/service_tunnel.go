@@ -7,12 +7,14 @@ package service
 
 import (
 	"bufio"
+	"encoding/binary"
 	"golang.org/x/sys/windows"
 	"golang.zx2c4.com/winipcfg"
 	"log"
 	"net"
 	"os"
 	"strings"
+	"unsafe"
 
 	"golang.org/x/sys/windows/svc"
 	"golang.org/x/sys/windows/svc/debug"
@@ -43,6 +45,12 @@ func (elog confElogger) Write(p []byte) (n int, err error) {
 type tunnelService struct {
 	path  string
 	debug bool
+}
+
+func htonl(val uint32) uint32 {
+	bytes := make([]byte, 4)
+	binary.BigEndian.PutUint32(bytes, val)
+	return *(*uint32)(unsafe.Pointer(&bytes[0]))
 }
 
 func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest, changes chan<- svc.Status) (svcSpecificEC bool, exitCode uint32) {
@@ -128,6 +136,32 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 		return
 	}
 	ipcSetOperation(device, bufio.NewReader(strings.NewReader(uapiConf)))
+
+	//TODO: This needs more error checking and to be done in a notifier whenever the default route changes.
+	defaultV4, err := winipcfg.DefaultInterface(winipcfg.AF_INET)
+	if err == nil {
+		sysconn, _ := device.net.bind.(*NativeBind).ipv4.SyscallConn()
+		sysconn.Control(func(fd uintptr) {
+			err = windows.SetsockoptInt(windows.Handle(fd), windows.IPPROTO_IP, 31 /* IP_UNICAST_IF */, int(htonl(defaultV4.Index)))
+			if err != nil {
+				logger.Error.Println("Failed to set IPv4 default interface on socket:", err)
+			}
+		})
+	} else {
+		logger.Error.Println("Unable to determine default IPv4 interface:", err)
+	}
+	defaultV6, err := winipcfg.DefaultInterface(winipcfg.AF_INET6)
+	if err == nil {
+		sysconn, _ := device.net.bind.(*NativeBind).ipv6.SyscallConn()
+		sysconn.Control(func(fd uintptr) {
+			err = windows.SetsockoptInt(windows.Handle(fd), windows.IPPROTO_IPV6, 31 /* IPV6_UNICAST_IF */, int(defaultV6.Ipv6IfIndex))
+			if err != nil {
+				logger.Error.Println("Failed to set IPv6 default interface on socket:", err)
+			}
+		})
+	} else {
+		logger.Error.Println("Unable to determine default IPv6 interface:", err)
+	}
 
 	guid := wintun.(*tun.NativeTun).GUID()
 	iface, err := winipcfg.InterfaceFromGUID(&guid)
