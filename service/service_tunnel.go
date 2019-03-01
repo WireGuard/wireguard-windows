@@ -7,11 +7,9 @@ package service
 
 import (
 	"bufio"
-	"encoding/binary"
 	"fmt"
 	"log"
 	"strings"
-	"unsafe"
 
 	"golang.org/x/sys/windows/svc"
 	"golang.org/x/sys/windows/svc/debug"
@@ -42,12 +40,6 @@ func (elog confElogger) Write(p []byte) (n int, err error) {
 type tunnelService struct {
 	path  string
 	debug bool
-}
-
-func htonl(val uint32) uint32 {
-	bytes := make([]byte, 4)
-	binary.BigEndian.PutUint32(bytes, val)
-	return *(*uint32)(unsafe.Pointer(&bytes[0]))
 }
 
 func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest, changes chan<- svc.Status) (svcSpecificEC bool, exitCode uint32) {
@@ -140,7 +132,7 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 	}
 	ipcSetOperation(device, bufio.NewReader(strings.NewReader(uapiConf)))
 
-	err = bindSocketToMonitoredDefault(device.net.bind.(*NativeBind))
+	err = monitorDefaultRoutes(device.net.bind.(*NativeBind))
 	if err != nil {
 		logger.Error.Println("Unable to bind sockets to default route:", err)
 		changes <- svc.Status{State: svc.StopPending}

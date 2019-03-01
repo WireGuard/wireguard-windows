@@ -6,12 +6,14 @@
 package service
 
 import (
+	"encoding/binary"
 	"errors"
 	"golang.org/x/sys/windows"
 	"golang.zx2c4.com/winipcfg"
 	"golang.zx2c4.com/wireguard/windows/conf"
 	"net"
 	"os"
+	"unsafe"
 )
 
 const (
@@ -19,44 +21,84 @@ const (
 	sockoptIPV6_UNICAST_IF = 31
 )
 
-func bindSocketToMonitoredDefault(bind *NativeBind) error {
+func htonl(val int) int {
+	bytes := make([]byte, 4)
+	binary.BigEndian.PutUint32(bytes, uint32(val))
+	return int(*(*uint32)(unsafe.Pointer(&bytes[0])))
+}
+
+func bindSocketRoutes(bind *NativeBind, index4 int, index6 int) error {
+	if index4 != -1 {
+		sysconn, err := bind.ipv4.SyscallConn()
+		if err != nil {
+			return err
+		}
+		err2 := sysconn.Control(func(fd uintptr) {
+			err = windows.SetsockoptInt(windows.Handle(fd), windows.IPPROTO_IP, sockoptIP_UNICAST_IF, htonl(index4))
+		})
+		if err2 != nil {
+			return err2
+		}
+		if err != nil {
+			return err
+		}
+	}
+
+	if index6 != -1 {
+		sysconn, err := bind.ipv6.SyscallConn()
+		if err != nil {
+			return err
+		}
+		err2 := sysconn.Control(func(fd uintptr) {
+			// The lack of htonl here is not a bug. MSDN actually specifies big endian for one and little endian for the other.
+			err = windows.SetsockoptInt(windows.Handle(fd), windows.IPPROTO_IPV6, sockoptIPV6_UNICAST_IF, index6)
+		})
+		if err2 != nil {
+			return err2
+		}
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+
+}
+
+func getDefaultInterfaces() (index4 int, index6 int, err error) {
+	//TODO: this should be expanded to be able to exclude our current interface index
+
+	index4 = -1
+	index6 = -1
 	defaultIface, err := winipcfg.DefaultInterface(winipcfg.AF_INET)
 	if err != nil {
-		return err
+		return -1, -1, err
 	}
-	sysconn, err := bind.ipv4.SyscallConn()
-	if err != nil {
-		return err
+	if defaultIface != nil {
+		index4 = int(defaultIface.Index)
 	}
-	err2 := sysconn.Control(func(fd uintptr) {
-		err = windows.SetsockoptInt(windows.Handle(fd), windows.IPPROTO_IP, sockoptIP_UNICAST_IF, int(htonl(defaultIface.Index)))
-	})
-	if err2 != nil {
-		return err2
-	}
-	if err != nil {
-		return err
-	}
+
 	defaultIface, err = winipcfg.DefaultInterface(winipcfg.AF_INET6)
 	if err != nil {
-		return err
+		return -1, -1, err
 	}
-	sysconn, err = bind.ipv6.SyscallConn()
+	if defaultIface != nil {
+		index6 = int(defaultIface.Ipv6IfIndex)
+	}
+	return
+}
+
+func monitorDefaultRoutes(bind *NativeBind) error {
+	index4, index6, err := getDefaultInterfaces()
 	if err != nil {
 		return err
 	}
-	err2 = sysconn.Control(func(fd uintptr) {
-		err = windows.SetsockoptInt(windows.Handle(fd), windows.IPPROTO_IPV6, sockoptIPV6_UNICAST_IF, int(defaultIface.Ipv6IfIndex))
-	})
-	if err2 != nil {
-		return err2
-	}
+	err = bindSocketRoutes(bind, index4, index6)
 	if err != nil {
 		return err
 	}
 
 	return nil
-
 	//TODO: monitor for changes, and make sure we're using default modulo us
 }
 
