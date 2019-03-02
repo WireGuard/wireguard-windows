@@ -13,6 +13,7 @@ import (
 	"golang.org/x/sys/windows/svc/mgr"
 	"golang.zx2c4.com/wireguard/windows/conf"
 	"os"
+	"syscall"
 	"time"
 )
 
@@ -141,11 +142,11 @@ func InstallTunnel(configPath string) error {
 		}
 		for {
 			service, err = m.OpenService(serviceName)
-			if err != nil {
+			if err != nil && err != syscall.Errno(ERROR_SERVICE_MARKED_FOR_DELETE) {
 				break
 			}
 			service.Close()
-			time.Sleep(time.Second)
+			time.Sleep(time.Second / 3)
 		}
 	}
 
@@ -177,7 +178,7 @@ func UninstallTunnel(name string) error {
 	service.Control(svc.Stop)
 	err = service.Delete()
 	err2 := service.Close()
-	if err != nil {
+	if err != nil && err != syscall.Errno(ERROR_SERVICE_MARKED_FOR_DELETE) {
 		return err
 	}
 	return err2
