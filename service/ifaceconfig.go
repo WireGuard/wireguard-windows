@@ -21,20 +21,36 @@ const (
 	sockoptIPV6_UNICAST_IF = 31
 )
 
-func htonl(val int) int {
+func htonl(val uint32) uint32 {
 	bytes := make([]byte, 4)
-	binary.BigEndian.PutUint32(bytes, uint32(val))
-	return int(*(*uint32)(unsafe.Pointer(&bytes[0])))
+	binary.BigEndian.PutUint32(bytes, val)
+	return *(*uint32)(unsafe.Pointer(&bytes[0]))
 }
 
-func bindSocketRoutes(bind *NativeBind, index4 int, index6 int) error {
-	if index4 != -1 {
+func bindSocketRoute(family winipcfg.AddressFamily, bind *NativeBind, ourLuid uint64) error {
+	routes, err := winipcfg.GetRoutes(family)
+	if err != nil {
+		return err
+	}
+	lowestMetric := ^uint32(0)
+	index := uint32(0) // Zero is "unspecified", which for IP_UNICAST_IF resets the value, which is what we want.
+	for _, route := range routes {
+		if route.DestinationPrefix.PrefixLength != 0 || route.InterfaceLuid == ourLuid {
+			continue
+		}
+		if route.Metric < lowestMetric {
+			lowestMetric = route.Metric
+			index = route.InterfaceIndex
+		}
+	}
+
+	if family == winipcfg.AF_INET {
 		sysconn, err := bind.ipv4.SyscallConn()
 		if err != nil {
 			return err
 		}
 		err2 := sysconn.Control(func(fd uintptr) {
-			err = windows.SetsockoptInt(windows.Handle(fd), windows.IPPROTO_IP, sockoptIP_UNICAST_IF, htonl(index4))
+			err = windows.SetsockoptInt(windows.Handle(fd), windows.IPPROTO_IP, sockoptIP_UNICAST_IF, int(htonl(index)))
 		})
 		if err2 != nil {
 			return err2
@@ -42,16 +58,15 @@ func bindSocketRoutes(bind *NativeBind, index4 int, index6 int) error {
 		if err != nil {
 			return err
 		}
-	}
-
-	if index6 != -1 {
+		return nil
+	} else if family == winipcfg.AF_INET6 {
 		sysconn, err := bind.ipv6.SyscallConn()
 		if err != nil {
 			return err
 		}
 		err2 := sysconn.Control(func(fd uintptr) {
 			// The lack of htonl here is not a bug. MSDN actually specifies big endian for one and little endian for the other.
-			err = windows.SetsockoptInt(windows.Handle(fd), windows.IPPROTO_IPV6, sockoptIPV6_UNICAST_IF, index6)
+			err = windows.SetsockoptInt(windows.Handle(fd), windows.IPPROTO_IPV6, sockoptIPV6_UNICAST_IF, int(index))
 		})
 		if err2 != nil {
 			return err2
@@ -60,46 +75,36 @@ func bindSocketRoutes(bind *NativeBind, index4 int, index6 int) error {
 			return err
 		}
 	}
-
 	return nil
-
 }
 
-func getDefaultInterfaces() (index4 int, index6 int, err error) {
-	//TODO: this should be expanded to be able to exclude our current interface index
-
-	index4 = -1
-	index6 = -1
-	defaultIface, err := winipcfg.DefaultInterface(winipcfg.AF_INET)
+func monitorDefaultRoutes(bind *NativeBind, guid *windows.GUID) (*winipcfg.RouteChangeCallback, error) {
+	ourLuid, err := winipcfg.InterfaceGuidToLuid(guid)
 	if err != nil {
-		return -1, -1, err
+		return nil, err
 	}
-	if defaultIface != nil {
-		index4 = int(defaultIface.Index)
+	doIt := func() error {
+		err = bindSocketRoute(winipcfg.AF_INET, bind, ourLuid)
+		if err != nil {
+			return err
+		}
+		err = bindSocketRoute(winipcfg.AF_INET6, bind, ourLuid)
+		if err != nil {
+			return err
+		}
+		return nil
 	}
-
-	defaultIface, err = winipcfg.DefaultInterface(winipcfg.AF_INET6)
+	err = doIt()
 	if err != nil {
-		return -1, -1, err
+		return nil, err
 	}
-	if defaultIface != nil {
-		index6 = int(defaultIface.Ipv6IfIndex)
-	}
-	return
-}
-
-func monitorDefaultRoutes(bind *NativeBind) error {
-	index4, index6, err := getDefaultInterfaces()
+	cb, err := winipcfg.RegisterRouteChangeCallback(func(notificationType winipcfg.MibNotificationType, route *winipcfg.Route) {
+		_ = doIt()
+	})
 	if err != nil {
-		return err
+		return nil, err
 	}
-	err = bindSocketRoutes(bind, index4, index6)
-	if err != nil {
-		return err
-	}
-
-	return nil
-	//TODO: monitor for changes, and make sure we're using default modulo us
+	return cb, nil
 }
 
 func configureInterface(conf *conf.Config, guid *windows.GUID) error {
