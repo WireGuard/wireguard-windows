@@ -8,12 +8,13 @@ package service
 import (
 	"bytes"
 	"encoding/gob"
-	"errors"
+	"golang.org/x/sys/windows/svc"
 	"golang.zx2c4.com/wireguard/windows/conf"
 	"net/rpc"
 	"os"
 	"sync"
 	"sync/atomic"
+	"syscall"
 	"time"
 )
 
@@ -41,7 +42,7 @@ func (s *ManagerService) RuntimeConfig(tunnelName string, config *conf.Config) e
 	return nil
 }
 
-func (s *ManagerService) Start(tunnelName string, state *TunnelState) error {
+func (s *ManagerService) Start(tunnelName string, unused *uintptr) error {
 	c, err := conf.LoadFromName(tunnelName)
 	if err != nil {
 		return err
@@ -51,30 +52,73 @@ func (s *ManagerService) Start(tunnelName string, state *TunnelState) error {
 		return err
 	}
 	return InstallTunnel(path)
-	//TODO: write out *state
 }
 
-func (s *ManagerService) Stop(tunnelName string, state *TunnelState) error {
-	return UninstallTunnel(tunnelName)
-	//TODO: This function should do nothing if the tunnel is already stopped
-	//TODO: write out *state
+func (s *ManagerService) Stop(tunnelName string, unused *uintptr) error {
+	err := UninstallTunnel(tunnelName)
+	if err == syscall.Errno(ERROR_SERVICE_DOES_NOT_EXIST) {
+		_, notExistsError := conf.LoadFromName(tunnelName)
+		if notExistsError == nil {
+			return nil
+		}
+	}
+	return err
 }
 
-func (s *ManagerService) Delete(tunnelName string, state *TunnelState) error {
-	err := s.Stop(tunnelName, state)
+func (s *ManagerService) WaitForStop(tunnelName string, unused *uintptr) error {
+	serviceName := "WireGuard Tunnel: " + tunnelName
+	m, err := serviceManager()
 	if err != nil {
 		return err
 	}
-	//TODO: wait for stopped somehow
-	if *state != TunnelStopped {
-		return errors.New("Unable to stop tunnel before deleting")
+	for {
+		service, err := m.OpenService(serviceName)
+		if err == nil || err == syscall.Errno(ERROR_SERVICE_MARKED_FOR_DELETE) {
+			service.Close()
+			time.Sleep(time.Second / 3)
+		} else {
+			return nil
+		}
+	}
+}
+
+func (s *ManagerService) Delete(tunnelName string, unused *uintptr) error {
+	err := s.Stop(tunnelName, nil)
+	if err != nil {
+		return err
 	}
 	return conf.DeleteName(tunnelName)
 }
 
 func (s *ManagerService) State(tunnelName string, state *TunnelState) error {
-	//TODO
-
+	serviceName := "WireGuard Tunnel: " + tunnelName
+	m, err := serviceManager()
+	if err != nil {
+		return err
+	}
+	service, err := m.OpenService(serviceName)
+	if err != nil {
+		*state = TunnelStopped
+		return nil
+	}
+	defer service.Close()
+	status, err := service.Query()
+	if err != nil {
+		*state = TunnelUnknown
+		return err
+	}
+	switch status.State {
+	case svc.Stopped:
+		*state = TunnelStopped
+	case svc.StopPending:
+		*state = TunnelStopping
+	case svc.Running:
+		*state = TunnelStarted
+	case svc.StartPending:
+		*state = TunnelStarting
+	default:
+		*state = TunnelUnknown
+	}
 	return nil
 }
 

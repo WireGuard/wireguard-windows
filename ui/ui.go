@@ -84,15 +84,28 @@ func RunUI() {
 	pb, _ := walk.NewPushButton(mw)
 	pb.SetText("Start")
 	var runningTunnel *service.Tunnel
-	var lastTunnel *service.Tunnel
 	pb.Clicked().Attach(func() {
+		restoreState := true
+		pbE := pb.Enabled()
+		seE := se.Enabled()
+		pbT := pb.Text()
+		defer func() {
+			if restoreState {
+				pb.SetEnabled(pbE)
+				se.SetEnabled(seE)
+				pb.SetText(pbT)
+			}
+		}()
+		pb.SetEnabled(false)
+		se.SetEnabled(false)
+		pb.SetText("Requesting..")
 		if runningTunnel != nil {
-			pb.SetEnabled(false)
-			_, err := runningTunnel.Stop()
+			err := runningTunnel.Stop()
 			if err != nil {
 				walk.MsgBox(mw, "Unable to stop tunnel", err.Error(), walk.MsgBoxIconError)
 				return
 			}
+			restoreState = false
 			runningTunnel = nil
 			return
 		}
@@ -106,15 +119,12 @@ func RunUI() {
 			walk.MsgBox(mw, "Unable to create tunnel", err.Error(), walk.MsgBoxIconError)
 			return
 		}
-
-		se.SetEnabled(false)
-		pb.SetEnabled(false)
-		lastTunnel = &tunnel
-		_, err = tunnel.Start()
+		err = tunnel.Start()
 		if err != nil {
 			walk.MsgBox(mw, "Unable to start tunnel", err.Error(), walk.MsgBoxIconError)
 			return
 		}
+		restoreState = false
 		runningTunnel = &tunnel
 	})
 
@@ -136,10 +146,11 @@ func RunUI() {
 		}
 	})
 
-	service.IPCClientRegisterTunnelChange(func(tunnel string, state service.TunnelState) {
-		if lastTunnel == nil || tunnel != lastTunnel.Name {
+	setServiceState := func(tunnel *service.Tunnel, state service.TunnelState, showNotifications bool) {
+		if tunnel.Name != "test" {
 			return
 		}
+		//TODO: also set tray icon to reflect state
 		switch state {
 		case service.TunnelStarting:
 			se.SetEnabled(false)
@@ -151,21 +162,47 @@ func RunUI() {
 			pb.SetText("Stop")
 			pb.SetEnabled(true)
 			tray.SetToolTip("WireGuard: Activated")
+			if showNotifications {
+				//TODO: ShowCustom with right icon
+				tray.ShowInfo("WireGuard Activated", fmt.Sprintf("The %s tunnel has been activated.", tunnel.Name))
+			}
 		case service.TunnelStopping:
 			se.SetEnabled(false)
 			pb.SetText("Stopping...")
 			pb.SetEnabled(false)
 			tray.SetToolTip("WireGuard: Deactivating...")
 		case service.TunnelStopped, service.TunnelDeleting:
+			if runningTunnel != nil {
+				runningTunnel.Delete()
+				runningTunnel = nil
+			}
 			se.SetEnabled(true)
-			lastTunnel.Delete()
-			runningTunnel = nil
-			lastTunnel = nil
 			pb.SetText("Start")
 			pb.SetEnabled(true)
 			tray.SetToolTip("WireGuard: Deactivated")
+			if showNotifications {
+				//TODO: ShowCustom with right icon
+				tray.ShowInfo("WireGuard Deactivated", fmt.Sprintf("The %s tunnel has been deactivated.", tunnel.Name))
+			}
 		}
+	}
+	service.IPCClientRegisterTunnelChange(func(tunnel *service.Tunnel, state service.TunnelState) {
+		setServiceState(tunnel, state, true)
 	})
+	go func() {
+		tunnels, err := service.IPCClientTunnels()
+		if err != nil {
+			return
+		}
+		for _, tunnel := range tunnels {
+			state, err := tunnel.State()
+			if err != nil {
+				continue
+			}
+			runningTunnel = &tunnel
+			setServiceState(&tunnel, state, false)
+		}
+	}()
 
 	mw.Run()
 }

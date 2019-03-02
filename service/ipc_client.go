@@ -36,17 +36,17 @@ const (
 
 var rpcClient *rpc.Client
 
-type tunnelChangeCallback struct {
-	cb func(tunnel string, state TunnelState)
+type TunnelChangeCallback struct {
+	cb func(tunnel *Tunnel, state TunnelState)
 }
 
-var tunnelChangeCallbacks = make(map[*tunnelChangeCallback]bool)
+var tunnelChangeCallbacks = make(map[*TunnelChangeCallback]bool)
 
-type tunnelsChangeCallback struct {
+type TunnelsChangeCallback struct {
 	cb func()
 }
 
-var tunnelsChangeCallbacks = make(map[*tunnelsChangeCallback]bool)
+var tunnelsChangeCallbacks = make(map[*TunnelsChangeCallback]bool)
 
 func InitializeIPCClient(reader *os.File, writer *os.File, events *os.File) {
 	rpcClient = rpc.NewClient(&pipeRWC{reader, writer})
@@ -70,8 +70,9 @@ func InitializeIPCClient(reader *os.File, writer *os.File, events *os.File) {
 				if err != nil || state == TunnelUnknown {
 					continue
 				}
+				t := &Tunnel{tunnel}
 				for cb := range tunnelChangeCallbacks {
-					cb.cb(tunnel, state)
+					cb.cb(t, state)
 				}
 			case TunnelsChangeNotificationType:
 				for cb := range tunnelsChangeCallbacks {
@@ -92,19 +93,20 @@ func (t *Tunnel) RuntimeConfig() (c conf.Config, err error) {
 	return
 }
 
-func (t *Tunnel) Start() (TunnelState, error) {
-	var state TunnelState
-	return state, rpcClient.Call("ManagerService.Start", t.Name, &state)
+func (t *Tunnel) Start() error {
+	return rpcClient.Call("ManagerService.Start", t.Name, nil)
 }
 
-func (t *Tunnel) Stop() (TunnelState, error) {
-	var state TunnelState
-	return state, rpcClient.Call("ManagerService.Stop", t.Name, &state)
+func (t *Tunnel) Stop() error {
+	return rpcClient.Call("ManagerService.Stop", t.Name, nil)
 }
 
-func (t *Tunnel) Delete() (TunnelState, error) {
-	var state TunnelState
-	return state, rpcClient.Call("ManagerService.Delete", t.Name, &state)
+func (t *Tunnel) WaitForStop() error {
+	return rpcClient.Call("ManagerService.WaitForStop", t.Name, nil)
+}
+
+func (t *Tunnel) Delete() error {
+	return rpcClient.Call("ManagerService.Delete", t.Name, nil)
 }
 
 func (t *Tunnel) State() (TunnelState, error) {
@@ -119,7 +121,7 @@ func IPCClientNewTunnel(conf *conf.Config) (Tunnel, error) {
 
 func IPCClientTunnels() ([]Tunnel, error) {
 	var tunnels []Tunnel
-	return tunnels, rpcClient.Call("ManagerService.Tunnels", 0, &tunnels)
+	return tunnels, rpcClient.Call("ManagerService.Tunnels", uintptr(0), &tunnels)
 }
 
 func IPCClientQuit(stopTunnelsOnQuit bool) (bool, error) {
@@ -127,19 +129,19 @@ func IPCClientQuit(stopTunnelsOnQuit bool) (bool, error) {
 	return alreadyQuit, rpcClient.Call("ManagerService.Quit", stopTunnelsOnQuit, &alreadyQuit)
 }
 
-func IPCClientRegisterTunnelChange(cb func(tunnel string, state TunnelState)) *tunnelChangeCallback {
-	s := &tunnelChangeCallback{cb}
+func IPCClientRegisterTunnelChange(cb func(tunnel *Tunnel, state TunnelState)) *TunnelChangeCallback {
+	s := &TunnelChangeCallback{cb}
 	tunnelChangeCallbacks[s] = true
 	return s
 }
-func IPCClientUnregisterTunnelChange(cb *tunnelChangeCallback) {
+func IPCClientUnregisterTunnelChange(cb *TunnelChangeCallback) {
 	delete(tunnelChangeCallbacks, cb)
 }
-func IPCClientRegisterTunnelsChange(cb func()) *tunnelsChangeCallback {
-	s := &tunnelsChangeCallback{cb}
+func IPCClientRegisterTunnelsChange(cb func()) *TunnelsChangeCallback {
+	s := &TunnelsChangeCallback{cb}
 	tunnelsChangeCallbacks[s] = true
 	return s
 }
-func IPCClientUnregisterTunnelsChange(cb *tunnelsChangeCallback) {
+func IPCClientUnregisterTunnelsChange(cb *TunnelsChangeCallback) {
 	delete(tunnelsChangeCallbacks, cb)
 }
