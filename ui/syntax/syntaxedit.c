@@ -227,6 +227,7 @@ static LRESULT CALLBACK child_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lP
 	switch (Msg) {
 	case WM_CREATE: {
 		struct syntaxedit_data *this = calloc(1, sizeof(*this));
+		SetWindowLong(hWnd, GWL_EXSTYLE,  GetWindowLong(hWnd, GWL_EXSTYLE) & ~WS_EX_CLIENTEDGE);
 		assert(this);
 		SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)this);
 		SendMessage(hWnd, EM_GETOLEINTERFACE, 0, (LPARAM)&this->irich);
