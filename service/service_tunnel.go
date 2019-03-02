@@ -8,6 +8,7 @@ package service
 import (
 	"bufio"
 	"fmt"
+	"golang.zx2c4.com/winipcfg"
 	"log"
 	"strings"
 
@@ -131,8 +132,9 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 		return
 	}
 	ipcSetOperation(device, bufio.NewReader(strings.NewReader(uapiConf)))
+	guid := wintun.(*tun.NativeTun).GUID()
 
-	err = monitorDefaultRoutes(device.net.bind.(*NativeBind))
+	routeMonitorCallback, err := monitorDefaultRoutes(device.net.bind.(*NativeBind), &guid)
 	if err != nil {
 		logger.Error.Println("Unable to bind sockets to default route:", err)
 		changes <- svc.Status{State: svc.StopPending}
@@ -141,7 +143,6 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 		return
 	}
 
-	guid := wintun.(*tun.NativeTun).GUID()
 	err = configureInterface(conf, &guid)
 	if err != nil {
 		logger.Error.Println("Unable to set interface addresses, routes, DNS, or IP settings:", err)
@@ -174,6 +175,7 @@ loop:
 
 	changes <- svc.Status{State: svc.StopPending}
 	logger.Info.Println("Shutting down")
+	winipcfg.UnregisterRouteChangeCallback(routeMonitorCallback)
 	uapi.Close()
 	device.Close()
 	return
