@@ -33,14 +33,13 @@ func fatal(v ...interface{}) {
 	messageBoxEx(0, windows.StringToUTF16Ptr(fmt.Sprint(v...)), windows.StringToUTF16Ptr("Error"), 0x00000010, 0)
 }
 
-
 func usage() {
 	builder := strings.Builder{}
 	for _, flag := range flags {
 		builder.WriteString(fmt.Sprintf("    %s\n", flag))
 	}
 	msg := fmt.Sprintf("Usage: %s [\n%s]", os.Args[0], builder.String())
-	messageBoxEx(0, windows.StringToUTF16Ptr(msg),  windows.StringToUTF16Ptr("Command Line Options"), 0x00000040, 0)
+	messageBoxEx(0, windows.StringToUTF16Ptr(msg), windows.StringToUTF16Ptr("Command Line Options"), 0x00000040, 0)
 	os.Exit(1)
 }
 

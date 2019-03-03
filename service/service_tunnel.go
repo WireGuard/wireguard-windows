@@ -9,6 +9,7 @@ import (
 	"bufio"
 	"fmt"
 	"golang.zx2c4.com/winipcfg"
+	"golang.zx2c4.com/wireguard/ipc"
 	"log"
 	"net"
 	"runtime/debug"
@@ -17,8 +18,9 @@ import (
 	"golang.org/x/sys/windows/svc"
 	"golang.org/x/sys/windows/svc/eventlog"
 
+	"golang.zx2c4.com/wireguard/device"
+	"golang.zx2c4.com/wireguard/tun"
 	"golang.zx2c4.com/wireguard/windows/conf"
-	"golang.zx2c4.com/wireguard/windows/service/tun"
 )
 
 type confElogger struct {
@@ -46,7 +48,7 @@ type tunnelService struct {
 func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest, changes chan<- svc.Status) (svcSpecificEC bool, exitCode uint32) {
 	changes <- svc.Status{State: svc.StartPending}
 
-	var device *Device
+	var dev *device.Device
 	var uapi net.Listener
 	var routeChangeCallback *winipcfg.RouteChangeCallback
 	var elog *eventlog.Log
@@ -59,8 +61,8 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 		if uapi != nil {
 			uapi.Close()
 		}
-		if device != nil {
-			device.Close()
+		if dev != nil {
+			dev.Close()
 		}
 		if elog != nil {
 			elog.Info(1, "Shutting down")
@@ -89,13 +91,13 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 		return
 	}
 
-	logger := &Logger{
+	logger := &device.Logger{
 		Debug: log.New(&confElogger{elog: elog, conf: conf, level: 1}, "", 0),
 		Info:  log.New(&confElogger{elog: elog, conf: conf, level: 2}, "", 0),
 		Error: log.New(&confElogger{elog: elog, conf: conf, level: 3}, "", 0),
 	}
 
-	logger.Info.Println("Starting wireguard-go version", WireGuardGoVersion)
+	logger.Info.Println("Starting wireguard-go version", device.WireGuardGoVersion)
 	logger.Debug.Println("Debug log enabled")
 
 	wintun, err := tun.CreateTUN(conf.Name)
@@ -110,11 +112,11 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 		return
 	}
 
-	device = NewDevice(wintun, logger)
-	device.Up()
+	dev = device.NewDevice(wintun, logger)
+	dev.Up()
 	logger.Info.Println("Device started")
 
-	uapi, err = UAPIListen(conf.Name)
+	uapi, err = ipc.UAPIListen(conf.Name)
 	if err != nil {
 		logger.Error.Println("Failed to listen on uapi socket:", err)
 		exitCode = ERROR_PIPE_LISTENING
@@ -127,7 +129,7 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 			if err != nil {
 				continue
 			}
-			go ipcHandle(device, conn)
+			go dev.IpcHandle(conn)
 		}
 	}()
 	logger.Info.Println("UAPI listener started")
@@ -138,10 +140,10 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 		exitCode = ERROR_INVALID_PARAMETER
 		return
 	}
-	ipcSetOperation(device, bufio.NewReader(strings.NewReader(uapiConf)))
+	dev.IpcSetOperation(bufio.NewReader(strings.NewReader(uapiConf)))
 	guid := wintun.(*tun.NativeTun).GUID()
 
-	routeChangeCallback, err = monitorDefaultRoutes(device.net.bind.(*NativeBind), &guid)
+	routeChangeCallback, err = monitorDefaultRoutes(dev, &guid)
 	if err != nil {
 		logger.Error.Println("Unable to bind sockets to default route:", err)
 		exitCode = ERROR_NETWORK_BUSY
@@ -168,7 +170,7 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 			default:
 				logger.Error.Printf("Unexpected service control request #%d", c)
 			}
-		case <-device.Wait():
+		case <-dev.Wait():
 			return
 		}
 	}
