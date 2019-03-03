@@ -8,7 +8,6 @@ package service
 import (
 	"bufio"
 	"fmt"
-	"golang.zx2c4.com/winipcfg"
 	"log"
 	"strings"
 
@@ -175,7 +174,7 @@ loop:
 
 	changes <- svc.Status{State: svc.StopPending}
 	logger.Info.Println("Shutting down")
-	winipcfg.UnregisterRouteChangeCallback(routeMonitorCallback)
+	routeMonitorCallback.Unregister()
 	uapi.Close()
 	device.Close()
 	return

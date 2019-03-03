@@ -134,7 +134,7 @@ func IPCClientRegisterTunnelChange(cb func(tunnel *Tunnel, state TunnelState)) *
 	tunnelChangeCallbacks[s] = true
 	return s
 }
-func IPCClientUnregisterTunnelChange(cb *TunnelChangeCallback) {
+func (cb *TunnelChangeCallback) Unregister() {
 	delete(tunnelChangeCallbacks, cb)
 }
 func IPCClientRegisterTunnelsChange(cb func()) *TunnelsChangeCallback {
@@ -142,6 +142,6 @@ func IPCClientRegisterTunnelsChange(cb func()) *TunnelsChangeCallback {
 	tunnelsChangeCallbacks[s] = true
 	return s
 }
-func IPCClientUnregisterTunnelsChange(cb *TunnelsChangeCallback) {
+func (cb *TunnelsChangeCallback) Unregister() {
 	delete(tunnelsChangeCallbacks, cb)
 }
