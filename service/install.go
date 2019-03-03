@@ -9,7 +9,6 @@ import (
 	"errors"
 	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/svc"
-	svcdbg "golang.org/x/sys/windows/svc/debug"
 	"golang.org/x/sys/windows/svc/mgr"
 	"golang.zx2c4.com/wireguard/windows/conf"
 	"os"
@@ -184,14 +183,10 @@ func UninstallTunnel(name string) error {
 	return err2
 }
 
-func RunTunnel(confPath string, debug bool) error {
+func RunTunnel(confPath string) error {
 	name, err := conf.NameFromPath(confPath)
 	if err != nil {
 		return err
 	}
-	if debug {
-		return svcdbg.Run("WireGuard Tunnel: "+name, &tunnelService{confPath, true})
-	} else {
-		return svc.Run("WireGuard Tunnel: "+name, &tunnelService{confPath, false})
-	}
+	return svc.Run("WireGuard Tunnel: "+name, &tunnelService{confPath})
 }

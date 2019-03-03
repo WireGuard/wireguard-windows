@@ -24,7 +24,6 @@ var flags = [...]string{
 	"/uninstalltunnelservice CONFIG_PATH",
 	"/managerservice",
 	"/tunnelservice CONFIG_PATH",
-	"/tunneldebug CONFIG_PATH",
 	"/ui CMD_READ_HANDLE CMD_WRITE_HANDLE CMD_EVENT_HANDLE",
 }
 
@@ -131,16 +130,7 @@ func main() {
 		if len(os.Args) != 3 {
 			usage()
 		}
-		err := service.RunTunnel(os.Args[2], false)
-		if err != nil {
-			fatal(err)
-		}
-		return
-	case "/tunneldebug":
-		if len(os.Args) != 3 {
-			usage()
-		}
-		err := service.RunTunnel(os.Args[2], true)
+		err := service.RunTunnel(os.Args[2])
 		if err != nil {
 			fatal(err)
 		}
