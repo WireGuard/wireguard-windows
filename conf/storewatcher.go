@@ -5,20 +5,20 @@
 
 package conf
 
-type storeCallback struct {
+type StoreCallback struct {
 	cb func()
 }
 
-var storeCallbacks = make(map[*storeCallback]bool)
+var storeCallbacks = make(map[*StoreCallback]bool)
 
-func RegisterStoreChangeCallback(cb func()) *storeCallback {
+func RegisterStoreChangeCallback(cb func()) *StoreCallback {
 	startWatchingConfigDir()
 	cb()
-	s := &storeCallback{cb}
+	s := &StoreCallback{cb}
 	storeCallbacks[s] = true
 	return s
 }
 
-func UnregisterStoreChangeCallback(cb *storeCallback) {
+func (cb *StoreCallback) Unregister() {
 	delete(storeCallbacks, cb)
 }
