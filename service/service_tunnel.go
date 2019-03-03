@@ -8,11 +8,13 @@ package service
 import (
 	"bufio"
 	"fmt"
+	"golang.zx2c4.com/winipcfg"
 	"log"
+	"net"
+	"runtime/debug"
 	"strings"
 
 	"golang.org/x/sys/windows/svc"
-	"golang.org/x/sys/windows/svc/debug"
 	"golang.org/x/sys/windows/svc/eventlog"
 
 	"golang.zx2c4.com/wireguard/windows/conf"
@@ -20,7 +22,7 @@ import (
 )
 
 type confElogger struct {
-	elog  debug.Log
+	elog  *eventlog.Log
 	conf  *conf.Config
 	level int
 }
@@ -38,31 +40,44 @@ func (elog confElogger) Write(p []byte) (n int, err error) {
 }
 
 type tunnelService struct {
-	path  string
-	debug bool
+	path string
 }
 
 func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest, changes chan<- svc.Status) (svcSpecificEC bool, exitCode uint32) {
 	changes <- svc.Status{State: svc.StartPending}
 
-	var elog debug.Log
-	var err error
-	if service.debug {
-		elog = debug.New("WireGuard")
-	} else {
-		//TODO: remember to clean this up in the msi uninstaller
-		eventlog.InstallAsEventCreate("WireGuard", eventlog.Info|eventlog.Warning|eventlog.Error)
-		elog, err = eventlog.Open("WireGuard")
-		if err != nil {
-			changes <- svc.Status{State: svc.StopPending}
-			exitCode = ERROR_LOG_CONTAINER_OPEN_FAILED
-			return
+	var device *Device
+	var uapi net.Listener
+	var routeChangeCallback *winipcfg.RouteChangeCallback
+	var elog *eventlog.Log
+
+	defer func() {
+		changes <- svc.Status{State: svc.StopPending}
+		if routeChangeCallback != nil {
+			routeChangeCallback.Unregister()
 		}
+		if uapi != nil {
+			uapi.Close()
+		}
+		if device != nil {
+			device.Close()
+		}
+		if elog != nil {
+			elog.Info(1, "Shutting down")
+		}
+	}()
+
+	//TODO: remember to clean this up in the msi uninstaller
+	eventlog.InstallAsEventCreate("WireGuard", eventlog.Info|eventlog.Warning|eventlog.Error)
+	elog, err := eventlog.Open("WireGuard")
+	if err != nil {
+		exitCode = ERROR_LOG_CONTAINER_OPEN_FAILED
+		return
 	}
 	log.SetOutput(elogger{elog})
 	defer func() {
 		if x := recover(); x != nil {
-			elog.Error(1, fmt.Sprint(x))
+			elog.Error(1, fmt.Sprintf("%v:\n%s", x, string(debug.Stack())))
 			panic(x)
 		}
 	}()
@@ -70,7 +85,6 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 	conf, err := conf.LoadFromPath(service.path)
 	if err != nil {
 		elog.Error(1, "Unable to load configuration file from path "+service.path+": "+err.Error())
-		changes <- svc.Status{State: svc.StopPending}
 		exitCode = ERROR_OPEN_FAILED
 		return
 	}
@@ -92,90 +106,70 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 		}
 	} else {
 		logger.Error.Println("Failed to create TUN device:", err)
-		changes <- svc.Status{State: svc.StopPending}
 		exitCode = ERROR_ADAP_HDW_ERR
 		return
 	}
 
-	device := NewDevice(wintun, logger)
+	device = NewDevice(wintun, logger)
 	device.Up()
 	logger.Info.Println("Device started")
 
-	uapi, err := UAPIListen(conf.Name)
+	uapi, err = UAPIListen(conf.Name)
 	if err != nil {
 		logger.Error.Println("Failed to listen on uapi socket:", err)
-		changes <- svc.Status{State: svc.StopPending}
 		exitCode = ERROR_PIPE_LISTENING
-		device.Close()
 		return
 	}
-	errs := make(chan error)
 
 	go func() {
 		for {
 			conn, err := uapi.Accept()
 			if err != nil {
-				errs <- err
-				return
+				continue
 			}
 			go ipcHandle(device, conn)
 		}
 	}()
 	logger.Info.Println("UAPI listener started")
+
 	uapiConf, err := conf.ToUAPI()
 	if err != nil {
 		logger.Error.Println("Failed to convert to UAPI serialization:", err)
-		changes <- svc.Status{State: svc.StopPending}
 		exitCode = ERROR_INVALID_PARAMETER
-		device.Close()
 		return
 	}
 	ipcSetOperation(device, bufio.NewReader(strings.NewReader(uapiConf)))
 	guid := wintun.(*tun.NativeTun).GUID()
 
-	routeMonitorCallback, err := monitorDefaultRoutes(device.net.bind.(*NativeBind), &guid)
+	routeChangeCallback, err = monitorDefaultRoutes(device.net.bind.(*NativeBind), &guid)
 	if err != nil {
 		logger.Error.Println("Unable to bind sockets to default route:", err)
-		changes <- svc.Status{State: svc.StopPending}
 		exitCode = ERROR_NETWORK_BUSY
-		device.Close()
 		return
 	}
 
 	err = configureInterface(conf, &guid)
 	if err != nil {
 		logger.Error.Println("Unable to set interface addresses, routes, DNS, or IP settings:", err)
-		changes <- svc.Status{State: svc.StopPending}
 		exitCode = ERROR_NETWORK_BUSY
-		device.Close()
 		return
 	}
 
 	changes <- svc.Status{State: svc.Running, Accepts: svc.AcceptStop}
 
-loop:
 	for {
 		select {
 		case c := <-r:
 			switch c.Cmd {
 			case svc.Stop:
-				break loop
+				return
 			case svc.Interrogate:
 				changes <- c.CurrentStatus
 			default:
 				logger.Error.Printf("Unexpected service control request #%d", c)
 			}
-		case <-errs:
-			break loop
 		case <-device.Wait():
-			break loop
+			return
 		}
 	}
-
-	changes <- svc.Status{State: svc.StopPending}
-	logger.Info.Println("Shutting down")
-	routeMonitorCallback.Unregister()
-	uapi.Close()
-	device.Close()
-	return
 }
