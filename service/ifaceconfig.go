@@ -10,6 +10,7 @@ import (
 	"errors"
 	"golang.org/x/sys/windows"
 	"golang.zx2c4.com/winipcfg"
+	"golang.zx2c4.com/wireguard/device"
 	"golang.zx2c4.com/wireguard/windows/conf"
 	"net"
 	"os"
@@ -27,7 +28,7 @@ func htonl(val uint32) uint32 {
 	return *(*uint32)(unsafe.Pointer(&bytes[0]))
 }
 
-func bindSocketRoute(family winipcfg.AddressFamily, bind *NativeBind, ourLuid uint64) error {
+func bindSocketRoute(family winipcfg.AddressFamily, device *device.Device, ourLuid uint64) error {
 	routes, err := winipcfg.GetRoutes(family)
 	if err != nil {
 		return err
@@ -43,52 +44,25 @@ func bindSocketRoute(family winipcfg.AddressFamily, bind *NativeBind, ourLuid ui
 			index = route.InterfaceIndex
 		}
 	}
-
 	if family == winipcfg.AF_INET {
-		sysconn, err := bind.ipv4.SyscallConn()
-		if err != nil {
-			return err
-		}
-		err2 := sysconn.Control(func(fd uintptr) {
-			err = windows.SetsockoptInt(windows.Handle(fd), windows.IPPROTO_IP, sockoptIP_UNICAST_IF, int(htonl(index)))
-		})
-		if err2 != nil {
-			return err2
-		}
-		if err != nil {
-			return err
-		}
-		return nil
+		return device.BindSocketToInterface4(index)
 	} else if family == winipcfg.AF_INET6 {
-		sysconn, err := bind.ipv6.SyscallConn()
-		if err != nil {
-			return err
-		}
-		err2 := sysconn.Control(func(fd uintptr) {
-			// The lack of htonl here is not a bug. MSDN actually specifies big endian for one and little endian for the other.
-			err = windows.SetsockoptInt(windows.Handle(fd), windows.IPPROTO_IPV6, sockoptIPV6_UNICAST_IF, int(index))
-		})
-		if err2 != nil {
-			return err2
-		}
-		if err != nil {
-			return err
-		}
+		return device.BindSocketToInterface6(index)
 	}
 	return nil
 }
 
-func monitorDefaultRoutes(bind *NativeBind, guid *windows.GUID) (*winipcfg.RouteChangeCallback, error) {
+func monitorDefaultRoutes(device *device.Device, guid *windows.GUID) (*winipcfg.RouteChangeCallback, error) {
 	ourLuid, err := winipcfg.InterfaceGuidToLuid(guid)
 	if err != nil {
 		return nil, err
 	}
 	doIt := func() error {
-		err = bindSocketRoute(winipcfg.AF_INET, bind, ourLuid)
+		err = bindSocketRoute(winipcfg.AF_INET, device, ourLuid)
 		if err != nil {
 			return err
 		}
-		err = bindSocketRoute(winipcfg.AF_INET6, bind, ourLuid)
+		err = bindSocketRoute(winipcfg.AF_INET6, device, ourLuid)
 		if err != nil {
 			return err
 		}
