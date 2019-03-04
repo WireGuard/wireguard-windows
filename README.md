@@ -4,28 +4,26 @@ Nothing to see here yet. Come back later.
 
 ### Requirements
 
-  - [Go ≥1.12](https://www.golang.org)
   - [Wintun](https://git.zx2c4.com/wintun)
 
-### Clone
+### Building on Windows
 
-This has a few submodules at the moment, so you'll need to clone recursively. While building (below) uses WSL, it's recommended that you still clone into Windows per usual.
-
-```
-$ cd Projects
-$ git clone --recursive https://git.zx2c4.com/wireguard-windows
-```
-
-### Building
-
-The use of cgo/mingw makes it slightly easier to compile from WSL. Here are instructions for [Ubuntu 18.04 from the Windows Store](https://www.microsoft.com/en-us/p/ubuntu-1804-lts/9n9tngvndl3q) on WSL:
+The build script will take care of downloading (without verification) and installing Go 1.12 and Mingw.
 
 ```
-$ sudo apt update
-$ sudo apt install mingw-w64 make
-$ curl https://dl.google.com/go/go1.12.linux-amd64.tar.gz | tar xzf -
-$ export PATH="$PWD/go/bin:$PATH"
-$ cd /mnt/c/Users/YourUsername/Projects/wireguard-windows
+C:\Projects> git clone https://git.zx2c4.com/wireguard-windows
+C:\Projects> cd wireguard-windows
+C:\Projects\wireguard-windows> build
+```
+
+### Building on Linux
+
+You must first have Go 1.12 and Mingw installed.
+
+```
+$ sudo apt install mingw-w64 golang-go
+$ git clone https://git.zx2c4.com/wireguard-windows
+$ cd wireguard-windows
 $ make
 ```
 
@@ -34,5 +32,5 @@ $ make
 After you've built the application, run `wireguard.exe` to install the manager service and show the UI.
 
 ```
-$ ./wireguard.exe
+C:\Projects\wireguard-windows> wireguard
 ```
