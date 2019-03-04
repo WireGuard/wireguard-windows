@@ -6,7 +6,8 @@ all: wireguard.exe
 resources.syso: ui/icon/icon.ico ui/manifest.xml go.mod
 	go run github.com/akavel/rsrc -manifest ui/manifest.xml -ico ui/icon/icon.ico -arch amd64 -o resources.syso
 
-wireguard.exe: resources.syso
+rwildcard=$(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subst *,%,$2),$d))
+wireguard.exe: resources.syso $(call rwildcard,,*.go *.c *.h)
 	CC=x86_64-w64-mingw32-gcc CGO_ENABLED=1 GOOS=windows GOARCH=amd64 go build -ldflags="-H windowsgui" -o $@
 
 run: wireguard.exe
