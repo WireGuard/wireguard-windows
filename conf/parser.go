@@ -370,7 +370,7 @@ func FromUAPI(s string, existingConfig *Config) (*Config, error) {
 		if parserState == inInterfaceSection {
 			switch key {
 			case "private_key":
-				k, err := parseKeyBase64(val)
+				k, err := parseKeyHex(val)
 				if err != nil {
 					return nil, err
 				}
@@ -390,13 +390,13 @@ func FromUAPI(s string, existingConfig *Config) (*Config, error) {
 		} else if parserState == inPeerSection {
 			switch key {
 			case "public_key":
-				k, err := parseKeyBase64(val)
+				k, err := parseKeyHex(val)
 				if err != nil {
 					return nil, err
 				}
 				peer.PublicKey = *k
 			case "preshared_key":
-				k, err := parseKeyBase64(val)
+				k, err := parseKeyHex(val)
 				if err != nil {
 					return nil, err
 				}
