@@ -186,7 +186,7 @@ func configureInterface(conf *conf.Config, guid *windows.GUID) error {
 		routeCount++
 	}
 
-	err = iface.SetRoutes(deduplicatedRoutes)
+	err = iface.SetRoutes(deduplicatedRoutes[:routeCount])
 	if err != nil {
 		return nil
 	}
