@@ -8,8 +8,10 @@ package service
 import (
 	"bytes"
 	"encoding/gob"
+	"github.com/Microsoft/go-winio"
 	"golang.org/x/sys/windows/svc"
 	"golang.zx2c4.com/wireguard/windows/conf"
+	"io/ioutil"
 	"net/rpc"
 	"os"
 	"sync"
@@ -37,8 +39,28 @@ func (s *ManagerService) StoredConfig(tunnelName string, config *conf.Config) er
 }
 
 func (s *ManagerService) RuntimeConfig(tunnelName string, config *conf.Config) error {
-	//TODO
-
+	storedConfig, err := conf.LoadFromName(tunnelName)
+	if err != nil {
+		return err
+	}
+	pipe, err := winio.DialPipe("\\\\.\\pipe\\wireguard\\"+storedConfig.Name, nil)
+	if err != nil {
+		return err
+	}
+	_, err = pipe.Write([]byte("get=1\n\n"))
+	if err != nil {
+		return err
+	}
+	resp, err := ioutil.ReadAll(pipe)
+	if err != nil {
+		return err
+	}
+	pipe.Close()
+	runtimeConfig, err := conf.FromUAPI(string(resp), storedConfig)
+	if err != nil {
+		return err
+	}
+	*config = *runtimeConfig
 	return nil
 }
 
