@@ -28,13 +28,14 @@ func htonl(val uint32) uint32 {
 	return *(*uint32)(unsafe.Pointer(&bytes[0]))
 }
 
-func bindSocketRoute(family winipcfg.AddressFamily, device *device.Device, ourLuid uint64) error {
+func bindSocketRoute(family winipcfg.AddressFamily, device *device.Device, ourLuid uint64, lastLuid *uint64) error {
 	routes, err := winipcfg.GetRoutes(family)
 	if err != nil {
 		return err
 	}
 	lowestMetric := ^uint32(0)
 	index := uint32(0) // Zero is "unspecified", which for IP_UNICAST_IF resets the value, which is what we want.
+	luid := uint64(0) // Hopefully luid zero is unspecified, but hard to find docs saying so.
 	for _, route := range routes {
 		if route.DestinationPrefix.PrefixLength != 0 || route.InterfaceLuid == ourLuid {
 			continue
@@ -42,8 +43,13 @@ func bindSocketRoute(family winipcfg.AddressFamily, device *device.Device, ourLu
 		if route.Metric < lowestMetric {
 			lowestMetric = route.Metric
 			index = route.InterfaceIndex
+			luid = route.InterfaceLuid
 		}
 	}
+	if luid == *lastLuid {
+		return nil
+	}
+	*lastLuid = luid
 	if family == winipcfg.AF_INET {
 		return device.BindSocketToInterface4(index)
 	} else if family == winipcfg.AF_INET6 {
@@ -54,15 +60,17 @@ func bindSocketRoute(family winipcfg.AddressFamily, device *device.Device, ourLu
 
 func monitorDefaultRoutes(device *device.Device, guid *windows.GUID) (*winipcfg.RouteChangeCallback, error) {
 	ourLuid, err := winipcfg.InterfaceGuidToLuid(guid)
+	lastLuid4 := uint64(0)
+	lastLuid6 := uint64(0)
 	if err != nil {
 		return nil, err
 	}
 	doIt := func() error {
-		err = bindSocketRoute(winipcfg.AF_INET, device, ourLuid)
+		err = bindSocketRoute(winipcfg.AF_INET, device, ourLuid, &lastLuid4)
 		if err != nil {
 			return err
 		}
-		err = bindSocketRoute(winipcfg.AF_INET6, device, ourLuid)
+		err = bindSocketRoute(winipcfg.AF_INET6, device, ourLuid, &lastLuid6)
 		if err != nil {
 			return err
 		}
@@ -73,7 +81,9 @@ func monitorDefaultRoutes(device *device.Device, guid *windows.GUID) (*winipcfg.
 		return nil, err
 	}
 	cb, err := winipcfg.RegisterRouteChangeCallback(func(notificationType winipcfg.MibNotificationType, route *winipcfg.Route) {
-		_ = doIt()
+		if route.DestinationPrefix.PrefixLength == 0 {
+			_ = doIt()
+		}
 	})
 	if err != nil {
 		return nil, err
