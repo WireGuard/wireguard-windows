@@ -4,3 +4,4 @@
 *.syso
 .tmp
 .idea
+deps
