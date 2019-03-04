@@ -15,6 +15,7 @@ import (
 	"golang.zx2c4.com/wireguard/windows/service"
 	"golang.zx2c4.com/wireguard/windows/ui/syntax"
 	"os"
+	"time"
 )
 
 const demoConfig = `[Interface]
@@ -81,9 +82,42 @@ func RunUI() {
 	})
 	se.SetText(demoConfig)
 
+	cv, _ := syntax.NewConfView(mw)
+	cv.SetVisible(false)
+	cv.SetEnabled(false)
+
+	var runningTunnel *service.Tunnel
+	updateConfView := func() {
+		tun := runningTunnel
+		if tun == nil || !mw.Visible() || !cv.Visible() {
+			return
+		}
+		conf, err := tun.RuntimeConfig()
+		if err != nil {
+			return
+		}
+		cv.SetConfiguration(&conf)
+	}
+	go func() {
+		t := time.NewTicker(time.Second)
+		for {
+			updateConfView()
+			<- t.C
+		}
+	}()
+	showRunningView := func(on bool) {
+		cv.SetVisible(on)
+		cv.SetEnabled(on)
+		se.SetVisible(!on)
+		tl.SetVisible(!on)
+		if on {
+			updateConfView()
+		}
+		mw.Invalidate()
+	}
+
 	pb, _ := walk.NewPushButton(mw)
 	pb.SetText("Start")
-	var runningTunnel *service.Tunnel
 	pb.Clicked().Attach(func() {
 		restoreState := true
 		pbE := pb.Enabled()
@@ -143,6 +177,7 @@ func RunUI() {
 		if button == walk.LeftButton {
 			mw.Show()
 			win.SetForegroundWindow(mw.Handle())
+			updateConfView()
 		}
 	})
 
@@ -153,11 +188,13 @@ func RunUI() {
 		//TODO: also set tray icon to reflect state
 		switch state {
 		case service.TunnelStarting:
+			showRunningView(false)
 			se.SetEnabled(false)
 			pb.SetText("Starting...")
 			pb.SetEnabled(false)
 			tray.SetToolTip("WireGuard: Activating...")
 		case service.TunnelStarted:
+			showRunningView(true)
 			se.SetEnabled(false)
 			pb.SetText("Stop")
 			pb.SetEnabled(true)
@@ -167,11 +204,13 @@ func RunUI() {
 				tray.ShowInfo("WireGuard Activated", fmt.Sprintf("The %s tunnel has been activated.", tunnel.Name))
 			}
 		case service.TunnelStopping:
+			showRunningView(false)
 			se.SetEnabled(false)
 			pb.SetText("Stopping...")
 			pb.SetEnabled(false)
 			tray.SetToolTip("WireGuard: Deactivating...")
 		case service.TunnelStopped, service.TunnelDeleting:
+			showRunningView(false)
 			if runningTunnel != nil {
 				runningTunnel.Delete()
 				runningTunnel = nil
