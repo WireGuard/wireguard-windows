@@ -20,17 +20,15 @@ goto :out
 	mkdir deps || goto :error
 	cd deps || goto :error
 	echo Downloading golang
-	curl -#o go.zip https://dl.google.com/go/go1.12.windows-amd64.zip || goto :error
+	curl -#fo go.zip https://dl.google.com/go/go1.12.windows-amd64.zip || goto :error
 	echo Downloading mingw
-	curl -#o mingw.tar.gz http://musl.cc/x86_64-w64-mingw32-native.tgz || goto :error
+	curl -#fo mingw.zip https://musl.cc/x86_64-w64-mingw32-native.zip || goto :error
 	echo Extracting golang
 	tar -xf go.zip || goto :error
-	echo Extracting gcc
-	rem We don't goto error here because the symlinks make it always fail
-	tar -xf mingw.tar.gz
-	move x86_64-w64-mingw32-native/include x86_64-w64-mingw32-native/x86_64-w64-mingw32/ > NUL || goto :error
+	echo Extracting mingw
+	tar -xf mingw.zip || goto :error
 	echo Cleaning up
-	del go.zip mingw.tar.gz || goto :error
+	del go.zip mingw.zip || goto :error
 	copy /y NUL .prepared > NUL || goto :error
 	cd .. || goto :error
 	exit /b
