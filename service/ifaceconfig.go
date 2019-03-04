@@ -36,7 +36,7 @@ func bindSocketRoute(family winipcfg.AddressFamily, device *device.Device, ourLu
 	}
 	lowestMetric := ^uint32(0)
 	index := uint32(0) // Zero is "unspecified", which for IP_UNICAST_IF resets the value, which is what we want.
-	luid := uint64(0) // Hopefully luid zero is unspecified, but hard to find docs saying so.
+	luid := uint64(0)  // Hopefully luid zero is unspecified, but hard to find docs saying so.
 	for _, route := range routes {
 		if route.DestinationPrefix.PrefixLength != 0 || route.InterfaceLuid == ourLuid {
 			continue
@@ -176,10 +176,10 @@ func configureInterface(conf *conf.Config, guid *windows.GUID) error {
 		return false
 	})
 	for i := 0; i < len(routes); i++ {
-		if i > 0 && routes[i].Metric == routes[i - 1].Metric &&
-			bytes.Equal(routes[i].NextHop, routes[i - 1].NextHop) &&
-			bytes.Equal(routes[i].Destination.IP, routes[i - 1].Destination.IP) &&
-			bytes.Equal(routes[i].Destination.Mask, routes[i - 1].Destination.Mask) {
+		if i > 0 && routes[i].Metric == routes[i-1].Metric &&
+			bytes.Equal(routes[i].NextHop, routes[i-1].NextHop) &&
+			bytes.Equal(routes[i].Destination.IP, routes[i-1].Destination.IP) &&
+			bytes.Equal(routes[i].Destination.Mask, routes[i-1].Destination.Mask) {
 			continue
 		}
 		deduplicatedRoutes[routeCount] = &routes[i]
