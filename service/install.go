@@ -122,7 +122,10 @@ func InstallTunnel(configPath string) error {
 		return err
 	}
 
-	serviceName := "WireGuard Tunnel: " + name
+	serviceName, err := ServiceNameOfTunnel(name)
+	if err != nil {
+		return err
+	}
 	service, err := m.OpenService(serviceName)
 	if err == nil {
 		status, err := service.Query()
@@ -169,7 +172,10 @@ func UninstallTunnel(name string) error {
 	if err != nil {
 		return err
 	}
-	serviceName := "WireGuard Tunnel: " + name
+	serviceName, err := ServiceNameOfTunnel(name)
+	if err != nil {
+		return err
+	}
 	service, err := m.OpenService(serviceName)
 	if err != nil {
 		return err
@@ -188,5 +194,9 @@ func RunTunnel(confPath string) error {
 	if err != nil {
 		return err
 	}
-	return svc.Run("WireGuard Tunnel: "+name, &tunnelService{confPath})
+	serviceName, err := ServiceNameOfTunnel(name)
+	if err != nil {
+		return err
+	}
+	return svc.Run(serviceName, &tunnelService{confPath})
 }

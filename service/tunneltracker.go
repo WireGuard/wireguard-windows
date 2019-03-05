@@ -69,7 +69,10 @@ func trackExistingTunnels() error {
 		return err
 	}
 	for _, name := range names {
-		serviceName := "WireGuard Tunnel: " + name
+		serviceName, err := ServiceNameOfTunnel(name)
+		if err != nil {
+			continue
+		}
 		service, err := m.OpenService(serviceName)
 		if err != nil {
 			continue

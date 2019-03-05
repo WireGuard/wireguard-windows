@@ -189,6 +189,9 @@ func (c *Config) maybeAddPeer(p *Peer) {
 }
 
 func FromWgQuick(s string, name string) (*Config, error) {
+	if !TunnelNameIsValid(name) {
+		return nil, &ParseError{"Tunnel name is not valid", name}
+	}
 	lines := strings.Split(s, "\n")
 	parserState := notInASection
 	conf := Config{Name: name}
