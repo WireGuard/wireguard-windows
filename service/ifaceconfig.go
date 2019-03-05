@@ -206,19 +206,10 @@ func configureInterface(conf *conf.Config, guid *windows.GUID) error {
 	deduplicatedRoutes := make([]*winipcfg.RouteData, routeCount)
 	routeCount = 0
 	sort.Slice(routes, func(i, j int) bool {
-		if routes[i].Metric < routes[j].Metric {
-			return true
-		}
-		if bytes.Compare(routes[i].NextHop, routes[j].NextHop) == -1 {
-			return true
-		}
-		if bytes.Compare(routes[i].Destination.IP, routes[j].Destination.IP) == -1 {
-			return true
-		}
-		if bytes.Compare(routes[i].Destination.Mask, routes[j].Destination.Mask) == -1 {
-			return true
-		}
-		return false
+		return routes[i].Metric < routes[j].Metric ||
+			bytes.Compare(routes[i].NextHop, routes[j].NextHop) == -1 ||
+			bytes.Compare(routes[i].Destination.IP, routes[j].Destination.IP) == -1 ||
+			bytes.Compare(routes[i].Destination.Mask, routes[j].Destination.Mask) == -1
 	})
 	for i := 0; i < len(routes); i++ {
 		if i > 0 && routes[i].Metric == routes[i-1].Metric &&
