@@ -80,7 +80,23 @@ func RunUI() {
 			tl.SetText("Public key: (unknown)")
 		}
 	})
-	se.SetText(demoConfig)
+
+	tunnels, err := service.IPCClientTunnels()
+	didFind := false
+	if err == nil {
+		for _, tunnel := range tunnels {
+			if tunnel.Name == "test" {
+				storedConfig, err := tunnel.StoredConfig()
+				if err == nil {
+					se.SetText(storedConfig.ToWgQuick())
+					didFind = true
+				}
+			}
+		}
+	}
+	if !didFind {
+		se.SetText(demoConfig)
+	}
 
 	cv, _ := syntax.NewConfView(mw)
 	cv.SetVisible(false)
@@ -212,7 +228,7 @@ func RunUI() {
 		case service.TunnelStopped, service.TunnelDeleting:
 			showRunningView(false)
 			if runningTunnel != nil {
-				runningTunnel.Delete()
+				runningTunnel.Stop()
 				runningTunnel = nil
 			}
 			se.SetEnabled(true)
