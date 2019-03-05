@@ -6,11 +6,9 @@
 package ui
 
 import (
-	"encoding/base64"
 	"fmt"
 	"github.com/lxn/walk"
 	"github.com/lxn/win"
-	"golang.org/x/crypto/curve25519"
 	"golang.zx2c4.com/wireguard/windows/conf"
 	"golang.zx2c4.com/wireguard/windows/service"
 	"golang.zx2c4.com/wireguard/windows/ui/syntax"
@@ -57,25 +55,9 @@ func RunUI() {
 			return
 		}
 		lastPrivate = privateKey
-		key := func() string {
-			if privateKey == "" {
-				return ""
-			}
-			decoded, err := base64.StdEncoding.DecodeString(privateKey)
-			if err != nil {
-				return ""
-			}
-			if len(decoded) != 32 {
-				return ""
-			}
-			var p [32]byte
-			var s [32]byte
-			copy(s[:], decoded[:32])
-			curve25519.ScalarBaseMult(&p, &s)
-			return base64.StdEncoding.EncodeToString(p[:])
-		}()
-		if key != "" {
-			tl.SetText("Public key: " + key)
+		key, err := conf.NewPrivateKeyFromString(privateKey)
+		if err == nil {
+			tl.SetText("Public key: " + key.Public().String())
 		} else {
 			tl.SetText("Public key: (unknown)")
 		}
