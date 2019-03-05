@@ -266,7 +266,6 @@ loop:
 			case svc.Interrogate:
 				changes <- c.CurrentStatus
 			case svc.SessionChange:
-				//TODO: All the logic here depends on https://go-review.googlesource.com/c/sys/+/158698 being merged
 				if c.EventType != wtsSessionLogon && c.EventType != wtsSessionLogoff {
 					continue
 				}

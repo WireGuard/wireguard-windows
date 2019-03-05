@@ -43,14 +43,20 @@ func (s *ManagerService) RuntimeConfig(tunnelName string, config *conf.Config) e
 	if err != nil {
 		return err
 	}
-	pipe, err := winio.DialPipe("\\\\.\\pipe\\wireguard\\"+storedConfig.Name, nil)
+	pipePath, err := PipePathOfTunnel(storedConfig.Name)
 	if err != nil {
 		return err
 	}
+	pipe, err := winio.DialPipe(pipePath, nil)
+	if err != nil {
+		return err
+	}
+	pipe.SetWriteDeadline(time.Now().Add(time.Second * 2))
 	_, err = pipe.Write([]byte("get=1\n\n"))
 	if err != nil {
 		return err
 	}
+	pipe.SetReadDeadline(time.Now().Add(time.Second * 2))
 	resp, err := ioutil.ReadAll(pipe)
 	if err != nil {
 		return err
@@ -88,7 +94,10 @@ func (s *ManagerService) Stop(tunnelName string, unused *uintptr) error {
 }
 
 func (s *ManagerService) WaitForStop(tunnelName string, unused *uintptr) error {
-	serviceName := "WireGuard Tunnel: " + tunnelName
+	serviceName, err := ServiceNameOfTunnel(tunnelName)
+	if err != nil {
+		return err
+	}
 	m, err := serviceManager()
 	if err != nil {
 		return err
@@ -113,7 +122,10 @@ func (s *ManagerService) Delete(tunnelName string, unused *uintptr) error {
 }
 
 func (s *ManagerService) State(tunnelName string, state *TunnelState) error {
-	serviceName := "WireGuard Tunnel: " + tunnelName
+	serviceName, err := ServiceNameOfTunnel(tunnelName)
+	if err != nil {
+		return err
+	}
 	m, err := serviceManager()
 	if err != nil {
 		return err

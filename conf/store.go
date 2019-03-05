@@ -36,7 +36,11 @@ func ListConfigNames() ([]string, error) {
 		if !file.Mode().IsRegular() || file.Mode().Perm()&0444 == 0 {
 			continue
 		}
-		configs[i] = strings.TrimSuffix(name, configFileSuffix)
+		name = strings.TrimSuffix(name, configFileSuffix)
+		if !TunnelNameIsValid(name) {
+			continue
+		}
+		configs[i] = name
 		i++
 	}
 	return configs[:i], nil
@@ -152,10 +156,16 @@ func NameFromPath(path string) (string, error) {
 	} else {
 		name = strings.TrimSuffix(name, configFileUnencryptedSuffix)
 	}
+	if !TunnelNameIsValid(name) {
+		return "", errors.New("Tunnel name is not valid")
+	}
 	return name, nil
 }
 
 func (config *Config) Save() error {
+	if !TunnelNameIsValid(config.Name) {
+		return errors.New("Tunnel name is not valid")
+	}
 	configFileDir, err := resolveConfigFileDir()
 	if err != nil {
 		return err
@@ -179,6 +189,9 @@ func (config *Config) Save() error {
 }
 
 func (config *Config) Path() (string, error) {
+	if !TunnelNameIsValid(config.Name) {
+		return "", errors.New("Tunnel name is not valid")
+	}
 	configFileDir, err := resolveConfigFileDir()
 	if err != nil {
 		return "", err
@@ -187,6 +200,9 @@ func (config *Config) Path() (string, error) {
 }
 
 func DeleteName(name string) error {
+	if !TunnelNameIsValid(name) {
+		return errors.New("Tunnel name is not valid")
+	}
 	configFileDir, err := resolveConfigFileDir()
 	if err != nil {
 		return err
