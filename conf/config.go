@@ -128,6 +128,10 @@ func NewPrivateKey() (*Key, error) {
 	return k, nil
 }
 
+func NewPrivateKeyFromString(b64 string) (*Key, error) {
+	return parseKeyBase64(b64)
+}
+
 func formatInterval(i int64, n string, l int) string {
 	r := ""
 	if l > 0 {
