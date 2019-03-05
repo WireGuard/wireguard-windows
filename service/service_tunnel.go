@@ -143,7 +143,7 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 	dev.IpcSetOperation(bufio.NewReader(strings.NewReader(uapiConf)))
 	guid := wintun.(*tun.NativeTun).GUID()
 
-	routeChangeCallback, err = monitorDefaultRoutes(dev, &guid)
+	routeChangeCallback, err = monitorDefaultRoutes(dev, conf.Interface.Mtu == 0, &guid)
 	if err != nil {
 		logger.Error.Println("Unable to bind sockets to default route:", err)
 		exitCode = ERROR_NETWORK_BUSY
