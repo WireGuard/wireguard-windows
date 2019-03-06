@@ -288,7 +288,7 @@ bool register_syntax_edit(void)
 	if (parent_proc)
 		return true;
 
-	lib = LoadLibraryW(L"msftedit.dll");
+	lib = LoadLibraryExW(L"msftedit.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
 	if (!lib)
 		return false;
 
