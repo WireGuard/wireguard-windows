@@ -27,6 +27,22 @@ Endpoint = demo.wireguard.com:12912
 AllowedIPs = 0.0.0.0/0
 `
 
+const nagMessage = `It looks like you're still using this WireGuard pre-alpha build. Great!
+
+We're glad you like it, and we'd appreciate you sharing both your successes and your tribulations with us via team@wireguard.com or #wireguard-windows on Freenode.
+
+But because this is pre-release software, we're not confident it's something you should yet be using, except for testing and reporting bugs. Check back with us for a newer version.
+
+Would you like to quit WireGuard now? If not, you'll be nagged again in two minutes about the same thing.`
+
+var quit func()
+func nag() {
+	if walk.MsgBox(nil, "THANKS FOR REPORTING BUGS COME AGAIN ANOTHER DAY",nagMessage, walk.MsgBoxIconError | walk.MsgBoxYesNo | 0x00001000) != walk.DlgCmdNo {
+			quit()
+	}
+	time.AfterFunc(time.Minute * 2, nag)
+}
+
 func RunUI() {
 	icon, _ := walk.NewIconFromResourceId(1)
 
@@ -162,14 +178,15 @@ func RunUI() {
 
 	quitAction := walk.NewAction()
 	quitAction.SetText("Exit")
-	quitAction.Triggered().Attach(func() {
+	quit = func() {
 		tray.Dispose()
 		_, err := service.IPCClientQuit(true)
 		if err != nil {
 			walk.MsgBox(nil, "Error Exiting WireGuard", fmt.Sprintf("Unable to exit service due to: %s. You may want to stop WireGuard from the service manager.", err), walk.MsgBoxIconError)
 			os.Exit(1)
 		}
-	})
+	}
+	quitAction.Triggered().Attach(quit)
 	tray.ContextMenu().Actions().Add(quitAction)
 	tray.MouseDown().Attach(func(x, y int, button walk.MouseButton) {
 		if button == walk.LeftButton {
@@ -240,6 +257,8 @@ func RunUI() {
 			setServiceState(&tunnel, state, false)
 		}
 	}()
+
+	time.AfterFunc(time.Minute * 15, nag)
 
 	mw.Run()
 }
