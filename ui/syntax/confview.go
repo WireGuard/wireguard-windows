@@ -23,10 +23,6 @@ type ConfView struct {
 	lastRtf string
 }
 
-func init() {
-	C.register_conf_view()
-}
-
 func (cv *ConfView) LayoutFlags() walk.LayoutFlags {
 	return walk.GrowableHorz | walk.GrowableVert | walk.GreedyHorz | walk.GreedyVert
 }
@@ -138,6 +134,7 @@ func (cv *ConfView) SetConfiguration(conf *conf.Config) {
 }
 
 func NewConfView(parent walk.Container) (*ConfView, error) {
+	C.register_conf_view()
 	cv := &ConfView{
 		lastRtf: "",
 	}
