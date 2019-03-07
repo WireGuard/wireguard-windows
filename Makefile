@@ -1,19 +1,27 @@
-CFLAGS ?= -O3
-CFLAGS += -Wall -std=gnu11
+export CFLAGS := -O3 -Wall -std=gnu11
+export CC := x86_64-w64-mingw32-gcc
+WINDRES := x86_64-w64-mingw32-windres
+export CGO_ENABLED := 1
+export GOOS := windows
+export GOARCH := amd64
+
+DEPLOYMENT_HOST ?= winvm
+DEPLOYMENT_PATH ?= Desktop
 
 all: wireguard.exe
 
-resources.syso: ui/icon/icon.ico ui/manifest.xml go.mod
-	go run github.com/akavel/rsrc -manifest ui/manifest.xml -ico ui/icon/icon.ico -arch amd64 -o resources.syso
+resources.syso: resources.rc manifest.xml ui/icon/icon.ico
+	$(WINDRES) -i $< -o $@ -O coff
 
 rwildcard=$(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subst *,%,$2),$d))
 wireguard.exe: resources.syso $(call rwildcard,,*.go *.c *.h)
-	CC=x86_64-w64-mingw32-gcc CGO_ENABLED=1 GOOS=windows GOARCH=amd64 go build -ldflags="-H windowsgui" -o $@
+	go build -ldflags="-H windowsgui -s -w" -v -o $@
 
-run: wireguard.exe
-	wine wireguard.exe
+deploy: wireguard.exe
+	-ssh $(DEPLOYMENT_HOST) -- 'taskkill /im wireguard.exe /f'
+	scp wireguard.exe $(DEPLOYMENT_HOST):$(DEPLOYMENT_PATH)
 
 clean:
 	rm -rf resources.syso wireguard.exe
 
-.PHONY: run clean all
+.PHONY: deploy clean all

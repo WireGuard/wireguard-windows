@@ -28,7 +28,7 @@ AllowedIPs = 0.0.0.0/0
 `
 
 func RunUI() {
-	icon, _ := walk.NewIconFromResourceId(8)
+	icon, _ := walk.NewIconFromResourceId(1)
 
 	mw, _ := walk.NewMainWindowWithName("WireGuard")
 	tray, _ := walk.NewNotifyIcon(mw)

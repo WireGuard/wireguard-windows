@@ -4,15 +4,16 @@ set OLDPATH=%PATH%
 if not exist deps\.prepared call :installdeps
 set PATH=%STARTDIR%\deps\x86_64-w64-mingw32-native\bin\;%STARTDIR%\deps\go\bin\;%PATH%
 set CC=x86_64-w64-mingw32-gcc.exe
+set CFLAGS=-O3 -Wall -std=gnu11
 set GOOS=windows
 set GOARCH=amd64
 set GOPATH=%STARTDIR%\deps\gopath
 set GOROOT=%STARTDIR%\deps\go
 set CGO_ENABLED=1
 echo Assembling resources
-go run github.com/akavel/rsrc -manifest ui/manifest.xml -ico ui/icon/icon.ico -arch amd64 -o resources.syso || goto :error
+windres.exe -i resources.rc -o resources.syso -O coff || goto :error
 echo Building program
-go build -ldflags="-H windowsgui" -o wireguard.exe || goto :error
+go build -ldflags="-H windowsgui -s -w" -v -o wireguard.exe || goto :error
 goto :out
 
 :installdeps
