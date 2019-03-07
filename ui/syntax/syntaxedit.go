@@ -59,10 +59,6 @@ type SyntaxEdit struct {
 	privateKeyPublisher  PrivateKeyPublisher
 }
 
-func init() {
-	C.register_syntax_edit()
-}
-
 func (se *SyntaxEdit) LayoutFlags() walk.LayoutFlags {
 	return walk.GrowableHorz | walk.GrowableVert | walk.GreedyHorz | walk.GreedyVert
 }
@@ -122,6 +118,7 @@ func (se *SyntaxEdit) WndProc(hwnd win.HWND, msg uint32, wParam, lParam uintptr)
 }
 
 func NewSyntaxEdit(parent walk.Container) (*SyntaxEdit, error) {
+	C.register_syntax_edit()
 	se := &SyntaxEdit{}
 	err := walk.InitWidget(
 		se,

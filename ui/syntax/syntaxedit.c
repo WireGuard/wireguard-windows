@@ -279,14 +279,16 @@ static LRESULT CALLBACK child_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lP
 	return parent_proc(hWnd, Msg, wParam, lParam);
 }
 
+static long has_loaded = 0;
+
 bool register_syntax_edit(void)
 {
 	WNDCLASSEXW class = { .cbSize = sizeof(WNDCLASSEXW) };
 	WNDPROC pp;
 	HANDLE lib;
 
-	if (parent_proc)
-		return true;
+	if (InterlockedCompareExchange(&has_loaded, 1, 0) != 0)
+		return !!parent_proc;
 
 	lib = LoadLibraryExW(L"msftedit.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
 	if (!lib)
