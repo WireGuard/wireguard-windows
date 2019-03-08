@@ -105,6 +105,9 @@ func monitorDefaultRoutes(device *device.Device, autoMTU bool, guid *windows.GUI
 				return err
 			}
 			iface.NlMtu = mtu - 80
+			if iface.NlMtu < 576 {
+				iface.NlMtu = 576
+			}
 			err = iface.Set()
 			if err != nil {
 				return err
@@ -114,6 +117,9 @@ func monitorDefaultRoutes(device *device.Device, autoMTU bool, guid *windows.GUI
 				return err
 			}
 			iface.NlMtu = mtu - 80
+			if iface.NlMtu < 1280 {
+				iface.NlMtu = 1280
+			}
 			err = iface.Set()
 			if err != nil {
 				return err
