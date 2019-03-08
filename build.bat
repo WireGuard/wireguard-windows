@@ -7,23 +7,29 @@ if exist deps\.prepared goto :build
 	rmdir /s /q deps 2> NUL
 	mkdir deps || goto :error
 	cd deps || goto :error
-	echo Downloading golang
+	echo [+] Downloading golang
 	curl -#fo go.zip https://dl.google.com/go/go1.12.windows-amd64.zip || goto :error
-	echo Downloading mingw
+	echo [+] Verifying golang
+	for /f %%a in ('CertUtil -hashfile go.zip SHA256 ^| findstr /r "^[0-9a-f]*$"') do if not "%%a"=="880ced1aecef08b3471a84381b6c7e2c0e846b81dd97ecb629b534d941f282bd" goto :error
+	echo [+] Downloading mingw
 	rem Mirror of https://musl.cc/x86_64-w64-mingw32-native.zip
 	curl -#fo mingw.zip https://download.wireguard.com/windows-toolchain/distfiles/x86_64-w64-mingw32-native-20190307.zip || goto :error
-	echo Downloading patch
+	echo [+] Verifying mingw
+	for /f %%a in ('CertUtil -hashfile mingw.zip SHA256 ^| findstr /r "^[0-9a-f]*$"') do if not "%%a"=="5390762183e181804b28eb13815b6210f85a1280057b815f749b06768215f817" goto :error
+	echo [+] Downloading patch
 	rem Mirror of https://sourceforge.net/projects/gnuwin32/files/patch/2.5.9-7/patch-2.5.9-7-bin.zip
 	curl -#fo patch.zip https://download.wireguard.com/windows-toolchain/distfiles/patch-2.5.9-7-bin.zip || goto :error
-	echo Extracting golang
+	echo [+] Verifying patch
+	for /f %%a in ('CertUtil -hashfile patch.zip SHA256 ^| findstr /r "^[0-9a-f]*$"') do if not "%%a"=="fabd6517e7bd88e067db9bf630d69bb3a38a08e044fa73d13a704ab5f8dd110b" goto :error
+	echo [+] Extracting golang
 	tar -xf go.zip || goto :error
-	echo Extracting mingw
+	echo [+] Extracting mingw
 	tar -xf mingw.zip || goto :error
-	echo Extracting patch
+	echo [+] Extracting patch
 	tar -xf patch.zip --strip-components 1 bin || goto :error
-	echo Patching golang
+	echo [+] Patching golang
 	.\patch.exe -f -N -r- -d go -p1 --binary < ..\golang-runtime-dll-injection.patch || goto :error
-	echo Cleaning up
+	echo [+] Cleaning up
 	del patch.exe patch.zip go.zip mingw.zip || goto :error
 	copy /y NUL .prepared > NUL || goto :error
 	cd .. || goto :error
@@ -37,11 +43,11 @@ if exist deps\.prepared goto :build
 	set GOPATH=%STARTDIR%\deps\gopath
 	set GOROOT=%STARTDIR%\deps\go
 	set CGO_ENABLED=1
-	echo Assembling resources
+	echo [+] Assembling resources
 	windres.exe -i resources.rc -o resources.syso -O coff || goto :error
-	echo Building program
+	echo [+] Building program
 	go build -ldflags="-H windowsgui -s -w" -v -o wireguard.exe || goto :error
-	echo Success. Launch wireguard.exe.
+	echo [+] Success. Launch wireguard.exe.
 
 :out
 	set PATH=%OLDPATH%
@@ -49,5 +55,5 @@ if exist deps\.prepared goto :build
 	exit /b %errorlevel%
 
 :error
-	echo Failed with error #%errorlevel%.
+	echo [-] Failed with error #%errorlevel%.
 	goto :out

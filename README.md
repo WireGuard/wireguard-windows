@@ -4,11 +4,13 @@ Nothing to see here yet. Come back later.
 
 ### Requirements
 
-  - [Wintun](https://git.zx2c4.com/wintun)
+  - [Wintun](https://git.zx2c4.com/wintun) (at runtime)
+  - [Go 1.12](https://golang.org/) (for compilation)
+  - [Mingw](http://www.mingw.org/) (for compilation)
 
 ### Building on Windows
 
-The build script will take care of downloading (without verification) and installing Go 1.12, Mingw, and Patch.
+The build script will take care of downloading, verifying, and extracting the right versions of Go, Mingw, and Patch.
 
 ```
 C:\Projects> git clone https://git.zx2c4.com/wireguard-windows
@@ -18,7 +20,7 @@ C:\Projects\wireguard-windows> build
 
 ### Building on Linux
 
-You must first have Go 1.12 and Mingw installed.
+You must first have Go and Mingw installed.
 
 ```
 $ sudo apt install mingw-w64 golang-go
