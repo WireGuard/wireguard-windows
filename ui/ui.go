@@ -36,11 +36,12 @@ But because this is pre-release software, we're not confident it's something you
 Would you like to quit WireGuard now? If not, you'll be nagged again in two minutes about the same thing.`
 
 var quit func()
+
 func nag() {
-	if walk.MsgBox(nil, "THANKS FOR REPORTING BUGS COME AGAIN ANOTHER DAY",nagMessage, walk.MsgBoxIconError | walk.MsgBoxYesNo | 0x00001000) != walk.DlgCmdNo {
-			quit()
+	if walk.MsgBox(nil, "THANKS FOR REPORTING BUGS COME AGAIN ANOTHER DAY", nagMessage, walk.MsgBoxIconError|walk.MsgBoxYesNo|0x00001000) != walk.DlgCmdNo {
+		quit()
 	}
-	time.AfterFunc(time.Minute * 2, nag)
+	time.AfterFunc(time.Minute*2, nag)
 }
 
 func RunUI() {
@@ -116,7 +117,7 @@ func RunUI() {
 		t := time.NewTicker(time.Second)
 		for {
 			updateConfView()
-			<- t.C
+			<-t.C
 		}
 	}()
 	showRunningView := func(on bool) {
@@ -258,7 +259,7 @@ func RunUI() {
 		}
 	}()
 
-	time.AfterFunc(time.Minute * 15, nag)
+	time.AfterFunc(time.Minute*15, nag)
 
 	mw.Run()
 }
