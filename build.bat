@@ -10,9 +10,11 @@ if exist deps\.prepared goto :build
 	echo Downloading golang
 	curl -#fo go.zip https://dl.google.com/go/go1.12.windows-amd64.zip || goto :error
 	echo Downloading mingw
-	curl -#fo mingw.zip https://musl.cc/x86_64-w64-mingw32-native.zip || goto :error
+	rem Mirror of https://musl.cc/x86_64-w64-mingw32-native.zip
+	curl -#fo mingw.zip https://download.wireguard.com/windows-toolchain/distfiles/x86_64-w64-mingw32-native-20190307.zip || goto :error
 	echo Downloading patch
-	curl -L#fo patch.zip https://sourceforge.net/projects/gnuwin32/files/patch/2.5.9-7/patch-2.5.9-7-bin.zip || goto :error
+	rem Mirror of https://sourceforge.net/projects/gnuwin32/files/patch/2.5.9-7/patch-2.5.9-7-bin.zip
+	curl -#fo patch.zip https://download.wireguard.com/windows-toolchain/distfiles/patch-2.5.9-7-bin.zip || goto :error
 	echo Extracting golang
 	tar -xf go.zip || goto :error
 	echo Extracting mingw

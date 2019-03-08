@@ -8,7 +8,7 @@ Nothing to see here yet. Come back later.
 
 ### Building on Windows
 
-The build script will take care of downloading (without verification) and installing Go 1.12 and Mingw.
+The build script will take care of downloading (without verification) and installing Go 1.12, Mingw, and Patch.
 
 ```
 C:\Projects> git clone https://git.zx2c4.com/wireguard-windows
