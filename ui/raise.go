@@ -22,6 +22,7 @@ func RaiseUI() bool {
 		return false
 	}
 	win.ShowWindow(hwnd, win.SW_NORMAL)
+	win.BringWindowToTop(hwnd)
 	win.SetForegroundWindow(hwnd)
 	return true
 }
@@ -37,6 +38,7 @@ func WaitForRaiseUIThenQuit() {
 		}
 		win.UnhookWinEvent(handle)
 		win.ShowWindow(hwnd, win.SW_NORMAL)
+		win.BringWindowToTop(hwnd)
 		win.SetForegroundWindow(hwnd)
 		os.Exit(0)
 		return 0
