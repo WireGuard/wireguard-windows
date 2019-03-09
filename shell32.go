@@ -300,6 +300,7 @@ var (
 	dragAcceptFiles        *windows.LazyProc
 	dragFinish             *windows.LazyProc
 	dragQueryFile          *windows.LazyProc
+	extractIcon            *windows.LazyProc
 	shBrowseForFolder      *windows.LazyProc
 	shGetFileInfo          *windows.LazyProc
 	shGetPathFromIDList    *windows.LazyProc
@@ -317,6 +318,7 @@ func init() {
 	dragAcceptFiles = libshell32.NewProc("DragAcceptFiles")
 	dragFinish = libshell32.NewProc("DragFinish")
 	dragQueryFile = libshell32.NewProc("DragQueryFileW")
+	extractIcon = libshell32.NewProc("ExtractIconW")
 	shBrowseForFolder = libshell32.NewProc("SHBrowseForFolderW")
 	shGetFileInfo = libshell32.NewProc("SHGetFileInfoW")
 	shGetPathFromIDList = libshell32.NewProc("SHGetPathFromIDListW")
@@ -352,6 +354,15 @@ func DragFinish(hDrop HDROP) {
 		uintptr(hDrop),
 		0,
 		0)
+}
+
+func ExtractIcon(hInst HINSTANCE, exeFileName *uint16, iconIndex int32) HICON {
+	ret, _, _ := syscall.Syscall(extractIcon.Addr(), 3,
+		uintptr(hInst),
+		uintptr(unsafe.Pointer(exeFileName)),
+		uintptr(iconIndex))
+
+	return HICON(ret)
 }
 
 func SHBrowseForFolder(lpbi *BROWSEINFO) uintptr {
