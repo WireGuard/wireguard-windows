@@ -17,10 +17,10 @@ if exist deps\.prepared goto :build
 	echo [+] Verifying mingw
 	for /f %%a in ('CertUtil -hashfile mingw.zip SHA256 ^| findstr /r "^[0-9a-f]*$"') do if not "%%a"=="5390762183e181804b28eb13815b6210f85a1280057b815f749b06768215f817" goto :error
 	echo [+] Downloading patch
-	rem Mirror of https://sourceforge.net/projects/gnuwin32/files/patch/2.5.9-7/patch-2.5.9-7-bin.zip
-	curl -#fo patch.zip https://download.wireguard.com/windows-toolchain/distfiles/patch-2.5.9-7-bin.zip || goto :error
+	rem Mirror of https://sourceforge.net/projects/gnuwin32/files/patch/2.5.9-7/patch-2.5.9-7-bin.zip with fixed manifest
+	curl -#fo patch.zip https://download.wireguard.com/windows-toolchain/distfiles/patch-2.5.9-7-bin-fixed-manifest.zip || goto :error
 	echo [+] Verifying patch
-	for /f %%a in ('CertUtil -hashfile patch.zip SHA256 ^| findstr /r "^[0-9a-f]*$"') do if not "%%a"=="fabd6517e7bd88e067db9bf630d69bb3a38a08e044fa73d13a704ab5f8dd110b" goto :error
+	for /f %%a in ('CertUtil -hashfile patch.zip SHA256 ^| findstr /r "^[0-9a-f]*$"') do if not "%%a"=="25977006ca9713f2662a5d0a2ed3a5a138225b8be3757035bd7da9dcf985d0a1" goto :error
 	echo [+] Extracting golang
 	tar -xf go.zip || goto :error
 	echo [+] Extracting mingw
