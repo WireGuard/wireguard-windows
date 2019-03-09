@@ -193,6 +193,7 @@ func RunUI() {
 		if button == walk.LeftButton {
 			mw.Show()
 			win.SetForegroundWindow(mw.Handle())
+			win.BringWindowToTop(mw.Handle())
 			updateConfView()
 		}
 	})
