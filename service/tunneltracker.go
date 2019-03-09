@@ -90,6 +90,10 @@ func trackTunnelService(tunnelName string, svc *mgr.Service) {
 		notifyCallback: serviceTrackerCallbackPtr,
 	}
 	defer svc.Close()
+
+	// This hasStopped ugliness is because Windows 7 will send a STOP_PENDING after it has already sent a STOPPED
+	hasStopped := false
+
 	for {
 		notifier.context = 0
 		err := notifyServiceStatusChange(svc.Handle, serviceNotifications, uintptr(unsafe.Pointer(notifier)))
@@ -105,12 +109,15 @@ func trackTunnelService(tunnelName string, svc *mgr.Service) {
 			state = TunnelDeleting
 		} else if notifier.notificationTriggered&serviceNotify_STOPPED != 0 {
 			state = TunnelStopped
-		} else if notifier.notificationTriggered&serviceNotify_STOP_PENDING != 0 {
+			hasStopped = true
+		} else if notifier.notificationTriggered&serviceNotify_STOP_PENDING != 0 && hasStopped {
 			state = TunnelStopping
 		} else if notifier.notificationTriggered&serviceNotify_RUNNING != 0 {
 			state = TunnelStarted
+			hasStopped = false
 		} else if notifier.notificationTriggered&serviceNotify_START_PENDING != 0 {
 			state = TunnelStarting
+			hasStopped = false
 		}
 		IPCServerNotifyTunnelChange(tunnelName, state)
 		if state == TunnelDeleting {
