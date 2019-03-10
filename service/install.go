@@ -144,7 +144,7 @@ func InstallTunnel(configPath string) error {
 		}
 		for {
 			service, err = m.OpenService(serviceName)
-			if err != nil && err != syscall.Errno(ERROR_SERVICE_MARKED_FOR_DELETE) {
+			if err != nil && err != syscall.Errno(serviceMARKED_FOR_DELETE) {
 				break
 			}
 			service.Close()
@@ -183,7 +183,7 @@ func UninstallTunnel(name string) error {
 	service.Control(svc.Stop)
 	err = service.Delete()
 	err2 := service.Close()
-	if err != nil && err != syscall.Errno(ERROR_SERVICE_MARKED_FOR_DELETE) {
+	if err != nil && err != syscall.Errno(serviceMARKED_FOR_DELETE) {
 		return err
 	}
 	return err2

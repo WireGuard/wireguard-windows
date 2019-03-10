@@ -242,8 +242,15 @@ func RunUI() {
 			}
 		}
 	}
-	service.IPCClientRegisterTunnelChange(func(tunnel *service.Tunnel, state service.TunnelState) {
-		setServiceState(tunnel, state, true)
+	service.IPCClientRegisterTunnelChange(func(tunnel *service.Tunnel, state service.TunnelState, err error) {
+		setServiceState(tunnel, state, err == nil)
+		if err != nil {
+			if mw.Visible() {
+				walk.MsgBox(mw, "Tunnel Error", err.Error()+"\n\nPlease consult the Windows Event Log for more information.", walk.MsgBoxIconWarning)
+			} else {
+				tray.ShowError("WireGuard Tunnel Error", err.Error())
+			}
+		}
 	})
 	go func() {
 		tunnels, err := service.IPCClientTunnels()

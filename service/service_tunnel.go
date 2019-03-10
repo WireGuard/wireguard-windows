@@ -8,19 +8,17 @@ package service
 import (
 	"bufio"
 	"fmt"
+	"golang.org/x/sys/windows/svc"
+	"golang.org/x/sys/windows/svc/eventlog"
 	"golang.zx2c4.com/winipcfg"
+	"golang.zx2c4.com/wireguard/device"
 	"golang.zx2c4.com/wireguard/ipc"
+	"golang.zx2c4.com/wireguard/tun"
+	"golang.zx2c4.com/wireguard/windows/conf"
 	"log"
 	"net"
 	"runtime/debug"
 	"strings"
-
-	"golang.org/x/sys/windows/svc"
-	"golang.org/x/sys/windows/svc/eventlog"
-
-	"golang.zx2c4.com/wireguard/device"
-	"golang.zx2c4.com/wireguard/tun"
-	"golang.zx2c4.com/wireguard/windows/conf"
 )
 
 type confElogger struct {
@@ -52,8 +50,22 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 	var uapi net.Listener
 	var routeChangeCallback *winipcfg.RouteChangeCallback
 	var elog *eventlog.Log
+	var logger *device.Logger
+	var err error
+	serviceError := ErrorSuccess
 
 	defer func() {
+		svcSpecificEC, exitCode = determineErrorCode(err, serviceError)
+		logErr := combineErrors(err, serviceError)
+		if logErr != nil {
+			if logger != nil {
+				logger.Error.Println(logErr.Error())
+			} else if elog != nil {
+				elog.Error(1, logErr.Error())
+			} else {
+				fmt.Println(logErr.Error())
+			}
+		}
 		changes <- svc.Status{State: svc.StopPending}
 		if routeChangeCallback != nil {
 			routeChangeCallback.Unregister()
@@ -71,9 +83,9 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 
 	//TODO: remember to clean this up in the msi uninstaller
 	eventlog.InstallAsEventCreate("WireGuard", eventlog.Info|eventlog.Warning|eventlog.Error)
-	elog, err := eventlog.Open("WireGuard")
+	elog, err = eventlog.Open("WireGuard")
 	if err != nil {
-		exitCode = ERROR_LOG_CONTAINER_OPEN_FAILED
+		serviceError = ErrorEventlogOpen
 		return
 	}
 	log.SetOutput(elogger{elog})
@@ -86,12 +98,11 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 
 	conf, err := conf.LoadFromPath(service.path)
 	if err != nil {
-		elog.Error(1, "Unable to load configuration file from path "+service.path+": "+err.Error())
-		exitCode = ERROR_OPEN_FAILED
+		serviceError = ErrorLoadConfiguration
 		return
 	}
 
-	logger := &device.Logger{
+	logger = &device.Logger{
 		Debug: log.New(&confElogger{elog: elog, conf: conf, level: 1}, "", 0),
 		Info:  log.New(&confElogger{elog: elog, conf: conf, level: 2}, "", 0),
 		Error: log.New(&confElogger{elog: elog, conf: conf, level: 3}, "", 0),
@@ -101,16 +112,16 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 	logger.Debug.Println("Debug log enabled")
 
 	wintun, err := tun.CreateTUN(conf.Name)
-	if err == nil {
-		realInterfaceName, err2 := wintun.Name()
-		if err2 == nil {
-			conf.Name = realInterfaceName
-		}
-	} else {
-		logger.Error.Println("Failed to create TUN device:", err)
-		exitCode = ERROR_ADAP_HDW_ERR
+	if err != nil {
+		serviceError = ErrorCreateWintun
 		return
 	}
+	realInterfaceName, err := wintun.Name()
+	if err != nil {
+		serviceError = ErrorDetermineWintunName
+		return
+	}
+	conf.Name = realInterfaceName
 
 	dev = device.NewDevice(wintun, logger)
 	dev.Up()
@@ -118,8 +129,7 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 
 	uapi, err = ipc.UAPIListen(conf.Name)
 	if err != nil {
-		logger.Error.Println("Failed to listen on uapi socket:", err)
-		exitCode = ERROR_PIPE_LISTENING
+		serviceError = ErrorUAPIListen
 		return
 	}
 
@@ -136,24 +146,27 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 
 	uapiConf, err := conf.ToUAPI()
 	if err != nil {
-		logger.Error.Println("Failed to convert to UAPI serialization:", err)
-		exitCode = ERROR_INVALID_PARAMETER
+		serviceError = ErrorUAPISerialization
 		return
 	}
-	dev.IpcSetOperation(bufio.NewReader(strings.NewReader(uapiConf)))
+	ipcErr := dev.IpcSetOperation(bufio.NewReader(strings.NewReader(uapiConf)))
+	if ipcErr != nil {
+		err = ipcErr
+		serviceError = ErrorDeviceSetConfig
+		return
+	}
+
 	guid := wintun.(*tun.NativeTun).GUID()
 
 	routeChangeCallback, err = monitorDefaultRoutes(dev, conf.Interface.Mtu == 0, &guid)
 	if err != nil {
-		logger.Error.Println("Unable to bind sockets to default route:", err)
-		exitCode = ERROR_NETWORK_BUSY
+		serviceError = ErrorBindSocketsToDefaultRoutes
 		return
 	}
 
 	err = configureInterface(conf, &guid)
 	if err != nil {
-		logger.Error.Println("Unable to set interface addresses, routes, DNS, or IP settings:", err)
-		exitCode = ERROR_NETWORK_BUSY
+		serviceError = ErrorSetNetConfig
 		return
 	}
 
@@ -168,7 +181,7 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 			case svc.Interrogate:
 				changes <- c.CurrentStatus
 			default:
-				logger.Error.Printf("Unexpected service control request #%d", c)
+				logger.Error.Printf("Unexpected service control request #%d\n", c)
 			}
 		case <-dev.Wait():
 			return
