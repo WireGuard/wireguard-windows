@@ -6,13 +6,14 @@
 package service
 
 import (
+	"fmt"
 	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/svc"
-	"golang.org/x/sys/windows/svc/debug"
 	"golang.org/x/sys/windows/svc/eventlog"
 	"golang.zx2c4.com/wireguard/windows/conf"
 	"log"
 	"os"
+	"runtime/debug"
 	"strconv"
 	"sync"
 	"syscall"
@@ -83,7 +84,7 @@ func localWellKnownSid(sidType wellKnownSidType) (*windows.SID, error) {
 type managerService struct{}
 
 type elogger struct {
-	debug.Log
+	*eventlog.Log
 }
 
 func (elog elogger) Write(p []byte) (n int, err error) {
@@ -96,45 +97,59 @@ func (elog elogger) Write(p []byte) (n int, err error) {
 func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest, changes chan<- svc.Status) (svcSpecificEC bool, exitCode uint32) {
 	changes <- svc.Status{State: svc.StartPending}
 
+	var elog *eventlog.Log
+	var err error
+	serviceError := ErrorSuccess
+
+	defer func() {
+		svcSpecificEC, exitCode = determineErrorCode(err, serviceError)
+		logErr := combineErrors(err, serviceError)
+		if logErr != nil {
+			if elog != nil {
+				elog.Error(1, logErr.Error())
+			} else {
+				fmt.Println(logErr.Error())
+			}
+		}
+		changes <- svc.Status{State: svc.StopPending}
+	}()
+
 	//TODO: remember to clean this up in the msi uninstaller
 	eventlog.InstallAsEventCreate("WireGuard", eventlog.Info|eventlog.Warning|eventlog.Error)
-	elog, err := eventlog.Open("WireGuard")
+	elog, err = eventlog.Open("WireGuard")
 	if err != nil {
-		changes <- svc.Status{State: svc.StopPending}
-		exitCode = ERROR_LOG_CONTAINER_OPEN_FAILED
+		serviceError = ErrorEventlogOpen
 		return
 	}
 	log.SetOutput(elogger{elog})
+	defer func() {
+		if x := recover(); x != nil {
+			elog.Error(1, fmt.Sprintf("%v:\n%s", x, string(debug.Stack())))
+			panic(x)
+		}
+	}()
 
 	path, err := os.Executable()
 	if err != nil {
-		elog.Error(1, "Unable to determine own executable path: "+err.Error())
-		changes <- svc.Status{State: svc.StopPending}
-		exitCode = ERROR_BAD_PATHNAME
+		serviceError = ErrorDetermineExecutablePath
 		return
 	}
 
 	adminSid, err := localWellKnownSid(winBuiltinAdministratorsSid)
 	if err != nil {
-		elog.Error(1, "Unable to find Administrators SID: "+err.Error())
-		changes <- svc.Status{State: svc.StopPending}
-		exitCode = ERROR_SERVER_SID_MISMATCH
+		serviceError = ErrorFindAdministratorsSID
 		return
 	}
 
 	devNull, err := os.OpenFile(os.DevNull, os.O_RDWR, 0)
 	if err != nil {
-		elog.Error(1, "Unable to open NUL file: "+err.Error())
-		changes <- svc.Status{State: svc.StopPending}
-		exitCode = ERROR_FILE_NOT_FOUND
+		serviceError = ErrorOpenNULFile
 		return
 	}
 
 	err = trackExistingTunnels()
 	if err != nil {
-		elog.Error(1, "Unable to track existing tunnels: "+err.Error())
-		changes <- svc.Status{State: svc.StopPending}
-		exitCode = ERROR_NO_TRACKING_SERVICE
+		serviceError = ErrorTrackTunnels
 		return
 	}
 
@@ -233,9 +248,7 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 	var count uint32
 	err = wtsEnumerateSessions(0, 0, 1, &sessionsPointer, &count)
 	if err != nil {
-		elog.Error(1, "Unable to enumerate current sessions: "+err.Error())
-		changes <- svc.Status{State: svc.StopPending}
-		exitCode = ERROR_BAD_LOGON_SESSION_STATE
+		serviceError = ErrorEnumerateSessions
 		return
 	}
 	sessions := *(*[]wtsSessionInfo)(unsafe.Pointer(&struct {
@@ -287,8 +300,9 @@ loop:
 					}
 					procsLock.Unlock()
 				}
+
 			default:
-				elog.Info(1, "Unexpected service control request "+strconv.Itoa(int(c.Cmd)))
+				elog.Info(1, fmt.Sprintf("Unexpected service control request #%d\n", c))
 			}
 		}
 	}

@@ -10,6 +10,7 @@ import (
 	"golang.org/x/sys/windows/svc/mgr"
 	"golang.zx2c4.com/wireguard/windows/conf"
 	"runtime"
+	"syscall"
 	"unsafe"
 )
 
@@ -104,12 +105,21 @@ func trackTunnelService(tunnelName string, svc *mgr.Service) {
 		if notifier.notificationStatus != 0 {
 			return
 		}
+		var tunnelError error
 		state := TunnelUnknown
 		if notifier.notificationTriggered&serviceNotify_DELETE_PENDING != 0 {
 			state = TunnelDeleting
 		} else if notifier.notificationTriggered&serviceNotify_STOPPED != 0 {
 			state = TunnelStopped
 			hasStopped = true
+			if notifier.win32ExitCode == uint32(windows.ERROR_SERVICE_SPECIFIC_ERROR) {
+				maybeErr := Error(notifier.serviceSpecificExitCode)
+				if maybeErr != ErrorSuccess {
+					tunnelError = maybeErr
+				}
+			} else if notifier.win32ExitCode != uint32(windows.NO_ERROR) {
+				tunnelError = syscall.Errno(notifier.win32ExitCode)
+			}
 		} else if notifier.notificationTriggered&serviceNotify_STOP_PENDING != 0 && hasStopped {
 			state = TunnelStopping
 		} else if notifier.notificationTriggered&serviceNotify_RUNNING != 0 {
@@ -119,7 +129,7 @@ func trackTunnelService(tunnelName string, svc *mgr.Service) {
 			state = TunnelStarting
 			hasStopped = false
 		}
-		IPCServerNotifyTunnelChange(tunnelName, state)
+		IPCServerNotifyTunnelChange(tunnelName, state, tunnelError)
 		if state == TunnelDeleting {
 			return
 		}

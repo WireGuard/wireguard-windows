@@ -84,7 +84,7 @@ func (s *ManagerService) Start(tunnelName string, unused *uintptr) error {
 
 func (s *ManagerService) Stop(tunnelName string, unused *uintptr) error {
 	err := UninstallTunnel(tunnelName)
-	if err == syscall.Errno(ERROR_SERVICE_DOES_NOT_EXIST) {
+	if err == syscall.Errno(serviceDOES_NOT_EXIST) {
 		_, notExistsError := conf.LoadFromName(tunnelName)
 		if notExistsError == nil {
 			return nil
@@ -104,7 +104,7 @@ func (s *ManagerService) WaitForStop(tunnelName string, unused *uintptr) error {
 	}
 	for {
 		service, err := m.OpenService(serviceName)
-		if err == nil || err == syscall.Errno(ERROR_SERVICE_MARKED_FOR_DELETE) {
+		if err == nil || err == syscall.Errno(serviceMARKED_FOR_DELETE) {
 			service.Close()
 			time.Sleep(time.Second / 3)
 		} else {
@@ -256,8 +256,12 @@ func notifyAll(notificationType NotificationType, ifaces ...interface{}) {
 	managerServicesLock.RUnlock()
 }
 
-func IPCServerNotifyTunnelChange(name string, state TunnelState) {
-	notifyAll(TunnelChangeNotificationType, name, state)
+func IPCServerNotifyTunnelChange(name string, state TunnelState, err error) {
+	if err == nil {
+		notifyAll(TunnelChangeNotificationType, name, state, "")
+	} else {
+		notifyAll(TunnelChangeNotificationType, name, state, err.Error())
+	}
 }
 
 func IPCServerNotifyTunnelsChange() {
