@@ -2,6 +2,5 @@
 *.swp
 *.bak
 *.syso
-.tmp
 .idea
-deps
+.deps
