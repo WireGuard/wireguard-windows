@@ -97,7 +97,7 @@ func RunUI() {
 		se.SetText(demoConfig)
 	}
 
-	cv, _ := syntax.NewConfView(mw)
+	cv, _ := NewConfView(mw)
 	cv.SetVisible(false)
 	cv.SetEnabled(false)
 
