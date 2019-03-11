@@ -6,7 +6,9 @@
 package service
 
 import (
+	"fmt"
 	"golang.org/x/sys/windows"
+	"golang.org/x/sys/windows/svc"
 	"golang.org/x/sys/windows/svc/mgr"
 	"golang.zx2c4.com/wireguard/windows/conf"
 	"runtime"
@@ -14,7 +16,7 @@ import (
 	"unsafe"
 )
 
-//sys notifyServiceStatusChange(service windows.Handle, notifyMask uint32, notifyBuffer uintptr) (err error) [failretval!=0] = advapi32.NotifyServiceStatusChangeW
+//sys notifyServiceStatusChange(service windows.Handle, notifyMask uint32, notifyBuffer uintptr) (status uint32) = advapi32.NotifyServiceStatusChangeW
 //sys sleepEx(milliseconds uint32, alertable bool) (ret uint32, err error) = kernel32.SleepEx
 
 const (
@@ -31,12 +33,9 @@ const (
 )
 const serviceNotify_STATUS_CHANGE uint32 = 2
 const errorServiceMARKED_FOR_DELETE uint32 = 1072
+const errorServiceNOTIFY_CLIENT_LAGGING uint32 = 1294
 
-type serviceNotify struct {
-	version                 uint32
-	notifyCallback          uintptr
-	context                 uintptr
-	notificationStatus      uint32
+type serviceStatus struct {
 	serviceType             uint32
 	currentState            uint32
 	controlsAccepted        uint32
@@ -46,18 +45,16 @@ type serviceNotify struct {
 	waitHint                uint32
 	processId               uint32
 	serviceFlags            uint32
-	notificationTriggered   uint32
-	serviceNames            *uint16
 }
 
-func serviceTrackerCallback(notifier *serviceNotify) uintptr {
-	return 0
-}
-
-var serviceTrackerCallbackPtr uintptr
-
-func init() {
-	serviceTrackerCallbackPtr = windows.NewCallback(serviceTrackerCallback)
+type serviceNotify struct {
+	version               uint32
+	notifyCallback        uintptr
+	context               uintptr
+	notificationStatus    uint32
+	serviceStatus         serviceStatus
+	notificationTriggered uint32
+	serviceNames          *uint16
 }
 
 func trackExistingTunnels() error {
@@ -83,54 +80,61 @@ func trackExistingTunnels() error {
 	return nil
 }
 
-func trackTunnelService(tunnelName string, svc *mgr.Service) {
+var serviceTrackerCallbackPtr = windows.NewCallback(func(notifier *serviceNotify) uintptr {
+	return 0
+})
+
+func trackTunnelService(tunnelName string, service *mgr.Service) {
 	runtime.LockOSThread()
-	const serviceNotifications = serviceNotify_RUNNING | serviceNotify_START_PENDING | serviceNotify_STOP_PENDING | serviceNotify_STOPPED | serviceNotify_DELETE_PENDING
+	const serviceNotifications = serviceNotify_RUNNING | serviceNotify_START_PENDING | serviceNotify_STOP_PENDING | serviceNotify_STOPPED
 	notifier := &serviceNotify{
 		version:        serviceNotify_STATUS_CHANGE,
 		notifyCallback: serviceTrackerCallbackPtr,
 	}
-	defer svc.Close()
+	defer service.Close()
 
-	// This hasStopped ugliness is because Windows 7 will send a STOP_PENDING after it has already sent a STOPPED
-	hasStopped := false
-
+	lastState := TunnelUnknown
 	for {
-		notifier.context = 0
-		err := notifyServiceStatusChange(svc.Handle, serviceNotifications, uintptr(unsafe.Pointer(notifier)))
-		if err != nil {
+		ret := notifyServiceStatusChange(service.Handle, serviceNotifications, uintptr(unsafe.Pointer(notifier)))
+		switch ret {
+		case 0:
+			sleepEx(windows.INFINITE, true)
+		case errorServiceMARKED_FOR_DELETE:
+			IPCServerNotifyTunnelChange(tunnelName, TunnelStopped, nil)
+			return
+		case errorServiceNOTIFY_CLIENT_LAGGING:
+			continue
+		default:
+			IPCServerNotifyTunnelChange(tunnelName, TunnelStopped, fmt.Errorf("Unable to continue monitoring service, so stopping: %v", syscall.Errno(ret)))
+			service.Control(svc.Stop)
 			return
 		}
-		sleepEx(windows.INFINITE, true)
-		if notifier.notificationStatus != 0 {
-			return
-		}
-		var tunnelError error
+
 		state := TunnelUnknown
-		if notifier.notificationTriggered&serviceNotify_DELETE_PENDING != 0 {
-			state = TunnelDeleting
-		} else if notifier.notificationTriggered&serviceNotify_STOPPED != 0 {
+		var tunnelError error
+		switch svc.State(notifier.serviceStatus.currentState) {
+		case svc.Stopped:
 			state = TunnelStopped
-			hasStopped = true
-			if notifier.win32ExitCode == uint32(windows.ERROR_SERVICE_SPECIFIC_ERROR) {
-				maybeErr := Error(notifier.serviceSpecificExitCode)
+			if notifier.serviceStatus.win32ExitCode == uint32(windows.ERROR_SERVICE_SPECIFIC_ERROR) {
+				maybeErr := Error(notifier.serviceStatus.serviceSpecificExitCode)
 				if maybeErr != ErrorSuccess {
 					tunnelError = maybeErr
 				}
-			} else if notifier.win32ExitCode != uint32(windows.NO_ERROR) {
-				tunnelError = syscall.Errno(notifier.win32ExitCode)
+			} else if notifier.serviceStatus.win32ExitCode != uint32(windows.NO_ERROR) {
+				tunnelError = syscall.Errno(notifier.serviceStatus.win32ExitCode)
 			}
-		} else if notifier.notificationTriggered&serviceNotify_STOP_PENDING != 0 && hasStopped {
+		case svc.StopPending:
 			state = TunnelStopping
-		} else if notifier.notificationTriggered&serviceNotify_RUNNING != 0 {
+		case svc.Running:
 			state = TunnelStarted
-			hasStopped = false
-		} else if notifier.notificationTriggered&serviceNotify_START_PENDING != 0 {
+		case svc.StartPending:
 			state = TunnelStarting
-			hasStopped = false
 		}
-		IPCServerNotifyTunnelChange(tunnelName, state, tunnelError)
-		if state == TunnelDeleting {
+		if state != lastState {
+			IPCServerNotifyTunnelChange(tunnelName, state, tunnelError)
+			lastState = state
+		}
+		if state == TunnelStopped {
 			return
 		}
 	}

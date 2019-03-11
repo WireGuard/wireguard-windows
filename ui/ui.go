@@ -230,7 +230,7 @@ func RunUI() {
 			pb.SetText("Stopping...")
 			pb.SetEnabled(false)
 			tray.SetToolTip("WireGuard: Deactivating...")
-		case service.TunnelStopped, service.TunnelDeleting:
+		case service.TunnelStopped:
 			showRunningView(false)
 			if runningTunnel != nil {
 				runningTunnel.Stop()

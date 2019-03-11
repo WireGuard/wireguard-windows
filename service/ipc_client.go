@@ -25,7 +25,6 @@ const (
 	TunnelStopped
 	TunnelStarting
 	TunnelStopping
-	TunnelDeleting
 )
 
 type NotificationType int
