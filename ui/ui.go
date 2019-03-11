@@ -128,7 +128,6 @@ func RunUI() {
 		if on {
 			updateConfView()
 		}
-		mw.Invalidate()
 	}
 
 	pb, _ := walk.NewPushButton(mw)
@@ -145,9 +144,12 @@ func RunUI() {
 				pb.SetText(pbT)
 			}
 		}()
+
+		mw.SetSuspended(true)
 		pb.SetEnabled(false)
 		se.SetEnabled(false)
 		pb.SetText("Requesting..")
+		mw.SetSuspended(false)
 		if runningTunnel != nil {
 			err := runningTunnel.Stop()
 			if err != nil {
@@ -202,6 +204,7 @@ func RunUI() {
 		if tunnel.Name != "test" {
 			return
 		}
+		mw.SetSuspended(true)
 		//TODO: also set tray icon to reflect state
 		switch state {
 		case service.TunnelStarting:
@@ -241,6 +244,7 @@ func RunUI() {
 				tray.ShowInfo("WireGuard Deactivated", fmt.Sprintf("The %s tunnel has been deactivated.", tunnel.Name))
 			}
 		}
+		mw.SetSuspended(false)
 	}
 	service.IPCClientRegisterTunnelChange(func(tunnel *service.Tunnel, state service.TunnelState, err error) {
 		setServiceState(tunnel, state, err == nil)
