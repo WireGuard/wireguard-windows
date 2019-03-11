@@ -1600,6 +1600,7 @@ var (
 	animateWindow              *windows.LazyProc
 	beginDeferWindowPos        *windows.LazyProc
 	beginPaint                 *windows.LazyProc
+	bringWindowToTop           *windows.LazyProc
 	callWindowProc             *windows.LazyProc
 	checkMenuRadioItem         *windows.LazyProc
 	clientToScreen             *windows.LazyProc
@@ -1726,6 +1727,7 @@ func init() {
 	animateWindow = libuser32.NewProc("AnimateWindow")
 	beginDeferWindowPos = libuser32.NewProc("BeginDeferWindowPos")
 	beginPaint = libuser32.NewProc("BeginPaint")
+	bringWindowToTop = libuser32.NewProc("BringWindowToTop")
 	callWindowProc = libuser32.NewProc("CallWindowProcW")
 	checkMenuRadioItem = libuser32.NewProc("CheckMenuRadioItem")
 	clientToScreen = libuser32.NewProc("ClientToScreen")
@@ -1897,6 +1899,14 @@ func BeginPaint(hwnd HWND, lpPaint *PAINTSTRUCT) HDC {
 		0)
 
 	return HDC(ret)
+}
+
+func BringWindowToTop(hwnd HWND) bool {
+	ret, _, _ := syscall.Syscall(bringWindowToTop.Addr(), 1,
+		uintptr(hwnd),
+		0,
+		0)
+	return ret != 0
 }
 
 func CallWindowProc(lpPrevWndFunc uintptr, hWnd HWND, Msg uint32, wParam, lParam uintptr) uintptr {
