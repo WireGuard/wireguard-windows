@@ -90,15 +90,9 @@ func createWellKnownSid(sidType wellKnownSidType, domainSid *windows.SID, sid *w
 	return
 }
 
-func notifyServiceStatusChange(service windows.Handle, notifyMask uint32, notifyBuffer uintptr) (err error) {
-	r1, _, e1 := syscall.Syscall(procNotifyServiceStatusChangeW.Addr(), 3, uintptr(service), uintptr(notifyMask), uintptr(notifyBuffer))
-	if r1 != 0 {
-		if e1 != 0 {
-			err = errnoErr(e1)
-		} else {
-			err = syscall.EINVAL
-		}
-	}
+func notifyServiceStatusChange(service windows.Handle, notifyMask uint32, notifyBuffer uintptr) (status uint32) {
+	r0, _, _ := syscall.Syscall(procNotifyServiceStatusChangeW.Addr(), 3, uintptr(service), uintptr(notifyMask), uintptr(notifyBuffer))
+	status = uint32(r0)
 	return
 }
 

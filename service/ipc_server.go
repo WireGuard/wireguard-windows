@@ -248,10 +248,8 @@ func notifyAll(notificationType NotificationType, ifaces ...interface{}) {
 
 	managerServicesLock.RLock()
 	for m := range managerServices {
-		go func() {
-			m.events.SetWriteDeadline(time.Now().Add(time.Second))
-			m.events.Write(buf.Bytes())
-		}()
+		m.events.SetWriteDeadline(time.Now().Add(time.Second))
+		m.events.Write(buf.Bytes())
 	}
 	managerServicesLock.RUnlock()
 }
