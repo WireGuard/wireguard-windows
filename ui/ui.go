@@ -165,6 +165,7 @@ func RunUI() {
 			walk.MsgBox(mw, "Invalid configuration", err.Error(), walk.MsgBoxIconError)
 			return
 		}
+		cv.SetConfiguration(c)
 		tunnel, err := service.IPCClientNewTunnel(c)
 		if err != nil {
 			walk.MsgBox(mw, "Unable to create tunnel", err.Error(), walk.MsgBoxIconError)
