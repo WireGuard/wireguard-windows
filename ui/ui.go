@@ -157,7 +157,6 @@ func RunUI() {
 				return
 			}
 			restoreState = false
-			runningTunnel = nil
 			return
 		}
 		c, err := conf.FromWgQuick(se.Text(), "test")
@@ -177,7 +176,6 @@ func RunUI() {
 			return
 		}
 		restoreState = false
-		runningTunnel = &tunnel
 	})
 
 	quitAction := walk.NewAction()
@@ -209,12 +207,14 @@ func RunUI() {
 		//TODO: also set tray icon to reflect state
 		switch state {
 		case service.TunnelStarting:
+			runningTunnel = tunnel
 			showRunningView(false)
 			se.SetEnabled(false)
 			pb.SetText("Starting...")
 			pb.SetEnabled(false)
 			tray.SetToolTip("WireGuard: Activating...")
 		case service.TunnelStarted:
+			runningTunnel = tunnel
 			showRunningView(true)
 			se.SetEnabled(false)
 			pb.SetText("Stop")
@@ -225,6 +225,7 @@ func RunUI() {
 				tray.ShowInfo("WireGuard Activated", fmt.Sprintf("The %s tunnel has been activated.", tunnel.Name))
 			}
 		case service.TunnelStopping:
+			runningTunnel = tunnel
 			showRunningView(false)
 			se.SetEnabled(false)
 			pb.SetText("Stopping...")
@@ -232,18 +233,15 @@ func RunUI() {
 			tray.SetToolTip("WireGuard: Deactivating...")
 		case service.TunnelStopped:
 			showRunningView(false)
-			if runningTunnel != nil {
-				runningTunnel.Stop()
-				runningTunnel = nil
-			}
 			se.SetEnabled(true)
 			pb.SetText("Start")
 			pb.SetEnabled(true)
 			tray.SetToolTip("WireGuard: Deactivated")
-			if showNotifications {
+			if showNotifications && runningTunnel != nil {
 				//TODO: ShowCustom with right icon
 				tray.ShowInfo("WireGuard Deactivated", fmt.Sprintf("The %s tunnel has been deactivated.", tunnel.Name))
 			}
+			runningTunnel = nil
 		}
 		mw.SetSuspended(false)
 	}
@@ -267,8 +265,10 @@ func RunUI() {
 			if err != nil {
 				continue
 			}
-			runningTunnel = &tunnel
-			setServiceState(&tunnel, state, false)
+			if tunnel.Name == "test" && state != service.TunnelStopped {
+				runningTunnel = &tunnel
+				setServiceState(&tunnel, state, false)
+			}
 		}
 	}()
 
