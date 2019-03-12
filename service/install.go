@@ -65,7 +65,7 @@ func InstallManager() error {
 				break
 			}
 			service.Close()
-			time.Sleep(time.Second)
+			time.Sleep(time.Second / 3)
 		}
 	}
 
@@ -163,8 +163,9 @@ func InstallTunnel(configPath string) error {
 	if err != nil {
 		return err
 	}
-	go trackTunnelService(name, service)
-	return service.Start()
+	err = service.Start()
+	go trackTunnelService(name, service) // Pass off reference to handle.
+	return err
 }
 
 func UninstallTunnel(name string) error {
