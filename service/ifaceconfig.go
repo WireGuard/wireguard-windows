@@ -9,9 +9,9 @@ import (
 	"bytes"
 	"encoding/binary"
 	"errors"
-	"golang.org/x/sys/windows"
 	"golang.zx2c4.com/winipcfg"
 	"golang.zx2c4.com/wireguard/device"
+	"golang.zx2c4.com/wireguard/tun"
 	"golang.zx2c4.com/wireguard/windows/conf"
 	"net"
 	"sort"
@@ -59,8 +59,9 @@ func bindSocketRoute(family winipcfg.AddressFamily, device *device.Device, ourLu
 	return nil
 }
 
-func monitorDefaultRoutes(device *device.Device, autoMTU bool, guid *windows.GUID) (*winipcfg.RouteChangeCallback, error) {
-	ourLuid, err := winipcfg.InterfaceGuidToLuid(guid)
+func monitorDefaultRoutes(device *device.Device, autoMTU bool, tun *tun.NativeTun) (*winipcfg.RouteChangeCallback, error) {
+	guid := tun.GUID()
+	ourLuid, err := winipcfg.InterfaceGuidToLuid(&guid)
 	lastLuid4 := uint64(0)
 	lastLuid6 := uint64(0)
 	lastMtu := uint32(0)
@@ -99,7 +100,6 @@ func monitorDefaultRoutes(device *device.Device, autoMTU bool, guid *windows.GUI
 			}
 		}
 		if mtu > 0 && (lastMtu == 0 || lastMtu != mtu) {
-			//TODO: makesure wireguard-go knows about all MTU changes
 			iface, err := winipcfg.GetIpInterface(ourLuid, winipcfg.AF_INET)
 			if err != nil {
 				return err
@@ -112,6 +112,7 @@ func monitorDefaultRoutes(device *device.Device, autoMTU bool, guid *windows.GUI
 			if err != nil {
 				return err
 			}
+			tun.ForceMtu(int(iface.NlMtu)) //TODO: it sort of breaks the model with v6 mtu and v4 mtu being different. Just set v4 one for now.
 			iface, err = winipcfg.GetIpInterface(ourLuid, winipcfg.AF_INET6)
 			if err != nil {
 				return err
@@ -143,8 +144,9 @@ func monitorDefaultRoutes(device *device.Device, autoMTU bool, guid *windows.GUI
 	return cb, nil
 }
 
-func configureInterface(conf *conf.Config, guid *windows.GUID) error {
-	iface, err := winipcfg.InterfaceFromGUID(guid)
+func configureInterface(conf *conf.Config, tun *tun.NativeTun) error {
+	guid := tun.GUID()
+	iface, err := winipcfg.InterfaceFromGUID(&guid)
 	if err != nil {
 		return err
 	}
@@ -248,6 +250,7 @@ func configureInterface(conf *conf.Config, guid *windows.GUID) error {
 	}
 	if conf.Interface.Mtu > 0 {
 		ipif.NlMtu = uint32(conf.Interface.Mtu)
+		tun.ForceMtu(int(ipif.NlMtu))
 	}
 	err = ipif.Set()
 	if err != nil {
