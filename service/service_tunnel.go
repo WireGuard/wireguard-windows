@@ -156,15 +156,15 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 		return
 	}
 
-	guid := wintun.(*tun.NativeTun).GUID()
+	nativeTun := wintun.(*tun.NativeTun)
 
-	routeChangeCallback, err = monitorDefaultRoutes(dev, conf.Interface.Mtu == 0, &guid)
+	routeChangeCallback, err = monitorDefaultRoutes(dev, conf.Interface.Mtu == 0, nativeTun)
 	if err != nil {
 		serviceError = ErrorBindSocketsToDefaultRoutes
 		return
 	}
 
-	err = configureInterface(conf, &guid)
+	err = configureInterface(conf, nativeTun)
 	if err != nil {
 		serviceError = ErrorSetNetConfig
 		return
