@@ -4,7 +4,7 @@
     <!-- TODO: uninstall before installing -->
     <Package InstallerVersion="200" Compressed="yes" Platform="x64" InstallScope="perMachine" Description="WireGuard: Fast, Modern, Secure VPN Tunnel" ReadOnly="yes" />
 
-    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." AllowDowngrades="no" IgnoreRemoveFailure="no" />
+    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." AllowDowngrades="no" IgnoreRemoveFailure="no" AllowSameVersionUpgrades="yes" />
     <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
 
     <Icon Id="icon.ico" SourceFile="..\ui\icon\icon.ico" />
