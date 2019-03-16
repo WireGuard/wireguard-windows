@@ -44,7 +44,6 @@ var (
 	procWTSQueryUserToken          = modwtsapi32.NewProc("WTSQueryUserToken")
 	procWTSEnumerateSessionsW      = modwtsapi32.NewProc("WTSEnumerateSessionsW")
 	procWTSFreeMemory              = modwtsapi32.NewProc("WTSFreeMemory")
-	procCreateWellKnownSid         = modadvapi32.NewProc("CreateWellKnownSid")
 	procNotifyServiceStatusChangeW = modadvapi32.NewProc("NotifyServiceStatusChangeW")
 	procSleepEx                    = modkernel32.NewProc("SleepEx")
 )
@@ -75,18 +74,6 @@ func wtsEnumerateSessions(handle windows.Handle, reserved uint32, version uint32
 
 func wtsFreeMemory(ptr uintptr) {
 	syscall.Syscall(procWTSFreeMemory.Addr(), 1, uintptr(ptr), 0, 0)
-	return
-}
-
-func createWellKnownSid(sidType wellKnownSidType, domainSid *windows.SID, sid *windows.SID, sizeSid *uint32) (err error) {
-	r1, _, e1 := syscall.Syscall6(procCreateWellKnownSid.Addr(), 4, uintptr(sidType), uintptr(unsafe.Pointer(domainSid)), uintptr(unsafe.Pointer(sid)), uintptr(unsafe.Pointer(sizeSid)), 0, 0)
-	if r1 == 0 {
-		if e1 != 0 {
-			err = errnoErr(e1)
-		} else {
-			err = syscall.EINVAL
-		}
-	}
 	return
 }
 

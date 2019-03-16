@@ -53,33 +53,9 @@ type wtsSessionInfo struct {
 
 type wellKnownSidType uint32
 
-const (
-	winBuiltinAdministratorsSid wellKnownSidType = 26
-)
-
 //sys wtfQueryUserToken(session uint32, token *windows.Token) (err error) = wtsapi32.WTSQueryUserToken
 //sys wtsEnumerateSessions(handle windows.Handle, reserved uint32, version uint32, sessions **wtsSessionInfo, count *uint32) (err error) = wtsapi32.WTSEnumerateSessionsW
 //sys wtsFreeMemory(ptr uintptr) = wtsapi32.WTSFreeMemory
-//sys createWellKnownSid(sidType wellKnownSidType, domainSid *windows.SID, sid *windows.SID, sizeSid *uint32) (err error) = advapi32.CreateWellKnownSid
-
-//TODO: Upstream this to x/sys/windows
-func localWellKnownSid(sidType wellKnownSidType) (*windows.SID, error) {
-	n := uint32(50)
-	for {
-		b := make([]byte, n)
-		sid := (*windows.SID)(unsafe.Pointer(&b[0]))
-		err := createWellKnownSid(sidType, nil, sid, &n)
-		if err == nil {
-			return sid, nil
-		}
-		if err != windows.ERROR_INSUFFICIENT_BUFFER {
-			return nil, err
-		}
-		if n <= uint32(len(b)) {
-			return nil, err
-		}
-	}
-}
 
 type managerService struct{}
 
@@ -135,7 +111,7 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 		return
 	}
 
-	adminSid, err := localWellKnownSid(winBuiltinAdministratorsSid)
+	adminSid, err := windows.CreateWellKnownSid(windows.WinBuiltinAdministratorsSid)
 	if err != nil {
 		serviceError = ErrorFindAdministratorsSID
 		return
