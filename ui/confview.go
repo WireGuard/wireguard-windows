@@ -89,7 +89,7 @@ func newInterfaceView(parent walk.Container) *interfaceView {
 		newLabelTextLine("Listen port", parent),
 		newLabelTextLine("MTU", parent),
 		newLabelTextLine("Addresses", parent),
-		newLabelTextLine("DNS", parent),
+		newLabelTextLine("DNS servers", parent),
 	}
 	layoutInGrid(iv, parent.Layout().(*walk.GridLayout))
 	return iv
