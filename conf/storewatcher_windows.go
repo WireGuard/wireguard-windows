@@ -32,7 +32,7 @@ func startWatchingConfigDir() {
 	}
 	haveStartedWatchingConfigDir = true
 	go func() {
-		configFileDir, err := resolveConfigFileDir()
+		configFileDir, err := tunnelConfigurationsDirectory()
 		if err != nil {
 			return
 		}

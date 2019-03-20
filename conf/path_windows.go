@@ -20,10 +20,28 @@ var folderIDLocalAppData = windows.GUID{0xf1b32785, 0x6fba, 0x4fcf, [8]byte{0x9d
 const kfFlagCreate = 0x00008000
 
 var cachedConfigFileDir string
+var cachedRootDir string
 
-func resolveConfigFileDir() (string, error) {
+func tunnelConfigurationsDirectory() (string, error) {
 	if cachedConfigFileDir != "" {
 		return cachedConfigFileDir, nil
+	}
+	root, err := RootDirectory()
+	if err != nil {
+		return "", err
+	}
+	c := filepath.Join(root, "Configurations")
+	err = os.MkdirAll(c, os.ModeDir|0700)
+	if err != nil {
+		return "", err
+	}
+	cachedConfigFileDir = c
+	return cachedConfigFileDir, nil
+}
+
+func RootDirectory() (string, error) {
+	if cachedRootDir != "" {
+		return cachedRootDir, nil
 	}
 	processToken, err := windows.OpenCurrentProcessToken()
 	if err != nil {
@@ -40,11 +58,11 @@ func resolveConfigFileDir() (string, error) {
 	if len(root) == 0 {
 		return "", errors.New("Unable to determine configuration directory")
 	}
-	c := filepath.Join(root, "WireGuard", "Configurations")
+	c := filepath.Join(root, "WireGuard")
 	err = os.MkdirAll(c, os.ModeDir|0700)
 	if err != nil {
 		return "", err
 	}
-	cachedConfigFileDir = c
-	return cachedConfigFileDir, nil
+	cachedRootDir = c
+	return cachedRootDir, nil
 }

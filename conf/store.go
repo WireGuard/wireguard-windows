@@ -18,7 +18,7 @@ const configFileSuffix = ".conf.dpapi"
 const configFileUnencryptedSuffix = ".conf"
 
 func ListConfigNames() ([]string, error) {
-	configFileDir, err := resolveConfigFileDir()
+	configFileDir, err := tunnelConfigurationsDirectory()
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +47,7 @@ func ListConfigNames() ([]string, error) {
 }
 
 func MigrateUnencryptedConfigs() (int, []error) {
-	configFileDir, err := resolveConfigFileDir()
+	configFileDir, err := tunnelConfigurationsDirectory()
 	if err != nil {
 		return 0, []error{err}
 	}
@@ -120,7 +120,7 @@ func MigrateUnencryptedConfigs() (int, []error) {
 }
 
 func LoadFromName(name string) (*Config, error) {
-	configFileDir, err := resolveConfigFileDir()
+	configFileDir, err := tunnelConfigurationsDirectory()
 	if err != nil {
 		return nil, err
 	}
@@ -166,7 +166,7 @@ func (config *Config) Save() error {
 	if !TunnelNameIsValid(config.Name) {
 		return errors.New("Tunnel name is not valid")
 	}
-	configFileDir, err := resolveConfigFileDir()
+	configFileDir, err := tunnelConfigurationsDirectory()
 	if err != nil {
 		return err
 	}
@@ -192,7 +192,7 @@ func (config *Config) Path() (string, error) {
 	if !TunnelNameIsValid(config.Name) {
 		return "", errors.New("Tunnel name is not valid")
 	}
-	configFileDir, err := resolveConfigFileDir()
+	configFileDir, err := tunnelConfigurationsDirectory()
 	if err != nil {
 		return "", err
 	}
@@ -203,7 +203,7 @@ func DeleteName(name string) error {
 	if !TunnelNameIsValid(name) {
 		return errors.New("Tunnel name is not valid")
 	}
-	configFileDir, err := resolveConfigFileDir()
+	configFileDir, err := tunnelConfigurationsDirectory()
 	if err != nil {
 		return err
 	}
