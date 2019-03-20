@@ -10,6 +10,7 @@ import (
 	"github.com/lxn/walk"
 	"github.com/lxn/win"
 	"golang.zx2c4.com/wireguard/windows/conf"
+	"golang.zx2c4.com/wireguard/windows/ringlogger"
 	"golang.zx2c4.com/wireguard/windows/service"
 	"golang.zx2c4.com/wireguard/windows/ui/syntax"
 	"os"
@@ -54,7 +55,7 @@ func RunUI() {
 	tray.SetToolTip("WireGuard: Deactivated")
 	tray.SetVisible(true)
 
-	mw.SetSize(walk.Size{900, 800})
+	mw.SetSize(walk.Size{900, 1400})
 	mw.SetLayout(walk.NewVBoxLayout())
 	mw.SetIcon(icon)
 	mw.Closing().Attach(func(canceled *bool, reason walk.CloseReason) {
@@ -178,6 +179,17 @@ func RunUI() {
 		restoreState = false
 	})
 
+	logfile, err := service.IPCClientLogFilePath()
+	var logger *ringlogger.Ringlogger
+	if err == nil {
+		logger, err = ringlogger.NewRinglogger(logfile, "GUI")
+	}
+	if err != nil {
+		walk.MsgBox(nil, "Unable to initialize logging", fmt.Sprintf("%v\n\nFile: %s", err, logfile), walk.MsgBoxIconError)
+		return
+	}
+	NewLogView(mw, logger)
+
 	quitAction := walk.NewAction()
 	quitAction.SetText("Exit")
 	quit = func() {
@@ -249,7 +261,7 @@ func RunUI() {
 		setServiceState(tunnel, state, err == nil)
 		if err != nil {
 			if mw.Visible() {
-				walk.MsgBox(mw, "Tunnel Error", err.Error()+"\n\nPlease consult the Windows Event Log for more information.", walk.MsgBoxIconWarning)
+				walk.MsgBox(mw, "Tunnel Error", err.Error()+"\n\nPlease consult the log for more information.", walk.MsgBoxIconWarning)
 			} else {
 				tray.ShowError("WireGuard Tunnel Error", err.Error())
 			}
