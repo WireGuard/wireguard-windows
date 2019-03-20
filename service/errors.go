@@ -15,7 +15,7 @@ type Error uint32
 
 const (
 	ErrorSuccess Error = iota
-	ErrorEventlogOpen
+	ErrorRingloggerOpen
 	ErrorLoadConfiguration
 	ErrorCreateWintun
 	ErrorDetermineWintunName
@@ -36,8 +36,8 @@ func (e Error) Error() string {
 	switch e {
 	case ErrorSuccess:
 		return "No error."
-	case ErrorEventlogOpen:
-		return "Unable to open Windows event log."
+	case ErrorRingloggerOpen:
+		return "Unable to open log file."
 	case ErrorDetermineExecutablePath:
 		return "Unable to determine path of running executable."
 	case ErrorLoadConfiguration:

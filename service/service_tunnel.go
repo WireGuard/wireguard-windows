@@ -9,35 +9,17 @@ import (
 	"bufio"
 	"fmt"
 	"golang.org/x/sys/windows/svc"
-	"golang.org/x/sys/windows/svc/eventlog"
 	"golang.zx2c4.com/winipcfg"
 	"golang.zx2c4.com/wireguard/device"
 	"golang.zx2c4.com/wireguard/ipc"
 	"golang.zx2c4.com/wireguard/tun"
 	"golang.zx2c4.com/wireguard/windows/conf"
+	"golang.zx2c4.com/wireguard/windows/ringlogger"
 	"log"
 	"net"
 	"runtime/debug"
 	"strings"
 )
-
-type confElogger struct {
-	elog  *eventlog.Log
-	conf  *conf.Config
-	level int
-}
-
-func (elog confElogger) Write(p []byte) (n int, err error) {
-	msg := elog.conf.Name + ": " + string(p)
-	n = len(msg)
-	switch elog.level {
-	case 1, 2:
-		err = elog.elog.Info(1, msg)
-	case 3:
-		err = elog.elog.Error(1, msg)
-	}
-	return
-}
 
 type tunnelService struct {
 	path string
@@ -49,7 +31,6 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 	var dev *device.Device
 	var uapi net.Listener
 	var routeChangeCallback *winipcfg.RouteChangeCallback
-	var elog *eventlog.Log
 	var logger *device.Logger
 	var err error
 	serviceError := ErrorSuccess
@@ -59,11 +40,9 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 		logErr := combineErrors(err, serviceError)
 		if logErr != nil {
 			if logger != nil {
-				logger.Error.Println(logErr.Error())
-			} else if elog != nil {
-				elog.Error(1, logErr.Error())
+				logger.Error.Print(logErr)
 			} else {
-				fmt.Println(logErr.Error())
+				log.Print(logErr)
 			}
 		}
 		changes <- svc.Status{State: svc.StopPending}
@@ -76,22 +55,17 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 		if dev != nil {
 			dev.Close()
 		}
-		if elog != nil {
-			elog.Info(1, "Shutting down")
-		}
+		log.Print("Shutting down")
 	}()
 
-	//TODO: remember to clean this up in the msi uninstaller
-	eventlog.InstallAsEventCreate("WireGuard", eventlog.Info|eventlog.Warning|eventlog.Error)
-	elog, err = eventlog.Open("WireGuard")
+	err = ringlogger.InitGlobalLogger("TUN")
 	if err != nil {
-		serviceError = ErrorEventlogOpen
+		serviceError = ErrorRingloggerOpen
 		return
 	}
-	log.SetOutput(elogger{elog})
 	defer func() {
 		if x := recover(); x != nil {
-			elog.Error(1, fmt.Sprintf("%v:\n%s", x, string(debug.Stack())))
+			log.Printf("%v:\n%s", x, string(debug.Stack()))
 			panic(x)
 		}
 	}()
@@ -102,11 +76,8 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 		return
 	}
 
-	logger = &device.Logger{
-		Debug: log.New(&confElogger{elog: elog, conf: conf, level: 1}, "", 0),
-		Info:  log.New(&confElogger{elog: elog, conf: conf, level: 2}, "", 0),
-		Error: log.New(&confElogger{elog: elog, conf: conf, level: 3}, "", 0),
-	}
+	stdLog := log.New(ringlogger.Global, fmt.Sprintf("[%s] ", conf.Name), 0)
+	logger = &device.Logger{stdLog, stdLog, stdLog}
 
 	logger.Info.Println("Starting wireguard-go version", device.WireGuardGoVersion)
 	logger.Debug.Println("Debug log enabled")
