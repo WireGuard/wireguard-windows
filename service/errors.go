@@ -35,39 +35,39 @@ const (
 func (e Error) Error() string {
 	switch e {
 	case ErrorSuccess:
-		return "No error."
+		return "No error"
 	case ErrorRingloggerOpen:
-		return "Unable to open log file."
+		return "Unable to open log file"
 	case ErrorDetermineExecutablePath:
-		return "Unable to determine path of running executable."
+		return "Unable to determine path of running executable"
 	case ErrorLoadConfiguration:
-		return "Unable to load configuration from path."
+		return "Unable to load configuration from path"
 	case ErrorCreateWintun:
-		return "Unable to create Wintun device."
+		return "Unable to create Wintun device"
 	case ErrorDetermineWintunName:
-		return "Unable to determine Wintun name."
+		return "Unable to determine Wintun name"
 	case ErrorUAPIListen:
-		return "Unable to listen on named pipe."
+		return "Unable to listen on named pipe"
 	case ErrorUAPISerialization:
-		return "Unable to serialize configuration into uapi form."
+		return "Unable to serialize configuration into uapi form"
 	case ErrorDeviceSetConfig:
-		return "Unable to set device configuration."
+		return "Unable to set device configuration"
 	case ErrorBindSocketsToDefaultRoutes:
-		return "Unable to bind sockets to default route."
+		return "Unable to bind sockets to default route"
 	case ErrorSetNetConfig:
-		return "Unable to set interface addresses, routes, dns, and/or adapter settings."
+		return "Unable to set interface addresses, routes, dns, and/or adapter settings"
 	case ErrorFindAdministratorsSID:
-		return "Unable to find Administrators SID."
+		return "Unable to find Administrators SID"
 	case ErrorOpenNULFile:
-		return "Unable to open NUL file."
+		return "Unable to open NUL file"
 	case ErrorTrackTunnels:
-		return "Unable to track existing tunnels."
+		return "Unable to track existing tunnels"
 	case ErrorEnumerateSessions:
-		return "Unable to enumerate current sessions."
+		return "Unable to enumerate current sessions"
 	case ErrorWin32:
-		return "An internal Windows error has occurred."
+		return "An internal Windows error has occurred"
 	default:
-		return "An unknown error has occurred."
+		return "An unknown error has occurred"
 	}
 }
 

@@ -261,7 +261,11 @@ func RunUI() {
 		setServiceState(tunnel, state, err == nil)
 		if err != nil {
 			if mw.Visible() {
-				walk.MsgBox(mw, "Tunnel Error", err.Error()+"\n\nPlease consult the log for more information.", walk.MsgBoxIconWarning)
+				errMsg := err.Error()
+				if len(errMsg) > 0 && errMsg[len(errMsg)-1] != '.' {
+					errMsg += "."
+				}
+				walk.MsgBox(mw, "Tunnel Error", errMsg+"\n\nPlease consult the log for more information.", walk.MsgBoxIconWarning)
 			} else {
 				tray.ShowError("WireGuard Tunnel Error", err.Error())
 			}
