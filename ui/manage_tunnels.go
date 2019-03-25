@@ -46,7 +46,7 @@ func NewManageTunnelsWindow(icon *walk.Icon) (*ManageTunnelsWindow, error) {
 func (mtw *ManageTunnelsWindow) setup() error {
 	mtw.SetIcon(mtw.icon)
 	mtw.SetSize(walk.Size{900, 600})
-	mtw.SetLayout(walk.NewHBoxLayout())
+	mtw.SetLayout(walk.NewVBoxLayout())
 	mtw.Closing().Attach(func(canceled *bool, reason walk.CloseReason) {
 		// "Close to tray" instead of exiting application
 		onQuit()
