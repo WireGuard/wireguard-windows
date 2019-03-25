@@ -214,7 +214,7 @@ func newPaddedGroupGrid(parent walk.Container) (group *walk.GroupBox, err error)
 	if err != nil {
 		return nil, err
 	}
-	spacer, err := walk.NewHSpacerFixed(group, 10)
+	spacer, err := walk.NewSpacerWithCfg(group, &walk.SpacerCfg{walk.GrowableHorz | walk.GreedyHorz, walk.Size{10, 0}, false})
 	if err != nil {
 		return nil, err
 	}
