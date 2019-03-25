@@ -7,14 +7,15 @@ package ui
 
 import (
 	"fmt"
-	"github.com/lxn/walk"
-	"github.com/lxn/win"
-	"golang.org/x/sys/windows"
-	"golang.zx2c4.com/wireguard/windows/conf"
 	"reflect"
 	"strconv"
 	"strings"
 	"unsafe"
+
+	"github.com/lxn/walk"
+	"github.com/lxn/win"
+	"golang.org/x/sys/windows"
+	"golang.zx2c4.com/wireguard/windows/conf"
 )
 
 type labelTextLine struct {
@@ -267,7 +268,6 @@ func (cv *ConfView) setConfiguration(c *conf.Config) {
 	defer func() {
 		if hasSuspended {
 			cv.SetSuspended(false)
-			cv.SendMessage(win.WM_SIZING, 0, 0) //TODO: FILTHY HACK! And doesn't work when items disappear.
 		}
 	}()
 	title := "Interface: " + c.Name
