@@ -298,3 +298,14 @@ func onQuit() {
 		os.Exit(1)
 	}
 }
+
+const aboutText = `
+WireGuard
+TODO.
+
+Copyright (C) 2019 WireGuard LLC. All Rights Reserved.
+`
+
+func onAbout() {
+	walk.MsgBox(nil, "About WireGuard", aboutText, walk.MsgBoxOK)
+}
