@@ -53,6 +53,10 @@ func (mtw *ManageTunnelsWindow) setup() error {
 	})
 
 	splitter, _ := walk.NewHSplitter(mtw)
+	splitter.SetSuspended(true)
+	defer func() {
+		splitter.SetSuspended(false)
+	}()
 
 	tunnelsContainer, _ := walk.NewComposite(splitter)
 	tunnelsContainer.SetLayout(walk.NewVBoxLayout())
