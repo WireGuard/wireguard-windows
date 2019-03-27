@@ -46,7 +46,6 @@ type ConfView struct {
 	name      *walk.GroupBox
 	interfaze *interfaceView
 	peers     map[conf.Key]*peerView
-	spacer    *walk.Spacer
 
 	originalWndProc uintptr
 	creatingThread  uint32
@@ -230,7 +229,6 @@ func NewConfView(parent walk.Container) (*ConfView, error) {
 	cv.name, _ = newPaddedGroupGrid(cv)
 	cv.interfaze = newInterfaceView(cv.name)
 	cv.peers = make(map[conf.Key]*peerView)
-	cv.spacer, _ = walk.NewVSpacer(cv)
 	cv.creatingThread = windows.GetCurrentThreadId()
 	win.SetWindowLongPtr(cv.Handle(), win.GWLP_USERDATA, uintptr(unsafe.Pointer(cv)))
 	cv.originalWndProc = win.SetWindowLongPtr(cv.Handle(), win.GWL_WNDPROC, crossThreadMessageHijack)
@@ -279,13 +277,11 @@ func (cv *ConfView) setConfiguration(c *conf.Config) {
 	for _, pv := range cv.peers {
 		inverse[pv] = true
 	}
-	didAddPeer := false
 	for _, peer := range c.Peers {
 		if pv := cv.peers[peer.PublicKey]; pv != nil {
 			pv.apply(&peer)
 			inverse[pv] = false
 		} else {
-			didAddPeer = true
 			suspend()
 			group, _ := newPaddedGroupGrid(cv)
 			group.SetTitle("Peer")
@@ -307,9 +303,5 @@ func (cv *ConfView) setConfiguration(c *conf.Config) {
 		groupBox := pv.publicKey.label.Parent().AsContainerBase().Parent().(*walk.GroupBox)
 		groupBox.Parent().Children().Remove(groupBox)
 		groupBox.Dispose()
-	}
-	if didAddPeer {
-		cv.Children().Remove(cv.spacer)
-		cv.Children().Add(cv.spacer)
 	}
 }
