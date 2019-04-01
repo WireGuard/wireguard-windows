@@ -97,8 +97,8 @@ func (mtw *ManageTunnelsWindow) setup() error {
 		addMenuAction, _ := tunnelsToolBar.Actions().AddMenu(addMenu)
 		addMenuAction.SetText("Add")
 
-		// TODO: Doesn't get added to the toolbar?
 		deleteAction := walk.NewAction()
+		tunnelsToolBar.Actions().Add(deleteAction)
 		deleteAction.SetText("Delete")
 		deleteAction.Triggered().Attach(mtw.onDelete)
 
