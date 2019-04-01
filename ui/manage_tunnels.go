@@ -61,11 +61,18 @@ func (mtw *ManageTunnelsWindow) setup() error {
 	tunnelsContainer, _ := walk.NewComposite(splitter)
 	tunnelsContainer.SetLayout(walk.NewVBoxLayout())
 
+	mtw.tunnelsView, _ = NewTunnelsView(tunnelsContainer)
+	mtw.tunnelsView.ItemActivated().Attach(mtw.onEditTunnel)
+	mtw.tunnelsView.CurrentIndexChanged().Attach(mtw.updateConfView)
+
 	// ToolBar actions
 	{
-		// TODO: Currently hijacking the window ToolBar,
-		// Adding the toolbar to the bottom of the control may be better
-		tunnelsToolBar := mtw.ToolBar()
+		// HACK: Because of https://github.com/lxn/walk/issues/481
+		// we need to put the ToolBar into its own Composite.
+		toolBarContainer, _ := walk.NewComposite(tunnelsContainer)
+		toolBarContainer.SetLayout(walk.NewHBoxLayout())
+
+		tunnelsToolBar, _ := walk.NewToolBar(toolBarContainer)
 
 		importAction := walk.NewAction()
 		importAction.SetText("Import tunnels from file...")
@@ -101,10 +108,6 @@ func (mtw *ManageTunnelsWindow) setup() error {
 		settingsMenuAction, _ := tunnelsToolBar.Actions().AddMenu(settingsMenu)
 		settingsMenuAction.SetText("Export")
 	}
-
-	mtw.tunnelsView, _ = NewTunnelsView(tunnelsContainer)
-	mtw.tunnelsView.ItemActivated().Attach(mtw.onEditTunnel)
-	mtw.tunnelsView.CurrentIndexChanged().Attach(mtw.updateConfView)
 
 	currentTunnelContainer, _ := walk.NewComposite(splitter)
 	currentTunnelContainer.SetLayout(walk.NewVBoxLayout())
