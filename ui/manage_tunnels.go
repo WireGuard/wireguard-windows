@@ -139,8 +139,11 @@ func (mtw *ManageTunnelsWindow) setup() error {
 
 	walk.NewHSpacer(controlsContainer)
 
-	// TODO: Disable when nothing is selected
 	editTunnel, _ := walk.NewPushButton(controlsContainer)
+	editTunnel.SetEnabled(false)
+	mtw.tunnelsView.CurrentIndexChanged().Attach(func() {
+		editTunnel.SetEnabled(mtw.tunnelsView.CurrentIndex() > -1)
+	})
 	editTunnel.SetText("Edit")
 	editTunnel.Clicked().Attach(mtw.onEditTunnel)
 
