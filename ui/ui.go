@@ -17,6 +17,8 @@ import (
 	"time"
 )
 
+const testInterfaceName = "test"
+
 const demoConfig = `[Interface]
 PrivateKey = 6KpcbNFK4tKBciKBT2Rj6Z/sHBqxdV+p+nuNA5AlWGI=
 Address = 192.168.4.84/24
@@ -85,7 +87,7 @@ func RunUI() {
 	didFind := false
 	if err == nil {
 		for _, tunnel := range tunnels {
-			if tunnel.Name == "test" {
+			if tunnel.Name == testInterfaceName {
 				storedConfig, err := tunnel.StoredConfig()
 				if err == nil {
 					se.SetText(storedConfig.ToWgQuick())
@@ -160,7 +162,7 @@ func RunUI() {
 			restoreState = false
 			return
 		}
-		c, err := conf.FromWgQuick(se.Text(), "test")
+		c, err := conf.FromWgQuick(se.Text(), testInterfaceName)
 		if err != nil {
 			walk.MsgBox(mw, "Invalid configuration", err.Error(), walk.MsgBoxIconError)
 			return
@@ -212,7 +214,7 @@ func RunUI() {
 	})
 
 	setServiceState := func(tunnel *service.Tunnel, state service.TunnelState, showNotifications bool) {
-		if tunnel.Name != "test" {
+		if tunnel.Name != testInterfaceName {
 			return
 		}
 		mw.SetSuspended(true)
@@ -281,7 +283,7 @@ func RunUI() {
 			if err != nil {
 				continue
 			}
-			if tunnel.Name == "test" && state != service.TunnelStopped {
+			if tunnel.Name == testInterfaceName && state != service.TunnelStopped {
 				runningTunnel = &tunnel
 				setServiceState(&tunnel, state, false)
 			}
