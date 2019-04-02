@@ -17,7 +17,6 @@ type TunnelModel struct {
 	walk.TableModelBase
 	walk.SorterBase
 
-	// TODO: also store the state to display a small icon as the first column
 	tunnels []service.Tunnel
 }
 
@@ -58,7 +57,11 @@ func (t *TunnelModel) Sort(col int, order walk.SortOrder) error {
 type TunnelsView struct {
 	*walk.TableView
 
-	model *TunnelModel
+	model         *TunnelModel
+	stoppedBrush  *walk.SolidColorBrush
+	startingBrush *walk.SolidColorBrush
+	startedBrush  *walk.SolidColorBrush
+	statusPen     *walk.CosmeticPen
 }
 
 func NewTunnelsView(parent walk.Container) (*TunnelsView, error) {
@@ -70,15 +73,66 @@ func NewTunnelsView(parent walk.Container) (*TunnelsView, error) {
 	model := &TunnelModel{}
 
 	tv.SetModel(model)
-	tv.SetAlternatingRowBGColor(walk.RGB(239, 239, 239))
 	tv.SetLastColumnStretched(true)
 	tv.SetHeaderHidden(true)
 	tv.Columns().Add(walk.NewTableViewColumn())
 
-	return &TunnelsView{
+	tunnelsView := &TunnelsView{
 		TableView: tv,
 		model:     model,
-	}, nil
+	}
+
+	tunnelsView.stoppedBrush, _ = walk.NewSolidColorBrush(walk.RGB(239, 239, 239))
+	tunnelsView.AddDisposable(tunnelsView.stoppedBrush)
+
+	tunnelsView.startingBrush, _ = walk.NewSolidColorBrush(walk.RGB(255, 211, 31))
+	tunnelsView.AddDisposable(tunnelsView.startingBrush)
+
+	tunnelsView.startedBrush, _ = walk.NewSolidColorBrush(walk.RGB(0, 255, 0))
+	tunnelsView.AddDisposable(tunnelsView.startedBrush)
+
+	tunnelsView.statusPen, _ = walk.NewCosmeticPen(walk.PenSolid, walk.RGB(191, 191, 191))
+	tunnelsView.AddDisposable(tunnelsView.statusPen)
+
+	tv.SetCellStyler(tunnelsView)
+
+	return tunnelsView, nil
+}
+
+func (tv *TunnelsView) StyleCell(style *walk.CellStyle) {
+	canvas := style.Canvas()
+	if canvas == nil {
+		return
+	}
+
+	tunnel := tv.model.tunnels[style.Row()]
+
+	var brush *walk.SolidColorBrush
+	state, _ := tunnel.State()
+	switch state {
+	case service.TunnelStarted:
+		brush = tv.startedBrush
+
+	case service.TunnelStarting:
+		brush = tv.startingBrush
+
+	default:
+		brush = tv.stoppedBrush
+	}
+
+	b := style.Bounds()
+
+	b.X = b.Height
+	b.Width -= b.Height
+	canvas.DrawText(tunnel.Name, tv.Font(), 0, b, walk.TextVCenter)
+
+	b.X = 4
+	b.Y += 4
+	b.Height -= 8
+	b.Width = b.Height
+
+	canvas.FillEllipse(brush, b)
+	canvas.DrawEllipse(tv.statusPen, b)
 }
 
 func (tv *TunnelsView) CurrentTunnel() *service.Tunnel {

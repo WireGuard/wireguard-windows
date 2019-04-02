@@ -16,6 +16,7 @@ import (
 	"github.com/lxn/win"
 	"golang.org/x/sys/windows"
 	"golang.zx2c4.com/wireguard/windows/conf"
+	"golang.zx2c4.com/wireguard/windows/service"
 )
 
 type labelTextLine struct {
@@ -43,10 +44,13 @@ type peerView struct {
 
 type ConfView struct {
 	*walk.ScrollView
-	name      *walk.GroupBox
-	interfaze *interfaceView
-	peers     map[conf.Key]*peerView
+	name         *walk.GroupBox
+	status       *walk.CustomWidget
+	interfaze    *interfaceView
+	toggleActive *walk.PushButton
+	peers        map[conf.Key]*peerView
 
+	tunnel          *service.Tunnel
 	originalWndProc uintptr
 	creatingThread  uint32
 }
@@ -228,10 +232,22 @@ func NewConfView(parent walk.Container) (*ConfView, error) {
 	cv.SetLayout(walk.NewVBoxLayout())
 	cv.name, _ = newPaddedGroupGrid(cv)
 	cv.interfaze = newInterfaceView(cv.name)
+	toggleActiveContainer, _ := walk.NewComposite(cv.name)
+	tacl := walk.NewHBoxLayout()
+	tacl.SetMargins(walk.Margins{})
+	toggleActiveContainer.SetLayout(tacl)
+	ivVal := reflect.ValueOf(cv.interfaze).Elem()
+	cv.name.Layout().(*walk.GridLayout).SetRange(toggleActiveContainer, walk.Rectangle{0, ivVal.NumField(), 3, 1})
+	cv.toggleActive, _ = walk.NewPushButton(toggleActiveContainer)
+	cv.toggleActive.SetText("Activate")
+	cv.toggleActive.Clicked().Attach(cv.onToggleActiveClicked)
+	walk.NewHSpacer(toggleActiveContainer)
 	cv.peers = make(map[conf.Key]*peerView)
 	cv.creatingThread = windows.GetCurrentThreadId()
 	win.SetWindowLongPtr(cv.Handle(), win.GWLP_USERDATA, uintptr(unsafe.Pointer(cv)))
 	cv.originalWndProc = win.SetWindowLongPtr(cv.Handle(), win.GWL_WNDPROC, crossThreadMessageHijack)
+	service.IPCClientRegisterTunnelChange(cv.onTunnelChanged)
+	cv.setTunnel(nil)
 	return cv, nil
 }
 
@@ -241,21 +257,101 @@ const crossThreadUpdate = win.WM_APP + 17
 var crossThreadMessageHijack = windows.NewCallback(func(hwnd win.HWND, msg uint32, wParam, lParam uintptr) uintptr {
 	cv := (*ConfView)(unsafe.Pointer(win.GetWindowLongPtr(hwnd, win.GWLP_USERDATA)))
 	if msg == crossThreadUpdate {
-		cv.setConfiguration((*conf.Config)(unsafe.Pointer(wParam)))
+		cv.setTunnel((*service.Tunnel)(unsafe.Pointer(wParam)))
 		return 0
 	}
 	return win.CallWindowProc(cv.originalWndProc, hwnd, msg, wParam, lParam)
 })
 
-func (cv *ConfView) SetConfiguration(c *conf.Config) {
+func (cv *ConfView) onToggleActiveClicked() {
+	state, err := cv.tunnel.State()
+	if err != nil {
+		walk.MsgBox(cv.Form(), "Failed to retrieve tunnel state", fmt.Sprintf("Error: %s", err.Error()), walk.MsgBoxIconError)
+		return
+	}
+
+	cv.toggleActive.SetEnabled(false)
+
+	switch state {
+	case service.TunnelStarted:
+		if err := cv.tunnel.Stop(); err != nil {
+			walk.MsgBox(cv.Form(), "Failed to stop tunnel", fmt.Sprintf("Error: %s", err.Error()), walk.MsgBoxIconError)
+		}
+
+	case service.TunnelStopped:
+		if err := cv.tunnel.Start(); err != nil {
+			walk.MsgBox(cv.Form(), "Failed to start tunnel", fmt.Sprintf("Error: %s", err.Error()), walk.MsgBoxIconError)
+		}
+
+	default:
+		panic("unexpected state")
+	}
+
+	cv.setTunnel(cv.tunnel)
+}
+
+func (cv *ConfView) onTunnelChanged(tunnel *service.Tunnel, state service.TunnelState, err error) {
+	if cv.tunnel == nil || cv.tunnel.Name != tunnel.Name {
+		return
+	}
+
+	cv.updateTunnelStatus(state)
+}
+
+func (cv *ConfView) updateTunnelStatus(state service.TunnelState) {
+	cv.toggleActive.SetVisible(cv.tunnel != nil)
+
+	if cv.tunnel == nil {
+		return
+	}
+
+	var enabled bool
+	var text string
+
+	switch state {
+	case service.TunnelStarted:
+		enabled, text = true, "Deactivate"
+
+	case service.TunnelStarting:
+		enabled, text = false, "Activating..."
+
+	case service.TunnelStopped:
+		enabled, text = true, "Activate"
+
+	case service.TunnelStopping:
+		enabled, text = false, "Deactivating..."
+
+	default:
+		enabled, text = false, "Unknown state"
+	}
+
+	cv.toggleActive.SetEnabled(enabled)
+	cv.toggleActive.SetText(text)
+}
+
+func (cv *ConfView) SetTunnel(tunnel *service.Tunnel) {
 	if cv.creatingThread == windows.GetCurrentThreadId() {
-		cv.setConfiguration(c)
+		cv.setTunnel(tunnel)
 	} else {
-		cv.SendMessage(crossThreadUpdate, uintptr(unsafe.Pointer(c)), 0)
+		cv.SendMessage(crossThreadUpdate, uintptr(unsafe.Pointer(tunnel)), 0)
 	}
 }
 
-func (cv *ConfView) setConfiguration(c *conf.Config) {
+func (cv *ConfView) setTunnel(tunnel *service.Tunnel) {
+	cv.tunnel = tunnel
+
+	var state service.TunnelState
+	var config conf.Config
+	if tunnel != nil {
+		if state, _ = tunnel.State(); state == service.TunnelStarted {
+			config, _ = tunnel.RuntimeConfig()
+		} else {
+			config, _ = tunnel.StoredConfig()
+		}
+	}
+
+	cv.name.SetVisible(tunnel != nil)
+
 	hasSuspended := false
 	suspend := func() {
 		if !hasSuspended {
@@ -268,16 +364,17 @@ func (cv *ConfView) setConfiguration(c *conf.Config) {
 			cv.SetSuspended(false)
 		}
 	}()
-	title := "Interface: " + c.Name
+	title := "Interface: " + config.Name
 	if cv.name.Title() != title {
 		cv.name.SetTitle(title)
 	}
-	cv.interfaze.apply(&c.Interface)
+	cv.interfaze.apply(&config.Interface)
+	cv.updateTunnelStatus(state)
 	inverse := make(map[*peerView]bool, len(cv.peers))
 	for _, pv := range cv.peers {
 		inverse[pv] = true
 	}
-	for _, peer := range c.Peers {
+	for _, peer := range config.Peers {
 		if pv := cv.peers[peer.PublicKey]; pv != nil {
 			pv.apply(&peer)
 			inverse[pv] = false
