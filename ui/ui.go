@@ -32,7 +32,7 @@ AllowedIPs = 0.0.0.0/0
 
 const nagMessage = `It looks like you're still using this WireGuard pre-alpha build. Great!
 
-We're glad you like it, and we'd appreciate you sharing both your successes and your tribulations with us via team@wireguard.com or #wireguard-windows on Freenode.
+We're glad you like it, and we'd appreciate you sharing both your successes and your tribulations with us via team@wireguard.com or #wireguard on Freenode.
 
 But because this is pre-release software, we're not confident it's something you should yet be using, except for testing and reporting bugs. Check back with us for a newer version.
 
