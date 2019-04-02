@@ -7,7 +7,6 @@ package service
 
 import (
 	"bytes"
-	"encoding/binary"
 	"errors"
 	"golang.zx2c4.com/winipcfg"
 	"golang.zx2c4.com/wireguard/device"
@@ -15,19 +14,7 @@ import (
 	"golang.zx2c4.com/wireguard/windows/conf"
 	"net"
 	"sort"
-	"unsafe"
 )
-
-const (
-	sockoptIP_UNICAST_IF   = 31
-	sockoptIPV6_UNICAST_IF = 31
-)
-
-func htonl(val uint32) uint32 {
-	bytes := make([]byte, 4)
-	binary.BigEndian.PutUint32(bytes, val)
-	return *(*uint32)(unsafe.Pointer(&bytes[0]))
-}
 
 func bindSocketRoute(family winipcfg.AddressFamily, device *device.Device, ourLuid uint64, lastLuid *uint64) error {
 	routes, err := winipcfg.GetRoutes(family)
