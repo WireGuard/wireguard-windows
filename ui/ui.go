@@ -181,13 +181,9 @@ func RunUI() {
 		restoreState = false
 	})
 
-	logfile, err := service.IPCClientLogFilePath()
-	var logger *ringlogger.Ringlogger
-	if err == nil {
-		logger, err = ringlogger.NewRinglogger(logfile, "GUI")
-	}
+	logger, err := ringlogger.NewRingloggerFromInheritedMappingHandle(os.Args[5], "GUI")
 	if err != nil {
-		walk.MsgBox(nil, "Unable to initialize logging", fmt.Sprintf("%v\n\nFile: %s", err, logfile), walk.MsgBoxIconError)
+		walk.MsgBox(nil, "Unable to initialize logging", fmt.Sprint(err), walk.MsgBoxIconError)
 		return
 	}
 	NewLogView(mw, logger)

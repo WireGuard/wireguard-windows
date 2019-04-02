@@ -24,7 +24,7 @@ var flags = [...]string{
 	"/uninstalltunnelservice CONFIG_PATH",
 	"/managerservice",
 	"/tunnelservice CONFIG_PATH",
-	"/ui CMD_READ_HANDLE CMD_WRITE_HANDLE CMD_EVENT_HANDLE",
+	"/ui CMD_READ_HANDLE CMD_WRITE_HANDLE CMD_EVENT_HANDLE LOG_MAPPING_HANDLE",
 }
 
 //sys messageBoxEx(hwnd windows.Handle, text *uint16, title *uint16, typ uint, languageId uint16) = user32.MessageBoxExW
@@ -135,7 +135,7 @@ func main() {
 		}
 		return
 	case "/ui":
-		if len(os.Args) != 5 {
+		if len(os.Args) != 6 {
 			usage()
 		}
 		readPipe, err := pipeFromHandleArgument(os.Args[2])

@@ -169,6 +169,11 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 				log.Printf("Unable to listen on IPC pipes: %v", err)
 				return
 			}
+			theirLogMapping, err := ringlogger.Global.ExportInheritableMappingHandleStr()
+			if err != nil {
+				log.Printf("Unable to export inheritable mapping handle for logging: %v", err)
+				return
+			}
 
 			log.Printf("Starting UI process for user: '%s@%s'", username, domain)
 			attr := &os.ProcAttr{
@@ -177,7 +182,7 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 				},
 				Files: []*os.File{devNull, devNull, devNull},
 			}
-			proc, err := os.StartProcess(path, []string{path, "/ui", theirReaderStr, theirWriterStr, theirEventStr}, attr)
+			proc, err := os.StartProcess(path, []string{path, "/ui", theirReaderStr, theirWriterStr, theirEventStr, theirLogMapping}, attr)
 			theirReader.Close()
 			theirWriter.Close()
 			theirEvents.Close()
