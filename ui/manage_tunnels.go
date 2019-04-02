@@ -256,25 +256,59 @@ func (mtw *ManageTunnelsWindow) runTunnelEdit(tunnel *service.Tunnel) *conf.Conf
 
 	walk.NewHSpacer(buttonsContainer)
 
-	cancelButton, _ := walk.NewPushButton(buttonsContainer)
-	cancelButton.SetText("Cancel")
-	cancelButton.Clicked().Attach(dlg.Cancel)
-
 	saveButton, _ := walk.NewPushButton(buttonsContainer)
 	saveButton.SetText("Save")
 	saveButton.Clicked().Attach(func() {
-		// TODO: Save the current config
+		newName := nameEdit.Text()
+		if newName == "" {
+			walk.MsgBox(mtw, "Invalid configuration", "Name is required", walk.MsgBoxIconWarning)
+			return
+		}
+
+		if tunnel != nil && tunnel.Name != newName {
+			names, err := conf.ListConfigNames()
+			if err != nil {
+				walk.MsgBox(mtw, "Error", err.Error(), walk.MsgBoxIconError)
+				return
+			}
+
+			for _, name := range names {
+				if name == newName {
+					walk.MsgBox(mtw, "Invalid configuration", fmt.Sprintf("Another tunnel already exists with the name ‘%s’.", newName), walk.MsgBoxIconWarning)
+					return
+				}
+			}
+		}
+
+		if !conf.TunnelNameIsValid(newName) {
+			walk.MsgBox(mtw, "Invalid configuration", fmt.Sprintf("Tunnel name ‘%s’ is invalid.", newName), walk.MsgBoxIconWarning)
+			return
+		}
+
+		cfg, err := conf.FromWgQuick(syntaxEdit.Text(), newName)
+		if err != nil {
+			walk.MsgBox(mtw, "Error", err.Error(), walk.MsgBoxIconError)
+			return
+		}
+
+		config = *cfg
+
 		dlg.Accept()
 	})
+
+	cancelButton, _ := walk.NewPushButton(buttonsContainer)
+	cancelButton.SetText("Cancel")
+	cancelButton.Clicked().Attach(dlg.Cancel)
 
 	dlg.SetCancelButton(cancelButton)
 	dlg.SetDefaultButton(saveButton)
 
 	if dlg.Run() == walk.DlgCmdOK {
 		// Save
+		return &config
 	}
 
-	return &conf.Config{}
+	return nil
 }
 
 // importFiles tries to import a list of configurations.
@@ -363,31 +397,64 @@ func (mtw *ManageTunnelsWindow) importFiles(paths []string) {
 	}
 }
 
+func (mtw *ManageTunnelsWindow) addTunnel(config *conf.Config) {
+	tunnel, err := service.IPCClientNewTunnel(config)
+	if err != nil {
+		walk.MsgBox(mtw, "Unable to create tunnel", err.Error(), walk.MsgBoxIconError)
+		return
+	}
+
+	model := mtw.tunnelsView.model
+	model.tunnels = append(model.tunnels, tunnel)
+	model.PublishRowsReset()
+	model.Sort(model.SortedColumn(), model.SortOrder())
+
+	for i, t := range model.tunnels {
+		if t.Name == tunnel.Name {
+			mtw.tunnelsView.SetCurrentIndex(i)
+			break
+		}
+	}
+
+	mtw.confView.SetConfiguration(config)
+}
+
+func (mtw *ManageTunnelsWindow) deleteTunnel(tunnel *service.Tunnel) {
+	tunnel.Delete()
+
+	model := mtw.tunnelsView.model
+
+	for i, t := range model.tunnels {
+		if t.Name == tunnel.Name {
+			model.tunnels = append(model.tunnels[:i], model.tunnels[i+1:]...)
+			model.PublishRowsRemoved(i, i)
+			break
+		}
+	}
+}
+
 // Handlers
 
 func (mtw *ManageTunnelsWindow) onEditTunnel() {
-	currentTunnel := mtw.tunnelsView.CurrentTunnel()
-	if currentTunnel == nil {
+	tunnel := mtw.tunnelsView.CurrentTunnel()
+	if tunnel == nil {
 		// Misfired event?
 		return
 	}
 
-	oldName := currentTunnel.Name
-	if config := mtw.runTunnelEdit(currentTunnel); config != nil {
-		// TODO: is there a tunnel rename call?
-		if oldName != config.Name {
-			// Delete old one
-			// mtw.currentTunnel.Delete()
-		}
+	if config := mtw.runTunnelEdit(tunnel); config != nil {
+		// Delete old one
+		mtw.deleteTunnel(tunnel)
+
 		// Save new one
-		// config.Create()
-		// Update the currentTunnel to use the new config (careful to keep ordering)
+		mtw.addTunnel(config)
 	}
 }
 
 func (mtw *ManageTunnelsWindow) onAddTunnel() {
 	if config := mtw.runTunnelEdit(nil); config != nil {
 		// Save new
+		mtw.addTunnel(config)
 	}
 }
 
@@ -398,11 +465,15 @@ func (mtw *ManageTunnelsWindow) onDelete() {
 		return
 	}
 
-	if walk.MsgBox(mtw, fmt.Sprintf(`Delete "%s"?`, currentTunnel.Name), fmt.Sprintf(`Are you sure you want to delete "%s"`, currentTunnel.Name), walk.MsgBoxYesNo|walk.MsgBoxIconWarning) != walk.DlgCmdOK {
+	if walk.DlgCmdNo == walk.MsgBox(
+		mtw,
+		fmt.Sprintf(`Delete "%s"`, currentTunnel.Name),
+		fmt.Sprintf(`Are you sure you want to delete "%s"?`, currentTunnel.Name),
+		walk.MsgBoxYesNo|walk.MsgBoxIconWarning) {
 		return
 	}
 
-	currentTunnel.Delete()
+	mtw.deleteTunnel(currentTunnel)
 }
 
 func (mtw *ManageTunnelsWindow) onImport() {
