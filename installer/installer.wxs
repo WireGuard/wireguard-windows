@@ -55,11 +55,12 @@
     </ComponentGroup>
 
     <InstallExecuteSequence>
+      <!-- TODO: this should not launch when msiexec is called with whatever flag means it shouldn't launch. -->
       <Custom Action="LaunchApplication" After="PublishProduct">NOT Installed</Custom>
     </InstallExecuteSequence>
     <CustomAction Id="LaunchApplication" HideTarget="yes" Impersonate="no" Execute="deferred" FileKey="wireguard.exe" ExeCommand="" Return="asyncNoWait" />
 
-    <!-- TODO: On uninstall: remove eventlog registration, remove system32\config\wireguard. -->
+    <!-- TODO: On uninstall remove system32\config\wireguard. -->
     <!-- TODO: On install and uninstall, kill services. -->
   </Fragment>
 </Wix>
