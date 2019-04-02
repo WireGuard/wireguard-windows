@@ -141,11 +141,6 @@ func IPCClientQuit(stopTunnelsOnQuit bool) (bool, error) {
 	return alreadyQuit, rpcClient.Call("ManagerService.Quit", stopTunnelsOnQuit, &alreadyQuit)
 }
 
-func IPCClientLogFilePath() (string, error) {
-	var path string
-	return path, rpcClient.Call("ManagerService.LogFilePath", uintptr(0), &path)
-}
-
 func IPCClientRegisterTunnelChange(cb func(tunnel *Tunnel, state TunnelState, err error)) *TunnelChangeCallback {
 	s := &TunnelChangeCallback{cb}
 	tunnelChangeCallbacks[s] = true

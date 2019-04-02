@@ -12,6 +12,7 @@ import (
 	"io"
 	"os"
 	"runtime"
+	"strconv"
 	"sync/atomic"
 	"time"
 	"unsafe"
@@ -54,12 +55,21 @@ func NewRinglogger(filename string, tag string) (*Ringlogger, error) {
 	if err != nil {
 		return nil, err
 	}
-	view, err := windows.MapViewOfFile(mapping, windows.FILE_MAP_WRITE, 0, 0, 0)
+	rl, err := NewRingloggerFromMappingHandle(mapping, tag)
+	if err != nil {
+		return nil, err
+	}
+	rl.file = file
+	return rl, nil
+}
+
+func NewRingloggerFromMappingHandle(mappingHandle windows.Handle, tag string) (*Ringlogger, error) {
+	view, err := windows.MapViewOfFile(mappingHandle, windows.FILE_MAP_WRITE, 0, 0, 0)
 	if err != nil {
 		return nil, err
 	}
 	if err != nil {
-		windows.CloseHandle(mapping)
+		windows.CloseHandle(mappingHandle)
 		return nil, err
 	}
 	log := (*logMem)(unsafe.Pointer(view))
@@ -74,12 +84,19 @@ func NewRinglogger(filename string, tag string) (*Ringlogger, error) {
 
 	rl := &Ringlogger{
 		tag:     tag,
-		file:    file,
-		mapping: mapping,
+		mapping: mappingHandle,
 		log:     log,
 	}
 	runtime.SetFinalizer(rl, (*Ringlogger).Close)
 	return rl, nil
+}
+
+func NewRingloggerFromInheritedMappingHandle(handleStr string, tag string) (*Ringlogger, error) {
+	handle, err := strconv.ParseUint(handleStr, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	return NewRingloggerFromMappingHandle(windows.Handle(handle), tag)
 }
 
 func (rl *Ringlogger) Write(p []byte) (n int, err error) {
@@ -202,6 +219,11 @@ func (rl *Ringlogger) Close() error {
 	return nil
 }
 
-func (rl *Ringlogger) Filename() string {
-	return rl.file.Name()
+func (rl *Ringlogger) ExportInheritableMappingHandleStr() (str string, err error) {
+	err = windows.SetHandleInformation(rl.mapping, windows.HANDLE_FLAG_INHERIT, windows.HANDLE_FLAG_INHERIT)
+	if err != nil {
+		return
+	}
+	str = strconv.FormatUint(uint64(rl.mapping), 10)
+	return
 }

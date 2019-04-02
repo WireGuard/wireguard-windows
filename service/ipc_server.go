@@ -11,7 +11,6 @@ import (
 	"github.com/Microsoft/go-winio"
 	"golang.org/x/sys/windows/svc"
 	"golang.zx2c4.com/wireguard/windows/conf"
-	"golang.zx2c4.com/wireguard/windows/ringlogger"
 	"io/ioutil"
 	"net/rpc"
 	"os"
@@ -204,11 +203,6 @@ func (s *ManagerService) Quit(stopTunnelsOnQuit bool, alreadyQuit *bool) error {
 	}
 
 	quitManagersChan <- struct{}{}
-	return nil
-}
-
-func (s *ManagerService) LogFilePath(unused uintptr, filepath *string) error {
-	*filepath = ringlogger.Global.Filename()
 	return nil
 }
 
