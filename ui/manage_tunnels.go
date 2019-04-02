@@ -61,9 +61,15 @@ func (mtw *ManageTunnelsWindow) setup() error {
 	tunnelsContainer, _ := walk.NewComposite(splitter)
 	tunnelsContainer.SetLayout(walk.NewVBoxLayout())
 
+	splitter.SetFixed(tunnelsContainer, true)
+
 	mtw.tunnelsView, _ = NewTunnelsView(tunnelsContainer)
 	mtw.tunnelsView.ItemActivated().Attach(mtw.onEditTunnel)
 	mtw.tunnelsView.CurrentIndexChanged().Attach(mtw.updateConfView)
+
+	service.IPCClientRegisterTunnelChange(func(tunnel *service.Tunnel, state service.TunnelState, err error) {
+		mtw.tunnelsView.Invalidate()
+	})
 
 	// ToolBar actions
 	{
@@ -168,19 +174,7 @@ func (mtw *ManageTunnelsWindow) updateConfView() {
 		return
 	}
 
-	currentTunnel := mtw.tunnelsView.CurrentTunnel()
-	if currentTunnel == nil {
-		// TODO: config must be non-nil right now
-		// mtw.confView.SetConfiguration(nil)
-		return
-	}
-
-	config, err := currentTunnel.RuntimeConfig()
-	if err != nil {
-		return
-	}
-
-	mtw.confView.SetConfiguration(&config)
+	mtw.confView.SetTunnel(mtw.tunnelsView.CurrentTunnel())
 }
 
 func (mtw *ManageTunnelsWindow) runTunnelEdit(tunnel *service.Tunnel) *conf.Config {
@@ -199,7 +193,7 @@ func (mtw *ManageTunnelsWindow) runTunnelEdit(tunnel *service.Tunnel) *conf.Conf
 	} else {
 		title = "Edit tunnel"
 		name = tunnel.Name
-		config, _ = tunnel.RuntimeConfig()
+		config, _ = tunnel.StoredConfig()
 	}
 
 	dlg, _ := walk.NewDialog(mtw)
@@ -416,7 +410,7 @@ func (mtw *ManageTunnelsWindow) addTunnel(config *conf.Config) {
 		}
 	}
 
-	mtw.confView.SetConfiguration(config)
+	mtw.confView.SetTunnel(&tunnel)
 }
 
 func (mtw *ManageTunnelsWindow) deleteTunnel(tunnel *service.Tunnel) {
