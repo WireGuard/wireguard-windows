@@ -14,6 +14,7 @@ import (
 	"golang.zx2c4.com/wireguard/windows/service"
 	"golang.zx2c4.com/wireguard/windows/ui/syntax"
 	"os"
+	"runtime"
 	"time"
 )
 
@@ -48,6 +49,8 @@ func nag() {
 }
 
 func RunUI() {
+	runtime.LockOSThread()
+
 	icon, _ := walk.NewIconFromResourceId(1)
 
 	mw, _ := walk.NewMainWindowWithName("WireGuard")
