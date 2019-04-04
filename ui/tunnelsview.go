@@ -58,17 +58,18 @@ type TunnelsView struct {
 	*walk.TableView
 
 	model         *TunnelModel
-	stoppedBrush  *walk.SolidColorBrush
-	startingBrush *walk.SolidColorBrush
-	startedBrush  *walk.SolidColorBrush
-	statusPen     *walk.CosmeticPen
+	imageProvider *TunnelStatusImageProvider
 }
 
 func NewTunnelsView(parent walk.Container) (*TunnelsView, error) {
+	var disposables walk.Disposables
+	defer disposables.Treat()
+
 	tv, err := walk.NewTableView(parent)
 	if err != nil {
 		return nil, err
 	}
+	disposables.Add(tv)
 
 	model := &TunnelModel{}
 
@@ -82,19 +83,14 @@ func NewTunnelsView(parent walk.Container) (*TunnelsView, error) {
 		model:     model,
 	}
 
-	tunnelsView.stoppedBrush, _ = walk.NewSolidColorBrush(walk.RGB(239, 239, 239))
-	tunnelsView.AddDisposable(tunnelsView.stoppedBrush)
-
-	tunnelsView.startingBrush, _ = walk.NewSolidColorBrush(walk.RGB(255, 211, 31))
-	tunnelsView.AddDisposable(tunnelsView.startingBrush)
-
-	tunnelsView.startedBrush, _ = walk.NewSolidColorBrush(walk.RGB(0, 255, 0))
-	tunnelsView.AddDisposable(tunnelsView.startedBrush)
-
-	tunnelsView.statusPen, _ = walk.NewCosmeticPen(walk.PenSolid, walk.RGB(191, 191, 191))
-	tunnelsView.AddDisposable(tunnelsView.statusPen)
+	if tunnelsView.imageProvider, err = NewTunnelStatusImageProvider(); err != nil {
+		return nil, err
+	}
+	tunnelsView.AddDisposable(tunnelsView.imageProvider)
 
 	tv.SetCellStyler(tunnelsView)
+
+	disposables.Spare()
 
 	return tunnelsView, nil
 }
@@ -105,20 +101,7 @@ func (tv *TunnelsView) StyleCell(style *walk.CellStyle) {
 		return
 	}
 
-	tunnel := tv.model.tunnels[style.Row()]
-
-	var brush *walk.SolidColorBrush
-	state, _ := tunnel.State()
-	switch state {
-	case service.TunnelStarted:
-		brush = tv.startedBrush
-
-	case service.TunnelStarting:
-		brush = tv.startingBrush
-
-	default:
-		brush = tv.stoppedBrush
-	}
+	tunnel := &tv.model.tunnels[style.Row()]
 
 	b := style.Bounds()
 
@@ -126,13 +109,9 @@ func (tv *TunnelsView) StyleCell(style *walk.CellStyle) {
 	b.Width -= b.Height
 	canvas.DrawText(tunnel.Name, tv.Font(), 0, b, walk.TextVCenter)
 
-	b.X = 4
-	b.Y += 4
-	b.Height -= 8
 	b.Width = b.Height
 
-	canvas.FillEllipse(brush, b)
-	canvas.DrawEllipse(tv.statusPen, b)
+	tv.imageProvider.PaintForTunnel(tunnel, canvas, b)
 }
 
 func (tv *TunnelsView) CurrentTunnel() *service.Tunnel {
