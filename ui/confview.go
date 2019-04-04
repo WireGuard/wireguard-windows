@@ -7,7 +7,6 @@ package ui
 
 import (
 	"fmt"
-	"reflect"
 	"strconv"
 	"strings"
 	"unsafe"
@@ -19,17 +18,43 @@ import (
 	"golang.zx2c4.com/wireguard/windows/service"
 )
 
+const statusImageSize = 19
+
+type widgetsLine interface {
+	widgets() (walk.Widget, walk.Widget)
+}
+
+type widgetsLinesView interface {
+	widgetsLines() []widgetsLine
+}
+
+type labelStatusLine struct {
+	label           *walk.TextLabel
+	statusComposite *walk.Composite
+	statusImage     *walk.ImageView
+	statusLabel     *walk.TextLabel
+	imageProvider   *TunnelStatusImageProvider
+}
+
 type labelTextLine struct {
 	label *walk.TextLabel
 	text  *walk.LineEdit
 }
 
+type toggleActiveLine struct {
+	composite *walk.Composite
+	button    *walk.PushButton
+}
+
 type interfaceView struct {
-	publicKey  *labelTextLine
-	listenPort *labelTextLine
-	mtu        *labelTextLine
-	addresses  *labelTextLine
-	dns        *labelTextLine
+	status       *labelStatusLine
+	publicKey    *labelTextLine
+	listenPort   *labelTextLine
+	mtu          *labelTextLine
+	addresses    *labelTextLine
+	dns          *labelTextLine
+	toggleActive *toggleActiveLine
+	lines        []widgetsLine
 }
 
 type peerView struct {
@@ -40,19 +65,77 @@ type peerView struct {
 	persistentKeepalive *labelTextLine
 	latestHandshake     *labelTextLine
 	transfer            *labelTextLine
+	lines               []widgetsLine
 }
 
 type ConfView struct {
 	*walk.ScrollView
-	name         *walk.GroupBox
-	status       *walk.CustomWidget
-	interfaze    *interfaceView
-	toggleActive *walk.PushButton
-	peers        map[conf.Key]*peerView
+	name      *walk.GroupBox
+	interfaze *interfaceView
+	peers     map[conf.Key]*peerView
 
+	tunnelChangedCB *service.TunnelChangeCallback
 	tunnel          *service.Tunnel
 	originalWndProc uintptr
 	creatingThread  uint32
+}
+
+func (lsl *labelStatusLine) Dispose() {
+	if lsl.imageProvider != nil {
+		lsl.imageProvider.Dispose()
+		lsl.imageProvider = nil
+	}
+}
+
+func (lsl *labelStatusLine) widgets() (walk.Widget, walk.Widget) {
+	return lsl.label, lsl.statusComposite
+}
+
+func (lsl *labelStatusLine) update(state service.TunnelState) {
+	img, _ := lsl.imageProvider.ImageForState(state, walk.Size{statusImageSize, statusImageSize})
+	lsl.statusImage.SetImage(img)
+
+	switch state {
+	case service.TunnelStarted:
+		lsl.statusLabel.SetText("Active")
+
+	case service.TunnelStarting:
+		lsl.statusLabel.SetText("Activating")
+
+	case service.TunnelStopped:
+		lsl.statusLabel.SetText("Inactive")
+
+	case service.TunnelStopping:
+		lsl.statusLabel.SetText("Deactivating")
+	}
+}
+
+func newLabelStatusLine(parent walk.Container) *labelStatusLine {
+	lsl := new(labelStatusLine)
+	parent.AddDisposable(lsl)
+
+	lsl.label, _ = walk.NewTextLabel(parent)
+	lsl.label.SetText("Status:")
+	lsl.label.SetTextAlignment(walk.AlignHFarVCenter)
+
+	lsl.statusComposite, _ = walk.NewComposite(parent)
+	layout := walk.NewHBoxLayout()
+	layout.SetMargins(walk.Margins{})
+	lsl.statusComposite.SetLayout(layout)
+
+	lsl.imageProvider, _ = NewTunnelStatusImageProvider()
+	lsl.statusImage, _ = walk.NewImageView(lsl.statusComposite)
+	lsl.statusLabel, _ = walk.NewTextLabel(lsl.statusComposite)
+	lsl.statusLabel.SetTextAlignment(walk.AlignHNearVCenter)
+	walk.NewVSpacerFixed(lsl.statusComposite, 26)
+	walk.NewHSpacer(lsl.statusComposite)
+	lsl.update(service.TunnelStopped)
+
+	return lsl
+}
+
+func (lt *labelTextLine) widgets() (walk.Widget, walk.Widget) {
+	return lt.label, lt.text
 }
 
 func (lt *labelTextLine) show(text string) {
@@ -87,13 +170,70 @@ func newLabelTextLine(fieldName string, parent walk.Container) *labelTextLine {
 	return lt
 }
 
+func (tal *toggleActiveLine) widgets() (walk.Widget, walk.Widget) {
+	return nil, tal.composite
+}
+
+func (tal *toggleActiveLine) update(state service.TunnelState) {
+	var enabled bool
+	var text string
+
+	switch state {
+	case service.TunnelStarted:
+		enabled, text = true, "Deactivate"
+
+	case service.TunnelStarting:
+		enabled, text = false, "Activating..."
+
+	case service.TunnelStopped:
+		enabled, text = true, "Activate"
+
+	case service.TunnelStopping:
+		enabled, text = false, "Deactivating..."
+
+	default:
+		enabled, text = false, ""
+	}
+
+	tal.button.SetEnabled(enabled)
+	tal.button.SetText(text)
+	tal.button.SetVisible(state != service.TunnelUnknown)
+}
+
+func newToggleActiveLine(parent walk.Container) *toggleActiveLine {
+	tal := new(toggleActiveLine)
+
+	tal.composite, _ = walk.NewComposite(parent)
+	layout := walk.NewHBoxLayout()
+	layout.SetMargins(walk.Margins{})
+	tal.composite.SetLayout(layout)
+
+	tal.button, _ = walk.NewPushButton(tal.composite)
+	walk.NewHSpacer(tal.composite)
+	tal.update(service.TunnelStopped)
+
+	return tal
+}
+
 func newInterfaceView(parent walk.Container) *interfaceView {
 	iv := &interfaceView{
+		newLabelStatusLine(parent),
 		newLabelTextLine("Public key", parent),
 		newLabelTextLine("Listen port", parent),
 		newLabelTextLine("MTU", parent),
 		newLabelTextLine("Addresses", parent),
 		newLabelTextLine("DNS servers", parent),
+		newToggleActiveLine(parent),
+		nil,
+	}
+	iv.lines = []widgetsLine{
+		iv.status,
+		iv.publicKey,
+		iv.listenPort,
+		iv.mtu,
+		iv.addresses,
+		iv.dns,
+		iv.toggleActive,
 	}
 	layoutInGrid(iv, parent.Layout().(*walk.GridLayout))
 	return iv
@@ -108,18 +248,36 @@ func newPeerView(parent walk.Container) *peerView {
 		newLabelTextLine("Persistent keepalive", parent),
 		newLabelTextLine("Latest handshake", parent),
 		newLabelTextLine("Transfer", parent),
+		nil,
+	}
+	pv.lines = []widgetsLine{
+		pv.publicKey,
+		pv.presharedKey,
+		pv.allowedIPs,
+		pv.endpoint,
+		pv.persistentKeepalive,
+		pv.latestHandshake,
+		pv.transfer,
 	}
 	layoutInGrid(pv, parent.Layout().(*walk.GridLayout))
 	return pv
 }
 
-func layoutInGrid(view interface{}, layout *walk.GridLayout) {
-	v := reflect.ValueOf(view).Elem()
-	for i := 0; i < v.NumField(); i++ {
-		lt := (*labelTextLine)(unsafe.Pointer(v.Field(i).Pointer()))
-		layout.SetRange(lt.label, walk.Rectangle{0, i, 1, 1})
-		layout.SetRange(lt.text, walk.Rectangle{2, i, 1, 1})
+func layoutInGrid(view widgetsLinesView, layout *walk.GridLayout) {
+	for i, l := range view.widgetsLines() {
+		w1, w2 := l.widgets()
+
+		if w1 != nil {
+			layout.SetRange(w1, walk.Rectangle{0, i, 1, 1})
+		}
+		if w2 != nil {
+			layout.SetRange(w2, walk.Rectangle{2, i, 1, 1})
+		}
 	}
+}
+
+func (iv *interfaceView) widgetsLines() []widgetsLine {
+	return iv.lines
 }
 
 func (iv *interfaceView) apply(c *conf.Interface) {
@@ -156,6 +314,10 @@ func (iv *interfaceView) apply(c *conf.Interface) {
 	} else {
 		iv.dns.hide()
 	}
+}
+
+func (pv *peerView) widgetsLines() []widgetsLine {
+	return pv.lines
 }
 
 func (pv *peerView) apply(c *conf.Peer) {
@@ -232,23 +394,28 @@ func NewConfView(parent walk.Container) (*ConfView, error) {
 	cv.SetLayout(walk.NewVBoxLayout())
 	cv.name, _ = newPaddedGroupGrid(cv)
 	cv.interfaze = newInterfaceView(cv.name)
-	toggleActiveContainer, _ := walk.NewComposite(cv.name)
-	tacl := walk.NewHBoxLayout()
-	tacl.SetMargins(walk.Margins{})
-	toggleActiveContainer.SetLayout(tacl)
-	ivVal := reflect.ValueOf(cv.interfaze).Elem()
-	cv.name.Layout().(*walk.GridLayout).SetRange(toggleActiveContainer, walk.Rectangle{0, ivVal.NumField(), 3, 1})
-	cv.toggleActive, _ = walk.NewPushButton(toggleActiveContainer)
-	cv.toggleActive.SetText("Activate")
-	cv.toggleActive.Clicked().Attach(cv.onToggleActiveClicked)
-	walk.NewHSpacer(toggleActiveContainer)
+	cv.interfaze.toggleActive.button.Clicked().Attach(cv.onToggleActiveClicked)
 	cv.peers = make(map[conf.Key]*peerView)
 	cv.creatingThread = windows.GetCurrentThreadId()
 	win.SetWindowLongPtr(cv.Handle(), win.GWLP_USERDATA, uintptr(unsafe.Pointer(cv)))
 	cv.originalWndProc = win.SetWindowLongPtr(cv.Handle(), win.GWL_WNDPROC, crossThreadMessageHijack)
-	service.IPCClientRegisterTunnelChange(cv.onTunnelChanged)
+	cv.tunnelChangedCB = service.IPCClientRegisterTunnelChange(cv.onTunnelChanged)
 	cv.setTunnel(nil)
+
+	if err := walk.InitWrapperWindow(cv); err != nil {
+		return nil, err
+	}
+
 	return cv, nil
+}
+
+func (cv *ConfView) Dispose() {
+	if cv.tunnelChangedCB != nil {
+		cv.tunnelChangedCB.Unregister()
+		cv.tunnelChangedCB = nil
+	}
+
+	cv.ScrollView.Dispose()
 }
 
 //TODO: choose actual good value for this
@@ -270,7 +437,7 @@ func (cv *ConfView) onToggleActiveClicked() {
 		return
 	}
 
-	cv.toggleActive.SetEnabled(false)
+	cv.interfaze.toggleActive.button.SetEnabled(false)
 
 	switch state {
 	case service.TunnelStarted:
@@ -299,34 +466,8 @@ func (cv *ConfView) onTunnelChanged(tunnel *service.Tunnel, state service.Tunnel
 }
 
 func (cv *ConfView) updateTunnelStatus(state service.TunnelState) {
-	cv.toggleActive.SetVisible(cv.tunnel != nil)
-
-	if cv.tunnel == nil {
-		return
-	}
-
-	var enabled bool
-	var text string
-
-	switch state {
-	case service.TunnelStarted:
-		enabled, text = true, "Deactivate"
-
-	case service.TunnelStarting:
-		enabled, text = false, "Activating..."
-
-	case service.TunnelStopped:
-		enabled, text = true, "Activate"
-
-	case service.TunnelStopping:
-		enabled, text = false, "Deactivating..."
-
-	default:
-		enabled, text = false, "Unknown state"
-	}
-
-	cv.toggleActive.SetEnabled(enabled)
-	cv.toggleActive.SetText(text)
+	cv.interfaze.status.update(state)
+	cv.interfaze.toggleActive.update(state)
 }
 
 func (cv *ConfView) SetTunnel(tunnel *service.Tunnel) {
@@ -345,7 +486,8 @@ func (cv *ConfView) setTunnel(tunnel *service.Tunnel) {
 	if tunnel != nil {
 		if state, _ = tunnel.State(); state == service.TunnelStarted {
 			config, _ = tunnel.RuntimeConfig()
-		} else {
+		}
+		if config.Name == "" {
 			config, _ = tunnel.StoredConfig()
 		}
 	}
