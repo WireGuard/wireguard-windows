@@ -45,6 +45,12 @@ func NewManageTunnelsWindow(icon *walk.Icon) (*ManageTunnelsWindow, error) {
 
 func (mtw *ManageTunnelsWindow) setup() error {
 	mtw.SetIcon(mtw.icon)
+	font, err := walk.NewFont("Segoe UI", 9, 0)
+	if err != nil {
+		return err
+	}
+	mtw.AddDisposable(font)
+	mtw.SetFont(font)
 	mtw.SetSize(walk.Size{900, 600})
 	mtw.SetLayout(walk.NewVBoxLayout())
 	mtw.Closing().Attach(func(canceled *bool, reason walk.CloseReason) {
