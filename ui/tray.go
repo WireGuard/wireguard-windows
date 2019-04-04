@@ -8,6 +8,7 @@ package ui
 import (
 	"fmt"
 	"sort"
+	"strings"
 
 	"github.com/lxn/walk"
 	"golang.zx2c4.com/wireguard/windows/service"
@@ -15,10 +16,6 @@ import (
 
 type Tray struct {
 	*walk.NotifyIcon
-
-	// The action that displays the current active CIDRs
-	// May be nil if no tunnels are active currently
-	activeCIDRs *walk.Action
 
 	// Current known tunnels by name
 	tunnels map[string]*walk.Action
@@ -61,7 +58,8 @@ func (tray *Tray) setup() error {
 		enabled   bool
 		separator bool
 	}{
-		{label: "Status: unknown"},
+		{label: "Status: Unknown"},
+		{label: "Networks: None"},
 		{separator: true},
 		{separator: true},
 		{label: "&Manage tunnels...", handler: tray.parent.Show, enabled: true},
@@ -93,15 +91,15 @@ func (tray *Tray) SetTunnelState(tunnel *service.Tunnel, state service.TunnelSta
 }
 
 func (tray *Tray) SetTunnelStateWithNotification(tunnel *service.Tunnel, state service.TunnelState, showNotifications bool) {
-	action, ok := tray.tunnels[tunnel.Name]
+	tunnelAction, ok := tray.tunnels[tunnel.Name]
 	if !ok {
 		// First time seeing this tunnel, create a new action
-		action = walk.NewAction()
-		action.SetText(tunnel.Name)
-		action.SetEnabled(true)
-		action.SetCheckable(true)
+		tunnelAction = walk.NewAction()
+		tunnelAction.SetText(tunnel.Name)
+		tunnelAction.SetEnabled(true)
+		tunnelAction.SetCheckable(true)
 		// TODO: Wire up the click event
-		tray.tunnels[tunnel.Name] = action
+		tray.tunnels[tunnel.Name] = tunnelAction
 
 		// Add the action at the right spot
 		var names []string
@@ -120,40 +118,59 @@ func (tray *Tray) SetTunnelStateWithNotification(tunnel *service.Tunnel, state s
 			}
 		}
 
-		// Status action + separator action
-		offset := 2
-		if tray.activeCIDRs != nil {
-			offset++
-		}
+		// Status + active CIDRs + separator
+		const offset = 3
 
-		tray.ContextMenu().Actions().Insert(idx+offset, action)
+		tray.ContextMenu().Actions().Insert(idx+offset, tunnelAction)
 	}
 
 	// TODO: No event for deleting a tunnel?
 
-	//TODO: also set tray icon to reflect state
+	actions := tray.ContextMenu().Actions()
+	statusAction := actions.At(0)
+	activeCIDRsAction := actions.At(1)
+
 	switch state {
 	case service.TunnelStarting:
-		action.SetEnabled(false)
+		statusAction.SetText("Activating")
+		tunnelAction.SetEnabled(false)
 
 		tray.SetToolTip("WireGuard: Activating...")
 	case service.TunnelStarted:
-		// TODO: Set the activeCIDRs
+		statusAction.SetText("Active")
 
-		action.SetEnabled(true)
-		action.SetChecked(true)
+		config, err := tunnel.RuntimeConfig()
+		activeCIDRsAction.SetVisible(err == nil)
+		if err == nil {
+			var sb strings.Builder
+			for i, addr := range config.Interface.Addresses {
+				if i > 0 {
+					sb.WriteString(", ")
+				}
+
+				sb.WriteString(addr.String())
+			}
+
+			activeCIDRsAction.SetText(fmt.Sprintf("Networks: %s", sb.String()))
+		}
+
+		tunnelAction.SetEnabled(true)
+		tunnelAction.SetChecked(true)
 
 		tray.SetToolTip("WireGuard: Activated")
 		if showNotifications {
 			tray.ShowInfo("WireGuard Activated", fmt.Sprintf("The %s tunnel has been activated.", tunnel.Name))
 		}
 	case service.TunnelStopping:
-		action.SetEnabled(false)
+		statusAction.SetText("Deactivating")
+		tunnelAction.SetEnabled(false)
 
 		tray.SetToolTip("WireGuard: Deactivating...")
 	case service.TunnelStopped:
-		action.SetEnabled(true)
-		action.SetChecked(false)
+		statusAction.SetText("Inactive")
+		activeCIDRsAction.SetVisible(false)
+		tunnelAction.SetEnabled(true)
+		tunnelAction.SetChecked(false)
 
 		tray.SetToolTip("WireGuard: Deactivated")
 		if showNotifications {
