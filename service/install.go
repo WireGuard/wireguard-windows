@@ -42,7 +42,7 @@ func InstallManager() error {
 
 	//TODO: Do we want to bail if executable isn't being run from the right location?
 
-	serviceName := "WireGuard Manager"
+	serviceName := "WireGuardManager"
 	service, err := m.OpenService(serviceName)
 	if err == nil {
 		status, err := service.Query()
@@ -73,7 +73,7 @@ func InstallManager() error {
 		ServiceType:  windows.SERVICE_WIN32_OWN_PROCESS,
 		StartType:    mgr.StartAutomatic,
 		ErrorControl: mgr.ErrorNormal,
-		DisplayName:  serviceName,
+		DisplayName:  "WireGuard Manager",
 	}
 
 	service, err = m.CreateService(serviceName, path, config, "/managerservice")
@@ -89,7 +89,7 @@ func UninstallManager() error {
 	if err != nil {
 		return err
 	}
-	serviceName := "WireGuard Manager"
+	serviceName := "WireGuardManager"
 	service, err := m.OpenService(serviceName)
 	if err != nil {
 		return err
@@ -104,7 +104,7 @@ func UninstallManager() error {
 }
 
 func RunManager() error {
-	return svc.Run("WireGuard Manager", &managerService{})
+	return svc.Run("WireGuardManager", &managerService{})
 }
 
 func InstallTunnel(configPath string) error {
@@ -156,7 +156,7 @@ func InstallTunnel(configPath string) error {
 		ServiceType:  windows.SERVICE_WIN32_OWN_PROCESS,
 		StartType:    mgr.StartAutomatic,
 		ErrorControl: mgr.ErrorNormal,
-		DisplayName:  serviceName,
+		DisplayName:  "WireGuard Tunnel: " + name,
 	}
 
 	service, err = m.CreateService(serviceName, path, config, "/tunnelservice", configPath)

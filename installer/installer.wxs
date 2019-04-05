@@ -37,9 +37,9 @@
         <File Source="..\wireguard.exe" KeyPath="yes">
           <Shortcut Id="WireGuardStartMenuShortcut" Directory="ProgramMenuFolder" Name="WireGuard" Description="WireGuard: Fast, Modern, Secure VPN Tunnel" WorkingDirectory="INSTALLFOLDER" Advertise="yes" />
         </File>
-        <ServiceControl Id="RemoveWireGuardManagerService" Name="WireGuard Manager" Remove="both" Stop="both"></ServiceControl>
-        <ServiceControl Id="RemoveWireGuardTunnelServices" Name="WireGuard Tunnel: test" Remove="both" Stop="both"></ServiceControl>
-        <!-- TODO: "test" is just a temporary hack. We need to enumerate all services that are "WireGuard Tunnel: *" and remove those. -->
+        <ServiceControl Id="RemoveWireGuardManagerService" Name="WireGuardManager" Remove="both" Stop="both"></ServiceControl>
+        <ServiceControl Id="RemoveWireGuardTunnelServices" Name="WireGuardTunnel$test" Remove="both" Stop="both"></ServiceControl>
+        <!-- TODO: "test" is just a temporary hack. We need to enumerate all services that are "WireGuardTunnel$*" and remove those. -->
       </Component>
     </ComponentGroup>
 
