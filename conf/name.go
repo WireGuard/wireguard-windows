@@ -16,6 +16,7 @@ var reservedNames = []string{
 	"LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9",
 }
 
+const serviceNameForbidden = "$"
 const netshellDllForbidden = "\\/:*?\"<>|\t"
 const specialChars = "/\\<>:\"|?*\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f\x00"
 
@@ -38,7 +39,7 @@ func isReserved(name string) bool {
 }
 
 func hasSpecialChars(name string) bool {
-	return strings.ContainsAny(name, specialChars) || strings.ContainsAny(name, netshellDllForbidden)
+	return strings.ContainsAny(name, specialChars) || strings.ContainsAny(name, netshellDllForbidden) || strings.ContainsAny(name, serviceNameForbidden)
 }
 
 func TunnelNameIsValid(name string) bool {

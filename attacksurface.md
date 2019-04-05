@@ -27,7 +27,7 @@ The manager service is a userspace service running as Local System, responsible 
 
   - Extensive IPC using unnamed pipes, inherited by the unprivileged UI process.
   - A writable `CreateFileMapping` handle to a binary ringlog shared by all services, inherited by the unprivileged UI process. It's unclear if this brings with it surprising hidden attack surface in the mm system.
-  - It listens for service changes in tunnel services according to the string prefix "WireGuard Tunnel: ".
+  - It listens for service changes in tunnel services according to the string prefix "WireGuardTunnel$".
   - It manages DPAPI-encrypted configuration files in Local System's local appdata directory, and makes some effort to enforce good configuration filenames.
   - It uses `wtsEnumerateSessions` and `WTSSESSION_NOTIFICATION` to walk through each available session. It then uses `wtfQueryUserToken`, and then calls `GetTokenInformation(TokenGroups)` on it. If one of the returned group's SIDs matches `CreateWellKnownSid(WinBuiltinAdministratorsSid)`, then it spawns the unprivileged UI process as that user token, passing it three unnamed pipe handles for IPC and the log mapping handle, as descried above.
 

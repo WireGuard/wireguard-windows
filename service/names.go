@@ -14,7 +14,7 @@ func ServiceNameOfTunnel(tunnelName string) (string, error) {
 	if !conf.TunnelNameIsValid(tunnelName) {
 		return "", errors.New("Tunnel name is not valid")
 	}
-	return "WireGuard Tunnel: " + tunnelName, nil
+	return "WireGuardTunnel$" + tunnelName, nil
 }
 
 func PipePathOfTunnel(tunnelName string) (string, error) {
