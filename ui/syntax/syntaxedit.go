@@ -18,45 +18,10 @@ import (
 // #include "syntaxedit.h"
 import "C"
 
-type PrivateKeyHandler func(privateKey string)
-type PrivateKeyEvent struct {
-	handlers []PrivateKeyHandler
-}
-
-func (e *PrivateKeyEvent) Attach(handler PrivateKeyHandler) int {
-	for i, h := range e.handlers {
-		if h == nil {
-			e.handlers[i] = handler
-			return i
-		}
-	}
-
-	e.handlers = append(e.handlers, handler)
-	return len(e.handlers) - 1
-}
-func (e *PrivateKeyEvent) Detach(handle int) {
-	e.handlers[handle] = nil
-}
-
-type PrivateKeyPublisher struct {
-	event PrivateKeyEvent
-}
-
-func (p *PrivateKeyPublisher) Event() *PrivateKeyEvent {
-	return &p.event
-}
-func (p *PrivateKeyPublisher) Publish(privateKey string) {
-	for _, handler := range p.event.handlers {
-		if handler != nil {
-			handler(privateKey)
-		}
-	}
-}
-
 type SyntaxEdit struct {
 	walk.WidgetBase
 	textChangedPublisher walk.EventPublisher
-	privateKeyPublisher  PrivateKeyPublisher
+	privateKeyPublisher  walk.StringEventPublisher
 }
 
 func (se *SyntaxEdit) LayoutFlags() walk.LayoutFlags {
@@ -94,7 +59,7 @@ func (se *SyntaxEdit) TextChanged() *walk.Event {
 	return se.textChangedPublisher.Event()
 }
 
-func (se *SyntaxEdit) PrivateKeyChanged() *PrivateKeyEvent {
+func (se *SyntaxEdit) PrivateKeyChanged() *walk.StringEvent {
 	return se.privateKeyPublisher.Event()
 }
 
