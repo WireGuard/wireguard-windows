@@ -25,8 +25,10 @@ type ManageTunnelsWindow struct {
 
 	icon *walk.Icon
 
-	tunnelsView *TunnelsView
-	confView    *ConfView
+	tunnelsView            *TunnelsView
+	confView               *ConfView
+	tunnelAddedPublisher   walk.StringEventPublisher
+	tunnelDeletedPublisher walk.StringEventPublisher
 }
 
 func NewManageTunnelsWindow(icon *walk.Icon) (*ManageTunnelsWindow, error) {
@@ -417,6 +419,8 @@ func (mtw *ManageTunnelsWindow) addTunnel(config *conf.Config) {
 	}
 
 	mtw.confView.SetTunnel(&tunnel)
+
+	mtw.tunnelAddedPublisher.Publish(tunnel.Name)
 }
 
 func (mtw *ManageTunnelsWindow) deleteTunnel(tunnel *service.Tunnel) {
@@ -431,6 +435,16 @@ func (mtw *ManageTunnelsWindow) deleteTunnel(tunnel *service.Tunnel) {
 			break
 		}
 	}
+
+	mtw.tunnelDeletedPublisher.Publish(tunnel.Name)
+}
+
+func (mtw *ManageTunnelsWindow) TunnelAdded() *walk.StringEvent {
+	return mtw.tunnelAddedPublisher.Event()
+}
+
+func (mtw *ManageTunnelsWindow) TunnelDeleted() *walk.StringEvent {
+	return mtw.tunnelDeletedPublisher.Event()
 }
 
 // Handlers
@@ -474,6 +488,8 @@ func (mtw *ManageTunnelsWindow) onDelete() {
 	}
 
 	mtw.deleteTunnel(currentTunnel)
+
+	mtw.tunnelDeletedPublisher.Publish(currentTunnel.Name)
 }
 
 func (mtw *ManageTunnelsWindow) onImport() {
