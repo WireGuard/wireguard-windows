@@ -20,19 +20,19 @@ type Tray struct {
 	// Current known tunnels by name
 	tunnels map[string]*walk.Action
 
-	parent *ManageTunnelsWindow
-	icon   *walk.Icon
+	mtw  *ManageTunnelsWindow
+	icon *walk.Icon
 }
 
-func NewTray(parent *ManageTunnelsWindow, icon *walk.Icon) (*Tray, error) {
+func NewTray(mtw *ManageTunnelsWindow, icon *walk.Icon) (*Tray, error) {
 	var err error
 
 	tray := &Tray{
-		parent:  parent,
+		mtw:     mtw,
 		icon:    icon,
 		tunnels: make(map[string]*walk.Action),
 	}
-	tray.NotifyIcon, err = walk.NewNotifyIcon(parent.MainWindow)
+	tray.NotifyIcon, err = walk.NewNotifyIcon(mtw.MainWindow)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +47,7 @@ func (tray *Tray) setup() error {
 
 	tray.MouseDown().Attach(func(x, y int, button walk.MouseButton) {
 		if button == walk.LeftButton {
-			tray.parent.Show()
+			tray.mtw.Show()
 		}
 	})
 
@@ -62,8 +62,8 @@ func (tray *Tray) setup() error {
 		{label: "Networks: None"},
 		{separator: true},
 		{separator: true},
-		{label: "&Manage tunnels...", handler: tray.parent.Show, enabled: true},
-		{label: "&Import tunnel(s) from file...", handler: tray.parent.onImport, enabled: true},
+		{label: "&Manage tunnels...", handler: tray.mtw.Show, enabled: true},
+		{label: "&Import tunnel(s) from file...", handler: tray.mtw.onImport, enabled: true},
 		{separator: true},
 		{label: "&About WireGuard", handler: onAbout, enabled: true},
 		{label: "&Quit", handler: onQuit, enabled: true},
@@ -83,7 +83,57 @@ func (tray *Tray) setup() error {
 		tray.ContextMenu().Actions().Add(action)
 	}
 
+	tunnels, err := service.IPCClientTunnels()
+	if err != nil {
+		return err
+	}
+
+	for _, tunnel := range tunnels {
+		tray.addTunnelAction(tunnel.Name)
+	}
+
+	tray.mtw.TunnelAdded().Attach(tray.addTunnelAction)
+	tray.mtw.TunnelDeleted().Attach(tray.removeTunnelAction)
+
 	return nil
+}
+
+func (tray *Tray) addTunnelAction(tunnelName string) {
+	tunnelAction := walk.NewAction()
+	tunnelAction.SetText(tunnelName)
+	tunnelAction.SetEnabled(true)
+	tunnelAction.SetCheckable(true)
+	tunnelAction.Triggered().Attach(func() {
+
+	})
+	tray.tunnels[tunnelName] = tunnelAction
+
+	// Add the action at the right spot
+	var names []string
+	for name, _ := range tray.tunnels {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+
+	var (
+		idx  int
+		name string
+	)
+	for idx, name = range names {
+		if name == tunnelName {
+			break
+		}
+	}
+
+	// Status + active CIDRs + separator
+	const offset = 3
+
+	tray.ContextMenu().Actions().Insert(offset+idx, tunnelAction)
+}
+
+func (tray *Tray) removeTunnelAction(tunnelName string) {
+	tray.ContextMenu().Actions().Remove(tray.tunnels[tunnelName])
+	delete(tray.tunnels, tunnelName)
 }
 
 func (tray *Tray) SetTunnelState(tunnel *service.Tunnel, state service.TunnelState) {
@@ -91,40 +141,7 @@ func (tray *Tray) SetTunnelState(tunnel *service.Tunnel, state service.TunnelSta
 }
 
 func (tray *Tray) SetTunnelStateWithNotification(tunnel *service.Tunnel, state service.TunnelState, showNotifications bool) {
-	tunnelAction, ok := tray.tunnels[tunnel.Name]
-	if !ok {
-		// First time seeing this tunnel, create a new action
-		tunnelAction = walk.NewAction()
-		tunnelAction.SetText(tunnel.Name)
-		tunnelAction.SetEnabled(true)
-		tunnelAction.SetCheckable(true)
-		// TODO: Wire up the click event
-		tray.tunnels[tunnel.Name] = tunnelAction
-
-		// Add the action at the right spot
-		var names []string
-		for name, _ := range tray.tunnels {
-			names = append(names, name)
-		}
-		sort.Strings(names)
-
-		var (
-			idx  int
-			name string
-		)
-		for idx, name = range names {
-			if name == tunnel.Name {
-				break
-			}
-		}
-
-		// Status + active CIDRs + separator
-		const offset = 3
-
-		tray.ContextMenu().Actions().Insert(idx+offset, tunnelAction)
-	}
-
-	// TODO: No event for deleting a tunnel?
+	tunnelAction := tray.tunnels[tunnel.Name]
 
 	actions := tray.ContextMenu().Actions()
 	statusAction := actions.At(0)
