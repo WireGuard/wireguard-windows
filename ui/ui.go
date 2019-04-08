@@ -52,6 +52,13 @@ func RunUI() {
 	defer tray.Dispose()
 
 	// Bind to updates
+	setTunnelState := func(tunnel *service.Tunnel, state service.TunnelState, showNotifications bool) {
+		mtw.Synchronize(func() {
+			mtw.SetTunnelState(tunnel, state)
+			tray.SetTunnelStateWithNotification(tunnel, state, showNotifications)
+		})
+	}
+
 	service.IPCClientRegisterTunnelChange(func(tunnel *service.Tunnel, state service.TunnelState, err error) {
 		if err == nil {
 			return
@@ -66,12 +73,8 @@ func RunUI() {
 		} else {
 			tray.ShowError("WireGuard Tunnel Error", err.Error())
 		}
-	})
-	service.IPCClientRegisterTunnelChange(func(tunnel *service.Tunnel, state service.TunnelState, err error) {
-		tray.SetTunnelStateWithNotification(tunnel, state, err == nil)
-	})
-	service.IPCClientRegisterTunnelChange(func(tunnel *service.Tunnel, state service.TunnelState, err error) {
-		mtw.SetTunnelState(tunnel, state)
+
+		setTunnelState(tunnel, state, err == nil)
 	})
 
 	// Fetch current state
@@ -85,8 +88,7 @@ func RunUI() {
 			if err != nil {
 				continue
 			}
-			tray.SetTunnelStateWithNotification(&tunnel, state, false)
-			mtw.SetTunnelState(&tunnel, state)
+			setTunnelState(&tunnel, state, false)
 		}
 	}()
 
