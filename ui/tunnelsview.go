@@ -71,7 +71,10 @@ func NewTunnelsView(parent walk.Container) (*TunnelsView, error) {
 	}
 	disposables.Add(tv)
 
-	model := &TunnelModel{}
+	model := new(TunnelModel)
+	if model.tunnels, err = service.IPCClientTunnels(); err != nil {
+		return nil, err
+	}
 
 	tv.SetModel(model)
 	tv.SetLastColumnStretched(true)
@@ -133,18 +136,7 @@ func (tv *TunnelsView) SetTunnelState(tunnel *service.Tunnel, state service.Tunn
 	}
 
 	if idx != -1 {
-		// we don't do anything with the state right now
+		tv.model.PublishRowChanged(idx)
 		return
 	}
-
-	// New tunnel, add it
-	tv.model.tunnels = append(tv.model.tunnels, *tunnel)
-	tv.model.Sort(0, walk.SortAscending)
-	for i, _ := range tv.model.tunnels {
-		if tv.model.tunnels[i].Name == tunnel.Name {
-			idx = i
-		}
-	}
-
-	tv.model.PublishRowsInserted(idx, idx)
 }
