@@ -5,7 +5,7 @@ Nothing to see here yet. Come back later.
 ### Requirements
 
   - [Wintun](https://git.zx2c4.com/wintun) (at runtime)
-  - [Go 1.12](https://golang.org/) (for compilation)
+  - [Go ≥1.12.2](https://golang.org/) (for compilation)
   - [Mingw](http://www.mingw.org/) (for compilation)
 
 ### Building on Windows

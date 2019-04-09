@@ -8,7 +8,7 @@ if exist .deps\prepared goto :build
 	mkdir .deps || goto :error
 	cd .deps || goto :error
 	echo [+] Downloading golang
-	curl -#fo go.zip https://dl.google.com/go/go1.12.windows-amd64.zip || goto :error
+	curl -#fo go.zip https://dl.google.com/go/go1.12.3.windows-amd64.zip || goto :error
 	echo [+] Verifying golang
 	for /f %%a in ('CertUtil -hashfile go.zip SHA256 ^| findstr /r "^[0-9a-f]*$"') do if not "%%a"=="880ced1aecef08b3471a84381b6c7e2c0e846b81dd97ecb629b534d941f282bd" goto :error
 	echo [+] Downloading mingw
@@ -16,21 +16,12 @@ if exist .deps\prepared goto :build
 	curl -#fo mingw.zip https://download.wireguard.com/windows-toolchain/distfiles/x86_64-w64-mingw32-native-20190307.zip || goto :error
 	echo [+] Verifying mingw
 	for /f %%a in ('CertUtil -hashfile mingw.zip SHA256 ^| findstr /r "^[0-9a-f]*$"') do if not "%%a"=="5390762183e181804b28eb13815b6210f85a1280057b815f749b06768215f817" goto :error
-	echo [+] Downloading patch
-	rem Mirror of https://sourceforge.net/projects/gnuwin32/files/patch/2.5.9-7/patch-2.5.9-7-bin.zip with fixed manifest
-	curl -#fo patch.zip https://download.wireguard.com/windows-toolchain/distfiles/patch-2.5.9-7-bin-fixed-manifest.zip || goto :error
-	echo [+] Verifying patch
-	for /f %%a in ('CertUtil -hashfile patch.zip SHA256 ^| findstr /r "^[0-9a-f]*$"') do if not "%%a"=="25977006ca9713f2662a5d0a2ed3a5a138225b8be3757035bd7da9dcf985d0a1" goto :error
 	echo [+] Extracting golang
 	tar -xf go.zip || goto :error
 	echo [+] Extracting mingw
 	tar -xf mingw.zip || goto :error
-	echo [+] Extracting patch
-	tar -xf patch.zip --strip-components 1 bin || goto :error
-	echo [+] Patching golang
-	.\patch.exe -f -N -r- -d go -p1 --binary < ..\golang-runtime-dll-injection.patch || goto :error
 	echo [+] Cleaning up
-	del patch.exe patch.zip go.zip mingw.zip || goto :error
+	del go.zip mingw.zip || goto :error
 	copy /y NUL prepared > NUL || goto :error
 	cd .. || goto :error
 
