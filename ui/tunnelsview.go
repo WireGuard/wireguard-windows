@@ -79,6 +79,7 @@ func NewTunnelsView(parent walk.Container) (*TunnelsView, error) {
 	tv.SetModel(model)
 	tv.SetLastColumnStretched(true)
 	tv.SetHeaderHidden(true)
+	tv.SetMultiSelection(false)
 	tv.Columns().Add(walk.NewTableViewColumn())
 
 	tunnelsView := &TunnelsView{
