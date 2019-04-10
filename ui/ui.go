@@ -92,13 +92,63 @@ func onQuit() {
 	walk.App().Exit(0)
 }
 
-const aboutText = `
-WireGuard
-TODO.
+func onAbout(owner walk.Form) {
+	vbl := walk.NewVBoxLayout()
+	vbl.SetMargins(walk.Margins{80, 20, 80, 20})
+	vbl.SetSpacing(10)
 
-Copyright (C) 2019 WireGuard LLC. All Rights Reserved.
-`
+	dlg, _ := walk.NewDialogWithFixedSize(owner)
+	dlg.SetTitle("About WireGuard")
+	dlg.SetLayout(vbl)
 
-func onAbout() {
-	walk.MsgBox(nil, "About WireGuard", aboutText, walk.MsgBoxOK)
+	font, _ := walk.NewFont("Segoe UI", 9, 0)
+	dlg.SetFont(font)
+
+	icon, err := walk.NewIconFromResourceIdWithSize(1, walk.Size{128, 128})
+	if err != nil {
+		panic(err)
+	}
+	dlg.AddDisposable(icon)
+
+	iv, _ := walk.NewImageView(dlg)
+	iv.SetImage(icon)
+
+	wgFont, _ := walk.NewFont("Segoe UI", 16, walk.FontBold)
+
+	wgLbl, _ := walk.NewLabel(dlg)
+	wgLbl.SetFont(wgFont)
+	wgLbl.SetTextAlignment(walk.AlignCenter)
+	wgLbl.SetText("WireGuard")
+
+	detailsLbl, _ := walk.NewTextLabel(dlg)
+	detailsLbl.SetTextAlignment(walk.AlignHCenterVNear)
+
+	detailsLbl.SetText(fmt.Sprintf(`App version: %s
+Go backend version: %s
+
+Copyright © 2019 WireGuard LLC.
+All Rights Reserved.`,
+		"TODO", "TODO"))
+
+	hbl := walk.NewHBoxLayout()
+	hbl.SetMargins(walk.Margins{VNear: 10})
+
+	buttonCP, _ := walk.NewComposite(dlg)
+	buttonCP.SetLayout(hbl)
+
+	walk.NewHSpacer(buttonCP)
+
+	closePB, _ := walk.NewPushButton(buttonCP)
+	closePB.SetAlignment(walk.AlignHCenterVNear)
+	closePB.SetText("Close")
+	closePB.Clicked().Attach(func() {
+		dlg.Accept()
+	})
+
+	walk.NewHSpacer(buttonCP)
+
+	dlg.SetDefaultButton(closePB)
+	dlg.SetCancelButton(closePB)
+
+	dlg.Run()
 }
