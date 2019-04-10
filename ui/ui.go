@@ -33,6 +33,8 @@ func nag() {
 func RunUI() {
 	runtime.LockOSThread()
 
+	tunnelTracker := new(TunnelTracker)
+
 	icon, err := walk.NewIconFromResourceId(1)
 	if err != nil {
 		panic(err)
@@ -45,6 +47,8 @@ func RunUI() {
 	}
 	defer mtw.Dispose()
 
+	mtw.SetTunnelTracker(tunnelTracker)
+
 	tray, err := NewTray(mtw, icon)
 	if err != nil {
 		panic(err)
@@ -52,14 +56,13 @@ func RunUI() {
 	defer tray.Dispose()
 
 	// Bind to updates
-	setTunnelState := func(tunnel *service.Tunnel, state service.TunnelState, showNotifications bool) {
-		mtw.Synchronize(func() {
-			mtw.SetTunnelState(tunnel, state)
-			tray.SetTunnelStateWithNotification(tunnel, state, showNotifications)
-		})
-	}
-
 	service.IPCClientRegisterTunnelChange(func(tunnel *service.Tunnel, state service.TunnelState, err error) {
+		mtw.Synchronize(func() {
+			tunnelTracker.SetTunnelState(tunnel, state, err)
+			mtw.SetTunnelState(tunnel, state)
+			tray.SetTunnelStateWithNotification(tunnel, state, err == nil)
+		})
+
 		if err == nil {
 			return
 		}
@@ -73,24 +76,7 @@ func RunUI() {
 		} else {
 			tray.ShowError("WireGuard Tunnel Error", err.Error())
 		}
-
-		setTunnelState(tunnel, state, err == nil)
 	})
-
-	// Fetch current state
-	go func() {
-		tunnels, err := service.IPCClientTunnels()
-		if err != nil {
-			return
-		}
-		for _, tunnel := range tunnels {
-			state, err := tunnel.State()
-			if err != nil {
-				continue
-			}
-			setTunnelState(&tunnel, state, false)
-		}
-	}()
 
 	time.AfterFunc(time.Minute*15, nag)
 	mtw.Run()

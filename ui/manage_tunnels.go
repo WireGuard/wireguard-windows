@@ -25,6 +25,7 @@ type ManageTunnelsWindow struct {
 
 	icon *walk.Icon
 
+	tunnelTracker          *TunnelTracker
 	tunnelsView            *TunnelsView
 	confView               *ConfView
 	tunnelAddedPublisher   walk.StringEventPublisher
@@ -170,6 +171,16 @@ func (mtw *ManageTunnelsWindow) Show() {
 	mtw.updateConfView()
 	win.SetForegroundWindow(mtw.Handle())
 	win.BringWindowToTop(mtw.Handle())
+}
+
+func (mtw *ManageTunnelsWindow) TunnelTracker() *TunnelTracker {
+	return mtw.tunnelTracker
+}
+
+func (mtw *ManageTunnelsWindow) SetTunnelTracker(tunnelTracker *TunnelTracker) {
+	mtw.tunnelTracker = tunnelTracker
+
+	mtw.confView.SetTunnelTracker(tunnelTracker)
 }
 
 func (mtw *ManageTunnelsWindow) SetTunnelState(tunnel *service.Tunnel, state service.TunnelState) {

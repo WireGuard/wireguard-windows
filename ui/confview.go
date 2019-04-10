@@ -42,8 +42,9 @@ type labelTextLine struct {
 }
 
 type toggleActiveLine struct {
-	composite *walk.Composite
-	button    *walk.PushButton
+	composite     *walk.Composite
+	button        *walk.PushButton
+	tunnelTracker *TunnelTracker
 }
 
 type interfaceView struct {
@@ -193,6 +194,10 @@ func (tal *toggleActiveLine) update(state service.TunnelState) {
 
 	default:
 		enabled, text = false, ""
+	}
+
+	if tt := tal.tunnelTracker; tt != nil && tt.InTransition() {
+		enabled = false
 	}
 
 	tal.button.SetEnabled(enabled)
@@ -430,28 +435,30 @@ var crossThreadMessageHijack = windows.NewCallback(func(hwnd win.HWND, msg uint3
 	return win.CallWindowProc(cv.originalWndProc, hwnd, msg, wParam, lParam)
 })
 
-func (cv *ConfView) onToggleActiveClicked() {
-	state, err := cv.tunnel.State()
-	if err != nil {
-		walk.MsgBox(cv.Form(), "Failed to retrieve tunnel state", fmt.Sprintf("Error: %s", err.Error()), walk.MsgBoxIconError)
-		return
-	}
+func (cv *ConfView) TunnelTracker() *TunnelTracker {
+	return cv.interfaze.toggleActive.tunnelTracker
+}
 
+func (cv *ConfView) SetTunnelTracker(tunnelTracker *TunnelTracker) {
+	cv.interfaze.toggleActive.tunnelTracker = tunnelTracker
+}
+
+func (cv *ConfView) onToggleActiveClicked() {
 	cv.interfaze.toggleActive.button.SetEnabled(false)
 
-	switch state {
-	case service.TunnelStarted:
-		if err := cv.tunnel.Stop(); err != nil {
-			walk.MsgBox(cv.Form(), "Failed to stop tunnel", fmt.Sprintf("Error: %s", err.Error()), walk.MsgBoxIconError)
-		}
-
-	case service.TunnelStopped:
-		if err := cv.tunnel.Start(); err != nil {
-			walk.MsgBox(cv.Form(), "Failed to start tunnel", fmt.Sprintf("Error: %s", err.Error()), walk.MsgBoxIconError)
-		}
-
-	default:
-		panic("unexpected state")
+	var title string
+	var err error
+	tt := cv.TunnelTracker()
+	if activeTunnel := tt.ActiveTunnel(); activeTunnel != nil && activeTunnel.Name == cv.tunnel.Name {
+		title = "Failed to deactivate tunnel"
+		err = tt.DeactivateTunnel()
+	} else {
+		title = "Failed to activate tunnel"
+		err = tt.ActivateTunnel(cv.tunnel)
+	}
+	if err != nil {
+		walk.MsgBox(cv.Form(), title, err.Error(), walk.MsgBoxIconError)
+		return
 	}
 
 	cv.setTunnel(cv.tunnel)
