@@ -403,9 +403,8 @@ func NewConfView(parent walk.Container) (*ConfView, error) {
 	cv.peers = make(map[conf.Key]*peerView)
 	cv.creatingThread = windows.GetCurrentThreadId()
 	win.SetWindowLongPtr(cv.Handle(), win.GWLP_USERDATA, uintptr(unsafe.Pointer(cv)))
-	cv.originalWndProc = win.SetWindowLongPtr(cv.Handle(), win.GWL_WNDPROC, crossThreadMessageHijack)
 	cv.tunnelChangedCB = service.IPCClientRegisterTunnelChange(cv.onTunnelChanged)
-	cv.setTunnel(nil)
+	cv.SetTunnel(nil)
 
 	if err := walk.InitWrapperWindow(cv); err != nil {
 		return nil, err
@@ -422,18 +421,6 @@ func (cv *ConfView) Dispose() {
 
 	cv.ScrollView.Dispose()
 }
-
-//TODO: choose actual good value for this
-const crossThreadUpdate = win.WM_APP + 17
-
-var crossThreadMessageHijack = windows.NewCallback(func(hwnd win.HWND, msg uint32, wParam, lParam uintptr) uintptr {
-	cv := (*ConfView)(unsafe.Pointer(win.GetWindowLongPtr(hwnd, win.GWLP_USERDATA)))
-	if msg == crossThreadUpdate {
-		cv.setTunnel((*service.Tunnel)(unsafe.Pointer(wParam)))
-		return 0
-	}
-	return win.CallWindowProc(cv.originalWndProc, hwnd, msg, wParam, lParam)
-})
 
 func (cv *ConfView) TunnelTracker() *TunnelTracker {
 	return cv.interfaze.toggleActive.tunnelTracker
@@ -461,7 +448,7 @@ func (cv *ConfView) onToggleActiveClicked() {
 		return
 	}
 
-	cv.setTunnel(cv.tunnel)
+	cv.SetTunnel(cv.tunnel)
 }
 
 func (cv *ConfView) onTunnelChanged(tunnel *service.Tunnel, state service.TunnelState, err error) {
@@ -478,14 +465,6 @@ func (cv *ConfView) updateTunnelStatus(state service.TunnelState) {
 }
 
 func (cv *ConfView) SetTunnel(tunnel *service.Tunnel) {
-	if cv.creatingThread == windows.GetCurrentThreadId() {
-		cv.setTunnel(tunnel)
-	} else {
-		cv.SendMessage(crossThreadUpdate, uintptr(unsafe.Pointer(tunnel)), 0)
-	}
-}
-
-func (cv *ConfView) setTunnel(tunnel *service.Tunnel) {
 	cv.tunnel = tunnel
 
 	var state service.TunnelState

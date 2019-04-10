@@ -132,7 +132,9 @@ func (mtw *ManageTunnelsWindow) setup() error {
 		// TODO: teardown in Dispose()
 		t := time.NewTicker(time.Second)
 		for range t.C {
-			mtw.updateConfView()
+			mtw.Synchronize(func() {
+				mtw.updateConfView()
+			})
 		}
 	}()
 
