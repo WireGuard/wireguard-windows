@@ -14,6 +14,9 @@ import (
 	"golang.zx2c4.com/wireguard/windows/service"
 )
 
+// Status + active CIDRs + deactivate + separator
+const trayTunnelActionsOffset = 4
+
 type Tray struct {
 	*walk.NotifyIcon
 
@@ -56,10 +59,12 @@ func (tray *Tray) setup() error {
 		label     string
 		handler   walk.EventHandler
 		enabled   bool
+		hidden    bool
 		separator bool
 	}{
 		{label: "Status: Unknown"},
-		{label: "Networks: None"},
+		{label: "Networks: None", hidden: true},
+		{label: "Deactivate", handler: tray.onDeactivateTunnel, enabled: true, hidden: true},
 		{separator: true},
 		{separator: true},
 		{label: "&Manage tunnels...", handler: tray.mtw.Show, enabled: true},
@@ -75,6 +80,7 @@ func (tray *Tray) setup() error {
 			action = walk.NewAction()
 			action.SetText(item.label)
 			action.SetEnabled(item.enabled)
+			action.SetVisible(!item.hidden)
 			if item.handler != nil {
 				action.Triggered().Attach(item.handler)
 			}
@@ -104,7 +110,11 @@ func (tray *Tray) addTunnelAction(tunnelName string) {
 	tunnelAction.SetEnabled(true)
 	tunnelAction.SetCheckable(true)
 	tunnelAction.Triggered().Attach(func() {
-
+		if activeTunnel := tray.mtw.tunnelTracker.activeTunnel; activeTunnel != nil && activeTunnel.Name == tunnelName {
+			tray.onDeactivateTunnel()
+		} else {
+			tray.onActivateTunnel(tunnelName)
+		}
 	})
 	tray.tunnels[tunnelName] = tunnelAction
 
@@ -125,10 +135,7 @@ func (tray *Tray) addTunnelAction(tunnelName string) {
 		}
 	}
 
-	// Status + active CIDRs + separator
-	const offset = 3
-
-	tray.ContextMenu().Actions().Insert(offset+idx, tunnelAction)
+	tray.ContextMenu().Actions().Insert(trayTunnelActionsOffset+idx, tunnelAction)
 }
 
 func (tray *Tray) removeTunnelAction(tunnelName string) {
@@ -146,18 +153,29 @@ func (tray *Tray) SetTunnelStateWithNotification(tunnel *service.Tunnel, state s
 	actions := tray.ContextMenu().Actions()
 	statusAction := actions.At(0)
 	activeCIDRsAction := actions.At(1)
+	deactivateAction := actions.At(2)
+
+	setTunnelActionsEnabled := func(enabled bool) {
+		for i := 0; i < len(tray.tunnels); i++ {
+			action := actions.At(trayTunnelActionsOffset + i)
+			action.SetEnabled(enabled)
+		}
+	}
 
 	switch state {
 	case service.TunnelStarting:
-		statusAction.SetText("Activating")
-		tunnelAction.SetEnabled(false)
+		statusAction.SetText("Status: Activating")
+		setTunnelActionsEnabled(false)
 
 		tray.SetToolTip("WireGuard: Activating...")
+
 	case service.TunnelStarted:
-		statusAction.SetText("Active")
+		statusAction.SetText("Status: Active")
+		setTunnelActionsEnabled(true)
 
 		config, err := tunnel.RuntimeConfig()
 		activeCIDRsAction.SetVisible(err == nil)
+		deactivateAction.SetVisible(err == nil)
 		if err == nil {
 			var sb strings.Builder
 			for i, addr := range config.Interface.Addresses {
@@ -178,20 +196,35 @@ func (tray *Tray) SetTunnelStateWithNotification(tunnel *service.Tunnel, state s
 		if showNotifications {
 			tray.ShowInfo("WireGuard Activated", fmt.Sprintf("The %s tunnel has been activated.", tunnel.Name))
 		}
+
 	case service.TunnelStopping:
-		statusAction.SetText("Deactivating")
-		tunnelAction.SetEnabled(false)
+		statusAction.SetText("Status: Deactivating")
+		setTunnelActionsEnabled(false)
 
 		tray.SetToolTip("WireGuard: Deactivating...")
+
 	case service.TunnelStopped:
-		statusAction.SetText("Inactive")
+		statusAction.SetText("Status: Inactive")
 		activeCIDRsAction.SetVisible(false)
-		tunnelAction.SetEnabled(true)
+		deactivateAction.SetVisible(false)
+		setTunnelActionsEnabled(true)
 		tunnelAction.SetChecked(false)
 
 		tray.SetToolTip("WireGuard: Deactivated")
 		if showNotifications {
 			tray.ShowInfo("WireGuard Deactivated", fmt.Sprintf("The %s tunnel has been deactivated.", tunnel.Name))
 		}
+	}
+}
+
+func (tray *Tray) onActivateTunnel(tunnelName string) {
+	if err := tray.mtw.TunnelTracker().ActivateTunnel(&service.Tunnel{tunnelName}); err != nil {
+		walk.MsgBox(tray.mtw, "Failed to activate tunnel", err.Error(), walk.MsgBoxIconError)
+	}
+}
+
+func (tray *Tray) onDeactivateTunnel() {
+	if err := tray.mtw.TunnelTracker().DeactivateTunnel(); err != nil {
+		walk.MsgBox(tray.mtw, "Failed to deactivate tunnel", err.Error(), walk.MsgBoxIconError)
 	}
 }
