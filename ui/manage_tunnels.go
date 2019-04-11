@@ -9,6 +9,7 @@ import (
 	"archive/zip"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 	"time"
@@ -16,6 +17,7 @@ import (
 	"github.com/lxn/walk"
 	"github.com/lxn/win"
 	"golang.zx2c4.com/wireguard/windows/conf"
+	"golang.zx2c4.com/wireguard/windows/ringlogger"
 	"golang.zx2c4.com/wireguard/windows/service"
 	"golang.zx2c4.com/wireguard/windows/ui/syntax"
 )
@@ -25,6 +27,7 @@ type ManageTunnelsWindow struct {
 
 	icon *walk.Icon
 
+	logger                 *ringlogger.Ringlogger
 	tunnelTracker          *TunnelTracker
 	tunnelsView            *TunnelsView
 	confView               *ConfView
@@ -32,11 +35,12 @@ type ManageTunnelsWindow struct {
 	tunnelDeletedPublisher walk.StringEventPublisher
 }
 
-func NewManageTunnelsWindow(icon *walk.Icon) (*ManageTunnelsWindow, error) {
+func NewManageTunnelsWindow(icon *walk.Icon, logger *ringlogger.Ringlogger) (*ManageTunnelsWindow, error) {
 	var err error
 
 	mtw := &ManageTunnelsWindow{
-		icon: icon,
+		icon:   icon,
+		logger: logger,
 	}
 	mtw.MainWindow, err = walk.NewMainWindowWithName("WireGuard")
 	if err != nil {
@@ -99,7 +103,7 @@ func (mtw *ManageTunnelsWindow) setup() error {
 
 		exportLogAction := walk.NewAction()
 		exportLogAction.SetText("Export log to file...")
-		// TODO: Triggered().Attach()
+		exportLogAction.Triggered().Attach(mtw.onExportLog)
 
 		exportTunnelAction := walk.NewAction()
 		exportTunnelAction.SetText("Export tunnels to zip...")
@@ -460,6 +464,27 @@ func (mtw *ManageTunnelsWindow) TunnelDeleted() *walk.StringEvent {
 	return mtw.tunnelDeletedPublisher.Event()
 }
 
+func (mtw *ManageTunnelsWindow) exportLog(filePath string, overwriteExisting bool) (fileExists bool, err error) {
+	var file *os.File
+
+	if overwriteExisting {
+		if file, err = os.Create(filePath); err != nil {
+			return false, fmt.Errorf("exportLog: os.Create failed: %v", err)
+		}
+	} else {
+		if file, err = os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY|os.O_EXCL, 0600); err != nil {
+			return os.IsExist(err), fmt.Errorf("exportLog: os.OpenFile failed: %v", err)
+		}
+	}
+	defer file.Close()
+
+	if _, err := mtw.logger.WriteTo(file); err != nil {
+		return false, fmt.Errorf("exportLog: Ringlogger.WriteTo failed: %v", err)
+	}
+
+	return false, nil
+}
+
 // Handlers
 
 func (mtw *ManageTunnelsWindow) onEditTunnel() {
@@ -516,4 +541,36 @@ func (mtw *ManageTunnelsWindow) onImport() {
 	}
 
 	mtw.importFiles(dlg.FilePaths)
+}
+
+func (mtw *ManageTunnelsWindow) onExportLog() {
+	dlg := walk.FileDialog{
+		Filter: "Log Files (*.log)|*.log|Text Files (*.txt)|*.txt|All Files (*.*)|*.*",
+		Title:  "Export log to file",
+	}
+
+	if ok, _ := dlg.ShowSave(mtw); !ok {
+		return
+	}
+
+	extensions := []string{".log", ".txt"}
+	if dlg.FilterIndex < 3 && !strings.HasSuffix(dlg.FilePath, extensions[dlg.FilterIndex-1]) {
+		dlg.FilePath = dlg.FilePath + extensions[dlg.FilterIndex-1]
+	}
+
+	if fileExists, err := mtw.exportLog(dlg.FilePath, false); err != nil {
+		if fileExists {
+			if walk.DlgCmdNo == walk.MsgBox(mtw, "Export log", fmt.Sprintf(`File "%s" already exists.
+
+Do you want to overwrite it?`, dlg.FilePath), walk.MsgBoxYesNo|walk.MsgBoxDefButton2|walk.MsgBoxIconWarning) {
+				return
+			}
+
+			_, err = mtw.exportLog(dlg.FilePath, true)
+		}
+
+		if err != nil {
+			walk.MsgBox(mtw, "Export log failed", fmt.Sprintf(`An error occurred while exporting the log to file "%s": %v`, dlg.FilePath, err), walk.MsgBoxIconError)
+		}
+	}
 }
