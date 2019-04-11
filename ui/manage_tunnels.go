@@ -105,9 +105,9 @@ func (mtw *ManageTunnelsWindow) setup() error {
 		exportLogAction.SetText("Export log to file...")
 		exportLogAction.Triggered().Attach(mtw.onExportLog)
 
-		exportTunnelAction := walk.NewAction()
-		exportTunnelAction.SetText("Export tunnels to zip...")
-		// TODO: Triggered().Attach()
+		exportTunnelsAction := walk.NewAction()
+		exportTunnelsAction.SetText("Export tunnels to zip...")
+		exportTunnelsAction.Triggered().Attach(mtw.onExportTunnels)
 
 		// TODO: Add this to the dispose array (AddDisposable)
 		addMenu, _ := walk.NewMenu()
@@ -123,7 +123,7 @@ func (mtw *ManageTunnelsWindow) setup() error {
 
 		settingsMenu, _ := walk.NewMenu()
 		settingsMenu.Actions().Add(exportLogAction)
-		settingsMenu.Actions().Add(exportTunnelAction)
+		settingsMenu.Actions().Add(exportTunnelsAction)
 		settingsMenuAction, _ := tunnelsToolBar.Actions().AddMenu(settingsMenu)
 		settingsMenuAction.SetText("Export")
 	}
@@ -416,6 +416,30 @@ func (mtw *ManageTunnelsWindow) importFiles(paths []string) {
 	}
 }
 
+func (mtw *ManageTunnelsWindow) exportTunnels(filePath string) {
+	mtw.writeFileWithOverwriteHandling(filePath, func(file *os.File) error {
+		writer := zip.NewWriter(file)
+
+		for _, tunnel := range mtw.tunnelsView.model.tunnels {
+			cfg, err := tunnel.StoredConfig()
+			if err != nil {
+				return fmt.Errorf("onExportTunnels: tunnel.StoredConfig failed: %v", err)
+			}
+
+			w, err := writer.Create(tunnel.Name + ".conf")
+			if err != nil {
+				return fmt.Errorf("onExportTunnels: writer.Create failed: %v", err)
+			}
+
+			if _, err := w.Write(([]byte)(cfg.ToWgQuick())); err != nil {
+				return fmt.Errorf("onExportTunnels: cfg.ToWgQuick failed: %v", err)
+			}
+		}
+
+		return writer.Close()
+	})
+}
+
 func (mtw *ManageTunnelsWindow) addTunnel(config *conf.Config) {
 	tunnel, err := service.IPCClientNewTunnel(config)
 	if err != nil {
@@ -485,6 +509,38 @@ func (mtw *ManageTunnelsWindow) exportLog(filePath string, overwriteExisting boo
 	return false, nil
 }
 
+func (mtw *ManageTunnelsWindow) writeFileWithOverwriteHandling(filePath string, write func(file *os.File) error) bool {
+	showError := func(err error) bool {
+		if err == nil {
+			return false
+		}
+
+		walk.MsgBox(mtw, "Writing file failed", err.Error(), walk.MsgBoxIconError)
+
+		return true
+	}
+
+	file, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY|os.O_EXCL, 0600)
+	if err != nil {
+		if os.IsExist(err) {
+			if walk.DlgCmdNo == walk.MsgBox(mtw, "Writing file failed", fmt.Sprintf(`File "%s" already exists.
+
+Do you want to overwrite it?`, filePath), walk.MsgBoxYesNo|walk.MsgBoxDefButton2|walk.MsgBoxIconWarning) {
+				return false
+			}
+
+			if file, err = os.Create(filePath); err != nil {
+				return !showError(err)
+			}
+		} else {
+			return !showError(err)
+		}
+	}
+	defer file.Close()
+
+	return !showError(write(file))
+}
+
 // Handlers
 
 func (mtw *ManageTunnelsWindow) onEditTunnel() {
@@ -541,6 +597,22 @@ func (mtw *ManageTunnelsWindow) onImport() {
 	}
 
 	mtw.importFiles(dlg.FilePaths)
+}
+
+func (mtw *ManageTunnelsWindow) onExportTunnels() {
+	dlg := &walk.FileDialog{}
+	dlg.Filter = "Configuration ZIP Files (*.zip)|*.zip"
+	dlg.Title = "Export tunnels to zip..."
+
+	if ok, _ := dlg.ShowSave(mtw); !ok {
+		return
+	}
+
+	if !strings.HasSuffix(dlg.FilePath, ".zip") {
+		dlg.FilePath += ".zip"
+	}
+
+	mtw.exportTunnels(dlg.FilePath)
 }
 
 func (mtw *ManageTunnelsWindow) onExportLog() {
