@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/lxn/walk"
+	"golang.zx2c4.com/wireguard/windows/ringlogger"
 	"golang.zx2c4.com/wireguard/windows/service"
 )
 
@@ -33,6 +34,12 @@ func nag() {
 func RunUI() {
 	runtime.LockOSThread()
 
+	logger, err := ringlogger.NewRingloggerFromInheritedMappingHandle(os.Args[5], "GUI")
+	if err != nil {
+		walk.MsgBox(nil, "Unable to initialize logging", fmt.Sprint(err), walk.MsgBoxIconError)
+		return
+	}
+
 	tunnelTracker := new(TunnelTracker)
 
 	icon, err := walk.NewIconFromResourceId(1)
@@ -41,7 +48,7 @@ func RunUI() {
 	}
 	defer icon.Dispose()
 
-	mtw, err := NewManageTunnelsWindow(icon)
+	mtw, err := NewManageTunnelsWindow(icon, logger)
 	if err != nil {
 		panic(err)
 	}
