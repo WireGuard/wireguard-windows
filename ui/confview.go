@@ -210,7 +210,7 @@ func newToggleActiveLine(parent walk.Container) *toggleActiveLine {
 
 	tal.composite, _ = walk.NewComposite(parent)
 	layout := walk.NewHBoxLayout()
-	layout.SetMargins(walk.Margins{})
+	layout.SetMargins(walk.Margins{0, 0, 0, 6})
 	tal.composite.SetLayout(layout)
 
 	tal.button, _ = walk.NewPushButton(tal.composite)
