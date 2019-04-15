@@ -21,6 +21,7 @@ const GUID CDECL IID_ITextDocument = { 0x8CC497C0, 0xA1DF, 0x11CE, { 0x80, 0x98,
 struct syntaxedit_data {
 	IRichEditOle *irich;
 	ITextDocument *idoc;
+	bool highlight_guard;
 };
 
 static WNDPROC parent_proc;
@@ -72,11 +73,15 @@ static void highlight_text(HWND hWnd)
 	};
 	struct syntaxedit_data *this = (struct syntaxedit_data *)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 	LRESULT msg_size;
-	char *msg;
-	struct highlight_span *spans;
+	char *msg = NULL;
+	struct highlight_span *spans = NULL;
 	CHARRANGE orig_selection;
 	POINT original_scroll;
 	bool found_private_key = false;
+
+	if (this->highlight_guard)
+		return;
+	this->highlight_guard = true;
 
 	msg_size = SendMessage(hWnd, EM_GETTEXTLENGTHEX, (WPARAM)&gettextlengthex, 0);
 	if (msg_size == E_INVALIDARG)
@@ -85,11 +90,9 @@ static void highlight_text(HWND hWnd)
 
 	msg = malloc(msg_size + 1);
 	if (!msg)
-		return;
-	if (SendMessage(hWnd, EM_GETTEXTEX, (WPARAM)&gettextex, (LPARAM)msg) <= 0) {
-		free(msg);
-		return;
-	}
+		goto out;
+	if (SendMessage(hWnd, EM_GETTEXTEX, (WPARAM)&gettextex, (LPARAM)msg) <= 0)
+		goto out;
 
 	/* By default we get CR not CRLF, so just convert to LF. */
 	for (size_t i = 0; i < msg_size; ++i) {
@@ -98,10 +101,8 @@ static void highlight_text(HWND hWnd)
 	}
 
 	spans = highlight_config(msg);
-	if (!spans) {
-		free(msg);
-		return;
-	}
+	if (!spans)
+		goto out;
 
 	this->idoc->lpVtbl->Undo(this->idoc, tomSuspend, NULL);
 	SendMessage(hWnd, WM_SETREDRAW, FALSE, 0);
@@ -128,10 +129,13 @@ static void highlight_text(HWND hWnd)
 	SendMessage(hWnd, WM_SETREDRAW, TRUE, 0);
 	RedrawWindow(hWnd, NULL, NULL, RDW_ERASE | RDW_FRAME | RDW_INVALIDATE | RDW_ALLCHILDREN);
 	this->idoc->lpVtbl->Undo(this->idoc, tomResume, NULL);
-	free(spans);
-	free(msg);
 	if (!found_private_key)
 		SendMessage(hWnd, SE_PRIVATE_KEY, 0, 0);
+
+out:
+	free(spans);
+	free(msg);
+	this->highlight_guard = false;
 }
 
 static void context_menu(HWND hWnd, INT x, INT y)
