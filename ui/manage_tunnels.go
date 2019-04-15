@@ -19,7 +19,6 @@ import (
 	"golang.zx2c4.com/wireguard/windows/conf"
 	"golang.zx2c4.com/wireguard/windows/ringlogger"
 	"golang.zx2c4.com/wireguard/windows/service"
-	"golang.zx2c4.com/wireguard/windows/ui/syntax"
 )
 
 type ManageTunnelsWindow struct {
@@ -200,134 +199,6 @@ func (mtw *ManageTunnelsWindow) updateConfView() {
 	}
 
 	mtw.confView.SetTunnel(mtw.tunnelsView.CurrentTunnel())
-}
-
-func (mtw *ManageTunnelsWindow) runTunnelEdit(tunnel *service.Tunnel) *conf.Config {
-	var (
-		title  string
-		name   string
-		config conf.Config
-	)
-
-	if tunnel == nil {
-		// Creating a new tunnel, create a new private key and use the default template
-		title = "Create new tunnel"
-		name = "New tunnel"
-		pk, _ := conf.NewPrivateKey()
-		config = conf.Config{Interface: conf.Interface{PrivateKey: *pk}}
-	} else {
-		title = "Edit tunnel"
-		name = tunnel.Name
-		config, _ = tunnel.StoredConfig()
-	}
-
-	dlg, _ := walk.NewDialog(mtw)
-	dlg.SetIcon(mtw.icon)
-	dlg.SetTitle(title)
-	dlg.SetLayout(walk.NewGridLayout())
-	// TODO: use size hints in layout elements to communicate the minimal width
-	dlg.SetMinMaxSize(walk.Size{500, 400}, walk.Size{9999, 9999})
-	dlg.Layout().(*walk.GridLayout).SetColumnStretchFactor(1, 3)
-	dlg.Layout().SetSpacing(6)
-	dlg.Layout().SetMargins(walk.Margins{18, 18, 18, 18})
-
-	nameLabel, _ := walk.NewTextLabel(dlg)
-	dlg.Layout().(*walk.GridLayout).SetRange(nameLabel, walk.Rectangle{0, 0, 1, 1})
-	nameLabel.SetTextAlignment(walk.AlignHFarVCenter)
-	nameLabel.SetText("Name:")
-
-	nameEdit, _ := walk.NewLineEdit(dlg)
-	dlg.Layout().(*walk.GridLayout).SetRange(nameEdit, walk.Rectangle{1, 0, 1, 1})
-	// TODO: compute the next available tunnel name ?
-	nameEdit.SetText(name)
-
-	pubkeyLabel, _ := walk.NewTextLabel(dlg)
-	dlg.Layout().(*walk.GridLayout).SetRange(pubkeyLabel, walk.Rectangle{0, 1, 1, 1})
-	pubkeyLabel.SetTextAlignment(walk.AlignHFarVCenter)
-	pubkeyLabel.SetText("Public key:")
-
-	pubkeyEdit, _ := walk.NewLineEdit(dlg)
-	dlg.Layout().(*walk.GridLayout).SetRange(pubkeyEdit, walk.Rectangle{1, 1, 1, 1})
-	pubkeyEdit.SetReadOnly(true)
-	pubkeyEdit.SetText("(unknown)")
-
-	syntaxEdit, _ := syntax.NewSyntaxEdit(dlg)
-	dlg.Layout().(*walk.GridLayout).SetRange(syntaxEdit, walk.Rectangle{0, 2, 2, 1})
-	lastPrivate := ""
-	syntaxEdit.PrivateKeyChanged().Attach(func(privateKey string) {
-		if privateKey == lastPrivate {
-			return
-		}
-		lastPrivate = privateKey
-		key, _ := conf.NewPrivateKeyFromString(privateKey)
-		if key != nil {
-			pubkeyEdit.SetText(key.Public().String())
-		} else {
-			pubkeyEdit.SetText("(unknown)")
-		}
-	})
-	syntaxEdit.SetText(config.ToWgQuick())
-
-	buttonsContainer, _ := walk.NewComposite(dlg)
-	dlg.Layout().(*walk.GridLayout).SetRange(buttonsContainer, walk.Rectangle{0, 3, 2, 1})
-	buttonsContainer.SetLayout(walk.NewHBoxLayout())
-	buttonsContainer.Layout().SetMargins(walk.Margins{})
-
-	walk.NewHSpacer(buttonsContainer)
-
-	saveButton, _ := walk.NewPushButton(buttonsContainer)
-	saveButton.SetText("Save")
-	saveButton.Clicked().Attach(func() {
-		newName := nameEdit.Text()
-		if newName == "" {
-			walk.MsgBox(mtw, "Invalid configuration", "Name is required", walk.MsgBoxIconWarning)
-			return
-		}
-
-		if tunnel != nil && tunnel.Name != newName {
-			names, err := conf.ListConfigNames()
-			if err != nil {
-				walk.MsgBox(mtw, "Error", err.Error(), walk.MsgBoxIconError)
-				return
-			}
-
-			for _, name := range names {
-				if name == newName {
-					walk.MsgBox(mtw, "Invalid configuration", fmt.Sprintf("Another tunnel already exists with the name ‘%s’.", newName), walk.MsgBoxIconWarning)
-					return
-				}
-			}
-		}
-
-		if !conf.TunnelNameIsValid(newName) {
-			walk.MsgBox(mtw, "Invalid configuration", fmt.Sprintf("Tunnel name ‘%s’ is invalid.", newName), walk.MsgBoxIconWarning)
-			return
-		}
-
-		cfg, err := conf.FromWgQuick(syntaxEdit.Text(), newName)
-		if err != nil {
-			walk.MsgBox(mtw, "Error", err.Error(), walk.MsgBoxIconError)
-			return
-		}
-
-		config = *cfg
-
-		dlg.Accept()
-	})
-
-	cancelButton, _ := walk.NewPushButton(buttonsContainer)
-	cancelButton.SetText("Cancel")
-	cancelButton.Clicked().Attach(dlg.Cancel)
-
-	dlg.SetCancelButton(cancelButton)
-	dlg.SetDefaultButton(saveButton)
-
-	if dlg.Run() == walk.DlgCmdOK {
-		// Save
-		return &config
-	}
-
-	return nil
 }
 
 // importFiles tries to import a list of configurations.
@@ -539,7 +410,7 @@ func (mtw *ManageTunnelsWindow) onEditTunnel() {
 		return
 	}
 
-	if config := mtw.runTunnelEdit(tunnel); config != nil {
+	if config := runTunnelConfigDialog(mtw, tunnel); config != nil {
 		// Delete old one
 		mtw.deleteTunnel(tunnel)
 
@@ -549,7 +420,7 @@ func (mtw *ManageTunnelsWindow) onEditTunnel() {
 }
 
 func (mtw *ManageTunnelsWindow) onAddTunnel() {
-	if config := mtw.runTunnelEdit(nil); config != nil {
+	if config := runTunnelConfigDialog(mtw, nil); config != nil {
 		// Save new
 		mtw.addTunnel(config)
 	}
