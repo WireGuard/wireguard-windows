@@ -15,21 +15,44 @@ import (
 	"golang.zx2c4.com/wireguard/windows/ui/syntax"
 )
 
-const ipv4DefaultRouteString = "0.0.0.0/0"
+const (
+	configKeyDNS        = "DNS"
+	configKeyAllowedIPs = "AllowedIPs"
+)
+
+var (
+	ipv4Wildcard       = orderedStringSetFromSlice([]string{"0.0.0.0/0"})
+	ipv4PublicNetworks = orderedStringSetFromSlice([]string{
+		"0.0.0.0/5", "8.0.0.0/7", "11.0.0.0/8", "12.0.0.0/6", "16.0.0.0/4", "32.0.0.0/3",
+		"64.0.0.0/2", "128.0.0.0/3", "160.0.0.0/5", "168.0.0.0/6", "172.0.0.0/12",
+		"172.32.0.0/11", "172.64.0.0/10", "172.128.0.0/9", "173.0.0.0/8", "174.0.0.0/7",
+		"176.0.0.0/4", "192.0.0.0/9", "192.128.0.0/11", "192.160.0.0/13", "192.169.0.0/16",
+		"192.170.0.0/15", "192.172.0.0/14", "192.176.0.0/12", "192.192.0.0/10",
+		"193.0.0.0/8", "194.0.0.0/7", "196.0.0.0/6", "200.0.0.0/5", "208.0.0.0/4",
+	})
+)
+
+type allowedIPsState int
+
+const (
+	allowedIPsStateInvalid allowedIPsState = iota
+	allowedIPsStateContainsIPV4Wildcard
+	allowedIPsStateContainsIPV4PublicNetworks
+	allowedIPsStateOther
+)
 
 type TunnelConfigDialog struct {
 	*walk.Dialog
-	nameEdit                         *walk.LineEdit
-	pubkeyEdit                       *walk.LineEdit
-	syntaxEdit                       *syntax.SyntaxEdit
-	excludePrivateIPsCB              *walk.CheckBox
-	saveButton                       *walk.PushButton
-	tunnel                           *service.Tunnel
-	config                           conf.Config
-	ipv4DefaultRouteModRFC1918CIDRs  []string
-	ipv4DefaultRouteModRFC1918String string
-	lastPrivateKey                   string
-	inCheckedChanged                 bool
+	nameEdit            *walk.LineEdit
+	pubkeyEdit          *walk.LineEdit
+	syntaxEdit          *syntax.SyntaxEdit
+	excludePrivateIPsCB *walk.CheckBox
+	saveButton          *walk.PushButton
+	tunnel              *service.Tunnel
+	config              conf.Config
+	allowedIPsState     allowedIPsState
+	lastPrivateKey      string
+	inCheckedChanged    bool
 }
 
 func runTunnelConfigDialog(owner walk.Form, tunnel *service.Tunnel) *conf.Config {
@@ -43,7 +66,6 @@ func runTunnelConfigDialog(owner walk.Form, tunnel *service.Tunnel) *conf.Config
 	if tunnel == nil {
 		// Creating a new tunnel, create a new private key and use the default template
 		title = "Create new tunnel"
-		name = "New tunnel"
 		pk, _ := conf.NewPrivateKey()
 		dlg.config = conf.Config{Interface: conf.Interface{PrivateKey: *pk}}
 	} else {
@@ -61,18 +83,7 @@ func runTunnelConfigDialog(owner walk.Form, tunnel *service.Tunnel) *conf.Config
 	dlg.SetIcon(owner.Icon())
 	dlg.SetTitle(title)
 	dlg.SetLayout(layout)
-	// TODO: use size hints in layout elements to communicate the minimal width
 	dlg.SetMinMaxSize(walk.Size{500, 400}, walk.Size{9999, 9999})
-
-	dlg.ipv4DefaultRouteModRFC1918CIDRs = []string{ // Set of all non-private IPv4 IPs
-		"0.0.0.0/5", "8.0.0.0/7", "11.0.0.0/8", "12.0.0.0/6", "16.0.0.0/4", "32.0.0.0/3",
-		"64.0.0.0/2", "128.0.0.0/3", "160.0.0.0/5", "168.0.0.0/6", "172.0.0.0/12",
-		"172.32.0.0/11", "172.64.0.0/10", "172.128.0.0/9", "173.0.0.0/8", "174.0.0.0/7",
-		"176.0.0.0/4", "192.0.0.0/9", "192.128.0.0/11", "192.160.0.0/13", "192.169.0.0/16",
-		"192.170.0.0/15", "192.172.0.0/14", "192.176.0.0/12", "192.192.0.0/10",
-		"193.0.0.0/8", "194.0.0.0/7", "196.0.0.0/6", "200.0.0.0/5", "208.0.0.0/4",
-	}
-	dlg.ipv4DefaultRouteModRFC1918String = strings.Join(dlg.ipv4DefaultRouteModRFC1918CIDRs, ", ")
 
 	nameLabel, _ := walk.NewTextLabel(dlg)
 	layout.SetRange(nameLabel, walk.Rectangle{0, 0, 1, 1})
@@ -81,7 +92,6 @@ func runTunnelConfigDialog(owner walk.Form, tunnel *service.Tunnel) *conf.Config
 
 	dlg.nameEdit, _ = walk.NewLineEdit(dlg)
 	layout.SetRange(dlg.nameEdit, walk.Rectangle{1, 0, 1, 1})
-	// TODO: compute the next available tunnel name ?
 	dlg.nameEdit.SetText(name)
 
 	pubkeyLabel, _ := walk.NewTextLabel(dlg)
@@ -107,7 +117,6 @@ func runTunnelConfigDialog(owner walk.Form, tunnel *service.Tunnel) *conf.Config
 
 	dlg.excludePrivateIPsCB, _ = walk.NewCheckBox(buttonsContainer)
 	dlg.excludePrivateIPsCB.SetText("Exclude private IPs")
-	dlg.excludePrivateIPsCB.SetChecked(dlg.privateIPsExcluded())
 	dlg.excludePrivateIPsCB.CheckedChanged().Attach(dlg.onExcludePrivateIPsCBCheckedChanged)
 	dlg.updateExcludePrivateIPsCBVisible()
 
@@ -124,6 +133,8 @@ func runTunnelConfigDialog(owner walk.Form, tunnel *service.Tunnel) *conf.Config
 	dlg.SetCancelButton(cancelButton)
 	dlg.SetDefaultButton(dlg.saveButton)
 
+	dlg.updateAllowedIPsState()
+
 	if dlg.Run() == walk.DlgCmdOK {
 		// Save
 		return &dlg.config
@@ -132,72 +143,132 @@ func runTunnelConfigDialog(owner walk.Form, tunnel *service.Tunnel) *conf.Config
 	return nil
 }
 
-func (dlg *TunnelConfigDialog) updateExcludePrivateIPsCBVisible() {
-	if dlg.inCheckedChanged {
+func (dlg *TunnelConfigDialog) updateAllowedIPsState() {
+	var newState allowedIPsState
+	if len(dlg.config.Peers) == 1 {
+		if allowedIPs := dlg.allowedIPsSet(); allowedIPs.IsSupersetOf(ipv4Wildcard) {
+			newState = allowedIPsStateContainsIPV4Wildcard
+		} else if allowedIPs.IsSupersetOf(ipv4PublicNetworks) {
+			newState = allowedIPsStateContainsIPV4PublicNetworks
+		} else {
+			newState = allowedIPsStateOther
+		}
+	} else {
+		newState = allowedIPsStateInvalid
+	}
+
+	if newState != dlg.allowedIPsState {
+		dlg.allowedIPsState = newState
+
+		dlg.excludePrivateIPsCB.SetVisible(dlg.canExcludePrivateIPs())
+		dlg.excludePrivateIPsCB.SetChecked(dlg.privateIPsExcluded())
+	}
+}
+
+func (dlg *TunnelConfigDialog) canExcludePrivateIPs() bool {
+	return dlg.allowedIPsState == allowedIPsStateContainsIPV4PublicNetworks ||
+		dlg.allowedIPsState == allowedIPsStateContainsIPV4Wildcard
+}
+
+func (dlg *TunnelConfigDialog) privateIPsExcluded() bool {
+	return dlg.allowedIPsState == allowedIPsStateContainsIPV4PublicNetworks
+}
+
+func (dlg *TunnelConfigDialog) setPrivateIPsExcluded(excluded bool) {
+	if !dlg.canExcludePrivateIPs() || dlg.privateIPsExcluded() == excluded {
 		return
 	}
 
-	visible := len(dlg.config.Peers) == 1
+	var oldNetworks, newNetworks *orderedStringSet
+	if excluded {
+		oldNetworks, newNetworks = ipv4Wildcard, ipv4PublicNetworks
+	} else {
+		oldNetworks, newNetworks = ipv4PublicNetworks, ipv4Wildcard
+	}
+	input := dlg.allowedIPs()
+	output := newOrderedStringSet()
+	var replaced bool
 
-	if visible {
-		cidrsSlice := dlg.allowedCIDRsSlice()
-		cidrsSet := dlg.setFromSlice(cidrsSlice)
-
-		if len(cidrsSet) != 1 || !cidrsSet[ipv4DefaultRouteString] {
-			for _, cidr := range dlg.ipv4DefaultRouteModRFC1918CIDRs {
-				if !cidrsSet[cidr] {
-					visible = false
-					break
-				}
+	// Replace the first instance of the wildcard with the public network list, or vice versa.
+	for _, network := range input {
+		if oldNetworks.Contains(network) {
+			if !replaced {
+				output.UniteWith(newNetworks)
+				replaced = true
 			}
+		} else {
+			output.Add(network)
 		}
 	}
 
-	dlg.excludePrivateIPsCB.SetVisible(visible)
+	// DNS servers only need to be handled specially when we're excluding private IPs.
+	for _, route := range dlg.dnsRoutes() {
+		if excluded {
+			output.Add(route)
+		} else {
+			output.Remove(route)
+			output.Remove(route + "/32")
+		}
+	}
+
+	if excluded {
+		dlg.allowedIPsState = allowedIPsStateContainsIPV4PublicNetworks
+	} else {
+		dlg.allowedIPsState = allowedIPsStateContainsIPV4Wildcard
+	}
+
+	dlg.replaceLine(configKeyAllowedIPs, strings.Join(output.ToSlice(), ", "))
 }
 
-func (dlg *TunnelConfigDialog) allowedCIDRsSlice() []string {
-	var cidrs []string
+func (dlg *TunnelConfigDialog) replaceLine(key, value string) {
+	text := dlg.syntaxEdit.Text()
+
+	start := strings.Index(text, key)
+	end := start + strings.Index(text[start:], "\n")
+	oldLine := text[start:end]
+	newLine := fmt.Sprintf("%s = %s", key, value)
+
+	dlg.syntaxEdit.SetText(strings.ReplaceAll(text, oldLine, newLine))
+}
+
+func (dlg *TunnelConfigDialog) updateExcludePrivateIPsCBVisible() {
+	dlg.updateAllowedIPsState()
+
+	dlg.excludePrivateIPsCB.SetVisible(dlg.canExcludePrivateIPs())
+}
+
+func (dlg *TunnelConfigDialog) dnsRoutes() []string {
+	return dlg.routes(configKeyDNS)
+}
+
+func (dlg *TunnelConfigDialog) allowedIPs() []string {
+	return dlg.routes(configKeyAllowedIPs)
+}
+
+func (dlg *TunnelConfigDialog) allowedIPsSet() *orderedStringSet {
+	return orderedStringSetFromSlice(dlg.allowedIPs())
+}
+
+func (dlg *TunnelConfigDialog) routes(key string) []string {
+	var routes []string
 
 	lines := strings.Split(dlg.syntaxEdit.Text(), "\n")
 	for _, line := range lines {
-		if strings.Contains(line, "AllowedIPs") {
-			cidrsMaybeWithSpace := strings.Split(strings.TrimSpace(line[strings.IndexByte(line, '=')+1:]), ",")
-			cidrs = make([]string, len(cidrsMaybeWithSpace))
-			for i, cidr := range cidrsMaybeWithSpace {
-				cidrs[i] = strings.TrimSpace(cidr)
+		if strings.HasPrefix(strings.TrimSpace(line), key) {
+			routesMaybeWithSpace := strings.Split(strings.TrimSpace(line[strings.IndexByte(line, '=')+1:]), ",")
+			routes = make([]string, len(routesMaybeWithSpace))
+			for i, route := range routesMaybeWithSpace {
+				routes[i] = strings.TrimSpace(route)
 			}
 			break
 		}
 	}
 
-	return cidrs
+	return routes
 }
 
-func (dlg *TunnelConfigDialog) setFromSlice(slice []string) map[string]bool {
-	set := make(map[string]bool)
-
-	for _, s := range slice {
-		set[s] = true
-	}
-
-	return set
-}
-
-func (dlg *TunnelConfigDialog) privateIPsExcluded() bool {
-	allowedCIDRs := dlg.setFromSlice(dlg.allowedCIDRsSlice())
-
-	if len(allowedCIDRs) != len(dlg.ipv4DefaultRouteModRFC1918CIDRs) {
-		return false
-	}
-
-	for _, cidr := range dlg.ipv4DefaultRouteModRFC1918CIDRs {
-		if !allowedCIDRs[cidr] {
-			return false
-		}
-	}
-
-	return true
+func (dlg *TunnelConfigDialog) onExcludePrivateIPsCBCheckedChanged() {
+	dlg.setPrivateIPsExcluded(dlg.excludePrivateIPsCB.Checked())
 }
 
 func (dlg *TunnelConfigDialog) onSyntaxEditPrivateKeyChanged(privateKey string) {
@@ -211,22 +282,6 @@ func (dlg *TunnelConfigDialog) onSyntaxEditPrivateKeyChanged(privateKey string) 
 	} else {
 		dlg.pubkeyEdit.SetText("(unknown)")
 	}
-}
-
-func (dlg *TunnelConfigDialog) onExcludePrivateIPsCBCheckedChanged() {
-	dlg.inCheckedChanged = true
-	defer func() {
-		dlg.inCheckedChanged = false
-	}()
-
-	var before, after string
-	if dlg.excludePrivateIPsCB.Checked() {
-		before, after = ipv4DefaultRouteString, dlg.ipv4DefaultRouteModRFC1918String
-	} else {
-		before, after = dlg.ipv4DefaultRouteModRFC1918String, ipv4DefaultRouteString
-	}
-	// TODO: Preserve changes the user may have done to the list?
-	dlg.syntaxEdit.SetText(strings.ReplaceAll(dlg.syntaxEdit.Text(), "AllowedIPs = "+before, "AllowedIPs = "+after))
 }
 
 func (dlg *TunnelConfigDialog) onSaveButtonClicked() {
@@ -265,4 +320,84 @@ func (dlg *TunnelConfigDialog) onSaveButtonClicked() {
 	dlg.config = *cfg
 
 	dlg.Accept()
+}
+
+type orderedStringSet struct {
+	items      []string
+	item2index map[string]int
+}
+
+func orderedStringSetFromSlice(items []string) *orderedStringSet {
+	oss := newOrderedStringSet()
+	oss.AddMany(items)
+	return oss
+}
+
+func newOrderedStringSet() *orderedStringSet {
+	return &orderedStringSet{item2index: make(map[string]int)}
+}
+
+func (oss *orderedStringSet) Add(item string) bool {
+	if _, ok := oss.item2index[item]; ok {
+		return false
+	}
+
+	oss.item2index[item] = len(oss.items)
+	oss.items = append(oss.items, item)
+	return true
+}
+
+func (oss *orderedStringSet) AddMany(items []string) {
+	for _, item := range items {
+		oss.Add(item)
+	}
+}
+
+func (oss *orderedStringSet) UniteWith(other *orderedStringSet) {
+	if other == oss {
+		return
+	}
+
+	oss.AddMany(other.items)
+}
+
+func (oss *orderedStringSet) Remove(item string) bool {
+	if i, ok := oss.item2index[item]; ok {
+		oss.items = append(oss.items[:i], oss.items[i+1:]...)
+		delete(oss.item2index, item)
+		return true
+	}
+
+	return false
+}
+
+func (oss *orderedStringSet) Len() int {
+	return len(oss.items)
+}
+
+func (oss *orderedStringSet) ToSlice() []string {
+	return append(([]string)(nil), oss.items...)
+}
+
+func (oss *orderedStringSet) Contains(item string) bool {
+	_, ok := oss.item2index[item]
+	return ok
+}
+
+func (oss *orderedStringSet) IsSupersetOf(other *orderedStringSet) bool {
+	if oss.Len() < other.Len() {
+		return false
+	}
+
+	for _, item := range other.items {
+		if !oss.Contains(item) {
+			return false
+		}
+	}
+
+	return true
+}
+
+func (oss *orderedStringSet) String() string {
+	return fmt.Sprintf("%v", oss.items)
 }
