@@ -100,9 +100,9 @@ func (mtw *ManageTunnelsWindow) setup() error {
 		addAction.SetText("Add empty tunnel")
 		addAction.Triggered().Attach(mtw.onAddTunnel)
 
-		exportLogAction := walk.NewAction()
-		exportLogAction.SetText("Export log to file...")
-		exportLogAction.Triggered().Attach(mtw.onExportLog)
+		viewLogAction := walk.NewAction()
+		viewLogAction.SetText("View Log")
+		viewLogAction.Triggered().Attach(mtw.onViewLog)
 
 		exportTunnelsAction := walk.NewAction()
 		exportTunnelsAction.SetText("Export tunnels to zip...")
@@ -121,7 +121,7 @@ func (mtw *ManageTunnelsWindow) setup() error {
 		deleteAction.Triggered().Attach(mtw.onDelete)
 
 		settingsMenu, _ := walk.NewMenu()
-		settingsMenu.Actions().Add(exportLogAction)
+		settingsMenu.Actions().Add(viewLogAction)
 		settingsMenu.Actions().Add(exportTunnelsAction)
 		settingsMenuAction, _ := tunnelsToolBar.Actions().AddMenu(settingsMenu)
 		settingsMenuAction.SetText("Export")
@@ -288,7 +288,7 @@ func (mtw *ManageTunnelsWindow) importFiles(paths []string) {
 }
 
 func (mtw *ManageTunnelsWindow) exportTunnels(filePath string) {
-	mtw.writeFileWithOverwriteHandling(filePath, func(file *os.File) error {
+	writeFileWithOverwriteHandling(mtw, filePath, func(file *os.File) error {
 		writer := zip.NewWriter(file)
 
 		for _, tunnel := range mtw.tunnelsView.model.tunnels {
@@ -359,48 +359,6 @@ func (mtw *ManageTunnelsWindow) TunnelDeleted() *walk.StringEvent {
 	return mtw.tunnelDeletedPublisher.Event()
 }
 
-func (mtw *ManageTunnelsWindow) exportLog(filePath string) {
-	mtw.writeFileWithOverwriteHandling(filePath, func(file *os.File) error {
-		if _, err := mtw.logger.WriteTo(file); err != nil {
-			return fmt.Errorf("exportLog: Ringlogger.WriteTo failed: %v", err)
-		}
-
-		return nil
-	})
-}
-
-func (mtw *ManageTunnelsWindow) writeFileWithOverwriteHandling(filePath string, write func(file *os.File) error) bool {
-	showError := func(err error) bool {
-		if err == nil {
-			return false
-		}
-
-		walk.MsgBox(mtw, "Writing file failed", err.Error(), walk.MsgBoxIconError)
-
-		return true
-	}
-
-	file, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY|os.O_EXCL, 0600)
-	if err != nil {
-		if os.IsExist(err) {
-			if walk.DlgCmdNo == walk.MsgBox(mtw, "Writing file failed", fmt.Sprintf(`File "%s" already exists.
-
-Do you want to overwrite it?`, filePath), walk.MsgBoxYesNo|walk.MsgBoxDefButton2|walk.MsgBoxIconWarning) {
-				return false
-			}
-
-			if file, err = os.Create(filePath); err != nil {
-				return !showError(err)
-			}
-		} else {
-			return !showError(err)
-		}
-	}
-	defer file.Close()
-
-	return !showError(write(file))
-}
-
 // Handlers
 
 func (mtw *ManageTunnelsWindow) onEditTunnel() {
@@ -447,10 +405,10 @@ func (mtw *ManageTunnelsWindow) onDelete() {
 }
 
 func (mtw *ManageTunnelsWindow) onImport() {
-	dlg := &walk.FileDialog{}
-	// dlg.InitialDirPath
-	dlg.Filter = "Configuration Files (*.zip, *.conf)|*.zip;*.conf|All Files (*.*)|*.*"
-	dlg.Title = "Import tunnel(s) from file..."
+	dlg := walk.FileDialog{
+		Filter: "Configuration Files (*.zip, *.conf)|*.zip;*.conf|All Files (*.*)|*.*",
+		Title:  "Import tunnel(s) from file...",
+	}
 
 	if ok, _ := dlg.ShowOpenMultiple(mtw); !ok {
 		return
@@ -460,9 +418,10 @@ func (mtw *ManageTunnelsWindow) onImport() {
 }
 
 func (mtw *ManageTunnelsWindow) onExportTunnels() {
-	dlg := &walk.FileDialog{}
-	dlg.Filter = "Configuration ZIP Files (*.zip)|*.zip"
-	dlg.Title = "Export tunnels to zip..."
+	dlg := walk.FileDialog{
+		Filter: "Configuration ZIP Files (*.zip)|*.zip",
+		Title:  "Export tunnels to zip...",
+	}
 
 	if ok, _ := dlg.ShowSave(mtw); !ok {
 		return
@@ -475,20 +434,6 @@ func (mtw *ManageTunnelsWindow) onExportTunnels() {
 	mtw.exportTunnels(dlg.FilePath)
 }
 
-func (mtw *ManageTunnelsWindow) onExportLog() {
-	dlg := walk.FileDialog{
-		Filter: "Log Files (*.log)|*.log|Text Files (*.txt)|*.txt|All Files (*.*)|*.*",
-		Title:  "Export log to file",
-	}
-
-	if ok, _ := dlg.ShowSave(mtw); !ok {
-		return
-	}
-
-	extensions := []string{".log", ".txt"}
-	if dlg.FilterIndex < 3 && !strings.HasSuffix(dlg.FilePath, extensions[dlg.FilterIndex-1]) {
-		dlg.FilePath = dlg.FilePath + extensions[dlg.FilterIndex-1]
-	}
-
-	mtw.exportLog(dlg.FilePath)
+func (mtw *ManageTunnelsWindow) onViewLog() {
+	runLogDialog(mtw, mtw.logger)
 }
