@@ -38,17 +38,7 @@ func (t *TunnelModel) Value(row, col int) interface{} {
 
 func (t *TunnelModel) Sort(col int, order walk.SortOrder) error {
 	sort.SliceStable(t.tunnels, func(i, j int) bool {
-		a, b := t.tunnels[i], t.tunnels[j]
-
-		c := func(res bool) bool {
-			if order == walk.SortAscending {
-				return res
-			}
-			return !res
-		}
-
-		// don't match col, always sort by name
-		return c(a.Name < b.Name)
+		return t.tunnels[i].Name < t.tunnels[j].Name
 	})
 
 	return t.SorterBase.Sort(col, order)
