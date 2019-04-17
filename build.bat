@@ -10,7 +10,7 @@ if exist .deps\prepared goto :build
 	echo [+] Downloading golang
 	curl -#fo go.zip https://dl.google.com/go/go1.12.3.windows-amd64.zip || goto :error
 	echo [+] Verifying golang
-	for /f %%a in ('CertUtil -hashfile go.zip SHA256 ^| findstr /r "^[0-9a-f]*$"') do if not "%%a"=="880ced1aecef08b3471a84381b6c7e2c0e846b81dd97ecb629b534d941f282bd" goto :error
+	for /f %%a in ('CertUtil -hashfile go.zip SHA256 ^| findstr /r "^[0-9a-f]*$"') do if not "%%a"=="1806e089e85b84f192d782a7f70f90a32e0eccfd181405857e612f806ec04059" goto :error
 	echo [+] Downloading mingw
 	rem Mirror of https://musl.cc/x86_64-w64-mingw32-native.zip
 	curl -#fo mingw.zip https://download.wireguard.com/windows-toolchain/distfiles/x86_64-w64-mingw32-native-20190307.zip || goto :error
