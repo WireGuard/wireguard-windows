@@ -46,6 +46,7 @@ func runLogDialog(owner walk.Form, logger *ringlogger.Ringlogger) {
 
 	dlg.SetTitle("WireGuard Log")
 	dlg.SetLayout(walk.NewVBoxLayout())
+	dlg.Layout().SetMargins(walk.Margins{18, 18, 18, 18})
 	dlg.SetMinMaxSize(walk.Size{600, 400}, walk.Size{})
 
 	if dlg.logView, err = walk.NewTableView(dlg); showError(err) {
@@ -67,10 +68,11 @@ func runLogDialog(owner walk.Form, logger *ringlogger.Ringlogger) {
 	dlg.logView.Columns().Add(msgCol)
 
 	dlg.logView.SetModel(dlg.model)
-	dlg.logView.SetCurrentIndex(len(dlg.model.items) - 1)
+	dlg.scrollToBottom()
 
 	buttonsContainer, err := walk.NewComposite(dlg)
 	buttonsContainer.SetLayout(walk.NewHBoxLayout())
+	buttonsContainer.Layout().SetMargins(walk.Margins{0, 12, 0, 0})
 
 	saveButton, err := walk.NewPushButton(buttonsContainer)
 	saveButton.SetText("Save")
@@ -80,7 +82,7 @@ func runLogDialog(owner walk.Form, logger *ringlogger.Ringlogger) {
 
 	closeButton, err := walk.NewPushButton(buttonsContainer)
 	closeButton.SetText("Close")
-	closeButton.Clicked().Attach(dlg.onCloseButtonClicked)
+	closeButton.Clicked().Attach(dlg.Accept)
 
 	dlg.SetDefaultButton(closeButton)
 	dlg.SetCancelButton(closeButton)
@@ -95,6 +97,14 @@ type LogDialog struct {
 	logView *walk.TableView
 	logger  *ringlogger.Ringlogger
 	model   *logModel
+}
+
+func (dlg *LogDialog) isAtBottom() bool {
+	return dlg.logView.ItemVisible(len(dlg.model.items) - 1)
+}
+
+func (dlg *LogDialog) scrollToBottom() {
+	dlg.logView.EnsureItemVisible(len(dlg.model.items) - 1)
 }
 
 func (dlg *LogDialog) onSaveButtonClicked() {
@@ -122,10 +132,6 @@ func (dlg *LogDialog) onSaveButtonClicked() {
 	})
 }
 
-func (dlg *LogDialog) onCloseButtonClicked() {
-	dlg.Accept()
-}
-
 type logModel struct {
 	walk.ReflectTableModelBase
 	dlg    *LogDialog
@@ -136,7 +142,13 @@ type logModel struct {
 
 func newLogModel(dlg *LogDialog, logger *ringlogger.Ringlogger) *logModel {
 	mdl := &logModel{dlg: dlg, quit: make(chan bool), logger: logger}
-	mdl.items, _ = logger.FollowFromCursor(ringlogger.CursorAll)
+	var lastCursor uint32
+	mdl.items, lastCursor = logger.FollowFromCursor(ringlogger.CursorAll)
+
+	var lastStamp time.Time
+	if len(mdl.items) > 0 {
+		lastStamp = mdl.items[len(mdl.items)-1].Stamp
+	}
 
 	go func() {
 		ticker := time.NewTicker(time.Second)
@@ -144,17 +156,25 @@ func newLogModel(dlg *LogDialog, logger *ringlogger.Ringlogger) *logModel {
 		for {
 			select {
 			case <-ticker.C:
-				items, _ := mdl.logger.FollowFromCursor(ringlogger.CursorAll)
+				items, cursor := mdl.logger.FollowFromCursor(ringlogger.CursorAll)
 
-				if len(items) > 0 && (len(mdl.items) == 0 || items[len(items)-1].Stamp.After(mdl.items[len(mdl.items)-1].Stamp)) {
+				var stamp time.Time
+				if len(items) > 0 {
+					stamp = items[len(items)-1].Stamp
+				}
+
+				if cursor != lastCursor || stamp.After(lastStamp) {
+					lastCursor = cursor
+					lastStamp = stamp
+
 					mdl.dlg.Synchronize(func() {
-						scrollToMostRecent := mdl.dlg.logView.CurrentIndex() == len(mdl.items)-1
+						isAtBottom := mdl.dlg.isAtBottom()
 
 						mdl.items = items
 						mdl.PublishRowsReset()
 
-						if scrollToMostRecent {
-							mdl.dlg.logView.SetCurrentIndex(len(mdl.items) - 1)
+						if isAtBottom {
+							mdl.dlg.scrollToBottom()
 						}
 					})
 				}
