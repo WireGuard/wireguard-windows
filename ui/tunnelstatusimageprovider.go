@@ -20,7 +20,9 @@ type TunnelStatusImageProvider struct {
 	stoppedBrush         *walk.SolidColorBrush
 	startingBrush        *walk.SolidColorBrush
 	startedBrush         *walk.SolidColorBrush
-	statusPen            *walk.CosmeticPen
+	stoppedPen           *walk.CosmeticPen
+	startingPen          *walk.CosmeticPen
+	startedPen           *walk.CosmeticPen
 }
 
 func NewTunnelStatusImageProvider() (*TunnelStatusImageProvider, error) {
@@ -30,25 +32,35 @@ func NewTunnelStatusImageProvider() (*TunnelStatusImageProvider, error) {
 	var disposables walk.Disposables
 	defer disposables.Treat()
 
-	if tsip.stoppedBrush, err = walk.NewSolidColorBrush(walk.RGB(239, 239, 239)); err != nil {
+	if tsip.stoppedBrush, err = walk.NewSolidColorBrush(walk.RGB(225, 225, 225)); err != nil {
 		return nil, err
 	}
 	disposables.Add(tsip.stoppedBrush)
 
-	if tsip.startingBrush, err = walk.NewSolidColorBrush(walk.RGB(255, 211, 31)); err != nil {
+	if tsip.startingBrush, err = walk.NewSolidColorBrush(walk.RGB(254, 192, 49)); err != nil {
 		return nil, err
 	}
 	disposables.Add(tsip.startingBrush)
 
-	if tsip.startedBrush, err = walk.NewSolidColorBrush(walk.RGB(0, 255, 0)); err != nil {
+	if tsip.startedBrush, err = walk.NewSolidColorBrush(walk.RGB(54, 206, 66)); err != nil {
 		return nil, err
 	}
 	disposables.Add(tsip.startedBrush)
 
-	if tsip.statusPen, err = walk.NewCosmeticPen(walk.PenSolid, walk.RGB(191, 191, 191)); err != nil {
+	if tsip.stoppedPen, err = walk.NewCosmeticPen(walk.PenSolid, walk.RGB(225-10, 225-10, 225-10)); err != nil {
 		return nil, err
 	}
-	disposables.Add(tsip.statusPen)
+	disposables.Add(tsip.stoppedPen)
+
+	if tsip.startingPen, err = walk.NewCosmeticPen(walk.PenSolid, walk.RGB(254-10, 192-10, 49-10)); err != nil {
+		return nil, err
+	}
+	disposables.Add(tsip.startingPen)
+
+	if tsip.startedPen, err = walk.NewCosmeticPen(walk.PenSolid, walk.RGB(54-10, 206-10, 66-10)); err != nil {
+		return nil, err
+	}
+	disposables.Add(tsip.startedPen)
 
 	disposables.Spare()
 
@@ -74,9 +86,17 @@ func (tsip *TunnelStatusImageProvider) Dispose() {
 		tsip.startedBrush.Dispose()
 		tsip.startedBrush = nil
 	}
-	if tsip.statusPen != nil {
-		tsip.statusPen.Dispose()
-		tsip.statusPen = nil
+	if tsip.stoppedPen != nil {
+		tsip.stoppedPen.Dispose()
+		tsip.stoppedPen = nil
+	}
+	if tsip.startingPen != nil {
+		tsip.startingPen.Dispose()
+		tsip.startingPen = nil
+	}
+	if tsip.startedPen != nil {
+		tsip.startedPen.Dispose()
+		tsip.startedPen = nil
 	}
 }
 
@@ -131,16 +151,23 @@ func (tsip *TunnelStatusImageProvider) PaintForTunnel(tunnel *service.Tunnel, ca
 }
 
 func (tsip *TunnelStatusImageProvider) PaintForState(state service.TunnelState, canvas *walk.Canvas, bounds walk.Rectangle) error {
-	var brush *walk.SolidColorBrush
+	var (
+		brush *walk.SolidColorBrush
+		pen   *walk.CosmeticPen
+	)
+
 	switch state {
 	case service.TunnelStarted:
 		brush = tsip.startedBrush
+		pen = tsip.startedPen
 
 	case service.TunnelStarting:
 		brush = tsip.startingBrush
+		pen = tsip.startingPen
 
 	default:
 		brush = tsip.stoppedBrush
+		pen = tsip.stoppedPen
 	}
 
 	b := bounds
@@ -153,7 +180,7 @@ func (tsip *TunnelStatusImageProvider) PaintForState(state service.TunnelState, 
 	if err := canvas.FillEllipse(brush, b); err != nil {
 		return err
 	}
-	if err := canvas.DrawEllipse(tsip.statusPen, b); err != nil {
+	if err := canvas.DrawEllipse(pen, b); err != nil {
 		return err
 	}
 
