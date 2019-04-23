@@ -91,7 +91,7 @@ func NewManageTunnelsWindow(icon *walk.Icon, logger *ringlogger.Ringlogger) (*Ma
 		toolBarContainer, _ := walk.NewComposite(tunnelsContainer)
 		toolBarContainer.SetLayout(walk.NewHBoxLayout())
 
-		tunnelsToolBar, _ := walk.NewToolBar(toolBarContainer)
+		tunnelsToolBar, _ := walk.NewToolBarWithOrientationAndButtonStyle(toolBarContainer, walk.Horizontal, walk.ToolBarButtonTextOnly)
 
 		importAction := walk.NewAction()
 		importAction.SetText("Import tunnels from file...")
@@ -114,11 +114,11 @@ func NewManageTunnelsWindow(icon *walk.Icon, logger *ringlogger.Ringlogger) (*Ma
 		addMenu.Actions().Add(addAction)
 		addMenu.Actions().Add(importAction)
 		addMenuAction, _ := tunnelsToolBar.Actions().AddMenu(addMenu)
-		addMenuAction.SetText("Add")
+		addMenuAction.SetText("➕")
 
 		deleteAction := walk.NewAction()
 		tunnelsToolBar.Actions().Add(deleteAction)
-		deleteAction.SetText("Delete")
+		deleteAction.SetText("➖")
 		deleteAction.Triggered().Attach(mtw.onDelete)
 
 		settingsMenu, _ := walk.NewMenu()
@@ -126,7 +126,7 @@ func NewManageTunnelsWindow(icon *walk.Icon, logger *ringlogger.Ringlogger) (*Ma
 		settingsMenu.Actions().Add(viewLogAction)
 		settingsMenu.Actions().Add(exportTunnelsAction)
 		settingsMenuAction, _ := tunnelsToolBar.Actions().AddMenu(settingsMenu)
-		settingsMenuAction.SetText("Export")
+		settingsMenuAction.SetText("⚙")
 	}
 
 	currentTunnelContainer, _ := walk.NewComposite(splitter)
