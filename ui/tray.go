@@ -148,6 +148,10 @@ func (tray *Tray) SetTunnelState(tunnel *service.Tunnel, state service.TunnelSta
 }
 
 func (tray *Tray) SetTunnelStateWithNotification(tunnel *service.Tunnel, state service.TunnelState, showNotifications bool) {
+	if icon, err := tray.mtw.tunnelsView.imageProvider.IconWithOverlayForState(tray.icon, state); err == nil {
+		tray.SetIcon(icon)
+	}
+
 	tunnelAction := tray.tunnels[tunnel.Name]
 
 	actions := tray.ContextMenu().Actions()

@@ -177,7 +177,13 @@ func (mtw *ManageTunnelsWindow) SetTunnelTracker(tunnelTracker *TunnelTracker) {
 
 func (mtw *ManageTunnelsWindow) SetTunnelState(tunnel *service.Tunnel, state service.TunnelState) {
 	mtw.tunnelsView.SetTunnelState(tunnel, state)
-	// mtw.confView.SetTunnelState(tunnel, state)
+
+	icon, err := mtw.tunnelsView.imageProvider.IconWithOverlayForState(mtw.icon, state)
+	if err != nil {
+		return
+	}
+
+	mtw.SetIcon(icon)
 }
 
 func (mtw *ManageTunnelsWindow) updateConfView() {
