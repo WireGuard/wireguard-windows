@@ -106,8 +106,8 @@ func runTunnelConfigDialog(owner walk.Form, tunnel *service.Tunnel) *conf.Config
 
 	dlg.syntaxEdit, _ = syntax.NewSyntaxEdit(dlg)
 	layout.SetRange(dlg.syntaxEdit, walk.Rectangle{0, 2, 2, 1})
-	dlg.syntaxEdit.SetText(dlg.config.ToWgQuick())
 	dlg.syntaxEdit.PrivateKeyChanged().Attach(dlg.onSyntaxEditPrivateKeyChanged)
+	dlg.syntaxEdit.SetText(dlg.config.ToWgQuick())
 	dlg.syntaxEdit.TextChanged().Attach(dlg.updateExcludePrivateIPsCBVisible)
 
 	buttonsContainer, _ := walk.NewComposite(dlg)
