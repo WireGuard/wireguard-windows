@@ -81,7 +81,7 @@ func NewManageTunnelsWindow(icon *walk.Icon, logger *ringlogger.Ringlogger) (*Ma
 	splitter.SetFixed(tunnelsContainer, true)
 
 	mtw.tunnelsView, _ = NewTunnelsView(tunnelsContainer)
-	mtw.tunnelsView.ItemActivated().Attach(mtw.onEditTunnel)
+	mtw.tunnelsView.ItemActivated().Attach(mtw.onTunnelsViewItemActivated)
 	mtw.tunnelsView.CurrentIndexChanged().Attach(mtw.updateConfView)
 
 	// ToolBar actions
@@ -347,6 +347,25 @@ func (mtw *ManageTunnelsWindow) TunnelDeleted() *walk.StringEvent {
 }
 
 // Handlers
+
+func (mtw *ManageTunnelsWindow) onTunnelsViewItemActivated() {
+	if mtw.tunnelTracker.InTransition() {
+		return
+	}
+
+	var err error
+	var title string
+	tunnel := mtw.tunnelsView.CurrentTunnel()
+	activeTunnel := mtw.tunnelTracker.ActiveTunnel()
+	if tunnel != nil && activeTunnel != nil && tunnel.Name == activeTunnel.Name {
+		err, title = mtw.tunnelTracker.DeactivateTunnel(), "Deactivating tunnel failed"
+	} else {
+		err, title = mtw.tunnelTracker.ActivateTunnel(tunnel), "Activating tunnel failed"
+	}
+	if err != nil {
+		walk.MsgBox(mtw, title, fmt.Sprintf("Error: %s", err.Error()), walk.MsgBoxIconError)
+	}
+}
 
 func (mtw *ManageTunnelsWindow) onEditTunnel() {
 	tunnel := mtw.tunnelsView.CurrentTunnel()
