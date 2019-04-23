@@ -103,6 +103,7 @@ func (tv *TunnelsView) StyleCell(style *walk.CellStyle) {
 	b.Width -= b.Height
 	canvas.DrawText(tunnel.Name, tv.Font(), 0, b, walk.TextVCenter)
 
+	b.X = 0
 	b.Width = b.Height
 
 	tv.imageProvider.PaintForTunnel(tunnel, canvas, b)

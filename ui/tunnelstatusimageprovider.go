@@ -15,18 +15,28 @@ type sizeAndState struct {
 	state service.TunnelState
 }
 
+type iconAndState struct {
+	icon  *walk.Icon
+	state service.TunnelState
+}
+
 type TunnelStatusImageProvider struct {
-	imagesBySizeAndState map[sizeAndState]*walk.Bitmap
-	stoppedBrush         *walk.SolidColorBrush
-	startingBrush        *walk.SolidColorBrush
-	startedBrush         *walk.SolidColorBrush
-	stoppedPen           *walk.CosmeticPen
-	startingPen          *walk.CosmeticPen
-	startedPen           *walk.CosmeticPen
+	imagesBySizeAndState    map[sizeAndState]*walk.Bitmap
+	iconsByBaseIconAndState map[iconAndState]*walk.Icon
+	stoppedBrush            *walk.SolidColorBrush
+	startingBrush           *walk.SolidColorBrush
+	startedBrush            *walk.SolidColorBrush
+	stoppedPen              *walk.CosmeticPen
+	startingPen             *walk.CosmeticPen
+	startedPen              *walk.CosmeticPen
 }
 
 func NewTunnelStatusImageProvider() (*TunnelStatusImageProvider, error) {
-	tsip := &TunnelStatusImageProvider{imagesBySizeAndState: make(map[sizeAndState]*walk.Bitmap)}
+	tsip := &TunnelStatusImageProvider{
+		imagesBySizeAndState:    make(map[sizeAndState]*walk.Bitmap),
+		iconsByBaseIconAndState: make(map[iconAndState]*walk.Icon),
+	}
+
 	var err error
 
 	var disposables walk.Disposables
@@ -74,6 +84,12 @@ func (tsip *TunnelStatusImageProvider) Dispose() {
 		}
 		tsip.imagesBySizeAndState = nil
 	}
+	if tsip.iconsByBaseIconAndState != nil {
+		for _, icon := range tsip.iconsByBaseIconAndState {
+			icon.Dispose()
+		}
+		tsip.iconsByBaseIconAndState = nil
+	}
 	if tsip.stoppedBrush != nil {
 		tsip.stoppedBrush.Dispose()
 		tsip.stoppedBrush = nil
@@ -116,9 +132,6 @@ func (tsip *TunnelStatusImageProvider) ImageForState(state service.TunnelState, 
 		return img, nil
 	}
 
-	var disposables walk.Disposables
-	defer disposables.Treat()
-
 	img, err := walk.NewBitmapWithTransparentPixels(size)
 	if err != nil {
 		return nil, err
@@ -136,9 +149,61 @@ func (tsip *TunnelStatusImageProvider) ImageForState(state service.TunnelState, 
 
 	tsip.imagesBySizeAndState[key] = img
 
-	disposables.Spare()
-
 	return img, nil
+}
+
+func (tsip *TunnelStatusImageProvider) IconWithOverlayForTunnel(baseIcon *walk.Icon, tunnel *service.Tunnel) (*walk.Icon, error) {
+	state, err := tunnel.State()
+	if err != nil {
+		return nil, err
+	}
+
+	return tsip.IconWithOverlayForState(baseIcon, state)
+}
+
+func (tsip *TunnelStatusImageProvider) IconWithOverlayForState(baseIcon *walk.Icon, state service.TunnelState) (*walk.Icon, error) {
+	key := iconAndState{baseIcon, state}
+
+	if icon, ok := tsip.iconsByBaseIconAndState[key]; ok {
+		return icon, nil
+	}
+
+	size := baseIcon.Size()
+
+	bmp, err := walk.NewBitmapWithTransparentPixels(size)
+	if err != nil {
+		return nil, err
+	}
+	defer bmp.Dispose()
+
+	canvas, err := walk.NewCanvasFromImage(bmp)
+	if err != nil {
+		return nil, err
+	}
+	defer canvas.Dispose()
+
+	if err := canvas.DrawImage(baseIcon, walk.Point{}); err != nil {
+		return nil, err
+	}
+
+	w := int(float64(size.Width) * 0.75)
+	h := int(float64(size.Height) * 0.75)
+	bounds := walk.Rectangle{4 + size.Width - w, 4 + size.Height - h, w, h}
+
+	if err := tsip.PaintForState(state, canvas, bounds); err != nil {
+		return nil, err
+	}
+
+	canvas.Dispose()
+
+	icon, err := walk.NewIconFromBitmap(bmp)
+	if err != nil {
+		return nil, err
+	}
+
+	tsip.iconsByBaseIconAndState[key] = icon
+
+	return icon, nil
 }
 
 func (tsip *TunnelStatusImageProvider) PaintForTunnel(tunnel *service.Tunnel, canvas *walk.Canvas, bounds walk.Rectangle) error {
@@ -172,7 +237,7 @@ func (tsip *TunnelStatusImageProvider) PaintForState(state service.TunnelState, 
 
 	b := bounds
 
-	b.X = 4
+	b.X += 4
 	b.Y += 4
 	b.Height -= 8
 	b.Width = b.Height
