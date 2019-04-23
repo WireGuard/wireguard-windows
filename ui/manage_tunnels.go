@@ -131,6 +131,7 @@ func NewManageTunnelsWindow(icon *walk.Icon, logger *ringlogger.Ringlogger) (*Ma
 
 	currentTunnelContainer, _ := walk.NewComposite(splitter)
 	currentTunnelContainer.SetLayout(walk.NewVBoxLayout())
+	splitter.Layout().(interface{ SetStretchFactor(walk.Widget, int) error }).SetStretchFactor(currentTunnelContainer, 3)
 
 	mtw.confView, _ = NewConfView(currentTunnelContainer)
 
