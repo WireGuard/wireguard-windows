@@ -9,27 +9,15 @@ import (
 	"fmt"
 	"os"
 	"runtime"
-	"time"
 
 	"github.com/lxn/walk"
+	"golang.zx2c4.com/wireguard/device"
 	"golang.zx2c4.com/wireguard/windows/ringlogger"
 	"golang.zx2c4.com/wireguard/windows/service"
 )
 
-const nagMessage = `It looks like you're still using this WireGuard pre-alpha build. Great!
-
-We're glad you like it, and we'd appreciate you sharing both your successes and your tribulations with us via team@wireguard.com or #wireguard on Freenode.
-
-But because this is pre-release software, we're not confident it's something you should yet be using, except for testing and reporting bugs. Check back with us for a newer version.
-
-Would you like to quit WireGuard now? If not, you'll be nagged again in two minutes about the same thing.`
-
-func nag() {
-	if walk.MsgBox(nil, "THANKS FOR REPORTING BUGS COME AGAIN ANOTHER DAY", nagMessage, walk.MsgBoxIconError|walk.MsgBoxYesNo|walk.MsgBoxSystemModal) != walk.DlgCmdNo {
-		onQuit()
-	}
-	time.AfterFunc(time.Minute*2, nag)
-}
+// #include "../version.h"
+import "C"
 
 func RunUI() {
 	runtime.LockOSThread()
@@ -79,13 +67,12 @@ func RunUI() {
 			if len(errMsg) > 0 && errMsg[len(errMsg)-1] != '.' {
 				errMsg += "."
 			}
-			walk.MsgBox(mtw, "Tunnel Error", errMsg+"\n\nPlease consult the Windows Event Log for more information.", walk.MsgBoxIconWarning)
+			walk.MsgBox(mtw, "Tunnel Error", errMsg+"\n\nPlease consult the log for more information.", walk.MsgBoxIconWarning)
 		} else {
 			tray.ShowError("WireGuard Tunnel Error", err.Error())
 		}
 	})
 
-	time.AfterFunc(time.Minute*15, nag)
 	mtw.Run()
 }
 
@@ -133,9 +120,9 @@ func onAbout(owner walk.Form) {
 	detailsLbl.SetText(fmt.Sprintf(`App version: %s
 Go backend version: %s
 
-Copyright © 2019 WireGuard LLC.
+Copyright © 2015-2019 WireGuard LLC.
 All Rights Reserved.`,
-		"TODO", "TODO"))
+		C.WIREGUARD_WINDOWS_VERSION, device.WireGuardGoVersion))
 
 	hbl := walk.NewHBoxLayout()
 	hbl.SetMargins(walk.Margins{VNear: 10})
