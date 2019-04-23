@@ -24,8 +24,7 @@ import (
 type ManageTunnelsWindow struct {
 	*walk.MainWindow
 
-	icon *walk.Icon
-
+	icon                   *walk.Icon
 	logger                 *ringlogger.Ringlogger
 	tunnelTracker          *TunnelTracker
 	tunnelsView            *TunnelsView
@@ -37,6 +36,9 @@ type ManageTunnelsWindow struct {
 func NewManageTunnelsWindow(icon *walk.Icon, logger *ringlogger.Ringlogger) (*ManageTunnelsWindow, error) {
 	var err error
 
+	var disposables walk.Disposables
+	defer disposables.Treat()
+
 	mtw := &ManageTunnelsWindow{
 		icon:   icon,
 		logger: logger,
@@ -45,15 +47,13 @@ func NewManageTunnelsWindow(icon *walk.Icon, logger *ringlogger.Ringlogger) (*Ma
 	if err != nil {
 		return nil, err
 	}
+	disposables.Add(mtw)
 
-	return mtw, mtw.setup()
-}
-
-func (mtw *ManageTunnelsWindow) setup() error {
 	mtw.SetIcon(mtw.icon)
+	mtw.SetTitle("Manage WireGuard Tunnels")
 	font, err := walk.NewFont("Segoe UI", 9, 0)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	mtw.AddDisposable(font)
 	mtw.SetFont(font)
@@ -62,6 +62,11 @@ func (mtw *ManageTunnelsWindow) setup() error {
 	mtw.Closing().Attach(func(canceled *bool, reason walk.CloseReason) {
 		// "Close to tray" instead of exiting application
 		onQuit()
+	})
+	mtw.Starting().Attach(func() {
+		mtw.updateConfView()
+		win.SetForegroundWindow(mtw.Handle())
+		win.BringWindowToTop(mtw.Handle())
 	})
 
 	splitter, _ := walk.NewHSplitter(mtw)
@@ -78,10 +83,6 @@ func (mtw *ManageTunnelsWindow) setup() error {
 	mtw.tunnelsView, _ = NewTunnelsView(tunnelsContainer)
 	mtw.tunnelsView.ItemActivated().Attach(mtw.onEditTunnel)
 	mtw.tunnelsView.CurrentIndexChanged().Attach(mtw.updateConfView)
-
-	service.IPCClientRegisterTunnelChange(func(tunnel *service.Tunnel, state service.TunnelState, err error) {
-		mtw.tunnelsView.Invalidate()
-	})
 
 	// ToolBar actions
 	{
@@ -108,8 +109,8 @@ func (mtw *ManageTunnelsWindow) setup() error {
 		exportTunnelsAction.SetText("Export tunnels to zip...")
 		exportTunnelsAction.Triggered().Attach(mtw.onExportTunnels)
 
-		// TODO: Add this to the dispose array (AddDisposable)
 		addMenu, _ := walk.NewMenu()
+		mtw.AddDisposable(addMenu)
 		addMenu.Actions().Add(addAction)
 		addMenu.Actions().Add(importAction)
 		addMenuAction, _ := tunnelsToolBar.Actions().AddMenu(addMenu)
@@ -121,6 +122,7 @@ func (mtw *ManageTunnelsWindow) setup() error {
 		deleteAction.Triggered().Attach(mtw.onDelete)
 
 		settingsMenu, _ := walk.NewMenu()
+		mtw.AddDisposable(settingsMenu)
 		settingsMenu.Actions().Add(viewLogAction)
 		settingsMenu.Actions().Add(exportTunnelsAction)
 		settingsMenuAction, _ := tunnelsToolBar.Actions().AddMenu(settingsMenu)
@@ -131,27 +133,16 @@ func (mtw *ManageTunnelsWindow) setup() error {
 	currentTunnelContainer.SetLayout(walk.NewVBoxLayout())
 
 	mtw.confView, _ = NewConfView(currentTunnelContainer)
+
+	updateConfViewTicker := time.NewTicker(time.Second)
+	mtw.Disposing().Attach(updateConfViewTicker.Stop)
 	go func() {
-		// TODO: teardown in Dispose()
-		t := time.NewTicker(time.Second)
-		for range t.C {
+		for range updateConfViewTicker.C {
 			mtw.Synchronize(func() {
 				mtw.updateConfView()
 			})
 		}
 	}()
-
-	// TODO: Find a better place for this?
-	// logfile, err := service.IPCClientLogFilePath()
-	// var logger *ringlogger.Ringlogger
-	// if err == nil {
-	// 	logger, err = ringlogger.NewRinglogger(logfile, "GUI")
-	// }
-	// if err != nil {
-	// 	walk.MsgBox(nil, "Unable to initialize logging", fmt.Sprintf("%v\n\nFile: %s", err, logfile), walk.MsgBoxIconError)
-	// 	return err
-	// }
-	// NewLogView(currentTunnelContainer, logger)
 
 	controlsContainer, _ := walk.NewComposite(currentTunnelContainer)
 	controlsContainer.SetLayout(walk.NewHBoxLayout())
@@ -167,15 +158,11 @@ func (mtw *ManageTunnelsWindow) setup() error {
 	editTunnel.SetText("Edit")
 	editTunnel.Clicked().Attach(mtw.onEditTunnel)
 
-	return nil
-}
+	mtw.tunnelsView.SetCurrentIndex(0)
 
-func (mtw *ManageTunnelsWindow) Show() {
-	mtw.MainWindow.Show()
-	// TODO: Upstream lxn/walk has VisibleChanged()
-	mtw.updateConfView()
-	win.SetForegroundWindow(mtw.Handle())
-	win.BringWindowToTop(mtw.Handle())
+	disposables.Spare()
+
+	return mtw, nil
 }
 
 func (mtw *ManageTunnelsWindow) TunnelTracker() *TunnelTracker {
