@@ -38,7 +38,7 @@ func NewManageTunnelsWindow(icon *walk.Icon, logger *ringlogger.Ringlogger) (*Ma
 	disposables.Add(mtw)
 
 	mtw.SetIcon(mtw.icon)
-	mtw.SetTitle("Manage WireGuard Tunnels")
+	mtw.SetTitle("WireGuard")
 	font, err := walk.NewFont("Segoe UI", 9, 0)
 	if err != nil {
 		return nil, err
