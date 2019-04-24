@@ -17,104 +17,94 @@ import (
 	"golang.zx2c4.com/wireguard/windows/ringlogger"
 )
 
-func runLogDialog(owner walk.Form, logger *ringlogger.Ringlogger) {
-	dlg := &LogDialog{logger: logger}
-	dlg.model = newLogModel(dlg, logger)
-	defer func() {
-		dlg.model.quit <- true
-	}()
+func NewLogPage(logger *ringlogger.Ringlogger) (*LogPage, error) {
+	lp := &LogPage{logger: logger}
 
 	var disposables walk.Disposables
 	defer disposables.Treat()
 
-	showError := func(err error) bool {
-		if err == nil {
-			return false
-		}
-
-		walk.MsgBox(owner, "Viewing log dialog failed", err.Error(), walk.MsgBoxIconError)
-
-		return true
-	}
-
 	var err error
 
-	if dlg.Dialog, err = walk.NewDialog(owner); showError(err) {
-		return
+	if lp.TabPage, err = walk.NewTabPage(); err != nil {
+		return nil, err
 	}
-	disposables.Add(dlg)
+	disposables.Add(lp)
 
-	dlg.SetTitle("WireGuard Log")
-	dlg.SetLayout(walk.NewVBoxLayout())
-	dlg.Layout().SetMargins(walk.Margins{18, 18, 18, 18})
-	dlg.SetMinMaxSize(walk.Size{600, 400}, walk.Size{})
+	lp.Disposing().Attach(func() {
+		lp.model.quit <- true
+	})
 
-	if dlg.logView, err = walk.NewTableView(dlg); showError(err) {
-		return
+	lp.SetTitle("Log")
+	lp.SetLayout(walk.NewVBoxLayout())
+	lp.Layout().SetMargins(walk.Margins{18, 18, 18, 18})
+
+	if lp.logView, err = walk.NewTableView(lp); err != nil {
+		return nil, err
 	}
-	dlg.logView.SetAlternatingRowBGColor(walk.Color(win.GetSysColor(win.COLOR_BTNFACE)))
-	dlg.logView.SetLastColumnStretched(true)
+	lp.logView.SetAlternatingRowBGColor(walk.Color(win.GetSysColor(win.COLOR_BTNFACE)))
+	lp.logView.SetLastColumnStretched(true)
 
 	stampCol := walk.NewTableViewColumn()
 	stampCol.SetName("Stamp")
 	stampCol.SetTitle("Time")
 	stampCol.SetFormat("2006-01-02 15:04:05.000")
 	stampCol.SetWidth(150)
-	dlg.logView.Columns().Add(stampCol)
+	lp.logView.Columns().Add(stampCol)
 
 	msgCol := walk.NewTableViewColumn()
 	msgCol.SetName("Line")
 	msgCol.SetTitle("Log message")
-	dlg.logView.Columns().Add(msgCol)
+	lp.logView.Columns().Add(msgCol)
 
-	dlg.logView.SetModel(dlg.model)
-	dlg.scrollToBottom()
+	lp.model = newLogModel(lp, logger)
+	lp.logView.SetModel(lp.model)
 
-	buttonsContainer, err := walk.NewComposite(dlg)
+	buttonsContainer, err := walk.NewComposite(lp)
+	if err != nil {
+		return nil, err
+	}
 	buttonsContainer.SetLayout(walk.NewHBoxLayout())
 	buttonsContainer.Layout().SetMargins(walk.Margins{0, 12, 0, 0})
 
-	saveButton, err := walk.NewPushButton(buttonsContainer)
-	saveButton.SetText("Save")
-	saveButton.Clicked().Attach(dlg.onSaveButtonClicked)
-
 	walk.NewHSpacer(buttonsContainer)
 
-	closeButton, err := walk.NewPushButton(buttonsContainer)
-	closeButton.SetText("Close")
-	closeButton.Clicked().Attach(dlg.Accept)
-
-	dlg.SetDefaultButton(closeButton)
-	dlg.SetCancelButton(closeButton)
+	saveButton, err := walk.NewPushButton(buttonsContainer)
+	if err != nil {
+		return nil, err
+	}
+	saveButton.SetText("Save")
+	saveButton.Clicked().Attach(lp.onSaveButtonClicked)
 
 	disposables.Spare()
 
-	dlg.Run()
+	return lp, nil
 }
 
-type LogDialog struct {
-	*walk.Dialog
+type LogPage struct {
+	*walk.TabPage
 	logView *walk.TableView
 	logger  *ringlogger.Ringlogger
 	model   *logModel
 }
 
-func (dlg *LogDialog) isAtBottom() bool {
-	return dlg.logView.ItemVisible(len(dlg.model.items) - 1)
+func (lp *LogPage) isAtBottom() bool {
+	return lp.logView.ItemVisible(len(lp.model.items) - 1)
 }
 
-func (dlg *LogDialog) scrollToBottom() {
-	dlg.logView.EnsureItemVisible(len(dlg.model.items) - 1)
+func (lp *LogPage) scrollToBottom() {
+	lp.logView.EnsureItemVisible(len(lp.model.items) - 1)
 }
 
-func (dlg *LogDialog) onSaveButtonClicked() {
+func (lp *LogPage) onSaveButtonClicked() {
 	fd := walk.FileDialog{
 		Filter:   "Text Files (*.txt)|*.txt|All Files (*.*)|*.*",
 		FilePath: fmt.Sprintf("wireguard-log-%s.txt", time.Now().Format("2006-01-02T150405")),
 		Title:    "Export log to file",
 	}
 
-	if ok, _ := fd.ShowSave(dlg); !ok {
+	form := lp.Form()
+
+	if ok, _ := fd.ShowSave(form); !ok {
 		return
 	}
 
@@ -123,8 +113,8 @@ func (dlg *LogDialog) onSaveButtonClicked() {
 		fd.FilePath = fd.FilePath + extensions[fd.FilterIndex-1]
 	}
 
-	writeFileWithOverwriteHandling(dlg, fd.FilePath, func(file *os.File) error {
-		if _, err := dlg.logger.WriteTo(file); err != nil {
+	writeFileWithOverwriteHandling(form, fd.FilePath, func(file *os.File) error {
+		if _, err := lp.logger.WriteTo(file); err != nil {
 			return fmt.Errorf("exportLog: Ringlogger.WriteTo failed: %v", err)
 		}
 
@@ -134,14 +124,14 @@ func (dlg *LogDialog) onSaveButtonClicked() {
 
 type logModel struct {
 	walk.ReflectTableModelBase
-	dlg    *LogDialog
+	lp     *LogPage
 	quit   chan bool
 	logger *ringlogger.Ringlogger
 	items  []ringlogger.FollowLine
 }
 
-func newLogModel(dlg *LogDialog, logger *ringlogger.Ringlogger) *logModel {
-	mdl := &logModel{dlg: dlg, quit: make(chan bool), logger: logger}
+func newLogModel(lp *LogPage, logger *ringlogger.Ringlogger) *logModel {
+	mdl := &logModel{lp: lp, quit: make(chan bool), logger: logger}
 	var lastCursor uint32
 	mdl.items, lastCursor = logger.FollowFromCursor(ringlogger.CursorAll)
 
@@ -167,14 +157,14 @@ func newLogModel(dlg *LogDialog, logger *ringlogger.Ringlogger) *logModel {
 					lastCursor = cursor
 					lastStamp = stamp
 
-					mdl.dlg.Synchronize(func() {
-						isAtBottom := mdl.dlg.isAtBottom()
+					mdl.lp.Synchronize(func() {
+						isAtBottom := mdl.lp.isAtBottom()
 
 						mdl.items = items
 						mdl.PublishRowsReset()
 
 						if isAtBottom {
-							mdl.dlg.scrollToBottom()
+							mdl.lp.scrollToBottom()
 						}
 					})
 				}
