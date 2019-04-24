@@ -1,0 +1,2 @@
+[*.{bat,wxs}]
+indent_style = tab
