@@ -36,11 +36,6 @@ func RunUI() {
 	}
 	defer icon.Dispose()
 
-	err = loadSystemIcons() //TODO: Load these the proper way and make dispose and be more like tunnelstatusimageprovider.
-	if err != nil {
-		panic(err)
-	}
-
 	mtw, err := NewManageTunnelsWindow(icon, logger)
 	if err != nil {
 		panic(err)
