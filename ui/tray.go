@@ -68,7 +68,7 @@ func (tray *Tray) setup() error {
 		{separator: true},
 		{separator: true},
 		{label: "&Manage tunnels...", handler: tray.mtw.Show, enabled: true},
-		{label: "&Import tunnel(s) from file...", handler: tray.mtw.onImport, enabled: true},
+		{label: "&Import tunnel(s) from file...", handler: tray.mtw.tunnelsPage.onImport, enabled: true},
 		{separator: true},
 		{label: "&About WireGuard", handler: func() { onAbout(tray.mtw) }, enabled: true},
 		{label: "&Quit", handler: onQuit, enabled: true},
@@ -98,8 +98,8 @@ func (tray *Tray) setup() error {
 		tray.addTunnelAction(tunnel.Name)
 	}
 
-	tray.mtw.TunnelAdded().Attach(tray.addTunnelAction)
-	tray.mtw.TunnelDeleted().Attach(tray.removeTunnelAction)
+	tray.mtw.tunnelsPage.TunnelAdded().Attach(tray.addTunnelAction)
+	tray.mtw.tunnelsPage.TunnelDeleted().Attach(tray.removeTunnelAction)
 
 	return nil
 }
@@ -110,7 +110,7 @@ func (tray *Tray) addTunnelAction(tunnelName string) {
 	tunnelAction.SetEnabled(true)
 	tunnelAction.SetCheckable(true)
 	tunnelAction.Triggered().Attach(func() {
-		if activeTunnel := tray.mtw.tunnelTracker.activeTunnel; activeTunnel != nil && activeTunnel.Name == tunnelName {
+		if activeTunnel := tray.mtw.tunnelsPage.tunnelTracker.activeTunnel; activeTunnel != nil && activeTunnel.Name == tunnelName {
 			tray.onDeactivateTunnel()
 		} else {
 			tray.onActivateTunnel(tunnelName)
@@ -148,7 +148,7 @@ func (tray *Tray) SetTunnelState(tunnel *service.Tunnel, state service.TunnelSta
 }
 
 func (tray *Tray) SetTunnelStateWithNotification(tunnel *service.Tunnel, state service.TunnelState, showNotifications bool) {
-	if icon, err := tray.mtw.tunnelsView.imageProvider.IconWithOverlayForState(tray.icon, state); err == nil {
+	if icon, err := tray.mtw.tunnelsPage.tunnelsView.imageProvider.IconWithOverlayForState(tray.icon, state); err == nil {
 		tray.SetIcon(icon)
 	}
 
