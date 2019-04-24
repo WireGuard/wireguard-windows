@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	SPDX-License-Identifier: GPL-2.0
+
+	Copyright (C) 2019 WireGuard LLC. All Rights Reserved.
+-->
+<?if $(var.Platform) = x86?>
+	<?define PlatformProgramFilesFolder = "ProgramFilesFolder"?>
+<?else?>
+	<?define PlatformProgramFilesFolder = "ProgramFiles64Folder"?>
+<?endif?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+	<Product
+		Id="*"
+		Name="WireGuard"
+		Language="1033"
+		Version="$(var.WIREGUARD_VERSION)"
+		Manufacturer="WireGuard LLC"
+		UpgradeCode="5e5a1da5-ba36-404d-92ec-41050d1c799c">
+		<Package
+			InstallerVersion="200"
+			Compressed="yes"
+			InstallScope="perMachine"
+			Description="WireGuard: Fast, Modern, Secure VPN Tunnel"
+			ReadOnly="yes"/>
+
+		<MediaTemplate EmbedCab="yes" CompressionLevel="high"/>
+
+		<Icon Id="icon.ico" SourceFile="..\ui\icon\icon.ico"/>
+
+		<Property Id="ARPPRODUCTICON" Value="icon.ico"/>
+		<Property Id="ARPURLINFOABOUT" Value="https://www.wireguard.com/"/>
+		<Property Id="DISABLEADVTSHORTCUTS" Value="yes"/>
+
+		<!--
+			Upgrading
+		-->
+		<MajorUpgrade
+			AllowDowngrades="no" DowngradeErrorMessage="A newer version of [ProductName] is already installed."
+			Schedule="afterInstallExecute"/>
+		<Property Id="INSTALLFOLDERPREV">
+			<ComponentSearch Id="WireGuardExecutable" Guid="c3508d23-3362-47ce-9220-321bdb1a1acc"/>
+		</Property>
+		<SetProperty
+			After="AppSearch"
+			Action="SetInstallFolderPrev"
+			Id="INSTALLFOLDER"
+			Value="[INSTALLFOLDERPREV]"
+			Sequence="first"><![CDATA[INSTALLFOLDERPREV AND NOT Installed]]></SetProperty>
+		<SetProperty
+			After="SetInstallFolderPrev"
+			Action="SetInstallFolderParam"
+			Id="INSTALLFOLDER"
+			Value="[INSTALLDIR]"
+			Sequence="first"><![CDATA[INSTALLDIR AND NOT Installed]]></SetProperty>
+
+		<!--
+			Folders
+		-->
+		<Directory Id="TARGETDIR" Name="SourceDir">
+			<Directory Id="$(var.PlatformProgramFilesFolder)">
+				<Directory Id="INSTALLFOLDER" Name="WireGuard"/>
+			</Directory>
+			<Directory Id="ProgramMenuFolder"/>
+		</Directory>
+
+		<!--
+			Components
+		-->
+		<ComponentGroup Id="WireGuardComponents">
+			<Component Directory="INSTALLFOLDER" Id="WireGuardExecutable" Guid="c3508d23-3362-47ce-9220-321bdb1a1acc">
+				<File Source="..\wireguard.exe" KeyPath="yes"/>
+				<ServiceControl Id="RemoveWireGuardManagerService" Name="WireGuardManager" Remove="both" Stop="both"></ServiceControl>
+				<ServiceControl Id="RemoveWireGuardTunnelServices" Name="WireGuardTunnel$test" Remove="both" Stop="both"></ServiceControl>
+				<!-- TODO: "test" is just a temporary hack. We need to enumerate all services that are "WireGuardTunnel$*" and remove those. -->
+			</Component>
+
+			<Component Directory="INSTALLFOLDER" Id="WireGuardStartMenuShortcut">
+					<Shortcut
+							Id="WireGuardStartMenuShortcut"
+							Directory="ProgramMenuFolder"
+							Name="WireGuard"
+							Description="WireGuard: Fast, Modern, Secure VPN Tunnel"
+							Target="[INSTALLFOLDER]wireguard.exe"
+							WorkingDirectory="INSTALLFOLDER"
+							Icon="icon.ico"/>
+					<RemoveFolder Id="WireGuardStartMenuShortcut" Directory="ProgramMenuFolder" On="uninstall"/>
+					<RegistryValue Root="HKCU" Key="SOFTWARE\WireGuard" Name="StartMenuShortcut" Type="integer" Value="1" KeyPath="yes"/>
+			</Component>
+		</ComponentGroup>
+
+		<!--
+			Merge modules
+		-->
+		<DirectoryRef Id="INSTALLFOLDER">
+			<Merge Id="WintunMergeModule" Language="0" DiskId="1" SourceFile=".deps\wintun-$(var.Platform).msm"/>
+		</DirectoryRef>
+
+		<!--
+			Features
+		-->
+		<Feature Id="WireGuardFeature" Title="WireGuard" Level="1" ConfigurableDirectory="INSTALLFOLDER">
+			<ComponentGroupRef Id="WireGuardComponents"/>
+		</Feature>
+		<Feature Id="WintunFeature" Title="Wintun" Level="1">
+			<MergeRef Id="WintunMergeModule"/>
+		</Feature>
+
+		<!--
+			Launch wireguard.exe after setup complete
+		-->
+		<CustomAction Id="LaunchApplication" HideTarget="yes" Impersonate="no" Execute="deferred" FileKey="wireguard.exe" ExeCommand="" Return="asyncNoWait"/>
+		<InstallExecuteSequence>
+			<!-- TODO: this should not launch when msiexec is called with whatever flag means it shouldn't launch. -->
+			<Custom Action="LaunchApplication" After="PublishProduct">NOT Installed</Custom>
+		</InstallExecuteSequence>
+
+		<!-- TODO: On uninstall remove system32\config\wireguard. -->
+		<!-- TODO: On install and uninstall, kill services. -->
+	</Product>
+</Wix>
