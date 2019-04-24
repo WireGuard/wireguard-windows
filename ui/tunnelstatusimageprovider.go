@@ -265,8 +265,8 @@ func (tsip *TunnelStatusImageProvider) IconWithOverlayForState(baseIcon *walk.Ic
 		return nil, err
 	}
 
-	w := int(float64(size.Width) * 0.6)
-	h := int(float64(size.Height) * 0.6)
+	w := int(float64(size.Width) * 0.75)
+	h := int(float64(size.Height) * 0.75)
 	bounds := walk.Rectangle{4 + size.Width - w, 4 + size.Height - h, w, h}
 
 	if err := tsip.PaintForState(state, canvas, bounds); err != nil {
