@@ -58,18 +58,23 @@ func NewTunnelsPage() (*TunnelsPage, error) {
 		toolBarContainer, _ := walk.NewComposite(tunnelsContainer)
 		toolBarContainer.SetLayout(walk.NewHBoxLayout())
 
-		tunnelsToolBar, _ := walk.NewToolBarWithOrientationAndButtonStyle(toolBarContainer, walk.Horizontal, walk.ToolBarButtonTextOnly)
+		tunnelsToolBar, _ := walk.NewToolBarWithOrientationAndButtonStyle(toolBarContainer, walk.Horizontal, walk.ToolBarButtonImageOnly)
+		imageList, _ := walk.NewImageList(walk.Size{32, 32}, 0)
+		tunnelsToolBar.SetImageList(imageList)
 
 		importAction := walk.NewAction()
 		importAction.SetText("Import tunnels from file...")
+		setIconOnAction(tp.AsWindowBase(), importAction, systemIconAddTunnelFromFile)
 		importAction.Triggered().Attach(tp.onImport)
 
 		addAction := walk.NewAction()
 		addAction.SetText("Add empty tunnel")
+		setIconOnAction(tp.AsWindowBase(), addAction, systemIconAddTunnelFromScratch)
 		addAction.Triggered().Attach(tp.onAddTunnel)
 
 		exportTunnelsAction := walk.NewAction()
 		exportTunnelsAction.SetText("Export tunnels to zip...")
+		setIconOnAction(tp.AsWindowBase(), exportTunnelsAction, systemIconSaveTunnelsToZip)
 		exportTunnelsAction.Triggered().Attach(tp.onExportTunnels)
 
 		addMenu, _ := walk.NewMenu()
@@ -77,18 +82,18 @@ func NewTunnelsPage() (*TunnelsPage, error) {
 		addMenu.Actions().Add(addAction)
 		addMenu.Actions().Add(importAction)
 		addMenuAction, _ := tunnelsToolBar.Actions().AddMenu(addMenu)
-		addMenuAction.SetText("➕")
+		setIconOnAction(tp.AsWindowBase(), addMenuAction, systemIconAddTunnel)
 
 		deleteAction := walk.NewAction()
 		tunnelsToolBar.Actions().Add(deleteAction)
-		deleteAction.SetText("➖")
+		setIconOnAction(tp.AsWindowBase(), deleteAction, systemIconDeleteTunnel)
 		deleteAction.Triggered().Attach(tp.onDelete)
 
 		settingsMenu, _ := walk.NewMenu()
 		tp.AddDisposable(settingsMenu)
 		settingsMenu.Actions().Add(exportTunnelsAction)
 		settingsMenuAction, _ := tunnelsToolBar.Actions().AddMenu(settingsMenu)
-		settingsMenuAction.SetText("⚙")
+		setIconOnAction(tp.AsWindowBase(), settingsMenuAction, systemIconExportTunnels)
 	}
 
 	currentTunnelContainer, _ := walk.NewComposite(tp)
