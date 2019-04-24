@@ -8,6 +8,7 @@ package ui
 import (
 	"github.com/lxn/walk"
 	"golang.zx2c4.com/wireguard/windows/service"
+	"math"
 )
 
 type sizeAndState struct {
@@ -31,6 +32,84 @@ type TunnelStatusImageProvider struct {
 	startedPen              *walk.CosmeticPen
 }
 
+const (
+	colorStopped  = 0xe1e1e1
+	colorStarting = 0xfec031
+	colorStarted  = 0x36ce42
+)
+
+func hexColor(c uint32) walk.Color {
+	return walk.Color((((c >> 16) & 0xff) << 0) | (((c >> 8) & 0xff) << 8) | (((c >> 0) & 0xff) << 16))
+}
+
+func darkColor(c walk.Color) walk.Color {
+	// Convert to HSL
+	r, g, b := float64((uint32(c)>>16)&0xff)/255.0, float64((uint32(c)>>8)&0xff)/255.0, float64((uint32(c)>>0)&0xff)/255.0
+	min := math.Min(r, math.Min(g, b))
+	max := math.Max(r, math.Max(g, b))
+	deltaMinMax := max - min
+	l := (max + min) / 2
+	h, s := 0.0, 0.0
+	if deltaMinMax != 0 {
+		if l < 0.5 {
+			s = deltaMinMax / (max + min)
+		} else {
+			s = deltaMinMax / (2 - max - min)
+		}
+		deltaRed := (((max - r) / 6) + (deltaMinMax / 2)) / deltaMinMax
+		deltaGreen := (((max - g) / 6) + (deltaMinMax / 2)) / deltaMinMax
+		deltaBlue := (((max - b) / 6) + (deltaMinMax / 2)) / deltaMinMax
+		if r == max {
+			h = deltaBlue - deltaGreen
+		} else if g == max {
+			h = (1.0 / 3.0) + deltaRed - deltaBlue
+		} else if b == max {
+			h = (2.0 / 3.0) + deltaGreen - deltaRed
+		}
+
+		if h < 0 {
+			h += 1
+		} else if h > 1 {
+			h -= 1
+		}
+	}
+
+	// Darken by 10%
+	l = math.Max(0, l-0.1)
+
+	// Convert back to RGB
+	if s == 0 {
+		return walk.Color((uint32(l*255) << 16) | (uint32(l*255) << 8) | (uint32(l*255) << 0))
+	}
+	var v1, v2 float64
+	if l < 0.5 {
+		v2 = l * (1 + s)
+	} else {
+		v2 = (l + s) - (s * l)
+	}
+	v1 = 2.0*l - v2
+	co := func(v1, v2, vH float64) float64 {
+		if vH < 0 {
+			vH += 1
+		}
+		if vH > 1 {
+			vH -= 1
+		}
+		if (6.0 * vH) < 1 {
+			return v1 + (v2-v1)*6.0*vH
+		}
+		if (2.0 * vH) < 1 {
+			return v2
+		}
+		if (3.0 * vH) < 2 {
+			return v1 + (v2-v1)*((2.0/3.0)-vH)*6.0
+		}
+		return v1
+	}
+	r, g, b = co(v1, v2, h+(1.0/3.0)), co(v1, v2, h), co(v1, v2, h-(1.0/3.0))
+	return walk.Color((uint32(r*255) << 16) | (uint32(g*255) << 8) | (uint32(b*255) << 0))
+}
+
 func NewTunnelStatusImageProvider() (*TunnelStatusImageProvider, error) {
 	tsip := &TunnelStatusImageProvider{
 		imagesBySizeAndState:    make(map[sizeAndState]*walk.Bitmap),
@@ -42,32 +121,32 @@ func NewTunnelStatusImageProvider() (*TunnelStatusImageProvider, error) {
 	var disposables walk.Disposables
 	defer disposables.Treat()
 
-	if tsip.stoppedBrush, err = walk.NewSolidColorBrush(walk.RGB(225, 225, 225)); err != nil {
+	if tsip.stoppedBrush, err = walk.NewSolidColorBrush(hexColor(colorStopped)); err != nil {
 		return nil, err
 	}
 	disposables.Add(tsip.stoppedBrush)
 
-	if tsip.startingBrush, err = walk.NewSolidColorBrush(walk.RGB(254, 192, 49)); err != nil {
+	if tsip.startingBrush, err = walk.NewSolidColorBrush(hexColor(colorStarting)); err != nil {
 		return nil, err
 	}
 	disposables.Add(tsip.startingBrush)
 
-	if tsip.startedBrush, err = walk.NewSolidColorBrush(walk.RGB(54, 206, 66)); err != nil {
+	if tsip.startedBrush, err = walk.NewSolidColorBrush(hexColor(colorStarted)); err != nil {
 		return nil, err
 	}
 	disposables.Add(tsip.startedBrush)
 
-	if tsip.stoppedPen, err = walk.NewCosmeticPen(walk.PenSolid, walk.RGB(225-10, 225-10, 225-10)); err != nil {
+	if tsip.stoppedPen, err = walk.NewCosmeticPen(walk.PenSolid, darkColor(hexColor(colorStopped))); err != nil {
 		return nil, err
 	}
 	disposables.Add(tsip.stoppedPen)
 
-	if tsip.startingPen, err = walk.NewCosmeticPen(walk.PenSolid, walk.RGB(254-10, 192-10, 49-10)); err != nil {
+	if tsip.startingPen, err = walk.NewCosmeticPen(walk.PenSolid, darkColor(hexColor(colorStarting))); err != nil {
 		return nil, err
 	}
 	disposables.Add(tsip.startingPen)
 
-	if tsip.startedPen, err = walk.NewCosmeticPen(walk.PenSolid, walk.RGB(54-10, 206-10, 66-10)); err != nil {
+	if tsip.startedPen, err = walk.NewCosmeticPen(walk.PenSolid, darkColor(hexColor(colorStarted))); err != nil {
 		return nil, err
 	}
 	disposables.Add(tsip.startedPen)
