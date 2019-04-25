@@ -36,3 +36,12 @@ After you've built the application, run `wireguard.exe` to install the manager s
 ```
 C:\Projects\wireguard-windows> wireguard
 ```
+
+### Signing Binaries
+
+Add a file called `sign.bat` in the root of this repository with these contents, or similar:
+
+```
+set SigningCertificate=DF98E075A012ED8C86FBCF14854B8F9555CB3D45
+set TimestampServer=http://timestamp.digicert.com
+```
