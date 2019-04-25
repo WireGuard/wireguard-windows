@@ -5,6 +5,9 @@ rem Copyright (C) 2019 WireGuard LLC. All Rights Reserved.
 for /f "tokens=3" %%a in ('findstr /r "[0-9.]*" ..\version.h') do set WIREGUARD_VERSION=%%a
 set WIREGUARD_VERSION=%WIREGUARD_VERSION:"=%
 
+rem While our version numbers remain whonky, just hardcode this to 0.0.1.
+set WIREGUARD_VERSION=0.0.1
+
 set STARTDIR=%cd%
 set OLDWIX=%WIX%
 set WIX_CANDLE_FLAGS=-nologo -dWIREGUARD_VERSION="%WIREGUARD_VERSION%"
