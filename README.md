@@ -45,3 +45,5 @@ Add a file called `sign.bat` in the root of this repository with these contents,
 set SigningCertificate=DF98E075A012ED8C86FBCF14854B8F9555CB3D45
 set TimestampServer=http://timestamp.digicert.com
 ```
+
+After, run `build.bat` as usual, from a shell that has `signtool.exe` in its `PATH`.
