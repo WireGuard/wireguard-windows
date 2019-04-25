@@ -30,9 +30,9 @@ type logLine struct {
 }
 
 type logMem struct {
+	magic     uint32
 	nextIndex uint32
 	lines     [maxLines]logLine
-	magic     uint32
 }
 
 type Ringlogger struct {
