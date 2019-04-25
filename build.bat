@@ -1,4 +1,7 @@
 @echo off
+rem SPDX-License-Identifier: MIT
+rem Copyright (C) 2019 WireGuard LLC. All Rights Reserved.
+
 set STARTDIR=%cd%
 set OLDPATH=%PATH%
 
@@ -38,6 +41,15 @@ if exist .deps\prepared goto :build
 	windres.exe -i resources.rc -o resources.syso -O coff || goto :error
 	echo [+] Building program
 	go build -ldflags="-H windowsgui -s -w" -v -o wireguard.exe || goto :error
+
+:sign
+	if exist .\sign.bat call .\sign.bat
+	if "%SigningCertificate%"=="" goto :success
+	if "%TimestampServer%"=="" goto :success
+	echo [+] Signing
+	signtool.exe sign /sha1 "%SigningCertificate%" /fd sha256 /tr "%TimestampServer%" /td sha256 /d WireGuard wireguard.exe || goto :error
+
+:success
 	echo [+] Success. Launch wireguard.exe.
 
 :out
