@@ -9,11 +9,9 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	"unsafe"
 
 	"github.com/lxn/walk"
 	"github.com/lxn/win"
-	"golang.org/x/sys/windows"
 	"golang.zx2c4.com/wireguard/windows/conf"
 	"golang.zx2c4.com/wireguard/windows/service"
 )
@@ -77,8 +75,6 @@ type ConfView struct {
 
 	tunnelChangedCB *service.TunnelChangeCallback
 	tunnel          *service.Tunnel
-	originalWndProc uintptr
-	creatingThread  uint32
 }
 
 func (lsl *labelStatusLine) Dispose() {
@@ -401,8 +397,6 @@ func NewConfView(parent walk.Container) (*ConfView, error) {
 	cv.interfaze = newInterfaceView(cv.name)
 	cv.interfaze.toggleActive.button.Clicked().Attach(cv.onToggleActiveClicked)
 	cv.peers = make(map[conf.Key]*peerView)
-	cv.creatingThread = windows.GetCurrentThreadId()
-	win.SetWindowLongPtr(cv.Handle(), win.GWLP_USERDATA, uintptr(unsafe.Pointer(cv)))
 	cv.tunnelChangedCB = service.IPCClientRegisterTunnelChange(cv.onTunnelChanged)
 	cv.SetTunnel(nil)
 
