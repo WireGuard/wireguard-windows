@@ -33,8 +33,8 @@ if exist .deps\prepared goto :build
 	set GOPATH=%STARTDIR%\.deps\gopath
 	set GOROOT=%STARTDIR%\.deps\go
 	set CGO_ENABLED=1
-	call :build_plat x86   "%STARTDIR%\.deps\i686-w64-mingw32-native\bin"   i686-w64-mingw32-gcc.exe   386   || goto :error
-	call :build_plat amd64 "%STARTDIR%\.deps\x86_64-w64-mingw32-native\bin" x86_64-w64-mingw32-gcc.exe amd64 || goto :error
+	call :build_plat x86   i686   386   || goto :error
+	call :build_plat amd64 x86_64 amd64 || goto :error
 
 :sign
 	if exist .\sign.bat call .\sign.bat
@@ -63,14 +63,11 @@ if exist .deps\prepared goto :build
 	goto :eof
 
 :build_plat
-	set OLDPATH2=%PATH%
-	set PATH=%~2;%PATH%
-	set CC=%~3
-	set GOARCH=%~4
+	set CC=%STARTDIR%\.deps\%~2-w64-mingw32-native\bin\%~2-w64-mingw32-gcc.exe
+	set GOARCH=%~3
 	mkdir %1 >NUL 2>&1
 	echo [+] Assembling resources %1
-	windres.exe -i resources.rc -o resources.syso -O coff || exit /b %errorlevel%
+	"%STARTDIR%\.deps\%~2-w64-mingw32-native\bin\windres.exe" -i resources.rc -o resources.syso -O coff || exit /b %errorlevel%
 	echo [+] Building program %1
 	go build -ldflags="-H windowsgui -s -w" -v -o "%~1\wireguard.exe" || exit /b %errorlevel%
-	set PATH=%OLDPATH2%
 	goto :eof
