@@ -7,6 +7,7 @@ Nothing to see here yet. Come back later.
   - [Wintun](https://git.zx2c4.com/wintun) (at runtime)
   - [Go ≥1.12.2](https://golang.org/) (for compilation)
   - [Mingw](http://www.mingw.org/) (for compilation)
+  - [Signtool](https://docs.microsoft.com/sl-si/windows/desktop/SecCrypto/signtool) (for signing)
 
 ### Building on Windows
 
