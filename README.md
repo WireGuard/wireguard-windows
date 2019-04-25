@@ -10,7 +10,7 @@ Nothing to see here yet. Come back later.
 
 ### Building on Windows
 
-The build script will take care of downloading, verifying, and extracting the right versions of Go, Mingw, and Patch.
+The build script will take care of downloading, verifying, and extracting the right versions of Go and Mingw:
 
 ```
 C:\Projects> git clone https://git.zx2c4.com/wireguard-windows
