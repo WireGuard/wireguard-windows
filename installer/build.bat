@@ -19,8 +19,8 @@ if exist .deps\prepared goto :build
 	mkdir .deps || goto :error
 	cd .deps || goto :error
 	call :download wix-binaries.zip http://wixtoolset.org/downloads/v3.14.0.2812/wix314-binaries.zip 923892298f37514622c58cbbd9c2cadf2822d9bb53df8ee83aaeb05280777611 || goto :error
-	rem call :download wintun-x86.msm   https://www.wintun.net/builds/wintun-x86-0.1.msm                 5390762183e181804b28eb13815b6210f85a1280057b815f749b06768215f817 || goto :error
-	call :download wintun-amd64.msm https://www.wintun.net/builds/wintun-amd64-0.1.msm               850b8e76ced2b1bbbfd601b04726b6e491d14b583694d139855c1d337ee48590 || goto :error
+	rem call :download wintun-x86.msm https://www.wintun.net/builds/wintun-x86-0.1.msm 5390762183e181804b28eb13815b6210f85a1280057b815f749b06768215f817 || goto :error
+	call :download wintun-amd64.msm https://www.wintun.net/builds/wintun-amd64-0.1.msm 850b8e76ced2b1bbbfd601b04726b6e491d14b583694d139855c1d337ee48590 || goto :error
 	echo [+] Extracting wix-binaries.zip
 	mkdir wix\bin || goto :error
 	tar -xf wix-binaries.zip -C wix\bin || goto :error
@@ -31,7 +31,7 @@ if exist .deps\prepared goto :build
 
 :build
 	set WIX=%STARTDIR%\.deps\wix\
-	call :msi x86   x86 || goto :error
+	call :msi x86 x86 || goto :error
 	call :msi amd64 x64 || goto :error
 	if exist ..\sign.bat call ..\sign.bat
 	if "%SigningCertificate%"=="" goto :build_sfx
