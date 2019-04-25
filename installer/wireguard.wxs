@@ -30,14 +30,17 @@
 
 		<Property Id="ARPPRODUCTICON" Value="icon.ico"/>
 		<Property Id="ARPURLINFOABOUT" Value="https://www.wireguard.com/"/>
+		<Property Id="ARPNOREPAIR" Value="yes" />
+		<Property Id="ARPNOMODIFY" Value="yes" />
 		<Property Id="DISABLEADVTSHORTCUTS" Value="yes"/>
 
 		<!--
 			Upgrading
 		-->
 		<MajorUpgrade
-			AllowDowngrades="no" DowngradeErrorMessage="A newer version of [ProductName] is already installed."
-			Schedule="afterInstallExecute"/>
+			AllowDowngrades="no" AllowSameVersionUpgrades="yes"
+			DowngradeErrorMessage="A newer version of [ProductName] is already installed."
+			Schedule="afterInstallExecute" />
 		<Property Id="INSTALLFOLDERPREV">
 			<ComponentSearch Id="WireGuardExecutable" Guid="c3508d23-3362-47ce-9220-321bdb1a1acc"/>
 		</Property>
@@ -69,23 +72,12 @@
 		-->
 		<ComponentGroup Id="WireGuardComponents">
 			<Component Directory="INSTALLFOLDER" Id="WireGuardExecutable" Guid="c3508d23-3362-47ce-9220-321bdb1a1acc">
-				<File Source="..\wireguard.exe" KeyPath="yes"/>
+				<File Source="..\wireguard.exe" KeyPath="yes">
+					<Shortcut Id="WireGuardStartMenuShortcut" Directory="ProgramMenuFolder" Name="WireGuard" Description="WireGuard: Fast, Modern, Secure VPN Tunnel" WorkingDirectory="INSTALLFOLDER" Advertise="yes" />
+				</File>
 				<ServiceControl Id="RemoveWireGuardManagerService" Name="WireGuardManager" Remove="both" Stop="both"></ServiceControl>
 				<ServiceControl Id="RemoveWireGuardTunnelServices" Name="WireGuardTunnel$test" Remove="both" Stop="both"></ServiceControl>
 				<!-- TODO: "test" is just a temporary hack. We need to enumerate all services that are "WireGuardTunnel$*" and remove those. -->
-			</Component>
-
-			<Component Directory="INSTALLFOLDER" Id="WireGuardStartMenuShortcut">
-					<Shortcut
-							Id="WireGuardStartMenuShortcut"
-							Directory="ProgramMenuFolder"
-							Name="WireGuard"
-							Description="WireGuard: Fast, Modern, Secure VPN Tunnel"
-							Target="[INSTALLFOLDER]wireguard.exe"
-							WorkingDirectory="INSTALLFOLDER"
-							Icon="icon.ico"/>
-					<RemoveFolder Id="WireGuardStartMenuShortcut" Directory="ProgramMenuFolder" On="uninstall"/>
-					<RegistryValue Root="HKCU" Key="SOFTWARE\WireGuard" Name="StartMenuShortcut" Type="integer" Value="1" KeyPath="yes"/>
 			</Component>
 		</ComponentGroup>
 
