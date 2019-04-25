@@ -28,9 +28,11 @@ var flags = [...]string{
 }
 
 //sys messageBoxEx(hwnd windows.Handle, text *uint16, title *uint16, typ uint, languageId uint16) = user32.MessageBoxExW
+//sys isWow64Process(handle windows.Handle, isWow64 *bool) (err error) = kernel32.IsWow64Process
 
 func fatal(v ...interface{}) {
 	messageBoxEx(0, windows.StringToUTF16Ptr(fmt.Sprint(v...)), windows.StringToUTF16Ptr("Error"), 0x00000010, 0)
+	os.Exit(1)
 }
 
 func usage() {
@@ -41,6 +43,21 @@ func usage() {
 	msg := fmt.Sprintf("Usage: %s [\n%s]", os.Args[0], builder.String())
 	messageBoxEx(0, windows.StringToUTF16Ptr(msg), windows.StringToUTF16Ptr("Command Line Options"), 0x00000040, 0)
 	os.Exit(1)
+}
+
+func checkForWow64() {
+	var b bool
+	p, err := windows.GetCurrentProcess()
+	if err != nil {
+		fatal("Unable to determine current process handle: ", err)
+	}
+	err = isWow64Process(p, &b)
+	if err != nil {
+		fatal("Unable to determine whether the process is running under WOW64: ", err)
+	}
+	if b {
+		fatal("You must use the 64-bit version of WireGuard on this computer.")
+	}
 }
 
 //sys shellExecute(hwnd windows.Handle, verb *uint16, file *uint16, args *uint16, cwd *uint16, showCmd int) (err error) = shell32.ShellExecuteW
@@ -66,6 +83,8 @@ func pipeFromHandleArgument(handleStr string) (*os.File, error) {
 }
 
 func main() {
+	checkForWow64()
+
 	if len(os.Args) <= 1 {
 		if ui.RaiseUI() {
 			return

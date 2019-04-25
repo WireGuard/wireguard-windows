@@ -32,7 +32,7 @@ $ make
 
 ### Running
 
-After you've built the application, run `amd64\wireguard.exe` to install the manager service and show the UI.
+After you've built the application, run `amd64\wireguard.exe` or `x86\wireguard.exe` to install the manager service and show the UI.
 
 ```
 C:\Projects\wireguard-windows> amd64\wireguard.exe
