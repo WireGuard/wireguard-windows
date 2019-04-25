@@ -72,9 +72,11 @@ func TestFollow(t *testing.T) {
 	}
 	cursor := CursorAll
 	for {
-		cursor = rl.FollowFromCursor(cursor, func(line string, stamp time.Time) {
-			fmt.Printf("%v: %s\n", stamp, line)
-		})
+		var lines []FollowLine
+		lines, cursor = rl.FollowFromCursor(cursor)
+		for _, line := range lines {
+			fmt.Printf("%v: %s\n", line.Stamp, line.Line)
+		}
 		time.Sleep(300 * time.Millisecond)
 	}
 }
