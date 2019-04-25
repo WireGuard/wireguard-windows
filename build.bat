@@ -12,7 +12,7 @@ if exist .deps\prepared goto :build
 	cd .deps || goto :error
 	call :download go.zip https://dl.google.com/go/go1.12.3.windows-amd64.zip 1806e089e85b84f192d782a7f70f90a32e0eccfd181405857e612f806ec04059 || goto :error
 	rem Mirror of https://musl.cc/i686-w64-mingw32-native.zip
-	call :download mingw-x86.zip   https://download.wireguard.com/windows-toolchain/distfiles/i686-w64-mingw32-native-20190425.zip   5810b4a9af34c12690ec355ad2a237d2a4c16f5e8cb68988dc0f2e48457534d0 || goto :error
+	call :download mingw-x86.zip https://download.wireguard.com/windows-toolchain/distfiles/i686-w64-mingw32-native-20190425.zip 5810b4a9af34c12690ec355ad2a237d2a4c16f5e8cb68988dc0f2e48457534d0 || goto :error
 	rem Mirror of https://musl.cc/x86_64-w64-mingw32-native.zip
 	call :download mingw-amd64.zip https://download.wireguard.com/windows-toolchain/distfiles/x86_64-w64-mingw32-native-20190307.zip 5390762183e181804b28eb13815b6210f85a1280057b815f749b06768215f817 || goto :error
 	echo [+] Extracting go.zip
@@ -33,7 +33,7 @@ if exist .deps\prepared goto :build
 	set GOPATH=%STARTDIR%\.deps\gopath
 	set GOROOT=%STARTDIR%\.deps\go
 	set CGO_ENABLED=1
-	call :build_plat x86   i686   386   || goto :error
+	call :build_plat x86 i686 386 || goto :error
 	call :build_plat amd64 x86_64 amd64 || goto :error
 
 :sign
