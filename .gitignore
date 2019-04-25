@@ -1,6 +1,14 @@
-*.exe
+# Dependencies
+/.deps
+
+# Build Output
+/x86
+/amd64
+
+# Misc
+/go.sum
+/sign.bat
 *.swp
 *.bak
 *.syso
 .idea
-.deps

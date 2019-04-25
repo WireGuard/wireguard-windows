@@ -72,7 +72,7 @@
 		-->
 		<ComponentGroup Id="WireGuardComponents">
 			<Component Directory="INSTALLFOLDER" Id="WireGuardExecutable" Guid="c3508d23-3362-47ce-9220-321bdb1a1acc">
-				<File Source="..\wireguard.exe" KeyPath="yes">
+				<File Source="..\$(var.Platform)\wireguard.exe" KeyPath="yes">
 					<Shortcut Id="WireGuardStartMenuShortcut" Directory="ProgramMenuFolder" Name="WireGuard" Description="WireGuard: Fast, Modern, Secure VPN Tunnel" WorkingDirectory="INSTALLFOLDER" Advertise="yes" />
 				</File>
 				<ServiceControl Id="RemoveWireGuardManagerService" Name="WireGuardManager" Remove="both" Stop="both"></ServiceControl>
