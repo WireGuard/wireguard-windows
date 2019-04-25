@@ -37,15 +37,29 @@ func errnoErr(e syscall.Errno) error {
 }
 
 var (
-	moduser32  = windows.NewLazySystemDLL("user32.dll")
-	modshell32 = windows.NewLazySystemDLL("shell32.dll")
+	moduser32   = windows.NewLazySystemDLL("user32.dll")
+	modkernel32 = windows.NewLazySystemDLL("kernel32.dll")
+	modshell32  = windows.NewLazySystemDLL("shell32.dll")
 
-	procMessageBoxExW = moduser32.NewProc("MessageBoxExW")
-	procShellExecuteW = modshell32.NewProc("ShellExecuteW")
+	procMessageBoxExW  = moduser32.NewProc("MessageBoxExW")
+	procIsWow64Process = modkernel32.NewProc("IsWow64Process")
+	procShellExecuteW  = modshell32.NewProc("ShellExecuteW")
 )
 
 func messageBoxEx(hwnd windows.Handle, text *uint16, title *uint16, typ uint, languageId uint16) {
 	syscall.Syscall6(procMessageBoxExW.Addr(), 5, uintptr(hwnd), uintptr(unsafe.Pointer(text)), uintptr(unsafe.Pointer(title)), uintptr(typ), uintptr(languageId), 0)
+	return
+}
+
+func isWow64Process(handle windows.Handle, isWow64 *bool) (err error) {
+	r1, _, e1 := syscall.Syscall(procIsWow64Process.Addr(), 2, uintptr(handle), uintptr(unsafe.Pointer(isWow64)), 0)
+	if r1 == 0 {
+		if e1 != 0 {
+			err = errnoErr(e1)
+		} else {
+			err = syscall.EINVAL
+		}
+	}
 	return
 }
 
