@@ -57,7 +57,7 @@ if exist .deps\prepared goto :build
 
 :download
 	echo [+] Downloading %1
-	curl -#fLo %1 %2 || exit /b %errorlevel%
+	curl -#fLo %1 %2 || exit /b 1
 	echo [+] Verifying %1
 	for /f %%a in ('CertUtil -hashfile %1 SHA256 ^| findstr /r "^[0-9a-f]*$"') do if not "%%a"=="%~3" exit /b 1
 	goto :eof
@@ -71,6 +71,6 @@ if exist .deps\prepared goto :build
 	echo [+] Assembling resources %1
 	windres.exe -i resources.rc -o resources.syso -O coff || exit /b %errorlevel%
 	echo [+] Building program %1
-	go build -ldflags="-H windowsgui -s -w" -v -o "%~1\wireguard.exe" || exit /b %errorlevel%
+	go build -ldflags="-H windowsgui -s -w" -v -o "%~1\wireguard.exe" || exit /b 1
 	set PATH=%OLDPATH2%
 	goto :eof
