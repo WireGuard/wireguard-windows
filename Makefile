@@ -1,27 +1,39 @@
 export CFLAGS := -O3 -Wall -std=gnu11
-export CC := x86_64-w64-mingw32-gcc
+GOFLAGS := -ldflags="-H windowsgui -s -w" -v
 WINDRES := x86_64-w64-mingw32-windres
 export CGO_ENABLED := 1
 export GOOS := windows
-export GOARCH := amd64
+
+rwildcard=$(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subst *,%,$2),$d))
+SOURCE_FILES := $(call rwildcard,,*.go *.c *.h)
+RESOURCE_FILES := resources.rc manifest.xml ui/icon/icon.ico
 
 DEPLOYMENT_HOST ?= winvm
 DEPLOYMENT_PATH ?= Desktop
 
-all: wireguard.exe
+all: amd64/wireguard.exe x86/wireguard.exe
 
-resources.syso: resources.rc manifest.xml ui/icon/icon.ico
-	$(WINDRES) -i $< -o $@ -O coff
+resources_amd64.syso: $(RESOURCE_FILES)
+	x86_64-w64-mingw32-windres -i $< -o $@ -O coff
 
-rwildcard=$(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subst *,%,$2),$d))
-wireguard.exe: resources.syso $(call rwildcard,,*.go *.c *.h)
-	go build -ldflags="-H windowsgui -s -w" -v -o $@
+resources_386.syso: $(RESOURCE_FILES)
+	i686-w64-mingw32-windres -i $< -o $@ -O coff
 
-deploy: wireguard.exe
+amd64/wireguard.exe: export CC := x86_64-w64-mingw32-gcc
+amd64/wireguard.exe: export GOARCH := amd64
+amd64/wireguard.exe: resources_amd64.syso $(SOURCE_FILES)
+	go build $(GOFLAGS) -o $@
+
+x86/wireguard.exe: export CC := i686-w64-mingw32-gcc
+x86/wireguard.exe: export GOARCH := 386
+x86/wireguard.exe: resources_386.syso $(SOURCE_FILES)
+	go build $(GOFLAGS) -o $@
+
+deploy: amd64/wireguard.exe
 	-ssh $(DEPLOYMENT_HOST) -- 'taskkill /im wireguard.exe /f'
-	scp wireguard.exe $(DEPLOYMENT_HOST):$(DEPLOYMENT_PATH)
+	scp $< $(DEPLOYMENT_HOST):$(DEPLOYMENT_PATH)
 
 clean:
-	rm -rf resources.syso wireguard.exe
+	rm -rf *.syso x86/ amd64/
 
 .PHONY: deploy clean all
