@@ -63,11 +63,14 @@ if exist .deps\prepared goto :build
 	goto :eof
 
 :build_plat
-	set CC=%STARTDIR%\.deps\%~2-w64-mingw32-native\bin\%~2-w64-mingw32-gcc.exe
+	set OLDPATH2=%PATH%
+	set PATH=%STARTDIR%\.deps\%~2-w64-mingw32-native\bin;%PATH%
+	set CC=%~2-w64-mingw32-gcc.exe
 	set GOARCH=%~3
 	mkdir %1 >NUL 2>&1
 	echo [+] Assembling resources %1
-	"%STARTDIR%\.deps\%~2-w64-mingw32-native\bin\windres.exe" -i resources.rc -o resources.syso -O coff || exit /b %errorlevel%
+	windres.exe -i resources.rc -o resources.syso -O coff || exit /b %errorlevel%
 	echo [+] Building program %1
 	go build -ldflags="-H windowsgui -s -w" -v -o "%~1\wireguard.exe" || exit /b %errorlevel%
+	set PATH=%OLDPATH2%
 	goto :eof
