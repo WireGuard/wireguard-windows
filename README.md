@@ -40,7 +40,7 @@ set SigningCertificate=DF98E075A012ED8C86FBCF14854B8F9555CB3D45
 set TimestampServer=http://timestamp.digicert.com
 ```
 
-After, run the above `build` commands as usual, from a shell that has [`signtool.exe`](https://docs.microsoft.com/sl-si/windows/desktop/SecCrypto/signtool) in its `PATH`, such as the Visual Studio 2017 command prompt.
+After, run the above `build` commands as usual, from a shell that has [`signtool.exe`](https://docs.microsoft.com/en-us/windows/desktop/SecCrypto/signtool) in its `PATH`, such as the Visual Studio 2017 command prompt.
 
 ### Alternative: Building from Linux
 
