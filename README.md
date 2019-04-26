@@ -44,7 +44,7 @@ After, run the above `build` commands as usual, from a shell that has [`signtool
 
 ### Alternative: Building from Linux
 
-You must first have Go and Mingw installed.
+You must first have Go ≥1.12 and Mingw installed.
 
 ```
 $ sudo apt install mingw-w64 golang-go
