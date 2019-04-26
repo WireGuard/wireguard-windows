@@ -7,71 +7,49 @@ package ui
 
 import (
 	"fmt"
-	"os"
 	"runtime"
+	"runtime/debug"
 
 	"github.com/lxn/walk"
 	"golang.zx2c4.com/wireguard/device"
-	"golang.zx2c4.com/wireguard/windows/ringlogger"
 	"golang.zx2c4.com/wireguard/windows/service"
 )
 
 // #include "../version.h"
 import "C"
 
+var iconProvider *IconProvider
+
 func RunUI() {
 	runtime.LockOSThread()
 
-	logger, err := ringlogger.NewRingloggerFromInheritedMappingHandle(os.Args[5], "GUI")
+	defer func() {
+		if err := recover(); err != nil {
+			walk.MsgBox(nil, "Panic", fmt.Sprint(err, "\n\n", string(debug.Stack())), walk.MsgBoxIconError)
+			panic(err)
+		}
+	}()
+
+	var err error
+
+	iconProvider, err = NewIconProvider()
 	if err != nil {
-		walk.MsgBox(nil, "Unable to initialize logging", fmt.Sprint(err), walk.MsgBoxIconError)
+		walk.MsgBox(nil, "Unable to initialize icon provider", fmt.Sprint(err), walk.MsgBoxIconError)
 		return
 	}
+	defer iconProvider.Dispose()
 
-	tunnelTracker := new(TunnelTracker)
-
-	icon, err := walk.NewIconFromResourceId(1)
-	if err != nil {
-		panic(err)
-	}
-	defer icon.Dispose()
-
-	mtw, err := NewManageTunnelsWindow(icon, logger)
+	mtw, err := NewManageTunnelsWindow()
 	if err != nil {
 		panic(err)
 	}
 	defer mtw.Dispose()
 
-	mtw.SetTunnelTracker(tunnelTracker)
-
-	tray, err := NewTray(mtw, icon)
+	tray, err := NewTray(mtw)
 	if err != nil {
 		panic(err)
 	}
 	defer tray.Dispose()
-
-	// Bind to updates
-	service.IPCClientRegisterTunnelChange(func(tunnel *service.Tunnel, state service.TunnelState, err error) {
-		mtw.Synchronize(func() {
-			tunnelTracker.SetTunnelState(tunnel, state, err)
-			mtw.SetTunnelState(tunnel, state)
-			tray.SetTunnelStateWithNotification(tunnel, state, err == nil)
-		})
-
-		if err == nil {
-			return
-		}
-
-		if mtw.Visible() {
-			errMsg := err.Error()
-			if len(errMsg) > 0 && errMsg[len(errMsg)-1] != '.' {
-				errMsg += "."
-			}
-			walk.MsgBox(mtw, "Tunnel Error", errMsg+"\n\nPlease consult the log for more information.", walk.MsgBoxIconWarning)
-		} else {
-			tray.ShowError("WireGuard Tunnel Error", err.Error())
-		}
-	})
 
 	mtw.Run()
 }
@@ -80,9 +58,7 @@ func onQuit() {
 	_, err := service.IPCClientQuit(true)
 	if err != nil {
 		walk.MsgBox(nil, "Error Exiting WireGuard", fmt.Sprintf("Unable to exit service due to: %s. You may want to stop WireGuard from the service manager.", err), walk.MsgBoxIconError)
-		os.Exit(1)
 	}
-
 	walk.App().Exit(0)
 }
 

@@ -85,7 +85,7 @@ var serviceTrackerCallbackPtr = windows.NewCallback(func(notifier *serviceNotify
 	return 0
 })
 
-var trackedTunnels = make(map[string]bool)
+var trackedTunnels = make(map[string]TunnelState)
 var trackedTunnelsLock = sync.Mutex{}
 
 func svcStateToTunState(s svc.State) TunnelState {
@@ -103,16 +103,32 @@ func svcStateToTunState(s svc.State) TunnelState {
 	}
 }
 
+func trackedTunnelsGlobalState() (state TunnelState) {
+	state = TunnelStopped
+	trackedTunnelsLock.Lock()
+	defer trackedTunnelsLock.Unlock()
+	for _, s := range trackedTunnels {
+		if s == TunnelStarting {
+			return TunnelStarting
+		} else if s == TunnelStopping {
+			return TunnelStopping
+		} else if s == TunnelStarted || s == TunnelUnknown {
+			state = TunnelStarted
+		}
+	}
+	return
+}
+
 func trackTunnelService(tunnelName string, service *mgr.Service) {
 	defer service.Close()
 
 	trackedTunnelsLock.Lock()
-	_, isTracked := trackedTunnels[tunnelName]
-	trackedTunnels[tunnelName] = true
-	trackedTunnelsLock.Unlock()
-	if isTracked {
+	if _, found := trackedTunnels[tunnelName]; found {
+		trackedTunnelsLock.Unlock()
 		return
 	}
+	trackedTunnels[tunnelName] = TunnelUnknown
+	trackedTunnelsLock.Unlock()
 	defer func() {
 		trackedTunnelsLock.Lock()
 		delete(trackedTunnels, tunnelName)
@@ -133,11 +149,17 @@ func trackTunnelService(tunnelName string, service *mgr.Service) {
 		case 0:
 			sleepEx(windows.INFINITE, true)
 		case errorServiceMARKED_FOR_DELETE:
+			trackedTunnelsLock.Lock()
+			trackedTunnels[tunnelName] = TunnelStopped
+			trackedTunnelsLock.Unlock()
 			IPCServerNotifyTunnelChange(tunnelName, TunnelStopped, nil)
 			return
 		case errorServiceNOTIFY_CLIENT_LAGGING:
 			continue
 		default:
+			trackedTunnelsLock.Lock()
+			trackedTunnels[tunnelName] = TunnelStopped
+			trackedTunnelsLock.Unlock()
 			IPCServerNotifyTunnelChange(tunnelName, TunnelStopped, fmt.Errorf("Unable to continue monitoring service, so stopping: %v", syscall.Errno(ret)))
 			service.Control(svc.Stop)
 			return
@@ -160,6 +182,9 @@ func trackTunnelService(tunnelName string, service *mgr.Service) {
 			}
 		}
 		if state != lastState {
+			trackedTunnelsLock.Lock()
+			trackedTunnels[tunnelName] = state
+			trackedTunnelsLock.Unlock()
 			IPCServerNotifyTunnelChange(tunnelName, state, tunnelError)
 			lastState = state
 		}

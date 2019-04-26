@@ -113,6 +113,20 @@ func (t *Tunnel) Stop() error {
 	return rpcClient.Call("ManagerService.Stop", t.Name, nil)
 }
 
+func (t *Tunnel) Toggle() (oldState TunnelState, err error) {
+	oldState, err = t.State()
+	if err != nil {
+		oldState = TunnelUnknown
+		return
+	}
+	if oldState == TunnelStarted {
+		err = t.Stop()
+	} else if oldState == TunnelStopped {
+		err = t.Start()
+	}
+	return
+}
+
 func (t *Tunnel) WaitForStop() error {
 	return rpcClient.Call("ManagerService.WaitForStop", t.Name, nil)
 }
@@ -134,6 +148,11 @@ func IPCClientNewTunnel(conf *conf.Config) (Tunnel, error) {
 func IPCClientTunnels() ([]Tunnel, error) {
 	var tunnels []Tunnel
 	return tunnels, rpcClient.Call("ManagerService.Tunnels", uintptr(0), &tunnels)
+}
+
+func IPCClientGlobalState() (TunnelState, error) {
+	var state TunnelState
+	return state, rpcClient.Call("ManagerService.GlobalState", uintptr(0), &state)
 }
 
 func IPCClientQuit(stopTunnelsOnQuit bool) (bool, error) {

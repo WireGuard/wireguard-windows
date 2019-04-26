@@ -22,11 +22,8 @@ import (
 type TunnelsPage struct {
 	*walk.TabPage
 
-	tunnelTracker          *TunnelTracker
-	tunnelsView            *TunnelsView
-	confView               *ConfView
-	tunnelAddedPublisher   walk.StringEventPublisher
-	tunnelDeletedPublisher walk.StringEventPublisher
+	tunnelsView *TunnelsView
+	confView    *ConfView
 }
 
 func NewTunnelsPage() (*TunnelsPage, error) {
@@ -126,20 +123,6 @@ func NewTunnelsPage() (*TunnelsPage, error) {
 	disposables.Spare()
 
 	return tp, nil
-}
-
-func (tp *TunnelsPage) TunnelTracker() *TunnelTracker {
-	return tp.tunnelTracker
-}
-
-func (tp *TunnelsPage) SetTunnelTracker(tunnelTracker *TunnelTracker) {
-	tp.tunnelTracker = tunnelTracker
-
-	tp.confView.SetTunnelTracker(tunnelTracker)
-}
-
-func (tp *TunnelsPage) SetTunnelState(tunnel *service.Tunnel, state service.TunnelState) {
-	tp.tunnelsView.SetTunnelState(tunnel, state)
 }
 
 func (tp *TunnelsPage) updateConfView() {
@@ -261,71 +244,33 @@ func (tp *TunnelsPage) exportTunnels(filePath string) {
 }
 
 func (tp *TunnelsPage) addTunnel(config *conf.Config) {
-	tunnel, err := service.IPCClientNewTunnel(config)
+	_, err := service.IPCClientNewTunnel(config)
 	if err != nil {
 		walk.MsgBox(tp.Form(), "Unable to create tunnel", err.Error(), walk.MsgBoxIconError)
-		return
 	}
 
-	model := tp.tunnelsView.model
-	model.tunnels = append(model.tunnels, tunnel)
-	model.PublishRowsReset()
-	model.Sort(model.SortedColumn(), model.SortOrder())
-
-	for i, t := range model.tunnels {
-		if t.Name == tunnel.Name {
-			tp.tunnelsView.SetCurrentIndex(i)
-			break
-		}
-	}
-
-	tp.confView.SetTunnel(&tunnel)
-
-	tp.tunnelAddedPublisher.Publish(tunnel.Name)
 }
 
 func (tp *TunnelsPage) deleteTunnel(tunnel *service.Tunnel) {
-	tunnel.Delete()
-
-	model := tp.tunnelsView.model
-
-	for i, t := range model.tunnels {
-		if t.Name == tunnel.Name {
-			model.tunnels = append(model.tunnels[:i], model.tunnels[i+1:]...)
-			model.PublishRowsRemoved(i, i)
-			break
-		}
+	err := tunnel.Delete()
+	if err != nil {
+		walk.MsgBox(tp.Form(), "Unable to delete tunnel", err.Error(), walk.MsgBoxIconError)
 	}
-
-	tp.tunnelDeletedPublisher.Publish(tunnel.Name)
-}
-
-func (tp *TunnelsPage) TunnelAdded() *walk.StringEvent {
-	return tp.tunnelAddedPublisher.Event()
-}
-
-func (tp *TunnelsPage) TunnelDeleted() *walk.StringEvent {
-	return tp.tunnelDeletedPublisher.Event()
 }
 
 // Handlers
 
 func (tp *TunnelsPage) onTunnelsViewItemActivated() {
-	if tp.tunnelTracker.InTransition() {
-		return
-	}
-
-	var err error
-	var title string
-	tunnel := tp.tunnelsView.CurrentTunnel()
-	activeTunnel := tp.tunnelTracker.ActiveTunnel()
-	if tunnel != nil && activeTunnel != nil && tunnel.Name == activeTunnel.Name {
-		err, title = tp.tunnelTracker.DeactivateTunnel(), "Deactivating tunnel failed"
-	} else {
-		err, title = tp.tunnelTracker.ActivateTunnel(tunnel), "Activating tunnel failed"
-	}
+	oldState, err := tp.tunnelsView.CurrentTunnel().Toggle()
 	if err != nil {
-		walk.MsgBox(tp.Form(), title, fmt.Sprintf("Error: %s", err.Error()), walk.MsgBoxIconError)
+		if oldState == service.TunnelUnknown {
+			walk.MsgBox(tp.Form(), "Failed to determine tunnel state", err.Error(), walk.MsgBoxIconError)
+		} else if oldState == service.TunnelStopped {
+			walk.MsgBox(tp.Form(), "Failed to activate tunnel", err.Error(), walk.MsgBoxIconError)
+		} else if oldState == service.TunnelStarted {
+			walk.MsgBox(tp.Form(), "Failed to deactivate tunnel", err.Error(), walk.MsgBoxIconError)
+		}
+		return
 	}
 }
 
@@ -337,11 +282,16 @@ func (tp *TunnelsPage) onEditTunnel() {
 	}
 
 	if config := runTunnelConfigDialog(tp.Form(), tunnel); config != nil {
-		// Delete old one
-		tp.deleteTunnel(tunnel)
-
-		// Save new one
-		tp.addTunnel(config)
+		go func() {
+			priorState, err := tunnel.State()
+			tunnel.Delete()
+			tunnel.WaitForStop()
+			tunnel, err2 := service.IPCClientNewTunnel(config)
+			if err == nil && err2 == nil && (priorState == service.TunnelStarting || priorState == service.TunnelStarted) {
+				tunnel.Start()
+			}
+			//TODO: synchronize and select newly added tunnel
+		}()
 	}
 }
 
@@ -368,8 +318,6 @@ func (tp *TunnelsPage) onDelete() {
 	}
 
 	tp.deleteTunnel(currentTunnel)
-
-	tp.tunnelDeletedPublisher.Publish(currentTunnel.Name)
 }
 
 func (tp *TunnelsPage) onImport() {

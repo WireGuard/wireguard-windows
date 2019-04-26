@@ -17,8 +17,12 @@ import (
 	"golang.zx2c4.com/wireguard/windows/ringlogger"
 )
 
-func NewLogPage(logger *ringlogger.Ringlogger) (*LogPage, error) {
-	lp := &LogPage{logger: logger}
+const (
+	maxLogLinesDisplayed = 10000
+)
+
+func NewLogPage() (*LogPage, error) {
+	lp := &LogPage{}
 
 	var disposables walk.Disposables
 	defer disposables.Treat()
@@ -56,7 +60,7 @@ func NewLogPage(logger *ringlogger.Ringlogger) (*LogPage, error) {
 	msgCol.SetTitle("Log message")
 	lp.logView.Columns().Add(msgCol)
 
-	lp.model = newLogModel(lp, logger)
+	lp.model = newLogModel(lp)
 	lp.logView.SetModel(lp.model)
 
 	buttonsContainer, err := walk.NewComposite(lp)
@@ -83,12 +87,11 @@ func NewLogPage(logger *ringlogger.Ringlogger) (*LogPage, error) {
 type LogPage struct {
 	*walk.TabPage
 	logView *walk.TableView
-	logger  *ringlogger.Ringlogger
 	model   *logModel
 }
 
 func (lp *LogPage) isAtBottom() bool {
-	return lp.logView.ItemVisible(len(lp.model.items) - 1)
+	return len(lp.model.items) == 0 || lp.logView.ItemVisible(len(lp.model.items)-1)
 }
 
 func (lp *LogPage) scrollToBottom() {
@@ -108,13 +111,12 @@ func (lp *LogPage) onSaveButtonClicked() {
 		return
 	}
 
-	extensions := []string{".log", ".txt"}
-	if fd.FilterIndex < 3 && !strings.HasSuffix(fd.FilePath, extensions[fd.FilterIndex-1]) {
-		fd.FilePath = fd.FilePath + extensions[fd.FilterIndex-1]
+	if fd.FilterIndex == 1 && !strings.HasSuffix(fd.FilePath, ".txt") {
+		fd.FilePath = fd.FilePath + ".txt"
 	}
 
 	writeFileWithOverwriteHandling(form, fd.FilePath, func(file *os.File) error {
-		if _, err := lp.logger.WriteTo(file); err != nil {
+		if _, err := ringlogger.Global.WriteTo(file); err != nil {
 			return fmt.Errorf("exportLog: Ringlogger.WriteTo failed: %v", err)
 		}
 
@@ -124,50 +126,38 @@ func (lp *LogPage) onSaveButtonClicked() {
 
 type logModel struct {
 	walk.ReflectTableModelBase
-	lp     *LogPage
-	quit   chan bool
-	logger *ringlogger.Ringlogger
-	items  []ringlogger.FollowLine
+	lp    *LogPage
+	quit  chan bool
+	items []ringlogger.FollowLine
 }
 
-func newLogModel(lp *LogPage, logger *ringlogger.Ringlogger) *logModel {
-	mdl := &logModel{lp: lp, quit: make(chan bool), logger: logger}
-	var lastCursor uint32
-	mdl.items, lastCursor = logger.FollowFromCursor(ringlogger.CursorAll)
-
-	var lastStamp time.Time
-	if len(mdl.items) > 0 {
-		lastStamp = mdl.items[len(mdl.items)-1].Stamp
-	}
-
+func newLogModel(lp *LogPage) *logModel {
+	mdl := &logModel{lp: lp, quit: make(chan bool)}
 	go func() {
-		ticker := time.NewTicker(time.Second)
+		ticker := time.NewTicker(time.Millisecond * 300)
+		cursor := ringlogger.CursorAll
+		var items []ringlogger.FollowLine
 
 		for {
 			select {
 			case <-ticker.C:
-				items, cursor := mdl.logger.FollowFromCursor(ringlogger.CursorAll)
-
-				var stamp time.Time
-				if len(items) > 0 {
-					stamp = items[len(items)-1].Stamp
+				items, cursor = ringlogger.Global.FollowFromCursor(cursor)
+				if len(items) == 0 {
+					continue
 				}
+				mdl.lp.Synchronize(func() {
+					isAtBottom := mdl.lp.isAtBottom()
 
-				if cursor != lastCursor || stamp.After(lastStamp) {
-					lastCursor = cursor
-					lastStamp = stamp
+					mdl.items = append(mdl.items, items...)
+					if len(mdl.items) > maxLogLinesDisplayed {
+						mdl.items = mdl.items[len(mdl.items)-maxLogLinesDisplayed:]
+					}
+					mdl.PublishRowsReset()
 
-					mdl.lp.Synchronize(func() {
-						isAtBottom := mdl.lp.isAtBottom()
-
-						mdl.items = items
-						mdl.PublishRowsReset()
-
-						if isAtBottom {
-							mdl.lp.scrollToBottom()
-						}
-					})
-				}
+					if isAtBottom {
+						mdl.lp.scrollToBottom()
+					}
+				})
 
 			case <-mdl.quit:
 				ticker.Stop()

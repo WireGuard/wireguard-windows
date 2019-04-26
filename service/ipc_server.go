@@ -71,6 +71,18 @@ func (s *ManagerService) RuntimeConfig(tunnelName string, config *conf.Config) e
 }
 
 func (s *ManagerService) Start(tunnelName string, unused *uintptr) error {
+	// For now, enforce only one tunnel at a time. Later we'll remove this silly restriction.
+	trackedTunnelsLock.Lock()
+	tt := make([]string, 0, len(trackedTunnels))
+	for t := range trackedTunnels {
+		tt = append(tt, t)
+	}
+	trackedTunnelsLock.Unlock()
+	for _, t := range tt {
+		s.Stop(t, unused)
+	}
+
+	// After that process is started -- it's somewhat asynchronous -- we install the new one.
 	c, err := conf.LoadFromName(tunnelName)
 	if err != nil {
 		return err
@@ -153,6 +165,11 @@ func (s *ManagerService) State(tunnelName string, state *TunnelState) error {
 	default:
 		*state = TunnelUnknown
 	}
+	return nil
+}
+
+func (s *ManagerService) GlobalState(unused uintptr, state *TunnelState) error {
+	*state = trackedTunnelsGlobalState()
 	return nil
 }
 
