@@ -31,7 +31,6 @@ type labelStatusLine struct {
 	statusComposite *walk.Composite
 	statusImage     *walk.ImageView
 	statusLabel     *walk.TextLabel
-	imageProvider   *TunnelStatusImageProvider
 }
 
 type labelTextLine struct {
@@ -40,9 +39,8 @@ type labelTextLine struct {
 }
 
 type toggleActiveLine struct {
-	composite     *walk.Composite
-	button        *walk.PushButton
-	tunnelTracker *TunnelTracker
+	composite *walk.Composite
+	button    *walk.PushButton
 }
 
 type interfaceView struct {
@@ -77,20 +75,15 @@ type ConfView struct {
 	tunnel          *service.Tunnel
 }
 
-func (lsl *labelStatusLine) Dispose() {
-	if lsl.imageProvider != nil {
-		lsl.imageProvider.Dispose()
-		lsl.imageProvider = nil
-	}
-}
-
 func (lsl *labelStatusLine) widgets() (walk.Widget, walk.Widget) {
 	return lsl.label, lsl.statusComposite
 }
 
 func (lsl *labelStatusLine) update(state service.TunnelState) {
-	img, _ := lsl.imageProvider.ImageForState(state, walk.Size{statusImageSize, statusImageSize})
-	lsl.statusImage.SetImage(img)
+	img, err := iconProvider.ImageForState(state, walk.Size{statusImageSize, statusImageSize})
+	if err == nil {
+		lsl.statusImage.SetImage(img)
+	}
 
 	switch state {
 	case service.TunnelStarted:
@@ -109,7 +102,6 @@ func (lsl *labelStatusLine) update(state service.TunnelState) {
 
 func newLabelStatusLine(parent walk.Container) *labelStatusLine {
 	lsl := new(labelStatusLine)
-	parent.AddDisposable(lsl)
 
 	lsl.label, _ = walk.NewTextLabel(parent)
 	lsl.label.SetText("Status:")
@@ -120,7 +112,6 @@ func newLabelStatusLine(parent walk.Container) *labelStatusLine {
 	layout.SetMargins(walk.Margins{})
 	lsl.statusComposite.SetLayout(layout)
 
-	lsl.imageProvider, _ = NewTunnelStatusImageProvider()
 	lsl.statusImage, _ = walk.NewImageView(lsl.statusComposite)
 	lsl.statusLabel, _ = walk.NewTextLabel(lsl.statusComposite)
 	lsl.statusLabel.SetTextAlignment(walk.AlignHNearVCenter)
@@ -190,10 +181,6 @@ func (tal *toggleActiveLine) update(state service.TunnelState) {
 
 	default:
 		enabled, text = false, ""
-	}
-
-	if tt := tal.tunnelTracker; tt != nil && tt.InTransition() {
-		enabled = false
 	}
 
 	tal.button.SetEnabled(enabled)
@@ -416,32 +403,18 @@ func (cv *ConfView) Dispose() {
 	cv.ScrollView.Dispose()
 }
 
-func (cv *ConfView) TunnelTracker() *TunnelTracker {
-	return cv.interfaze.toggleActive.tunnelTracker
-}
-
-func (cv *ConfView) SetTunnelTracker(tunnelTracker *TunnelTracker) {
-	cv.interfaze.toggleActive.tunnelTracker = tunnelTracker
-}
-
 func (cv *ConfView) onToggleActiveClicked() {
 	cv.interfaze.toggleActive.button.SetEnabled(false)
-
-	var title string
-	var err error
-	tt := cv.TunnelTracker()
-	if activeTunnel := tt.ActiveTunnel(); activeTunnel != nil && activeTunnel.Name == cv.tunnel.Name {
-		title = "Failed to deactivate tunnel"
-		err = tt.DeactivateTunnel()
-	} else {
-		title = "Failed to activate tunnel"
-		err = tt.ActivateTunnel(cv.tunnel)
-	}
+	oldState, err := cv.tunnel.Toggle()
 	if err != nil {
-		walk.MsgBox(cv.Form(), title, err.Error(), walk.MsgBoxIconError)
-		return
+		if oldState == service.TunnelUnknown {
+			walk.MsgBox(cv.Form(), "Failed to determine tunnel state", err.Error(), walk.MsgBoxIconError)
+		} else if oldState == service.TunnelStopped {
+			walk.MsgBox(cv.Form(), "Failed to activate tunnel", err.Error(), walk.MsgBoxIconError)
+		} else if oldState == service.TunnelStarted {
+			walk.MsgBox(cv.Form(), "Failed to deactivate tunnel", err.Error(), walk.MsgBoxIconError)
+		}
 	}
-
 	cv.SetTunnel(cv.tunnel)
 }
 

@@ -8,6 +8,7 @@ package main
 import (
 	"fmt"
 	"golang.org/x/sys/windows"
+	"golang.zx2c4.com/wireguard/windows/ringlogger"
 	"golang.zx2c4.com/wireguard/windows/service"
 	"golang.zx2c4.com/wireguard/windows/ui"
 	"os"
@@ -166,6 +167,10 @@ func main() {
 			fatal(err)
 		}
 		eventPipe, err := pipeFromHandleArgument(os.Args[4])
+		if err != nil {
+			fatal(err)
+		}
+		ringlogger.Global, err = ringlogger.NewRingloggerFromInheritedMappingHandle(os.Args[5], "GUI")
 		if err != nil {
 			fatal(err)
 		}

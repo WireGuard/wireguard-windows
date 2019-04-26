@@ -38,6 +38,7 @@ func (t *TunnelModel) Value(row, col int) interface{} {
 
 func (t *TunnelModel) Sort(col int, order walk.SortOrder) error {
 	sort.SliceStable(t.tunnels, func(i, j int) bool {
+		//TODO: use real string comparison for sorting with proper tunnel order
 		return t.tunnels[i].Name < t.tunnels[j].Name
 	})
 
@@ -47,8 +48,10 @@ func (t *TunnelModel) Sort(col int, order walk.SortOrder) error {
 type TunnelsView struct {
 	*walk.TableView
 
-	model         *TunnelModel
-	imageProvider *TunnelStatusImageProvider
+	model *TunnelModel
+
+	tunnelChangedCB  *service.TunnelChangeCallback
+	tunnelsChangedCB *service.TunnelsChangeCallback
 }
 
 func NewTunnelsView(parent walk.Container) (*TunnelsView, error) {
@@ -77,16 +80,27 @@ func NewTunnelsView(parent walk.Container) (*TunnelsView, error) {
 		model:     model,
 	}
 
-	if tunnelsView.imageProvider, err = NewTunnelStatusImageProvider(); err != nil {
-		return nil, err
-	}
-	tunnelsView.AddDisposable(tunnelsView.imageProvider)
-
 	tv.SetCellStyler(tunnelsView)
 
 	disposables.Spare()
 
+	tunnelsView.tunnelChangedCB = service.IPCClientRegisterTunnelChange(tunnelsView.onTunnelChange)
+	tunnelsView.tunnelsChangedCB = service.IPCClientRegisterTunnelsChange(tunnelsView.onTunnelsChange)
+	tunnelsView.onTunnelsChange()
+
 	return tunnelsView, nil
+}
+
+func (tv *TunnelsView) Dispose() {
+	if tv.tunnelChangedCB != nil {
+		tv.tunnelChangedCB.Unregister()
+		tv.tunnelChangedCB = nil
+	}
+	if tv.tunnelsChangedCB != nil {
+		tv.tunnelsChangedCB.Unregister()
+		tv.tunnelsChangedCB = nil
+	}
+	tv.TableView.Dispose()
 }
 
 func (tv *TunnelsView) StyleCell(style *walk.CellStyle) {
@@ -106,7 +120,7 @@ func (tv *TunnelsView) StyleCell(style *walk.CellStyle) {
 	b.X = 0
 	b.Width = b.Height
 
-	tv.imageProvider.PaintForTunnel(tunnel, canvas, b)
+	iconProvider.PaintForTunnel(tunnel, canvas, b)
 }
 
 func (tv *TunnelsView) CurrentTunnel() *service.Tunnel {
@@ -118,17 +132,61 @@ func (tv *TunnelsView) CurrentTunnel() *service.Tunnel {
 	return &tv.model.tunnels[idx]
 }
 
-func (tv *TunnelsView) SetTunnelState(tunnel *service.Tunnel, state service.TunnelState) {
-	idx := -1
-	for i, _ := range tv.model.tunnels {
-		if tv.model.tunnels[i].Name == tunnel.Name {
-			idx = i
-			break
+func (tv *TunnelsView) onTunnelChange(tunnel *service.Tunnel, state service.TunnelState, err error) {
+	tv.Synchronize(func() {
+		idx := -1
+		for i := range tv.model.tunnels {
+			if tv.model.tunnels[i].Name == tunnel.Name {
+				idx = i
+				break
+			}
 		}
-	}
 
-	if idx != -1 {
-		tv.model.PublishRowChanged(idx)
+		if idx != -1 {
+			tv.model.PublishRowChanged(idx)
+			return
+		}
+	})
+}
+
+func (tv *TunnelsView) onTunnelsChange() {
+	tunnels, err := service.IPCClientTunnels()
+	if err != nil {
 		return
 	}
+	tv.Synchronize(func() {
+		newTunnels := make(map[service.Tunnel]bool, len(tunnels))
+		oldTunnels := make(map[service.Tunnel]bool, len(tv.model.tunnels))
+		for _, tunnel := range tunnels {
+			newTunnels[tunnel] = true
+		}
+		for _, tunnel := range tv.model.tunnels {
+			oldTunnels[tunnel] = true
+		}
+
+		for tunnel := range oldTunnels {
+			if !newTunnels[tunnel] {
+				for i, t := range tv.model.tunnels {
+					//TODO: this is inefficient. Use a map here instead.
+					if t.Name == tunnel.Name {
+						tv.model.tunnels = append(tv.model.tunnels[:i], tv.model.tunnels[i+1:]...)
+						tv.model.PublishRowsRemoved(i, i)
+						break
+					}
+				}
+			}
+		}
+		didAdd := false
+		for tunnel := range newTunnels {
+			if !oldTunnels[tunnel] {
+				tv.model.tunnels = append(tv.model.tunnels, tunnel)
+				didAdd = true
+				//TODO: If adding a tunnel for the first time when the previously were none, select it
+			}
+		}
+		if didAdd {
+			tv.model.PublishRowsReset()
+			tv.model.Sort(tv.model.SortedColumn(), tv.model.SortOrder())
+		}
+	})
 }

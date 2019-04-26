@@ -8,36 +8,33 @@ package ui
 import (
 	"github.com/lxn/walk"
 	"github.com/lxn/win"
-	"golang.zx2c4.com/wireguard/windows/ringlogger"
 	"golang.zx2c4.com/wireguard/windows/service"
 )
 
 type ManageTunnelsWindow struct {
 	*walk.MainWindow
 
-	icon        *walk.Icon
-	logger      *ringlogger.Ringlogger
 	tunnelsPage *TunnelsPage
 	logPage     *LogPage
+
+	tunnelChangedCB *service.TunnelChangeCallback
 }
 
-func NewManageTunnelsWindow(icon *walk.Icon, logger *ringlogger.Ringlogger) (*ManageTunnelsWindow, error) {
+func NewManageTunnelsWindow() (*ManageTunnelsWindow, error) {
 	var err error
 
 	var disposables walk.Disposables
 	defer disposables.Treat()
 
-	mtw := &ManageTunnelsWindow{
-		icon:   icon,
-		logger: logger,
-	}
+	mtw := &ManageTunnelsWindow{}
+
 	mtw.MainWindow, err = walk.NewMainWindowWithName("WireGuard")
 	if err != nil {
 		return nil, err
 	}
 	disposables.Add(mtw)
 
-	mtw.SetIcon(mtw.icon)
+	mtw.SetIcon(iconProvider.baseIcon)
 	mtw.SetTitle("WireGuard")
 	font, err := walk.NewFont("Segoe UI", 9, 0)
 	if err != nil {
@@ -66,31 +63,41 @@ func NewManageTunnelsWindow(icon *walk.Icon, logger *ringlogger.Ringlogger) (*Ma
 	mtw.tunnelsPage, _ = NewTunnelsPage()
 	tabWidget.Pages().Add(mtw.tunnelsPage.TabPage)
 
-	mtw.logPage, _ = NewLogPage(logger)
+	mtw.logPage, _ = NewLogPage()
 	tabWidget.Pages().Add(mtw.logPage.TabPage)
 
 	disposables.Spare()
 
+	mtw.tunnelChangedCB = service.IPCClientRegisterTunnelChange(mtw.onTunnelChange)
+	mtw.onTunnelChange(nil, service.TunnelUnknown, nil)
+
 	return mtw, nil
 }
 
-func (mtw *ManageTunnelsWindow) TunnelTracker() *TunnelTracker {
-	return mtw.tunnelsPage.tunnelTracker
-}
-
-func (mtw *ManageTunnelsWindow) SetTunnelTracker(tunnelTracker *TunnelTracker) {
-	mtw.tunnelsPage.tunnelTracker = tunnelTracker
-
-	mtw.tunnelsPage.confView.SetTunnelTracker(tunnelTracker)
-}
-
-func (mtw *ManageTunnelsWindow) SetTunnelState(tunnel *service.Tunnel, state service.TunnelState) {
-	mtw.tunnelsPage.SetTunnelState(tunnel, state)
-
-	icon, err := mtw.tunnelsPage.tunnelsView.imageProvider.IconWithOverlayForState(mtw.icon, state)
-	if err != nil {
-		return
+func (mtw *ManageTunnelsWindow) Dispose() {
+	if mtw.tunnelChangedCB != nil {
+		mtw.tunnelChangedCB.Unregister()
+		mtw.tunnelChangedCB = nil
 	}
+	mtw.MainWindow.Dispose()
+}
 
-	mtw.SetIcon(icon)
+func (mtw *ManageTunnelsWindow) onTunnelChange(tunnel *service.Tunnel, state service.TunnelState, err error) {
+	globalState, err2 := service.IPCClientGlobalState()
+	mtw.Synchronize(func() {
+		if err2 == nil {
+			icon, err2 := iconProvider.IconWithOverlayForState(globalState)
+			if err2 == nil {
+				mtw.SetIcon(icon)
+			}
+		}
+
+		if err != nil && mtw.Visible() {
+			errMsg := err.Error()
+			if len(errMsg) > 0 && errMsg[len(errMsg)-1] != '.' {
+				errMsg += "."
+			}
+			walk.MsgBox(mtw, "Tunnel Error", errMsg+"\n\nPlease consult the log for more information.", walk.MsgBoxIconWarning)
+		}
+	})
 }
