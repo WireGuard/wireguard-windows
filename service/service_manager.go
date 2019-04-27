@@ -15,6 +15,7 @@ import (
 	"runtime/debug"
 	"sync"
 	"syscall"
+	"unicode/utf16"
 	"unsafe"
 )
 
@@ -54,6 +55,34 @@ type wellKnownSidType uint32
 //sys wtfQueryUserToken(session uint32, token *windows.Token) (err error) = wtsapi32.WTSQueryUserToken
 //sys wtsEnumerateSessions(handle windows.Handle, reserved uint32, version uint32, sessions **wtsSessionInfo, count *uint32) (err error) = wtsapi32.WTSEnumerateSessionsW
 //sys wtsFreeMemory(ptr uintptr) = wtsapi32.WTSFreeMemory
+
+//sys createEnvironmentBlock(block *uintptr, token windows.Token, inheritExisting bool) (err error) = userenv.CreateEnvironmentBlock
+//sys destroyEnvironmentBlock(block uintptr) (err error) = userenv.DestroyEnvironmentBlock
+
+func userEnviron(token windows.Token) (env []string, err error) {
+	var block uintptr
+	err = createEnvironmentBlock(&block, token, false)
+	if err != nil {
+		return
+	}
+	offset := uintptr(0)
+	for {
+		entry := (*[1<<30 - 1]uint16)(unsafe.Pointer(block + offset))[:]
+		for i, v := range entry {
+			if v == 0 {
+				entry = entry[:i]
+				break
+			}
+		}
+		if len(entry) == 0 {
+			break
+		}
+		env = append(env, string(utf16.Decode(entry)))
+		offset += 2 * (uintptr(len(entry)) + 1)
+	}
+	destroyEnvironmentBlock(block)
+	return
+}
 
 type managerService struct{}
 
@@ -175,12 +204,19 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 				return
 			}
 
+			env, err := userEnviron(userToken)
+			if err != nil {
+				log.Printf("Unable to determine user environment: %v", err)
+				return
+			}
+
 			log.Printf("Starting UI process for user: '%s@%s'", username, domain)
 			attr := &os.ProcAttr{
 				Sys: &syscall.SysProcAttr{
 					Token: syscall.Token(userToken),
 				},
 				Files: []*os.File{devNull, devNull, devNull},
+				Env:   env,
 			}
 			proc, err := os.StartProcess(path, []string{path, "/ui", theirReaderStr, theirWriterStr, theirEventStr, theirLogMapping}, attr)
 			theirReader.Close()
