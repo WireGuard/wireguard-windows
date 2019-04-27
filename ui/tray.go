@@ -137,6 +137,7 @@ func (tray *Tray) addTunnelAction(tunnel *service.Tunnel) {
 	tunnelAction.SetCheckable(true)
 	tclosure := *tunnel
 	tunnelAction.Triggered().Attach(func() {
+		tunnelAction.SetChecked(!tunnelAction.Checked())
 		oldState, err := tclosure.Toggle()
 		if err != nil {
 			tray.mtw.Show()
