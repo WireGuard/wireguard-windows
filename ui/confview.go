@@ -390,7 +390,7 @@ func NewConfView(parent walk.Container) (*ConfView, error) {
 	if err := walk.InitWrapperWindow(cv); err != nil {
 		return nil, err
 	}
-
+	cv.SetDoubleBuffering(true)
 	return cv, nil
 }
 
