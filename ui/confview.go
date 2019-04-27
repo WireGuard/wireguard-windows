@@ -30,7 +30,7 @@ type labelStatusLine struct {
 	label           *walk.TextLabel
 	statusComposite *walk.Composite
 	statusImage     *walk.ImageView
-	statusLabel     *walk.TextLabel
+	statusLabel     *walk.LineEdit
 }
 
 type labelTextLine struct {
@@ -84,7 +84,7 @@ func (lsl *labelStatusLine) update(state service.TunnelState) {
 	if err == nil {
 		lsl.statusImage.SetImage(img)
 	}
-
+	s, e := lsl.statusLabel.TextSelection()
 	switch state {
 	case service.TunnelStarted:
 		lsl.statusLabel.SetText("Active")
@@ -97,7 +97,11 @@ func (lsl *labelStatusLine) update(state service.TunnelState) {
 
 	case service.TunnelStopping:
 		lsl.statusLabel.SetText("Deactivating")
+
+	case service.TunnelUnknown:
+		lsl.statusLabel.SetText("Unknown state")
 	}
+	lsl.statusLabel.SetTextSelection(s, e)
 }
 
 func newLabelStatusLine(parent walk.Container) *labelStatusLine {
@@ -105,7 +109,7 @@ func newLabelStatusLine(parent walk.Container) *labelStatusLine {
 
 	lsl.label, _ = walk.NewTextLabel(parent)
 	lsl.label.SetText("Status:")
-	lsl.label.SetTextAlignment(walk.AlignHFarVCenter)
+	lsl.label.SetTextAlignment(walk.AlignHFarVNear)
 
 	lsl.statusComposite, _ = walk.NewComposite(parent)
 	layout := walk.NewHBoxLayout()
@@ -113,11 +117,14 @@ func newLabelStatusLine(parent walk.Container) *labelStatusLine {
 	lsl.statusComposite.SetLayout(layout)
 
 	lsl.statusImage, _ = walk.NewImageView(lsl.statusComposite)
-	lsl.statusLabel, _ = walk.NewTextLabel(lsl.statusComposite)
-	lsl.statusLabel.SetTextAlignment(walk.AlignHNearVCenter)
-	walk.NewVSpacerFixed(lsl.statusComposite, 26)
-	walk.NewHSpacer(lsl.statusComposite)
-	lsl.update(service.TunnelStopped)
+	lsl.statusLabel, _ = walk.NewLineEdit(lsl.statusComposite)
+	win.SetWindowLong(lsl.statusLabel.Handle(), win.GWL_EXSTYLE, win.GetWindowLong(lsl.statusLabel.Handle(), win.GWL_EXSTYLE)&^win.WS_EX_CLIENTEDGE)
+	lsl.statusLabel.SetReadOnly(true)
+	lsl.statusLabel.SetBackground(walk.NullBrush())
+	lsl.statusLabel.FocusedChanged().Attach(func() {
+		lsl.statusLabel.SetTextSelection(0, 0)
+	})
+	lsl.update(service.TunnelUnknown)
 
 	return lsl
 }
