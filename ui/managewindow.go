@@ -46,7 +46,8 @@ func NewManageTunnelsWindow() (*ManageTunnelsWindow, error) {
 	mtw.SetLayout(walk.NewVBoxLayout())
 	mtw.Closing().Attach(func(canceled *bool, reason walk.CloseReason) {
 		// "Close to tray" instead of exiting application
-		onQuit()
+		*canceled = true
+		mtw.Hide()
 	})
 	mtw.VisibleChanged().Attach(func() {
 		if mtw.Visible() {

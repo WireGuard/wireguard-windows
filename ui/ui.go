@@ -20,6 +20,8 @@ import "C"
 
 var iconProvider *IconProvider
 
+var shouldQuitManagerWhenExiting = false
+
 func RunUI() {
 	runtime.LockOSThread()
 
@@ -37,28 +39,32 @@ func RunUI() {
 		walk.MsgBox(nil, "Unable to initialize icon provider", fmt.Sprint(err), walk.MsgBoxIconError)
 		return
 	}
-	defer iconProvider.Dispose()
 
 	mtw, err := NewManageTunnelsWindow()
 	if err != nil {
 		panic(err)
 	}
-	defer mtw.Dispose()
 
 	tray, err := NewTray(mtw)
 	if err != nil {
 		panic(err)
 	}
-	defer tray.Dispose()
 
 	mtw.Run()
+	tray.Dispose()
+	mtw.Dispose()
+	iconProvider.Dispose()
+
+	if shouldQuitManagerWhenExiting {
+		_, err := service.IPCClientQuit(true)
+		if err != nil {
+			walk.MsgBox(nil, "Error Exiting WireGuard", fmt.Sprintf("Unable to exit service due to: %s. You may want to stop WireGuard from the service manager.", err), walk.MsgBoxIconError)
+		}
+	}
 }
 
 func onQuit() {
-	_, err := service.IPCClientQuit(true)
-	if err != nil {
-		walk.MsgBox(nil, "Error Exiting WireGuard", fmt.Sprintf("Unable to exit service due to: %s. You may want to stop WireGuard from the service manager.", err), walk.MsgBoxIconError)
-	}
+	shouldQuitManagerWhenExiting = true
 	walk.App().Exit(0)
 }
 
