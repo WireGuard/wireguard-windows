@@ -321,6 +321,8 @@ func (tp *TunnelsPage) onDelete() {
 }
 
 func (tp *TunnelsPage) onImport() {
+	tp.Form().Show() // Since the tray calls us sometimes, always make our parent visible.
+
 	dlg := walk.FileDialog{
 		Filter: "Configuration Files (*.zip, *.conf)|*.zip;*.conf|All Files (*.*)|*.*",
 		Title:  "Import tunnel(s) from file...",
