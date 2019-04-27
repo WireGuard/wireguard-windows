@@ -38,12 +38,15 @@ func errnoErr(e syscall.Errno) error {
 
 var (
 	modwtsapi32 = windows.NewLazySystemDLL("wtsapi32.dll")
+	moduserenv  = windows.NewLazySystemDLL("userenv.dll")
 	modadvapi32 = windows.NewLazySystemDLL("advapi32.dll")
 	modkernel32 = windows.NewLazySystemDLL("kernel32.dll")
 
 	procWTSQueryUserToken          = modwtsapi32.NewProc("WTSQueryUserToken")
 	procWTSEnumerateSessionsW      = modwtsapi32.NewProc("WTSEnumerateSessionsW")
 	procWTSFreeMemory              = modwtsapi32.NewProc("WTSFreeMemory")
+	procCreateEnvironmentBlock     = moduserenv.NewProc("CreateEnvironmentBlock")
+	procDestroyEnvironmentBlock    = moduserenv.NewProc("DestroyEnvironmentBlock")
 	procNotifyServiceStatusChangeW = modadvapi32.NewProc("NotifyServiceStatusChangeW")
 	procSleepEx                    = modkernel32.NewProc("SleepEx")
 )
@@ -74,6 +77,36 @@ func wtsEnumerateSessions(handle windows.Handle, reserved uint32, version uint32
 
 func wtsFreeMemory(ptr uintptr) {
 	syscall.Syscall(procWTSFreeMemory.Addr(), 1, uintptr(ptr), 0, 0)
+	return
+}
+
+func createEnvironmentBlock(block *uintptr, token windows.Token, inheritExisting bool) (err error) {
+	var _p0 uint32
+	if inheritExisting {
+		_p0 = 1
+	} else {
+		_p0 = 0
+	}
+	r1, _, e1 := syscall.Syscall(procCreateEnvironmentBlock.Addr(), 3, uintptr(unsafe.Pointer(block)), uintptr(token), uintptr(_p0))
+	if r1 == 0 {
+		if e1 != 0 {
+			err = errnoErr(e1)
+		} else {
+			err = syscall.EINVAL
+		}
+	}
+	return
+}
+
+func destroyEnvironmentBlock(block uintptr) (err error) {
+	r1, _, e1 := syscall.Syscall(procDestroyEnvironmentBlock.Addr(), 1, uintptr(block), 0, 0)
+	if r1 == 0 {
+		if e1 != 0 {
+			err = errnoErr(e1)
+		} else {
+			err = syscall.EINVAL
+		}
+	}
 	return
 }
 
