@@ -20,7 +20,7 @@ const (
 	ErrorCreateWintun
 	ErrorDetermineWintunName
 	ErrorUAPIListen
-	ErrorUAPISerialization
+	ErrorDNSLookup
 	ErrorDeviceSetConfig
 	ErrorBindSocketsToDefaultRoutes
 	ErrorSetNetConfig
@@ -48,8 +48,8 @@ func (e Error) Error() string {
 		return "Unable to determine Wintun name"
 	case ErrorUAPIListen:
 		return "Unable to listen on named pipe"
-	case ErrorUAPISerialization:
-		return "Unable to serialize configuration into uapi form"
+	case ErrorDNSLookup:
+		return "Unable to resolve one or more DNS hostname endpoints"
 	case ErrorDeviceSetConfig:
 		return "Unable to set device configuration"
 	case ErrorBindSocketsToDefaultRoutes:

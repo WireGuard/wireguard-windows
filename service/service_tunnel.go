@@ -117,7 +117,7 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 
 	uapiConf, err := conf.ToUAPI()
 	if err != nil {
-		serviceError = ErrorUAPISerialization
+		serviceError = ErrorDNSLookup
 		return
 	}
 	ipcErr := dev.IpcSetOperation(bufio.NewReader(strings.NewReader(uapiConf)))
