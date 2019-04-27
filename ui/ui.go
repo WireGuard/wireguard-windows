@@ -76,6 +76,7 @@ func onAbout(owner walk.Form) {
 	dlg, _ := walk.NewDialogWithFixedSize(owner)
 	dlg.SetTitle("About WireGuard")
 	dlg.SetLayout(vbl)
+	dlg.SetIcon(iconProvider.baseIcon)
 
 	font, _ := walk.NewFont("Segoe UI", 9, 0)
 	dlg.SetFont(font)
