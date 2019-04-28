@@ -16,8 +16,6 @@ import (
 	"golang.zx2c4.com/wireguard/windows/service"
 )
 
-const statusImageSize = 19
-
 type widgetsLine interface {
 	widgets() (walk.Widget, walk.Widget)
 }
@@ -80,7 +78,7 @@ func (lsl *labelStatusLine) widgets() (walk.Widget, walk.Widget) {
 }
 
 func (lsl *labelStatusLine) update(state service.TunnelState) {
-	img, err := iconProvider.ImageForState(state, walk.Size{statusImageSize, statusImageSize})
+	img, err := iconProvider.ImageForState(state, walk.Rectangle{-4, -4, lsl.label.SizeHint().Height*3/4 + 4, lsl.label.SizeHint().Height*3/4 + 4})
 	if err == nil {
 		lsl.statusImage.SetImage(img)
 	}
@@ -117,6 +115,8 @@ func newLabelStatusLine(parent walk.Container) *labelStatusLine {
 	lsl.statusComposite.SetLayout(layout)
 
 	lsl.statusImage, _ = walk.NewImageView(lsl.statusComposite)
+	lsl.statusImage.SetMode(walk.ImageViewModeIdeal)
+
 	lsl.statusLabel, _ = walk.NewLineEdit(lsl.statusComposite)
 	win.SetWindowLong(lsl.statusLabel.Handle(), win.GWL_EXSTYLE, win.GetWindowLong(lsl.statusLabel.Handle(), win.GWL_EXSTYLE)&^win.WS_EX_CLIENTEDGE)
 	lsl.statusLabel.SetReadOnly(true)

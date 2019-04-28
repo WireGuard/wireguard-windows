@@ -11,14 +11,14 @@ import (
 	"math"
 )
 
-type sizeAndState struct {
-	size  walk.Size
+type rectAndState struct {
+	size  walk.Rectangle
 	state service.TunnelState
 }
 
 type IconProvider struct {
 	baseIcon             *walk.Icon
-	imagesBySizeAndState map[sizeAndState]*walk.Bitmap
+	imagesByRectAndState map[rectAndState]*walk.Bitmap
 	iconsByState         map[service.TunnelState]*walk.Icon
 	stoppedBrush         *walk.SolidColorBrush
 	startingBrush        *walk.SolidColorBrush
@@ -108,7 +108,7 @@ func darkColor(c walk.Color) walk.Color {
 
 func NewIconProvider() (*IconProvider, error) {
 	tsip := &IconProvider{
-		imagesBySizeAndState: make(map[sizeAndState]*walk.Bitmap),
+		imagesByRectAndState: make(map[rectAndState]*walk.Bitmap),
 		iconsByState:         make(map[service.TunnelState]*walk.Icon),
 	}
 
@@ -158,11 +158,11 @@ func NewIconProvider() (*IconProvider, error) {
 }
 
 func (tsip *IconProvider) Dispose() {
-	if tsip.imagesBySizeAndState != nil {
-		for _, img := range tsip.imagesBySizeAndState {
+	if tsip.imagesByRectAndState != nil {
+		for _, img := range tsip.imagesByRectAndState {
 			img.Dispose()
 		}
-		tsip.imagesBySizeAndState = nil
+		tsip.imagesByRectAndState = nil
 	}
 	if tsip.iconsByState != nil {
 		for _, icon := range tsip.iconsByState {
@@ -206,17 +206,17 @@ func (tsip *IconProvider) ImageForTunnel(tunnel *service.Tunnel, size walk.Size)
 		return nil, err
 	}
 
-	return tsip.ImageForState(state, size)
+	return tsip.ImageForState(state, walk.Rectangle{0, 0, size.Width, size.Height})
 }
 
-func (tsip *IconProvider) ImageForState(state service.TunnelState, size walk.Size) (*walk.Bitmap, error) {
-	key := sizeAndState{size, state}
+func (tsip *IconProvider) ImageForState(state service.TunnelState, rect walk.Rectangle) (*walk.Bitmap, error) {
+	key := rectAndState{rect, state}
 
-	if img, ok := tsip.imagesBySizeAndState[key]; ok {
+	if img, ok := tsip.imagesByRectAndState[key]; ok {
 		return img, nil
 	}
 
-	img, err := walk.NewBitmapWithTransparentPixels(size)
+	img, err := walk.NewBitmapWithTransparentPixels(rect.Size())
 	if err != nil {
 		return nil, err
 	}
@@ -227,11 +227,11 @@ func (tsip *IconProvider) ImageForState(state service.TunnelState, size walk.Siz
 	}
 	defer canvas.Dispose()
 
-	if err := tsip.PaintForState(state, canvas, walk.Rectangle{0, 0, size.Width, size.Height}); err != nil {
+	if err := tsip.PaintForState(state, canvas, rect); err != nil {
 		return nil, err
 	}
 
-	tsip.imagesBySizeAndState[key] = img
+	tsip.imagesByRectAndState[key] = img
 
 	return img, nil
 }
