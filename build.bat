@@ -15,14 +15,10 @@ if exist .deps\prepared goto :build
 	call :download mingw-x86.zip https://download.wireguard.com/windows-toolchain/distfiles/i686-w64-mingw32-native-20190425.zip 5810b4a9af34c12690ec355ad2a237d2a4c16f5e8cb68988dc0f2e48457534d0 || goto :error
 	rem Mirror of https://musl.cc/x86_64-w64-mingw32-native.zip
 	call :download mingw-amd64.zip https://download.wireguard.com/windows-toolchain/distfiles/x86_64-w64-mingw32-native-20190307.zip 5390762183e181804b28eb13815b6210f85a1280057b815f749b06768215f817 || goto :error
-	echo [+] Extracting go.zip
-	tar -xf go.zip || goto :error
-	echo [+] Extracting mingw-x86.zip
-	tar -xf mingw-x86.zip || goto :error
-	echo [+] Extracting mingw-amd64.zip
-	tar -xf mingw-amd64.zip || goto :error
-	echo [+] Cleaning up
-	del go.zip mingw-x86.zip mingw-amd64.zip || goto :error
+	rem Mirror of https://sourceforge.net/projects/gnuwin32/files/patch/2.5.9-7/patch-2.5.9-7-bin.zip with fixed manifest
+	call :download patch.zip https://download.wireguard.com/windows-toolchain/distfiles/patch-2.5.9-7-bin-fixed-manifest.zip 25977006ca9713f2662a5d0a2ed3a5a138225b8be3757035bd7da9dcf985d0a1 "--strip-components 1 bin" || goto :error
+	echo [+] Patching go
+	.\patch.exe -f -N -r- -d go -p1 --binary < ..\golang-security-attribute-process-creation.patch || goto :error
 	copy /y NUL prepared > NUL || goto :error
 	cd .. || goto :error
 
@@ -60,6 +56,10 @@ if exist .deps\prepared goto :build
 	curl -#fLo %1 %2 || exit /b 1
 	echo [+] Verifying %1
 	for /f %%a in ('CertUtil -hashfile %1 SHA256 ^| findstr /r "^[0-9a-f]*$"') do if not "%%a"=="%~3" exit /b 1
+	echo [+] Extracting %1
+	tar -xf %1 %~4 || exit /b 1
+	echo [+] Cleaning up %1
+	del %1 || exit /b 1
 	goto :eof
 
 :build_plat

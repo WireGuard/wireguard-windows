@@ -3,15 +3,24 @@ GOFLAGS := -ldflags="-H windowsgui -s -w" -v
 WINDRES := x86_64-w64-mingw32-windres
 export CGO_ENABLED := 1
 export GOOS := windows
+OLD_GOROOT := $(GOROOT)
+export GOROOT := $(PWD)/.deps/goroot
 
 rwildcard=$(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subst *,%,$2),$d))
-SOURCE_FILES := $(call rwildcard,,*.go *.c *.h)
+SOURCE_FILES := $(call rwildcard,,*.go *.c *.h) .deps/prepared
 RESOURCE_FILES := resources.rc manifest.xml ui/icon/icon.ico
 
 DEPLOYMENT_HOST ?= winvm
 DEPLOYMENT_PATH ?= Desktop
 
 all: amd64/wireguard.exe x86/wireguard.exe
+
+.deps/prepared: export GOROOT := $(OLD_GOROOT)
+.deps/prepared: $(wildcard golang-*.patch)
+	rm -rf .deps && mkdir -p .deps
+	rsync --exclude=pkg/obj/go-build/trim.txt -aq $$(go env GOROOT)/ .deps/goroot
+	cat $^ | patch -f -N -r- -p1 -d .deps/goroot
+	touch $@
 
 resources_amd64.syso: $(RESOURCE_FILES)
 	x86_64-w64-mingw32-windres -i $< -o $@ -O coff
@@ -34,6 +43,6 @@ deploy: amd64/wireguard.exe
 	scp $< $(DEPLOYMENT_HOST):$(DEPLOYMENT_PATH)
 
 clean:
-	rm -rf *.syso x86/ amd64/
+	rm -rf *.syso x86/ amd64/ .deps
 
 .PHONY: deploy clean all
