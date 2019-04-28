@@ -78,7 +78,9 @@ func (lsl *labelStatusLine) widgets() (walk.Widget, walk.Widget) {
 }
 
 func (lsl *labelStatusLine) update(state service.TunnelState) {
-	img, err := iconProvider.ImageForState(state, walk.Rectangle{-4, -4, lsl.label.SizeHint().Height*3/4 + 4, lsl.label.SizeHint().Height*3/4 + 4})
+	labelSize := lsl.label.SizeHint()
+	imageRect := walk.Rectangle{0, 0, labelSize.Height, labelSize.Height}
+	img, err := iconProvider.ImageForState(state, imageRect)
 	if err == nil {
 		lsl.statusImage.SetImage(img)
 	}
@@ -112,6 +114,8 @@ func newLabelStatusLine(parent walk.Container) *labelStatusLine {
 	lsl.statusComposite, _ = walk.NewComposite(parent)
 	layout := walk.NewHBoxLayout()
 	layout.SetMargins(walk.Margins{})
+	layout.SetAlignment(walk.AlignHNearVNear)
+	layout.SetSpacing(0)
 	lsl.statusComposite.SetLayout(layout)
 
 	lsl.statusImage, _ = walk.NewImageView(lsl.statusComposite)
