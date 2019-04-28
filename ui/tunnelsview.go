@@ -115,7 +115,7 @@ func (tv *TunnelsView) StyleCell(style *walk.CellStyle) {
 
 	b.X = b.Height
 	b.Width -= b.Height
-	canvas.DrawText(tunnel.Name, tv.Font(), 0, b, walk.TextVCenter | walk.TextSingleLine)
+	canvas.DrawText(tunnel.Name, tv.Font(), 0, b, walk.TextVCenter|walk.TextSingleLine)
 
 	b.X = 0
 	b.Width = b.Height

@@ -14,8 +14,10 @@ import (
 type ManageTunnelsWindow struct {
 	*walk.MainWindow
 
+	tabs        *walk.TabWidget
 	tunnelsPage *TunnelsPage
 	logPage     *LogPage
+	updatePage  *UpdatePage
 
 	tunnelChangedCB *service.TunnelChangeCallback
 }
@@ -59,13 +61,13 @@ func NewManageTunnelsWindow() (*ManageTunnelsWindow, error) {
 		}
 	})
 
-	tabWidget, _ := walk.NewTabWidget(mtw)
+	mtw.tabs, _ = walk.NewTabWidget(mtw)
 
 	mtw.tunnelsPage, _ = NewTunnelsPage()
-	tabWidget.Pages().Add(mtw.tunnelsPage.TabPage)
+	mtw.tabs.Pages().Add(mtw.tunnelsPage.TabPage)
 
 	mtw.logPage, _ = NewLogPage()
-	tabWidget.Pages().Add(mtw.logPage.TabPage)
+	mtw.tabs.Pages().Add(mtw.logPage.TabPage)
 
 	disposables.Spare()
 
@@ -101,4 +103,15 @@ func (mtw *ManageTunnelsWindow) onTunnelChange(tunnel *service.Tunnel, state ser
 			walk.MsgBox(mtw, "Tunnel Error", errMsg+"\n\nPlease consult the log for more information.", walk.MsgBoxIconWarning)
 		}
 	})
+}
+
+func (mtw *ManageTunnelsWindow) UpdateFound() {
+	if mtw.updatePage != nil {
+		return
+	}
+	updatePage, err := NewUpdatePage()
+	if err == nil {
+		mtw.updatePage = updatePage
+		mtw.tabs.Pages().Add(updatePage.TabPage)
+	}
 }
