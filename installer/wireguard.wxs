@@ -38,7 +38,7 @@
 			Upgrading
 		-->
 		<MajorUpgrade
-			AllowDowngrades="no" AllowSameVersionUpgrades="yes"
+			AllowDowngrades="no"
 			DowngradeErrorMessage="A newer version of [ProductName] is already installed."
 			Schedule="afterInstallExecute" />
 		<Property Id="INSTALLFOLDERPREV">

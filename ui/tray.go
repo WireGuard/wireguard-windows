@@ -278,3 +278,16 @@ func (tray *Tray) SetTunnelState(tunnel *service.Tunnel, state service.TunnelSta
 
 	tray.updateGlobalState()
 }
+
+func (tray *Tray) UpdateFound() {
+	action := walk.NewAction()
+	action.SetText("An Update is Available!")
+	action.SetImage(iconProvider.updateAvailableImage)
+	//TODO: Make bold
+	action.Triggered().Attach(func() {
+		tray.mtw.Show()
+		tray.mtw.tabs.SetCurrentIndex(2)
+	})
+	tray.ContextMenu().Actions().Insert(tray.ContextMenu().Actions().Len()-2, action)
+	tray.ShowWarning("WireGuard Update Available", "An update to WireGuard is now available. You are advised to update as soon as possible.")
+}

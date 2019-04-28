@@ -7,16 +7,16 @@ package ui
 
 import (
 	"fmt"
-	"runtime"
-	"runtime/debug"
-
 	"github.com/lxn/walk"
 	"golang.zx2c4.com/wireguard/device"
 	"golang.zx2c4.com/wireguard/windows/service"
+	"golang.zx2c4.com/wireguard/windows/updater"
+	"golang.zx2c4.com/wireguard/windows/version"
+	"log"
+	"runtime"
+	"runtime/debug"
+	"time"
 )
-
-// #include "../version.h"
-import "C"
 
 var iconProvider *IconProvider
 
@@ -49,6 +49,31 @@ func RunUI() {
 	if err != nil {
 		panic(err)
 	}
+
+	go func() {
+		first := true
+		for {
+			update, err := updater.CheckForUpdate()
+			if err == nil && update != nil {
+				mtw.Synchronize(func() {
+					mtw.UpdateFound()
+					tray.UpdateFound()
+				})
+				return
+			}
+			if err != nil {
+				log.Printf("Update checker: %v", err)
+				if first {
+					time.Sleep(time.Minute * 4)
+					first = false
+				} else {
+					time.Sleep(time.Minute * 25)
+				}
+			} else {
+				time.Sleep(time.Hour)
+			}
+		}
+	}()
 
 	mtw.Run()
 	tray.Dispose()
@@ -102,10 +127,12 @@ func onAbout(owner walk.Form) {
 
 	detailsLbl.SetText(fmt.Sprintf(`App version: %s
 Go backend version: %s
+Golang version: %s %s
+%s
 
 Copyright © 2015-2019 WireGuard LLC.
 All Rights Reserved.`,
-		C.WIREGUARD_WINDOWS_VERSION, device.WireGuardGoVersion))
+		version.WireGuardWindowsVersion, device.WireGuardGoVersion, runtime.Version(), runtime.GOARCH, version.OsName()))
 
 	hbl := walk.NewHBoxLayout()
 	hbl.SetMargins(walk.Margins{VNear: 10})

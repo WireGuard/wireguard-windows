@@ -26,12 +26,14 @@ type IconProvider struct {
 	stoppedPen           *walk.CosmeticPen
 	startingPen          *walk.CosmeticPen
 	startedPen           *walk.CosmeticPen
+	updateAvailableImage *walk.Bitmap
 }
 
 const (
-	colorStopped  = 0xe1e1e1
-	colorStarting = 0xfec031
-	colorStarted  = 0x36ce42
+	colorStopped         = 0xe1e1e1
+	colorStarting        = 0xfec031
+	colorStarted         = 0x36ce42
+	colorUpdateAvailable = 0xf03a17
 )
 
 func hexColor(c uint32) walk.Color {
@@ -152,8 +154,12 @@ func NewIconProvider() (*IconProvider, error) {
 	}
 	disposables.Add(tsip.startedPen)
 
-	disposables.Spare()
+	if tsip.updateAvailableImage, err = tsip.drawUpdateAvailableImage(16); err != nil {
+		return nil, err
+	}
+	disposables.Add(tsip.updateAvailableImage)
 
+	disposables.Spare()
 	return tsip, nil
 }
 
@@ -198,6 +204,47 @@ func (tsip *IconProvider) Dispose() {
 		tsip.baseIcon.Dispose()
 		tsip.baseIcon = nil
 	}
+	if tsip.updateAvailableImage != nil {
+		tsip.updateAvailableImage.Dispose()
+		tsip.updateAvailableImage = nil
+	}
+}
+
+func (tsip *IconProvider) drawUpdateAvailableImage(size int) (*walk.Bitmap, error) {
+	updateAvailableBrush, err := walk.NewSolidColorBrush(hexColor(colorUpdateAvailable))
+	if err != nil {
+		return nil, err
+	}
+	defer updateAvailableBrush.Dispose()
+	updateAvailablePen, err := walk.NewCosmeticPen(walk.PenSolid, darkColor(hexColor(colorUpdateAvailable)))
+	if err != nil {
+		return nil, err
+	}
+	defer updateAvailablePen.Dispose()
+
+	img, err := walk.NewBitmapWithTransparentPixels(walk.Size{size, size})
+	if err != nil {
+		return nil, err
+	}
+
+	canvas, err := walk.NewCanvasFromImage(img)
+	if err != nil {
+		img.Dispose()
+		return nil, err
+	}
+	defer canvas.Dispose()
+
+	rect := walk.Rectangle{0, 0, size, size}
+
+	if err := canvas.FillEllipse(updateAvailableBrush, rect); err != nil {
+		img.Dispose()
+		return nil, err
+	}
+	if err := canvas.DrawEllipse(updateAvailablePen, rect); err != nil {
+		img.Dispose()
+		return nil, err
+	}
+	return img, nil
 }
 
 func (tsip *IconProvider) ImageForTunnel(tunnel *service.Tunnel, size walk.Size) (*walk.Bitmap, error) {
