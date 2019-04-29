@@ -40,14 +40,23 @@ func RunUI() {
 		return
 	}
 
-	mtw, err := NewManageTunnelsWindow()
-	if err != nil {
-		panic(err)
+	var (
+		mtw  *ManageTunnelsWindow
+		tray *Tray
+	)
+
+	for mtw == nil {
+		mtw, err = NewManageTunnelsWindow()
+		if err != nil {
+			time.Sleep(time.Millisecond * 400)
+		}
 	}
 
-	tray, err := NewTray(mtw)
-	if err != nil {
-		panic(err)
+	for tray == nil {
+		tray, err = NewTray(mtw)
+		if err != nil {
+			time.Sleep(time.Millisecond * 400)
+		}
 	}
 
 	go func() {
