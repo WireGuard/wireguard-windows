@@ -302,7 +302,6 @@ func (tp *TunnelsPage) onEditTunnel() {
 			if err == nil && err2 == nil && (priorState == service.TunnelStarting || priorState == service.TunnelStarted) {
 				tunnel.Start()
 			}
-			//TODO: synchronize and select newly added tunnel
 		}()
 	}
 }

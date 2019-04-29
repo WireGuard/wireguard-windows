@@ -176,17 +176,34 @@ func (tv *TunnelsView) onTunnelsChange() {
 				}
 			}
 		}
-		didAdd := false
+		tunnelsAdded := 0
+		lastTunnelName := ""
 		for tunnel := range newTunnels {
 			if !oldTunnels[tunnel] {
 				tv.model.tunnels = append(tv.model.tunnels, tunnel)
-				didAdd = true
-				//TODO: If adding a tunnel for the first time when the previously were none, select it
+				tunnelsAdded++
+				lastTunnelName = tunnel.Name
 			}
 		}
-		if didAdd {
+		if tunnelsAdded > 0 {
 			tv.model.PublishRowsReset()
 			tv.model.Sort(tv.model.SortedColumn(), tv.model.SortOrder())
+			// If adding a tunnel for the first time when the previously were none, select it
+			if len(tv.SelectedIndexes()) == 0 {
+				tv.selectTunnel(lastTunnelName)
+			}
+		}
+	})
+}
+
+// Tiny helper to select a tunnel by name.
+func (tv *TunnelsView) selectTunnel(tunnelName string) {
+	tv.Synchronize(func() {
+		for i, tunnel := range tv.model.tunnels {
+			if tunnel.Name == tunnelName {
+				tv.SetCurrentIndex(i)
+				break
+			}
 		}
 	})
 }
