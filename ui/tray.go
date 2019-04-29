@@ -144,7 +144,8 @@ func (tray *Tray) addTunnelAction(tunnel *service.Tunnel) {
 			if err != nil {
 				tray.mtw.Synchronize(func() {
 					tray.mtw.Show()
-					//TODO: select tunnel that we're showing the error for in mtw
+					tray.mtw.tunnelsPage.tunnelsView.selectTunnel(tclosure.Name)
+					tray.mtw.tabs.SetCurrentIndex(0)
 					if oldState == service.TunnelUnknown {
 						walk.MsgBox(tray.mtw, "Failed to determine tunnel state", err.Error(), walk.MsgBoxIconError)
 					} else if oldState == service.TunnelStopped {
