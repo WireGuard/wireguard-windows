@@ -139,19 +139,22 @@ func (tray *Tray) addTunnelAction(tunnel *service.Tunnel) {
 	tclosure := *tunnel
 	tunnelAction.Triggered().Attach(func() {
 		tunnelAction.SetChecked(!tunnelAction.Checked())
-		oldState, err := tclosure.Toggle()
-		if err != nil {
-			tray.mtw.Show()
-			//TODO: select tunnel that we're showing the error for in mtw
-			if oldState == service.TunnelUnknown {
-				walk.MsgBox(tray.mtw, "Failed to determine tunnel state", err.Error(), walk.MsgBoxIconError)
-			} else if oldState == service.TunnelStopped {
-				walk.MsgBox(tray.mtw, "Failed to activate tunnel", err.Error(), walk.MsgBoxIconError)
-			} else if oldState == service.TunnelStarted {
-				walk.MsgBox(tray.mtw, "Failed to deactivate tunnel", err.Error(), walk.MsgBoxIconError)
+		go func() {
+			oldState, err := tclosure.Toggle()
+			if err != nil {
+				tray.mtw.Synchronize(func() {
+					tray.mtw.Show()
+					//TODO: select tunnel that we're showing the error for in mtw
+					if oldState == service.TunnelUnknown {
+						walk.MsgBox(tray.mtw, "Failed to determine tunnel state", err.Error(), walk.MsgBoxIconError)
+					} else if oldState == service.TunnelStopped {
+						walk.MsgBox(tray.mtw, "Failed to activate tunnel", err.Error(), walk.MsgBoxIconError)
+					} else if oldState == service.TunnelStarted {
+						walk.MsgBox(tray.mtw, "Failed to deactivate tunnel", err.Error(), walk.MsgBoxIconError)
+					}
+				})
 			}
-			return
-		}
+		}()
 	})
 	tray.tunnels[tunnel.Name] = tunnelAction
 
@@ -174,11 +177,15 @@ func (tray *Tray) addTunnelAction(tunnel *service.Tunnel) {
 
 	tray.ContextMenu().Actions().Insert(trayTunnelActionsOffset+idx, tunnelAction)
 
-	state, err := tunnel.State()
-	if err != nil {
-		return
-	}
-	tray.SetTunnelState(tunnel, state, false)
+	go func() {
+		state, err := tunnel.State()
+		if err != nil {
+			return
+		}
+		tray.mtw.Synchronize(func() {
+			tray.SetTunnelState(tunnel, state, false)
+		})
+	}()
 }
 
 func (tray *Tray) removeTunnelAction(tunnelName string) {
@@ -248,18 +255,22 @@ func (tray *Tray) SetTunnelState(tunnel *service.Tunnel, state service.TunnelSta
 	switch state {
 	case service.TunnelStarted:
 		activeCIDRsAction.SetText("")
-		config, err := tunnel.RuntimeConfig()
-		if err == nil {
-			var sb strings.Builder
-			for i, addr := range config.Interface.Addresses {
-				if i > 0 {
-					sb.WriteString(", ")
-				}
+		go func() {
+			config, err := tunnel.RuntimeConfig()
+			if err == nil {
+				var sb strings.Builder
+				for i, addr := range config.Interface.Addresses {
+					if i > 0 {
+						sb.WriteString(", ")
+					}
 
-				sb.WriteString(addr.String())
+					sb.WriteString(addr.String())
+				}
+				tray.mtw.Synchronize(func() {
+					activeCIDRsAction.SetText(fmt.Sprintf("Networks: %s", sb.String()))
+				})
 			}
-			activeCIDRsAction.SetText(fmt.Sprintf("Networks: %s", sb.String()))
-		}
+		}()
 		tunnelAction.SetEnabled(true)
 		tunnelAction.SetChecked(true)
 		if !wasChecked && showNotifications {

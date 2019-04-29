@@ -420,16 +420,20 @@ func (cv *ConfView) Dispose() {
 
 func (cv *ConfView) onToggleActiveClicked() {
 	cv.interfaze.toggleActive.button.SetEnabled(false)
-	oldState, err := cv.tunnel.Toggle()
-	if err != nil {
-		if oldState == service.TunnelUnknown {
-			walk.MsgBox(cv.Form(), "Failed to determine tunnel state", err.Error(), walk.MsgBoxIconError)
-		} else if oldState == service.TunnelStopped {
-			walk.MsgBox(cv.Form(), "Failed to activate tunnel", err.Error(), walk.MsgBoxIconError)
-		} else if oldState == service.TunnelStarted {
-			walk.MsgBox(cv.Form(), "Failed to deactivate tunnel", err.Error(), walk.MsgBoxIconError)
+	go func() {
+		oldState, err := cv.tunnel.Toggle()
+		if err != nil {
+			cv.Synchronize(func() {
+				if oldState == service.TunnelUnknown {
+					walk.MsgBox(cv.Form(), "Failed to determine tunnel state", err.Error(), walk.MsgBoxIconError)
+				} else if oldState == service.TunnelStopped {
+					walk.MsgBox(cv.Form(), "Failed to activate tunnel", err.Error(), walk.MsgBoxIconError)
+				} else if oldState == service.TunnelStarted {
+					walk.MsgBox(cv.Form(), "Failed to deactivate tunnel", err.Error(), walk.MsgBoxIconError)
+				}
+			})
 		}
-	}
+	}()
 }
 
 func (cv *ConfView) onTunnelChanged(tunnel *service.Tunnel, state service.TunnelState, globalState service.TunnelState, err error) {
@@ -448,14 +452,27 @@ func (cv *ConfView) SetTunnel(tunnel *service.Tunnel) {
 	var config conf.Config
 	var state service.TunnelState
 	if tunnel != nil {
-		if state, _ = tunnel.State(); state == service.TunnelStarted {
-			config, _ = tunnel.RuntimeConfig()
+		title := "Interface: " + tunnel.Name
+		if title != cv.name.Title() {
+			//TODO: display some sort of loading screen here!
 		}
-		if config.Name == "" {
-			config, _ = tunnel.StoredConfig()
-		}
+		go func() {
+			if state, _ = tunnel.State(); state == service.TunnelStarted {
+				config, _ = tunnel.RuntimeConfig()
+			}
+			if config.Name == "" {
+				config, _ = tunnel.StoredConfig()
+			}
+			cv.Synchronize(func() {
+				cv.setTunnel(tunnel, &config, state)
+			})
+		}()
+	} else {
+		cv.setTunnel(tunnel, &config, state)
 	}
+}
 
+func (cv *ConfView) setTunnel(tunnel *service.Tunnel, config *conf.Config, state service.TunnelState) {
 	cv.name.SetVisible(tunnel != nil)
 
 	hasSuspended := false
