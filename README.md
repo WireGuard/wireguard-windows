@@ -2,6 +2,8 @@
 
 This is a fully-featured WireGuard client for Windows that uses [Wintun](https://www.wintun.net/).
 
+If you just want to build and install this from source, but don't care about doing any form of real development with it, simply clone this repo, and then double click on `quickinstall.bat` and stop reading this document. If you do care about doing real development, don't double click that, and instead read onwards.
+
 ### Building
 
 Windows 10 64-bit is required. The build script will take care of downloading, verifying, and extracting the right versions of the various dependencies:
