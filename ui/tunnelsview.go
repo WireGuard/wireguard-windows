@@ -7,6 +7,7 @@ package ui
 
 import (
 	"sort"
+	"strings"
 
 	"github.com/lxn/walk"
 	"golang.zx2c4.com/wireguard/windows/service"
@@ -176,34 +177,33 @@ func (tv *TunnelsView) onTunnelsChange() {
 				}
 			}
 		}
-		tunnelsAdded := 0
-		lastTunnelName := ""
+		didAdd := false
+		firstTunnelName := ""
 		for tunnel := range newTunnels {
 			if !oldTunnels[tunnel] {
+				//TODO: use proper tunnel string sorting/comparison algorithm, as the other comments indicate too.
+				if len(firstTunnelName) == 0 || strings.Compare(firstTunnelName, tunnel.Name) > 0 {
+					firstTunnelName = tunnel.Name
+				}
 				tv.model.tunnels = append(tv.model.tunnels, tunnel)
-				tunnelsAdded++
-				lastTunnelName = tunnel.Name
+				didAdd = true
 			}
 		}
-		if tunnelsAdded > 0 {
+		if didAdd {
 			tv.model.PublishRowsReset()
 			tv.model.Sort(tv.model.SortedColumn(), tv.model.SortOrder())
-			// If adding a tunnel for the first time when the previously were none, select it
 			if len(tv.SelectedIndexes()) == 0 {
-				tv.selectTunnel(lastTunnelName)
+				tv.selectTunnel(firstTunnelName)
 			}
 		}
 	})
 }
 
-// Tiny helper to select a tunnel by name.
 func (tv *TunnelsView) selectTunnel(tunnelName string) {
-	tv.Synchronize(func() {
-		for i, tunnel := range tv.model.tunnels {
-			if tunnel.Name == tunnelName {
-				tv.SetCurrentIndex(i)
-				break
-			}
+	for i, tunnel := range tv.model.tunnels {
+		if tunnel.Name == tunnelName {
+			tv.SetCurrentIndex(i)
+			break
 		}
-	})
+	}
 }
