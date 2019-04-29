@@ -8,10 +8,12 @@ package service
 import (
 	"bytes"
 	"encoding/gob"
+	"fmt"
 	"github.com/Microsoft/go-winio"
 	"golang.org/x/sys/windows/svc"
 	"golang.zx2c4.com/wireguard/windows/conf"
 	"io/ioutil"
+	"log"
 	"net/rpc"
 	"os"
 	"sync"
@@ -74,13 +76,32 @@ func (s *ManagerService) Start(tunnelName string, unused *uintptr) error {
 	// For now, enforce only one tunnel at a time. Later we'll remove this silly restriction.
 	trackedTunnelsLock.Lock()
 	tt := make([]string, 0, len(trackedTunnels))
-	for t := range trackedTunnels {
+	var inTransition string
+	for t, state := range trackedTunnels {
 		tt = append(tt, t)
+		if len(t) > 0 && (state == TunnelStarting || state == TunnelUnknown) {
+			inTransition = t
+			break
+		}
 	}
 	trackedTunnelsLock.Unlock()
-	for _, t := range tt {
-		s.Stop(t, unused)
+	if len(inTransition) != 0 {
+		return fmt.Errorf("Please allow the tunnel \"%s\" to finish activating", inTransition)
 	}
+	go func() {
+		for _, t := range tt {
+			s.Stop(t, unused)
+		}
+		for _, t := range tt {
+			var state TunnelState
+			var unused uintptr
+			if s.State(t, &state) == nil && (state == TunnelStarted || state == TunnelStarting) {
+				log.Printf("[%s] Trying again to stop zombie tunnel", t)
+				s.Stop(t, &unused)
+				time.Sleep(time.Millisecond * 100)
+			}
+		}
+	}()
 
 	// After that process is started -- it's somewhat asynchronous -- we install the new one.
 	c, err := conf.LoadFromName(tunnelName)

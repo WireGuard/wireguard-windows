@@ -129,17 +129,17 @@ func InstallTunnel(configPath string) error {
 	service, err := m.OpenService(serviceName)
 	if err == nil {
 		status, err := service.Query()
-		if err != nil {
+		if err != nil && err != syscall.Errno(serviceMARKED_FOR_DELETE) {
 			service.Close()
 			return err
 		}
-		if status.State != svc.Stopped {
+		if status.State != svc.Stopped && err != syscall.Errno(serviceMARKED_FOR_DELETE) {
 			service.Close()
 			return errors.New("Tunnel already installed and running")
 		}
 		err = service.Delete()
 		service.Close()
-		if err != nil {
+		if err != nil && err != syscall.Errno(serviceMARKED_FOR_DELETE) {
 			return err
 		}
 		for {
