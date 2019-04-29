@@ -82,6 +82,12 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 	logger.Info.Println("Starting wireguard-go version", device.WireGuardGoVersion)
 	logger.Debug.Println("Debug log enabled")
 
+	uapiConf, err := conf.ToUAPI()
+	if err != nil {
+		serviceError = ErrorDNSLookup
+		return
+	}
+
 	wintun, err := tun.CreateTUN(conf.Name)
 	if err != nil {
 		serviceError = ErrorCreateWintun
@@ -115,11 +121,6 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 	}()
 	logger.Info.Println("UAPI listener started")
 
-	uapiConf, err := conf.ToUAPI()
-	if err != nil {
-		serviceError = ErrorDNSLookup
-		return
-	}
 	ipcErr := dev.IpcSetOperation(bufio.NewReader(strings.NewReader(uapiConf)))
 	if ipcErr != nil {
 		err = ipcErr
