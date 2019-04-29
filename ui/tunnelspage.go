@@ -265,17 +265,25 @@ func (tp *TunnelsPage) deleteTunnel(tunnel *service.Tunnel) {
 // Handlers
 
 func (tp *TunnelsPage) onTunnelsViewItemActivated() {
-	oldState, err := tp.tunnelsView.CurrentTunnel().Toggle()
-	if err != nil {
-		if oldState == service.TunnelUnknown {
-			walk.MsgBox(tp.Form(), "Failed to determine tunnel state", err.Error(), walk.MsgBoxIconError)
-		} else if oldState == service.TunnelStopped {
-			walk.MsgBox(tp.Form(), "Failed to activate tunnel", err.Error(), walk.MsgBoxIconError)
-		} else if oldState == service.TunnelStarted {
-			walk.MsgBox(tp.Form(), "Failed to deactivate tunnel", err.Error(), walk.MsgBoxIconError)
+	go func() {
+		globalState, err := service.IPCClientGlobalState()
+		if err != nil || (globalState != service.TunnelStarted && globalState != service.TunnelStopped) {
+			return
 		}
-		return
-	}
+		oldState, err := tp.tunnelsView.CurrentTunnel().Toggle()
+		if err != nil {
+			tp.Synchronize(func() {
+				if oldState == service.TunnelUnknown {
+					walk.MsgBox(tp.Form(), "Failed to determine tunnel state", err.Error(), walk.MsgBoxIconError)
+				} else if oldState == service.TunnelStopped {
+					walk.MsgBox(tp.Form(), "Failed to activate tunnel", err.Error(), walk.MsgBoxIconError)
+				} else if oldState == service.TunnelStarted {
+					walk.MsgBox(tp.Form(), "Failed to deactivate tunnel", err.Error(), walk.MsgBoxIconError)
+				}
+			})
+			return
+		}
+	}()
 }
 
 func (tp *TunnelsPage) onEditTunnel() {

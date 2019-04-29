@@ -173,28 +173,30 @@ func (tal *toggleActiveLine) widgets() (walk.Widget, walk.Widget) {
 	return nil, tal.composite
 }
 
+func (tal *toggleActiveLine) updateGlobal(globalState service.TunnelState) {
+	tal.button.SetEnabled(globalState == service.TunnelStarted || globalState == service.TunnelStopped)
+}
+
 func (tal *toggleActiveLine) update(state service.TunnelState) {
-	var enabled bool
 	var text string
 
 	switch state {
 	case service.TunnelStarted:
-		enabled, text = true, "Deactivate"
+		text = "Deactivate"
 
 	case service.TunnelStarting:
-		enabled, text = false, "Activating..."
+		text = "Activating..."
 
 	case service.TunnelStopped:
-		enabled, text = true, "Activate"
+		text = "Activate"
 
 	case service.TunnelStopping:
-		enabled, text = false, "Deactivating..."
+		text = "Deactivating..."
 
 	default:
-		enabled, text = false, ""
+		text = ""
 	}
 
-	tal.button.SetEnabled(enabled)
 	tal.button.SetText(text)
 	tal.button.SetVisible(state != service.TunnelUnknown)
 }
@@ -397,6 +399,8 @@ func NewConfView(parent walk.Container) (*ConfView, error) {
 	cv.peers = make(map[conf.Key]*peerView)
 	cv.tunnelChangedCB = service.IPCClientRegisterTunnelChange(cv.onTunnelChanged)
 	cv.SetTunnel(nil)
+	globalState, _ := service.IPCClientGlobalState()
+	cv.interfaze.toggleActive.updateGlobal(globalState)
 
 	if err := walk.InitWrapperWindow(cv); err != nil {
 		return nil, err
@@ -426,27 +430,23 @@ func (cv *ConfView) onToggleActiveClicked() {
 			walk.MsgBox(cv.Form(), "Failed to deactivate tunnel", err.Error(), walk.MsgBoxIconError)
 		}
 	}
-	cv.SetTunnel(cv.tunnel)
 }
 
-func (cv *ConfView) onTunnelChanged(tunnel *service.Tunnel, state service.TunnelState, err error) {
-	if cv.tunnel == nil || cv.tunnel.Name != tunnel.Name {
-		return
-	}
-
-	cv.updateTunnelStatus(state)
-}
-
-func (cv *ConfView) updateTunnelStatus(state service.TunnelState) {
-	cv.interfaze.status.update(state)
-	cv.interfaze.toggleActive.update(state)
+func (cv *ConfView) onTunnelChanged(tunnel *service.Tunnel, state service.TunnelState, globalState service.TunnelState, err error) {
+	cv.Synchronize(func() {
+		cv.interfaze.toggleActive.updateGlobal(globalState)
+		if cv.tunnel != nil || cv.tunnel.Name == tunnel.Name {
+			cv.interfaze.status.update(state)
+			cv.interfaze.toggleActive.update(state)
+		}
+	})
 }
 
 func (cv *ConfView) SetTunnel(tunnel *service.Tunnel) {
 	cv.tunnel = tunnel
 
-	var state service.TunnelState
 	var config conf.Config
+	var state service.TunnelState
 	if tunnel != nil {
 		if state, _ = tunnel.State(); state == service.TunnelStarted {
 			config, _ = tunnel.RuntimeConfig()
@@ -475,7 +475,8 @@ func (cv *ConfView) SetTunnel(tunnel *service.Tunnel) {
 		cv.name.SetTitle(title)
 	}
 	cv.interfaze.apply(&config.Interface)
-	cv.updateTunnelStatus(state)
+	cv.interfaze.status.update(state)
+	cv.interfaze.toggleActive.update(state)
 	inverse := make(map[*peerView]bool, len(cv.peers))
 	for _, pv := range cv.peers {
 		inverse[pv] = true
