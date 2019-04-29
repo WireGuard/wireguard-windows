@@ -7,6 +7,7 @@ package service
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"golang.org/x/sys/windows/svc"
 	"golang.zx2c4.com/winipcfg"
@@ -17,8 +18,11 @@ import (
 	"golang.zx2c4.com/wireguard/windows/ringlogger"
 	"log"
 	"net"
+	"os"
+	"runtime"
 	"runtime/debug"
 	"strings"
+	"time"
 )
 
 type tunnelService struct {
@@ -38,14 +42,48 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 	defer func() {
 		svcSpecificEC, exitCode = determineErrorCode(err, serviceError)
 		logErr := combineErrors(err, serviceError)
-		if logErr != nil {
+		logIt := func(a ...interface{}) {
 			if logger != nil {
-				logger.Error.Print(logErr)
+				logger.Error.Print(a...)
 			} else {
-				log.Print(logErr)
+				log.Print(a...)
 			}
 		}
+		if logErr != nil {
+			logIt(logErr)
+		}
 		changes <- svc.Status{State: svc.StopPending}
+
+		stopIt := make(chan bool, 1)
+		go func() {
+			t := time.NewTicker(time.Second * 30)
+			for {
+				select {
+				case <-t.C:
+					t.Stop()
+					buf := make([]byte, 1024)
+					for {
+						n := runtime.Stack(buf, true)
+						if n < len(buf) {
+							buf = buf[:n]
+							break
+						}
+						buf = make([]byte, 2*len(buf))
+					}
+					lines := bytes.Split(buf, []byte{'\n'})
+					logIt("Failed to shutdown after 30 seconds. Probably dead locked. Printing stack and killing.")
+					for _, line := range lines {
+						logIt(fmt.Sprintf("stack trace: %s", string(line)))
+					}
+					os.Exit(777)
+					return
+				case <-stopIt:
+					t.Stop()
+					return
+				}
+			}
+		}()
+
 		if routeChangeCallback != nil {
 			routeChangeCallback.Unregister()
 		}
@@ -55,6 +93,7 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 		if dev != nil {
 			dev.Close()
 		}
+		stopIt <- true
 		log.Print("Shutting down")
 	}()
 
