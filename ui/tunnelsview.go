@@ -207,3 +207,22 @@ func (tv *TunnelsView) selectTunnel(tunnelName string) {
 		}
 	}
 }
+
+func (tv *TunnelsView) SelectFirstActiveTunnel() {
+	tunnels := make([]service.Tunnel, len(tv.model.tunnels))
+	copy(tunnels, tv.model.tunnels)
+	go func() {
+		for _, tunnel := range tunnels {
+			state, err := tunnel.State()
+			if err != nil {
+				continue
+			}
+			if state == service.TunnelStarting || state == service.TunnelStarted {
+				tv.Synchronize(func() {
+					tv.selectTunnel(tunnel.Name)
+				})
+				return
+			}
+		}
+	}()
+}

@@ -52,7 +52,7 @@ func (tray *Tray) setup() error {
 
 	tray.MouseDown().Attach(func(x, y int, button walk.MouseButton) {
 		if button == walk.LeftButton {
-			tray.mtw.Show()
+			tray.onManageTunnels()
 		}
 	})
 
@@ -68,7 +68,7 @@ func (tray *Tray) setup() error {
 		{label: "Networks: None", hidden: true},
 		{separator: true},
 		{separator: true},
-		{label: "&Manage tunnels...", handler: tray.mtw.Show, enabled: true},
+		{label: "&Manage tunnels...", handler: tray.onManageTunnels, enabled: true},
 		{label: "&Import tunnel(s) from file...", handler: tray.mtw.tunnelsPage.onImport, enabled: true},
 		{separator: true},
 		{label: "&About WireGuard", handler: func() { onAbout(tray.mtw) }, enabled: true},
@@ -296,4 +296,12 @@ func (tray *Tray) UpdateFound() {
 	})
 	tray.ContextMenu().Actions().Insert(tray.ContextMenu().Actions().Len()-2, action)
 	tray.ShowWarning("WireGuard Update Available", "An update to WireGuard is now available. You are advised to update as soon as possible.")
+}
+
+func (tray *Tray) onManageTunnels() {
+	if !tray.mtw.Visible() {
+		tray.mtw.tunnelsPage.tunnelsView.SelectFirstActiveTunnel()
+		tray.mtw.tabs.SetCurrentIndex(0)
+	}
+	tray.mtw.Show()
 }
