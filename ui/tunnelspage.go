@@ -11,6 +11,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"time"
 
@@ -192,34 +193,55 @@ func (tp *TunnelsPage) importFiles(paths []string) {
 	}
 
 	if lastErr != nil || unparsedConfigs == nil {
-		walk.MsgBox(tp.Form(), "Error", fmt.Sprintf("Could not parse some files: %v", lastErr), walk.MsgBoxIconWarning)
+		walk.MsgBox(tp.Form(), "Error", fmt.Sprintf("Could not import selected configuration: %v", lastErr), walk.MsgBoxIconWarning)
 		return
 	}
 
-	var configs []*conf.Config
+	// Add in reverse order so that the first one is selected.
+	sort.Slice(unparsedConfigs, func(i, j int) bool {
+		//TODO: use proper tunnel string sorting/comparison algorithm, as the other comments indicate too.
+		return strings.Compare(unparsedConfigs[i].Name, unparsedConfigs[j].Name) > 0
+	})
 
+	existingTunnelList, err := service.IPCClientTunnels()
+	if err != nil {
+		walk.MsgBox(tp.Form(), "Error", fmt.Sprintf("Could not enumerate existing tunnels: %v", lastErr), walk.MsgBoxIconWarning)
+		return
+	}
+	existingLowerTunnels := make(map[string]bool, len(existingTunnelList))
+	for _, tunnel := range existingTunnelList {
+		existingLowerTunnels[strings.ToLower(tunnel.Name)] = true
+	}
+
+	configCount := 0
 	for _, unparsedConfig := range unparsedConfigs {
+		if existingLowerTunnels[strings.ToLower(unparsedConfig.Name)] {
+			lastErr = fmt.Errorf("The tunnel \"%s\" already exists", unparsedConfig.Name)
+			continue
+		}
 		config, err := conf.FromWgQuick(unparsedConfig.Config, unparsedConfig.Name)
 		if err != nil {
 			lastErr = err
 			continue
 		}
-		service.IPCClientNewTunnel(config)
-		configs = append(configs, config)
+		_, err = service.IPCClientNewTunnel(config)
+		if err != nil {
+			lastErr = err
+			continue
+		}
+		configCount++
 	}
 
-	m, n := len(configs), len(unparsedConfigs)
+	m, n := configCount, len(unparsedConfigs)
 	switch {
 	case n == 1 && m != n:
-		walk.MsgBox(tp.Form(), "Error", fmt.Sprintf("Could not parse some files: %v", lastErr), walk.MsgBoxIconWarning)
+		walk.MsgBox(tp.Form(), "Error", fmt.Sprintf("Unable to import configuration: %v", lastErr), walk.MsgBoxIconWarning)
 	case n == 1 && m == n:
 		// TODO: Select tunnel in the list
 	case m == n:
 		walk.MsgBox(tp.Form(), "Imported tunnels", fmt.Sprintf("Imported %d tunnels", m), walk.MsgBoxOK)
 	case m != n:
 		walk.MsgBox(tp.Form(), "Imported tunnels", fmt.Sprintf("Imported %d of %d tunnels", m, n), walk.MsgBoxIconWarning)
-	default:
-		panic("unreachable case")
 	}
 }
 
