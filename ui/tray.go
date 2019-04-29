@@ -92,7 +92,8 @@ func (tray *Tray) setup() error {
 	tray.tunnelChangedCB = service.IPCClientRegisterTunnelChange(tray.onTunnelChange)
 	tray.tunnelsChangedCB = service.IPCClientRegisterTunnelsChange(tray.onTunnelsChange)
 	tray.onTunnelsChange()
-	tray.updateGlobalState()
+	globalState, _ := service.IPCClientGlobalState()
+	tray.updateGlobalState(globalState)
 
 	return nil
 }
@@ -185,22 +186,18 @@ func (tray *Tray) removeTunnelAction(tunnelName string) {
 	delete(tray.tunnels, tunnelName)
 }
 
-func (tray *Tray) onTunnelChange(tunnel *service.Tunnel, state service.TunnelState, err error) {
+func (tray *Tray) onTunnelChange(tunnel *service.Tunnel, state service.TunnelState, globalState service.TunnelState, err error) {
 	tray.mtw.Synchronize(func() {
 		tray.SetTunnelState(tunnel, state, err == nil)
+		tray.updateGlobalState(globalState)
 		if !tray.mtw.Visible() && err != nil {
 			tray.ShowError("WireGuard Tunnel Error", err.Error())
 		}
 	})
 }
 
-func (tray *Tray) updateGlobalState() {
-	state, err := service.IPCClientGlobalState()
-	if err != nil {
-		return
-	}
-
-	if icon, err := iconProvider.IconWithOverlayForState(state); err == nil {
+func (tray *Tray) updateGlobalState(globalState service.TunnelState) {
+	if icon, err := iconProvider.IconWithOverlayForState(globalState); err == nil {
 		tray.SetIcon(icon)
 	}
 
@@ -215,14 +212,14 @@ func (tray *Tray) updateGlobalState() {
 		}
 	}
 
-	switch state {
+	switch globalState {
 	case service.TunnelStarting:
 		statusAction.SetText("Status: Activating")
 		setTunnelActionsEnabled(false)
 		tray.SetToolTip("WireGuard: Activating...")
 
 	case service.TunnelStarted:
-		activeCIDRsAction.SetVisible(err == nil)
+		activeCIDRsAction.SetVisible(true)
 		statusAction.SetText("Status: Active")
 		setTunnelActionsEnabled(true)
 		tray.SetToolTip("WireGuard: Activated")
@@ -275,8 +272,6 @@ func (tray *Tray) SetTunnelState(tunnel *service.Tunnel, state service.TunnelSta
 			tray.ShowInfo("WireGuard Deactivated", fmt.Sprintf("The %s tunnel has been deactivated.", tunnel.Name))
 		}
 	}
-
-	tray.updateGlobalState()
 }
 
 func (tray *Tray) UpdateFound() {

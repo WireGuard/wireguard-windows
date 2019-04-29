@@ -76,7 +76,8 @@ func NewManageTunnelsWindow() (*ManageTunnelsWindow, error) {
 	disposables.Spare()
 
 	mtw.tunnelChangedCB = service.IPCClientRegisterTunnelChange(mtw.onTunnelChange)
-	mtw.onTunnelChange(nil, service.TunnelUnknown, nil)
+	globalState, _ := service.IPCClientGlobalState()
+	mtw.onTunnelChange(nil, service.TunnelUnknown, globalState, nil)
 
 	return mtw, nil
 }
@@ -89,14 +90,11 @@ func (mtw *ManageTunnelsWindow) Dispose() {
 	mtw.MainWindow.Dispose()
 }
 
-func (mtw *ManageTunnelsWindow) onTunnelChange(tunnel *service.Tunnel, state service.TunnelState, err error) {
-	globalState, err2 := service.IPCClientGlobalState()
+func (mtw *ManageTunnelsWindow) onTunnelChange(tunnel *service.Tunnel, state service.TunnelState, globalState service.TunnelState, err error) {
 	mtw.Synchronize(func() {
+		icon, err2 := iconProvider.IconWithOverlayForState(globalState)
 		if err2 == nil {
-			icon, err2 := iconProvider.IconWithOverlayForState(globalState)
-			if err2 == nil {
-				mtw.SetIcon(icon)
-			}
+			mtw.SetIcon(icon)
 		}
 
 		if err != nil && mtw.Visible() {

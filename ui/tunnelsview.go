@@ -132,7 +132,7 @@ func (tv *TunnelsView) CurrentTunnel() *service.Tunnel {
 	return &tv.model.tunnels[idx]
 }
 
-func (tv *TunnelsView) onTunnelChange(tunnel *service.Tunnel, state service.TunnelState, err error) {
+func (tv *TunnelsView) onTunnelChange(tunnel *service.Tunnel, state service.TunnelState, globalState service.TunnelState, err error) {
 	tv.Synchronize(func() {
 		idx := -1
 		for i := range tv.model.tunnels {

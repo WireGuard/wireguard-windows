@@ -294,9 +294,9 @@ func notifyAll(notificationType NotificationType, ifaces ...interface{}) {
 
 func IPCServerNotifyTunnelChange(name string, state TunnelState, err error) {
 	if err == nil {
-		notifyAll(TunnelChangeNotificationType, name, state, "")
+		notifyAll(TunnelChangeNotificationType, name, state, trackedTunnelsGlobalState(), "")
 	} else {
-		notifyAll(TunnelChangeNotificationType, name, state, err.Error())
+		notifyAll(TunnelChangeNotificationType, name, state, trackedTunnelsGlobalState(), err.Error())
 	}
 }
 
