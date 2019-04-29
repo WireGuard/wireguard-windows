@@ -44,7 +44,11 @@ func NewTunnelsPage() (*TunnelsPage, error) {
 	tunnelsContainer, _ := walk.NewComposite(tp)
 	tunnelsContainer.SetLayout(walk.NewVBoxLayout())
 
-	tp.tunnelsView, _ = NewTunnelsView(tunnelsContainer)
+	//TODO: deal with remaining disposables in case the next line fails
+
+	if tp.tunnelsView, err = NewTunnelsView(tunnelsContainer); err != nil {
+		return nil, err
+	}
 	tp.tunnelsView.ItemActivated().Attach(tp.onTunnelsViewItemActivated)
 	tp.tunnelsView.CurrentIndexChanged().Attach(tp.updateConfView)
 

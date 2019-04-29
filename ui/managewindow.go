@@ -63,10 +63,14 @@ func NewManageTunnelsWindow() (*ManageTunnelsWindow, error) {
 
 	mtw.tabs, _ = walk.NewTabWidget(mtw)
 
-	mtw.tunnelsPage, _ = NewTunnelsPage()
+	if mtw.tunnelsPage, err = NewTunnelsPage(); err != nil {
+		return nil, err
+	}
 	mtw.tabs.Pages().Add(mtw.tunnelsPage.TabPage)
 
-	mtw.logPage, _ = NewLogPage()
+	if mtw.logPage, err = NewLogPage(); err != nil {
+		return nil, err
+	}
 	mtw.tabs.Pages().Add(mtw.logPage.TabPage)
 
 	disposables.Spare()
