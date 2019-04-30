@@ -720,6 +720,7 @@ const (
 	WM_DEVICECHANGE           = 537
 	WM_DEVMODECHANGE          = 27
 	WM_DISPLAYCHANGE          = 126
+	WM_DPICHANGED             = 0x02E0
 	WM_DRAWCLIPBOARD          = 776
 	WM_DRAWITEM               = 43
 	WM_DROPFILES              = 563
@@ -1649,6 +1650,7 @@ var (
 	getCursorPos               *windows.LazyProc
 	getDC                      *windows.LazyProc
 	getDesktopWindow           *windows.LazyProc
+	getDpiForWindow            *windows.LazyProc
 	getFocus                   *windows.LazyProc
 	getForegroundWindow        *windows.LazyProc
 	getKeyState                *windows.LazyProc
@@ -1661,6 +1663,7 @@ var (
 	getSysColor                *windows.LazyProc
 	getSysColorBrush           *windows.LazyProc
 	getSystemMetrics           *windows.LazyProc
+	getSystemMetricsForDpi     *windows.LazyProc
 	getWindow                  *windows.LazyProc
 	getWindowLong              *windows.LazyProc
 	getWindowLongPtr           *windows.LazyProc
@@ -1776,6 +1779,7 @@ func init() {
 	getCursorPos = libuser32.NewProc("GetCursorPos")
 	getDC = libuser32.NewProc("GetDC")
 	getDesktopWindow = libuser32.NewProc("GetDesktopWindow")
+	getDpiForWindow = libuser32.NewProc("GetDpiForWindow")
 	getFocus = libuser32.NewProc("GetFocus")
 	getForegroundWindow = libuser32.NewProc("GetForegroundWindow")
 	getKeyState = libuser32.NewProc("GetKeyState")
@@ -1788,6 +1792,7 @@ func init() {
 	getSysColor = libuser32.NewProc("GetSysColor")
 	getSysColorBrush = libuser32.NewProc("GetSysColorBrush")
 	getSystemMetrics = libuser32.NewProc("GetSystemMetrics")
+	getSystemMetricsForDpi = libuser32.NewProc("GetSystemMetricsForDpi")
 	getWindow = libuser32.NewProc("GetWindow")
 	getWindowLong = libuser32.NewProc("GetWindowLongW")
 	// On 32 bit GetWindowLongPtrW is not available
@@ -2287,6 +2292,22 @@ func GetDC(hWnd HWND) HDC {
 	return HDC(ret)
 }
 
+func GetDpiForWindow(hwnd HWND) uint32 {
+	if getDpiForWindow.Find() != nil {
+		hdc := GetDC(hwnd)
+		defer ReleaseDC(hwnd, hdc)
+
+		return uint32(GetDeviceCaps(hdc, LOGPIXELSY))
+	}
+
+	ret, _, _ := syscall.Syscall(getDpiForWindow.Addr(), 1,
+		uintptr(hwnd),
+		0,
+		0)
+
+	return uint32(ret)
+}
+
 func GetFocus() HWND {
 	ret, _, _ := syscall.Syscall(getFocus.Addr(), 0,
 		0,
@@ -2396,6 +2417,15 @@ func GetSystemMetrics(nIndex int32) int32 {
 	ret, _, _ := syscall.Syscall(getSystemMetrics.Addr(), 1,
 		uintptr(nIndex),
 		0,
+		0)
+
+	return int32(ret)
+}
+
+func GetSystemMetricsForDpi(nIndex int32, dpi uint32) int32 {
+	ret, _, _ := syscall.Syscall(getSystemMetricsForDpi.Addr(), 2,
+		uintptr(nIndex),
+		uintptr(dpi),
 		0)
 
 	return int32(ret)
