@@ -27,6 +27,7 @@ type IconProvider struct {
 	startingPen          *walk.CosmeticPen
 	startedPen           *walk.CosmeticPen
 	updateAvailableImage *walk.Bitmap
+	scale                float64
 }
 
 const (
@@ -108,10 +109,11 @@ func darkColor(c walk.Color) walk.Color {
 	return walk.Color((uint32(r*255) << 16) | (uint32(g*255) << 8) | (uint32(b*255) << 0))
 }
 
-func NewIconProvider() (*IconProvider, error) {
+func NewIconProvider(dpi int) (*IconProvider, error) {
 	tsip := &IconProvider{
 		imagesByRectAndState: make(map[rectAndState]*walk.Bitmap),
 		iconsByState:         make(map[service.TunnelState]*walk.Icon),
+		scale:                float64(dpi) / 96.0,
 	}
 
 	var err error
@@ -154,7 +156,7 @@ func NewIconProvider() (*IconProvider, error) {
 	}
 	disposables.Add(tsip.startedPen)
 
-	if tsip.updateAvailableImage, err = tsip.drawUpdateAvailableImage(16); err != nil {
+	if tsip.updateAvailableImage, err = tsip.drawUpdateAvailableImage(16 /* This should be scaled for DPI, but isn't because of walk bug. */); err != nil {
 		return nil, err
 	}
 	disposables.Add(tsip.updateAvailableImage)
@@ -210,6 +212,10 @@ func (tsip *IconProvider) Dispose() {
 	}
 }
 
+func (tsip *IconProvider) scaleForDPI(i int) int {
+	return int(tsip.scale * float64(i))
+}
+
 func (tsip *IconProvider) drawUpdateAvailableImage(size int) (*walk.Bitmap, error) {
 	updateAvailableBrush, err := walk.NewSolidColorBrush(hexColor(colorUpdateAvailable))
 	if err != nil {
@@ -234,7 +240,8 @@ func (tsip *IconProvider) drawUpdateAvailableImage(size int) (*walk.Bitmap, erro
 	}
 	defer canvas.Dispose()
 
-	rect := walk.Rectangle{0, 0, size, size}
+	margin := 2 // This should be scaled for DPI but isn't, because of walk bug.
+	rect := walk.Rectangle{margin, margin, size - margin*2, size - margin*2}
 
 	if err := canvas.FillEllipse(updateAvailableBrush, rect); err != nil {
 		img.Dispose()
@@ -308,7 +315,8 @@ func (tsip *IconProvider) IconWithOverlayForState(state service.TunnelState) (*w
 
 	w := int(float64(size.Width) * 0.75)
 	h := int(float64(size.Height) * 0.75)
-	bounds := walk.Rectangle{4 + size.Width - w, 4 + size.Height - h, w, h}
+	margin := tsip.scaleForDPI(2)
+	bounds := walk.Rectangle{margin + size.Width - w, margin + size.Height - h, w, h}
 
 	if err := tsip.PaintForState(state, canvas, bounds); err != nil {
 		return nil, err
@@ -357,9 +365,9 @@ func (tsip *IconProvider) PaintForState(state service.TunnelState, canvas *walk.
 
 	b := bounds
 
-	b.X += 4
-	b.Y += 4
-	b.Height -= 8
+	b.X += tsip.scaleForDPI(2)
+	b.Y += tsip.scaleForDPI(2)
+	b.Height -= tsip.scaleForDPI(4)
 	b.Width = b.Height
 
 	if err := canvas.FillEllipse(brush, b); err != nil {
