@@ -63,7 +63,7 @@ func RunUI() {
 	const keepUpdaterInUnofficialBuild = true
 
 	go func() {
-		if !version.IsOfficial() {
+		if !version.IsRunningOfficialVersion() {
 			mtw.Synchronize(func() {
 				mtw.SetTitle(mtw.Title() + " (unofficial/untrusted/unverified build)")
 				tray.ShowWarning("Unverified WireGuard Build", "The build of WireGuard that you are running is unofficial/untrusted/unverified. You may want to double-check your download source.")
