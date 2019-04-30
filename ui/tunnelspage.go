@@ -315,7 +315,7 @@ func (tp *TunnelsPage) onEditTunnel() {
 		return
 	}
 
-	if config := runTunnelConfigDialog(tp.Form(), tunnel); config != nil {
+	if config := runTunnelEditDialog(tp.Form(), tunnel); config != nil {
 		go func() {
 			priorState, err := tunnel.State()
 			tunnel.Delete()
@@ -329,7 +329,7 @@ func (tp *TunnelsPage) onEditTunnel() {
 }
 
 func (tp *TunnelsPage) onAddTunnel() {
-	if config := runTunnelConfigDialog(tp.Form(), nil); config != nil {
+	if config := runTunnelEditDialog(tp.Form(), nil); config != nil {
 		// Save new
 		tp.addTunnel(config)
 	}
