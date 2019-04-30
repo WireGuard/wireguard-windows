@@ -5,4 +5,4 @@
 
 package wintrust
 
-//go:generate go run $GOROOT/src/syscall/mksyscall_windows.go -output zsyscall_windows.go wintrust_windows.go
+//go:generate go run $GOROOT/src/syscall/mksyscall_windows.go -output zsyscall_windows.go wintrust_windows.go certificate_windows.go
