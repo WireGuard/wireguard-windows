@@ -32,6 +32,7 @@ type NotificationType int
 const (
 	TunnelChangeNotificationType NotificationType = iota
 	TunnelsChangeNotificationType
+	ManagerStoppingNotificationType
 )
 
 var rpcClient *rpc.Client
@@ -47,6 +48,12 @@ type TunnelsChangeCallback struct {
 }
 
 var tunnelsChangeCallbacks = make(map[*TunnelsChangeCallback]bool)
+
+type ManagerStoppingCallback struct {
+	cb func()
+}
+
+var managerStoppingCallbacks = make(map[*ManagerStoppingCallback]bool)
 
 func InitializeIPCClient(reader *os.File, writer *os.File, events *os.File) {
 	rpcClient = rpc.NewClient(&pipeRWC{reader, writer})
@@ -93,6 +100,10 @@ func InitializeIPCClient(reader *os.File, writer *os.File, events *os.File) {
 				}
 			case TunnelsChangeNotificationType:
 				for cb := range tunnelsChangeCallbacks {
+					cb.cb()
+				}
+			case ManagerStoppingNotificationType:
+				for cb := range managerStoppingCallbacks {
 					cb.cb()
 				}
 			}
@@ -180,4 +191,12 @@ func IPCClientRegisterTunnelsChange(cb func()) *TunnelsChangeCallback {
 }
 func (cb *TunnelsChangeCallback) Unregister() {
 	delete(tunnelsChangeCallbacks, cb)
+}
+func IPCClientRegisterManagerStopping(cb func()) *ManagerStoppingCallback {
+	s := &ManagerStoppingCallback{cb}
+	managerStoppingCallbacks[s] = true
+	return s
+}
+func (cb *ManagerStoppingCallback) Unregister() {
+	delete(managerStoppingCallbacks, cb)
 }

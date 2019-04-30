@@ -59,6 +59,12 @@ func RunUI() {
 		}
 	}
 
+	service.IPCClientRegisterManagerStopping(func() {
+		mtw.Synchronize(func() {
+			walk.App().Exit(0)
+		})
+	})
+
 	//XXX: REMOVE ME!
 	const keepUpdaterInUnofficialBuild = true
 
