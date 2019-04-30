@@ -32,9 +32,11 @@ func NewUpdatePage() (*UpdatePage, error) {
 
 	instructions, _ := walk.NewTextLabel(up)
 	instructions.SetText("An update to WireGuard is available. It is highly advisable to update without delay.")
+	instructions.SetMinMaxSize(walk.Size{1, 0}, walk.Size{0, 0})
 
 	status, _ := walk.NewTextLabel(up)
 	status.SetText("Status: Waiting for user")
+	status.SetMinMaxSize(walk.Size{1, 0}, walk.Size{0, 0})
 
 	bar, _ := walk.NewProgressBar(up)
 	bar.SetVisible(false)
