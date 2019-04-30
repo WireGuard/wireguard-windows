@@ -299,7 +299,7 @@ func (dlg *TunnelEditDialog) onSaveButtonClicked() {
 		}
 
 		for _, name := range names {
-			if name == newName {
+			if strings.ToLower(name) == strings.ToLower(newName) {
 				walk.MsgBox(dlg, "Invalid configuration", fmt.Sprintf("Another tunnel already exists with the name ‘%s’.", newName), walk.MsgBoxIconWarning)
 				return
 			}

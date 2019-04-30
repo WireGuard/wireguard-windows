@@ -216,7 +216,7 @@ func (tp *TunnelsPage) importFiles(paths []string) {
 	configCount := 0
 	for _, unparsedConfig := range unparsedConfigs {
 		if existingLowerTunnels[strings.ToLower(unparsedConfig.Name)] {
-			lastErr = fmt.Errorf("The tunnel \"%s\" already exists", unparsedConfig.Name)
+			lastErr = fmt.Errorf("Another tunnel already exists with the name ‘%s’", unparsedConfig.Name)
 			continue
 		}
 		config, err := conf.FromWgQuick(unparsedConfig.Config, unparsedConfig.Name)

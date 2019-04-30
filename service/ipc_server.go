@@ -86,7 +86,7 @@ func (s *ManagerService) Start(tunnelName string, unused *uintptr) error {
 	}
 	trackedTunnelsLock.Unlock()
 	if len(inTransition) != 0 {
-		return fmt.Errorf("Please allow the tunnel \"%s\" to finish activating", inTransition)
+		return fmt.Errorf("Please allow the tunnel ‘%s’ to finish activating", inTransition)
 	}
 	go func() {
 		for _, t := range tt {
