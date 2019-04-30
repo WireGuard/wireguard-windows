@@ -36,6 +36,11 @@ func NewManageTunnelsWindow() (*ManageTunnelsWindow, error) {
 	}
 	disposables.Add(mtw)
 
+	iconProvider, err = NewIconProvider(mtw.DPI())
+	if err != nil {
+		return nil, err
+	}
+
 	mtw.SetIcon(iconProvider.baseIcon)
 	mtw.SetTitle("WireGuard")
 	font, err := walk.NewFont("Segoe UI", 9, 0)

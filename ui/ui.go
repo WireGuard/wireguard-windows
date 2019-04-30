@@ -34,12 +34,6 @@ func RunUI() {
 
 	var err error
 
-	iconProvider, err = NewIconProvider()
-	if err != nil {
-		walk.MsgBox(nil, "Unable to initialize icon provider", fmt.Sprint(err), walk.MsgBoxIconError)
-		return
-	}
-
 	var (
 		mtw  *ManageTunnelsWindow
 		tray *Tray
