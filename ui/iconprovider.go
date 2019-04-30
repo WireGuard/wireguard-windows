@@ -31,9 +31,9 @@ type IconProvider struct {
 
 const (
 	colorStopped         = 0xe1e1e1
-	colorStarting        = 0xfec031
-	colorStarted         = 0x36ce42
-	colorUpdateAvailable = 0xf03a17
+	colorStarting        = 0xfec440
+	colorStarted         = 0x01a405
+	colorUpdateAvailable = 0xcb0110
 )
 
 func hexColor(c uint32) walk.Color {
