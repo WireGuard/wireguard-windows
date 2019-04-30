@@ -303,3 +303,8 @@ func IPCServerNotifyTunnelChange(name string, state TunnelState, err error) {
 func IPCServerNotifyTunnelsChange() {
 	notifyAll(TunnelsChangeNotificationType)
 }
+
+func IPCServerNotifyManagerStopping() {
+	notifyAll(ManagerStoppingNotificationType)
+	time.Sleep(time.Millisecond * 200)
+}

@@ -143,9 +143,13 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 	procs := make(map[uint32]*os.Process)
 	procsLock := sync.Mutex{}
 	var startProcess func(session uint32)
+	stoppingManager := false
 
 	startProcess = func(session uint32) {
 		for {
+			if stoppingManager {
+				return
+			}
 			var userToken windows.Token
 			err := wtfQueryUserToken(session, &userToken)
 			if err != nil {
@@ -305,6 +309,8 @@ loop:
 
 	changes <- svc.Status{State: svc.StopPending}
 	procsLock.Lock()
+	stoppingManager = true
+	IPCServerNotifyManagerStopping()
 	for _, proc := range procs {
 		proc.Kill()
 	}
