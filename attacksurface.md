@@ -38,3 +38,14 @@ The UI is an unprivileged process running as the ordinary user for each user who
   - There currently are no anti-debugging mechanisms, which means any process that can, debug, introspect, inject, send messages, or interact with the UI, may be able to take control of the above handles passed to it by the manager service. In theory that shouldn't be too horrible for the security model, but rather than risk it, we might consider importing all of the insane things VirtualBox does in this domain. Alternatively, since the anti-debugging stuff is pretty ugly and probably doesn't even work properly everywhere, we may be better off with starting the process at some heightened security level, such that only other processes at that level can introspect; however, we'll need to take special care that doing so doesn't give the UI process any special accesses it wouldn't otherwise have.
   - It renders highlighted config files to a msftedit.dll control, which typically is capable of all sorts of OLE and RTF nastiness that we make some attempt to avoid.
 
+### Updates
+
+A server hosts the result of:
+
+```
+$ b2sum -l 256 *.msi > list
+$ signify -S -e -s release.sec -m list
+$ upload ./list.sec
+```
+
+The MSIs in that list are only the latest ones available, and filenames fit the form `wireguard-${arch}-${version}.msi`. The updater downloads this list over TLS and verifies the signify Ed25519 signature of it. If it validates, then it finds the first MSI in it for its architecture that has a greater version. It then downloads this MSI from a predefined URL, and verifies the BLAKE2b-256 signature. If it validates, then it calls `WinTrustVerify(WINTRUST_ACTION_GENERIC_VERIFY_V2)` on the MSI. If it validates then it calls `TODO: validate that it's signed with our cert`. If it validates, then it executes the installer with `msiexec.exe`.
