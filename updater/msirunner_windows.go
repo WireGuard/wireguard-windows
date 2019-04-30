@@ -20,7 +20,7 @@ func runMsi(msiPath string) error {
 	// BUG: The Go documentation says that its built-in shell quoting isn't good for msiexec.exe.
 	// See https://github.com/golang/go/issues/15566. But perhaps our limited set of options
 	// actually works fine? Investigate this!
-	return exec.Command(path.Join(system32, "msiexec.exe"), "/qb", "/i", msiPath).Run()
+	return exec.Command(path.Join(system32, "msiexec.exe"), "/qb-", "/i", msiPath).Run()
 }
 
 func msiSaveDirectory() (string, error) {
