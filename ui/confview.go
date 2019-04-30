@@ -439,7 +439,7 @@ func (cv *ConfView) onToggleActiveClicked() {
 func (cv *ConfView) onTunnelChanged(tunnel *service.Tunnel, state service.TunnelState, globalState service.TunnelState, err error) {
 	cv.Synchronize(func() {
 		cv.interfaze.toggleActive.updateGlobal(globalState)
-		if cv.tunnel != nil || cv.tunnel.Name == tunnel.Name {
+		if cv.tunnel != nil && cv.tunnel.Name == tunnel.Name {
 			cv.interfaze.status.update(state)
 			cv.interfaze.toggleActive.update(state)
 		}
