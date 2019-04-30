@@ -17,7 +17,7 @@ import (
 const wireguardUIClass = "WireGuard UI - MainWindow"
 
 func RaiseUI() bool {
-	hwnd := win.FindWindow(windows.StringToUTF16Ptr(wireguardUIClass), windows.StringToUTF16Ptr("WireGuard"))
+	hwnd := win.FindWindow(windows.StringToUTF16Ptr(wireguardUIClass), nil)
 	if hwnd == 0 {
 		return false
 	}
