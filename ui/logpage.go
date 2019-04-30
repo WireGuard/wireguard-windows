@@ -136,11 +136,11 @@ func newLogModel(lp *LogPage) *logModel {
 	go func() {
 		ticker := time.NewTicker(time.Millisecond * 300)
 		cursor := ringlogger.CursorAll
-		var items []ringlogger.FollowLine
 
 		for {
 			select {
 			case <-ticker.C:
+				var items []ringlogger.FollowLine
 				items, cursor = ringlogger.Global.FollowFromCursor(cursor)
 				if len(items) == 0 {
 					continue

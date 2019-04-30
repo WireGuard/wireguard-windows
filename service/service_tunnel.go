@@ -44,9 +44,9 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 		logErr := combineErrors(err, serviceError)
 		logIt := func(a ...interface{}) {
 			if logger != nil {
-				logger.Error.Print(a...)
+				logger.Error.Println(a...)
 			} else {
-				log.Print(a...)
+				log.Println(a...)
 			}
 		}
 		if logErr != nil {
@@ -94,7 +94,7 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 			dev.Close()
 		}
 		stopIt <- true
-		log.Print("Shutting down")
+		log.Println("Shutting down")
 	}()
 
 	err = ringlogger.InitGlobalLogger("TUN")
