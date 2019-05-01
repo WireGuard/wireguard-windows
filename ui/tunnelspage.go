@@ -55,47 +55,55 @@ func NewTunnelsPage() (*TunnelsPage, error) {
 	tp.tunnelsView.ItemActivated().Attach(tp.onTunnelsViewItemActivated)
 	tp.tunnelsView.CurrentIndexChanged().Attach(tp.updateConfView)
 
-	// ToolBar actions
-	{
-		// HACK: Because of https://github.com/lxn/walk/issues/481
-		// we need to put the ToolBar into its own Composite.
-		toolBarContainer, _ := walk.NewComposite(tunnelsContainer)
-		hlayout := walk.NewHBoxLayout()
-		hlayout.SetMargins(walk.Margins{})
-		toolBarContainer.SetLayout(hlayout)
+	// HACK: Because of https://github.com/lxn/walk/issues/481
+	// we need to put the ToolBar into its own Composite.
+	toolBarContainer, _ := walk.NewComposite(tunnelsContainer)
+	hlayout := walk.NewHBoxLayout()
+	hlayout.SetMargins(walk.Margins{})
+	toolBarContainer.SetLayout(hlayout)
 
-		tunnelsToolBar, _ := walk.NewToolBarWithOrientationAndButtonStyle(toolBarContainer, walk.Horizontal, walk.ToolBarButtonTextOnly)
+	tunnelsToolBar, _ := walk.NewToolBarWithOrientationAndButtonStyle(toolBarContainer, walk.Horizontal, walk.ToolBarButtonImageOnly)
+	imageSize := walk.Size{tp.DPI() / 6, tp.DPI() / 6} // Dividing by six is the same as dividing by 96 and multiplying by 16. TODO: Use dynamic DPI
+	imageList, _ := walk.NewImageList(imageSize, walk.RGB(255, 255, 255))
+	tunnelsToolBar.SetImageList(imageList)
 
-		importAction := walk.NewAction()
-		importAction.SetText("Import tunnels from file...")
-		importAction.Triggered().Attach(tp.onImport)
+	addMenu, _ := walk.NewMenu()
+	tp.AddDisposable(addMenu)
+	importAction := walk.NewAction()
+	importAction.SetText("Import tunnel(s) from file...")
+	importAction.Triggered().Attach(tp.onImport)
+	addAction := walk.NewAction()
+	addAction.SetText("Add empty tunnel")
+	addAction.Triggered().Attach(tp.onAddTunnel)
+	addMenu.Actions().Add(addAction)
+	addMenu.Actions().Add(importAction)
+	addMenuAction := walk.NewMenuAction(addMenu)
+	addMenuActionIcon, _ := walk.NewIconFromResourceWithSize("add.ico", imageSize)
+	addMenuActionImage, _ := walk.NewBitmapFromIcon(addMenuActionIcon, imageSize)
+	addMenuAction.SetImage(addMenuActionImage)
+	addMenuAction.SetToolTip(importAction.Text())
+	addMenuAction.Triggered().Attach(tp.onImport)
+	tunnelsToolBar.Actions().Add(addMenuAction)
 
-		addAction := walk.NewAction()
-		addAction.SetText("Add empty tunnel")
-		addAction.Triggered().Attach(tp.onAddTunnel)
+	tunnelsToolBar.Actions().Add(walk.NewSeparatorAction())
 
-		exportTunnelsAction := walk.NewAction()
-		exportTunnelsAction.SetText("Export tunnels to zip...")
-		exportTunnelsAction.Triggered().Attach(tp.onExportTunnels)
+	deleteAction := walk.NewAction()
+	deleteActionIcon, _ := walk.NewIconFromResourceWithSize("delete.ico", imageSize)
+	deleteActionImage, _ := walk.NewBitmapFromIcon(deleteActionIcon, imageSize)
+	deleteAction.SetImage(deleteActionImage)
+	deleteAction.SetToolTip("Remove selected tunnel(s)")
+	deleteAction.Triggered().Attach(tp.onDelete)
+	tunnelsToolBar.Actions().Add(deleteAction)
 
-		addMenu, _ := walk.NewMenu()
-		tp.AddDisposable(addMenu)
-		addMenu.Actions().Add(addAction)
-		addMenu.Actions().Add(importAction)
-		addMenuAction, _ := tunnelsToolBar.Actions().AddMenu(addMenu)
-		addMenuAction.SetText("➕")
+	tunnelsToolBar.Actions().Add(walk.NewSeparatorAction())
 
-		deleteAction := walk.NewAction()
-		tunnelsToolBar.Actions().Add(deleteAction)
-		deleteAction.SetText("➖")
-		deleteAction.Triggered().Attach(tp.onDelete)
-
-		settingsMenu, _ := walk.NewMenu()
-		tp.AddDisposable(settingsMenu)
-		settingsMenu.Actions().Add(exportTunnelsAction)
-		settingsMenuAction, _ := tunnelsToolBar.Actions().AddMenu(settingsMenu)
-		settingsMenuAction.SetText("⚙")
-	}
+	exportAction := walk.NewAction()
+	exportActionIcon, _ := walk.NewIconFromResourceWithSize("export.ico", imageSize)
+	exportActionImage, _ := walk.NewBitmapFromIcon(exportActionIcon, imageSize)
+	exportAction.SetImage(exportActionImage)
+	exportAction.SetToolTip("Export all tunnels to zip...")
+	exportAction.Triggered().Attach(tp.onExportTunnels)
+	tunnelsToolBar.Actions().Add(exportAction)
 
 	currentTunnelContainer, _ := walk.NewComposite(tp)
 	vlayout = walk.NewVBoxLayout()

@@ -17,7 +17,7 @@ type rectAndState struct {
 }
 
 type IconProvider struct {
-	baseIcon             *walk.Icon
+	wireguardIcon        *walk.Icon
 	imagesByRectAndState map[rectAndState]*walk.Bitmap
 	iconsByState         map[service.TunnelState]*walk.Icon
 	stoppedBrush         *walk.SolidColorBrush
@@ -121,10 +121,10 @@ func NewIconProvider(dpi int) (*IconProvider, error) {
 	var disposables walk.Disposables
 	defer disposables.Treat()
 
-	if tsip.baseIcon, err = walk.NewIconFromResourceId(1); err != nil {
+	if tsip.wireguardIcon, err = walk.NewIconFromResource("$wireguard.ico"); err != nil {
 		return nil, err
 	}
-	disposables.Add(tsip.baseIcon)
+	disposables.Add(tsip.wireguardIcon)
 
 	if tsip.stoppedBrush, err = walk.NewSolidColorBrush(hexColor(colorStopped)); err != nil {
 		return nil, err
@@ -202,9 +202,9 @@ func (tsip *IconProvider) Dispose() {
 		tsip.startedPen.Dispose()
 		tsip.startedPen = nil
 	}
-	if tsip.baseIcon != nil {
-		tsip.baseIcon.Dispose()
-		tsip.baseIcon = nil
+	if tsip.wireguardIcon != nil {
+		tsip.wireguardIcon.Dispose()
+		tsip.wireguardIcon = nil
 	}
 	if tsip.updateAvailableImage != nil {
 		tsip.updateAvailableImage.Dispose()
@@ -299,7 +299,7 @@ func (tsip *IconProvider) IconWithOverlayForState(state service.TunnelState) (*w
 		return icon, nil
 	}
 
-	size := tsip.baseIcon.Size()
+	size := tsip.wireguardIcon.Size()
 
 	bmp, err := walk.NewBitmapWithTransparentPixels(size)
 	if err != nil {
@@ -313,7 +313,7 @@ func (tsip *IconProvider) IconWithOverlayForState(state service.TunnelState) (*w
 	}
 	defer canvas.Dispose()
 
-	if err := canvas.DrawImage(tsip.baseIcon, walk.Point{}); err != nil {
+	if err := canvas.DrawImage(tsip.wireguardIcon, walk.Point{}); err != nil {
 		return nil, err
 	}
 

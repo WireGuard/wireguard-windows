@@ -41,7 +41,7 @@ func NewManageTunnelsWindow() (*ManageTunnelsWindow, error) {
 		return nil, err
 	}
 
-	mtw.SetIcon(iconProvider.baseIcon)
+	mtw.SetIcon(iconProvider.wireguardIcon)
 	mtw.SetTitle("WireGuard")
 	font, err := walk.NewFont("Segoe UI", 9, 0)
 	if err != nil {

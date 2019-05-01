@@ -124,20 +124,14 @@ func onAbout(owner walk.Form) {
 	dlg, _ := walk.NewDialogWithFixedSize(owner)
 	dlg.SetTitle("About WireGuard")
 	dlg.SetLayout(vbl)
-	dlg.SetIcon(iconProvider.baseIcon)
+	dlg.SetIcon(iconProvider.wireguardIcon)
 
 	font, _ := walk.NewFont("Segoe UI", 9, 0)
 	dlg.SetFont(font)
 
-	icon, err := walk.NewIconFromResourceIdWithSize(1, walk.Size{128, 128})
-	if err != nil {
-		panic(err)
-	}
-	dlg.AddDisposable(icon)
-
 	iv, _ := walk.NewImageView(dlg)
-	iv.SetImage(icon)
-
+	logo, _ := walk.NewIconFromResourceWithSize("$wireguard.ico", walk.Size{owner.DPI() * 4 / 3, owner.DPI() * 4 / 3})
+	iv.SetImage(logo)
 	wgFont, _ := walk.NewFont("Segoe UI", 16, walk.FontBold)
 
 	wgLbl, _ := walk.NewLabel(dlg)

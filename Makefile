@@ -8,12 +8,15 @@ export GOROOT := $(PWD)/.deps/goroot
 
 rwildcard=$(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subst *,%,$2),$d))
 SOURCE_FILES := $(call rwildcard,,*.go *.c *.h) .deps/prepared
-RESOURCE_FILES := resources.rc version.h manifest.xml ui/icon/icon.ico
+RESOURCE_FILES := resources.rc version.h manifest.xml $(patsubst %.svg,%.ico,$(wildcard ui/icon/*.svg))
 
 DEPLOYMENT_HOST ?= winvm
 DEPLOYMENT_PATH ?= Desktop
 
 all: amd64/wireguard.exe x86/wireguard.exe
+
+%.ico: %.svg
+	convert -background none $< -define icon:auto-resize="256,128,96,64,48,32,16" $@
 
 .deps/prepared: export GOROOT := $(OLD_GOROOT)
 .deps/prepared: $(wildcard golang-*.patch)
