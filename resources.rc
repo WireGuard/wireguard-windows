@@ -11,8 +11,8 @@ CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST manifest.xml
 1 ICON ui/icon/icon.ico
 
 VS_VERSION_INFO VERSIONINFO
-FILEVERSION    0,0,0,1
-PRODUCTVERSION 0,0,0,1
+FILEVERSION    WIREGUARD_WINDOWS_VERSION_ARRAY
+PRODUCTVERSION WIREGUARD_WINDOWS_VERSION_ARRAY
 FILEOS         VOS_NT_WINDOWS32
 FILETYPE       VFT_APP
 FILESUBTYPE    VFT2_UNKNOWN
@@ -23,12 +23,12 @@ BEGIN
     BEGIN
       VALUE "CompanyName", "WireGuard LLC"
       VALUE "FileDescription", "WireGuard: Fast, Modern, Secure VPN Tunnel"
-      VALUE "FileVersion", WIREGUARD_WINDOWS_VERSION
+      VALUE "FileVersion", WIREGUARD_WINDOWS_VERSION_STRING
       VALUE "InternalName", "wireguard"
       VALUE "LegalCopyright", "Copyright \xa9 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved."
       VALUE "OriginalFilename", "wireguard.exe"
       VALUE "ProductName", "WireGuard"
-      VALUE "ProductVersion", WIREGUARD_WINDOWS_VERSION
+      VALUE "ProductVersion", WIREGUARD_WINDOWS_VERSION_STRING
       VALUE "Comments", "https://www.wireguard.com/"
     END
   END
