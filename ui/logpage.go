@@ -40,7 +40,6 @@ func NewLogPage() (*LogPage, error) {
 
 	lp.SetTitle("Log")
 	lp.SetLayout(walk.NewVBoxLayout())
-	lp.Layout().SetMargins(walk.Margins{18, 18, 18, 18})
 
 	if lp.logView, err = walk.NewTableView(lp); err != nil {
 		return nil, err
@@ -69,7 +68,7 @@ func NewLogPage() (*LogPage, error) {
 		return nil, err
 	}
 	buttonsContainer.SetLayout(walk.NewHBoxLayout())
-	buttonsContainer.Layout().SetMargins(walk.Margins{0, 12, 0, 0})
+	buttonsContainer.Layout().SetMargins(walk.Margins{})
 
 	walk.NewHSpacer(buttonsContainer)
 

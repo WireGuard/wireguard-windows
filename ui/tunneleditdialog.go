@@ -76,14 +76,14 @@ func runTunnelEditDialog(owner walk.Form, tunnel *service.Tunnel) *conf.Config {
 
 	layout := walk.NewGridLayout()
 	layout.SetSpacing(6)
-	layout.SetMargins(walk.Margins{18, 18, 18, 18})
+	layout.SetMargins(walk.Margins{10, 10, 10, 10})
 	layout.SetColumnStretchFactor(1, 3)
 
 	dlg.Dialog, _ = walk.NewDialog(owner)
 	dlg.SetIcon(owner.Icon())
 	dlg.SetTitle(title)
 	dlg.SetLayout(layout)
-	dlg.SetMinMaxSize(walk.Size{500, 400}, walk.Size{9999, 9999})
+	dlg.SetMinMaxSize(walk.Size{500, 400}, walk.Size{0, 0})
 
 	nameLabel, _ := walk.NewTextLabel(dlg)
 	layout.SetRange(nameLabel, walk.Rectangle{0, 0, 1, 1})
