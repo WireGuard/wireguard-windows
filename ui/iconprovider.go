@@ -241,7 +241,7 @@ func (tsip *IconProvider) drawUpdateAvailableImage(size int) (*walk.Bitmap, erro
 	defer canvas.Dispose()
 
 	// This should be scaled for DPI but instead we do the opposite, due to a walk bug.
-	margin := int(3.0 - (tsip.scale - 1.0) * 3.0)
+	margin := int(3.0 - (tsip.scale-1.0)*3.0)
 	if margin < 0 {
 		margin = 0
 	}

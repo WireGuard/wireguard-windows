@@ -376,7 +376,7 @@ func newPaddedGroupGrid(parent walk.Container) (group *walk.GroupBox, err error)
 		}
 	}()
 	layout := walk.NewGridLayout()
-	layout.SetMargins(walk.Margins{10, 15, 10, 5})
+	layout.SetMargins(walk.Margins{10, 5, 10, 5})
 	err = group.SetLayout(layout)
 	if err != nil {
 		return nil, err
@@ -392,7 +392,9 @@ func newPaddedGroupGrid(parent walk.Container) (group *walk.GroupBox, err error)
 func NewConfView(parent walk.Container) (*ConfView, error) {
 	cv := new(ConfView)
 	cv.ScrollView, _ = walk.NewScrollView(parent)
-	cv.SetLayout(walk.NewVBoxLayout())
+	vlayout := walk.NewVBoxLayout()
+	vlayout.SetMargins(walk.Margins{5, 0, 5, 0})
+	cv.SetLayout(vlayout)
 	cv.name, _ = newPaddedGroupGrid(cv)
 	cv.interfaze = newInterfaceView(cv.name)
 	cv.interfaze.toggleActive.button.Clicked().Attach(cv.onToggleActiveClicked)

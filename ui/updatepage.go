@@ -28,7 +28,6 @@ func NewUpdatePage() (*UpdatePage, error) {
 	up.SetImage(iconProvider.updateAvailableImage)
 	//TODO: make title bold
 	up.SetLayout(walk.NewVBoxLayout())
-	up.Layout().SetMargins(walk.Margins{18, 18, 18, 18})
 
 	instructions, _ := walk.NewTextLabel(up)
 	instructions.SetText("An update to WireGuard is available. It is highly advisable to update without delay.")

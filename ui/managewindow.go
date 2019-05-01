@@ -50,7 +50,9 @@ func NewManageTunnelsWindow() (*ManageTunnelsWindow, error) {
 	mtw.AddDisposable(font)
 	mtw.SetFont(font)
 	mtw.SetSize(walk.Size{900, 600})
-	mtw.SetLayout(walk.NewVBoxLayout())
+	vlayout := walk.NewVBoxLayout()
+	vlayout.SetMargins(walk.Margins{5, 5, 5, 5})
+	mtw.SetLayout(vlayout)
 	mtw.Closing().Attach(func(canceled *bool, reason walk.CloseReason) {
 		// "Close to tray" instead of exiting application
 		*canceled = true

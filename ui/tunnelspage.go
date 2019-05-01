@@ -43,7 +43,9 @@ func NewTunnelsPage() (*TunnelsPage, error) {
 	tp.SetLayout(walk.NewHBoxLayout())
 
 	tunnelsContainer, _ := walk.NewComposite(tp)
-	tunnelsContainer.SetLayout(walk.NewVBoxLayout())
+	vlayout := walk.NewVBoxLayout()
+	vlayout.SetMargins(walk.Margins{})
+	tunnelsContainer.SetLayout(vlayout)
 
 	//TODO: deal with remaining disposables in case the next line fails
 
@@ -58,7 +60,9 @@ func NewTunnelsPage() (*TunnelsPage, error) {
 		// HACK: Because of https://github.com/lxn/walk/issues/481
 		// we need to put the ToolBar into its own Composite.
 		toolBarContainer, _ := walk.NewComposite(tunnelsContainer)
-		toolBarContainer.SetLayout(walk.NewHBoxLayout())
+		hlayout := walk.NewHBoxLayout()
+		hlayout.SetMargins(walk.Margins{})
+		toolBarContainer.SetLayout(hlayout)
 
 		tunnelsToolBar, _ := walk.NewToolBarWithOrientationAndButtonStyle(toolBarContainer, walk.Horizontal, walk.ToolBarButtonTextOnly)
 
@@ -94,7 +98,9 @@ func NewTunnelsPage() (*TunnelsPage, error) {
 	}
 
 	currentTunnelContainer, _ := walk.NewComposite(tp)
-	currentTunnelContainer.SetLayout(walk.NewVBoxLayout())
+	vlayout = walk.NewVBoxLayout()
+	vlayout.SetMargins(walk.Margins{})
+	currentTunnelContainer.SetLayout(vlayout)
 	tp.Layout().(interface{ SetStretchFactor(walk.Widget, int) error }).SetStretchFactor(currentTunnelContainer, 10)
 
 	tp.confView, _ = NewConfView(currentTunnelContainer)
