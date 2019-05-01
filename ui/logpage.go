@@ -47,6 +47,7 @@ func NewLogPage() (*LogPage, error) {
 	}
 	lp.logView.SetAlternatingRowBGColor(walk.Color(win.GetSysColor(win.COLOR_BTNFACE)))
 	lp.logView.SetLastColumnStretched(true)
+	lp.logView.KeyPress().Attach(lp.onCopyLogLines)
 
 	stampCol := walk.NewTableViewColumn()
 	stampCol.SetName("Stamp")
@@ -96,6 +97,20 @@ func (lp *LogPage) isAtBottom() bool {
 
 func (lp *LogPage) scrollToBottom() {
 	lp.logView.EnsureItemVisible(len(lp.model.items) - 1)
+}
+
+func (lp *LogPage) onCopyLogLines(key walk.Key) {
+	if key != walk.KeyC || !walk.ControlDown() {
+		return
+	}
+
+	var logLines strings.Builder
+	selectedItemIndexes := lp.logView.SelectedIndexes()
+	for i := 0; i < len(selectedItemIndexes); i++ {
+		logItem := lp.model.items[selectedItemIndexes[i]]
+		logLines.WriteString(fmt.Sprintf("%s: %s\r\n", logItem.Stamp.Format("2006-01-02 15:04:05.000"), logItem.Line))
+	}
+	walk.Clipboard().SetText(logLines.String())
 }
 
 func (lp *LogPage) onSaveButtonClicked() {
