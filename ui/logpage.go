@@ -100,17 +100,25 @@ func (lp *LogPage) scrollToBottom() {
 }
 
 func (lp *LogPage) onCopyLogLines(key walk.Key) {
-	if key != walk.KeyC || !walk.ControlDown() {
+	if !walk.ControlDown() {
 		return
 	}
 
-	var logLines strings.Builder
-	selectedItemIndexes := lp.logView.SelectedIndexes()
-	for i := 0; i < len(selectedItemIndexes); i++ {
-		logItem := lp.model.items[selectedItemIndexes[i]]
-		logLines.WriteString(fmt.Sprintf("%s: %s\r\n", logItem.Stamp.Format("2006-01-02 15:04:05.000"), logItem.Line))
+	switch key {
+	case walk.KeyC:
+		var logLines strings.Builder
+		selectedItemIndexes := lp.logView.SelectedIndexes()
+		if len(selectedItemIndexes) == 0 {
+			return
+		}
+		for i := 0; i < len(selectedItemIndexes); i++ {
+			logItem := lp.model.items[selectedItemIndexes[i]]
+			logLines.WriteString(fmt.Sprintf("%s: %s\r\n", logItem.Stamp.Format("2006-01-02 15:04:05.000"), logItem.Line))
+		}
+		walk.Clipboard().SetText(logLines.String())
+	case walk.KeyA:
+		lp.logView.SetSelectedIndexes([]int{-1})
 	}
-	walk.Clipboard().SetText(logLines.String())
 }
 
 func (lp *LogPage) onSaveButtonClicked() {
@@ -161,7 +169,7 @@ func newLogModel(lp *LogPage) *logModel {
 					continue
 				}
 				mdl.lp.Synchronize(func() {
-					isAtBottom := mdl.lp.isAtBottom()
+					isAtBottom := mdl.lp.isAtBottom() && len(lp.logView.SelectedIndexes()) <= 1
 
 					mdl.items = append(mdl.items, items...)
 					if len(mdl.items) > maxLogLinesDisplayed {
