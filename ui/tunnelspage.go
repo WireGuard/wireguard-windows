@@ -23,8 +23,12 @@ import (
 type TunnelsPage struct {
 	*walk.TabPage
 
-	tunnelsView *TunnelsView
-	confView    *ConfView
+	tunnelsView  *TunnelsView
+	confView     *ConfView
+	fillerButton *walk.PushButton
+
+	fillerContainer        *walk.Composite
+	currentTunnelContainer *walk.Composite
 }
 
 func NewTunnelsPage() (*TunnelsPage, error) {
@@ -105,13 +109,30 @@ func NewTunnelsPage() (*TunnelsPage, error) {
 	exportAction.Triggered().Attach(tp.onExportTunnels)
 	tunnelsToolBar.Actions().Add(exportAction)
 
-	currentTunnelContainer, _ := walk.NewComposite(tp)
+	tp.currentTunnelContainer, _ = walk.NewComposite(tp)
 	vlayout = walk.NewVBoxLayout()
 	vlayout.SetMargins(walk.Margins{})
-	currentTunnelContainer.SetLayout(vlayout)
-	tp.Layout().(interface{ SetStretchFactor(walk.Widget, int) error }).SetStretchFactor(currentTunnelContainer, 10)
+	tp.currentTunnelContainer.SetLayout(vlayout)
+	tp.Layout().(interface{ SetStretchFactor(walk.Widget, int) error }).SetStretchFactor(tp.currentTunnelContainer, 10)
 
-	tp.confView, _ = NewConfView(currentTunnelContainer)
+	tp.fillerContainer, _ = walk.NewComposite(tp)
+	tp.fillerContainer.SetVisible(false)
+	tp.fillerContainer.SetLayout(walk.NewHBoxLayout())
+	tp.fillerContainer.Layout().SetMargins(walk.Margins{})
+	tp.Layout().(interface{ SetStretchFactor(walk.Widget, int) error }).SetStretchFactor(tp.fillerContainer, 10)
+	walk.NewHSpacer(tp.fillerContainer)
+	tp.fillerButton, _ = walk.NewPushButton(tp.fillerContainer)
+	tp.fillerButton.SetText(importAction.Text())
+	buttonWidth := tp.DPI() * 2 //TODO: Use dynamic DPI
+	tp.fillerButton.SetMinMaxSize(walk.Size{buttonWidth, 0}, walk.Size{buttonWidth, 0})
+	tp.fillerButton.Clicked().Attach(tp.onImport)
+	walk.NewHSpacer(tp.fillerContainer)
+
+	//TODO: expose walk.TableView.itemCountChangedPublisher.Event()
+	tp.tunnelsView.Property("ItemCount").Changed().Attach(tp.onTunnelsChanged)
+	tp.onTunnelsChanged()
+
+	tp.confView, _ = NewConfView(tp.currentTunnelContainer)
 
 	updateConfViewTicker := time.NewTicker(time.Second)
 	tp.Disposing().Attach(updateConfViewTicker.Stop)
@@ -123,7 +144,7 @@ func NewTunnelsPage() (*TunnelsPage, error) {
 		}
 	}()
 
-	controlsContainer, _ := walk.NewComposite(currentTunnelContainer)
+	controlsContainer, _ := walk.NewComposite(tp.currentTunnelContainer)
 	controlsContainer.SetLayout(walk.NewHBoxLayout())
 	controlsContainer.Layout().SetMargins(walk.Margins{})
 
@@ -145,7 +166,7 @@ func NewTunnelsPage() (*TunnelsPage, error) {
 }
 
 func (tp *TunnelsPage) updateConfView() {
-	if !tp.Visible() {
+	if !tp.Visible() || !tp.currentTunnelContainer.Visible() {
 		return
 	}
 
@@ -251,7 +272,7 @@ func (tp *TunnelsPage) importFiles(paths []string) {
 	case n == 1 && m != n:
 		walk.MsgBox(tp.Form(), "Error", fmt.Sprintf("Unable to import configuration: %v", lastErr), walk.MsgBoxIconWarning)
 	case n == 1 && m == n:
-		// TODO: Select tunnel in the list
+		// nothing
 	case m == n:
 		walk.MsgBox(tp.Form(), "Imported tunnels", fmt.Sprintf("Imported %d tunnels", m), walk.MsgBoxOK)
 	case m != n:
@@ -397,4 +418,21 @@ func (tp *TunnelsPage) onExportTunnels() {
 	}
 
 	tp.exportTunnels(dlg.FilePath)
+}
+
+func (tp *TunnelsPage) onTunnelsChanged() {
+	//BUG: flickerr switching with the currentTunnelContainer
+	if tp.tunnelsView.model.RowCount() != 0 {
+		if tp.fillerContainer.Visible() {
+			tp.SetSuspended(true)
+			tp.fillerContainer.SetVisible(false)
+			tp.currentTunnelContainer.SetVisible(true)
+			tp.SetSuspended(false)
+		}
+	} else if !tp.fillerContainer.Visible() {
+		tp.SetSuspended(true)
+		tp.fillerContainer.SetVisible(true)
+		tp.currentTunnelContainer.SetVisible(false)
+		tp.SetSuspended(false)
+	}
 }
