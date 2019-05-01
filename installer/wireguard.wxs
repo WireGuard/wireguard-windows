@@ -26,10 +26,10 @@
 
 		<MediaTemplate EmbedCab="yes" CompressionLevel="high"/>
 
-		<Icon Id="icon.ico" SourceFile="..\ui\icon\icon.ico"/>
+		<Icon Id="wireguard.ico" SourceFile="..\ui\icon\wireguard.ico"/>
 		<Binary Id="serviceevaluation.js" SourceFile="serviceevaluation.js"/>
 
-		<Property Id="ARPPRODUCTICON" Value="icon.ico"/>
+		<Property Id="ARPPRODUCTICON" Value="wireguard.ico"/>
 		<Property Id="ARPURLINFOABOUT" Value="https://www.wireguard.com/"/>
 		<Property Id="ARPNOMODIFY" Value="yes" />
 		<Property Id="DISABLEADVTSHORTCUTS" Value="yes"/>

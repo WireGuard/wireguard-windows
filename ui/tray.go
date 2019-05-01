@@ -48,7 +48,7 @@ func NewTray(mtw *ManageTunnelsWindow) (*Tray, error) {
 func (tray *Tray) setup() error {
 	tray.SetToolTip("WireGuard: Deactivated")
 	tray.SetVisible(true)
-	tray.SetIcon(iconProvider.baseIcon)
+	tray.SetIcon(iconProvider.wireguardIcon)
 
 	tray.MouseDown().Attach(func(x, y int, button walk.MouseButton) {
 		if button == walk.LeftButton {

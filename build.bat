@@ -5,11 +5,12 @@ rem Copyright (C) 2019 WireGuard LLC. All Rights Reserved.
 set STARTDIR=%cd%
 set OLDPATH=%PATH%
 
-if exist .deps\prepared goto :build
+if exist .deps\prepared goto :render
 :installdeps
 	rmdir /s /q .deps 2> NUL
 	mkdir .deps || goto :error
 	cd .deps || goto :error
+	call :download imagemagick.zip https://imagemagick.org/download/binaries/ImageMagick-7.0.8-42-portable-Q16-x64.zip 584e069f56456ce7dde40220948ff9568ac810688c892c5dfb7f6db902aa05aa "convert.exe colors.xml delegates.xml" || goto :error
 	call :download go.zip https://dl.google.com/go/go1.12.3.windows-amd64.zip 1806e089e85b84f192d782a7f70f90a32e0eccfd181405857e612f806ec04059 || goto :error
 	rem Mirror of https://musl.cc/i686-w64-mingw32-native.zip
 	call :download mingw-x86.zip https://download.wireguard.com/windows-toolchain/distfiles/i686-w64-mingw32-native-20190425.zip 5810b4a9af34c12690ec355ad2a237d2a4c16f5e8cb68988dc0f2e48457534d0 || goto :error
@@ -21,6 +22,10 @@ if exist .deps\prepared goto :build
 	.\patch.exe -f -N -r- -d go -p1 --binary < ..\golang-security-attribute-process-creation.patch || goto :error
 	copy /y NUL prepared > NUL || goto :error
 	cd .. || goto :error
+
+:render
+	echo [+] Rendering icons
+	for %%a in ("ui\icon\*.svg") do "%STARTDIR%\.deps\convert.exe" -background none "%%~fa" -define icon:auto-resize="256,128,96,64,48,32,16" "%%~dpna.ico" || goto :error
 
 :build
 	set PATH=%STARTDIR%\.deps\go\bin\;%PATH%
