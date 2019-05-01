@@ -2423,6 +2423,10 @@ func GetSystemMetrics(nIndex int32) int32 {
 }
 
 func GetSystemMetricsForDpi(nIndex int32, dpi uint32) int32 {
+	if getSystemMetricsForDpi.Find() != nil {
+		return GetSystemMetrics(nIndex)
+	}
+
 	ret, _, _ := syscall.Syscall(getSystemMetricsForDpi.Addr(), 2,
 		uintptr(nIndex),
 		uintptr(dpi),
