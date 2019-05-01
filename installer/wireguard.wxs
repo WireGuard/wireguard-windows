@@ -27,7 +27,7 @@
 		<MediaTemplate EmbedCab="yes" CompressionLevel="high"/>
 
 		<Icon Id="icon.ico" SourceFile="..\ui\icon\icon.ico"/>
-		<Binary Id="ca.js" SourceFile="ca.js"/>
+		<Binary Id="serviceevaluation.js" SourceFile="serviceevaluation.js"/>
 
 		<Property Id="ARPPRODUCTICON" Value="icon.ico"/>
 		<Property Id="ARPURLINFOABOUT" Value="https://www.wireguard.com/"/>
@@ -100,7 +100,7 @@
 		<!--
 			Evaluate WireGuard services and populate ServiceControl table
 		-->
-		<CustomAction Id="EvaluateWireGuardServices" BinaryKey="ca.js" JScriptCall="EvaluateWireGuardServices"/>
+		<CustomAction Id="EvaluateWireGuardServices" BinaryKey="serviceevaluation.js" JScriptCall="EvaluateWireGuardServices"/>
 		<InstallExecuteSequence>
 			<Custom Action="EvaluateWireGuardServices" After="FindRelatedProducts"/>
 		</InstallExecuteSequence>
