@@ -2,7 +2,7 @@
 rem SPDX-License-Identifier: MIT
 rem Copyright (C) 2019 WireGuard LLC. All Rights Reserved.
 
-for /f "tokens=3" %%a in ('findstr /r "[0-9.]*" ..\version.h') do set WIREGUARD_VERSION=%%a
+for /f "tokens=3" %%a in ('findstr /r "WIREGUARD_WINDOWS_VERSION_STRING.*[0-9.]*" ..\version.h') do set WIREGUARD_VERSION=%%a
 set WIREGUARD_VERSION=%WIREGUARD_VERSION:"=%
 
 set STARTDIR=%cd%

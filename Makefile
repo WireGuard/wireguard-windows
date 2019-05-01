@@ -8,7 +8,7 @@ export GOROOT := $(PWD)/.deps/goroot
 
 rwildcard=$(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subst *,%,$2),$d))
 SOURCE_FILES := $(call rwildcard,,*.go *.c *.h) .deps/prepared
-RESOURCE_FILES := resources.rc manifest.xml ui/icon/icon.ico
+RESOURCE_FILES := resources.rc version.h manifest.xml ui/icon/icon.ico
 
 DEPLOYMENT_HOST ?= winvm
 DEPLOYMENT_PATH ?= Desktop

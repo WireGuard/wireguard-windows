@@ -37,13 +37,54 @@ func errnoErr(e syscall.Errno) error {
 }
 
 var (
-	modntdll = windows.NewLazySystemDLL("ntdll.dll")
+	modntdll   = windows.NewLazySystemDLL("ntdll.dll")
+	modversion = windows.NewLazySystemDLL("version.dll")
 
-	procRtlGetVersion = modntdll.NewProc("RtlGetVersion")
+	procRtlGetVersion           = modntdll.NewProc("RtlGetVersion")
+	procGetFileVersionInfoSizeW = modversion.NewProc("GetFileVersionInfoSizeW")
+	procGetFileVersionInfoW     = modversion.NewProc("GetFileVersionInfoW")
+	procVerQueryValueW          = modversion.NewProc("VerQueryValueW")
 )
 
 func rtlGetVersion(versionInfo *osVersionInfo) (nterr uint32) {
 	r0, _, _ := syscall.Syscall(procRtlGetVersion.Addr(), 1, uintptr(unsafe.Pointer(versionInfo)), 0, 0)
 	nterr = uint32(r0)
+	return
+}
+
+func GetFileVersionInfoSize(filename *uint16, zero *uint32) (size uint32, err error) {
+	r0, _, e1 := syscall.Syscall(procGetFileVersionInfoSizeW.Addr(), 2, uintptr(unsafe.Pointer(filename)), uintptr(unsafe.Pointer(zero)), 0)
+	size = uint32(r0)
+	if size == 0 {
+		if e1 != 0 {
+			err = errnoErr(e1)
+		} else {
+			err = syscall.EINVAL
+		}
+	}
+	return
+}
+
+func GetFileVersionInfo(filename *uint16, zero uint32, size uint32, block *byte) (err error) {
+	r1, _, e1 := syscall.Syscall6(procGetFileVersionInfoW.Addr(), 4, uintptr(unsafe.Pointer(filename)), uintptr(zero), uintptr(size), uintptr(unsafe.Pointer(block)), 0, 0)
+	if r1 == 0 {
+		if e1 != 0 {
+			err = errnoErr(e1)
+		} else {
+			err = syscall.EINVAL
+		}
+	}
+	return
+}
+
+func VerQueryValue(block *byte, section *uint16, value **byte, size *uint32) (err error) {
+	r1, _, e1 := syscall.Syscall6(procVerQueryValueW.Addr(), 4, uintptr(unsafe.Pointer(block)), uintptr(unsafe.Pointer(section)), uintptr(unsafe.Pointer(value)), uintptr(unsafe.Pointer(size)), 0, 0)
+	if r1 == 0 {
+		if e1 != 0 {
+			err = errnoErr(e1)
+		} else {
+			err = syscall.EINVAL
+		}
+	}
 	return
 }

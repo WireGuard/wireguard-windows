@@ -5,13 +5,11 @@
 
 package version
 
-import (
-	"bytes"
-	"fmt"
-	"golang.org/x/sys/unix"
-)
+// For testing the updater package from linux. Debug stuff only.
 
-// This isn't a Linux program, yes, but having the updater package work across platforms is quite helpful for testing.
+func IsOfficialPath(path string) bool {
+	return true
+}
 
 func utsToStr(u [65]byte) string {
 	i := bytes.IndexByte(u[:], 0)
@@ -27,4 +25,8 @@ func OsName() string {
 		return "Unix Unknown"
 	}
 	return fmt.Sprintf("%s %s %s", utsToStr(utsname.Sysname), utsToStr(utsname.Release), utsToStr(utsname.Version))
+}
+
+func RunningVersion() string {
+	return "0.0.0.0"
 }

@@ -155,7 +155,7 @@ Golang version: %s %s
 
 Copyright © 2015-2019 WireGuard LLC.
 All Rights Reserved.`,
-		version.WireGuardWindowsVersion, device.WireGuardGoVersion, runtime.Version(), runtime.GOARCH, version.OsName()))
+		version.RunningVersion(), device.WireGuardGoVersion, runtime.Version(), runtime.GOARCH, version.OsName()))
 
 	hbl := walk.NewHBoxLayout()
 	hbl.SetMargins(walk.Margins{VNear: 10})
