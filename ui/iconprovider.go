@@ -240,7 +240,11 @@ func (tsip *IconProvider) drawUpdateAvailableImage(size int) (*walk.Bitmap, erro
 	}
 	defer canvas.Dispose()
 
-	margin := 2 // This should be scaled for DPI but isn't, because of walk bug.
+	// This should be scaled for DPI but instead we do the opposite, due to a walk bug.
+	margin := int(3.0 - (tsip.scale - 1.0) * 3.0)
+	if margin < 0 {
+		margin = 0
+	}
 	rect := walk.Rectangle{margin, margin, size - margin*2, size - margin*2}
 
 	if err := canvas.FillEllipse(updateAvailableBrush, rect); err != nil {
