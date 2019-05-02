@@ -8,7 +8,6 @@ package ui
 import (
 	"fmt"
 	"github.com/lxn/walk"
-	"golang.zx2c4.com/wireguard/device"
 	"golang.zx2c4.com/wireguard/windows/service"
 	"golang.zx2c4.com/wireguard/windows/updater"
 	"golang.zx2c4.com/wireguard/windows/version"
@@ -114,62 +113,4 @@ func RunUI() {
 func onQuit() {
 	shouldQuitManagerWhenExiting = true
 	walk.App().Exit(0)
-}
-
-func onAbout(owner walk.Form) {
-	vbl := walk.NewVBoxLayout()
-	vbl.SetMargins(walk.Margins{80, 20, 80, 20})
-	vbl.SetSpacing(10)
-
-	dlg, _ := walk.NewDialogWithFixedSize(owner)
-	dlg.SetTitle("About WireGuard")
-	dlg.SetLayout(vbl)
-	dlg.SetIcon(iconProvider.wireguardIcon)
-
-	font, _ := walk.NewFont("Segoe UI", 9, 0)
-	dlg.SetFont(font)
-
-	iv, _ := walk.NewImageView(dlg)
-	logo, _ := walk.NewIconFromResourceWithSize("$wireguard.ico", walk.Size{owner.DPI() * 4 / 3, owner.DPI() * 4 / 3})
-	iv.SetImage(logo)
-	wgFont, _ := walk.NewFont("Segoe UI", 16, walk.FontBold)
-
-	wgLbl, _ := walk.NewLabel(dlg)
-	wgLbl.SetFont(wgFont)
-	wgLbl.SetTextAlignment(walk.AlignCenter)
-	wgLbl.SetText("WireGuard")
-
-	detailsLbl, _ := walk.NewTextLabel(dlg)
-	detailsLbl.SetTextAlignment(walk.AlignHCenterVNear)
-
-	detailsLbl.SetText(fmt.Sprintf(`App version: %s
-Go backend version: %s
-Golang version: %s %s
-%s
-
-Copyright © 2015-2019 WireGuard LLC.
-All Rights Reserved.`,
-		version.RunningVersion(), device.WireGuardGoVersion, runtime.Version(), runtime.GOARCH, version.OsName()))
-
-	hbl := walk.NewHBoxLayout()
-	hbl.SetMargins(walk.Margins{VNear: 10})
-
-	buttonCP, _ := walk.NewComposite(dlg)
-	buttonCP.SetLayout(hbl)
-
-	walk.NewHSpacer(buttonCP)
-
-	closePB, _ := walk.NewPushButton(buttonCP)
-	closePB.SetAlignment(walk.AlignHCenterVNear)
-	closePB.SetText("Close")
-	closePB.Clicked().Attach(func() {
-		dlg.Accept()
-	})
-
-	walk.NewHSpacer(buttonCP)
-
-	dlg.SetDefaultButton(closePB)
-	dlg.SetCancelButton(closePB)
-
-	dlg.Run()
 }
