@@ -394,8 +394,26 @@ func (tp *TunnelsPage) onDelete() {
 		walk.MsgBoxYesNo|walk.MsgBoxIconWarning) {
 		return
 	}
+
+	selectTunnelAfter := ""
+	if len(indices) < len(tp.tunnelsView.model.tunnels) {
+		sort.Ints(indices)
+		max := 0
+		for i, idx := range indices {
+			if idx+1 < len(tp.tunnelsView.model.tunnels) && (i+1 == len(indices) || idx+1 != indices[i+1]) {
+				max = idx + 1
+			} else if idx-1 >= 0 && (i == 0 || idx-1 != indices[i-1]) {
+				max = idx - 1
+			}
+		}
+		selectTunnelAfter = tp.tunnelsView.model.tunnels[max].Name
+	}
+
 	for _, i := range indices {
 		tp.deleteTunnel(&tp.tunnelsView.model.tunnels[i])
+	}
+	if len(selectTunnelAfter) > 0 {
+		tp.tunnelsView.selectTunnel(selectTunnelAfter)
 	}
 }
 
