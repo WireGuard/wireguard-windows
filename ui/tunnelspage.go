@@ -47,15 +47,15 @@ func NewTunnelsPage() (*TunnelsPage, error) {
 	tp.SetTitle("Tunnels")
 	tp.SetLayout(walk.NewHBoxLayout())
 
-	tunnelsContainer, _ := walk.NewComposite(tp)
+	listContainer, _ := walk.NewComposite(tp)
 	vlayout := walk.NewVBoxLayout()
 	vlayout.SetMargins(walk.Margins{})
 	vlayout.SetSpacing(0)
-	tunnelsContainer.SetLayout(vlayout)
+	listContainer.SetLayout(vlayout)
 
 	//TODO: deal with remaining disposables in case the next line fails
 
-	if tp.tunnelsView, err = NewListView(tunnelsContainer); err != nil {
+	if tp.tunnelsView, err = NewListView(listContainer); err != nil {
 		return nil, err
 	}
 	tp.tunnelsView.ItemActivated().Attach(tp.onTunnelsViewItemActivated)
@@ -63,15 +63,15 @@ func NewTunnelsPage() (*TunnelsPage, error) {
 
 	// HACK: Because of https://github.com/lxn/walk/issues/481
 	// we need to put the ToolBar into its own Composite.
-	toolBarContainer, _ := walk.NewComposite(tunnelsContainer)
+	toolBarContainer, _ := walk.NewComposite(listContainer)
 	hlayout := walk.NewHBoxLayout()
 	hlayout.SetMargins(walk.Margins{})
 	toolBarContainer.SetLayout(hlayout)
 
-	tunnelsToolBar, _ := walk.NewToolBarWithOrientationAndButtonStyle(toolBarContainer, walk.Horizontal, walk.ToolBarButtonImageBeforeText)
+	listToolbar, _ := walk.NewToolBarWithOrientationAndButtonStyle(toolBarContainer, walk.Horizontal, walk.ToolBarButtonImageBeforeText)
 	imageSize := walk.Size{tp.DPI() / 6, tp.DPI() / 6} // Dividing by six is the same as dividing by 96 and multiplying by 16. TODO: Use dynamic DPI
 	imageList, _ := walk.NewImageList(imageSize, walk.RGB(0, 0, 0))
-	tunnelsToolBar.SetImageList(imageList)
+	listToolbar.SetImageList(imageList)
 
 	addMenu, _ := walk.NewMenu()
 	tp.AddDisposable(addMenu)
@@ -98,9 +98,9 @@ func NewTunnelsPage() (*TunnelsPage, error) {
 	addMenuAction.SetText("Add Tunnel")
 	addMenuAction.SetToolTip(importAction.Text())
 	addMenuAction.Triggered().Attach(tp.onImport)
-	tunnelsToolBar.Actions().Add(addMenuAction)
+	listToolbar.Actions().Add(addMenuAction)
 
-	tunnelsToolBar.Actions().Add(walk.NewSeparatorAction())
+	listToolbar.Actions().Add(walk.NewSeparatorAction())
 
 	deleteAction := walk.NewAction()
 	deleteActionIcon, _ := loadSystemIcon("shell32", 131)
@@ -109,9 +109,9 @@ func NewTunnelsPage() (*TunnelsPage, error) {
 	deleteAction.SetShortcut(walk.Shortcut{0, walk.KeyDelete})
 	deleteAction.SetToolTip("Remove selected tunnel(s)")
 	deleteAction.Triggered().Attach(tp.onDelete)
-	tunnelsToolBar.Actions().Add(deleteAction)
+	listToolbar.Actions().Add(deleteAction)
 
-	tunnelsToolBar.Actions().Add(walk.NewSeparatorAction())
+	listToolbar.Actions().Add(walk.NewSeparatorAction())
 
 	exportAction := walk.NewAction()
 	exportActionIcon, _ := loadSystemIcon("imageres", 165) // Or "shell32", 45?
@@ -119,19 +119,20 @@ func NewTunnelsPage() (*TunnelsPage, error) {
 	exportAction.SetImage(exportActionImage)
 	exportAction.SetToolTip("Export all tunnels to zip...")
 	exportAction.Triggered().Attach(tp.onExportTunnels)
-	tunnelsToolBar.Actions().Add(exportAction)
+	listToolbar.Actions().Add(exportAction)
+
+	listContainerWidth := listToolbar.MinSizeHint().Width + tp.DPI() / 10 // TODO: calculate these margins correctly instead
+	listContainer.SetMinMaxSize(walk.Size{listContainerWidth, 0}, walk.Size{listContainerWidth, 0})
 
 	tp.currentTunnelContainer, _ = walk.NewComposite(tp)
 	vlayout = walk.NewVBoxLayout()
 	vlayout.SetMargins(walk.Margins{})
 	tp.currentTunnelContainer.SetLayout(vlayout)
-	tp.Layout().(interface{ SetStretchFactor(walk.Widget, int) error }).SetStretchFactor(tp.currentTunnelContainer, 10)
 
 	tp.fillerContainer, _ = walk.NewComposite(tp)
 	tp.fillerContainer.SetVisible(false)
 	tp.fillerContainer.SetLayout(walk.NewHBoxLayout())
 	tp.fillerContainer.Layout().SetMargins(walk.Margins{})
-	tp.Layout().(interface{ SetStretchFactor(walk.Widget, int) error }).SetStretchFactor(tp.fillerContainer, 10)
 	walk.NewHSpacer(tp.fillerContainer)
 	tp.fillerButton, _ = walk.NewPushButton(tp.fillerContainer)
 	buttonWidth := tp.DPI() * 2 //TODO: Use dynamic DPI
