@@ -6,8 +6,12 @@
 package ui
 
 import (
+	"fmt"
 	"github.com/lxn/walk"
+	"github.com/lxn/win"
+	"golang.org/x/sys/windows"
 	"golang.zx2c4.com/wireguard/windows/service"
+	"path"
 )
 
 type rectAndState struct {
@@ -228,4 +232,16 @@ func (tsip *IconProvider) PaintForState(state service.TunnelState, canvas *walk.
 	}
 
 	return nil
+}
+
+func loadSystemIcon(dll string, index uint) (*walk.Icon, error) {
+	system32, err := windows.GetSystemDirectory()
+	if err != nil {
+		return nil, err
+	}
+	hicon := win.ExtractIcon(win.GetModuleHandle(nil), windows.StringToUTF16Ptr(path.Join(system32, dll+".dll")), int32(index))
+	if hicon <= 1 {
+		return nil, fmt.Errorf("Unable to find icon %d of %s", index, dll)
+	}
+	return walk.NewIconFromHICON(hicon)
 }
