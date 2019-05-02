@@ -50,6 +50,7 @@ func NewTunnelsPage() (*TunnelsPage, error) {
 	tunnelsContainer, _ := walk.NewComposite(tp)
 	vlayout := walk.NewVBoxLayout()
 	vlayout.SetMargins(walk.Margins{})
+	vlayout.SetSpacing(0)
 	tunnelsContainer.SetLayout(vlayout)
 
 	//TODO: deal with remaining disposables in case the next line fails
