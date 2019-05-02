@@ -55,7 +55,7 @@ type ListView struct {
 	tunnelsChangedCB *service.TunnelsChangeCallback
 }
 
-func NewTunnelsView(parent walk.Container) (*ListView, error) {
+func NewListView(parent walk.Container) (*ListView, error) {
 	var disposables walk.Disposables
 	defer disposables.Treat()
 
@@ -64,6 +64,8 @@ func NewTunnelsView(parent walk.Container) (*ListView, error) {
 		return nil, err
 	}
 	disposables.Add(tv)
+
+	tv.SetDoubleBuffering(true)
 
 	model := new(ListModel)
 	if model.tunnels, err = service.IPCClientTunnels(); err != nil {

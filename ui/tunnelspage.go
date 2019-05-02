@@ -55,7 +55,7 @@ func NewTunnelsPage() (*TunnelsPage, error) {
 
 	//TODO: deal with remaining disposables in case the next line fails
 
-	if tp.tunnelsView, err = NewTunnelsView(tunnelsContainer); err != nil {
+	if tp.tunnelsView, err = NewListView(tunnelsContainer); err != nil {
 		return nil, err
 	}
 	tp.tunnelsView.ItemActivated().Attach(tp.onTunnelsViewItemActivated)
