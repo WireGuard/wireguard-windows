@@ -67,7 +67,7 @@ func userEnviron(token windows.Token) (env []string, err error) {
 	}
 	offset := uintptr(0)
 	for {
-		entry := (*[1<<30 - 1]uint16)(unsafe.Pointer(block + offset))[:]
+		entry := (*[(1 << 30) - 1]uint16)(unsafe.Pointer(block + offset))[:]
 		for i, v := range entry {
 			if v == 0 {
 				entry = entry[:i]
