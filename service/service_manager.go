@@ -52,7 +52,7 @@ type wtsSessionInfo struct {
 
 type wellKnownSidType uint32
 
-//sys wtfQueryUserToken(session uint32, token *windows.Token) (err error) = wtsapi32.WTSQueryUserToken
+//sys wtsQueryUserToken(session uint32, token *windows.Token) (err error) = wtsapi32.WTSQueryUserToken
 //sys wtsEnumerateSessions(handle windows.Handle, reserved uint32, version uint32, sessions **wtsSessionInfo, count *uint32) (err error) = wtsapi32.WTSEnumerateSessionsW
 //sys wtsFreeMemory(ptr uintptr) = wtsapi32.WTSFreeMemory
 
@@ -177,7 +177,7 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 				return
 			}
 			var userToken windows.Token
-			err := wtfQueryUserToken(session, &userToken)
+			err := wtsQueryUserToken(session, &userToken)
 			if err != nil {
 				return
 			}

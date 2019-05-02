@@ -53,7 +53,7 @@ var (
 	procSleepEx                     = modkernel32.NewProc("SleepEx")
 )
 
-func wtfQueryUserToken(session uint32, token *windows.Token) (err error) {
+func wtsQueryUserToken(session uint32, token *windows.Token) (err error) {
 	r1, _, e1 := syscall.Syscall(procWTSQueryUserToken.Addr(), 2, uintptr(session), uintptr(unsafe.Pointer(token)), 0)
 	if r1 == 0 {
 		if e1 != 0 {
