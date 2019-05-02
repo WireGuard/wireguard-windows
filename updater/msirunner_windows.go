@@ -17,7 +17,7 @@ func runMsi(msiPath string) error {
 	if err != nil {
 		return err
 	}
-	cmd := exec.Command(path.Join(system32, "msiexec.exe"), "/qb-", "/i", path.Base(msiPath))
+	cmd := exec.Command(path.Join(system32, "msiexec.exe"), "/qb!-", "/i", path.Base(msiPath))
 	cmd.Dir = path.Dir(msiPath)
 	return cmd.Run()
 }
