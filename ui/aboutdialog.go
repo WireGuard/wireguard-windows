@@ -8,6 +8,7 @@ package ui
 import (
 	"fmt"
 	"runtime"
+	"strings"
 
 	"github.com/lxn/walk"
 	"github.com/lxn/win"
@@ -47,7 +48,7 @@ func onAbout(owner walk.Form) {
 
 	detailsLbl, _ := walk.NewTextLabel(dlg)
 	detailsLbl.SetTextAlignment(walk.AlignHCenterVNear)
-	detailsLbl.SetText(fmt.Sprintf("App version: %s\nGo backend version: %s\nGolang version: %s %s\n%s", version.RunningVersion(), device.WireGuardGoVersion, runtime.Version(), runtime.GOARCH, version.OsName()))
+	detailsLbl.SetText(fmt.Sprintf("App version: %s\nGo backend version: %s\nGo version: %s\nOperating system: %s\nArchitecture: %s", version.RunningVersion(), device.WireGuardGoVersion, strings.TrimPrefix(runtime.Version(), "go"), version.OsName(), runtime.GOARCH))
 
 	copyrightLbl, _ := walk.NewTextLabel(dlg)
 	copyrightFont, _ := walk.NewFont("Segoe UI", 7, 0)
