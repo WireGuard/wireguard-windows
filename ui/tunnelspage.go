@@ -23,9 +23,10 @@ import (
 type TunnelsPage struct {
 	*walk.TabPage
 
-	tunnelsView  *TunnelsView
-	confView     *ConfView
-	fillerButton *walk.PushButton
+	tunnelsView   *TunnelsView
+	confView      *ConfView
+	fillerButton  *walk.PushButton
+	fillerHandler func()
 
 	fillerContainer        *walk.Composite
 	currentTunnelContainer *walk.Composite
@@ -122,15 +123,19 @@ func NewTunnelsPage() (*TunnelsPage, error) {
 	tp.Layout().(interface{ SetStretchFactor(walk.Widget, int) error }).SetStretchFactor(tp.fillerContainer, 10)
 	walk.NewHSpacer(tp.fillerContainer)
 	tp.fillerButton, _ = walk.NewPushButton(tp.fillerContainer)
-	tp.fillerButton.SetText(importAction.Text())
 	buttonWidth := tp.DPI() * 2 //TODO: Use dynamic DPI
 	tp.fillerButton.SetMinMaxSize(walk.Size{buttonWidth, 0}, walk.Size{buttonWidth, 0})
-	tp.fillerButton.Clicked().Attach(tp.onImport)
+	tp.fillerButton.Clicked().Attach(func() {
+		if tp.fillerHandler != nil {
+			tp.fillerHandler()
+		}
+	})
 	walk.NewHSpacer(tp.fillerContainer)
 
 	//TODO: expose walk.TableView.itemCountChangedPublisher.Event()
 	tp.tunnelsView.Property("ItemCount").Changed().Attach(tp.onTunnelsChanged)
 	tp.onTunnelsChanged()
+	tp.tunnelsView.SelectedIndexesChanged().Attach(tp.onSelectedTunnelsChanged)
 
 	tp.confView, _ = NewConfView(tp.currentTunnelContainer)
 
@@ -371,21 +376,27 @@ func (tp *TunnelsPage) onAddTunnel() {
 }
 
 func (tp *TunnelsPage) onDelete() {
-	currentTunnel := tp.tunnelsView.CurrentTunnel()
-	if currentTunnel == nil {
-		// Misfired event?
+	indices := tp.tunnelsView.SelectedIndexes()
+	if len(indices) == 0 {
 		return
 	}
 
+	var topic string
+	if len(indices) > 1 {
+		topic = fmt.Sprintf("%d tunnels", len(indices))
+	} else {
+		topic = fmt.Sprintf("‘%s’", tp.tunnelsView.model.tunnels[0].Name)
+	}
 	if walk.DlgCmdNo == walk.MsgBox(
 		tp.Form(),
-		fmt.Sprintf(`Delete "%s"`, currentTunnel.Name),
-		fmt.Sprintf(`Are you sure you want to delete "%s"?`, currentTunnel.Name),
+		fmt.Sprintf("Delete %s", topic),
+		fmt.Sprintf("Are you sure you would like to delete %s? You cannot undo this action.", topic),
 		walk.MsgBoxYesNo|walk.MsgBoxIconWarning) {
 		return
 	}
-
-	tp.deleteTunnel(currentTunnel)
+	for _, i := range indices {
+		tp.deleteTunnel(&tp.tunnelsView.model.tunnels[i])
+	}
 }
 
 func (tp *TunnelsPage) onImport() {
@@ -420,19 +431,29 @@ func (tp *TunnelsPage) onExportTunnels() {
 	tp.exportTunnels(dlg.FilePath)
 }
 
+func (tp *TunnelsPage) swapFiller(enabled bool) bool {
+	//BUG: flicker switching with the currentTunnelContainer
+	if tp.fillerContainer.Visible() == enabled {
+		return enabled
+	}
+	tp.SetSuspended(true)
+	tp.fillerContainer.SetVisible(enabled)
+	tp.currentTunnelContainer.SetVisible(!enabled)
+	tp.SetSuspended(false)
+	return enabled
+}
+
 func (tp *TunnelsPage) onTunnelsChanged() {
-	//BUG: flickerr switching with the currentTunnelContainer
-	if tp.tunnelsView.model.RowCount() != 0 {
-		if tp.fillerContainer.Visible() {
-			tp.SetSuspended(true)
-			tp.fillerContainer.SetVisible(false)
-			tp.currentTunnelContainer.SetVisible(true)
-			tp.SetSuspended(false)
-		}
-	} else if !tp.fillerContainer.Visible() {
-		tp.SetSuspended(true)
-		tp.fillerContainer.SetVisible(true)
-		tp.currentTunnelContainer.SetVisible(false)
-		tp.SetSuspended(false)
+	if tp.swapFiller(tp.tunnelsView.model.RowCount() == 0) {
+		tp.fillerButton.SetText("Import tunnel(s) from file")
+		tp.fillerHandler = tp.onImport
+	}
+}
+
+func (tp *TunnelsPage) onSelectedTunnelsChanged() {
+	indices := tp.tunnelsView.SelectedIndexes()
+	if tp.swapFiller(len(indices) > 1) {
+		tp.fillerButton.SetText(fmt.Sprintf("Delete %d tunnels", len(indices)))
+		tp.fillerHandler = tp.onDelete
 	}
 }
