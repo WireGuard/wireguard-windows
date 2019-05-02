@@ -49,7 +49,7 @@ func NewManageTunnelsWindow() (*ManageTunnelsWindow, error) {
 	}
 	mtw.AddDisposable(font)
 	mtw.SetFont(font)
-	mtw.SetSize(walk.Size{mtw.DPI() * 6, mtw.DPI() * 5}) //TODO: calculate DPI dynamically
+	mtw.SetSize(walk.Size{mtw.DPI() * 27 / 4, mtw.DPI() * 5}) //TODO: calculate DPI dynamically
 	vlayout := walk.NewVBoxLayout()
 	vlayout.SetMargins(walk.Margins{5, 5, 5, 5})
 	mtw.SetLayout(vlayout)
