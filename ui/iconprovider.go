@@ -81,35 +81,15 @@ func (tsip *IconProvider) UpdateAvailableImage() (*walk.Bitmap, error) {
 	}
 
 	const size = 16 //TODO: this should use dynamic DPI, but we don't due to a walk bug with tab icons.
-	redDot, err := walk.NewIconFromResourceWithSize("dot-red.ico", walk.Size{size, size})
+	updateAvailableIcon, err := loadSystemIcon("imageres", 100)
 	if err != nil {
 		return nil, err
 	}
-	defer redDot.Dispose()
-	img, err := walk.NewBitmapWithTransparentPixels(walk.Size{size, size})
+	tsip.updateAvailabeImage, err = walk.NewBitmapFromIcon(updateAvailableIcon, walk.Size{size, size})
 	if err != nil {
 		return nil, err
 	}
-	canvas, err := walk.NewCanvasFromImage(img)
-	if err != nil {
-		img.Dispose()
-		return nil, err
-	}
-	defer canvas.Dispose()
-
-	// This should be scaled for DPI but instead we do the opposite, due to a walk bug with tab icons.
-	margin := int(3.0 - (tsip.scale-1.0)*3.0)
-	if margin < 0 {
-		margin = 0
-	}
-	rect := walk.Rectangle{margin, margin, size - margin*2, size - margin*2}
-
-	if err := canvas.DrawImageStretched(redDot, rect); err != nil {
-		img.Dispose()
-		return nil, err
-	}
-	tsip.updateAvailabeImage = img
-	return img, nil
+	return tsip.updateAvailabeImage, nil
 }
 
 func (tsip *IconProvider) ImageForTunnel(tunnel *service.Tunnel, size walk.Size) (*walk.Bitmap, error) {
@@ -208,7 +188,7 @@ func (tsip *IconProvider) PaintForState(state service.TunnelState, canvas *walk.
 
 	switch state {
 	case service.TunnelStarted:
-		dot, err = walk.NewIconFromResourceWithSize("dot-green.ico", walk.Size{iconSize, iconSize})
+		dot, err = loadSystemIcon("imageres", 101)
 
 	case service.TunnelStopped:
 		dot, err = walk.NewIconFromResourceWithSize("dot-gray.ico", walk.Size{iconSize, iconSize})
