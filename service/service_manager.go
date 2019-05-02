@@ -12,6 +12,7 @@ import (
 	"golang.zx2c4.com/wireguard/windows/ringlogger"
 	"log"
 	"os"
+	"runtime"
 	"runtime/debug"
 	"sync"
 	"syscall"
@@ -172,6 +173,7 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 	stoppingManager := false
 
 	startProcess = func(session uint32) {
+		defer runtime.UnlockOSThread()
 		for {
 			if stoppingManager {
 				return
@@ -216,6 +218,10 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 				return
 			}
 
+			//TODO: we lock the OS thread so that these inheritable handles don't escape into other processes that
+			// might be running in parallel Go routines. But the Go runtime is strange and who knows what's really
+			// happening with these or what is inherited. We need to do some analysis to be certain of what's going on.
+			runtime.LockOSThread()
 			ourReader, theirReader, theirReaderStr, ourWriter, theirWriter, theirWriterStr, err := inheritableSocketpairEmulation()
 			if err != nil {
 				log.Printf("Unable to create two inheritable pipes: %v", err)
@@ -253,6 +259,7 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 			theirReader.Close()
 			theirWriter.Close()
 			theirEvents.Close()
+			runtime.UnlockOSThread()
 			if err != nil {
 				log.Printf("Unable to start manager UI process: %v", err)
 				return
