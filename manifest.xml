@@ -20,10 +20,7 @@
     </dependency>
     <application xmlns="urn:schemas-microsoft-com:asm.v3">
         <windowsSettings>
-            <dpiAwareness xmlns="http://schemas.microsoft.com/SMI/2016/WindowsSettings">PerMonitorV2, PerMonitor</dpiAwareness>
-        </windowsSettings>
-        <windowsSettings>
-            <dpiAware xmlns="http://schemas.microsoft.com/SMI/2005/WindowsSettings">True/PM</dpiAware>
+            <dpiAware xmlns="http://schemas.microsoft.com/SMI/2005/WindowsSettings">True</dpiAware>
         </windowsSettings>
     </application>
 </assembly>
