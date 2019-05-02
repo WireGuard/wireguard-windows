@@ -26,6 +26,7 @@ const (
 	ErrorSetNetConfig
 	ErrorDetermineExecutablePath
 	ErrorFindAdministratorsSID
+	ErrorCreateSecurityDescriptor
 	ErrorOpenNULFile
 	ErrorTrackTunnels
 	ErrorEnumerateSessions
@@ -58,6 +59,8 @@ func (e Error) Error() string {
 		return "Unable to set interface addresses, routes, dns, and/or adapter settings"
 	case ErrorFindAdministratorsSID:
 		return "Unable to find Administrators SID"
+	case ErrorCreateSecurityDescriptor:
+		return "Unable to determine security descriptor"
 	case ErrorOpenNULFile:
 		return "Unable to open NUL file"
 	case ErrorTrackTunnels:

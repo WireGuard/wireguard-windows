@@ -38,17 +38,19 @@ func errnoErr(e syscall.Errno) error {
 
 var (
 	modwtsapi32 = windows.NewLazySystemDLL("wtsapi32.dll")
-	moduserenv  = windows.NewLazySystemDLL("userenv.dll")
 	modadvapi32 = windows.NewLazySystemDLL("advapi32.dll")
+	moduserenv  = windows.NewLazySystemDLL("userenv.dll")
 	modkernel32 = windows.NewLazySystemDLL("kernel32.dll")
 
-	procWTSQueryUserToken          = modwtsapi32.NewProc("WTSQueryUserToken")
-	procWTSEnumerateSessionsW      = modwtsapi32.NewProc("WTSEnumerateSessionsW")
-	procWTSFreeMemory              = modwtsapi32.NewProc("WTSFreeMemory")
-	procCreateEnvironmentBlock     = moduserenv.NewProc("CreateEnvironmentBlock")
-	procDestroyEnvironmentBlock    = moduserenv.NewProc("DestroyEnvironmentBlock")
-	procNotifyServiceStatusChangeW = modadvapi32.NewProc("NotifyServiceStatusChangeW")
-	procSleepEx                    = modkernel32.NewProc("SleepEx")
+	procWTSQueryUserToken           = modwtsapi32.NewProc("WTSQueryUserToken")
+	procWTSEnumerateSessionsW       = modwtsapi32.NewProc("WTSEnumerateSessionsW")
+	procWTSFreeMemory               = modwtsapi32.NewProc("WTSFreeMemory")
+	procGetSecurityInfo             = modadvapi32.NewProc("GetSecurityInfo")
+	procGetSecurityDescriptorLength = modadvapi32.NewProc("GetSecurityDescriptorLength")
+	procCreateEnvironmentBlock      = moduserenv.NewProc("CreateEnvironmentBlock")
+	procDestroyEnvironmentBlock     = moduserenv.NewProc("DestroyEnvironmentBlock")
+	procNotifyServiceStatusChangeW  = modadvapi32.NewProc("NotifyServiceStatusChangeW")
+	procSleepEx                     = modkernel32.NewProc("SleepEx")
 )
 
 func wtfQueryUserToken(session uint32, token *windows.Token) (err error) {
@@ -77,6 +79,24 @@ func wtsEnumerateSessions(handle windows.Handle, reserved uint32, version uint32
 
 func wtsFreeMemory(ptr uintptr) {
 	syscall.Syscall(procWTSFreeMemory.Addr(), 1, uintptr(ptr), 0, 0)
+	return
+}
+
+func getSecurityInfo(handle windows.Handle, objectType uint32, si uint32, sidOwner *windows.SID, sidGroup *windows.SID, dacl *uintptr, sacl *uintptr, securityDescriptor *uintptr) (err error) {
+	r1, _, e1 := syscall.Syscall9(procGetSecurityInfo.Addr(), 8, uintptr(handle), uintptr(objectType), uintptr(si), uintptr(unsafe.Pointer(sidOwner)), uintptr(unsafe.Pointer(sidGroup)), uintptr(unsafe.Pointer(dacl)), uintptr(unsafe.Pointer(sacl)), uintptr(unsafe.Pointer(securityDescriptor)), 0)
+	if r1 != 0 {
+		if e1 != 0 {
+			err = errnoErr(e1)
+		} else {
+			err = syscall.EINVAL
+		}
+	}
+	return
+}
+
+func getSecurityDescriptorLength(securityDescriptor uintptr) (len uint32) {
+	r0, _, _ := syscall.Syscall(procGetSecurityDescriptorLength.Addr(), 1, uintptr(securityDescriptor), 0, 0)
+	len = uint32(r0)
 	return
 }
 

@@ -56,6 +56,15 @@ type wellKnownSidType uint32
 //sys wtsEnumerateSessions(handle windows.Handle, reserved uint32, version uint32, sessions **wtsSessionInfo, count *uint32) (err error) = wtsapi32.WTSEnumerateSessionsW
 //sys wtsFreeMemory(ptr uintptr) = wtsapi32.WTSFreeMemory
 
+const (
+	SE_KERNEL_OBJECT               = 6
+	DACL_SECURITY_INFORMATION      = 4
+	ATTRIBUTE_SECURITY_INFORMATION = 16
+)
+
+//sys getSecurityInfo(handle windows.Handle, objectType uint32, si uint32, sidOwner *windows.SID, sidGroup *windows.SID, dacl *uintptr, sacl *uintptr, securityDescriptor *uintptr) (err error) [failretval!=0] = advapi32.GetSecurityInfo
+//sys getSecurityDescriptorLength(securityDescriptor uintptr) (len uint32) = advapi32.GetSecurityDescriptorLength
+
 //sys createEnvironmentBlock(block *uintptr, token windows.Token, inheritExisting bool) (err error) = userenv.CreateEnvironmentBlock
 //sys destroyEnvironmentBlock(block uintptr) (err error) = userenv.DestroyEnvironmentBlock
 
@@ -122,6 +131,23 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 	adminSid, err := windows.CreateWellKnownSid(windows.WinBuiltinAdministratorsSid)
 	if err != nil {
 		serviceError = ErrorFindAdministratorsSID
+		return
+	}
+
+	currentProcess, err := windows.GetCurrentProcess()
+	if err != nil {
+		panic(err)
+	}
+	var securityAttributes syscall.SecurityAttributes
+	err = getSecurityInfo(currentProcess, SE_KERNEL_OBJECT, DACL_SECURITY_INFORMATION, nil, nil, nil, nil, &securityAttributes.SecurityDescriptor)
+	if err != nil {
+		serviceError = ErrorCreateSecurityDescriptor
+		return
+	}
+	defer windows.LocalFree(windows.Handle(securityAttributes.SecurityDescriptor))
+	securityAttributes.Length = getSecurityDescriptorLength(securityAttributes.SecurityDescriptor)
+	if securityAttributes.Length == 0 {
+		serviceError = ErrorCreateSecurityDescriptor
 		return
 	}
 
@@ -216,7 +242,9 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 			log.Printf("Starting UI process for user: '%s@%s'", username, domain)
 			attr := &os.ProcAttr{
 				Sys: &syscall.SysProcAttr{
-					Token: syscall.Token(userToken),
+					Token:             syscall.Token(userToken),
+					ProcessAttributes: &securityAttributes,
+					ThreadAttributes:  &securityAttributes,
 				},
 				Files: []*os.File{devNull, devNull, devNull},
 				Env:   env,
