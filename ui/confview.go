@@ -377,6 +377,7 @@ func newPaddedGroupGrid(parent walk.Container) (group *walk.GroupBox, err error)
 	}()
 	layout := walk.NewGridLayout()
 	layout.SetMargins(walk.Margins{10, 5, 10, 5})
+	layout.SetSpacing(0)
 	err = group.SetLayout(layout)
 	if err != nil {
 		return nil, err
