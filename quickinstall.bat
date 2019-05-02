@@ -12,7 +12,6 @@ for /f %%a in ('reg query HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninsta
 echo [+] Installing new version
 for /f "tokens=3" %%a in ('findstr /r "WIREGUARD_WINDOWS_VERSION_STRING.*[0-9.]*" ..\version.h') do set WIREGUARD_VERSION=%%a
 set WIREGUARD_VERSION=%WIREGUARD_VERSION:"=%
-@echo on
 cd .\dist
 msiexec /qb /i wireguard-amd64-%WIREGUARD_VERSION%.msi
 cd ..\..
