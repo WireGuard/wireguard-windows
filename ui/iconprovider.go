@@ -8,7 +8,6 @@ package ui
 import (
 	"github.com/lxn/walk"
 	"golang.zx2c4.com/wireguard/windows/service"
-	"math"
 )
 
 type rectAndState struct {
@@ -20,93 +19,8 @@ type IconProvider struct {
 	wireguardIcon        *walk.Icon
 	imagesByRectAndState map[rectAndState]*walk.Bitmap
 	iconsByState         map[service.TunnelState]*walk.Icon
-	stoppedBrush         *walk.SolidColorBrush
-	startingBrush        *walk.SolidColorBrush
-	startedBrush         *walk.SolidColorBrush
-	stoppedPen           *walk.CosmeticPen
-	startingPen          *walk.CosmeticPen
-	startedPen           *walk.CosmeticPen
-	updateAvailableImage *walk.Bitmap
+	updateAvailabeImage  *walk.Bitmap
 	scale                float64
-}
-
-const (
-	colorStopped         = 0xe1e1e1
-	colorStarting        = 0xfec440
-	colorStarted         = 0x01a405
-	colorUpdateAvailable = 0xcb0110
-)
-
-func hexColor(c uint32) walk.Color {
-	return walk.Color((((c >> 16) & 0xff) << 0) | (((c >> 8) & 0xff) << 8) | (((c >> 0) & 0xff) << 16))
-}
-
-func darkColor(c walk.Color) walk.Color {
-	// Convert to HSL
-	r, g, b := float64((uint32(c)>>16)&0xff)/255.0, float64((uint32(c)>>8)&0xff)/255.0, float64((uint32(c)>>0)&0xff)/255.0
-	min := math.Min(r, math.Min(g, b))
-	max := math.Max(r, math.Max(g, b))
-	deltaMinMax := max - min
-	l := (max + min) / 2
-	h, s := 0.0, 0.0
-	if deltaMinMax != 0 {
-		if l < 0.5 {
-			s = deltaMinMax / (max + min)
-		} else {
-			s = deltaMinMax / (2 - max - min)
-		}
-		deltaRed := (((max - r) / 6) + (deltaMinMax / 2)) / deltaMinMax
-		deltaGreen := (((max - g) / 6) + (deltaMinMax / 2)) / deltaMinMax
-		deltaBlue := (((max - b) / 6) + (deltaMinMax / 2)) / deltaMinMax
-		if r == max {
-			h = deltaBlue - deltaGreen
-		} else if g == max {
-			h = (1.0 / 3.0) + deltaRed - deltaBlue
-		} else if b == max {
-			h = (2.0 / 3.0) + deltaGreen - deltaRed
-		}
-
-		if h < 0 {
-			h += 1
-		} else if h > 1 {
-			h -= 1
-		}
-	}
-
-	// Darken by 10%
-	l = math.Max(0, l-0.1)
-
-	// Convert back to RGB
-	if s == 0 {
-		return walk.Color((uint32(l*255) << 16) | (uint32(l*255) << 8) | (uint32(l*255) << 0))
-	}
-	var v1, v2 float64
-	if l < 0.5 {
-		v2 = l * (1 + s)
-	} else {
-		v2 = (l + s) - (s * l)
-	}
-	v1 = 2.0*l - v2
-	co := func(v1, v2, vH float64) float64 {
-		if vH < 0 {
-			vH += 1
-		}
-		if vH > 1 {
-			vH -= 1
-		}
-		if (6.0 * vH) < 1 {
-			return v1 + (v2-v1)*6.0*vH
-		}
-		if (2.0 * vH) < 1 {
-			return v2
-		}
-		if (3.0 * vH) < 2 {
-			return v1 + (v2-v1)*((2.0/3.0)-vH)*6.0
-		}
-		return v1
-	}
-	r, g, b = co(v1, v2, h+(1.0/3.0)), co(v1, v2, h), co(v1, v2, h-(1.0/3.0))
-	return walk.Color((uint32(r*255) << 16) | (uint32(g*255) << 8) | (uint32(b*255) << 0))
 }
 
 func NewIconProvider(dpi int) (*IconProvider, error) {
@@ -126,41 +40,6 @@ func NewIconProvider(dpi int) (*IconProvider, error) {
 	}
 	disposables.Add(tsip.wireguardIcon)
 
-	if tsip.stoppedBrush, err = walk.NewSolidColorBrush(hexColor(colorStopped)); err != nil {
-		return nil, err
-	}
-	disposables.Add(tsip.stoppedBrush)
-
-	if tsip.startingBrush, err = walk.NewSolidColorBrush(hexColor(colorStarting)); err != nil {
-		return nil, err
-	}
-	disposables.Add(tsip.startingBrush)
-
-	if tsip.startedBrush, err = walk.NewSolidColorBrush(hexColor(colorStarted)); err != nil {
-		return nil, err
-	}
-	disposables.Add(tsip.startedBrush)
-
-	if tsip.stoppedPen, err = walk.NewCosmeticPen(walk.PenSolid, darkColor(hexColor(colorStopped))); err != nil {
-		return nil, err
-	}
-	disposables.Add(tsip.stoppedPen)
-
-	if tsip.startingPen, err = walk.NewCosmeticPen(walk.PenSolid, darkColor(hexColor(colorStarting))); err != nil {
-		return nil, err
-	}
-	disposables.Add(tsip.startingPen)
-
-	if tsip.startedPen, err = walk.NewCosmeticPen(walk.PenSolid, darkColor(hexColor(colorStarted))); err != nil {
-		return nil, err
-	}
-	disposables.Add(tsip.startedPen)
-
-	if tsip.updateAvailableImage, err = tsip.drawUpdateAvailableImage(16 /* This should be scaled for DPI, but isn't because of walk bug. */); err != nil {
-		return nil, err
-	}
-	disposables.Add(tsip.updateAvailableImage)
-
 	disposables.Spare()
 	return tsip, nil
 }
@@ -178,37 +57,13 @@ func (tsip *IconProvider) Dispose() {
 		}
 		tsip.iconsByState = nil
 	}
-	if tsip.stoppedBrush != nil {
-		tsip.stoppedBrush.Dispose()
-		tsip.stoppedBrush = nil
-	}
-	if tsip.startingBrush != nil {
-		tsip.startingBrush.Dispose()
-		tsip.startingBrush = nil
-	}
-	if tsip.startedBrush != nil {
-		tsip.startedBrush.Dispose()
-		tsip.startedBrush = nil
-	}
-	if tsip.stoppedPen != nil {
-		tsip.stoppedPen.Dispose()
-		tsip.stoppedPen = nil
-	}
-	if tsip.startingPen != nil {
-		tsip.startingPen.Dispose()
-		tsip.startingPen = nil
-	}
-	if tsip.startedPen != nil {
-		tsip.startedPen.Dispose()
-		tsip.startedPen = nil
-	}
 	if tsip.wireguardIcon != nil {
 		tsip.wireguardIcon.Dispose()
 		tsip.wireguardIcon = nil
 	}
-	if tsip.updateAvailableImage != nil {
-		tsip.updateAvailableImage.Dispose()
-		tsip.updateAvailableImage = nil
+	if tsip.updateAvailabeImage != nil {
+		tsip.updateAvailabeImage.Dispose()
+		tsip.updateAvailabeImage = nil
 	}
 }
 
@@ -216,23 +71,21 @@ func (tsip *IconProvider) scaleForDPI(i int) int {
 	return int(tsip.scale * float64(i))
 }
 
-func (tsip *IconProvider) drawUpdateAvailableImage(size int) (*walk.Bitmap, error) {
-	updateAvailableBrush, err := walk.NewSolidColorBrush(hexColor(colorUpdateAvailable))
-	if err != nil {
-		return nil, err
+func (tsip *IconProvider) UpdateAvailableImage() (*walk.Bitmap, error) {
+	if tsip.updateAvailabeImage != nil {
+		return tsip.updateAvailabeImage, nil
 	}
-	defer updateAvailableBrush.Dispose()
-	updateAvailablePen, err := walk.NewCosmeticPen(walk.PenSolid, darkColor(hexColor(colorUpdateAvailable)))
-	if err != nil {
-		return nil, err
-	}
-	defer updateAvailablePen.Dispose()
 
+	const size = 16 //TODO: this should use dynamic DPI, but we don't due to a walk bug with tab icons.
+	redDot, err := walk.NewIconFromResourceWithSize("dot-red.ico", walk.Size{size, size})
+	if err != nil {
+		return nil, err
+	}
+	defer redDot.Dispose()
 	img, err := walk.NewBitmapWithTransparentPixels(walk.Size{size, size})
 	if err != nil {
 		return nil, err
 	}
-
 	canvas, err := walk.NewCanvasFromImage(img)
 	if err != nil {
 		img.Dispose()
@@ -240,21 +93,18 @@ func (tsip *IconProvider) drawUpdateAvailableImage(size int) (*walk.Bitmap, erro
 	}
 	defer canvas.Dispose()
 
-	// This should be scaled for DPI but instead we do the opposite, due to a walk bug.
+	// This should be scaled for DPI but instead we do the opposite, due to a walk bug with tab icons.
 	margin := int(3.0 - (tsip.scale-1.0)*3.0)
 	if margin < 0 {
 		margin = 0
 	}
 	rect := walk.Rectangle{margin, margin, size - margin*2, size - margin*2}
 
-	if err := canvas.FillEllipse(updateAvailableBrush, rect); err != nil {
+	if err := canvas.DrawImageStretched(redDot, rect); err != nil {
 		img.Dispose()
 		return nil, err
 	}
-	if err := canvas.DrawEllipse(updateAvailablePen, rect); err != nil {
-		img.Dispose()
-		return nil, err
-	}
+	tsip.updateAvailabeImage = img
 	return img, nil
 }
 
@@ -348,36 +198,32 @@ func (tsip *IconProvider) PaintForTunnel(tunnel *service.Tunnel, canvas *walk.Ca
 }
 
 func (tsip *IconProvider) PaintForState(state service.TunnelState, canvas *walk.Canvas, bounds walk.Rectangle) error {
-	var (
-		brush *walk.SolidColorBrush
-		pen   *walk.CosmeticPen
-	)
+	iconSize := tsip.scaleForDPI(bounds.Height)
+	var dot *walk.Icon
+	var err error
 
 	switch state {
 	case service.TunnelStarted:
-		brush = tsip.startedBrush
-		pen = tsip.startedPen
+		dot, err = walk.NewIconFromResourceWithSize("dot-green.ico", walk.Size{iconSize, iconSize})
 
 	case service.TunnelStopped:
-		brush = tsip.stoppedBrush
-		pen = tsip.stoppedPen
+		dot, err = walk.NewIconFromResourceWithSize("dot-gray.ico", walk.Size{iconSize, iconSize})
 
 	default:
-		brush = tsip.startingBrush
-		pen = tsip.startingPen
+		dot, err = walk.NewIconFromResourceWithSize("dot-yellow.ico", walk.Size{iconSize, iconSize})
 	}
+	if err != nil {
+		return err
+	}
+	defer dot.Dispose()
 
 	b := bounds
-
 	b.X += tsip.scaleForDPI(2)
 	b.Y += tsip.scaleForDPI(2)
 	b.Height -= tsip.scaleForDPI(4)
 	b.Width = b.Height
 
-	if err := canvas.FillEllipse(brush, b); err != nil {
-		return err
-	}
-	if err := canvas.DrawEllipse(pen, b); err != nil {
+	if err := canvas.DrawImageStretched(dot, b); err != nil {
 		return err
 	}
 

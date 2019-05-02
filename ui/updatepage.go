@@ -25,7 +25,10 @@ func NewUpdatePage() (*UpdatePage, error) {
 	}
 
 	up.SetTitle("An Update is Available!")
-	up.SetImage(iconProvider.updateAvailableImage)
+
+	if icon, err := iconProvider.UpdateAvailableImage(); err == nil {
+		up.SetImage(icon)
+	}
 	//TODO: make title bold
 	up.SetLayout(walk.NewVBoxLayout())
 

@@ -46,6 +46,6 @@ deploy: amd64/wireguard.exe
 	scp $< $(DEPLOYMENT_HOST):$(DEPLOYMENT_PATH)
 
 clean:
-	rm -rf *.syso x86/ amd64/ .deps
+	rm -rf *.syso ui/icon/*.ico x86/ amd64/ .deps
 
 .PHONY: deploy clean all
