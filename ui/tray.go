@@ -72,7 +72,7 @@ func (tray *Tray) setup() error {
 		{label: "&Import tunnel(s) from file...", handler: tray.mtw.tunnelsPage.onImport, enabled: true},
 		{separator: true},
 		{label: "&About WireGuard", handler: func() { onAbout(tray.mtw) }, enabled: true},
-		{label: "&Quit", handler: onQuit, enabled: true},
+		{label: "&Exit", handler: onQuit, enabled: true},
 	} {
 		var action *walk.Action
 		if item.separator {
