@@ -23,7 +23,7 @@ import (
 type TunnelsPage struct {
 	*walk.TabPage
 
-	tunnelsView   *TunnelsView
+	tunnelsView   *ListView
 	confView      *ConfView
 	fillerButton  *walk.PushButton
 	fillerHandler func()

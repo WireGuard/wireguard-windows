@@ -13,19 +13,19 @@ import (
 	"golang.zx2c4.com/wireguard/windows/service"
 )
 
-// TunnelModel is a struct to store the currently known tunnels to the GUI, suitable as a model for a walk.TableView.
-type TunnelModel struct {
+// ListModel is a struct to store the currently known tunnels to the GUI, suitable as a model for a walk.TableView.
+type ListModel struct {
 	walk.TableModelBase
 	walk.SorterBase
 
 	tunnels []service.Tunnel
 }
 
-func (t *TunnelModel) RowCount() int {
+func (t *ListModel) RowCount() int {
 	return len(t.tunnels)
 }
 
-func (t *TunnelModel) Value(row, col int) interface{} {
+func (t *ListModel) Value(row, col int) interface{} {
 	tunnel := t.tunnels[row]
 
 	switch col {
@@ -37,7 +37,7 @@ func (t *TunnelModel) Value(row, col int) interface{} {
 	}
 }
 
-func (t *TunnelModel) Sort(col int, order walk.SortOrder) error {
+func (t *ListModel) Sort(col int, order walk.SortOrder) error {
 	sort.SliceStable(t.tunnels, func(i, j int) bool {
 		//TODO: use real string comparison for sorting with proper tunnel order
 		return t.tunnels[i].Name < t.tunnels[j].Name
@@ -46,16 +46,16 @@ func (t *TunnelModel) Sort(col int, order walk.SortOrder) error {
 	return t.SorterBase.Sort(col, order)
 }
 
-type TunnelsView struct {
+type ListView struct {
 	*walk.TableView
 
-	model *TunnelModel
+	model *ListModel
 
 	tunnelChangedCB  *service.TunnelChangeCallback
 	tunnelsChangedCB *service.TunnelsChangeCallback
 }
 
-func NewTunnelsView(parent walk.Container) (*TunnelsView, error) {
+func NewTunnelsView(parent walk.Container) (*ListView, error) {
 	var disposables walk.Disposables
 	defer disposables.Treat()
 
@@ -65,7 +65,7 @@ func NewTunnelsView(parent walk.Container) (*TunnelsView, error) {
 	}
 	disposables.Add(tv)
 
-	model := new(TunnelModel)
+	model := new(ListModel)
 	if model.tunnels, err = service.IPCClientTunnels(); err != nil {
 		return nil, err
 	}
@@ -75,7 +75,7 @@ func NewTunnelsView(parent walk.Container) (*TunnelsView, error) {
 	tv.SetHeaderHidden(true)
 	tv.Columns().Add(walk.NewTableViewColumn())
 
-	tunnelsView := &TunnelsView{
+	tunnelsView := &ListView{
 		TableView: tv,
 		model:     model,
 	}
@@ -91,7 +91,7 @@ func NewTunnelsView(parent walk.Container) (*TunnelsView, error) {
 	return tunnelsView, nil
 }
 
-func (tv *TunnelsView) Dispose() {
+func (tv *ListView) Dispose() {
 	if tv.tunnelChangedCB != nil {
 		tv.tunnelChangedCB.Unregister()
 		tv.tunnelChangedCB = nil
@@ -103,7 +103,7 @@ func (tv *TunnelsView) Dispose() {
 	tv.TableView.Dispose()
 }
 
-func (tv *TunnelsView) StyleCell(style *walk.CellStyle) {
+func (tv *ListView) StyleCell(style *walk.CellStyle) {
 	canvas := style.Canvas()
 	if canvas == nil {
 		return
@@ -123,7 +123,7 @@ func (tv *TunnelsView) StyleCell(style *walk.CellStyle) {
 	iconProvider.PaintForTunnel(tunnel, canvas, b)
 }
 
-func (tv *TunnelsView) CurrentTunnel() *service.Tunnel {
+func (tv *ListView) CurrentTunnel() *service.Tunnel {
 	idx := tv.CurrentIndex()
 	if idx == -1 {
 		return nil
@@ -132,7 +132,7 @@ func (tv *TunnelsView) CurrentTunnel() *service.Tunnel {
 	return &tv.model.tunnels[idx]
 }
 
-func (tv *TunnelsView) onTunnelChange(tunnel *service.Tunnel, state service.TunnelState, globalState service.TunnelState, err error) {
+func (tv *ListView) onTunnelChange(tunnel *service.Tunnel, state service.TunnelState, globalState service.TunnelState, err error) {
 	tv.Synchronize(func() {
 		idx := -1
 		for i := range tv.model.tunnels {
@@ -149,7 +149,7 @@ func (tv *TunnelsView) onTunnelChange(tunnel *service.Tunnel, state service.Tunn
 	})
 }
 
-func (tv *TunnelsView) onTunnelsChange() {
+func (tv *ListView) onTunnelsChange() {
 	tunnels, err := service.IPCClientTunnels()
 	if err != nil {
 		return
@@ -198,7 +198,7 @@ func (tv *TunnelsView) onTunnelsChange() {
 	})
 }
 
-func (tv *TunnelsView) selectTunnel(tunnelName string) {
+func (tv *ListView) selectTunnel(tunnelName string) {
 	for i, tunnel := range tv.model.tunnels {
 		if tunnel.Name == tunnelName {
 			tv.SetCurrentIndex(i)
@@ -207,7 +207,7 @@ func (tv *TunnelsView) selectTunnel(tunnelName string) {
 	}
 }
 
-func (tv *TunnelsView) SelectFirstActiveTunnel() {
+func (tv *ListView) SelectFirstActiveTunnel() {
 	tunnels := make([]service.Tunnel, len(tv.model.tunnels))
 	copy(tunnels, tv.model.tunnels)
 	go func() {

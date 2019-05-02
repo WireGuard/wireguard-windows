@@ -41,7 +41,7 @@ const (
 	allowedIPsStateOther
 )
 
-type TunnelEditDialog struct {
+type EditDialog struct {
 	*walk.Dialog
 	nameEdit            *walk.LineEdit
 	pubkeyEdit          *walk.LineEdit
@@ -61,7 +61,7 @@ func runTunnelEditDialog(owner walk.Form, tunnel *service.Tunnel) *conf.Config {
 		name  string
 	)
 
-	dlg := &TunnelEditDialog{tunnel: tunnel}
+	dlg := &EditDialog{tunnel: tunnel}
 
 	if tunnel == nil {
 		// Creating a new tunnel, create a new private key and use the default template
@@ -143,7 +143,7 @@ func runTunnelEditDialog(owner walk.Form, tunnel *service.Tunnel) *conf.Config {
 	return nil
 }
 
-func (dlg *TunnelEditDialog) updateAllowedIPsState() {
+func (dlg *EditDialog) updateAllowedIPsState() {
 	var newState allowedIPsState
 	if len(dlg.config.Peers) == 1 {
 		if allowedIPs := dlg.allowedIPsSet(); allowedIPs.IsSupersetOf(ipv4Wildcard) {
@@ -165,16 +165,16 @@ func (dlg *TunnelEditDialog) updateAllowedIPsState() {
 	}
 }
 
-func (dlg *TunnelEditDialog) canExcludePrivateIPs() bool {
+func (dlg *EditDialog) canExcludePrivateIPs() bool {
 	return dlg.allowedIPsState == allowedIPsStateContainsIPV4PublicNetworks ||
 		dlg.allowedIPsState == allowedIPsStateContainsIPV4Wildcard
 }
 
-func (dlg *TunnelEditDialog) privateIPsExcluded() bool {
+func (dlg *EditDialog) privateIPsExcluded() bool {
 	return dlg.allowedIPsState == allowedIPsStateContainsIPV4PublicNetworks
 }
 
-func (dlg *TunnelEditDialog) setPrivateIPsExcluded(excluded bool) {
+func (dlg *EditDialog) setPrivateIPsExcluded(excluded bool) {
 	if !dlg.canExcludePrivateIPs() || dlg.privateIPsExcluded() == excluded {
 		return
 	}
@@ -220,7 +220,7 @@ func (dlg *TunnelEditDialog) setPrivateIPsExcluded(excluded bool) {
 	dlg.replaceLine(configKeyAllowedIPs, strings.Join(output.ToSlice(), ", "))
 }
 
-func (dlg *TunnelEditDialog) replaceLine(key, value string) {
+func (dlg *EditDialog) replaceLine(key, value string) {
 	text := dlg.syntaxEdit.Text()
 
 	start := strings.Index(text, key)
@@ -231,25 +231,25 @@ func (dlg *TunnelEditDialog) replaceLine(key, value string) {
 	dlg.syntaxEdit.SetText(strings.ReplaceAll(text, oldLine, newLine))
 }
 
-func (dlg *TunnelEditDialog) updateExcludePrivateIPsCBVisible() {
+func (dlg *EditDialog) updateExcludePrivateIPsCBVisible() {
 	dlg.updateAllowedIPsState()
 
 	dlg.excludePrivateIPsCB.SetVisible(dlg.canExcludePrivateIPs())
 }
 
-func (dlg *TunnelEditDialog) dnsRoutes() []string {
+func (dlg *EditDialog) dnsRoutes() []string {
 	return dlg.routes(configKeyDNS)
 }
 
-func (dlg *TunnelEditDialog) allowedIPs() []string {
+func (dlg *EditDialog) allowedIPs() []string {
 	return dlg.routes(configKeyAllowedIPs)
 }
 
-func (dlg *TunnelEditDialog) allowedIPsSet() *orderedStringSet {
+func (dlg *EditDialog) allowedIPsSet() *orderedStringSet {
 	return orderedStringSetFromSlice(dlg.allowedIPs())
 }
 
-func (dlg *TunnelEditDialog) routes(key string) []string {
+func (dlg *EditDialog) routes(key string) []string {
 	var routes []string
 
 	lines := strings.Split(dlg.syntaxEdit.Text(), "\n")
@@ -267,11 +267,11 @@ func (dlg *TunnelEditDialog) routes(key string) []string {
 	return routes
 }
 
-func (dlg *TunnelEditDialog) onExcludePrivateIPsCBCheckedChanged() {
+func (dlg *EditDialog) onExcludePrivateIPsCBCheckedChanged() {
 	dlg.setPrivateIPsExcluded(dlg.excludePrivateIPsCB.Checked())
 }
 
-func (dlg *TunnelEditDialog) onSyntaxEditPrivateKeyChanged(privateKey string) {
+func (dlg *EditDialog) onSyntaxEditPrivateKeyChanged(privateKey string) {
 	if privateKey == dlg.lastPrivateKey {
 		return
 	}
@@ -284,7 +284,7 @@ func (dlg *TunnelEditDialog) onSyntaxEditPrivateKeyChanged(privateKey string) {
 	}
 }
 
-func (dlg *TunnelEditDialog) onSaveButtonClicked() {
+func (dlg *EditDialog) onSaveButtonClicked() {
 	newName := dlg.nameEdit.Text()
 	if newName == "" {
 		walk.MsgBox(dlg, "Invalid configuration", "Name is required", walk.MsgBoxIconWarning)
