@@ -164,8 +164,7 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 				return
 			}
 			p := unsafe.Pointer(&gs.Groups[0])
-			//TODO: x/sys/windows/svc/security.go uses 2 << 20, but shouldn't this be 1 << 20? Send upstream
-			groups := (*[1 << 20]windows.SIDAndAttributes)(p)[:gs.GroupCount]
+			groups := (*[(1 << 28) - 1]windows.SIDAndAttributes)(p)[:gs.GroupCount]
 			isAdmin := false
 			for _, g := range groups {
 				if windows.EqualSid(g.Sid, adminSid) {
