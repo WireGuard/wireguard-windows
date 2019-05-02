@@ -289,7 +289,9 @@ func (tray *Tray) SetTunnelState(tunnel *service.Tunnel, state service.TunnelSta
 func (tray *Tray) UpdateFound() {
 	action := walk.NewAction()
 	action.SetText("An Update is Available!")
-	action.SetImage(iconProvider.updateAvailableImage)
+	if icon, err := iconProvider.UpdateAvailableImage(); err == nil {
+		action.SetImage(icon)
+	}
 	//TODO: Make bold
 	action.Triggered().Attach(func() {
 		tray.mtw.Show()

@@ -12,6 +12,10 @@ $wireguard.ico ICON ui/icon/wireguard.ico
 add.ico ICON ui/icon/add.ico
 delete.ico ICON ui/icon/delete.ico
 export.ico ICON ui/icon/export.ico
+dot-gray.ico ICON ui/icon/dot-gray.ico
+dot-yellow.ico ICON ui/icon/dot-yellow.ico
+dot-green.ico ICON ui/icon/dot-green.ico
+dot-red.ico ICON ui/icon/dot-red.ico
 
 VS_VERSION_INFO VERSIONINFO
 FILEVERSION    WIREGUARD_WINDOWS_VERSION_ARRAY
