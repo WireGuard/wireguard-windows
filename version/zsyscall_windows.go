@@ -46,9 +46,15 @@ var (
 	procVerQueryValueW          = modversion.NewProc("VerQueryValueW")
 )
 
-func rtlGetVersion(versionInfo *osVersionInfo) (nterr uint32) {
-	r0, _, _ := syscall.Syscall(procRtlGetVersion.Addr(), 1, uintptr(unsafe.Pointer(versionInfo)), 0, 0)
-	nterr = uint32(r0)
+func rtlGetVersion(versionInfo *OsVersionInfo) (err error) {
+	r1, _, e1 := syscall.Syscall(procRtlGetVersion.Addr(), 1, uintptr(unsafe.Pointer(versionInfo)), 0, 0)
+	if r1 != 0 {
+		if e1 != 0 {
+			err = errnoErr(e1)
+		} else {
+			err = syscall.EINVAL
+		}
+	}
 	return
 }
 
