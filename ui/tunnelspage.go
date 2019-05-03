@@ -190,14 +190,14 @@ func (tp *TunnelsPage) importFiles(paths []string) {
 		)
 
 		for _, path := range paths {
-			switch filepath.Ext(path) {
+			switch strings.ToLower(filepath.Ext(path)) {
 			case ".conf":
 				textConfig, err := ioutil.ReadFile(path)
 				if err != nil {
 					lastErr = err
 					continue
 				}
-				unparsedConfigs = append(unparsedConfigs, unparsedConfig{Name: strings.TrimSuffix(filepath.Base(path), ".conf"), Config: string(textConfig)})
+				unparsedConfigs = append(unparsedConfigs, unparsedConfig{Name: strings.TrimSuffix(filepath.Base(path), filepath.Ext(path)), Config: string(textConfig)})
 			case ".zip":
 				// 1 .conf + 1 error .zip edge case?
 				r, err := zip.OpenReader(path)
@@ -207,7 +207,7 @@ func (tp *TunnelsPage) importFiles(paths []string) {
 				}
 
 				for _, f := range r.File {
-					if filepath.Ext(f.Name) != ".conf" {
+					if strings.ToLower(filepath.Ext(f.Name)) != ".conf" {
 						continue
 					}
 
@@ -222,7 +222,7 @@ func (tp *TunnelsPage) importFiles(paths []string) {
 						lastErr = err
 						continue
 					}
-					unparsedConfigs = append(unparsedConfigs, unparsedConfig{Name: strings.TrimSuffix(filepath.Base(f.Name), ".conf"), Config: string(textConfig)})
+					unparsedConfigs = append(unparsedConfigs, unparsedConfig{Name: strings.TrimSuffix(filepath.Base(f.Name), filepath.Ext(f.Name)), Config: string(textConfig)})
 				}
 
 				r.Close()
