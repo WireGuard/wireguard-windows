@@ -9,6 +9,7 @@ import (
 	"archive/zip"
 	"fmt"
 	"github.com/lxn/walk"
+	"github.com/lxn/win"
 	"golang.zx2c4.com/wireguard/windows/conf"
 	"golang.zx2c4.com/wireguard/windows/service"
 	"io/ioutil"
@@ -16,12 +17,15 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"unsafe"
 )
 
 type TunnelsPage struct {
 	*walk.TabPage
 
-	tunnelsView   *ListView
+	listView      *ListView
+	listContainer walk.Container
+	listToolbar   *walk.ToolBar
 	confView      *ConfView
 	fillerButton  *walk.PushButton
 	fillerHandler func()
@@ -45,29 +49,82 @@ func NewTunnelsPage() (*TunnelsPage, error) {
 	tp.SetTitle("Tunnels")
 	tp.SetLayout(walk.NewHBoxLayout())
 
-	listContainer, _ := walk.NewComposite(tp)
+	tp.listContainer, _ = walk.NewComposite(tp)
 	vlayout := walk.NewVBoxLayout()
 	vlayout.SetMargins(walk.Margins{})
 	vlayout.SetSpacing(0)
-	listContainer.SetLayout(vlayout)
+	tp.listContainer.SetLayout(vlayout)
 
 	//TODO: deal with remaining disposables in case the next line fails
 
-	if tp.tunnelsView, err = NewListView(listContainer); err != nil {
+	if tp.listView, err = NewListView(tp.listContainer); err != nil {
 		return nil, err
+	}
+
+	tp.currentTunnelContainer, _ = walk.NewComposite(tp)
+	vlayout = walk.NewVBoxLayout()
+	vlayout.SetMargins(walk.Margins{})
+	tp.currentTunnelContainer.SetLayout(vlayout)
+
+	tp.fillerContainer, _ = walk.NewComposite(tp)
+	tp.fillerContainer.SetVisible(false)
+	hlayout := walk.NewHBoxLayout()
+	hlayout.SetMargins(walk.Margins{})
+	tp.fillerContainer.SetLayout(hlayout)
+	tp.fillerButton, _ = walk.NewPushButton(tp.fillerContainer)
+	buttonWidth := tp.DPI() * 2 //TODO: Use dynamic DPI
+	tp.fillerButton.SetMinMaxSize(walk.Size{buttonWidth, 0}, walk.Size{buttonWidth, 0})
+	tp.fillerButton.Clicked().Attach(func() {
+		if tp.fillerHandler != nil {
+			tp.fillerHandler()
+		}
+	})
+
+	tp.confView, _ = NewConfView(tp.currentTunnelContainer)
+
+	controlsContainer, _ := walk.NewComposite(tp.currentTunnelContainer)
+	controlsContainer.SetLayout(walk.NewHBoxLayout())
+	controlsContainer.Layout().SetMargins(walk.Margins{})
+
+	walk.NewHSpacer(controlsContainer)
+
+	editTunnel, _ := walk.NewPushButton(controlsContainer)
+	editTunnel.SetEnabled(false)
+	tp.listView.CurrentIndexChanged().Attach(func() {
+		editTunnel.SetEnabled(tp.listView.CurrentIndex() > -1)
+	})
+	editTunnel.SetText("Edit")
+	editTunnel.Clicked().Attach(tp.onEditTunnel)
+
+	disposables.Spare()
+
+	//TODO: expose walk.TableView.itemCountChangedPublisher.Event()
+	tp.listView.Property("ItemCount").Changed().Attach(tp.onTunnelsChanged)
+	tp.listView.SelectedIndexesChanged().Attach(tp.onSelectedTunnelsChanged)
+	tp.listView.ItemActivated().Attach(tp.onTunnelsViewItemActivated)
+	tp.listView.CurrentIndexChanged().Attach(tp.updateConfView)
+	tp.listView.Load(false)
+	tp.onTunnelsChanged()
+
+	return tp, nil
+}
+
+func (tp *TunnelsPage) CreateToolbar() {
+	if tp.listToolbar != nil {
+		return
 	}
 
 	// HACK: Because of https://github.com/lxn/walk/issues/481
 	// we need to put the ToolBar into its own Composite.
-	toolBarContainer, _ := walk.NewComposite(listContainer)
+	toolBarContainer, _ := walk.NewComposite(tp.listContainer)
 	hlayout := walk.NewHBoxLayout()
 	hlayout.SetMargins(walk.Margins{})
 	toolBarContainer.SetLayout(hlayout)
 
-	listToolbar, _ := walk.NewToolBarWithOrientationAndButtonStyle(toolBarContainer, walk.Horizontal, walk.ToolBarButtonImageBeforeText)
+	tp.listToolbar, _ = walk.NewToolBarWithOrientationAndButtonStyle(toolBarContainer, walk.Horizontal, walk.ToolBarButtonImageBeforeText)
 	imageSize := walk.Size{tp.DPI() / 6, tp.DPI() / 6} // Dividing by six is the same as dividing by 96 and multiplying by 16. TODO: Use dynamic DPI
 	imageList, _ := walk.NewImageList(imageSize, walk.RGB(0, 0, 0))
-	listToolbar.SetImageList(imageList)
+	tp.listToolbar.SetImageList(imageList)
 
 	addMenu, _ := walk.NewMenu()
 	tp.AddDisposable(addMenu)
@@ -94,9 +151,9 @@ func NewTunnelsPage() (*TunnelsPage, error) {
 	addMenuAction.SetText("Add Tunnel")
 	addMenuAction.SetToolTip(importAction.Text())
 	addMenuAction.Triggered().Attach(tp.onImport)
-	listToolbar.Actions().Add(addMenuAction)
+	tp.listToolbar.Actions().Add(addMenuAction)
 
-	listToolbar.Actions().Add(walk.NewSeparatorAction())
+	tp.listToolbar.Actions().Add(walk.NewSeparatorAction())
 
 	deleteAction := walk.NewAction()
 	deleteActionIcon, _ := loadSystemIcon("shell32", 131)
@@ -105,9 +162,8 @@ func NewTunnelsPage() (*TunnelsPage, error) {
 	deleteAction.SetShortcut(walk.Shortcut{0, walk.KeyDelete})
 	deleteAction.SetToolTip("Remove selected tunnel(s)")
 	deleteAction.Triggered().Attach(tp.onDelete)
-	listToolbar.Actions().Add(deleteAction)
-
-	listToolbar.Actions().Add(walk.NewSeparatorAction())
+	tp.listToolbar.Actions().Add(deleteAction)
+	tp.listToolbar.Actions().Add(walk.NewSeparatorAction())
 
 	exportAction := walk.NewAction()
 	exportActionIcon, _ := loadSystemIcon("imageres", 165) // Or "shell32", 45?
@@ -115,61 +171,15 @@ func NewTunnelsPage() (*TunnelsPage, error) {
 	exportAction.SetImage(exportActionImage)
 	exportAction.SetToolTip("Export all tunnels to zip...")
 	exportAction.Triggered().Attach(tp.onExportTunnels)
-	listToolbar.Actions().Add(exportAction)
+	tp.listToolbar.Actions().Add(exportAction)
 
-	listContainerWidth := listToolbar.MinSizeHint().Width + tp.DPI()/10 // TODO: calculate these margins correctly instead
-	listContainer.SetMinMaxSize(walk.Size{listContainerWidth, 0}, walk.Size{listContainerWidth, 0})
-
-	tp.currentTunnelContainer, _ = walk.NewComposite(tp)
-	vlayout = walk.NewVBoxLayout()
-	vlayout.SetMargins(walk.Margins{})
-	tp.currentTunnelContainer.SetLayout(vlayout)
-
-	tp.fillerContainer, _ = walk.NewComposite(tp)
-	tp.fillerContainer.SetVisible(false)
-	hlayout = walk.NewHBoxLayout()
-	hlayout.SetMargins(walk.Margins{})
-	tp.fillerContainer.SetLayout(hlayout)
-	tp.fillerButton, _ = walk.NewPushButton(tp.fillerContainer)
-	buttonWidth := tp.DPI() * 2 //TODO: Use dynamic DPI
-	tp.fillerButton.SetMinMaxSize(walk.Size{buttonWidth, 0}, walk.Size{buttonWidth, 0})
-	tp.fillerButton.Clicked().Attach(func() {
-		if tp.fillerHandler != nil {
-			tp.fillerHandler()
-		}
-	})
-
-	tp.confView, _ = NewConfView(tp.currentTunnelContainer)
-
-	controlsContainer, _ := walk.NewComposite(tp.currentTunnelContainer)
-	controlsContainer.SetLayout(walk.NewHBoxLayout())
-	controlsContainer.Layout().SetMargins(walk.Margins{})
-
-	walk.NewHSpacer(controlsContainer)
-
-	editTunnel, _ := walk.NewPushButton(controlsContainer)
-	editTunnel.SetEnabled(false)
-	tp.tunnelsView.CurrentIndexChanged().Attach(func() {
-		editTunnel.SetEnabled(tp.tunnelsView.CurrentIndex() > -1)
-	})
-	editTunnel.SetText("Edit")
-	editTunnel.Clicked().Attach(tp.onEditTunnel)
-
-	disposables.Spare()
-
-	//TODO: expose walk.TableView.itemCountChangedPublisher.Event()
-	tp.tunnelsView.Property("ItemCount").Changed().Attach(tp.onTunnelsChanged)
-	tp.tunnelsView.SelectedIndexesChanged().Attach(tp.onSelectedTunnelsChanged)
-	tp.tunnelsView.ItemActivated().Attach(tp.onTunnelsViewItemActivated)
-	tp.tunnelsView.CurrentIndexChanged().Attach(tp.updateConfView)
-	tp.tunnelsView.Load(false)
-	tp.onTunnelsChanged()
-
-	return tp, nil
+	var size win.SIZE
+	tp.listToolbar.SendMessage(win.TB_GETIDEALSIZE, win.FALSE, uintptr(unsafe.Pointer(&size)))
+	tp.listContainer.SetMinMaxSize(walk.Size{int(size.CX), 0}, walk.Size{int(size.CX), 0})
 }
 
 func (tp *TunnelsPage) updateConfView() {
-	tp.confView.SetTunnel(tp.tunnelsView.CurrentTunnel())
+	tp.confView.SetTunnel(tp.listView.CurrentTunnel())
 }
 
 func (tp *TunnelsPage) importFiles(paths []string) {
@@ -268,7 +278,7 @@ func (tp *TunnelsPage) importFiles(paths []string) {
 			}
 			configCount++
 		}
-		tp.tunnelsView.Load(true)
+		tp.listView.Load(true)
 
 		m, n := configCount, len(unparsedConfigs)
 		switch {
@@ -288,7 +298,7 @@ func (tp *TunnelsPage) exportTunnels(filePath string) {
 	writeFileWithOverwriteHandling(tp.Form(), filePath, func(file *os.File) error {
 		writer := zip.NewWriter(file)
 
-		for _, tunnel := range tp.tunnelsView.model.tunnels {
+		for _, tunnel := range tp.listView.model.tunnels {
 			cfg, err := tunnel.StoredConfig()
 			if err != nil {
 				return fmt.Errorf("onExportTunnels: tunnel.StoredConfig failed: %v", err)
@@ -331,7 +341,7 @@ func (tp *TunnelsPage) onTunnelsViewItemActivated() {
 		if err != nil || (globalState != service.TunnelStarted && globalState != service.TunnelStopped) {
 			return
 		}
-		oldState, err := tp.tunnelsView.CurrentTunnel().Toggle()
+		oldState, err := tp.listView.CurrentTunnel().Toggle()
 		if err != nil {
 			tp.Synchronize(func() {
 				if oldState == service.TunnelUnknown {
@@ -348,7 +358,7 @@ func (tp *TunnelsPage) onTunnelsViewItemActivated() {
 }
 
 func (tp *TunnelsPage) onEditTunnel() {
-	tunnel := tp.tunnelsView.CurrentTunnel()
+	tunnel := tp.listView.CurrentTunnel()
 	if tunnel == nil {
 		// Misfired event?
 		return
@@ -375,7 +385,7 @@ func (tp *TunnelsPage) onAddTunnel() {
 }
 
 func (tp *TunnelsPage) onDelete() {
-	indices := tp.tunnelsView.SelectedIndexes()
+	indices := tp.listView.SelectedIndexes()
 	if len(indices) == 0 {
 		return
 	}
@@ -384,7 +394,7 @@ func (tp *TunnelsPage) onDelete() {
 	if len(indices) > 1 {
 		topic = fmt.Sprintf("%d tunnels", len(indices))
 	} else {
-		topic = fmt.Sprintf("‘%s’", tp.tunnelsView.model.tunnels[0].Name)
+		topic = fmt.Sprintf("‘%s’", tp.listView.model.tunnels[0].Name)
 	}
 	if walk.DlgCmdNo == walk.MsgBox(
 		tp.Form(),
@@ -395,24 +405,24 @@ func (tp *TunnelsPage) onDelete() {
 	}
 
 	selectTunnelAfter := ""
-	if len(indices) < len(tp.tunnelsView.model.tunnels) {
+	if len(indices) < len(tp.listView.model.tunnels) {
 		sort.Ints(indices)
 		max := 0
 		for i, idx := range indices {
-			if idx+1 < len(tp.tunnelsView.model.tunnels) && (i+1 == len(indices) || idx+1 != indices[i+1]) {
+			if idx+1 < len(tp.listView.model.tunnels) && (i+1 == len(indices) || idx+1 != indices[i+1]) {
 				max = idx + 1
 			} else if idx-1 >= 0 && (i == 0 || idx-1 != indices[i-1]) {
 				max = idx - 1
 			}
 		}
-		selectTunnelAfter = tp.tunnelsView.model.tunnels[max].Name
+		selectTunnelAfter = tp.listView.model.tunnels[max].Name
 	}
 
 	for _, i := range indices {
-		tp.deleteTunnel(&tp.tunnelsView.model.tunnels[i])
+		tp.deleteTunnel(&tp.listView.model.tunnels[i])
 	}
 	if len(selectTunnelAfter) > 0 {
-		tp.tunnelsView.selectTunnel(selectTunnelAfter)
+		tp.listView.selectTunnel(selectTunnelAfter)
 	}
 }
 
@@ -461,14 +471,14 @@ func (tp *TunnelsPage) swapFiller(enabled bool) bool {
 }
 
 func (tp *TunnelsPage) onTunnelsChanged() {
-	if tp.swapFiller(tp.tunnelsView.model.RowCount() == 0) {
+	if tp.swapFiller(tp.listView.model.RowCount() == 0) {
 		tp.fillerButton.SetText("Import tunnel(s) from file")
 		tp.fillerHandler = tp.onImport
 	}
 }
 
 func (tp *TunnelsPage) onSelectedTunnelsChanged() {
-	indices := tp.tunnelsView.SelectedIndexes()
+	indices := tp.listView.SelectedIndexes()
 	if tp.swapFiller(len(indices) > 1) {
 		tp.fillerButton.SetText(fmt.Sprintf("Delete %d tunnels", len(indices)))
 		tp.fillerHandler = tp.onDelete

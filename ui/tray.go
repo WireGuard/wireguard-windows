@@ -144,7 +144,7 @@ func (tray *Tray) addTunnelAction(tunnel *service.Tunnel) {
 			if err != nil {
 				tray.mtw.Synchronize(func() {
 					tray.mtw.Show()
-					tray.mtw.tunnelsPage.tunnelsView.selectTunnel(tclosure.Name)
+					tray.mtw.tunnelsPage.listView.selectTunnel(tclosure.Name)
 					tray.mtw.tabs.SetCurrentIndex(0)
 					if oldState == service.TunnelUnknown {
 						walk.MsgBox(tray.mtw, "Failed to determine tunnel state", err.Error(), walk.MsgBoxIconError)
@@ -303,7 +303,7 @@ func (tray *Tray) UpdateFound() {
 
 func (tray *Tray) onManageTunnels() {
 	if !tray.mtw.Visible() {
-		tray.mtw.tunnelsPage.tunnelsView.SelectFirstActiveTunnel()
+		tray.mtw.tunnelsPage.listView.SelectFirstActiveTunnel()
 		tray.mtw.tabs.SetCurrentIndex(0)
 	}
 	tray.mtw.Show()
