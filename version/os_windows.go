@@ -10,34 +10,39 @@ import (
 	"unsafe"
 )
 
-type osVersionInfo struct {
+type OsVersionInfo struct {
 	osVersionInfoSize uint32
-	majorVersion      uint32
-	minorVersion      uint32
-	buildNumber       uint32
-	platformId        uint32
-	csdVersion        [128]uint16
-	servicePackMajor  uint16
-	servicePackMinor  uint16
-	suiteMask         uint16
-	productType       byte
+	MajorVersion      uint32
+	MinorVersion      uint32
+	BuildNumber       uint32
+	PlatformId        uint32
+	CsdVersion        [128]uint16
+	ServicePackMajor  uint16
+	ServicePackMinor  uint16
+	SuiteMask         uint16
+	ProductType       byte
 	reserved          byte
 }
 
-//sys rtlGetVersion(versionInfo *osVersionInfo) (nterr uint32) = ntdll.RtlGetVersion
+//sys rtlGetVersion(versionInfo *OsVersionInfo) (err error) [failretval!=0] = ntdll.RtlGetVersion
+
+func OsVersion() (versionInfo OsVersionInfo, err error) {
+	versionInfo.osVersionInfoSize = uint32(unsafe.Sizeof(versionInfo))
+	err = rtlGetVersion(&versionInfo)
+	return
+}
 
 func OsName() string {
-	windowsVersion := "Windows Unknown"
-	versionInfo := &osVersionInfo{osVersionInfoSize: uint32(unsafe.Sizeof(osVersionInfo{}))}
-	if rtlGetVersion(versionInfo) == 0 {
-		winType := ""
-		switch versionInfo.productType {
-		case 3:
-			winType = " Server"
-		case 2:
-			winType = " Controller"
-		}
-		windowsVersion = fmt.Sprintf("Windows%s %d.%d.%d", winType, versionInfo.majorVersion, versionInfo.minorVersion, versionInfo.buildNumber)
+	versionInfo, err := OsVersion()
+	if err != nil {
+		return "Windows Unknown"
 	}
-	return windowsVersion
+	winType := ""
+	switch versionInfo.ProductType {
+	case 3:
+		winType = " Server"
+	case 2:
+		winType = " Controller"
+	}
+	return fmt.Sprintf("Windows%s %d.%d.%d", winType, versionInfo.MajorVersion, versionInfo.MinorVersion, versionInfo.BuildNumber)
 }
