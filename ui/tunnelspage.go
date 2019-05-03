@@ -261,6 +261,7 @@ func (tp *TunnelsPage) importFiles(paths []string) {
 		}
 
 		configCount := 0
+		tp.listView.SetSuspendTunnelsUpdate(true)
 		for _, unparsedConfig := range unparsedConfigs {
 			if existingLowerTunnels[strings.ToLower(unparsedConfig.Name)] {
 				lastErr = fmt.Errorf("Another tunnel already exists with the name ‘%s’", unparsedConfig.Name)
@@ -278,7 +279,7 @@ func (tp *TunnelsPage) importFiles(paths []string) {
 			}
 			configCount++
 		}
-		tp.listView.Load(true)
+		tp.listView.SetSuspendTunnelsUpdate(false)
 
 		m, n := configCount, len(unparsedConfigs)
 		switch {
@@ -324,13 +325,6 @@ func (tp *TunnelsPage) addTunnel(config *conf.Config) {
 		walk.MsgBox(tp.Form(), "Unable to create tunnel", err.Error(), walk.MsgBoxIconError)
 	}
 
-}
-
-func (tp *TunnelsPage) deleteTunnel(tunnel *service.Tunnel) {
-	err := tunnel.Delete()
-	if err != nil {
-		walk.MsgBox(tp.Form(), "Unable to delete tunnel", err.Error(), walk.MsgBoxIconError)
-	}
 }
 
 // Handlers
@@ -417,13 +411,35 @@ func (tp *TunnelsPage) onDelete() {
 		}
 		selectTunnelAfter = tp.listView.model.tunnels[max].Name
 	}
-
-	for _, i := range indices {
-		tp.deleteTunnel(&tp.listView.model.tunnels[i])
-	}
 	if len(selectTunnelAfter) > 0 {
 		tp.listView.selectTunnel(selectTunnelAfter)
 	}
+
+	tunnelsToDelete := make([]service.Tunnel, len(indices))
+	for i, j := range indices {
+		tunnelsToDelete[i] = tp.listView.model.tunnels[j]
+
+	}
+	go func() {
+		tp.listView.SetSuspendTunnelsUpdate(true)
+		var errors []error
+		for _, tunnel := range tunnelsToDelete {
+			err := tunnel.Delete()
+			if err != nil && (len(errors) == 0 || errors[len(errors)-1].Error() != err.Error()) {
+				errors = append(errors, err)
+			}
+		}
+		tp.listView.SetSuspendTunnelsUpdate(false)
+		if len(errors) > 0 {
+			tp.listView.Synchronize(func() {
+				if len(errors) == 1 {
+					walk.MsgBox(tp.Form(), "Unable to delete tunnel", fmt.Sprintf("A tunnel was unable to be removed: %s", errors[0].Error()), walk.MsgBoxIconError)
+				} else {
+					walk.MsgBox(tp.Form(), "Unable to delete tunnels", fmt.Sprintf("%d tunnels were unable to be removed.", len(errors)), walk.MsgBoxIconError)
+				}
+			})
+		}
+	}()
 }
 
 func (tp *TunnelsPage) onImport() {

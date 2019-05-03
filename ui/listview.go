@@ -8,6 +8,7 @@ package ui
 import (
 	"sort"
 	"strings"
+	"sync/atomic"
 
 	"github.com/lxn/walk"
 	"golang.zx2c4.com/wireguard/windows/service"
@@ -26,6 +27,9 @@ func (t *ListModel) RowCount() int {
 }
 
 func (t *ListModel) Value(row, col int) interface{} {
+	if row < 0 || row >= len(t.tunnels) {
+		return nil
+	}
 	tunnel := t.tunnels[row]
 
 	switch col {
@@ -51,8 +55,9 @@ type ListView struct {
 
 	model *ListModel
 
-	tunnelChangedCB  *service.TunnelChangeCallback
-	tunnelsChangedCB *service.TunnelsChangeCallback
+	tunnelChangedCB        *service.TunnelChangeCallback
+	tunnelsChangedCB       *service.TunnelsChangeCallback
+	tunnelsUpdateSuspended int32
 }
 
 func NewListView(parent walk.Container) (*ListView, error) {
@@ -101,12 +106,16 @@ func (tv *ListView) Dispose() {
 }
 
 func (tv *ListView) StyleCell(style *walk.CellStyle) {
+	row := style.Row()
+	if row < 0 || row >= len(tv.model.tunnels) {
+		return
+	}
+	tunnel := &tv.model.tunnels[row]
+
 	canvas := style.Canvas()
 	if canvas == nil {
 		return
 	}
-
-	tunnel := &tv.model.tunnels[style.Row()]
 
 	b := style.Bounds()
 
@@ -147,6 +156,17 @@ func (tv *ListView) onTunnelChange(tunnel *service.Tunnel, state service.TunnelS
 }
 
 func (tv *ListView) onTunnelsChange() {
+	if atomic.LoadInt32(&tv.tunnelsUpdateSuspended) == 0 {
+		tv.Load(true)
+	}
+}
+
+func (tv *ListView) SetSuspendTunnelsUpdate(suspend bool) {
+	if suspend {
+		atomic.AddInt32(&tv.tunnelsUpdateSuspended, 1)
+	} else {
+		atomic.AddInt32(&tv.tunnelsUpdateSuspended, -1)
+	}
 	tv.Load(true)
 }
 
@@ -171,7 +191,7 @@ func (tv *ListView) Load(asyncUI bool) {
 					//TODO: this is inefficient. Use a map here instead.
 					if t.Name == tunnel.Name {
 						tv.model.tunnels = append(tv.model.tunnels[:i], tv.model.tunnels[i+1:]...)
-						tv.model.PublishRowsRemoved(i, i)
+						tv.model.PublishRowsRemoved(i, i) //TODO: Do we have to call that everytime or can we pass a range?
 						break
 					}
 				}
