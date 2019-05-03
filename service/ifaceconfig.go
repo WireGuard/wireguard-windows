@@ -12,6 +12,8 @@ import (
 	"golang.zx2c4.com/wireguard/device"
 	"golang.zx2c4.com/wireguard/tun"
 	"golang.zx2c4.com/wireguard/windows/conf"
+	"golang.zx2c4.com/wireguard/windows/service/firewall"
+	"log"
 	"net"
 	"sort"
 )
@@ -263,4 +265,27 @@ func configureInterface(conf *conf.Config, tun *tun.NativeTun) error {
 	}
 
 	return nil
+}
+
+func enableFirewall(conf *conf.Config, tun *tun.NativeTun) error {
+	guid := tun.GUID()
+	luid, err := winipcfg.InterfaceGuidToLuid(&guid)
+	if err != nil {
+		return err
+	}
+	restrictDNS := len(conf.Interface.Dns) > 0
+	restrictAll := false
+	for _, peer := range conf.Peers {
+		for _, allowedip := range peer.AllowedIPs {
+			if allowedip.Cidr == 0 {
+				restrictAll = true
+				break
+			}
+		}
+	}
+	if restrictAll && !restrictDNS {
+		name, _ := tun.Name()
+		log.Printf("[%s] Warning: no DNS server specified, despite having an allowed IPs of 0.0.0.0/0 or ::/0. There may be connectivity issues.", name)
+	}
+	return firewall.EnableFirewall(luid, restrictDNS, restrictAll)
 }
