@@ -119,36 +119,70 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 	logger = &device.Logger{stdLog, stdLog, stdLog}
 
 	logger.Info.Println("Starting wireguard-go version", device.WireGuardGoVersion)
-	logger.Debug.Println("Debug log enabled")
 
+	logger.Info.Println("Resolving DNS names")
 	uapiConf, err := conf.ToUAPI()
 	if err != nil {
 		serviceError = ErrorDNSLookup
 		return
 	}
 
+	logger.Info.Println("Creating Wintun device")
 	wintun, err := tun.CreateTUN(conf.Name)
 	if err != nil {
 		serviceError = ErrorCreateWintun
 		return
 	}
+	logger.Info.Println("Determining Wintun device name")
 	realInterfaceName, err := wintun.Name()
 	if err != nil {
 		serviceError = ErrorDetermineWintunName
 		return
 	}
 	conf.Name = realInterfaceName
+	nativeTun := wintun.(*tun.NativeTun)
 
+	logger.Info.Println("Enabling firewall rules")
+	err = enableFirewall(conf, nativeTun)
+	if err != nil {
+		serviceError = ErrorFirewall
+		return
+	}
+
+	logger.Info.Println("Creating interface instance")
 	dev = device.NewDevice(wintun, logger)
-	dev.Up()
-	logger.Info.Println("Device started")
 
+	logger.Info.Println("Setting interface configuration")
 	uapi, err = ipc.UAPIListen(conf.Name)
 	if err != nil {
 		serviceError = ErrorUAPIListen
 		return
 	}
+	ipcErr := dev.IpcSetOperation(bufio.NewReader(strings.NewReader(uapiConf)))
+	if ipcErr != nil {
+		err = ipcErr
+		serviceError = ErrorDeviceSetConfig
+		return
+	}
 
+	logger.Info.Println("Bringing peers up")
+	dev.Up()
+
+	logger.Info.Println("Monitoring default routes")
+	routeChangeCallback, err = monitorDefaultRoutes(dev, conf.Interface.Mtu == 0, nativeTun)
+	if err != nil {
+		serviceError = ErrorBindSocketsToDefaultRoutes
+		return
+	}
+
+	logger.Info.Println("Setting device address")
+	err = configureInterface(conf, nativeTun)
+	if err != nil {
+		serviceError = ErrorSetNetConfig
+		return
+	}
+
+	logger.Info.Println("Listening for UAPI requests")
 	go func() {
 		for {
 			conn, err := uapi.Accept()
@@ -158,30 +192,9 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 			go dev.IpcHandle(conn)
 		}
 	}()
-	logger.Info.Println("UAPI listener started")
-
-	ipcErr := dev.IpcSetOperation(bufio.NewReader(strings.NewReader(uapiConf)))
-	if ipcErr != nil {
-		err = ipcErr
-		serviceError = ErrorDeviceSetConfig
-		return
-	}
-
-	nativeTun := wintun.(*tun.NativeTun)
-
-	routeChangeCallback, err = monitorDefaultRoutes(dev, conf.Interface.Mtu == 0, nativeTun)
-	if err != nil {
-		serviceError = ErrorBindSocketsToDefaultRoutes
-		return
-	}
-
-	err = configureInterface(conf, nativeTun)
-	if err != nil {
-		serviceError = ErrorSetNetConfig
-		return
-	}
 
 	changes <- svc.Status{State: svc.Running, Accepts: svc.AcceptStop}
+	logger.Info.Println("Startup complete")
 
 	for {
 		select {

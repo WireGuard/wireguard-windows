@@ -21,6 +21,7 @@ const (
 	ErrorDetermineWintunName
 	ErrorUAPIListen
 	ErrorDNSLookup
+	ErrorFirewall
 	ErrorDeviceSetConfig
 	ErrorBindSocketsToDefaultRoutes
 	ErrorSetNetConfig
@@ -51,6 +52,8 @@ func (e Error) Error() string {
 		return "Unable to listen on named pipe"
 	case ErrorDNSLookup:
 		return "Unable to resolve one or more DNS hostname endpoints"
+	case ErrorFirewall:
+		return "Unable to enable firewall rules"
 	case ErrorDeviceSetConfig:
 		return "Unable to set device configuration"
 	case ErrorBindSocketsToDefaultRoutes:
