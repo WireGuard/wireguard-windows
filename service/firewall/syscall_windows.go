@@ -37,3 +37,6 @@ package firewall
 
 // https://docs.microsoft.com/sv-se/windows/desktop/api/aclapi/nf-aclapi-getsecurityinfo
 //sys	getSecurityInfo(handle windows.Handle, objectType wtObjectType, si uint32, sidOwner *windows.SID, sidGroup *windows.SID, dacl *uintptr, sacl *uintptr, securityDescriptor *uintptr) (err error) [failretval!=0] = advapi32.GetSecurityInfo
+
+// https://docs.microsoft.com/en-us/windows/desktop/api/securitybaseapi/nf-securitybaseapi-getsecuritydescriptorlength
+//sys	getSecurityDescriptorLength(securityDescriptor uintptr) (len uint32) = advapi32.GetSecurityDescriptorLength

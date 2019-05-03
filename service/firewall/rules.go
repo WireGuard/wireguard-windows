@@ -109,19 +109,18 @@ func permitTunInterface(session uintptr, baseObjects *baseObjects, ifLuid uint64
 	return nil
 }
 
-func getCurrentProcessSecurityDescriptor() (uintptr, error) {
+func getCurrentProcessSecurityDescriptor() (*wtFwpByteBlob, error) {
 	procHandle, err := windows.GetCurrentProcess()
 	if err != nil {
 		panic(err)
 	}
-
-	sd := uintptr(0)
-	err = getSecurityInfo(procHandle, cSE_KERNEL_OBJECT, 0, nil, nil, nil, nil, &sd)
+	blob := &wtFwpByteBlob{}
+	err = getSecurityInfo(procHandle, cSE_KERNEL_OBJECT, cDACL_SECURITY_INFORMATION, nil, nil, nil, nil, (*uintptr)(unsafe.Pointer(&blob.data)))
 	if err != nil {
-		return 0, wrapErr(err)
+		return nil, wrapErr(err)
 	}
-
-	return sd, nil
+	blob.size = getSecurityDescriptorLength(uintptr(unsafe.Pointer(blob.data)))
+	return blob, nil
 }
 
 func getCurrentProcessAppId() (*wtFwpByteBlob, error) {
@@ -153,7 +152,7 @@ func permitWireGuardService(session uintptr, baseObjects *baseObjects) error {
 	if err != nil {
 		return wrapErr(err)
 	}
-	defer appId.free()
+	defer fwpmFreeMemory0(unsafe.Pointer(&appId))
 
 	conditions[0] = wtFwpmFilterCondition0{
 		fieldKey:  cFWPM_CONDITION_ALE_APP_ID,
@@ -172,14 +171,14 @@ func permitWireGuardService(session uintptr, baseObjects *baseObjects) error {
 	if err != nil {
 		return wrapErr(err)
 	}
-	defer windows.LocalFree(windows.Handle(sd))
+	defer windows.LocalFree(windows.Handle(unsafe.Pointer(sd.data)))
 
 	conditions[1] = wtFwpmFilterCondition0{
 		fieldKey:  cFWPM_CONDITION_ALE_USER_ID,
 		matchType: cFWP_MATCH_EQUAL,
 		conditionValue: wtFwpConditionValue0{
 			_type: cFWP_SECURITY_DESCRIPTOR_TYPE,
-			value: sd,
+			value: uintptr(unsafe.Pointer(sd)),
 		},
 	}
 
