@@ -400,6 +400,8 @@ type wtObjectType uint32
 
 const (
 	cSE_KERNEL_OBJECT wtObjectType = 6
+
+	cDACL_SECURITY_INFORMATION = 4
 )
 
 type wtIfType uint32

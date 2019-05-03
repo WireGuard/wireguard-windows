@@ -40,17 +40,18 @@ var (
 	modfwpuclnt = windows.NewLazySystemDLL("fwpuclnt.dll")
 	modadvapi32 = windows.NewLazySystemDLL("advapi32.dll")
 
-	procFwpmEngineOpen0           = modfwpuclnt.NewProc("FwpmEngineOpen0")
-	procFwpmEngineClose0          = modfwpuclnt.NewProc("FwpmEngineClose0")
-	procFwpmSubLayerAdd0          = modfwpuclnt.NewProc("FwpmSubLayerAdd0")
-	procFwpmGetAppIdFromFileName0 = modfwpuclnt.NewProc("FwpmGetAppIdFromFileName0")
-	procFwpmFreeMemory0           = modfwpuclnt.NewProc("FwpmFreeMemory0")
-	procFwpmFilterAdd0            = modfwpuclnt.NewProc("FwpmFilterAdd0")
-	procFwpmTransactionBegin0     = modfwpuclnt.NewProc("FwpmTransactionBegin0")
-	procFwpmTransactionCommit0    = modfwpuclnt.NewProc("FwpmTransactionCommit0")
-	procFwpmTransactionAbort0     = modfwpuclnt.NewProc("FwpmTransactionAbort0")
-	procFwpmProviderAdd0          = modfwpuclnt.NewProc("FwpmProviderAdd0")
-	procGetSecurityInfo           = modadvapi32.NewProc("GetSecurityInfo")
+	procFwpmEngineOpen0             = modfwpuclnt.NewProc("FwpmEngineOpen0")
+	procFwpmEngineClose0            = modfwpuclnt.NewProc("FwpmEngineClose0")
+	procFwpmSubLayerAdd0            = modfwpuclnt.NewProc("FwpmSubLayerAdd0")
+	procFwpmGetAppIdFromFileName0   = modfwpuclnt.NewProc("FwpmGetAppIdFromFileName0")
+	procFwpmFreeMemory0             = modfwpuclnt.NewProc("FwpmFreeMemory0")
+	procFwpmFilterAdd0              = modfwpuclnt.NewProc("FwpmFilterAdd0")
+	procFwpmTransactionBegin0       = modfwpuclnt.NewProc("FwpmTransactionBegin0")
+	procFwpmTransactionCommit0      = modfwpuclnt.NewProc("FwpmTransactionCommit0")
+	procFwpmTransactionAbort0       = modfwpuclnt.NewProc("FwpmTransactionAbort0")
+	procFwpmProviderAdd0            = modfwpuclnt.NewProc("FwpmProviderAdd0")
+	procGetSecurityInfo             = modadvapi32.NewProc("GetSecurityInfo")
+	procGetSecurityDescriptorLength = modadvapi32.NewProc("GetSecurityDescriptorLength")
 )
 
 func fwpmEngineOpen0(serverName *uint16, authnService wtRpcCAuthN, authIdentity *wtSecWinntAuthIdentityW, session *wtFwpmSession0, engineHandle unsafe.Pointer) (err error) {
@@ -175,5 +176,11 @@ func getSecurityInfo(handle windows.Handle, objectType wtObjectType, si uint32, 
 			err = syscall.EINVAL
 		}
 	}
+	return
+}
+
+func getSecurityDescriptorLength(securityDescriptor uintptr) (len uint32) {
+	r0, _, _ := syscall.Syscall(procGetSecurityDescriptorLength.Addr(), 1, uintptr(securityDescriptor), 0, 0)
+	len = uint32(r0)
 	return
 }

@@ -7,18 +7,10 @@ package firewall
 
 import (
 	"fmt"
+	"golang.org/x/sys/windows"
 	"runtime"
 	"syscall"
-	"unsafe"
-
-	"golang.org/x/sys/windows"
 )
-
-func (bb *wtFwpByteBlob) free() {
-	if bb != nil {
-		fwpmFreeMemory0(unsafe.Pointer(&bb))
-	}
-}
 
 func (m wtFwpMatchType) String() string {
 	switch m {
