@@ -723,7 +723,9 @@ func blockAll(session uintptr, baseObjects *baseObjects, weight uint8) error {
 
 // Block all DNS except what is matched by a permissive rule.
 func blockDns(session uintptr, baseObjects *baseObjects, weight uint8) error {
-	condition := wtFwpmFilterCondition0{
+	var conditions [3]wtFwpmFilterCondition0
+
+	conditions[0] = wtFwpmFilterCondition0{
 		fieldKey:  cFWPM_CONDITION_IP_REMOTE_PORT,
 		matchType: cFWP_MATCH_EQUAL,
 		conditionValue: wtFwpConditionValue0{
@@ -731,13 +733,30 @@ func blockDns(session uintptr, baseObjects *baseObjects, weight uint8) error {
 			value: uintptr(53),
 		},
 	}
+	conditions[1] = wtFwpmFilterCondition0{
+		fieldKey:  cFWPM_CONDITION_IP_PROTOCOL,
+		matchType: cFWP_MATCH_EQUAL,
+		conditionValue: wtFwpConditionValue0{
+			_type: cFWP_UINT8,
+			value: uintptr(cIPPROTO_UDP),
+		},
+	}
+	// Repeat the condition type for logical OR.
+	conditions[2] = wtFwpmFilterCondition0{
+		fieldKey:  cFWPM_CONDITION_IP_PROTOCOL,
+		matchType: cFWP_MATCH_EQUAL,
+		conditionValue: wtFwpConditionValue0{
+			_type: cFWP_UINT8,
+			value: uintptr(cIPPROTO_TCP),
+		},
+	}
 
 	filter := wtFwpmFilter0{
 		providerKey:         &baseObjects.provider,
 		subLayerKey:         baseObjects.filters,
 		weight:              filterWeight(weight),
-		numFilterConditions: 1,
-		filterCondition:     (*wtFwpmFilterCondition0)(unsafe.Pointer(&condition)),
+		numFilterConditions: uint32(len(conditions)),
+		filterCondition:     (*wtFwpmFilterCondition0)(unsafe.Pointer(&conditions[0])),
 		action: wtFwpmAction0{
 			_type: cFWP_ACTION_BLOCK,
 		},
