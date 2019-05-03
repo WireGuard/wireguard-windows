@@ -63,7 +63,6 @@ func NewManageTunnelsWindow() (*ManageTunnelsWindow, error) {
 			mtw.tunnelsPage.updateConfView()
 			win.SetForegroundWindow(mtw.Handle())
 			win.BringWindowToTop(mtw.Handle())
-
 			mtw.logPage.scrollToBottom()
 		}
 	})
@@ -74,6 +73,7 @@ func NewManageTunnelsWindow() (*ManageTunnelsWindow, error) {
 		return nil, err
 	}
 	mtw.tabs.Pages().Add(mtw.tunnelsPage.TabPage)
+	mtw.tunnelsPage.CreateToolbar()
 
 	if mtw.logPage, err = NewLogPage(); err != nil {
 		return nil, err
