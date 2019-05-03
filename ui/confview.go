@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/lxn/walk"
 	"github.com/lxn/win"
@@ -65,12 +66,12 @@ type peerView struct {
 
 type ConfView struct {
 	*walk.ScrollView
-	name      *walk.GroupBox
-	interfaze *interfaceView
-	peers     map[conf.Key]*peerView
-
+	name            *walk.GroupBox
+	interfaze       *interfaceView
+	peers           map[conf.Key]*peerView
 	tunnelChangedCB *service.TunnelChangeCallback
 	tunnel          *service.Tunnel
+	updateTicker    *time.Ticker
 }
 
 func (lsl *labelStatusLine) widgets() (walk.Widget, walk.Widget) {
@@ -409,6 +410,24 @@ func NewConfView(parent walk.Container) (*ConfView, error) {
 		return nil, err
 	}
 	cv.SetDoubleBuffering(true)
+	cv.updateTicker = time.NewTicker(time.Second)
+	go func() {
+		for range cv.updateTicker.C {
+			if cv.tunnel != nil {
+				var state service.TunnelState
+				var config conf.Config
+				if state, _ = cv.tunnel.State(); state == service.TunnelStarted {
+					config, _ = cv.tunnel.RuntimeConfig()
+				}
+				if config.Name == "" {
+					config, _ = cv.tunnel.StoredConfig()
+				}
+				cv.Synchronize(func() {
+					cv.setTunnel(cv.tunnel, &config, state)
+				})
+			}
+		}
+	}()
 	return cv, nil
 }
 
@@ -417,7 +436,10 @@ func (cv *ConfView) Dispose() {
 		cv.tunnelChangedCB.Unregister()
 		cv.tunnelChangedCB = nil
 	}
-
+	if cv.updateTicker != nil {
+		cv.updateTicker.Stop()
+		cv.updateTicker = nil
+	}
 	cv.ScrollView.Dispose()
 }
 
@@ -447,10 +469,20 @@ func (cv *ConfView) onTunnelChanged(tunnel *service.Tunnel, state service.Tunnel
 			cv.interfaze.toggleActive.update(state)
 		}
 	})
+	var config conf.Config
+	if state == service.TunnelStarted {
+		config, _ = tunnel.RuntimeConfig()
+	}
+	if config.Name == "" {
+		config, _ = tunnel.StoredConfig()
+	}
+	cv.Synchronize(func() {
+		cv.setTunnel(tunnel, &config, state)
+	})
 }
 
 func (cv *ConfView) SetTunnel(tunnel *service.Tunnel) {
-	cv.tunnel = tunnel
+	cv.tunnel = tunnel //XXX: This races with the read in the updateTicker, but it's pointer-sized!
 
 	var config conf.Config
 	var state service.TunnelState

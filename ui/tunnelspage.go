@@ -8,16 +8,14 @@ package ui
 import (
 	"archive/zip"
 	"fmt"
+	"github.com/lxn/walk"
+	"golang.zx2c4.com/wireguard/windows/conf"
+	"golang.zx2c4.com/wireguard/windows/service"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
-	"time"
-
-	"github.com/lxn/walk"
-	"golang.zx2c4.com/wireguard/windows/conf"
-	"golang.zx2c4.com/wireguard/windows/service"
 )
 
 type TunnelsPage struct {
@@ -58,8 +56,6 @@ func NewTunnelsPage() (*TunnelsPage, error) {
 	if tp.tunnelsView, err = NewListView(listContainer); err != nil {
 		return nil, err
 	}
-	tp.tunnelsView.ItemActivated().Attach(tp.onTunnelsViewItemActivated)
-	tp.tunnelsView.CurrentIndexChanged().Attach(tp.updateConfView)
 
 	// HACK: Because of https://github.com/lxn/walk/issues/481
 	// we need to put the ToolBar into its own Composite.
@@ -121,7 +117,7 @@ func NewTunnelsPage() (*TunnelsPage, error) {
 	exportAction.Triggered().Attach(tp.onExportTunnels)
 	listToolbar.Actions().Add(exportAction)
 
-	listContainerWidth := listToolbar.MinSizeHint().Width + tp.DPI() / 10 // TODO: calculate these margins correctly instead
+	listContainerWidth := listToolbar.MinSizeHint().Width + tp.DPI()/10 // TODO: calculate these margins correctly instead
 	listContainer.SetMinMaxSize(walk.Size{listContainerWidth, 0}, walk.Size{listContainerWidth, 0})
 
 	tp.currentTunnelContainer, _ = walk.NewComposite(tp)
@@ -131,9 +127,9 @@ func NewTunnelsPage() (*TunnelsPage, error) {
 
 	tp.fillerContainer, _ = walk.NewComposite(tp)
 	tp.fillerContainer.SetVisible(false)
-	tp.fillerContainer.SetLayout(walk.NewHBoxLayout())
-	tp.fillerContainer.Layout().SetMargins(walk.Margins{})
-	walk.NewHSpacer(tp.fillerContainer)
+	hlayout = walk.NewHBoxLayout()
+	hlayout.SetMargins(walk.Margins{})
+	tp.fillerContainer.SetLayout(hlayout)
 	tp.fillerButton, _ = walk.NewPushButton(tp.fillerContainer)
 	buttonWidth := tp.DPI() * 2 //TODO: Use dynamic DPI
 	tp.fillerButton.SetMinMaxSize(walk.Size{buttonWidth, 0}, walk.Size{buttonWidth, 0})
@@ -142,24 +138,8 @@ func NewTunnelsPage() (*TunnelsPage, error) {
 			tp.fillerHandler()
 		}
 	})
-	walk.NewHSpacer(tp.fillerContainer)
-
-	//TODO: expose walk.TableView.itemCountChangedPublisher.Event()
-	tp.tunnelsView.Property("ItemCount").Changed().Attach(tp.onTunnelsChanged)
-	tp.onTunnelsChanged()
-	tp.tunnelsView.SelectedIndexesChanged().Attach(tp.onSelectedTunnelsChanged)
 
 	tp.confView, _ = NewConfView(tp.currentTunnelContainer)
-
-	updateConfViewTicker := time.NewTicker(time.Second)
-	tp.Disposing().Attach(updateConfViewTicker.Stop)
-	go func() {
-		for range updateConfViewTicker.C {
-			tp.Synchronize(func() {
-				tp.updateConfView()
-			})
-		}
-	}()
 
 	controlsContainer, _ := walk.NewComposite(tp.currentTunnelContainer)
 	controlsContainer.SetLayout(walk.NewHBoxLayout())
@@ -175,18 +155,20 @@ func NewTunnelsPage() (*TunnelsPage, error) {
 	editTunnel.SetText("Edit")
 	editTunnel.Clicked().Attach(tp.onEditTunnel)
 
-	tp.tunnelsView.SetCurrentIndex(0)
-
 	disposables.Spare()
+
+	//TODO: expose walk.TableView.itemCountChangedPublisher.Event()
+	tp.tunnelsView.Property("ItemCount").Changed().Attach(tp.onTunnelsChanged)
+	tp.tunnelsView.SelectedIndexesChanged().Attach(tp.onSelectedTunnelsChanged)
+	tp.tunnelsView.ItemActivated().Attach(tp.onTunnelsViewItemActivated)
+	tp.tunnelsView.CurrentIndexChanged().Attach(tp.updateConfView)
+	tp.tunnelsView.Load(false)
+	tp.onTunnelsChanged()
 
 	return tp, nil
 }
 
 func (tp *TunnelsPage) updateConfView() {
-	if !tp.Visible() || !tp.currentTunnelContainer.Visible() {
-		return
-	}
-
 	tp.confView.SetTunnel(tp.tunnelsView.CurrentTunnel())
 }
 
