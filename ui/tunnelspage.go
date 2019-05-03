@@ -172,111 +172,116 @@ func (tp *TunnelsPage) updateConfView() {
 	tp.confView.SetTunnel(tp.tunnelsView.CurrentTunnel())
 }
 
-// importFiles tries to import a list of configurations.
 func (tp *TunnelsPage) importFiles(paths []string) {
-	type unparsedConfig struct {
-		Name   string
-		Config string
-	}
+	go func() {
+		syncedMsgBox := func(title string, message string, flags walk.MsgBoxStyle) {
+			tp.Synchronize(func() {
+				walk.MsgBox(tp.Form(), title, message, flags)
+			})
+		}
+		type unparsedConfig struct {
+			Name   string
+			Config string
+		}
 
-	var (
-		unparsedConfigs []unparsedConfig
-		lastErr         error
-	)
+		var (
+			unparsedConfigs []unparsedConfig
+			lastErr         error
+		)
 
-	// Note: other versions of WireGuard start with all .zip files, then all .conf files.
-	// To reproduce that if needed, inverse-sort the array.
-	for _, path := range paths {
-		switch filepath.Ext(path) {
-		case ".conf":
-			textConfig, err := ioutil.ReadFile(path)
-			if err != nil {
-				lastErr = err
-				continue
-			}
-			unparsedConfigs = append(unparsedConfigs, unparsedConfig{Name: strings.TrimSuffix(filepath.Base(path), ".conf"), Config: string(textConfig)})
-		case ".zip":
-			// 1 .conf + 1 error .zip edge case?
-			r, err := zip.OpenReader(path)
-			if err != nil {
-				lastErr = err
-				continue
-			}
-
-			for _, f := range r.File {
-				if filepath.Ext(f.Name) != ".conf" {
-					continue
-				}
-
-				rc, err := f.Open()
+		for _, path := range paths {
+			switch filepath.Ext(path) {
+			case ".conf":
+				textConfig, err := ioutil.ReadFile(path)
 				if err != nil {
 					lastErr = err
 					continue
 				}
-				textConfig, err := ioutil.ReadAll(rc)
-				rc.Close()
+				unparsedConfigs = append(unparsedConfigs, unparsedConfig{Name: strings.TrimSuffix(filepath.Base(path), ".conf"), Config: string(textConfig)})
+			case ".zip":
+				// 1 .conf + 1 error .zip edge case?
+				r, err := zip.OpenReader(path)
 				if err != nil {
 					lastErr = err
 					continue
 				}
-				unparsedConfigs = append(unparsedConfigs, unparsedConfig{Name: strings.TrimSuffix(filepath.Base(f.Name), ".conf"), Config: string(textConfig)})
+
+				for _, f := range r.File {
+					if filepath.Ext(f.Name) != ".conf" {
+						continue
+					}
+
+					rc, err := f.Open()
+					if err != nil {
+						lastErr = err
+						continue
+					}
+					textConfig, err := ioutil.ReadAll(rc)
+					rc.Close()
+					if err != nil {
+						lastErr = err
+						continue
+					}
+					unparsedConfigs = append(unparsedConfigs, unparsedConfig{Name: strings.TrimSuffix(filepath.Base(f.Name), ".conf"), Config: string(textConfig)})
+				}
+
+				r.Close()
 			}
-
-			r.Close()
 		}
-	}
 
-	if lastErr != nil || unparsedConfigs == nil {
-		walk.MsgBox(tp.Form(), "Error", fmt.Sprintf("Could not import selected configuration: %v", lastErr), walk.MsgBoxIconWarning)
-		return
-	}
-
-	// Add in reverse order so that the first one is selected.
-	sort.Slice(unparsedConfigs, func(i, j int) bool {
-		//TODO: use proper tunnel string sorting/comparison algorithm, as the other comments indicate too.
-		return strings.Compare(unparsedConfigs[i].Name, unparsedConfigs[j].Name) > 0
-	})
-
-	existingTunnelList, err := service.IPCClientTunnels()
-	if err != nil {
-		walk.MsgBox(tp.Form(), "Error", fmt.Sprintf("Could not enumerate existing tunnels: %v", lastErr), walk.MsgBoxIconWarning)
-		return
-	}
-	existingLowerTunnels := make(map[string]bool, len(existingTunnelList))
-	for _, tunnel := range existingTunnelList {
-		existingLowerTunnels[strings.ToLower(tunnel.Name)] = true
-	}
-
-	configCount := 0
-	for _, unparsedConfig := range unparsedConfigs {
-		if existingLowerTunnels[strings.ToLower(unparsedConfig.Name)] {
-			lastErr = fmt.Errorf("Another tunnel already exists with the name ‘%s’", unparsedConfig.Name)
-			continue
+		if lastErr != nil || unparsedConfigs == nil {
+			syncedMsgBox("Error", fmt.Sprintf("Could not import selected configuration: %v", lastErr), walk.MsgBoxIconWarning)
+			return
 		}
-		config, err := conf.FromWgQuick(unparsedConfig.Config, unparsedConfig.Name)
+
+		// Add in reverse order so that the first one is selected.
+		sort.Slice(unparsedConfigs, func(i, j int) bool {
+			//TODO: use proper tunnel string sorting/comparison algorithm, as the other comments indicate too.
+			return strings.Compare(unparsedConfigs[i].Name, unparsedConfigs[j].Name) > 0
+		})
+
+		existingTunnelList, err := service.IPCClientTunnels()
 		if err != nil {
-			lastErr = err
-			continue
+			syncedMsgBox("Error", fmt.Sprintf("Could not enumerate existing tunnels: %v", lastErr), walk.MsgBoxIconWarning)
+			return
 		}
-		_, err = service.IPCClientNewTunnel(config)
-		if err != nil {
-			lastErr = err
-			continue
+		existingLowerTunnels := make(map[string]bool, len(existingTunnelList))
+		for _, tunnel := range existingTunnelList {
+			existingLowerTunnels[strings.ToLower(tunnel.Name)] = true
 		}
-		configCount++
-	}
 
-	m, n := configCount, len(unparsedConfigs)
-	switch {
-	case n == 1 && m != n:
-		walk.MsgBox(tp.Form(), "Error", fmt.Sprintf("Unable to import configuration: %v", lastErr), walk.MsgBoxIconWarning)
-	case n == 1 && m == n:
-		// nothing
-	case m == n:
-		walk.MsgBox(tp.Form(), "Imported tunnels", fmt.Sprintf("Imported %d tunnels", m), walk.MsgBoxOK)
-	case m != n:
-		walk.MsgBox(tp.Form(), "Imported tunnels", fmt.Sprintf("Imported %d of %d tunnels", m, n), walk.MsgBoxIconWarning)
-	}
+		configCount := 0
+		for _, unparsedConfig := range unparsedConfigs {
+			if existingLowerTunnels[strings.ToLower(unparsedConfig.Name)] {
+				lastErr = fmt.Errorf("Another tunnel already exists with the name ‘%s’", unparsedConfig.Name)
+				continue
+			}
+			config, err := conf.FromWgQuick(unparsedConfig.Config, unparsedConfig.Name)
+			if err != nil {
+				lastErr = err
+				continue
+			}
+			_, err = service.IPCClientNewTunnel(config)
+			if err != nil {
+				lastErr = err
+				continue
+			}
+			configCount++
+		}
+		tp.tunnelsView.Load(true)
+
+		m, n := configCount, len(unparsedConfigs)
+		switch {
+		case n == 1 && m != n:
+			syncedMsgBox("Error", fmt.Sprintf("Unable to import configuration: %v", lastErr), walk.MsgBoxIconWarning)
+		case n == 1 && m == n:
+			// nothing
+		case m == n:
+			syncedMsgBox("Imported tunnels", fmt.Sprintf("Imported %d tunnels", m), walk.MsgBoxIconInformation)
+		case m != n:
+			syncedMsgBox("Imported tunnels", fmt.Sprintf("Imported %d of %d tunnels", m, n), walk.MsgBoxIconWarning)
+		}
+	}()
 }
 
 func (tp *TunnelsPage) exportTunnels(filePath string) {
