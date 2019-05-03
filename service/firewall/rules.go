@@ -873,8 +873,10 @@ func blockAllUnmatched(session uintptr, baseObjects *baseObjects) error {
 }
 
 // Block all DNS except what is matched by a permissive rule.
-func blockDnsUnmatched(session uintptr, baseObjects *baseObjects) error {
-	condition := wtFwpmFilterCondition0{
+func blockDnsNonTun(session uintptr, baseObjects *baseObjects, ifLuid uint64) error {
+	var conditions [2]wtFwpmFilterCondition0
+
+	conditions[0] = wtFwpmFilterCondition0{
 		fieldKey:  cFWPM_CONDITION_IP_REMOTE_PORT,
 		matchType: cFWP_MATCH_EQUAL,
 		conditionValue: wtFwpConditionValue0{
@@ -882,13 +884,23 @@ func blockDnsUnmatched(session uintptr, baseObjects *baseObjects) error {
 			value: uintptr(53),
 		},
 	}
+	conditions[1] = wtFwpmFilterCondition0{
+		fieldKey:  cFWPM_CONDITION_IP_LOCAL_INTERFACE,
+		matchType: cFWP_MATCH_NOT_EQUAL,
+		conditionValue: wtFwpConditionValue0{
+			_type: cFWP_UINT64,
+			value: (uintptr)(unsafe.Pointer(&ifLuid)),
+		},
+	}
+
+	//TODO: we want to permit port 53 traffic coming from the wireguard service, in case people are using that port for tunneling.
 
 	filter := wtFwpmFilter0{
 		providerKey:         &baseObjects.provider,
 		subLayerKey:         baseObjects.blacklist,
-		weight:              filterWeightMin(),
-		numFilterConditions: 1,
-		filterCondition:     (*wtFwpmFilterCondition0)(unsafe.Pointer(&condition)),
+		weight:              filterWeightMax(),
+		numFilterConditions: uint32(len(conditions)),
+		filterCondition:     (*wtFwpmFilterCondition0)(unsafe.Pointer(&conditions[0])),
 		action: wtFwpmAction0{
 			_type: cFWP_ACTION_BLOCK,
 		},

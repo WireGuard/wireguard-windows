@@ -198,7 +198,7 @@ func EnableFirewall(luid uint64, restrictDNS bool, restrictAll bool) error {
 		}
 
 		if restrictDNS {
-			err = blockDnsUnmatched(session, baseObjects)
+			err = blockDnsNonTun(session, baseObjects, luid)
 			if err != nil {
 				return wrapErr(err)
 			}
