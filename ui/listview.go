@@ -68,10 +68,6 @@ func NewListView(parent walk.Container) (*ListView, error) {
 	tv.SetDoubleBuffering(true)
 
 	model := new(ListModel)
-	if model.tunnels, err = service.IPCClientTunnels(); err != nil {
-		return nil, err
-	}
-
 	tv.SetModel(model)
 	tv.SetLastColumnStretched(true)
 	tv.SetHeaderHidden(true)
@@ -88,7 +84,6 @@ func NewListView(parent walk.Container) (*ListView, error) {
 
 	tunnelsView.tunnelChangedCB = service.IPCClientRegisterTunnelChange(tunnelsView.onTunnelChange)
 	tunnelsView.tunnelsChangedCB = service.IPCClientRegisterTunnelsChange(tunnelsView.onTunnelsChange)
-	tunnelsView.onTunnelsChange()
 
 	return tunnelsView, nil
 }
@@ -152,11 +147,15 @@ func (tv *ListView) onTunnelChange(tunnel *service.Tunnel, state service.TunnelS
 }
 
 func (tv *ListView) onTunnelsChange() {
+	tv.Load(true)
+}
+
+func (tv *ListView) Load(asyncUI bool) {
 	tunnels, err := service.IPCClientTunnels()
 	if err != nil {
 		return
 	}
-	tv.Synchronize(func() {
+	doUI := func() {
 		newTunnels := make(map[service.Tunnel]bool, len(tunnels))
 		oldTunnels := make(map[service.Tunnel]bool, len(tv.model.tunnels))
 		for _, tunnel := range tunnels {
@@ -197,7 +196,12 @@ func (tv *ListView) onTunnelsChange() {
 				tv.selectTunnel(firstTunnelName)
 			}
 		}
-	})
+	}
+	if asyncUI {
+		tv.Synchronize(doUI)
+	} else {
+		doUI()
+	}
 }
 
 func (tv *ListView) selectTunnel(tunnelName string) {
