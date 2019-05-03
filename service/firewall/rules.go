@@ -23,7 +23,7 @@ func permitTunInterface(session uintptr, baseObjects *baseObjects, ifLuid uint64
 
 	filter := wtFwpmFilter0{
 		providerKey:         &baseObjects.provider,
-		subLayerKey:         baseObjects.whitelist,
+		subLayerKey:         baseObjects.filters,
 		weight:              filterWeightMax(),
 		numFilterConditions: 1,
 		filterCondition:     (*wtFwpmFilterCondition0)(unsafe.Pointer(&ifaceCondition)),
@@ -187,7 +187,7 @@ func permitWireGuardService(session uintptr, baseObjects *baseObjects) error {
 	//
 	filter := wtFwpmFilter0{
 		providerKey:         &baseObjects.provider,
-		subLayerKey:         baseObjects.whitelist,
+		subLayerKey:         baseObjects.filters,
 		weight:              filterWeightMax(),
 		numFilterConditions: uint32(len(conditions)),
 		filterCondition:     (*wtFwpmFilterCondition0)(unsafe.Pointer(&conditions)),
@@ -273,157 +273,6 @@ func permitWireGuardService(session uintptr, baseObjects *baseObjects) error {
 	return nil
 }
 
-//
-// Permit all private nets and any combination of sender/receiver.
-//
-func permitLanIpv4(session uintptr, baseObjects *baseObjects) error {
-	privateNetworks := [4]wtFwpV4AddrAndMask{
-		{0x0a000000, 0xff000000},
-		{0xac100000, 0xfff00000},
-		{0xc0a80000, 0xffff0000},
-		{0xa9fe0000, 0xffff0000},
-	}
-
-	var conditions [8]wtFwpmFilterCondition0
-
-	//
-	// Repeating a condition type is evaluated as logical OR.
-	//
-
-	for idx, addr := range privateNetworks {
-		conditions[idx].fieldKey = cFWPM_CONDITION_IP_LOCAL_ADDRESS
-		conditions[idx].matchType = cFWP_MATCH_EQUAL
-		conditions[idx].conditionValue._type = cFWP_V4_ADDR_MASK
-		conditions[idx].conditionValue.value = uintptr(unsafe.Pointer(&addr))
-
-		conditions[4+idx].fieldKey = cFWPM_CONDITION_IP_REMOTE_ADDRESS
-		conditions[4+idx].matchType = cFWP_MATCH_EQUAL
-		conditions[4+idx].conditionValue._type = cFWP_V4_ADDR_MASK
-		conditions[4+idx].conditionValue.value = uintptr(unsafe.Pointer(&addr))
-	}
-
-	//
-	// Assemble the filter.
-	//
-	filter := wtFwpmFilter0{
-		providerKey:         &baseObjects.provider,
-		subLayerKey:         baseObjects.whitelist,
-		weight:              filterWeightMax(),
-		numFilterConditions: uint32(len(conditions)),
-		filterCondition:     (*wtFwpmFilterCondition0)(unsafe.Pointer(&conditions)),
-		action: wtFwpmAction0{
-			_type: cFWP_ACTION_PERMIT,
-		},
-	}
-
-	filterId := uint64(0)
-
-	//
-	// #1 Permit outbound LAN traffic.
-	//
-	{
-		displayData, err := createWtFwpmDisplayData0("Permit outbound LAN traffic (IPv4)", "")
-		if err != nil {
-			return wrapErr(err)
-		}
-
-		filter.displayData = *displayData
-		filter.layerKey = cFWPM_LAYER_ALE_AUTH_CONNECT_V4
-
-		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
-		if err != nil {
-			return wrapErr(err)
-		}
-	}
-
-	//
-	// #2 Permit inbound LAN traffic.
-	//
-	{
-		displayData, err := createWtFwpmDisplayData0("Permit inbound LAN traffic (IPv4)", "")
-		if err != nil {
-			return wrapErr(err)
-		}
-
-		filter.displayData = *displayData
-		filter.layerKey = cFWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V4
-
-		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
-		if err != nil {
-			return wrapErr(err)
-		}
-	}
-
-	return nil
-}
-
-func permitLanIpv6(session uintptr, baseObjects *baseObjects) error {
-	privateNetwork := wtFwpV6AddrAndMask{[16]uint8{0xfe, 0x80}, 10}
-
-	var conditions [2]wtFwpmFilterCondition0
-
-	conditions[0].fieldKey = cFWPM_CONDITION_IP_LOCAL_ADDRESS
-	conditions[0].matchType = cFWP_MATCH_EQUAL
-	conditions[0].conditionValue._type = cFWP_V6_ADDR_MASK
-	conditions[0].conditionValue.value = uintptr(unsafe.Pointer(&privateNetwork))
-
-	conditions[1].fieldKey = cFWPM_CONDITION_IP_REMOTE_ADDRESS
-	conditions[1].matchType = cFWP_MATCH_EQUAL
-	conditions[1].conditionValue._type = cFWP_V6_ADDR_MASK
-	conditions[1].conditionValue.value = uintptr(unsafe.Pointer(&privateNetwork))
-
-	filter := wtFwpmFilter0{
-		providerKey:         &baseObjects.provider,
-		subLayerKey:         baseObjects.whitelist,
-		weight:              filterWeightMax(),
-		numFilterConditions: uint32(len(conditions)),
-		filterCondition:     (*wtFwpmFilterCondition0)(unsafe.Pointer(&conditions)),
-		action: wtFwpmAction0{
-			_type: cFWP_ACTION_PERMIT,
-		},
-	}
-
-	filterId := uint64(0)
-
-	//
-	// #1 Permit outbound LAN traffic.
-	//
-	{
-		displayData, err := createWtFwpmDisplayData0("Permit outbound LAN traffic (IPv6)", "")
-		if err != nil {
-			return wrapErr(err)
-		}
-
-		filter.displayData = *displayData
-		filter.layerKey = cFWPM_LAYER_ALE_AUTH_CONNECT_V6
-
-		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
-		if err != nil {
-			return wrapErr(err)
-		}
-	}
-
-	//
-	// #2 Permit inbound LAN traffic.
-	//
-	{
-		displayData, err := createWtFwpmDisplayData0("Permit inbound LAN traffic (IPv6)", "")
-		if err != nil {
-			return wrapErr(err)
-		}
-
-		filter.displayData = *displayData
-		filter.layerKey = cFWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6
-
-		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
-		if err != nil {
-			return wrapErr(err)
-		}
-	}
-
-	return nil
-}
-
 func permitLoopback(session uintptr, baseObjects *baseObjects) error {
 	condition := wtFwpmFilterCondition0{
 		fieldKey:  cFWPM_CONDITION_INTERFACE_TYPE,
@@ -436,7 +285,7 @@ func permitLoopback(session uintptr, baseObjects *baseObjects) error {
 
 	filter := wtFwpmFilter0{
 		providerKey:         &baseObjects.provider,
-		subLayerKey:         baseObjects.whitelist,
+		subLayerKey:         baseObjects.filters,
 		weight:              filterWeightMax(),
 		numFilterConditions: 1,
 		filterCondition:     (*wtFwpmFilterCondition0)(unsafe.Pointer(&condition)),
@@ -558,7 +407,7 @@ func permitDhcpIpv4(session uintptr, baseObjects *baseObjects) error {
 			displayData:         *displayData,
 			providerKey:         &baseObjects.provider,
 			layerKey:            cFWPM_LAYER_ALE_AUTH_CONNECT_V4,
-			subLayerKey:         baseObjects.whitelist,
+			subLayerKey:         baseObjects.filters,
 			weight:              filterWeightMax(),
 			numFilterConditions: uint32(len(conditions)),
 			filterCondition:     (*wtFwpmFilterCondition0)(unsafe.Pointer(&conditions)),
@@ -605,7 +454,7 @@ func permitDhcpIpv4(session uintptr, baseObjects *baseObjects) error {
 			displayData:         *displayData,
 			providerKey:         &baseObjects.provider,
 			layerKey:            cFWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V4,
-			subLayerKey:         baseObjects.whitelist,
+			subLayerKey:         baseObjects.filters,
 			weight:              filterWeightMax(),
 			numFilterConditions: uint32(len(conditions)),
 			filterCondition:     (*wtFwpmFilterCondition0)(unsafe.Pointer(&conditions)),
@@ -677,7 +526,7 @@ func permitDhcpIpv6(session uintptr, baseObjects *baseObjects) error {
 			displayData:         *displayData,
 			providerKey:         &baseObjects.provider,
 			layerKey:            cFWPM_LAYER_ALE_AUTH_CONNECT_V6,
-			subLayerKey:         baseObjects.whitelist,
+			subLayerKey:         baseObjects.filters,
 			weight:              filterWeightMax(),
 			numFilterConditions: uint32(len(conditions)),
 			filterCondition:     (*wtFwpmFilterCondition0)(unsafe.Pointer(&conditions)),
@@ -734,7 +583,7 @@ func permitDhcpIpv6(session uintptr, baseObjects *baseObjects) error {
 			displayData:         *displayData,
 			providerKey:         &baseObjects.provider,
 			layerKey:            cFWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6,
-			subLayerKey:         baseObjects.whitelist,
+			subLayerKey:         baseObjects.filters,
 			weight:              filterWeightMax(),
 			numFilterConditions: uint32(len(conditions)),
 			filterCondition:     (*wtFwpmFilterCondition0)(unsafe.Pointer(&conditions)),
@@ -788,7 +637,7 @@ func permitNdp(session uintptr, baseObjects *baseObjects) error {
 func blockAllUnmatched(session uintptr, baseObjects *baseObjects) error {
 	filter := wtFwpmFilter0{
 		providerKey: &baseObjects.provider,
-		subLayerKey: baseObjects.whitelist,
+		subLayerKey: baseObjects.filters,
 		weight:      filterWeightMin(),
 		action: wtFwpmAction0{
 			_type: cFWP_ACTION_BLOCK,
@@ -873,10 +722,8 @@ func blockAllUnmatched(session uintptr, baseObjects *baseObjects) error {
 }
 
 // Block all DNS except what is matched by a permissive rule.
-func blockDnsNonTun(session uintptr, baseObjects *baseObjects, ifLuid uint64) error {
-	var conditions [2]wtFwpmFilterCondition0
-
-	conditions[0] = wtFwpmFilterCondition0{
+func blockDnsUnmatched(session uintptr, baseObjects *baseObjects) error {
+	condition := wtFwpmFilterCondition0{
 		fieldKey:  cFWPM_CONDITION_IP_REMOTE_PORT,
 		matchType: cFWP_MATCH_EQUAL,
 		conditionValue: wtFwpConditionValue0{
@@ -884,23 +731,13 @@ func blockDnsNonTun(session uintptr, baseObjects *baseObjects, ifLuid uint64) er
 			value: uintptr(53),
 		},
 	}
-	conditions[1] = wtFwpmFilterCondition0{
-		fieldKey:  cFWPM_CONDITION_IP_LOCAL_INTERFACE,
-		matchType: cFWP_MATCH_NOT_EQUAL,
-		conditionValue: wtFwpConditionValue0{
-			_type: cFWP_UINT64,
-			value: (uintptr)(unsafe.Pointer(&ifLuid)),
-		},
-	}
-
-	//TODO: we want to permit port 53 traffic coming from the wireguard service, in case people are using that port for tunneling.
 
 	filter := wtFwpmFilter0{
 		providerKey:         &baseObjects.provider,
-		subLayerKey:         baseObjects.blacklist,
-		weight:              filterWeightMax(),
-		numFilterConditions: uint32(len(conditions)),
-		filterCondition:     (*wtFwpmFilterCondition0)(unsafe.Pointer(&conditions[0])),
+		subLayerKey:         baseObjects.filters,
+		weight:              filterWeightMin(),
+		numFilterConditions: 1,
+		filterCondition:     (*wtFwpmFilterCondition0)(unsafe.Pointer(&condition)),
 		action: wtFwpmAction0{
 			_type: cFWP_ACTION_BLOCK,
 		},

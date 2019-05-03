@@ -18,9 +18,8 @@ type wfpObjectInstaller func(uintptr) error
 // Fundamental WireGuard specific WFP objects.
 //
 type baseObjects struct {
-	provider  windows.GUID
-	whitelist windows.GUID
-	blacklist windows.GUID
+	provider windows.GUID
+	filters  windows.GUID
 }
 
 var wfpSession uintptr
@@ -56,18 +55,11 @@ func registerBaseObjects(session uintptr) (*baseObjects, error) {
 		Data4: [8]byte{0x8f, 0x92, 0x29, 0xd7, 0x8a, 0x8d, 0x29, 0xd3},
 	}
 	// {FE3DB7F8-4658-4DE5-8DA9-CE5086A8266B}
-	whitelistGuid := windows.GUID{
+	filtersGuid := windows.GUID{
 		Data1: 0xfe3db7f8,
 		Data2: 0x4658,
 		Data3: 0x4de5,
 		Data4: [8]byte{0x8d, 0xa9, 0xce, 0x50, 0x86, 0xa8, 0x26, 0x6b},
-	}
-	// {CE1DD58F-A7BF-46BD-B048-9C5518346CE9}
-	blacklistGuid := windows.GUID{
-		Data1: 0xce1dd58f,
-		Data2: 0xa7bf,
-		Data3: 0x46bd,
-		Data4: [8]byte{0xb0, 0x48, 0x9c, 0x55, 0x18, 0x34, 0x6c, 0xe9},
 	}
 
 	//
@@ -90,38 +82,17 @@ func registerBaseObjects(session uintptr) (*baseObjects, error) {
 	}
 
 	//
-	// Register whitelist sublayer.
+	// Register filters sublayer.
 	//
 	{
-		displayData, err := createWtFwpmDisplayData0("WireGuard whitelist", "Permissive filters")
+		displayData, err := createWtFwpmDisplayData0("WireGuard filters", "Permissive and blocking filters")
 		if err != nil {
 			return nil, wrapErr(err)
 		}
 		sublayer := wtFwpmSublayer0{
-			subLayerKey: whitelistGuid,
+			subLayerKey: filtersGuid,
 			displayData: *displayData,
 			providerKey: &providerGuid,
-			weight:      ^uint16(0),
-		}
-		err = fwpmSubLayerAdd0(session, &sublayer, 0)
-		if err != nil {
-			return nil, wrapErr(err)
-		}
-	}
-
-	//
-	// Register blacklist sublayer.
-	//
-	{
-		displayData, err := createWtFwpmDisplayData0("WireGuard blacklist", "Blocking filters")
-		if err != nil {
-			return nil, wrapErr(err)
-		}
-		sublayer := wtFwpmSublayer0{
-			subLayerKey: blacklistGuid,
-			displayData: *displayData,
-			providerKey: &providerGuid,
-			weight:      (^uint16(0)) - 1,
 		}
 		err = fwpmSubLayerAdd0(session, &sublayer, 0)
 		if err != nil {
@@ -131,8 +102,7 @@ func registerBaseObjects(session uintptr) (*baseObjects, error) {
 
 	return &baseObjects{
 		providerGuid,
-		whitelistGuid,
-		blacklistGuid,
+		filtersGuid,
 	}, nil
 }
 
@@ -167,21 +137,6 @@ func EnableFirewall(luid uint64, restrictDNS bool, restrictAll bool) error {
 			return wrapErr(err)
 		}
 
-		/* We actually don't want to allow lan explicitly. This is controlled by the restrictAll rule.
-		 * TODO: consider removing those functions or just rethinking about how this all works.
-
-		err = permitLanIpv4(session, baseObjects)
-		if err != nil {
-			return wrapErr(err)
-		}
-
-		err = permitLanIpv6(session, baseObjects)
-		if err != nil {
-			return wrapErr(err)
-		}
-
-		*/
-
 		err = permitDhcpIpv4(session, baseObjects)
 		if err != nil {
 			return wrapErr(err)
@@ -198,7 +153,7 @@ func EnableFirewall(luid uint64, restrictDNS bool, restrictAll bool) error {
 		}
 
 		if restrictDNS {
-			err = blockDnsNonTun(session, baseObjects, luid)
+			err = blockDnsUnmatched(session, baseObjects)
 			if err != nil {
 				return wrapErr(err)
 			}
