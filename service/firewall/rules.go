@@ -40,7 +40,7 @@ func permitTunInterface(session uintptr, baseObjects *baseObjects, ifLuid uint64
 	{
 		displayData, err := createWtFwpmDisplayData0("Permit outbound IPv4 traffic on TUN", "")
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 
 		filter.displayData = *displayData
@@ -48,7 +48,7 @@ func permitTunInterface(session uintptr, baseObjects *baseObjects, ifLuid uint64
 
 		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 	}
 
@@ -58,7 +58,7 @@ func permitTunInterface(session uintptr, baseObjects *baseObjects, ifLuid uint64
 	{
 		displayData, err := createWtFwpmDisplayData0("Permit inbound IPv4 traffic on TUN", "")
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 
 		filter.displayData = *displayData
@@ -66,7 +66,7 @@ func permitTunInterface(session uintptr, baseObjects *baseObjects, ifLuid uint64
 
 		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 	}
 
@@ -76,7 +76,7 @@ func permitTunInterface(session uintptr, baseObjects *baseObjects, ifLuid uint64
 	{
 		displayData, err := createWtFwpmDisplayData0("Permit outbound IPv6 traffic on TUN", "")
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 
 		filter.displayData = *displayData
@@ -84,7 +84,7 @@ func permitTunInterface(session uintptr, baseObjects *baseObjects, ifLuid uint64
 
 		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 	}
 
@@ -94,7 +94,7 @@ func permitTunInterface(session uintptr, baseObjects *baseObjects, ifLuid uint64
 	{
 		displayData, err := createWtFwpmDisplayData0("Permit inbound IPv6 traffic on TUN", "")
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 
 		filter.displayData = *displayData
@@ -102,7 +102,7 @@ func permitTunInterface(session uintptr, baseObjects *baseObjects, ifLuid uint64
 
 		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 	}
 
@@ -118,7 +118,7 @@ func getCurrentProcessSecurityDescriptor() (uintptr, error) {
 	sd := uintptr(0)
 	err = getSecurityInfo(procHandle, cSE_KERNEL_OBJECT, 0, nil, nil, nil, nil, &sd)
 	if err != nil {
-		return 0, err
+		return 0, wrapErr(err)
 	}
 
 	return sd, nil
@@ -127,18 +127,18 @@ func getCurrentProcessSecurityDescriptor() (uintptr, error) {
 func getCurrentProcessAppId() (*wtFwpByteBlob, error) {
 	currentFile, err := os.Executable()
 	if err != nil {
-		return nil, err
+		return nil, wrapErr(err)
 	}
 
 	curFilePtr, err := windows.UTF16PtrFromString(currentFile)
 	if err != nil {
-		return nil, err
+		return nil, wrapErr(err)
 	}
 
 	var appId *wtFwpByteBlob
 	err = fwpmGetAppIdFromFileName0(curFilePtr, unsafe.Pointer(&appId))
 	if err != nil {
-		return nil, err
+		return nil, wrapErr(err)
 	}
 	return appId, nil
 }
@@ -151,7 +151,7 @@ func permitWireGuardService(session uintptr, baseObjects *baseObjects) error {
 	//
 	appId, err := getCurrentProcessAppId()
 	if err != nil {
-		return err
+		return wrapErr(err)
 	}
 	defer appId.free()
 
@@ -170,7 +170,7 @@ func permitWireGuardService(session uintptr, baseObjects *baseObjects) error {
 	//
 	sd, err := getCurrentProcessSecurityDescriptor()
 	if err != nil {
-		return err
+		return wrapErr(err)
 	}
 	defer windows.LocalFree(windows.Handle(sd))
 
@@ -205,7 +205,7 @@ func permitWireGuardService(session uintptr, baseObjects *baseObjects) error {
 	{
 		displayData, err := createWtFwpmDisplayData0("Permit unrestricted outbound traffic for WireGuard service (IPv4)", "")
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 
 		filter.displayData = *displayData
@@ -213,7 +213,7 @@ func permitWireGuardService(session uintptr, baseObjects *baseObjects) error {
 
 		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 	}
 
@@ -223,7 +223,7 @@ func permitWireGuardService(session uintptr, baseObjects *baseObjects) error {
 	{
 		displayData, err := createWtFwpmDisplayData0("Permit unrestricted inbound traffic for WireGuard service (IPv4)", "")
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 
 		filter.displayData = *displayData
@@ -231,7 +231,7 @@ func permitWireGuardService(session uintptr, baseObjects *baseObjects) error {
 
 		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 	}
 
@@ -241,7 +241,7 @@ func permitWireGuardService(session uintptr, baseObjects *baseObjects) error {
 	{
 		displayData, err := createWtFwpmDisplayData0("Permit unrestricted outbound traffic for WireGuard service (IPv6)", "")
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 
 		filter.displayData = *displayData
@@ -249,7 +249,7 @@ func permitWireGuardService(session uintptr, baseObjects *baseObjects) error {
 
 		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 	}
 
@@ -259,7 +259,7 @@ func permitWireGuardService(session uintptr, baseObjects *baseObjects) error {
 	{
 		displayData, err := createWtFwpmDisplayData0("Permit unrestricted inbound traffic for WireGuard service (IPv6)", "")
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 
 		filter.displayData = *displayData
@@ -267,7 +267,7 @@ func permitWireGuardService(session uintptr, baseObjects *baseObjects) error {
 
 		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 	}
 
@@ -325,7 +325,7 @@ func permitLanIpv4(session uintptr, baseObjects *baseObjects) error {
 	{
 		displayData, err := createWtFwpmDisplayData0("Permit outbound LAN traffic (IPv4)", "")
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 
 		filter.displayData = *displayData
@@ -333,7 +333,7 @@ func permitLanIpv4(session uintptr, baseObjects *baseObjects) error {
 
 		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 	}
 
@@ -343,7 +343,7 @@ func permitLanIpv4(session uintptr, baseObjects *baseObjects) error {
 	{
 		displayData, err := createWtFwpmDisplayData0("Permit inbound LAN traffic (IPv4)", "")
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 
 		filter.displayData = *displayData
@@ -351,7 +351,7 @@ func permitLanIpv4(session uintptr, baseObjects *baseObjects) error {
 
 		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 	}
 
@@ -392,7 +392,7 @@ func permitLanIpv6(session uintptr, baseObjects *baseObjects) error {
 	{
 		displayData, err := createWtFwpmDisplayData0("Permit outbound LAN traffic (IPv6)", "")
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 
 		filter.displayData = *displayData
@@ -400,7 +400,7 @@ func permitLanIpv6(session uintptr, baseObjects *baseObjects) error {
 
 		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 	}
 
@@ -410,7 +410,7 @@ func permitLanIpv6(session uintptr, baseObjects *baseObjects) error {
 	{
 		displayData, err := createWtFwpmDisplayData0("Permit inbound LAN traffic (IPv6)", "")
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 
 		filter.displayData = *displayData
@@ -418,7 +418,7 @@ func permitLanIpv6(session uintptr, baseObjects *baseObjects) error {
 
 		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 	}
 
@@ -454,7 +454,7 @@ func permitLoopback(session uintptr, baseObjects *baseObjects) error {
 	{
 		displayData, err := createWtFwpmDisplayData0("Permit outbound on loopback (IPv4)", "")
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 
 		filter.displayData = *displayData
@@ -462,7 +462,7 @@ func permitLoopback(session uintptr, baseObjects *baseObjects) error {
 
 		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 	}
 
@@ -472,7 +472,7 @@ func permitLoopback(session uintptr, baseObjects *baseObjects) error {
 	{
 		displayData, err := createWtFwpmDisplayData0("Permit inbound on loopback (IPv4)", "")
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 
 		filter.displayData = *displayData
@@ -480,7 +480,7 @@ func permitLoopback(session uintptr, baseObjects *baseObjects) error {
 
 		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 	}
 
@@ -490,7 +490,7 @@ func permitLoopback(session uintptr, baseObjects *baseObjects) error {
 	{
 		displayData, err := createWtFwpmDisplayData0("Permit outbound on loopback (IPv6)", "")
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 
 		filter.displayData = *displayData
@@ -498,7 +498,7 @@ func permitLoopback(session uintptr, baseObjects *baseObjects) error {
 
 		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 	}
 
@@ -508,7 +508,7 @@ func permitLoopback(session uintptr, baseObjects *baseObjects) error {
 	{
 		displayData, err := createWtFwpmDisplayData0("Permit inbound on loopback (IPv6)", "")
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 
 		filter.displayData = *displayData
@@ -516,7 +516,7 @@ func permitLoopback(session uintptr, baseObjects *baseObjects) error {
 
 		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 	}
 
@@ -552,7 +552,7 @@ func permitDhcpIpv4(session uintptr, baseObjects *baseObjects) error {
 
 		displayData, err := createWtFwpmDisplayData0("Permit outbound DHCP request (IPv4)", "")
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 
 		filter := wtFwpmFilter0{
@@ -572,7 +572,7 @@ func permitDhcpIpv4(session uintptr, baseObjects *baseObjects) error {
 
 		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 	}
 
@@ -599,7 +599,7 @@ func permitDhcpIpv4(session uintptr, baseObjects *baseObjects) error {
 
 		displayData, err := createWtFwpmDisplayData0("Permit inbound DHCP response (IPv4)", "")
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 
 		filter := wtFwpmFilter0{
@@ -619,7 +619,7 @@ func permitDhcpIpv4(session uintptr, baseObjects *baseObjects) error {
 
 		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 	}
 
@@ -671,7 +671,7 @@ func permitDhcpIpv6(session uintptr, baseObjects *baseObjects) error {
 
 		displayData, err := createWtFwpmDisplayData0("Permit outbound DHCP request (IPv6)", "")
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 
 		filter := wtFwpmFilter0{
@@ -691,7 +691,7 @@ func permitDhcpIpv6(session uintptr, baseObjects *baseObjects) error {
 
 		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 	}
 
@@ -728,7 +728,7 @@ func permitDhcpIpv6(session uintptr, baseObjects *baseObjects) error {
 
 		displayData, err := createWtFwpmDisplayData0("Permit inbound DHCP response (IPv6)", "")
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 
 		filter := wtFwpmFilter0{
@@ -748,7 +748,7 @@ func permitDhcpIpv6(session uintptr, baseObjects *baseObjects) error {
 
 		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 	}
 
@@ -804,7 +804,7 @@ func blockAllUnmatched(session uintptr, baseObjects *baseObjects) error {
 	{
 		displayData, err := createWtFwpmDisplayData0("Block all outbound (IPv4)", "")
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 
 		filter.displayData = *displayData
@@ -812,7 +812,7 @@ func blockAllUnmatched(session uintptr, baseObjects *baseObjects) error {
 
 		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 	}
 
@@ -822,7 +822,7 @@ func blockAllUnmatched(session uintptr, baseObjects *baseObjects) error {
 	{
 		displayData, err := createWtFwpmDisplayData0("Block all inbound (IPv4)", "")
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 
 		filter.displayData = *displayData
@@ -830,7 +830,7 @@ func blockAllUnmatched(session uintptr, baseObjects *baseObjects) error {
 
 		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 	}
 
@@ -840,7 +840,7 @@ func blockAllUnmatched(session uintptr, baseObjects *baseObjects) error {
 	{
 		displayData, err := createWtFwpmDisplayData0("Block all outbound (IPv6)", "")
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 
 		filter.displayData = *displayData
@@ -848,7 +848,7 @@ func blockAllUnmatched(session uintptr, baseObjects *baseObjects) error {
 
 		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 	}
 
@@ -858,7 +858,7 @@ func blockAllUnmatched(session uintptr, baseObjects *baseObjects) error {
 	{
 		displayData, err := createWtFwpmDisplayData0("Block all inbound (IPv6)", "")
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 
 		filter.displayData = *displayData
@@ -866,7 +866,7 @@ func blockAllUnmatched(session uintptr, baseObjects *baseObjects) error {
 
 		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 	}
 
@@ -903,7 +903,7 @@ func blockDnsUnmatched(session uintptr, baseObjects *baseObjects) error {
 	{
 		displayData, err := createWtFwpmDisplayData0("Block DNS outbound (IPv4)", "")
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 
 		filter.displayData = *displayData
@@ -911,7 +911,7 @@ func blockDnsUnmatched(session uintptr, baseObjects *baseObjects) error {
 
 		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 	}
 
@@ -921,7 +921,7 @@ func blockDnsUnmatched(session uintptr, baseObjects *baseObjects) error {
 	{
 		displayData, err := createWtFwpmDisplayData0("Block DNS inbound (IPv4)", "")
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 
 		filter.displayData = *displayData
@@ -929,7 +929,7 @@ func blockDnsUnmatched(session uintptr, baseObjects *baseObjects) error {
 
 		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 	}
 
@@ -939,7 +939,7 @@ func blockDnsUnmatched(session uintptr, baseObjects *baseObjects) error {
 	{
 		displayData, err := createWtFwpmDisplayData0("Block DNS outbound (IPv6)", "")
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 
 		filter.displayData = *displayData
@@ -947,7 +947,7 @@ func blockDnsUnmatched(session uintptr, baseObjects *baseObjects) error {
 
 		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 	}
 
@@ -957,7 +957,7 @@ func blockDnsUnmatched(session uintptr, baseObjects *baseObjects) error {
 	{
 		displayData, err := createWtFwpmDisplayData0("Block DNS inbound (IPv6)", "")
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 
 		filter.displayData = *displayData
@@ -965,7 +965,7 @@ func blockDnsUnmatched(session uintptr, baseObjects *baseObjects) error {
 
 		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 	}
 

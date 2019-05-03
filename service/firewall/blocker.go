@@ -28,7 +28,7 @@ var wfpSession uintptr
 func createWfpSession() (uintptr, error) {
 	sessionDisplayData, err := createWtFwpmDisplayData0("WireGuard", "WireGuard dynamic session")
 	if err != nil {
-		return 0, err
+		return 0, wrapErr(err)
 	}
 
 	session := wtFwpmSession0{
@@ -41,7 +41,7 @@ func createWfpSession() (uintptr, error) {
 
 	err = fwpmEngineOpen0(nil, cRPC_C_AUTHN_WINNT, nil, &session, unsafe.Pointer(&sessionHandle))
 	if err != nil {
-		return 0, err
+		return 0, wrapErr(err)
 	}
 
 	return sessionHandle, nil
@@ -76,7 +76,7 @@ func registerBaseObjects(session uintptr) (*baseObjects, error) {
 	{
 		displayData, err := createWtFwpmDisplayData0("WireGuard", "The WireGuard provider")
 		if err != nil {
-			return nil, err
+			return nil, wrapErr(err)
 		}
 		provider := wtFwpmProvider0{
 			providerKey: providerGuid,
@@ -85,7 +85,7 @@ func registerBaseObjects(session uintptr) (*baseObjects, error) {
 		err = fwpmProviderAdd0(session, &provider, 0)
 		if err != nil {
 			//TODO: cleanup entire call chain of these if failure?
-			return nil, err
+			return nil, wrapErr(err)
 		}
 	}
 
@@ -95,7 +95,7 @@ func registerBaseObjects(session uintptr) (*baseObjects, error) {
 	{
 		displayData, err := createWtFwpmDisplayData0("WireGuard whitelist", "Permissive filters")
 		if err != nil {
-			return nil, err
+			return nil, wrapErr(err)
 		}
 		sublayer := wtFwpmSublayer0{
 			subLayerKey: whitelistGuid,
@@ -105,7 +105,7 @@ func registerBaseObjects(session uintptr) (*baseObjects, error) {
 		}
 		err = fwpmSubLayerAdd0(session, &sublayer, 0)
 		if err != nil {
-			return nil, err
+			return nil, wrapErr(err)
 		}
 	}
 
@@ -115,7 +115,7 @@ func registerBaseObjects(session uintptr) (*baseObjects, error) {
 	{
 		displayData, err := createWtFwpmDisplayData0("WireGuard blacklist", "Blocking filters")
 		if err != nil {
-			return nil, err
+			return nil, wrapErr(err)
 		}
 		sublayer := wtFwpmSublayer0{
 			subLayerKey: blacklistGuid,
@@ -125,7 +125,7 @@ func registerBaseObjects(session uintptr) (*baseObjects, error) {
 		}
 		err = fwpmSubLayerAdd0(session, &sublayer, 0)
 		if err != nil {
-			return nil, err
+			return nil, wrapErr(err)
 		}
 	}
 
@@ -143,28 +143,28 @@ func EnableFirewall(luid uint64, restrictDNS bool, restrictAll bool) error {
 
 	session, err := createWfpSession()
 	if err != nil {
-		return err
+		return wrapErr(err)
 	}
 
 	objectInstaller := func(session uintptr) error {
 		baseObjects, err := registerBaseObjects(session)
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 
 		err = permitTunInterface(session, baseObjects, luid)
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 
 		err = permitWireGuardService(session, baseObjects)
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 
 		err = permitLoopback(session, baseObjects)
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 
 		/* We actually don't want to allow lan explicitly. This is controlled by the restrictAll rule.
@@ -172,42 +172,42 @@ func EnableFirewall(luid uint64, restrictDNS bool, restrictAll bool) error {
 
 		err = permitLanIpv4(session, baseObjects)
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 
 		err = permitLanIpv6(session, baseObjects)
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 
 		*/
 
 		err = permitDhcpIpv4(session, baseObjects)
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 
 		err = permitDhcpIpv6(session, baseObjects)
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 
 		err = permitNdp(session, baseObjects)
 		if err != nil {
-			return err
+			return wrapErr(err)
 		}
 
 		if restrictDNS {
 			err = blockDnsUnmatched(session, baseObjects)
 			if err != nil {
-				return err
+				return wrapErr(err)
 			}
 		}
 
 		if restrictAll {
 			err = blockAllUnmatched(session, baseObjects)
 			if err != nil {
-				return err
+				return wrapErr(err)
 			}
 		}
 
@@ -217,7 +217,7 @@ func EnableFirewall(luid uint64, restrictDNS bool, restrictAll bool) error {
 	err = runTransaction(session, objectInstaller)
 	if err != nil {
 		fwpmEngineClose0(session)
-		return err
+		return wrapErr(err)
 	}
 
 	wfpSession = session
