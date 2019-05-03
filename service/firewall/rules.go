@@ -11,7 +11,7 @@ import (
 	"unsafe"
 )
 
-func permitTunInterface(session uintptr, baseObjects *baseObjects, ifLuid uint64) error {
+func permitTunInterface(session uintptr, baseObjects *baseObjects, weight uint8, ifLuid uint64) error {
 	ifaceCondition := wtFwpmFilterCondition0{
 		fieldKey:  cFWPM_CONDITION_IP_LOCAL_INTERFACE,
 		matchType: cFWP_MATCH_EQUAL,
@@ -24,7 +24,7 @@ func permitTunInterface(session uintptr, baseObjects *baseObjects, ifLuid uint64
 	filter := wtFwpmFilter0{
 		providerKey:         &baseObjects.provider,
 		subLayerKey:         baseObjects.filters,
-		weight:              filterWeightMax(),
+		weight:              filterWeight(weight),
 		numFilterConditions: 1,
 		filterCondition:     (*wtFwpmFilterCondition0)(unsafe.Pointer(&ifaceCondition)),
 		action: wtFwpmAction0{
@@ -142,7 +142,7 @@ func getCurrentProcessAppId() (*wtFwpByteBlob, error) {
 	return appId, nil
 }
 
-func permitWireGuardService(session uintptr, baseObjects *baseObjects) error {
+func permitWireGuardService(session uintptr, baseObjects *baseObjects, weight uint8) error {
 	var conditions [2]wtFwpmFilterCondition0
 
 	//
@@ -188,7 +188,7 @@ func permitWireGuardService(session uintptr, baseObjects *baseObjects) error {
 	filter := wtFwpmFilter0{
 		providerKey:         &baseObjects.provider,
 		subLayerKey:         baseObjects.filters,
-		weight:              filterWeightMax(),
+		weight:              filterWeight(weight),
 		numFilterConditions: uint32(len(conditions)),
 		filterCondition:     (*wtFwpmFilterCondition0)(unsafe.Pointer(&conditions)),
 		action: wtFwpmAction0{
@@ -273,7 +273,7 @@ func permitWireGuardService(session uintptr, baseObjects *baseObjects) error {
 	return nil
 }
 
-func permitLoopback(session uintptr, baseObjects *baseObjects) error {
+func permitLoopback(session uintptr, baseObjects *baseObjects, weight uint8) error {
 	condition := wtFwpmFilterCondition0{
 		fieldKey:  cFWPM_CONDITION_INTERFACE_TYPE,
 		matchType: cFWP_MATCH_EQUAL,
@@ -286,7 +286,7 @@ func permitLoopback(session uintptr, baseObjects *baseObjects) error {
 	filter := wtFwpmFilter0{
 		providerKey:         &baseObjects.provider,
 		subLayerKey:         baseObjects.filters,
-		weight:              filterWeightMax(),
+		weight:              filterWeight(weight),
 		numFilterConditions: 1,
 		filterCondition:     (*wtFwpmFilterCondition0)(unsafe.Pointer(&condition)),
 		action: wtFwpmAction0{
@@ -371,7 +371,7 @@ func permitLoopback(session uintptr, baseObjects *baseObjects) error {
 	return nil
 }
 
-func permitDhcpIpv4(session uintptr, baseObjects *baseObjects) error {
+func permitDhcpIpv4(session uintptr, baseObjects *baseObjects, weight uint8) error {
 	//
 	// #1 Outbound DHCP request on IPv4.
 	//
@@ -408,7 +408,7 @@ func permitDhcpIpv4(session uintptr, baseObjects *baseObjects) error {
 			providerKey:         &baseObjects.provider,
 			layerKey:            cFWPM_LAYER_ALE_AUTH_CONNECT_V4,
 			subLayerKey:         baseObjects.filters,
-			weight:              filterWeightMax(),
+			weight:              filterWeight(weight),
 			numFilterConditions: uint32(len(conditions)),
 			filterCondition:     (*wtFwpmFilterCondition0)(unsafe.Pointer(&conditions)),
 			action: wtFwpmAction0{
@@ -455,7 +455,7 @@ func permitDhcpIpv4(session uintptr, baseObjects *baseObjects) error {
 			providerKey:         &baseObjects.provider,
 			layerKey:            cFWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V4,
 			subLayerKey:         baseObjects.filters,
-			weight:              filterWeightMax(),
+			weight:              filterWeight(weight),
 			numFilterConditions: uint32(len(conditions)),
 			filterCondition:     (*wtFwpmFilterCondition0)(unsafe.Pointer(&conditions)),
 			action: wtFwpmAction0{
@@ -474,7 +474,7 @@ func permitDhcpIpv4(session uintptr, baseObjects *baseObjects) error {
 	return nil
 }
 
-func permitDhcpIpv6(session uintptr, baseObjects *baseObjects) error {
+func permitDhcpIpv6(session uintptr, baseObjects *baseObjects, weight uint8) error {
 	privateNetwork := wtFwpV6AddrAndMask{[16]uint8{0xfe, 0x80}, 10}
 
 	//
@@ -527,7 +527,7 @@ func permitDhcpIpv6(session uintptr, baseObjects *baseObjects) error {
 			providerKey:         &baseObjects.provider,
 			layerKey:            cFWPM_LAYER_ALE_AUTH_CONNECT_V6,
 			subLayerKey:         baseObjects.filters,
-			weight:              filterWeightMax(),
+			weight:              filterWeight(weight),
 			numFilterConditions: uint32(len(conditions)),
 			filterCondition:     (*wtFwpmFilterCondition0)(unsafe.Pointer(&conditions)),
 			action: wtFwpmAction0{
@@ -584,7 +584,7 @@ func permitDhcpIpv6(session uintptr, baseObjects *baseObjects) error {
 			providerKey:         &baseObjects.provider,
 			layerKey:            cFWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6,
 			subLayerKey:         baseObjects.filters,
-			weight:              filterWeightMax(),
+			weight:              filterWeight(weight),
 			numFilterConditions: uint32(len(conditions)),
 			filterCondition:     (*wtFwpmFilterCondition0)(unsafe.Pointer(&conditions)),
 			action: wtFwpmAction0{
@@ -603,7 +603,7 @@ func permitDhcpIpv6(session uintptr, baseObjects *baseObjects) error {
 	return nil
 }
 
-func permitNdp(session uintptr, baseObjects *baseObjects) error {
+func permitNdp(session uintptr, baseObjects *baseObjects, weight uint8) error {
 
 	/* TODO: Objective is:
 	 *  icmpv6 133: must be outgoing, dst must be FF02::2/128, hop limit must be 255
@@ -634,11 +634,11 @@ func permitNdp(session uintptr, baseObjects *baseObjects) error {
 }
 
 // Block all traffic except what is explicitly permitted by other rules.
-func blockAllUnmatched(session uintptr, baseObjects *baseObjects) error {
+func blockAll(session uintptr, baseObjects *baseObjects, weight uint8) error {
 	filter := wtFwpmFilter0{
 		providerKey: &baseObjects.provider,
 		subLayerKey: baseObjects.filters,
-		weight:      filterWeightMin(),
+		weight:      filterWeight(weight),
 		action: wtFwpmAction0{
 			_type: cFWP_ACTION_BLOCK,
 		},
@@ -722,7 +722,7 @@ func blockAllUnmatched(session uintptr, baseObjects *baseObjects) error {
 }
 
 // Block all DNS except what is matched by a permissive rule.
-func blockDnsUnmatched(session uintptr, baseObjects *baseObjects) error {
+func blockDns(session uintptr, baseObjects *baseObjects, weight uint8) error {
 	condition := wtFwpmFilterCondition0{
 		fieldKey:  cFWPM_CONDITION_IP_REMOTE_PORT,
 		matchType: cFWP_MATCH_EQUAL,
@@ -735,7 +735,7 @@ func blockDnsUnmatched(session uintptr, baseObjects *baseObjects) error {
 	filter := wtFwpmFilter0{
 		providerKey:         &baseObjects.provider,
 		subLayerKey:         baseObjects.filters,
-		weight:              filterWeightMin(),
+		weight:              filterWeight(weight),
 		numFilterConditions: 1,
 		filterCondition:     (*wtFwpmFilterCondition0)(unsafe.Pointer(&condition)),
 		action: wtFwpmAction0{

@@ -122,45 +122,45 @@ func EnableFirewall(luid uint64, restrictDNS bool, restrictAll bool) error {
 			return wrapErr(err)
 		}
 
-		err = permitTunInterface(session, baseObjects, luid)
+		err = permitTunInterface(session, baseObjects, 15, luid)
 		if err != nil {
 			return wrapErr(err)
 		}
 
-		err = permitWireGuardService(session, baseObjects)
+		err = permitWireGuardService(session, baseObjects, 15)
 		if err != nil {
 			return wrapErr(err)
 		}
 
-		err = permitLoopback(session, baseObjects)
+		err = permitDhcpIpv4(session, baseObjects, 15)
 		if err != nil {
 			return wrapErr(err)
 		}
 
-		err = permitDhcpIpv4(session, baseObjects)
+		err = permitDhcpIpv6(session, baseObjects, 15)
 		if err != nil {
 			return wrapErr(err)
 		}
 
-		err = permitDhcpIpv6(session, baseObjects)
-		if err != nil {
-			return wrapErr(err)
-		}
-
-		err = permitNdp(session, baseObjects)
+		err = permitNdp(session, baseObjects, 15)
 		if err != nil {
 			return wrapErr(err)
 		}
 
 		if restrictDNS {
-			err = blockDnsUnmatched(session, baseObjects)
+			err = blockDns(session, baseObjects, 14)
 			if err != nil {
 				return wrapErr(err)
 			}
 		}
 
+		err = permitLoopback(session, baseObjects, 13)
+		if err != nil {
+			return wrapErr(err)
+		}
+
 		if restrictAll {
-			err = blockAllUnmatched(session, baseObjects)
+			err = blockAll(session, baseObjects, 0)
 			if err != nil {
 				return wrapErr(err)
 			}
