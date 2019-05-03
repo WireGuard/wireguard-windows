@@ -7,6 +7,8 @@ package firewall
 
 import (
 	"fmt"
+	"runtime"
+	"syscall"
 	"unsafe"
 
 	"golang.org/x/sys/windows"
@@ -148,19 +150,19 @@ func (dt wtFwpDataType) String() string {
 func runTransaction(session uintptr, operation wfpObjectInstaller) error {
 	err := fwpmTransactionBegin0(session, 0)
 	if err != nil {
-		return err
+		return wrapErr(err)
 	}
 
 	err = operation(session)
 	if err != nil {
 		fwpmTransactionAbort0(session)
-		return err
+		return wrapErr(err)
 	}
 
 	err = fwpmTransactionCommit0(session)
 	if err != nil {
 		fwpmTransactionAbort0(session)
-		return err
+		return wrapErr(err)
 	}
 
 	return nil
@@ -169,12 +171,12 @@ func runTransaction(session uintptr, operation wfpObjectInstaller) error {
 func createWtFwpmDisplayData0(name, description string) (*wtFwpmDisplayData0, error) {
 	namePtr, err := windows.UTF16PtrFromString(name)
 	if err != nil {
-		return nil, err
+		return nil, wrapErr(err)
 	}
 
 	descriptionPtr, err := windows.UTF16PtrFromString(description)
 	if err != nil {
-		return nil, err
+		return nil, wrapErr(err)
 	}
 
 	return &wtFwpmDisplayData0{
@@ -194,5 +196,17 @@ func filterWeightMin() wtFwpValue0 {
 	return wtFwpValue0{
 		_type: cFWP_UINT8,
 		value: 0,
+	}
+}
+
+func wrapErr(err error) error {
+	if _, ok := err.(syscall.Errno); !ok {
+		return err
+	}
+	_, file, line, ok := runtime.Caller(1)
+	if !ok {
+		return fmt.Errorf("Firewall error at unknown location: %v", err)
+	} else {
+		return fmt.Errorf("Firewall error at %s:%d: %v", file, line, err)
 	}
 }
