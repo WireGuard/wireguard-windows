@@ -134,6 +134,7 @@ func (tp *TunnelsPage) CreateToolbar() {
 	importActionImage, _ := walk.NewBitmapFromIcon(importActionIcon, imageSize)
 	importAction.SetImage(importActionImage)
 	importAction.SetShortcut(walk.Shortcut{walk.ModControl, walk.KeyO})
+	importAction.SetDefault(true)
 	importAction.Triggered().Attach(tp.onImport)
 	addAction := walk.NewAction()
 	addAction.SetText("Add empty tunnel")

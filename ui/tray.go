@@ -63,12 +63,13 @@ func (tray *Tray) setup() error {
 		enabled   bool
 		hidden    bool
 		separator bool
+		defawlt   bool
 	}{
 		{label: "Status: Unknown"},
 		{label: "Networks: None", hidden: true},
 		{separator: true},
 		{separator: true},
-		{label: "&Manage tunnels...", handler: tray.onManageTunnels, enabled: true},
+		{label: "&Manage tunnels...", handler: tray.onManageTunnels, enabled: true, defawlt: true},
 		{label: "&Import tunnel(s) from file...", handler: tray.mtw.tunnelsPage.onImport, enabled: true},
 		{separator: true},
 		{label: "&About WireGuard", handler: func() { onAbout(tray.mtw) }, enabled: true},
@@ -82,6 +83,7 @@ func (tray *Tray) setup() error {
 			action.SetText(item.label)
 			action.SetEnabled(item.enabled)
 			action.SetVisible(!item.hidden)
+			action.SetDefault(item.defawlt)
 			if item.handler != nil {
 				action.Triggered().Attach(item.handler)
 			}
@@ -292,7 +294,6 @@ func (tray *Tray) UpdateFound() {
 	if icon, err := iconProvider.UpdateAvailableImage(); err == nil {
 		action.SetImage(icon)
 	}
-	//TODO: Make bold
 	action.Triggered().Attach(func() {
 		tray.mtw.Show()
 		tray.mtw.tabs.SetCurrentIndex(2)
