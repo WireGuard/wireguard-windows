@@ -177,17 +177,10 @@ func createWtFwpmDisplayData0(name, description string) (*wtFwpmDisplayData0, er
 	}, nil
 }
 
-func filterWeightMax() wtFwpValue0 {
+func filterWeight(weight uint8) wtFwpValue0 {
 	return wtFwpValue0{
 		_type: cFWP_UINT8,
-		value: 15,
-	}
-}
-
-func filterWeightMin() wtFwpValue0 {
-	return wtFwpValue0{
-		_type: cFWP_UINT8,
-		value: 0,
+		value: uintptr(weight),
 	}
 }
 
