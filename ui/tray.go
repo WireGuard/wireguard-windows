@@ -27,6 +27,8 @@ type Tray struct {
 
 	tunnelChangedCB  *service.TunnelChangeCallback
 	tunnelsChangedCB *service.TunnelsChangeCallback
+
+	clicked func()
 }
 
 func NewTray(mtw *ManageTunnelsWindow) (*Tray, error) {
@@ -46,17 +48,18 @@ func NewTray(mtw *ManageTunnelsWindow) (*Tray, error) {
 }
 
 func (tray *Tray) setup() error {
+	tray.clicked = tray.onManageTunnels
+
 	tray.SetToolTip("WireGuard: Deactivated")
 	tray.SetVisible(true)
 	tray.SetIcon(iconProvider.wireguardIcon)
 
 	tray.MouseDown().Attach(func(x, y int, button walk.MouseButton) {
 		if button == walk.LeftButton {
-			tray.onManageTunnels()
+			tray.clicked()
 		}
 	})
 
-	// configure initial menu items
 	for _, item := range [...]struct {
 		label     string
 		handler   walk.EventHandler
@@ -161,7 +164,6 @@ func (tray *Tray) addTunnelAction(tunnel *service.Tunnel) {
 	})
 	tray.tunnels[tunnel.Name] = tunnelAction
 
-	// Add the action at the right spot
 	var names []string
 	for name := range tray.tunnels {
 		names = append(names, name)
@@ -296,11 +298,16 @@ func (tray *Tray) UpdateFound() {
 	if icon, err := iconProvider.UpdateAvailableImage(); err == nil {
 		action.SetImage(icon)
 	}
-	action.Triggered().Attach(func() {
+	action.SetDefault(true)
+	showUpdateTab := func() {
 		tray.mtw.Show()
 		tray.mtw.tabs.SetCurrentIndex(2)
-	})
+	}
+	action.Triggered().Attach(showUpdateTab)
+	tray.clicked = showUpdateTab
 	tray.ContextMenu().Actions().Insert(tray.ContextMenu().Actions().Len()-2, action)
+
+	//TODO: make clicking on this call showUpdateTab
 	tray.ShowWarning("WireGuard Update Available", "An update to WireGuard is now available. You are advised to update as soon as possible.")
 }
 
