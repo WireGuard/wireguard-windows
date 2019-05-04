@@ -255,6 +255,8 @@ func (tray *Tray) SetTunnelState(tunnel *service.Tunnel, state service.TunnelSta
 
 	wasChecked := tunnelAction.Checked()
 
+	icon, _ := iconProvider.IconWithOverlayForState(state)
+
 	switch state {
 	case service.TunnelStarted:
 		activeCIDRsAction.SetText("")
@@ -277,13 +279,13 @@ func (tray *Tray) SetTunnelState(tunnel *service.Tunnel, state service.TunnelSta
 		tunnelAction.SetEnabled(true)
 		tunnelAction.SetChecked(true)
 		if !wasChecked && showNotifications {
-			tray.ShowInfo("WireGuard Activated", fmt.Sprintf("The %s tunnel has been activated.", tunnel.Name))
+			tray.ShowCustom("WireGuard Activated", fmt.Sprintf("The %s tunnel has been activated.", tunnel.Name), icon)
 		}
 
 	case service.TunnelStopped:
 		tunnelAction.SetChecked(false)
 		if wasChecked && showNotifications {
-			tray.ShowInfo("WireGuard Deactivated", fmt.Sprintf("The %s tunnel has been deactivated.", tunnel.Name))
+			tray.ShowCustom("WireGuard Deactivated", fmt.Sprintf("The %s tunnel has been deactivated.", tunnel.Name), icon)
 		}
 	}
 }
