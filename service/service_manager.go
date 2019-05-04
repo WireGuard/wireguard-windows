@@ -246,9 +246,19 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 			log.Printf("Starting UI process for user: '%s@%s'", username, domain)
 			attr := &os.ProcAttr{
 				Sys: &syscall.SysProcAttr{
-					Token:             syscall.Token(userToken),
+					Token: syscall.Token(userToken),
+
+					/* TODO: XXX: BUG: HACK: DO NOT SHIP WITH THIS COMMENT:
+					 *  These next two lines are commented out, because:
+					 *    - We're uncertain of their correctness, especially with regards to integrity level.
+					 *    - The permissions are too tight and they interfere with some UI things like notification
+					 *      balloon icons.
+					 *  These will be reenabled once we've figured out the right way to do it, and this
+					 *  program should not ship until we've done so.
+
 					ProcessAttributes: &securityAttributes,
 					ThreadAttributes:  &securityAttributes,
+					*/
 				},
 				Files: []*os.File{devNull, devNull, devNull},
 				Env:   env,
