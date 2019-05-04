@@ -21,6 +21,7 @@ const GUID CDECL IID_ITextDocument = { 0x8CC497C0, 0xA1DF, 0x11CE, { 0x80, 0x98,
 struct syntaxedit_data {
 	IRichEditOle *irich;
 	ITextDocument *idoc;
+	enum block_state last_block_state;
 	bool highlight_guard;
 };
 
@@ -53,6 +54,67 @@ static const struct span_style stylemap[] = {
 #endif
 	[HighlightError] = { .color = RGB(0xC4, 0x1A, 0x16), .effects = CFE_UNDERLINE }
 };
+
+static void evaluate_untunneled_blocking(struct syntaxedit_data *this, HWND hWnd, const char *msg, struct highlight_span *spans)
+{
+	enum block_state state = InevaluableBlockingUntunneledTraffic;
+	bool on_allowedips = false;
+	bool seen_peer = false;
+	bool seen_v6_00 = false, seen_v4_00 = false;
+	bool seen_v6_01 = false, seen_v6_80001 = false, seen_v4_01 = false, seen_v4_1281 = false;
+
+	for (struct highlight_span *span = spans; span->type != HighlightEnd; ++span) {
+		switch (span->type) {
+		case HighlightError:
+			goto done;
+		case HighlightSection:
+			if (span->len != 6 || strncasecmp(&msg[span->start], "[peer]", 6))
+				break;
+			if (!seen_peer)
+				seen_peer = true;
+			else
+				goto done;
+			break;
+		case HighlightField:
+			on_allowedips = span->len == 10 && !strncasecmp(&msg[span->start], "allowedips", 10);
+			break;
+		case HighlightIP:
+			if (!on_allowedips || !seen_peer)
+				break;
+			if ((span + 1)->type != HighlightDelimiter || (span + 2)->type != HighlightCidr)
+				break;
+			if ((span + 2)->len != 1)
+				break;
+			if (msg[(span + 2)->start] == '0') {
+				if (span->len == 7 && !strncmp(&msg[span->start], "0.0.0.0", 7))
+					seen_v4_00 = true;
+				else if (span->len == 2 && !strncmp(&msg[span->start], "::", 2))
+					seen_v6_00 = true;
+			} else if (msg[(span + 2)->start] == '1') {
+				if (span->len == 7 && !strncmp(&msg[span->start], "0.0.0.0", 7))
+					seen_v4_01 = true;
+				else if (span->len == 9 && !strncmp(&msg[span->start], "128.0.0.0", 9))
+					seen_v4_1281 = true;
+				else if (span->len == 2 && !strncmp(&msg[span->start], "::", 2))
+					seen_v6_01 = true;
+				else if (span->len == 6 && !strncmp(&msg[span->start], "8000::", 6))
+					seen_v6_80001 = true;
+			}
+			break;
+		}
+	}
+
+    if (seen_v4_00 || seen_v6_00)
+        state = BlockingUntunneledTraffic;
+    else if ((seen_v4_01 && seen_v4_1281) || (seen_v6_01 && seen_v6_80001))
+        state = NotBlockingUntunneledTraffic;
+
+done:
+	if (state != this->last_block_state) {
+		SendMessage(hWnd, SE_TRAFFIC_BLOCK, 0, state);
+		this->last_block_state = state;
+	}
+}
 
 static void highlight_text(HWND hWnd)
 {
@@ -103,6 +165,8 @@ static void highlight_text(HWND hWnd)
 	spans = highlight_config(msg);
 	if (!spans)
 		goto out;
+
+	evaluate_untunneled_blocking(this, hWnd, msg, spans);
 
 	this->idoc->lpVtbl->Undo(this->idoc, tomSuspend, NULL);
 	SendMessage(hWnd, WM_SETREDRAW, FALSE, 0);

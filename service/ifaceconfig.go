@@ -275,9 +275,15 @@ func enableFirewall(conf *conf.Config, tun *tun.NativeTun) error {
 	}
 	restrictDNS := len(conf.Interface.Dns) > 0
 	restrictAll := false
-	for _, peer := range conf.Peers {
-		for _, allowedip := range peer.AllowedIPs {
+	if len(conf.Peers) == 1 {
+	nextallowedip:
+		for _, allowedip := range conf.Peers[0].AllowedIPs {
 			if allowedip.Cidr == 0 {
+				for _, b := range allowedip.IP {
+					if b != 0 {
+						continue nextallowedip
+					}
+				}
 				restrictAll = true
 				break
 			}
