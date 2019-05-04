@@ -26,9 +26,11 @@ func NewUpdatePage() (*UpdatePage, error) {
 
 	up.SetTitle("An Update is Available!")
 
-	if icon, err := iconProvider.UpdateAvailableImage(); err == nil {
-		up.SetImage(icon)
-	}
+	tabIcon, _ := loadSystemIcon("imageres", 1)
+	defer tabIcon.Dispose()
+	bitmap, _ := walk.NewBitmapFromIcon(tabIcon, walk.Size{16, 16}) //TODO: this should use dynamic DPI, but the tab widget seems broken
+	up.SetImage(bitmap)
+
 	//TODO: make title bold
 	up.SetLayout(walk.NewVBoxLayout())
 
@@ -44,6 +46,8 @@ func NewUpdatePage() (*UpdatePage, error) {
 	bar.SetVisible(false)
 
 	button, _ := walk.NewPushButton(up)
+	updateIcon, _ := loadSystemIcon("shell32", 46)
+	button.SetImage(updateIcon) //TODO: the placement of this looks sort of weird
 	button.SetText("Update Now")
 
 	walk.NewVSpacer(up)

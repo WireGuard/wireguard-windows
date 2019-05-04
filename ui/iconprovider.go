@@ -23,7 +23,6 @@ type IconProvider struct {
 	wireguardIcon        *walk.Icon
 	imagesByRectAndState map[rectAndState]*walk.Bitmap
 	iconsByState         map[service.TunnelState]*walk.Icon
-	updateAvailabeImage  *walk.Bitmap
 	scale                float64
 }
 
@@ -65,31 +64,10 @@ func (tsip *IconProvider) Dispose() {
 		tsip.wireguardIcon.Dispose()
 		tsip.wireguardIcon = nil
 	}
-	if tsip.updateAvailabeImage != nil {
-		tsip.updateAvailabeImage.Dispose()
-		tsip.updateAvailabeImage = nil
-	}
 }
 
 func (tsip *IconProvider) scaleForDPI(i int) int {
 	return int(tsip.scale * float64(i))
-}
-
-func (tsip *IconProvider) UpdateAvailableImage() (*walk.Bitmap, error) {
-	if tsip.updateAvailabeImage != nil {
-		return tsip.updateAvailabeImage, nil
-	}
-
-	const size = 16 //TODO: this should use dynamic DPI, but we don't due to a walk bug with tab icons.
-	updateAvailableIcon, err := loadSystemIcon("imageres", 100)
-	if err != nil {
-		return nil, err
-	}
-	tsip.updateAvailabeImage, err = walk.NewBitmapFromIcon(updateAvailableIcon, walk.Size{size, size})
-	if err != nil {
-		return nil, err
-	}
-	return tsip.updateAvailabeImage, nil
 }
 
 func (tsip *IconProvider) ImageForTunnel(tunnel *service.Tunnel, size walk.Size) (*walk.Bitmap, error) {
@@ -191,10 +169,10 @@ func (tsip *IconProvider) PaintForState(state service.TunnelState, canvas *walk.
 		dot, err = loadSystemIcon("imageres", 101)
 
 	case service.TunnelStopped:
-		dot, err = walk.NewIconFromResourceWithSize("dot-gray.ico", walk.Size{iconSize, iconSize})
+		dot, err = walk.NewIconFromResourceWithSize("dot-gray.ico", walk.Size{iconSize, iconSize}) //TODO: replace with real icon
 
 	default:
-		dot, err = walk.NewIconFromResourceWithSize("dot-yellow.ico", walk.Size{iconSize, iconSize})
+		dot, err = loadSystemIcon("shell32", 238) //TODO: this doesn't look that great overlayed on the app icon
 	}
 	if err != nil {
 		return err

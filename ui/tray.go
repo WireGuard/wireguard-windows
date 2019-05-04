@@ -257,8 +257,6 @@ func (tray *Tray) SetTunnelState(tunnel *service.Tunnel, state service.TunnelSta
 
 	wasChecked := tunnelAction.Checked()
 
-	icon, _ := iconProvider.IconWithOverlayForState(state)
-
 	switch state {
 	case service.TunnelStarted:
 		activeCIDRsAction.SetText("")
@@ -281,12 +279,15 @@ func (tray *Tray) SetTunnelState(tunnel *service.Tunnel, state service.TunnelSta
 		tunnelAction.SetEnabled(true)
 		tunnelAction.SetChecked(true)
 		if !wasChecked && showNotifications {
+			icon, _ := iconProvider.IconWithOverlayForState(state)
 			tray.ShowCustom("WireGuard Activated", fmt.Sprintf("The %s tunnel has been activated.", tunnel.Name), icon)
 		}
 
 	case service.TunnelStopped:
 		tunnelAction.SetChecked(false)
 		if wasChecked && showNotifications {
+			icon, _ := loadSystemIcon("imageres", 26) //TODO: this icon isn't very good...
+			defer icon.Dispose()
 			tray.ShowCustom("WireGuard Deactivated", fmt.Sprintf("The %s tunnel has been deactivated.", tunnel.Name), icon)
 		}
 	}
@@ -295,9 +296,10 @@ func (tray *Tray) SetTunnelState(tunnel *service.Tunnel, state service.TunnelSta
 func (tray *Tray) UpdateFound() {
 	action := walk.NewAction()
 	action.SetText("An Update is Available!")
-	if icon, err := iconProvider.UpdateAvailableImage(); err == nil {
-		action.SetImage(icon)
-	}
+	icon, _ := loadSystemIcon("imageres", 1)
+	defer icon.Dispose()
+	bitmap, _ := walk.NewBitmapFromIcon(icon, walk.Size{16, 16}) //TODO: This should use dynamic DPI.
+	action.SetImage(bitmap)
 	action.SetDefault(true)
 	showUpdateTab := func() {
 		tray.mtw.Show()
@@ -308,7 +310,7 @@ func (tray *Tray) UpdateFound() {
 	tray.ContextMenu().Actions().Insert(tray.ContextMenu().Actions().Len()-2, action)
 
 	//TODO: make clicking on this call showUpdateTab
-	tray.ShowWarning("WireGuard Update Available", "An update to WireGuard is now available. You are advised to update as soon as possible.")
+	tray.ShowCustom("WireGuard Update Available", "An update to WireGuard is now available. You are advised to update as soon as possible.", icon)
 }
 
 func (tray *Tray) onManageTunnels() {
