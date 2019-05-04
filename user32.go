@@ -1610,6 +1610,7 @@ var (
 	// Functions
 	addClipboardFormatListener *windows.LazyProc
 	adjustWindowRect           *windows.LazyProc
+	attachThreadInput          *windows.LazyProc
 	animateWindow              *windows.LazyProc
 	beginDeferWindowPos        *windows.LazyProc
 	beginPaint                 *windows.LazyProc
@@ -1669,6 +1670,7 @@ var (
 	getWindowLongPtr           *windows.LazyProc
 	getWindowPlacement         *windows.LazyProc
 	getWindowRect              *windows.LazyProc
+	getWindowThreadProcessId   *windows.LazyProc
 	insertMenuItem             *windows.LazyProc
 	invalidateRect             *windows.LazyProc
 	isChild                    *windows.LazyProc
@@ -1739,6 +1741,7 @@ func init() {
 	// Functions
 	addClipboardFormatListener = libuser32.NewProc("AddClipboardFormatListener")
 	adjustWindowRect = libuser32.NewProc("AdjustWindowRect")
+	attachThreadInput = libuser32.NewProc("AttachThreadInput")
 	animateWindow = libuser32.NewProc("AnimateWindow")
 	beginDeferWindowPos = libuser32.NewProc("BeginDeferWindowPos")
 	beginPaint = libuser32.NewProc("BeginPaint")
@@ -1803,6 +1806,7 @@ func init() {
 	}
 	getWindowPlacement = libuser32.NewProc("GetWindowPlacement")
 	getWindowRect = libuser32.NewProc("GetWindowRect")
+	getWindowThreadProcessId = libuser32.NewProc("GetWindowThreadProcessId")
 	insertMenuItem = libuser32.NewProc("InsertMenuItemW")
 	invalidateRect = libuser32.NewProc("InvalidateRect")
 	isChild = libuser32.NewProc("IsChild")
@@ -1891,6 +1895,15 @@ func AdjustWindowRect(lpRect *RECT, dwStyle uint32, bMenu bool) bool {
 	return ret != 0
 }
 
+func AttachThreadInput(idAttach int32, idAttachTo int32, fAttach bool) bool {
+	ret, _, _ := syscall.Syscall(attachThreadInput.Addr(), 3,
+		uintptr(idAttach),
+		uintptr(idAttachTo),
+		uintptr(BoolToBOOL(fAttach)))
+
+	return ret != 0
+}
+
 func AnimateWindow(hwnd HWND, dwTime, dwFlags uint32) bool {
 	ret, _, _ := syscall.Syscall(animateWindow.Addr(), 3,
 		uintptr(hwnd),
@@ -1907,6 +1920,15 @@ func BeginDeferWindowPos(nNumWindows int32) HDWP {
 		0)
 
 	return HDWP(ret)
+}
+
+func GetWindowThreadProcessId(hwnd HWND, processId *uint32) uint32 {
+	ret, _, _ := syscall.Syscall(getWindowThreadProcessId.Addr(), 2,
+		uintptr(hwnd),
+		uintptr(unsafe.Pointer(processId)),
+		0)
+
+	return uint32(ret)
 }
 
 func BeginPaint(hwnd HWND, lpPaint *PAINTSTRUCT) HDC {

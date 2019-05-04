@@ -64,6 +64,7 @@ var (
 	fileTimeToSystemTime               *windows.LazyProc
 	getConsoleTitle                    *windows.LazyProc
 	getConsoleWindow                   *windows.LazyProc
+	getCurrentThreadId                 *windows.LazyProc
 	getLastError                       *windows.LazyProc
 	getLocaleInfo                      *windows.LazyProc
 	getLogicalDriveStrings             *windows.LazyProc
@@ -144,6 +145,7 @@ func init() {
 	fileTimeToSystemTime = libkernel32.NewProc("FileTimeToSystemTime")
 	getConsoleTitle = libkernel32.NewProc("GetConsoleTitleW")
 	getConsoleWindow = libkernel32.NewProc("GetConsoleWindow")
+	getCurrentThreadId = libkernel32.NewProc("GetCurrentThreadId")
 	getLastError = libkernel32.NewProc("GetLastError")
 	getLocaleInfo = libkernel32.NewProc("GetLocaleInfoW")
 	getLogicalDriveStrings = libkernel32.NewProc("GetLogicalDriveStringsW")
@@ -220,6 +222,15 @@ func GetConsoleWindow() HWND {
 		0)
 
 	return HWND(ret)
+}
+
+func GetCurrentThreadId() uint32 {
+	ret, _, _ := syscall.Syscall(getCurrentThreadId.Addr(), 0,
+		0,
+		0,
+		0)
+
+	return uint32(ret)
 }
 
 func GetLastError() uint32 {
