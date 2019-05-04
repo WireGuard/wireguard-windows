@@ -20,9 +20,16 @@ import "C"
 
 type SyntaxEdit struct {
 	walk.WidgetBase
-	textChangedPublisher walk.EventPublisher
-	privateKeyPublisher  walk.StringEventPublisher
+	textChangedPublisher            walk.EventPublisher
+	privateKeyPublisher             walk.StringEventPublisher
+	blockUntunneledTrafficPublisher walk.IntEventPublisher
 }
+
+const (
+	InevaluableBlockingUntunneledTraffic = C.InevaluableBlockingUntunneledTraffic
+	BlockingUntunneledTraffic            = C.BlockingUntunneledTraffic
+	NotBlockingUntunneledTraffic         = C.NotBlockingUntunneledTraffic
+)
 
 func (se *SyntaxEdit) LayoutFlags() walk.LayoutFlags {
 	return walk.GrowableHorz | walk.GrowableVert | walk.GreedyHorz | walk.GreedyVert
@@ -63,6 +70,10 @@ func (se *SyntaxEdit) PrivateKeyChanged() *walk.StringEvent {
 	return se.privateKeyPublisher.Event()
 }
 
+func (se *SyntaxEdit) BlockUntunneledTrafficStateChanged() *walk.IntEvent {
+	return se.blockUntunneledTrafficPublisher.Event()
+}
+
 func (se *SyntaxEdit) WndProc(hwnd win.HWND, msg uint32, wParam, lParam uintptr) uintptr {
 	switch msg {
 	case win.WM_NOTIFY, win.WM_COMMAND:
@@ -78,6 +89,8 @@ func (se *SyntaxEdit) WndProc(hwnd win.HWND, msg uint32, wParam, lParam uintptr)
 		} else {
 			se.privateKeyPublisher.Publish(C.GoString((*C.char)(unsafe.Pointer(lParam))))
 		}
+	case C.SE_TRAFFIC_BLOCK:
+		se.blockUntunneledTrafficPublisher.Publish(int(lParam))
 	}
 	return se.WidgetBase.WndProc(hwnd, msg, wParam, lParam)
 }

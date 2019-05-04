@@ -15,44 +15,17 @@ import (
 	"golang.zx2c4.com/wireguard/windows/ui/syntax"
 )
 
-const (
-	configKeyDNS        = "DNS"
-	configKeyAllowedIPs = "AllowedIPs"
-)
-
-var (
-	ipv4Wildcard       = orderedStringSetFromSlice([]string{"0.0.0.0/0"})
-	ipv4PublicNetworks = orderedStringSetFromSlice([]string{
-		"0.0.0.0/5", "8.0.0.0/7", "11.0.0.0/8", "12.0.0.0/6", "16.0.0.0/4", "32.0.0.0/3",
-		"64.0.0.0/2", "128.0.0.0/3", "160.0.0.0/5", "168.0.0.0/6", "172.0.0.0/12",
-		"172.32.0.0/11", "172.64.0.0/10", "172.128.0.0/9", "173.0.0.0/8", "174.0.0.0/7",
-		"176.0.0.0/4", "192.0.0.0/9", "192.128.0.0/11", "192.160.0.0/13", "192.169.0.0/16",
-		"192.170.0.0/15", "192.172.0.0/14", "192.176.0.0/12", "192.192.0.0/10",
-		"193.0.0.0/8", "194.0.0.0/7", "196.0.0.0/6", "200.0.0.0/5", "208.0.0.0/4",
-	})
-)
-
-type allowedIPsState int
-
-const (
-	allowedIPsStateInvalid allowedIPsState = iota
-	allowedIPsStateContainsIPV4Wildcard
-	allowedIPsStateContainsIPV4PublicNetworks
-	allowedIPsStateOther
-)
-
 type EditDialog struct {
 	*walk.Dialog
-	nameEdit            *walk.LineEdit
-	pubkeyEdit          *walk.LineEdit
-	syntaxEdit          *syntax.SyntaxEdit
-	excludePrivateIPsCB *walk.CheckBox
-	saveButton          *walk.PushButton
-	tunnel              *service.Tunnel
-	config              conf.Config
-	allowedIPsState     allowedIPsState
-	lastPrivateKey      string
-	inCheckedChanged    bool
+	nameEdit                        *walk.LineEdit
+	pubkeyEdit                      *walk.LineEdit
+	syntaxEdit                      *syntax.SyntaxEdit
+	blockUntunneledTrafficCB        *walk.CheckBox
+	saveButton                      *walk.PushButton
+	tunnel                          *service.Tunnel
+	config                          conf.Config
+	lastPrivateKey                  string
+	blockUntunneledTraficCheckGuard bool
 }
 
 func runTunnelEditDialog(owner walk.Form, tunnel *service.Tunnel) *conf.Config {
@@ -106,19 +79,17 @@ func runTunnelEditDialog(owner walk.Form, tunnel *service.Tunnel) *conf.Config {
 
 	dlg.syntaxEdit, _ = syntax.NewSyntaxEdit(dlg)
 	layout.SetRange(dlg.syntaxEdit, walk.Rectangle{0, 2, 2, 1})
-	dlg.syntaxEdit.PrivateKeyChanged().Attach(dlg.onSyntaxEditPrivateKeyChanged)
-	dlg.syntaxEdit.SetText(dlg.config.ToWgQuick())
-	dlg.syntaxEdit.TextChanged().Attach(dlg.updateExcludePrivateIPsCBVisible)
 
 	buttonsContainer, _ := walk.NewComposite(dlg)
 	layout.SetRange(buttonsContainer, walk.Rectangle{0, 3, 2, 1})
 	buttonsContainer.SetLayout(walk.NewHBoxLayout())
 	buttonsContainer.Layout().SetMargins(walk.Margins{})
 
-	dlg.excludePrivateIPsCB, _ = walk.NewCheckBox(buttonsContainer)
-	dlg.excludePrivateIPsCB.SetText("Exclude private IPs")
-	dlg.excludePrivateIPsCB.CheckedChanged().Attach(dlg.onExcludePrivateIPsCBCheckedChanged)
-	dlg.updateExcludePrivateIPsCBVisible()
+	dlg.blockUntunneledTrafficCB, _ = walk.NewCheckBox(buttonsContainer)
+	dlg.blockUntunneledTrafficCB.SetText("Block untunneled traffic (kill-switch)")
+	dlg.blockUntunneledTrafficCB.SetToolTipText("When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface, with special exceptions for DHCP and NDP.")
+	dlg.blockUntunneledTrafficCB.SetVisible(false)
+	dlg.blockUntunneledTrafficCB.CheckedChanged().Attach(dlg.onBlockUntunneledTrafficCBCheckedChanged)
 
 	walk.NewHSpacer(buttonsContainer)
 
@@ -133,142 +104,126 @@ func runTunnelEditDialog(owner walk.Form, tunnel *service.Tunnel) *conf.Config {
 	dlg.SetCancelButton(cancelButton)
 	dlg.SetDefaultButton(dlg.saveButton)
 
-	dlg.updateAllowedIPsState()
+	dlg.syntaxEdit.PrivateKeyChanged().Attach(dlg.onSyntaxEditPrivateKeyChanged)
+	dlg.syntaxEdit.BlockUntunneledTrafficStateChanged().Attach(dlg.onBlockUntunneledTrafficStateChanged)
+	dlg.syntaxEdit.SetText(dlg.config.ToWgQuick())
 
 	if dlg.Run() == walk.DlgCmdOK {
-		// Save
 		return &dlg.config
 	}
 
 	return nil
 }
 
-func (dlg *EditDialog) updateAllowedIPsState() {
-	var newState allowedIPsState
-	if len(dlg.config.Peers) == 1 {
-		if allowedIPs := dlg.allowedIPsSet(); allowedIPs.IsSupersetOf(ipv4Wildcard) {
-			newState = allowedIPsStateContainsIPV4Wildcard
-		} else if allowedIPs.IsSupersetOf(ipv4PublicNetworks) {
-			newState = allowedIPsStateContainsIPV4PublicNetworks
-		} else {
-			newState = allowedIPsStateOther
-		}
-	} else {
-		newState = allowedIPsStateInvalid
-	}
-
-	if newState != dlg.allowedIPsState {
-		dlg.allowedIPsState = newState
-
-		dlg.excludePrivateIPsCB.SetVisible(dlg.canExcludePrivateIPs())
-		dlg.excludePrivateIPsCB.SetChecked(dlg.privateIPsExcluded())
-	}
-}
-
-func (dlg *EditDialog) canExcludePrivateIPs() bool {
-	return dlg.allowedIPsState == allowedIPsStateContainsIPV4PublicNetworks ||
-		dlg.allowedIPsState == allowedIPsStateContainsIPV4Wildcard
-}
-
-func (dlg *EditDialog) privateIPsExcluded() bool {
-	return dlg.allowedIPsState == allowedIPsStateContainsIPV4PublicNetworks
-}
-
-func (dlg *EditDialog) setPrivateIPsExcluded(excluded bool) {
-	if !dlg.canExcludePrivateIPs() || dlg.privateIPsExcluded() == excluded {
+func (dlg *EditDialog) onBlockUntunneledTrafficCBCheckedChanged() {
+	if dlg.blockUntunneledTraficCheckGuard {
 		return
 	}
+	var (
+		v40 = [4]byte{}
+		v60 = [16]byte{}
+		v48 = [4]byte{0x80}
+		v68 = [16]byte{0x80}
+	)
 
-	var oldNetworks, newNetworks *orderedStringSet
-	if excluded {
-		oldNetworks, newNetworks = ipv4Wildcard, ipv4PublicNetworks
-	} else {
-		oldNetworks, newNetworks = ipv4PublicNetworks, ipv4Wildcard
+	block := dlg.blockUntunneledTrafficCB.Checked()
+	cfg, err := conf.FromWgQuick(dlg.syntaxEdit.Text(), "temporary")
+	var newAllowedIPs []conf.IPCidr
+
+	if err != nil {
+		goto err
 	}
-	input := dlg.allowedIPs()
-	output := newOrderedStringSet()
-	var replaced bool
+	if len(cfg.Peers) != 1 {
+		goto err
+	}
 
-	// Replace the first instance of the wildcard with the public network list, or vice versa.
-	for _, network := range input {
-		if oldNetworks.Contains(network) {
-			if !replaced {
-				output.UniteWith(newNetworks)
-				replaced = true
+	newAllowedIPs = make([]conf.IPCidr, 0, len(cfg.Peers[0].AllowedIPs))
+	if block {
+		var (
+			foundV401    bool
+			foundV41281  bool
+			foundV600001 bool
+			foundV680001 bool
+		)
+		for _, allowedip := range cfg.Peers[0].AllowedIPs {
+			if allowedip.Cidr == 1 && len(allowedip.IP) == 16 && allowedip.IP.Equal(v60[:]) {
+				foundV600001 = true
+			} else if allowedip.Cidr == 1 && len(allowedip.IP) == 16 && allowedip.IP.Equal(v68[:]) {
+				foundV680001 = true
+			} else if allowedip.Cidr == 1 && len(allowedip.IP) == 4 && allowedip.IP.Equal(v40[:]) {
+				foundV401 = true
+			} else if allowedip.Cidr == 1 && len(allowedip.IP) == 4 && allowedip.IP.Equal(v48[:]) {
+				foundV41281 = true
+			} else {
+				newAllowedIPs = append(newAllowedIPs, allowedip)
 			}
-		} else {
-			output.Add(network)
 		}
-	}
-
-	// DNS servers only need to be handled specially when we're excluding private IPs.
-	for _, route := range dlg.dnsRoutes() {
-		if excluded {
-			output.Add(route)
-		} else {
-			output.Remove(route)
-			output.Remove(route + "/32")
+		if !((foundV401 && foundV41281) || (foundV600001 && foundV680001)) {
+			goto err
 		}
-	}
-
-	if excluded {
-		dlg.allowedIPsState = allowedIPsStateContainsIPV4PublicNetworks
+		if foundV401 && foundV41281 {
+			newAllowedIPs = append(newAllowedIPs, conf.IPCidr{v40[:], 0})
+		} else if foundV401 {
+			newAllowedIPs = append(newAllowedIPs, conf.IPCidr{v40[:], 1})
+		} else if foundV41281 {
+			newAllowedIPs = append(newAllowedIPs, conf.IPCidr{v48[:], 1})
+		}
+		if foundV600001 && foundV680001 {
+			newAllowedIPs = append(newAllowedIPs, conf.IPCidr{v60[:], 0})
+		} else if foundV600001 {
+			newAllowedIPs = append(newAllowedIPs, conf.IPCidr{v60[:], 1})
+		} else if foundV680001 {
+			newAllowedIPs = append(newAllowedIPs, conf.IPCidr{v68[:], 1})
+		}
+		cfg.Peers[0].AllowedIPs = newAllowedIPs
 	} else {
-		dlg.allowedIPsState = allowedIPsStateContainsIPV4Wildcard
-	}
-
-	dlg.replaceLine(configKeyAllowedIPs, strings.Join(output.ToSlice(), ", "))
-}
-
-func (dlg *EditDialog) replaceLine(key, value string) {
-	text := dlg.syntaxEdit.Text()
-
-	start := strings.Index(text, key)
-	end := start + strings.Index(text[start:], "\n")
-	oldLine := text[start:end]
-	newLine := fmt.Sprintf("%s = %s", key, value)
-
-	dlg.syntaxEdit.SetText(strings.ReplaceAll(text, oldLine, newLine))
-}
-
-func (dlg *EditDialog) updateExcludePrivateIPsCBVisible() {
-	dlg.updateAllowedIPsState()
-
-	dlg.excludePrivateIPsCB.SetVisible(dlg.canExcludePrivateIPs())
-}
-
-func (dlg *EditDialog) dnsRoutes() []string {
-	return dlg.routes(configKeyDNS)
-}
-
-func (dlg *EditDialog) allowedIPs() []string {
-	return dlg.routes(configKeyAllowedIPs)
-}
-
-func (dlg *EditDialog) allowedIPsSet() *orderedStringSet {
-	return orderedStringSetFromSlice(dlg.allowedIPs())
-}
-
-func (dlg *EditDialog) routes(key string) []string {
-	var routes []string
-
-	lines := strings.Split(dlg.syntaxEdit.Text(), "\n")
-	for _, line := range lines {
-		if strings.HasPrefix(strings.TrimSpace(line), key) {
-			routesMaybeWithSpace := strings.Split(strings.TrimSpace(line[strings.IndexByte(line, '=')+1:]), ",")
-			routes = make([]string, len(routesMaybeWithSpace))
-			for i, route := range routesMaybeWithSpace {
-				routes[i] = strings.TrimSpace(route)
+		var (
+			foundV400 bool
+			foundV600 bool
+		)
+		for _, allowedip := range cfg.Peers[0].AllowedIPs {
+			if allowedip.Cidr == 0 && len(allowedip.IP) == 16 && allowedip.IP.Equal(v60[:]) {
+				foundV600 = true
+			} else if allowedip.Cidr == 0 && len(allowedip.IP) == 4 && allowedip.IP.Equal(v40[:]) {
+				foundV400 = true
+			} else {
+				newAllowedIPs = append(newAllowedIPs, allowedip)
 			}
-			break
 		}
+		if !(foundV400 || foundV600) {
+			goto err
+		}
+		if foundV400 {
+			newAllowedIPs = append(newAllowedIPs, conf.IPCidr{v40[:], 1})
+			newAllowedIPs = append(newAllowedIPs, conf.IPCidr{v48[:], 1})
+		}
+		if foundV600 {
+			newAllowedIPs = append(newAllowedIPs, conf.IPCidr{v60[:], 1})
+			newAllowedIPs = append(newAllowedIPs, conf.IPCidr{v68[:], 1})
+		}
+		cfg.Peers[0].AllowedIPs = newAllowedIPs
 	}
+	dlg.syntaxEdit.SetText(cfg.ToWgQuick())
+	return
 
-	return routes
+err:
+	walk.MsgBox(dlg, "Invalid configuration", "Unable to toggle untunneled traffic blocking state.", walk.MsgBoxIconWarning)
+	dlg.blockUntunneledTrafficCB.SetVisible(false)
 }
 
-func (dlg *EditDialog) onExcludePrivateIPsCBCheckedChanged() {
-	dlg.setPrivateIPsExcluded(dlg.excludePrivateIPsCB.Checked())
+func (dlg *EditDialog) onBlockUntunneledTrafficStateChanged(state int) {
+	dlg.blockUntunneledTraficCheckGuard = true
+	switch state {
+	case syntax.InevaluableBlockingUntunneledTraffic:
+		dlg.blockUntunneledTrafficCB.SetVisible(false)
+	case syntax.BlockingUntunneledTraffic:
+		dlg.blockUntunneledTrafficCB.SetVisible(true)
+		dlg.blockUntunneledTrafficCB.SetChecked(true)
+	case syntax.NotBlockingUntunneledTraffic:
+		dlg.blockUntunneledTrafficCB.SetVisible(true)
+		dlg.blockUntunneledTrafficCB.SetChecked(false)
+	}
+	dlg.blockUntunneledTraficCheckGuard = false
 }
 
 func (dlg *EditDialog) onSyntaxEditPrivateKeyChanged(privateKey string) {
@@ -287,14 +242,18 @@ func (dlg *EditDialog) onSyntaxEditPrivateKeyChanged(privateKey string) {
 func (dlg *EditDialog) onSaveButtonClicked() {
 	newName := dlg.nameEdit.Text()
 	if newName == "" {
-		walk.MsgBox(dlg, "Invalid configuration", "Name is required", walk.MsgBoxIconWarning)
+		walk.MsgBox(dlg, "Invalid name", "A name is required.", walk.MsgBoxIconWarning)
+		return
+	}
+	if !conf.TunnelNameIsValid(newName) {
+		walk.MsgBox(dlg, "Invalid name", fmt.Sprintf("Tunnel name ‘%s’ is invalid.", newName), walk.MsgBoxIconWarning)
 		return
 	}
 
 	if dlg.tunnel != nil && dlg.tunnel.Name != newName {
 		names, err := conf.ListConfigNames()
 		if err != nil {
-			walk.MsgBox(dlg, "Error", err.Error(), walk.MsgBoxIconError)
+			walk.MsgBox(dlg, "Unable to list existing tunnels", err.Error(), walk.MsgBoxIconError)
 			return
 		}
 
@@ -306,18 +265,12 @@ func (dlg *EditDialog) onSaveButtonClicked() {
 		}
 	}
 
-	if !conf.TunnelNameIsValid(newName) {
-		walk.MsgBox(dlg, "Invalid configuration", fmt.Sprintf("Tunnel name ‘%s’ is invalid.", newName), walk.MsgBoxIconWarning)
-		return
-	}
-
 	cfg, err := conf.FromWgQuick(dlg.syntaxEdit.Text(), newName)
 	if err != nil {
-		walk.MsgBox(dlg, "Error", err.Error(), walk.MsgBoxIconError)
+		walk.MsgBox(dlg, "Unable to create new configuration", err.Error(), walk.MsgBoxIconError)
 		return
 	}
 
 	dlg.config = *cfg
-
 	dlg.Accept()
 }
