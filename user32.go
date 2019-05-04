@@ -1709,6 +1709,7 @@ var (
 	setFocus                   *windows.LazyProc
 	setForegroundWindow        *windows.LazyProc
 	setMenu                    *windows.LazyProc
+	setMenuDefaultItem         *windows.LazyProc
 	setMenuInfo                *windows.LazyProc
 	setMenuItemInfo            *windows.LazyProc
 	setParent                  *windows.LazyProc
@@ -1843,6 +1844,7 @@ func init() {
 	setFocus = libuser32.NewProc("SetFocus")
 	setForegroundWindow = libuser32.NewProc("SetForegroundWindow")
 	setMenu = libuser32.NewProc("SetMenu")
+	setMenuDefaultItem = libuser32.NewProc("SetMenuDefaultItem")
 	setMenuInfo = libuser32.NewProc("SetMenuInfo")
 	setMenuItemInfo = libuser32.NewProc("SetMenuItemInfoW")
 	setRect = libuser32.NewProc("SetRect")
@@ -2876,6 +2878,15 @@ func SetMenu(hWnd HWND, hMenu HMENU) bool {
 		uintptr(hWnd),
 		uintptr(hMenu),
 		0)
+
+	return ret != 0
+}
+
+func SetMenuDefaultItem(hMenu HMENU, uItem uint32, fByPosition bool) bool {
+	ret, _, _ := syscall.Syscall(setMenuDefaultItem.Addr(), 3,
+		uintptr(hMenu),
+		uintptr(uItem),
+		uintptr(BoolToBOOL(fByPosition)))
 
 	return ret != 0
 }
