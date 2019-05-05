@@ -60,6 +60,9 @@ func (tray *Tray) setup() error {
 			tray.clicked()
 		}
 	})
+	tray.MessageClicked().Attach(func() {
+		tray.clicked()
+	})
 
 	for _, item := range [...]struct {
 		label     string
