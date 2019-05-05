@@ -107,6 +107,14 @@ func runTunnelEditDialog(owner walk.Form, tunnel *service.Tunnel) *conf.Config {
 	dlg.syntaxEdit.BlockUntunneledTrafficStateChanged().Attach(dlg.onBlockUntunneledTrafficStateChanged)
 	dlg.syntaxEdit.SetText(dlg.config.ToWgQuick())
 
+	if tunnel != nil {
+		dlg.nameEdit.SetFocus() //TODO: This works around a walk issue with scrolling in weird ways <https://github.com/lxn/walk/issues/505>. We should fix this in walk instead of here.
+
+		dlg.Starting().Attach(func() {
+			dlg.syntaxEdit.SetFocus()
+		})
+	}
+
 	if dlg.Run() == walk.DlgCmdOK {
 		return &dlg.config
 	}
