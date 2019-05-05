@@ -11,6 +11,7 @@ import (
 	"golang.zx2c4.com/wireguard/windows/ringlogger"
 	"golang.zx2c4.com/wireguard/windows/service"
 	"golang.zx2c4.com/wireguard/windows/ui"
+	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -174,6 +175,7 @@ func main() {
 		if err != nil {
 			fatal(err)
 		}
+		log.SetOutput(ringlogger.Global)
 		service.InitializeIPCClient(readPipe, writePipe, eventPipe)
 		ui.RunUI()
 		return
