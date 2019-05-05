@@ -69,6 +69,8 @@ func NewLogPage() (*LogPage, error) {
 		selectAllAction.SetEnabled(len(lp.logView.SelectedIndexes()) < len(lp.model.items))
 	}
 	lp.logView.SelectedIndexesChanged().Attach(setSelectionStatus)
+	contextMenu.Actions().AttachShortcuts(lp.logView)
+	contextMenu.Actions().AttachShortcuts(lp)
 
 	stampCol := walk.NewTableViewColumn()
 	stampCol.SetName("Stamp")
