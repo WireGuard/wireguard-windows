@@ -220,6 +220,9 @@ func (tp *TunnelsPage) CreateToolbar() {
 	contextMenu.Actions().Add(selectAllAction)
 	tp.listView.SetContextMenu(contextMenu)
 
+	contextMenu.Actions().AttachShortcuts(tp.listView)
+	contextMenu.Actions().AttachShortcuts(tp)
+
 	setSelectionOrientedOptions := func() {
 		selected := len(tp.listView.SelectedIndexes())
 		all := len(tp.listView.model.tunnels)

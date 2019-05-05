@@ -90,6 +90,9 @@ func RunUI() {
 		}
 	}()
 
+	mtw.Starting().Attach(func() {
+		mtw.tunnelsPage.SetFocus()
+	})
 	mtw.Run()
 	tray.Dispose()
 	mtw.Dispose()
