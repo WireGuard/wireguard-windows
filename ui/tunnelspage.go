@@ -314,8 +314,7 @@ func (tp *TunnelsPage) importFiles(paths []string) {
 
 		// Add in reverse order so that the first one is selected.
 		sort.Slice(unparsedConfigs, func(i, j int) bool {
-			//TODO: use proper tunnel string sorting/comparison algorithm, as the other comments indicate too.
-			return strings.Compare(unparsedConfigs[i].Name, unparsedConfigs[j].Name) > 0
+			return conf.TunnelNameIsLess(unparsedConfigs[j].Name, unparsedConfigs[i].Name)
 		})
 
 		existingTunnelList, err := service.IPCClientTunnels()

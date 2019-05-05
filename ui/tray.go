@@ -7,6 +7,7 @@ package ui
 
 import (
 	"fmt"
+	"golang.zx2c4.com/wireguard/windows/conf"
 	"sort"
 	"strings"
 
@@ -168,7 +169,9 @@ func (tray *Tray) addTunnelAction(tunnel *service.Tunnel) {
 	for name := range tray.tunnels {
 		names = append(names, name)
 	}
-	sort.Strings(names) //TODO: use correct sorting order for this
+	sort.SliceStable(names, func(i, j int) bool {
+		return conf.TunnelNameIsLess(names[i], names[j])
+	})
 
 	var (
 		idx  int
