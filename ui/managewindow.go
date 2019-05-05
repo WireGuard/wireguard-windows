@@ -118,6 +118,7 @@ func (mtw *ManageTunnelsWindow) UpdateFound() {
 	if mtw.updatePage != nil {
 		return
 	}
+	mtw.SetTitle(mtw.Title() + " (out of date)")
 	updatePage, err := NewUpdatePage()
 	if err == nil {
 		mtw.updatePage = updatePage

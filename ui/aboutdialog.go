@@ -31,7 +31,7 @@ func onAbout(owner walk.Form) {
 	dlg.SetFont(font)
 
 	iv, _ := walk.NewImageView(dlg)
-	logo, _ := walk.NewIconFromResourceWithSize("$wireguard.ico", walk.Size{owner.DPI() * 4 / 3, owner.DPI() * 4 / 3}) //TODO: calculate DPI dynamically
+	logo, _ := walk.NewIconFromResourceWithSize("$wireguard.ico", walk.Size{dlg.DPI() * 4 / 3, dlg.DPI() * 4 / 3}) //TODO: calculate DPI dynamically
 	iv.SetCursor(walk.CursorHand())
 	iv.MouseUp().Attach(func(x, y int, button walk.MouseButton) {
 		if button == walk.LeftButton {

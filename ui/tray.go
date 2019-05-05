@@ -73,9 +73,9 @@ func (tray *Tray) setup() error {
 		{separator: true},
 		{separator: true},
 		{label: "&Manage tunnels...", handler: tray.onManageTunnels, enabled: true, defawlt: true},
-		{label: "&Import tunnel(s) from file...", handler: tray.mtw.tunnelsPage.onImport, enabled: true},
+		{label: "&Import tunnel(s) from file...", handler: tray.onImport, enabled: true},
 		{separator: true},
-		{label: "&About WireGuard", handler: func() { onAbout(tray.mtw) }, enabled: true},
+		{label: "&About WireGuard", handler: tray.onAbout, enabled: true},
 		{label: "&Exit", handler: onQuit, enabled: true},
 	} {
 		var action *walk.Action
@@ -319,4 +319,17 @@ func (tray *Tray) onManageTunnels() {
 		tray.mtw.tabs.SetCurrentIndex(0)
 	}
 	tray.mtw.Show()
+}
+
+func (tray *Tray) onAbout() {
+	if tray.mtw.Visible() {
+		onAbout(tray.mtw)
+	} else {
+		onAbout(nil)
+	}
+}
+
+func (tray *Tray) onImport() {
+	tray.mtw.Show()
+	tray.mtw.tunnelsPage.onImport()
 }
