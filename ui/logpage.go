@@ -46,7 +46,29 @@ func NewLogPage() (*LogPage, error) {
 	}
 	lp.logView.SetAlternatingRowBGColor(walk.Color(win.GetSysColor(win.COLOR_BTNFACE)))
 	lp.logView.SetLastColumnStretched(true)
-	lp.logView.KeyPress().Attach(lp.onCopyLogLines)
+
+	contextMenu, _ := walk.NewMenu()
+	copyAction := walk.NewAction()
+	copyAction.SetText("&Copy")
+	copyAction.SetShortcut(walk.Shortcut{walk.ModControl, walk.KeyC})
+	copyAction.Triggered().Attach(lp.onCopy)
+	contextMenu.Actions().Add(copyAction)
+	selectAllAction := walk.NewAction()
+	selectAllAction.SetText("Select &all")
+	selectAllAction.SetShortcut(walk.Shortcut{walk.ModControl, walk.KeyA})
+	selectAllAction.Triggered().Attach(lp.onSelectAll)
+	contextMenu.Actions().Add(selectAllAction)
+	saveAction := walk.NewAction()
+	saveAction.SetText("&Save to file")
+	saveAction.SetShortcut(walk.Shortcut{walk.ModControl, walk.KeyS})
+	saveAction.Triggered().Attach(lp.onSave)
+	contextMenu.Actions().Add(saveAction)
+	lp.logView.SetContextMenu(contextMenu)
+	setSelectionStatus := func() {
+		copyAction.SetEnabled(len(lp.logView.SelectedIndexes()) > 0)
+		selectAllAction.SetEnabled(len(lp.logView.SelectedIndexes()) < len(lp.model.items))
+	}
+	lp.logView.SelectedIndexesChanged().Attach(setSelectionStatus)
 
 	stampCol := walk.NewTableViewColumn()
 	stampCol.SetName("Stamp")
@@ -62,6 +84,7 @@ func NewLogPage() (*LogPage, error) {
 
 	lp.model = newLogModel(lp)
 	lp.logView.SetModel(lp.model)
+	setSelectionStatus()
 
 	buttonsContainer, err := walk.NewComposite(lp)
 	if err != nil {
@@ -77,7 +100,7 @@ func NewLogPage() (*LogPage, error) {
 		return nil, err
 	}
 	saveButton.SetText("Save")
-	saveButton.Clicked().Attach(lp.onSaveButtonClicked)
+	saveButton.Clicked().Attach(lp.onSave)
 
 	disposables.Spare()
 
@@ -98,29 +121,24 @@ func (lp *LogPage) scrollToBottom() {
 	lp.logView.EnsureItemVisible(len(lp.model.items) - 1)
 }
 
-func (lp *LogPage) onCopyLogLines(key walk.Key) {
-	if !walk.ControlDown() {
+func (lp *LogPage) onCopy() {
+	var logLines strings.Builder
+	selectedItemIndexes := lp.logView.SelectedIndexes()
+	if len(selectedItemIndexes) == 0 {
 		return
 	}
-
-	switch key {
-	case walk.KeyC:
-		var logLines strings.Builder
-		selectedItemIndexes := lp.logView.SelectedIndexes()
-		if len(selectedItemIndexes) == 0 {
-			return
-		}
-		for i := 0; i < len(selectedItemIndexes); i++ {
-			logItem := lp.model.items[selectedItemIndexes[i]]
-			logLines.WriteString(fmt.Sprintf("%s: %s\r\n", logItem.Stamp.Format("2006-01-02 15:04:05.000"), logItem.Line))
-		}
-		walk.Clipboard().SetText(logLines.String())
-	case walk.KeyA:
-		lp.logView.SetSelectedIndexes([]int{-1})
+	for i := 0; i < len(selectedItemIndexes); i++ {
+		logItem := lp.model.items[selectedItemIndexes[i]]
+		logLines.WriteString(fmt.Sprintf("%s: %s\r\n", logItem.Stamp.Format("2006-01-02 15:04:05.000"), logItem.Line))
 	}
+	walk.Clipboard().SetText(logLines.String())
 }
 
-func (lp *LogPage) onSaveButtonClicked() {
+func (lp *LogPage) onSelectAll() {
+	lp.logView.SetSelectedIndexes([]int{-1})
+}
+
+func (lp *LogPage) onSave() {
 	fd := walk.FileDialog{
 		Filter:   "Text Files (*.txt)|*.txt|All Files (*.*)|*.*",
 		FilePath: fmt.Sprintf("wireguard-log-%s.txt", time.Now().Format("2006-01-02T150405")),
