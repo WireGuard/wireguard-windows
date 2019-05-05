@@ -22,7 +22,6 @@ type EditDialog struct {
 	syntaxEdit                      *syntax.SyntaxEdit
 	blockUntunneledTrafficCB        *walk.CheckBox
 	saveButton                      *walk.PushButton
-	tunnel                          *service.Tunnel
 	config                          conf.Config
 	lastPrivateKey                  string
 	blockUntunneledTraficCheckGuard bool
@@ -34,7 +33,7 @@ func runTunnelEditDialog(owner walk.Form, tunnel *service.Tunnel) *conf.Config {
 		name  string
 	)
 
-	dlg := &EditDialog{tunnel: tunnel}
+	dlg := &EditDialog{}
 
 	if tunnel == nil {
 		// Creating a new tunnel, create a new private key and use the default template
@@ -250,18 +249,15 @@ func (dlg *EditDialog) onSaveButtonClicked() {
 		return
 	}
 
-	if dlg.tunnel != nil && dlg.tunnel.Name != newName {
-		names, err := conf.ListConfigNames()
-		if err != nil {
-			walk.MsgBox(dlg, "Unable to list existing tunnels", err.Error(), walk.MsgBoxIconError)
+	names, err := conf.ListConfigNames()
+	if err != nil {
+		walk.MsgBox(dlg, "Unable to list existing tunnels", err.Error(), walk.MsgBoxIconError)
+		return
+	}
+	for _, name := range names {
+		if strings.ToLower(name) == strings.ToLower(newName) {
+			walk.MsgBox(dlg, "Tunnel already exists", fmt.Sprintf("Another tunnel already exists with the name ‘%s’.", newName), walk.MsgBoxIconWarning)
 			return
-		}
-
-		for _, name := range names {
-			if strings.ToLower(name) == strings.ToLower(newName) {
-				walk.MsgBox(dlg, "Invalid configuration", fmt.Sprintf("Another tunnel already exists with the name ‘%s’.", newName), walk.MsgBoxIconWarning)
-				return
-			}
 		}
 	}
 
