@@ -6,8 +6,8 @@
 package ui
 
 import (
+	"golang.zx2c4.com/wireguard/windows/conf"
 	"sort"
-	"strings"
 	"sync/atomic"
 
 	"github.com/lxn/walk"
@@ -43,8 +43,7 @@ func (t *ListModel) Value(row, col int) interface{} {
 
 func (t *ListModel) Sort(col int, order walk.SortOrder) error {
 	sort.SliceStable(t.tunnels, func(i, j int) bool {
-		//TODO: use real string comparison for sorting with proper tunnel order
-		return t.tunnels[i].Name < t.tunnels[j].Name
+		return conf.TunnelNameIsLess(t.tunnels[i].Name, t.tunnels[j].Name)
 	})
 
 	return t.SorterBase.Sort(col, order)
@@ -201,8 +200,7 @@ func (tv *ListView) Load(asyncUI bool) {
 		firstTunnelName := ""
 		for tunnel := range newTunnels {
 			if !oldTunnels[tunnel] {
-				//TODO: use proper tunnel string sorting/comparison algorithm, as the other comments indicate too.
-				if len(firstTunnelName) == 0 || strings.Compare(firstTunnelName, tunnel.Name) > 0 {
+				if len(firstTunnelName) == 0 || !conf.TunnelNameIsLess(firstTunnelName, tunnel.Name) {
 					firstTunnelName = tunnel.Name
 				}
 				tv.model.tunnels = append(tv.model.tunnels, tunnel)

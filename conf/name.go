@@ -7,6 +7,7 @@ package conf
 
 import (
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -48,4 +49,64 @@ func TunnelNameIsValid(name string) bool {
 		return false
 	}
 	return allowedNameFormat.MatchString(name)
+}
+
+type naturalSortToken struct {
+	maybeString string
+	maybeNumber int
+}
+type naturalSortString struct {
+	originalString string
+	tokens         []naturalSortToken
+}
+
+var naturalSortDigitFinder = regexp.MustCompile(`\d+|\D+`)
+
+func newNaturalSortString(s string) (t naturalSortString) {
+	t.originalString = s
+	s = strings.ToLower(strings.Join(strings.Fields(s), " "))
+	x := naturalSortDigitFinder.FindAllString(s, -1)
+	t.tokens = make([]naturalSortToken, len(x))
+	for i, s := range x {
+		if n, err := strconv.Atoi(s); err == nil {
+			t.tokens[i].maybeNumber = n
+		} else {
+			t.tokens[i].maybeString = s
+		}
+	}
+	return
+}
+
+func (f1 naturalSortToken) Cmp(f2 naturalSortToken) int {
+	if len(f1.maybeString) == 0 {
+		if len(f2.maybeString) > 0 || f1.maybeNumber < f2.maybeNumber {
+			return -1
+		} else if f1.maybeNumber > f2.maybeNumber {
+			return 1
+		}
+	} else if len(f2.maybeString) == 0 || f1.maybeString > f2.maybeString {
+		return 1
+	} else if f1.maybeString < f2.maybeString {
+		return -1
+	}
+	return 0
+}
+
+func TunnelNameIsLess(a, b string) bool {
+	if a == b {
+		return false
+	}
+	na, nb := newNaturalSortString(a), newNaturalSortString(b)
+	for i, t := range nb.tokens {
+		if i == len(na.tokens) {
+			return true
+		}
+		switch na.tokens[i].Cmp(t) {
+		case -1:
+			return true
+		case 1:
+			return false
+		}
+	}
+	return false
 }
