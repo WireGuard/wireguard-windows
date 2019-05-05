@@ -137,7 +137,7 @@ func (tp *TunnelsPage) CreateToolbar() {
 	importAction.SetDefault(true)
 	importAction.Triggered().Attach(tp.onImport)
 	addAction := walk.NewAction()
-	addAction.SetText("Add empty tunnel")
+	addAction.SetText("Add empty tunnel...")
 	addActionIcon, _ := loadSystemIcon("imageres", 2)
 	addActionImage, _ := walk.NewBitmapFromIcon(addActionIcon, imageSize)
 	addAction.SetImage(addActionImage)
@@ -171,12 +171,76 @@ func (tp *TunnelsPage) CreateToolbar() {
 	exportActionImage, _ := walk.NewBitmapFromIcon(exportActionIcon, imageSize)
 	exportAction.SetImage(exportActionImage)
 	exportAction.SetToolTip("Export all tunnels to zip...")
+	exportAction.SetShortcut(walk.Shortcut{walk.ModControl, walk.KeyS})
 	exportAction.Triggered().Attach(tp.onExportTunnels)
 	tp.listToolbar.Actions().Add(exportAction)
 
 	var size win.SIZE
 	tp.listToolbar.SendMessage(win.TB_GETIDEALSIZE, win.FALSE, uintptr(unsafe.Pointer(&size)))
 	tp.listContainer.SetMinMaxSize(walk.Size{int(size.CX), 0}, walk.Size{int(size.CX), 0})
+
+	contextMenu, _ := walk.NewMenu()
+	toggleAction := walk.NewAction()
+	toggleAction.SetText("&Toggle")
+	toggleAction.SetDefault(true)
+	toggleAction.Triggered().Attach(tp.onTunnelsViewItemActivated)
+	contextMenu.Actions().Add(toggleAction)
+	contextMenu.Actions().Add(walk.NewSeparatorAction())
+	importAction2 := walk.NewAction()
+	importAction2.SetText("Import tunnel(s) from file...")
+	importAction2.SetShortcut(walk.Shortcut{walk.ModControl, walk.KeyO})
+	importAction2.Triggered().Attach(tp.onImport)
+	contextMenu.Actions().Add(importAction2)
+	addAction2 := walk.NewAction()
+	addAction2.SetText("Add empty tunnel...")
+	addAction2.SetShortcut(walk.Shortcut{walk.ModControl, walk.KeyN})
+	addAction2.Triggered().Attach(tp.onAddTunnel)
+	contextMenu.Actions().Add(addAction2)
+	exportAction2 := walk.NewAction()
+	exportAction2.SetText("Export all tunnels to zip...")
+	exportAction2.SetShortcut(walk.Shortcut{walk.ModControl, walk.KeyS})
+	exportAction2.Triggered().Attach(tp.onExportTunnels)
+	contextMenu.Actions().Add(exportAction2)
+	contextMenu.Actions().Add(walk.NewSeparatorAction())
+	editAction := walk.NewAction()
+	editAction.SetText("Edit selected tunnel")
+	editAction.SetShortcut(walk.Shortcut{walk.ModControl, walk.KeyE})
+	editAction.Triggered().Attach(tp.onEditTunnel)
+	contextMenu.Actions().Add(editAction)
+	deleteAction2 := walk.NewAction()
+	deleteAction2.SetText("Remove selected tunnel(s)")
+	deleteAction2.SetShortcut(walk.Shortcut{0, walk.KeyDelete})
+	deleteAction2.Triggered().Attach(tp.onDelete)
+	contextMenu.Actions().Add(deleteAction2)
+	tp.listView.SetContextMenu(contextMenu)
+	selectAllAction := walk.NewAction()
+	selectAllAction.SetText("Select all")
+	selectAllAction.SetShortcut(walk.Shortcut{walk.ModControl, walk.KeyA})
+	selectAllAction.Triggered().Attach(tp.onSelectAll)
+	contextMenu.Actions().Add(selectAllAction)
+	tp.listView.SetContextMenu(contextMenu)
+
+	setSelectionOrientedOptions := func() {
+		selected := len(tp.listView.SelectedIndexes())
+		all := len(tp.listView.model.tunnels)
+		deleteAction.SetEnabled(selected > 0)
+		deleteAction2.SetEnabled(selected > 0)
+		toggleAction.SetEnabled(selected == 1)
+		selectAllAction.SetEnabled(selected < all)
+		editAction.SetEnabled(selected == 1)
+	}
+	tp.listView.SelectedIndexesChanged().Attach(setSelectionOrientedOptions)
+	setSelectionOrientedOptions()
+	setExport := func() {
+		all := len(tp.listView.model.tunnels)
+		exportAction.SetEnabled(all > 0)
+		exportAction2.SetEnabled(all > 0)
+	}
+	setExportRange := func(from, to int) { setExport() }
+	tp.listView.model.RowsInserted().Attach(setExportRange)
+	tp.listView.model.RowsRemoved().Attach(setExportRange)
+	tp.listView.model.RowsReset().Attach(setExport)
+	setExport()
 }
 
 func (tp *TunnelsPage) updateConfView() {
@@ -441,6 +505,10 @@ func (tp *TunnelsPage) onDelete() {
 			})
 		}
 	}()
+}
+
+func (tp *TunnelsPage) onSelectAll() {
+	tp.listView.SetSelectedIndexes([]int{-1})
 }
 
 func (tp *TunnelsPage) onImport() {
