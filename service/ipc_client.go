@@ -9,6 +9,7 @@ import (
 	"encoding/gob"
 	"errors"
 	"golang.zx2c4.com/wireguard/windows/conf"
+	"golang.zx2c4.com/wireguard/windows/updater"
 	"net/rpc"
 	"os"
 )
@@ -33,6 +34,8 @@ const (
 	TunnelChangeNotificationType NotificationType = iota
 	TunnelsChangeNotificationType
 	ManagerStoppingNotificationType
+	UpdateFoundNotificationType
+	UpdateProgressNotificationType
 )
 
 var rpcClient *rpc.Client
@@ -54,6 +57,18 @@ type ManagerStoppingCallback struct {
 }
 
 var managerStoppingCallbacks = make(map[*ManagerStoppingCallback]bool)
+
+type UpdateFoundCallback struct {
+	cb func(updateState UpdateState)
+}
+
+var updateFoundCallbacks = make(map[*UpdateFoundCallback]bool)
+
+type UpdateProgressCallback struct {
+	cb func(dp updater.DownloadProgress)
+}
+
+var updateProgressCallbacks = make(map[*UpdateProgressCallback]bool)
 
 func InitializeIPCClient(reader *os.File, writer *os.File, events *os.File) {
 	rpcClient = rpc.NewClient(&pipeRWC{reader, writer})
@@ -105,6 +120,44 @@ func InitializeIPCClient(reader *os.File, writer *os.File, events *os.File) {
 			case ManagerStoppingNotificationType:
 				for cb := range managerStoppingCallbacks {
 					cb.cb()
+				}
+			case UpdateFoundNotificationType:
+				var state UpdateState
+				err = decoder.Decode(&state)
+				if err != nil {
+					continue
+				}
+				for cb := range updateFoundCallbacks {
+					cb.cb(state)
+				}
+			case UpdateProgressNotificationType:
+				var dp updater.DownloadProgress
+				err = decoder.Decode(&dp.Activity)
+				if err != nil {
+					continue
+				}
+				err = decoder.Decode(&dp.BytesDownloaded)
+				if err != nil {
+					continue
+				}
+				err = decoder.Decode(&dp.BytesTotal)
+				if err != nil {
+					continue
+				}
+				var errStr string
+				err = decoder.Decode(&errStr)
+				if err != nil {
+					continue
+				}
+				if len(errStr) > 0 {
+					dp.Error = errors.New(errStr)
+				}
+				err = decoder.Decode(&dp.Complete)
+				if err != nil {
+					continue
+				}
+				for cb := range updateProgressCallbacks {
+					cb.cb(dp)
 				}
 			}
 		}
@@ -176,6 +229,15 @@ func IPCClientQuit(stopTunnelsOnQuit bool) (bool, error) {
 	return alreadyQuit, rpcClient.Call("ManagerService.Quit", stopTunnelsOnQuit, &alreadyQuit)
 }
 
+func IPCClientUpdateState() (UpdateState, error) {
+	var state UpdateState
+	return state, rpcClient.Call("ManagerService.UpdateState", uintptr(0), &state)
+}
+
+func IPCClientUpdate() error {
+	return rpcClient.Call("ManagerService.Update", uintptr(0), nil)
+}
+
 func IPCClientRegisterTunnelChange(cb func(tunnel *Tunnel, state TunnelState, globalState TunnelState, err error)) *TunnelChangeCallback {
 	s := &TunnelChangeCallback{cb}
 	tunnelChangeCallbacks[s] = true
@@ -199,4 +261,20 @@ func IPCClientRegisterManagerStopping(cb func()) *ManagerStoppingCallback {
 }
 func (cb *ManagerStoppingCallback) Unregister() {
 	delete(managerStoppingCallbacks, cb)
+}
+func IPCClientRegisterUpdateFound(cb func(updateState UpdateState)) *UpdateFoundCallback {
+	s := &UpdateFoundCallback{cb}
+	updateFoundCallbacks[s] = true
+	return s
+}
+func (cb *UpdateFoundCallback) Unregister() {
+	delete(updateFoundCallbacks, cb)
+}
+func IPCClientRegisterUpdateProgress(cb func(dp updater.DownloadProgress)) *UpdateProgressCallback {
+	s := &UpdateProgressCallback{cb}
+	updateProgressCallbacks[s] = true
+	return s
+}
+func (cb *UpdateProgressCallback) Unregister() {
+	delete(updateProgressCallbacks, cb)
 }

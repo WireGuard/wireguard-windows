@@ -71,7 +71,7 @@ func CheckForUpdate() (*UpdateFound, error) {
 
 var updateInProgress = uint32(0)
 
-func DownloadVerifyAndExecute() (progress chan DownloadProgress) {
+func DownloadVerifyAndExecute(userToken uintptr, userEnvironment []string) (progress chan DownloadProgress) {
 	progress = make(chan DownloadProgress, 128)
 	progress <- DownloadProgress{Activity: "Initializing"}
 
@@ -95,13 +95,14 @@ func DownloadVerifyAndExecute() (progress chan DownloadProgress) {
 		}
 
 		progress <- DownloadProgress{Activity: "Creating update file"}
-		updateDir, err := msiSaveDirectory()
+		updateDir, err := msiSaveDirectory(userToken)
 		if err != nil {
 			progress <- DownloadProgress{Error: err}
 			return
 		}
 		// Clean up old updates the brutal way:
 		os.RemoveAll(updateDir)
+		defer os.RemoveAll(updateDir)
 
 		err = os.MkdirAll(updateDir, 0700)
 		if err != nil {
@@ -163,7 +164,6 @@ func DownloadVerifyAndExecute() (progress chan DownloadProgress) {
 
 		progress <- DownloadProgress{Activity: "Verifying authenticode signature"}
 		if !version.VerifyAuthenticode(unverifiedDestinationFilename) {
-			os.Remove(unverifiedDestinationFilename)
 			progress <- DownloadProgress{Error: errors.New("The downloaded update does not have an authentic authenticode signature")}
 			return
 		}
@@ -171,12 +171,10 @@ func DownloadVerifyAndExecute() (progress chan DownloadProgress) {
 		progress <- DownloadProgress{Activity: "Installing update"}
 		err = os.Rename(unverifiedDestinationFilename, destinationFilename)
 		if err != nil {
-			os.Remove(unverifiedDestinationFilename)
 			progress <- DownloadProgress{Error: err}
 			return
 		}
-		err = runMsi(destinationFilename)
-		os.Remove(unverifiedDestinationFilename)
+		err = runMsi(destinationFilename, userToken, userEnvironment)
 		if err != nil {
 			progress <- DownloadProgress{Error: err}
 			return

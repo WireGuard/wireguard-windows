@@ -39,6 +39,25 @@ func tunnelConfigurationsDirectory() (string, error) {
 	return cachedConfigFileDir, nil
 }
 
+func RootDirectoryForToken(token windows.Token) (string, error) {
+	var path *uint16
+	err := shGetKnownFolderPath(&folderIDLocalAppData, kfFlagCreate, windows.Handle(token), &path)
+	if err != nil {
+		return "", err
+	}
+	defer coTaskMemFree(uintptr(unsafe.Pointer(path)))
+	localAppData := windows.UTF16ToString((*[windows.MAX_LONG_PATH + 1]uint16)(unsafe.Pointer(path))[:])
+	if len(localAppData) == 0 {
+		return "", errors.New("unable to determine configuration root directory")
+	}
+	c := filepath.Join(localAppData, "WireGuard")
+	err = os.MkdirAll(c, os.ModeDir|0700)
+	if err != nil {
+		return "", err
+	}
+	return c, nil
+}
+
 func RootDirectory() (string, error) {
 	if cachedRootDir != "" {
 		return cachedRootDir, nil
@@ -47,19 +66,8 @@ func RootDirectory() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer processToken.Close()
-	var path *uint16
-	err = shGetKnownFolderPath(&folderIDLocalAppData, kfFlagCreate, windows.Handle(processToken), &path)
-	if err != nil {
-		return "", err
-	}
-	defer coTaskMemFree(uintptr(unsafe.Pointer(path)))
-	root := windows.UTF16ToString((*[windows.MAX_LONG_PATH + 1]uint16)(unsafe.Pointer(path))[:])
-	if len(root) == 0 {
-		return "", errors.New("Unable to determine configuration directory")
-	}
-	c := filepath.Join(root, "WireGuard")
-	err = os.MkdirAll(c, os.ModeDir|0700)
+	c, err := RootDirectoryForToken(processToken)
+	processToken.Close()
 	if err != nil {
 		return "", err
 	}

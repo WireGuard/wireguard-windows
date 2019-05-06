@@ -9,9 +9,6 @@ import (
 	"fmt"
 	"github.com/lxn/walk"
 	"golang.zx2c4.com/wireguard/windows/service"
-	"golang.zx2c4.com/wireguard/windows/updater"
-	"golang.zx2c4.com/wireguard/windows/version"
-	"log"
 	"runtime"
 	"runtime/debug"
 	"time"
@@ -58,35 +55,25 @@ func RunUI() {
 		})
 	})
 
-	go func() {
-		if !version.IsRunningOfficialVersion() {
-			mtw.Synchronize(func() {
-				mtw.SetTitle(mtw.Title() + " (unsigned build)")
-			})
+	onUpdateNotification := func(updateState service.UpdateState) {
+		if updateState == service.UpdateStateUnknown {
 			return
 		}
-
-		first := true
-		for {
-			update, err := updater.CheckForUpdate()
-			if err == nil && update != nil {
-				mtw.Synchronize(func() {
-					mtw.UpdateFound()
-					tray.UpdateFound()
-				})
-				return
+		mtw.Synchronize(func() {
+			switch updateState {
+			case service.UpdateStateFoundUpdate:
+				mtw.UpdateFound()
+				tray.UpdateFound()
+			case service.UpdateStateUpdatesDisabledUnofficialBuild:
+				mtw.SetTitle(mtw.Title() + " (unsigned build, no updates)")
 			}
-			if err != nil {
-				log.Printf("Update checker: %v", err)
-				if first {
-					time.Sleep(time.Minute * 4)
-					first = false
-				} else {
-					time.Sleep(time.Minute * 25)
-				}
-			} else {
-				time.Sleep(time.Hour)
-			}
+		})
+	}
+	service.IPCClientRegisterUpdateFound(onUpdateNotification)
+	go func() {
+		updateState, err := service.IPCClientUpdateState()
+		if err == nil {
+			onUpdateNotification(updateState)
 		}
 	}()
 

@@ -26,7 +26,6 @@ const (
 	ErrorBindSocketsToDefaultRoutes
 	ErrorSetNetConfig
 	ErrorDetermineExecutablePath
-	ErrorFindAdministratorsSID
 	ErrorCreateSecurityDescriptor
 	ErrorOpenNULFile
 	ErrorTrackTunnels
@@ -60,8 +59,6 @@ func (e Error) Error() string {
 		return "Unable to bind sockets to default route"
 	case ErrorSetNetConfig:
 		return "Unable to set interface addresses, routes, dns, and/or adapter settings"
-	case ErrorFindAdministratorsSID:
-		return "Unable to find Administrators SID"
 	case ErrorCreateSecurityDescriptor:
 		return "Unable to determine security descriptor"
 	case ErrorOpenNULFile:
