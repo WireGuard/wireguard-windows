@@ -20,32 +20,29 @@ function logMessage(msg) {
 function runWithNoWindowFlash(command) {
 	//TODO: Seems pretty unlikely that this temp file is secure...
 	var tmpfile = fso.BuildPath(fso.GetSpecialFolder(2), fso.GetTempName());
-	//TODO: Obviously cmd and tmpfile are unescaped here...
-	var cmd = fso.BuildPath(fso.GetSpecialFolder(1), "cmd.exe") + " /c " + command + " > " + tmpfile;
-	var ret = wsh.Run(cmd, 0, true);
-	if (ret != 0) {
-		logMessage("Command " + cmd + " exited with error " + ret.toString());
+	try {
+		//TODO: Obviously cmd and tmpfile are unescaped here...
+		var cmd = fso.BuildPath(fso.GetSpecialFolder(1), "cmd.exe") + " /c " + command + " > " + tmpfile;
+		var ret = wsh.Run(cmd, 0, true);
+		if (ret != 0) {
+			logMessage("Command " + cmd + " exited with error " + ret.toString());
+			return "";
+		}
+		var txt;
+		try {
+			var file = fso.OpenTextFile(tmpfile, 1);
+			txt = file.ReadAll();
+			file.Close();
+		} catch (e) {
+			logMessage("Unable to read temporary file " + tmpfile + " for command " + cmd + ": " + e.toString());
+			return "";
+		}
+		return txt;
+	} finally {
 		try {
 			fso.DeleteFile(tmpfile);
 		} catch (e) {}
-		return "";
 	}
-	var txt;
-	try {
-		var file = fso.OpenTextFile(tmpfile, 1);
-		txt = file.ReadAll();
-		file.Close();
-	} catch (e) {
-		logMessage("Unable to read temporary file " + tmpfile + " for command " + cmd + ": " + e.toString());
-		try {
-			fso.DeleteFile(tmpfile);
-		} catch (e) {}
-		return "";
-	}
-	try {
-		fso.DeleteFile(tmpfile);
-	} catch(e) {}
-	return txt;
 }
 
 function EvaluateWireGuardServices() {
