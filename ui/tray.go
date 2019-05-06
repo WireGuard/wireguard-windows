@@ -206,8 +206,8 @@ func (tray *Tray) removeTunnelAction(tunnelName string) {
 
 func (tray *Tray) onTunnelChange(tunnel *service.Tunnel, state service.TunnelState, globalState service.TunnelState, err error) {
 	tray.mtw.Synchronize(func() {
-		tray.SetTunnelState(tunnel, state, err == nil)
 		tray.updateGlobalState(globalState)
+		tray.SetTunnelState(tunnel, state, err == nil)
 		if !tray.mtw.Visible() && err != nil {
 			tray.ShowError("WireGuard Tunnel Error", err.Error())
 		}
