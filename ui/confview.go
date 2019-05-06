@@ -414,16 +414,17 @@ func NewConfView(parent walk.Container) (*ConfView, error) {
 	go func() {
 		for range cv.updateTicker.C {
 			if cv.tunnel != nil {
+				tunnel := cv.tunnel
 				var state service.TunnelState
 				var config conf.Config
-				if state, _ = cv.tunnel.State(); state == service.TunnelStarted {
-					config, _ = cv.tunnel.RuntimeConfig()
+				if state, _ = tunnel.State(); state == service.TunnelStarted {
+					config, _ = tunnel.RuntimeConfig()
 				}
 				if config.Name == "" {
-					config, _ = cv.tunnel.StoredConfig()
+					config, _ = tunnel.StoredConfig()
 				}
 				cv.Synchronize(func() {
-					cv.setTunnel(cv.tunnel, &config, state)
+					cv.setTunnel(tunnel, &config, state)
 				})
 			}
 		}
@@ -469,16 +470,18 @@ func (cv *ConfView) onTunnelChanged(tunnel *service.Tunnel, state service.Tunnel
 			cv.interfaze.toggleActive.update(state)
 		}
 	})
-	var config conf.Config
-	if state == service.TunnelStarted {
-		config, _ = tunnel.RuntimeConfig()
+	if cv.tunnel != nil && cv.tunnel.Name == tunnel.Name {
+		var config conf.Config
+		if state == service.TunnelStarted {
+			config, _ = tunnel.RuntimeConfig()
+		}
+		if config.Name == "" {
+			config, _ = tunnel.StoredConfig()
+		}
+		cv.Synchronize(func() {
+			cv.setTunnel(tunnel, &config, state)
+		})
 	}
-	if config.Name == "" {
-		config, _ = tunnel.StoredConfig()
-	}
-	cv.Synchronize(func() {
-		cv.setTunnel(tunnel, &config, state)
-	})
 }
 
 func (cv *ConfView) SetTunnel(tunnel *service.Tunnel) {
@@ -508,6 +511,10 @@ func (cv *ConfView) SetTunnel(tunnel *service.Tunnel) {
 }
 
 func (cv *ConfView) setTunnel(tunnel *service.Tunnel, config *conf.Config, state service.TunnelState) {
+	if !(cv.tunnel == nil || tunnel == nil || tunnel.Name == cv.tunnel.Name) {
+		return
+	}
+
 	cv.name.SetVisible(tunnel != nil)
 
 	hasSuspended := false
