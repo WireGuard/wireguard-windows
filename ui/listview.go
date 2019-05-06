@@ -122,10 +122,22 @@ func (tv *ListView) StyleCell(style *walk.CellStyle) {
 	b.Width -= b.Height
 	canvas.DrawText(tunnel.Name, tv.Font(), 0, b, walk.TextVCenter|walk.TextSingleLine)
 
-	b.X = 0
+	//TODO: don't make an IPC call from the drawing thread like this!
+	state, err := tunnel.State()
+	if err != nil {
+		return
+	}
+	margin := tv.DPI() / 48 //TODO: Do some sort of dynamic DPI calculation here
+	b.X = margin
+	b.Y += margin
+	b.Height -= margin * 2
 	b.Width = b.Height
-
-	iconProvider.PaintForTunnel(tunnel, canvas, b)
+	icon, err := iconProvider.IconForState(state)
+	if err != nil {
+		return
+	}
+	canvas.DrawImageStretched(icon, b)
+	icon.Dispose()
 }
 
 func (tv *ListView) CurrentTunnel() *service.Tunnel {
