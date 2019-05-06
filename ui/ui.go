@@ -35,6 +35,8 @@ func RunUI() {
 		tray *Tray
 	)
 
+	iconProvider, _ = NewIconProvider()
+
 	for mtw == nil {
 		mtw, err = NewManageTunnelsWindow()
 		if err != nil {
