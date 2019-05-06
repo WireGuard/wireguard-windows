@@ -15,7 +15,6 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"path"
 	"sync/atomic"
 )
 
@@ -71,7 +70,7 @@ func CheckForUpdate() (*UpdateFound, error) {
 
 var updateInProgress = uint32(0)
 
-func DownloadVerifyAndExecute() (progress chan DownloadProgress) {
+func DownloadVerifyAndExecute(userToken uintptr, userEnvironment []string) (progress chan DownloadProgress) {
 	progress = make(chan DownloadProgress, 128)
 	progress <- DownloadProgress{Activity: "Initializing"}
 
@@ -94,33 +93,19 @@ func DownloadVerifyAndExecute() (progress chan DownloadProgress) {
 			return
 		}
 
-		progress <- DownloadProgress{Activity: "Creating update file"}
-		updateDir, err := msiSaveDirectory()
-		if err != nil {
-			progress <- DownloadProgress{Error: err}
-			return
-		}
-		// Clean up old updates the brutal way:
-		os.RemoveAll(updateDir)
-
-		err = os.MkdirAll(updateDir, 0700)
-		if err != nil {
-			progress <- DownloadProgress{Error: err}
-			return
-		}
-		destinationFilename := path.Join(updateDir, update.name)
-		unverifiedDestinationFilename := destinationFilename + ".unverified"
-		out, err := os.Create(unverifiedDestinationFilename)
+		progress <- DownloadProgress{Activity: "Creating temporary file"}
+		file, err := msiTempFile()
 		if err != nil {
 			progress <- DownloadProgress{Error: err}
 			return
 		}
 		defer func() {
-			if out != nil {
-				out.Seek(0, io.SeekStart)
-				out.Truncate(0)
-				out.Close()
-				os.Remove(unverifiedDestinationFilename)
+			if file != nil {
+				name := file.Name()
+				file.Seek(0, io.SeekStart)
+				file.Truncate(0)
+				file.Close()
+				os.Remove(name) //TODO: Do we have any sort of TOCTOU here?
 			}
 		}()
 
@@ -149,7 +134,7 @@ func DownloadVerifyAndExecute() (progress chan DownloadProgress) {
 			return
 		}
 		pm := &progressHashWatcher{&dp, progress, hasher}
-		_, err = io.Copy(out, io.TeeReader(io.LimitReader(response.Body, 1024*1024*100 /* 100 MiB */), pm))
+		_, err = io.Copy(file, io.TeeReader(io.LimitReader(response.Body, 1024*1024*100 /* 100 MiB */), pm))
 		if err != nil {
 			progress <- DownloadProgress{Error: err}
 			return
@@ -158,25 +143,23 @@ func DownloadVerifyAndExecute() (progress chan DownloadProgress) {
 			progress <- DownloadProgress{Error: errors.New("The downloaded update has the wrong hash")}
 			return
 		}
-		out.Close()
-		out = nil
+
+		//TODO: it would be nice to rename in place from "file.msi.unverified" to "file.msi", but Windows TOCTOU stuff
+		// is hard, so we'll come back to this later.
+		name := file.Name()
+		file.Close()
+		file = nil
 
 		progress <- DownloadProgress{Activity: "Verifying authenticode signature"}
-		if !version.VerifyAuthenticode(unverifiedDestinationFilename) {
-			os.Remove(unverifiedDestinationFilename)
+		if !version.VerifyAuthenticode(name) {
+			os.Remove(name) //TODO: Do we have any sort of TOCTOU here?
 			progress <- DownloadProgress{Error: errors.New("The downloaded update does not have an authentic authenticode signature")}
 			return
 		}
 
 		progress <- DownloadProgress{Activity: "Installing update"}
-		err = os.Rename(unverifiedDestinationFilename, destinationFilename)
-		if err != nil {
-			os.Remove(unverifiedDestinationFilename)
-			progress <- DownloadProgress{Error: err}
-			return
-		}
-		err = runMsi(destinationFilename)
-		os.Remove(unverifiedDestinationFilename)
+		err = runMsi(name, userToken, userEnvironment)
+		os.Remove(name) //TODO: Do we have any sort of TOCTOU here?
 		if err != nil {
 			progress <- DownloadProgress{Error: err}
 			return

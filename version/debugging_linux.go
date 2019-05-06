@@ -5,11 +5,13 @@
 
 package version
 
-// For testing the updater package from linux. Debug stuff only.
+import (
+	"bytes"
+	"fmt"
+	"golang.org/x/sys/unix"
+)
 
-func IsOfficialPath(path string) bool {
-	return true
-}
+// For testing the updater package from linux. Debug stuff only.
 
 func utsToStr(u [65]byte) string {
 	i := bytes.IndexByte(u[:], 0)
@@ -29,4 +31,8 @@ func OsName() string {
 
 func RunningVersion() string {
 	return "0.0.0.0"
+}
+
+func VerifyAuthenticode(path string) bool {
+	return true
 }

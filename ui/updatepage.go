@@ -7,9 +7,9 @@ package ui
 
 import (
 	"fmt"
-	"golang.zx2c4.com/wireguard/windows/updater"
-
 	"github.com/lxn/walk"
+	"golang.zx2c4.com/wireguard/windows/service"
+	"golang.zx2c4.com/wireguard/windows/updater"
 )
 
 type UpdatePage struct {
@@ -52,63 +52,67 @@ func NewUpdatePage() (*UpdatePage, error) {
 
 	walk.NewVSpacer(up)
 
+	switchToUpdatingState := func() {
+		if !bar.Visible() {
+			up.SetSuspended(true)
+			button.SetEnabled(false)
+			button.SetVisible(false)
+			bar.SetVisible(true)
+			bar.SetMarqueeMode(true)
+			up.SetSuspended(false)
+			status.SetText("Status: Waiting for updater service")
+		}
+	}
+
+	switchToReadyState := func() {
+		if bar.Visible() {
+			up.SetSuspended(true)
+			bar.SetVisible(false)
+			bar.SetValue(0)
+			bar.SetRange(0, 1)
+			bar.SetMarqueeMode(false)
+			button.SetVisible(true)
+			button.SetEnabled(true)
+			up.SetSuspended(false)
+		}
+	}
+
 	button.Clicked().Attach(func() {
-		up.SetSuspended(true)
-		button.SetEnabled(false)
-		button.SetVisible(false)
-		bar.SetVisible(true)
-		bar.SetMarqueeMode(true)
-		up.SetSuspended(false)
-		progress := updater.DownloadVerifyAndExecute()
-		go func() {
-			for {
-				dp := <-progress
-				retNow := false
-				up.Synchronize(func() {
-					if dp.Error != nil {
-						up.SetSuspended(true)
-						bar.SetVisible(false)
-						bar.SetValue(0)
-						bar.SetRange(0, 1)
-						bar.SetMarqueeMode(false)
-						button.SetVisible(true)
-						button.SetEnabled(true)
-						status.SetText(fmt.Sprintf("Error: %v. Please try again.", dp.Error))
-						up.SetSuspended(false)
-						retNow = true
-						return
-					}
-					if len(dp.Activity) > 0 {
-						status.SetText(fmt.Sprintf("Status: %s", dp.Activity))
-					}
-					if dp.BytesTotal > 0 {
-						bar.SetMarqueeMode(false)
-						bar.SetRange(0, int(dp.BytesTotal))
-						bar.SetValue(int(dp.BytesDownloaded))
-					} else {
-						bar.SetMarqueeMode(true)
-						bar.SetValue(0)
-						bar.SetRange(0, 1)
-					}
-					if dp.Complete {
-						up.SetSuspended(true)
-						bar.SetVisible(false)
-						bar.SetValue(0)
-						bar.SetRange(0, 0)
-						bar.SetMarqueeMode(false)
-						button.SetVisible(true)
-						button.SetEnabled(true)
-						status.SetText("Status: Complete!")
-						up.SetSuspended(false)
-						retNow = true
-						return
-					}
-				})
-				if retNow {
-					return
-				}
-			}
-		}()
+		switchToUpdatingState()
+		err := service.IPCClientUpdate()
+		if err != nil {
+			switchToReadyState()
+			status.SetText(fmt.Sprintf("Error: %v. Please try again.", err))
+		}
 	})
+
+	service.IPCClientRegisterUpdateProgress(func(dp updater.DownloadProgress) {
+		up.Synchronize(func() {
+			switchToUpdatingState()
+			if dp.Error != nil {
+				switchToReadyState()
+				status.SetText(fmt.Sprintf("Error: %v. Please try again.", dp.Error))
+				return
+			}
+			if len(dp.Activity) > 0 {
+				status.SetText(fmt.Sprintf("Status: %s", dp.Activity))
+			}
+			if dp.BytesTotal > 0 {
+				bar.SetMarqueeMode(false)
+				bar.SetRange(0, int(dp.BytesTotal))
+				bar.SetValue(int(dp.BytesDownloaded))
+			} else {
+				bar.SetMarqueeMode(true)
+				bar.SetValue(0)
+				bar.SetRange(0, 1)
+			}
+			if dp.Complete {
+				switchToReadyState()
+				status.SetText("Status: Complete!")
+				return
+			}
+		})
+	})
+
 	return up, nil
 }

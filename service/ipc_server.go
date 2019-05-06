@@ -10,8 +10,10 @@ import (
 	"encoding/gob"
 	"fmt"
 	"github.com/Microsoft/go-winio"
+	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/svc"
 	"golang.zx2c4.com/wireguard/windows/conf"
+	"golang.zx2c4.com/wireguard/windows/updater"
 	"io/ioutil"
 	"log"
 	"net/rpc"
@@ -27,8 +29,14 @@ var managerServicesLock sync.RWMutex
 var haveQuit uint32
 var quitManagersChan = make(chan struct{}, 1)
 
+type UserTokenInfo struct {
+	elevatedToken       windows.Token
+	elevatedEnvironment []string
+}
+
 type ManagerService struct {
-	events *os.File
+	events        *os.File
+	userTokenInfo *UserTokenInfo
 }
 
 func (s *ManagerService) StoredConfig(tunnelName string, config *conf.Config) error {
@@ -115,7 +123,7 @@ func (s *ManagerService) Start(tunnelName string, unused *uintptr) error {
 	return InstallTunnel(path)
 }
 
-func (s *ManagerService) Stop(tunnelName string, unused *uintptr) error {
+func (s *ManagerService) Stop(tunnelName string, _ *uintptr) error {
 	err := UninstallTunnel(tunnelName)
 	if err == syscall.Errno(serviceDOES_NOT_EXIST) {
 		_, notExistsError := conf.LoadFromName(tunnelName)
@@ -126,7 +134,7 @@ func (s *ManagerService) Stop(tunnelName string, unused *uintptr) error {
 	return err
 }
 
-func (s *ManagerService) WaitForStop(tunnelName string, unused *uintptr) error {
+func (s *ManagerService) WaitForStop(tunnelName string, _ *uintptr) error {
 	serviceName, err := ServiceNameOfTunnel(tunnelName)
 	if err != nil {
 		return err
@@ -146,7 +154,7 @@ func (s *ManagerService) WaitForStop(tunnelName string, unused *uintptr) error {
 	}
 }
 
-func (s *ManagerService) Delete(tunnelName string, unused *uintptr) error {
+func (s *ManagerService) Delete(tunnelName string, _ *uintptr) error {
 	err := s.Stop(tunnelName, nil)
 	if err != nil {
 		return err
@@ -189,7 +197,7 @@ func (s *ManagerService) State(tunnelName string, state *TunnelState) error {
 	return nil
 }
 
-func (s *ManagerService) GlobalState(unused uintptr, state *TunnelState) error {
+func (s *ManagerService) GlobalState(_ uintptr, state *TunnelState) error {
 	*state = trackedTunnelsGlobalState()
 	return nil
 }
@@ -205,7 +213,7 @@ func (s *ManagerService) Create(tunnelConfig conf.Config, tunnel *Tunnel) error 
 	//TODO: handle already running and existing situation
 }
 
-func (s *ManagerService) Tunnels(unused uintptr, tunnels *[]Tunnel) error {
+func (s *ManagerService) Tunnels(_ uintptr, tunnels *[]Tunnel) error {
 	names, err := conf.ListConfigNames()
 	if err != nil {
 		return err
@@ -244,8 +252,30 @@ func (s *ManagerService) Quit(stopTunnelsOnQuit bool, alreadyQuit *bool) error {
 	return nil
 }
 
-func IPCServerListen(reader *os.File, writer *os.File, events *os.File) error {
-	service := &ManagerService{events: events}
+func (s *ManagerService) UpdateState(_ uintptr, state *UpdateState) error {
+	*state = updateState
+	return nil
+}
+
+func (s *ManagerService) Update(_ uintptr, _ *uintptr) error {
+	progress := updater.DownloadVerifyAndExecute(uintptr(s.userTokenInfo.elevatedToken), s.userTokenInfo.elevatedEnvironment)
+	go func() {
+		for {
+			dp := <-progress
+			IPCServerNotifyUpdateProgress(dp)
+			if dp.Complete || dp.Error != nil {
+				return
+			}
+		}
+	}()
+	return nil
+}
+
+func IPCServerListen(reader *os.File, writer *os.File, events *os.File, userTokenInfo *UserTokenInfo) error {
+	service := &ManagerService{
+		events:        events,
+		userTokenInfo: userTokenInfo,
+	}
 
 	server := rpc.NewServer()
 	err := server.Register(service)
@@ -302,6 +332,18 @@ func IPCServerNotifyTunnelChange(name string, state TunnelState, err error) {
 
 func IPCServerNotifyTunnelsChange() {
 	notifyAll(TunnelsChangeNotificationType)
+}
+
+func IPCServerNotifyUpdateFound(state UpdateState) {
+	notifyAll(UpdateFoundNotificationType, state)
+}
+
+func IPCServerNotifyUpdateProgress(dp updater.DownloadProgress) {
+	if dp.Error == nil {
+		notifyAll(UpdateProgressNotificationType, dp.Activity, dp.BytesDownloaded, dp.BytesTotal, "", dp.Complete)
+	} else {
+		notifyAll(UpdateProgressNotificationType, dp.Activity, dp.BytesDownloaded, dp.BytesTotal, dp.Error.Error(), dp.Complete)
+	}
 }
 
 func IPCServerNotifyManagerStopping() {
