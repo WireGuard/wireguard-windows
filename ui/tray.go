@@ -304,7 +304,7 @@ func (tray *Tray) UpdateFound() {
 	action.SetText("An Update is Available!")
 	icon, _ := loadSystemIcon("imageres", 1)
 	defer icon.Dispose()
-	bitmap, _ := walk.NewBitmapFromIcon(icon, walk.Size{16, 16}) //TODO: This should use dynamic DPI.
+	bitmap, _ := walk.NewBitmapFromIcon(icon, walk.Size{tray.mtw.DPI() / 6, tray.mtw.DPI() / 6}) //TODO: This should use dynamic DPI.
 	action.SetImage(bitmap)
 	action.SetDefault(true)
 	showUpdateTab := func() {

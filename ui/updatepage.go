@@ -28,7 +28,7 @@ func NewUpdatePage() (*UpdatePage, error) {
 
 	tabIcon, _ := loadSystemIcon("imageres", 1)
 	defer tabIcon.Dispose()
-	bitmap, _ := walk.NewBitmapFromIcon(tabIcon, walk.Size{16, 16}) //TODO: this should use dynamic DPI, but the tab widget seems broken
+	bitmap, _ := walk.NewBitmapFromIcon(tabIcon, walk.Size{up.DPI() / 6, up.DPI() / 6}) //TODO: this should use dynamic DPI
 	up.SetImage(bitmap)
 
 	//TODO: make title bold
