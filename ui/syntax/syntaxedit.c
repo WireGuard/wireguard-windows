@@ -29,30 +29,32 @@ static WNDPROC parent_proc;
 
 struct span_style {
 	COLORREF color;
+	COLORREF backColor;
 	DWORD effects;
+	DWORD mask;
 };
 
 static const struct span_style stylemap[] = {
-	[HighlightSection] = { .color = RGB(0x32, 0x6D, 0x74), .effects = CFE_BOLD },
-	[HighlightField] = { .color = RGB(0x9B, 0x23, 0x93), .effects = CFE_BOLD },
-	[HighlightPrivateKey] = { .color = RGB(0x64, 0x38, 0x20) },
-	[HighlightPublicKey] = { .color = RGB(0x64, 0x38, 0x20) },
-	[HighlightPresharedKey] = { .color = RGB(0x64, 0x38, 0x20) },
-	[HighlightIP] = { .color = RGB(0x0E, 0x0E, 0xFF) },
-	[HighlightCidr] = { .color = RGB(0x81, 0x5F, 0x03) },
-	[HighlightHost] = { .color = RGB(0x0E, 0x0E, 0xFF) },
-	[HighlightPort] = { .color = RGB(0x81, 0x5F, 0x03) },
-	[HighlightMTU] = { .color = RGB(0x1C, 0x00, 0xCF) },
-	[HighlightKeepalive] = { .color = RGB(0x1C, 0x00, 0xCF) },
-	[HighlightComment] = { .color = RGB(0x53, 0x65, 0x79), .effects = CFE_ITALIC },
-	[HighlightDelimiter] = { .color = RGB(0x00, 0x00, 0x00) },
+	[HighlightSection]      = { .backColor = RGB(0xF7, 0xF0, 0xBF), .color = RGB(0x32, 0x6D, 0x74), .effects = CFE_BOLD,      .mask = CFM_COLOR | CFM_BACKCOLOR },
+	[HighlightField]        = {                                     .color = RGB(0x9B, 0x23, 0x93), .effects = CFE_BOLD,      .mask = CFM_COLOR },
+	[HighlightPrivateKey]   = {                                     .color = RGB(0x64, 0x38, 0x20),                           .mask = CFM_COLOR },
+	[HighlightPublicKey]    = {                                     .color = RGB(0x64, 0x38, 0x20),                           .mask = CFM_COLOR },
+	[HighlightPresharedKey] = {                                     .color = RGB(0x64, 0x38, 0x20),                           .mask = CFM_COLOR },
+	[HighlightIP]           = {                                     .color = RGB(0x0E, 0x0E, 0xFF),                           .mask = CFM_COLOR },
+	[HighlightCidr]         = {                                     .color = RGB(0x81, 0x5F, 0x03),                           .mask = CFM_COLOR },
+	[HighlightHost]         = {                                     .color = RGB(0x0E, 0x0E, 0xFF),                           .mask = CFM_COLOR },
+	[HighlightPort]         = {                                     .color = RGB(0x81, 0x5F, 0x03),                           .mask = CFM_COLOR },
+	[HighlightMTU]          = {                                     .color = RGB(0x1C, 0x00, 0xCF),                           .mask = CFM_COLOR },
+	[HighlightKeepalive]    = {                                     .color = RGB(0x1C, 0x00, 0xCF),                           .mask = CFM_COLOR },
+	[HighlightComment]      = {                                     .color = RGB(0x53, 0x65, 0x79), .effects = CFE_ITALIC,    .mask = CFM_COLOR },
+	[HighlightDelimiter]    = {                                     .color = RGB(0x00, 0x00, 0x00),                           .mask = CFM_COLOR },
 #ifndef MOBILE_WGQUICK_SUBSET
-	[HighlightTable] = { .color = RGB(0x1C, 0x00, 0xCF) },
-	[HighlightFwMark] = { .color = RGB(0x1C, 0x00, 0xCF) },
-	[HighlightSaveConfig] = { .color = RGB(0x81, 0x5F, 0x03) },
-	[HighlightCmd] = { .color = RGB(0x63, 0x75, 0x89) },
+	[HighlightTable]        = {                                     .color = RGB(0x1C, 0x00, 0xCF),                           .mask = CFM_COLOR },
+	[HighlightFwMark]       = {                                     .color = RGB(0x1C, 0x00, 0xCF),                           .mask = CFM_COLOR },
+	[HighlightSaveConfig]   = {                                     .color = RGB(0x81, 0x5F, 0x03),                           .mask = CFM_COLOR },
+	[HighlightCmd]          = {                                     .color = RGB(0x63, 0x75, 0x89),                           .mask = CFM_COLOR },
 #endif
-	[HighlightError] = { .color = RGB(0xC4, 0x1A, 0x16), .effects = CFE_UNDERLINE }
+	[HighlightError]        = { .backColor = RGB(0xFF, 0xCC, 0xCC), .color = RGB(0xC4, 0x1A, 0x16), .effects = CFE_UNDERLINE, .mask = CFM_COLOR | CFM_BACKCOLOR },
 };
 
 static void evaluate_untunneled_blocking(struct syntaxedit_data *this, HWND hWnd, const char *msg, struct highlight_span *spans)
@@ -128,10 +130,12 @@ static void highlight_text(HWND hWnd)
 	};
 	CHARFORMAT2 format = {
 		.cbSize = sizeof(CHARFORMAT2),
-		.dwMask = CFM_COLOR | CFM_CHARSET | CFM_SIZE | CFM_BOLD | CFM_ITALIC | CFM_UNDERLINE,
+		.dwMask = CFM_COLOR | CFM_BACKCOLOR | CFM_CHARSET | CFM_SIZE | CFM_BOLD | CFM_ITALIC | CFM_UNDERLINE,
 		.dwEffects = CFE_AUTOCOLOR,
 		.yHeight = 20 * 10,
-		.bCharSet = ANSI_CHARSET
+		.bCharSet = ANSI_CHARSET,
+		.crBackColor = GetSysColor(COLOR_WINDOW),
+		.crTextColor = GetSysColor(COLOR_WINDOWTEXT)
 	};
 	struct syntaxedit_data *this = (struct syntaxedit_data *)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 	LRESULT msg_size;
@@ -177,8 +181,21 @@ static void highlight_text(HWND hWnd)
 	for (struct highlight_span *span = spans; span->type != HighlightEnd; ++span) {
 		CHARRANGE selection = { span->start, span->len + span->start };
 		SendMessage(hWnd, EM_EXSETSEL, 0, (LPARAM)&selection);
-		format.crTextColor = stylemap[span->type].color;
+
+		if(stylemap[span->type].mask & CFM_COLOR) {
+			format.crTextColor = stylemap[span->type].color;
+		} else {
+			format.crTextColor = GetSysColor(COLOR_WINDOWTEXT);
+		}
+
+		if(stylemap[span->type].mask & CFM_BACKCOLOR) {
+			format.crBackColor = stylemap[span->type].backColor;
+		} else {
+			format.crBackColor = GetSysColor(COLOR_WINDOW);
+		}
+
 		format.dwEffects = stylemap[span->type].effects;
+
 		SendMessage(hWnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&format);
 		if (span->type == HighlightPrivateKey && !found_private_key) {
 			/* Rather than allocating a new string, we mangle this one, since (for now) we don't use msg again. */
