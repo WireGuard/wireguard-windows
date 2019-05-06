@@ -605,7 +605,7 @@ func permitDhcpIpv6(session uintptr, baseObjects *baseObjects, weight uint8) err
 
 func permitNdp(session uintptr, baseObjects *baseObjects, weight uint8) error {
 
-	/* TODO: Objective is:
+	/*
 	 *  icmpv6 133: must be outgoing, dst must be FF02::2/128, hop limit must be 255
 	 *  icmpv6 134: must be incoming, src must be FE80::/10, hop limit must be 255
 	 *  icmpv6 135: either incoming or outgoing, hop limit must be 255
@@ -613,21 +613,238 @@ func permitNdp(session uintptr, baseObjects *baseObjects, weight uint8) error {
 	 *  icmpv6 137: must be incoming, src must be FE80::/10, hop limit must be 255
 	 */
 
+	 type filterDefinition struct {
+		displayData *wtFwpmDisplayData0
+		conditions []wtFwpmFilterCondition0
+		layer windows.GUID
+	}
+	
+	var defs []filterDefinition
+
 	//
-	// #1 out: icmp icmp_type=133 dhost=linkLocal|siteLocal ttl=255
+	// Router Solicitation Message
+	// ICMP type 133, code 0. Outgoing.
 	//
 	{
-		var conditions [5]wtFwpmFilterCondition0
+		conditions := make([]wtFwpmFilterCondition0, 4)
 
 		conditions[0].fieldKey = cFWPM_CONDITION_IP_PROTOCOL
 		conditions[0].matchType = cFWP_MATCH_EQUAL
 		conditions[0].conditionValue._type = cFWP_UINT8
 		conditions[0].conditionValue.value = uintptr(cIPPROTO_ICMP)
 
-		conditions[1].fieldKey = cFWPM_CONDITION_ICMP_TYPE // TODO: This could be wrong, it might be _CODE
+		conditions[1].fieldKey = cFWPM_CONDITION_ICMP_TYPE
 		conditions[1].matchType = cFWP_MATCH_EQUAL
 		conditions[1].conditionValue._type = cFWP_UINT16
 		conditions[1].conditionValue.value = uintptr(133)
+
+		conditions[2].fieldKey = cFWPM_CONDITION_ICMP_CODE
+		conditions[2].matchType = cFWP_MATCH_EQUAL
+		conditions[2].conditionValue._type = cFWP_UINT16
+		conditions[2].conditionValue.value = uintptr(0)
+
+		linkLocalRouterMulticast := wtFwpByteArray16{[16]uint8{0xFF, 0x02, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x2}}
+
+		conditions[3].fieldKey = cFWPM_CONDITION_IP_REMOTE_ADDRESS
+		conditions[3].matchType = cFWP_MATCH_EQUAL
+		conditions[3].conditionValue._type = cFWP_BYTE_ARRAY16_TYPE
+		conditions[3].conditionValue.value = uintptr(unsafe.Pointer(&linkLocalRouterMulticast))
+
+		displayData, err := createWtFwpmDisplayData0("Permit NDP type 133", "")
+		if err != nil {
+			return wrapErr(err)
+		}
+
+		defs = append(defs, filterDefinition{
+			displayData: displayData,
+			conditions: conditions,
+			layer: cFWPM_LAYER_ALE_AUTH_CONNECT_V6,
+		})
+	}
+
+	//
+	// Router Advertisement Message
+	// ICMP type 134, code 0. Incoming.
+	//
+	{
+		conditions := make([]wtFwpmFilterCondition0, 4)
+
+		conditions[0].fieldKey = cFWPM_CONDITION_IP_PROTOCOL
+		conditions[0].matchType = cFWP_MATCH_EQUAL
+		conditions[0].conditionValue._type = cFWP_UINT8
+		conditions[0].conditionValue.value = uintptr(cIPPROTO_ICMP)
+
+		conditions[1].fieldKey = cFWPM_CONDITION_ICMP_TYPE
+		conditions[1].matchType = cFWP_MATCH_EQUAL
+		conditions[1].conditionValue._type = cFWP_UINT16
+		conditions[1].conditionValue.value = uintptr(134)
+
+		conditions[2].fieldKey = cFWPM_CONDITION_ICMP_CODE
+		conditions[2].matchType = cFWP_MATCH_EQUAL
+		conditions[2].conditionValue._type = cFWP_UINT16
+		conditions[2].conditionValue.value = uintptr(0)
+
+		linkLocal := wtFwpV6AddrAndMask{[16]uint8{0xfe, 0x80}, 10}
+
+		conditions[3].fieldKey = cFWPM_CONDITION_IP_REMOTE_ADDRESS
+		conditions[3].matchType = cFWP_MATCH_EQUAL
+		conditions[3].conditionValue._type = cFWP_V6_ADDR_MASK
+		conditions[3].conditionValue.value = uintptr(unsafe.Pointer(&linkLocal))
+
+		displayData, err := createWtFwpmDisplayData0("Permit NDP type 134", "")
+		if err != nil {
+			return wrapErr(err)
+		}
+
+		defs = append(defs, filterDefinition{
+			displayData: displayData,
+			conditions: conditions,
+			layer: cFWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6,
+		})
+	}
+
+	//
+	// Neighbor Solicitation Message
+	// ICMP type 135, code 0. Bi-directional.
+	//
+	{
+		conditions := make([]wtFwpmFilterCondition0, 3)
+
+		conditions[0].fieldKey = cFWPM_CONDITION_IP_PROTOCOL
+		conditions[0].matchType = cFWP_MATCH_EQUAL
+		conditions[0].conditionValue._type = cFWP_UINT8
+		conditions[0].conditionValue.value = uintptr(cIPPROTO_ICMP)
+
+		conditions[1].fieldKey = cFWPM_CONDITION_ICMP_TYPE
+		conditions[1].matchType = cFWP_MATCH_EQUAL
+		conditions[1].conditionValue._type = cFWP_UINT16
+		conditions[1].conditionValue.value = uintptr(135)
+
+		conditions[2].fieldKey = cFWPM_CONDITION_ICMP_CODE
+		conditions[2].matchType = cFWP_MATCH_EQUAL
+		conditions[2].conditionValue._type = cFWP_UINT16
+		conditions[2].conditionValue.value = uintptr(0)
+
+		displayData, err := createWtFwpmDisplayData0("Permit NDP type 135", "")
+		if err != nil {
+			return wrapErr(err)
+		}
+
+		defs = append(defs, filterDefinition{
+			displayData: displayData,
+			conditions: conditions,
+			layer: cFWPM_LAYER_ALE_AUTH_CONNECT_V6,
+		})
+
+		defs = append(defs, filterDefinition{
+			displayData: displayData,
+			conditions: conditions,
+			layer: cFWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6,
+		})
+	}
+
+	//
+	// Neighbor Advertisement Message
+	// ICMP type 136, code 0. Bi-directional.
+	//
+	{
+		conditions := make([]wtFwpmFilterCondition0, 3)
+
+		conditions[0].fieldKey = cFWPM_CONDITION_IP_PROTOCOL
+		conditions[0].matchType = cFWP_MATCH_EQUAL
+		conditions[0].conditionValue._type = cFWP_UINT8
+		conditions[0].conditionValue.value = uintptr(cIPPROTO_ICMP)
+
+		conditions[1].fieldKey = cFWPM_CONDITION_ICMP_TYPE
+		conditions[1].matchType = cFWP_MATCH_EQUAL
+		conditions[1].conditionValue._type = cFWP_UINT16
+		conditions[1].conditionValue.value = uintptr(136)
+
+		conditions[2].fieldKey = cFWPM_CONDITION_ICMP_CODE
+		conditions[2].matchType = cFWP_MATCH_EQUAL
+		conditions[2].conditionValue._type = cFWP_UINT16
+		conditions[2].conditionValue.value = uintptr(0)
+
+		displayData, err := createWtFwpmDisplayData0("Permit NDP type 136", "")
+		if err != nil {
+			return wrapErr(err)
+		}
+
+		defs = append(defs, filterDefinition{
+			displayData: displayData,
+			conditions: conditions,
+			layer: cFWPM_LAYER_ALE_AUTH_CONNECT_V6,
+		})
+
+		defs = append(defs, filterDefinition{
+			displayData: displayData,
+			conditions: conditions,
+			layer: cFWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6,
+		})
+	}
+
+	//
+	// Redirect Message
+	// ICMP type 137, code 0. Incoming.
+	//
+	{
+		conditions := make([]wtFwpmFilterCondition0, 4)
+
+		conditions[0].fieldKey = cFWPM_CONDITION_IP_PROTOCOL
+		conditions[0].matchType = cFWP_MATCH_EQUAL
+		conditions[0].conditionValue._type = cFWP_UINT8
+		conditions[0].conditionValue.value = uintptr(cIPPROTO_ICMP)
+
+		conditions[1].fieldKey = cFWPM_CONDITION_ICMP_TYPE
+		conditions[1].matchType = cFWP_MATCH_EQUAL
+		conditions[1].conditionValue._type = cFWP_UINT16
+		conditions[1].conditionValue.value = uintptr(137)
+
+		conditions[2].fieldKey = cFWPM_CONDITION_ICMP_CODE
+		conditions[2].matchType = cFWP_MATCH_EQUAL
+		conditions[2].conditionValue._type = cFWP_UINT16
+		conditions[2].conditionValue.value = uintptr(0)
+
+		linkLocal := wtFwpV6AddrAndMask{[16]uint8{0xfe, 0x80}, 10}
+
+		conditions[3].fieldKey = cFWPM_CONDITION_IP_REMOTE_ADDRESS
+		conditions[3].matchType = cFWP_MATCH_EQUAL
+		conditions[3].conditionValue._type = cFWP_V6_ADDR_MASK
+		conditions[3].conditionValue.value = uintptr(unsafe.Pointer(&linkLocal))
+
+		displayData, err := createWtFwpmDisplayData0("Permit NDP type 137", "")
+		if err != nil {
+			return wrapErr(err)
+		}
+
+		defs = append(defs, filterDefinition{
+			displayData: displayData,
+			conditions: conditions,
+			layer: cFWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6,
+		})
+	}
+
+	filter := wtFwpmFilter0{
+		providerKey: &baseObjects.provider,
+		subLayerKey: baseObjects.filters,
+		weight:      filterWeight(weight),
+		action: wtFwpmAction0{
+			_type: cFWP_ACTION_PERMIT,
+		},
+	}
+
+	filterId := uint64(0)
+
+	for _, definition := range defs {
+		filter.displayData = *definition.displayData
+		filter.layerKey = definition.layer
+		filter.numFilterConditions = uint32(len(definition.conditions))
+		filter.filterCondition = (*wtFwpmFilterCondition0)(unsafe.Pointer(&definition.conditions))
+
+		err := fwpmFilterAdd0(session, &filter, 0, &filterId)
+		if err != nil {
+			return wrapErr(err)
+		}
 	}
 
 	return nil
