@@ -9,7 +9,7 @@ var fso = new ActiveXObject("Scripting.FileSystemObject");
 
 function logMessage(msg) {
 	var record = Installer.CreateRecord(1);
-	record.StringData(0) = "WireGuard service evaluation: [1]";
+	record.StringData(0) = "Custom action: [1]";
 	record.StringData(1) = msg.toString();
 	Session.Message(0x04000000, record);
 }
@@ -34,7 +34,7 @@ function runWithNoWindowFlash(command) {
 			txt = file.ReadAll();
 			file.Close();
 		} catch (e) {
-			logMessage("Unable to read temporary file " + tmpfile + " for command " + cmd + ": " + e.toString());
+			logMessage("Unable to read temporary file " + tmpfile + " for command " + cmd + ": " + e.message);
 			return "";
 		}
 		return txt;
@@ -85,5 +85,13 @@ function EvaluateWireGuardServices() {
 			if (tunnelName.match(allowedNameFormat) != null)
 				insertServiceControl(servicePrefix + tunnelName);
 		}
+	}
+}
+
+function RemoveConfigFolder() {
+	try {
+		fso.DeleteFolder(fso.BuildPath(fso.GetSpecialFolder(1), "config\\systemprofile\\AppData\\Local\\WireGuard"), true);
+	} catch(e) {
+		logMessage("Failed to remove configuration on uninstall: " + e.message);
 	}
 }

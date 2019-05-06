@@ -27,7 +27,7 @@
 		<MediaTemplate EmbedCab="yes" CompressionLevel="high"/>
 
 		<Icon Id="wireguard.ico" SourceFile="..\ui\icon\wireguard.ico"/>
-		<Binary Id="serviceevaluation.js" SourceFile="serviceevaluation.js"/>
+		<Binary Id="customactions.js" SourceFile="customactions.js"/>
 
 		<Property Id="ARPPRODUCTICON" Value="wireguard.ico"/>
 		<Property Id="ARPURLINFOABOUT" Value="https://www.wireguard.com/"/>
@@ -101,9 +101,17 @@
 		<!--
 			Evaluate WireGuard services and populate ServiceControl table
 		-->
-		<CustomAction Id="EvaluateWireGuardServices" BinaryKey="serviceevaluation.js" JScriptCall="EvaluateWireGuardServices"/>
+		<CustomAction Id="EvaluateWireGuardServices" BinaryKey="customactions.js" JScriptCall="EvaluateWireGuardServices"/>
 		<InstallExecuteSequence>
 			<Custom Action="EvaluateWireGuardServices" After="FindRelatedProducts"/>
+		</InstallExecuteSequence>
+
+		<!--
+			Clear out our config folder on uninstall
+		-->
+		<CustomAction Id="RemoveConfigFolder" BinaryKey="customactions.js" JScriptCall="RemoveConfigFolder" Execute="deferred" Impersonate="no"/>
+		<InstallExecuteSequence>
+			<Custom Action="RemoveConfigFolder" After="DeleteServices">(NOT UPGRADINGPRODUCTCODE) AND (REMOVE="ALL")</Custom>
 		</InstallExecuteSequence>
 
 		<!--
@@ -114,8 +122,5 @@
 			<!-- TODO: this should not launch when msiexec is called with whatever flag means it shouldn't launch. -->
 			<Custom Action="LaunchApplication" After="PublishProduct">NOT Installed</Custom>
 		</InstallExecuteSequence>
-
-		<!-- TODO: On uninstall remove system32\config\wireguard. -->
-		<!-- TODO: On install and uninstall, kill services. -->
 	</Product>
 </Wix>
