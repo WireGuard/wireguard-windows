@@ -7,6 +7,7 @@ package firewall
 
 import (
 	"golang.org/x/sys/windows"
+	"golang.zx2c4.com/wireguard/windows/version"
 	"os"
 	"unsafe"
 )
@@ -842,6 +843,78 @@ func permitNdp(session uintptr, baseObjects *baseObjects, weight uint8) error {
 		filter.filterCondition = (*wtFwpmFilterCondition0)(unsafe.Pointer(&definition.conditions))
 
 		err := fwpmFilterAdd0(session, &filter, 0, &filterId)
+		if err != nil {
+			return wrapErr(err)
+		}
+	}
+
+	return nil
+}
+
+func permitHyperV(session uintptr, baseObjects *baseObjects, weight uint8) error {
+	//
+	// Only applicable on Win8+
+	//
+	{
+		v, err := version.OsVersion()
+		if err != nil {
+			panic(err)
+		}
+
+		win8plus := v.MajorVersion > 6 ||  (v.MajorVersion == 6 && v.MinorVersion >= 3)
+
+		if !win8plus {
+			return nil
+		}
+	}
+
+	condition := wtFwpmFilterCondition0{
+		fieldKey:  cFWPM_CONDITION_L2_FLAGS,
+		matchType: cFWP_MATCH_EQUAL,
+		conditionValue: wtFwpConditionValue0{
+			_type: cFWP_UINT32,
+			value: uintptr(cFWP_CONDITION_L2_IS_VM2VM),
+		},
+	}
+
+	filter := wtFwpmFilter0{
+		providerKey:         &baseObjects.provider,
+		subLayerKey:         baseObjects.filters,
+		weight:              filterWeight(weight),
+		numFilterConditions: 1,
+		filterCondition:     (*wtFwpmFilterCondition0)(unsafe.Pointer(&condition)),
+		action: wtFwpmAction0{
+			_type: cFWP_ACTION_PERMIT,
+		},
+	}
+
+	filterId := uint64(0)
+
+	{
+		displayData, err := createWtFwpmDisplayData0("Permit Hyper-V => Hyper-V outbound", "")
+		if err != nil {
+			return wrapErr(err)
+		}
+
+		filter.displayData = *displayData
+		filter.layerKey = cFWPM_LAYER_OUTBOUND_MAC_FRAME_NATIVE
+
+		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
+		if err != nil {
+			return wrapErr(err)
+		}
+	}
+
+	{
+		displayData, err := createWtFwpmDisplayData0("Permit Hyper-V => Hyper-V inbound", "")
+		if err != nil {
+			return wrapErr(err)
+		}
+
+		filter.displayData = *displayData
+		filter.layerKey = cFWPM_LAYER_INBOUND_MAC_FRAME_NATIVE
+
+		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
 		if err != nil {
 			return wrapErr(err)
 		}
