@@ -1327,6 +1327,13 @@ const (
 	AW_VER_NEGATIVE = 0x00000008
 )
 
+// Session ending constants
+const (
+	ENDSESSION_CLOSEAPP = 0x00000001
+	ENDSESSION_CRITICAL = 0x40000000
+	ENDSESSION_LOGOFF   = 0x80000000
+)
+
 type NMBCDROPDOWN struct {
 	Hdr      NMHDR
 	RcButton RECT
