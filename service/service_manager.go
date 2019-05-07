@@ -143,7 +143,7 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 				log.Printf("Unable to listen on IPC pipes: %v", err)
 				return
 			}
-			theirLogMapping, err := ringlogger.Global.ExportInheritableMappingHandleStr()
+			theirLogMapping, theirLogMappingHandle, err := ringlogger.Global.ExportInheritableMappingHandleStr()
 			if err != nil {
 				log.Printf("Unable to export inheritable mapping handle for logging: %v", err)
 				return
@@ -173,6 +173,7 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 			theirReader.Close()
 			theirWriter.Close()
 			theirEvents.Close()
+			windows.Close(theirLogMappingHandle)
 			runtime.UnlockOSThread()
 			if err != nil {
 				log.Printf("Unable to start manager UI process: %v", err)
