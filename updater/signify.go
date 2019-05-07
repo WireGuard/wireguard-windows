@@ -29,7 +29,6 @@ func readFileList(input []byte) (fileList, error) {
 	if err != nil || len(publicKeyBytes) != ed25519.PublicKeySize+10 || publicKeyBytes[0] != 'E' || publicKeyBytes[1] != 'd' {
 		return nil, errors.New("Invalid public key")
 	}
-	publicKeyBytes = publicKeyBytes[10:]
 	lines := bytes.SplitN(input, []byte{'\n'}, 3)
 	if len(lines) != 3 {
 		return nil, errors.New("Signature input has too few lines")
@@ -41,11 +40,10 @@ func readFileList(input []byte) (fileList, error) {
 	if err != nil {
 		return nil, errors.New("Signature input is not valid base64")
 	}
-	if len(signatureBytes) != ed25519.SignatureSize+10 || signatureBytes[0] != 'E' || signatureBytes[1] != 'd' {
-		return nil, errors.New("Signature input bytes are incorrect length or represent invalid signature type")
+	if len(signatureBytes) != ed25519.SignatureSize+10 || !bytes.Equal(signatureBytes[:10], publicKeyBytes[:10]) {
+		return nil, errors.New("Signature input bytes are incorrect length, type, or keyid")
 	}
-	signatureBytes = signatureBytes[10:]
-	if !ed25519.Verify(publicKeyBytes, lines[2], signatureBytes) {
+	if !ed25519.Verify(publicKeyBytes[10:], lines[2], signatureBytes[10:]) {
 		return nil, errors.New("Signature is invalid")
 	}
 	fileLines := strings.Split(string(lines[2]), "\n")

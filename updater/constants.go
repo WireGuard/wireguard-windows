@@ -6,7 +6,7 @@
 package updater
 
 const (
-	releasePublicKeyBase64 = "RWQGxwD+15iPpnPCEijYJ3CWYFgojWwBJZNg0OnJfICVu/CfyKeQ0vIA"
+	releasePublicKeyBase64 = "RWRNqGKtBXftKTKPpBPGDMe8jHLnFQ0EdRy8Wg0apV6vTDFLAODD83G4"
 	latestVersionURL       = "https://download.wireguard.com/windows-client/latest.sig"
 	msiURL                 = "https://download.wireguard.com/windows-client/%s"
 	msiArchPrefix          = "wireguard-%s-"
