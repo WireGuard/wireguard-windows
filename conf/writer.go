@@ -6,9 +6,7 @@
 package conf
 
 import (
-	"errors"
 	"fmt"
-	"net"
 	"strings"
 )
 
@@ -70,7 +68,7 @@ func (conf *Config) ToWgQuick() string {
 	return output.String()
 }
 
-func (conf *Config) ToUAPI() (string, error) {
+func (conf *Config) ToUAPI() (uapi string, dnsErr error) {
 	var output strings.Builder
 	output.WriteString(fmt.Sprintf("private_key=%s\n", conf.Interface.PrivateKey.HexString()))
 
@@ -90,25 +88,12 @@ func (conf *Config) ToUAPI() (string, error) {
 		}
 
 		if !peer.Endpoint.IsEmpty() {
-			ips, err := net.LookupIP(peer.Endpoint.Host)
-			if err != nil {
-				return "", err
+			var resolvedIp string
+			resolvedIp, dnsErr = resolveHostname(peer.Endpoint.Host)
+			if dnsErr != nil {
+				return
 			}
-			var ip net.IP
-			for _, iterip := range ips {
-				iterip = iterip.To4()
-				if iterip != nil {
-					ip = iterip
-					break
-				}
-				if ip == nil {
-					ip = iterip
-				}
-			}
-			if ip == nil {
-				return "", errors.New("Unable to resolve IP address of endpoint")
-			}
-			resolvedEndpoint := Endpoint{ip.String(), peer.Endpoint.Port}
+			resolvedEndpoint := Endpoint{resolvedIp, peer.Endpoint.Port}
 			output.WriteString(fmt.Sprintf("endpoint=%s\n", resolvedEndpoint.String()))
 		}
 
