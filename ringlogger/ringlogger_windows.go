@@ -36,10 +36,11 @@ type logMem struct {
 }
 
 type Ringlogger struct {
-	tag     string
-	file    *os.File
-	mapping windows.Handle
-	log     *logMem
+	tag      string
+	file     *os.File
+	mapping  windows.Handle
+	log      *logMem
+	readOnly bool
 }
 
 func NewRinglogger(filename string, tag string) (*Ringlogger, error) {
@@ -55,7 +56,7 @@ func NewRinglogger(filename string, tag string) (*Ringlogger, error) {
 	if err != nil {
 		return nil, err
 	}
-	rl, err := NewRingloggerFromMappingHandle(mapping, tag)
+	rl, err := newRingloggerFromMappingHandle(mapping, tag, windows.FILE_MAP_WRITE)
 	if err != nil {
 		return nil, err
 	}
@@ -63,8 +64,16 @@ func NewRinglogger(filename string, tag string) (*Ringlogger, error) {
 	return rl, nil
 }
 
-func NewRingloggerFromMappingHandle(mappingHandle windows.Handle, tag string) (*Ringlogger, error) {
-	view, err := windows.MapViewOfFile(mappingHandle, windows.FILE_MAP_WRITE, 0, 0, 0)
+func NewRingloggerFromInheritedMappingHandle(handleStr string, tag string) (*Ringlogger, error) {
+	handle, err := strconv.ParseUint(handleStr, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	return newRingloggerFromMappingHandle(windows.Handle(handle), tag, windows.FILE_MAP_READ)
+}
+
+func newRingloggerFromMappingHandle(mappingHandle windows.Handle, tag string, access uint32) (*Ringlogger, error) {
+	view, err := windows.MapViewOfFile(mappingHandle, access, 0, 0, 0)
 	if err != nil {
 		return nil, err
 	}
@@ -83,23 +92,20 @@ func NewRingloggerFromMappingHandle(mappingHandle windows.Handle, tag string) (*
 	}
 
 	rl := &Ringlogger{
-		tag:     tag,
-		mapping: mappingHandle,
-		log:     log,
+		tag:      tag,
+		mapping:  mappingHandle,
+		log:      log,
+		readOnly: access&windows.FILE_MAP_WRITE == 0,
 	}
 	runtime.SetFinalizer(rl, (*Ringlogger).Close)
 	return rl, nil
 }
 
-func NewRingloggerFromInheritedMappingHandle(handleStr string, tag string) (*Ringlogger, error) {
-	handle, err := strconv.ParseUint(handleStr, 10, 64)
-	if err != nil {
-		return nil, err
-	}
-	return NewRingloggerFromMappingHandle(windows.Handle(handle), tag)
-}
-
 func (rl *Ringlogger) Write(p []byte) (n int, err error) {
+	if rl.readOnly {
+		return 0, io.ErrShortWrite
+	}
+
 	// Race: This isn't synchronized with the fetch_add below, so items might be slightly out of order.
 	ts := time.Now().UnixNano()
 
@@ -219,11 +225,17 @@ func (rl *Ringlogger) Close() error {
 	return nil
 }
 
-func (rl *Ringlogger) ExportInheritableMappingHandleStr() (str string, err error) {
-	err = windows.SetHandleInformation(rl.mapping, windows.HANDLE_FLAG_INHERIT, windows.HANDLE_FLAG_INHERIT)
+func (rl *Ringlogger) ExportInheritableMappingHandleStr() (str string, handleToClose windows.Handle, err error) {
+	handleToClose, err = windows.CreateFileMapping(windows.Handle(rl.file.Fd()), nil, windows.PAGE_READONLY, 0, 0, nil)
 	if err != nil {
 		return
 	}
-	str = strconv.FormatUint(uint64(rl.mapping), 10)
+	err = windows.SetHandleInformation(handleToClose, windows.HANDLE_FLAG_INHERIT, windows.HANDLE_FLAG_INHERIT)
+	if err != nil {
+		windows.Close(handleToClose)
+		handleToClose = 0
+		return
+	}
+	str = strconv.FormatUint(uint64(handleToClose), 10)
 	return
 }
