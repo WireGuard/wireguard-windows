@@ -162,6 +162,20 @@ var cFWPM_CONDITION_IP_LOCAL_ADDRESS = windows.GUID{
 var cFWPM_CONDITION_ICMP_TYPE = cFWPM_CONDITION_IP_LOCAL_PORT
 var cFWPM_CONDITION_ICMP_CODE = cFWPM_CONDITION_IP_REMOTE_PORT
 
+// 7bc43cbf-37ba-45f1-b74a-82ff518eeb10
+var cFWPM_CONDITION_L2_FLAGS = windows.GUID{
+	Data1: 0x7bc43cbf,
+	Data2: 0x37ba,
+	Data3: 0x45f1,
+	Data4: [8]byte{0xb7, 0x4a, 0x82, 0xff, 0x51, 0x8e, 0xeb, 0x10},
+}
+
+type wtFwpmL2Flags uint32
+
+const (
+	cFWP_CONDITION_L2_IS_VM2VM wtFwpmL2Flags = 0x00000010
+)
+
 // Defined in fwpmtypes.h
 type wtFwpmFilterFlags uint32
 
@@ -211,6 +225,22 @@ var cFWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6 = windows.GUID{
 	Data2: 0x9f04,
 	Data3: 0x4672,
 	Data4: [8]byte{0xb8, 0x7e, 0xce, 0xe9, 0xc4, 0x83, 0x25, 0x7f},
+}
+
+// 94c44912-9d6f-4ebf-b995-05ab8a088d1b
+var cFWPM_LAYER_OUTBOUND_MAC_FRAME_NATIVE = windows.GUID{
+	Data1: 0x94c44912,
+	Data2: 0x9d6f,
+	Data3: 0x4ebf,
+	Data4: [8]byte{0xb9, 0x95, 0x05, 0xab, 0x8a, 0x08, 0x8d, 0x1b},
+}
+
+// d4220bd3-62ce-4f08-ae88-b56e8526df50
+var cFWPM_LAYER_INBOUND_MAC_FRAME_NATIVE = windows.GUID{
+	Data1: 0xd4220bd3,
+	Data2: 0x62ce,
+	Data3: 0x4f08,
+	Data4: [8]byte{0xae, 0x88, 0xb5, 0x6e, 0x85, 0x26, 0xdf, 0x50},
 }
 
 // FWP_BITMAP_ARRAY64 defined in fwtypes.h

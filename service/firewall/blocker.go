@@ -147,6 +147,11 @@ func EnableFirewall(luid uint64, restrictDNS bool, restrictAll bool) error {
 			if err != nil {
 				return wrapErr(err)
 			}
+
+			err = permitHyperV(session, baseObjects, 15)
+			if err != nil {
+				return wrapErr(err)
+			}
 		}
 
 		if restrictDNS {
