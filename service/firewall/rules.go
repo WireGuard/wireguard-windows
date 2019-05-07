@@ -11,6 +11,18 @@ import (
 	"unsafe"
 )
 
+//
+// Known addresses. These should be const but there are initialization issues.
+//
+var (
+	linkLocal = wtFwpV6AddrAndMask{[16]uint8{0xfe, 0x80}, 10}
+
+	linkLocalDhcpMulticast = wtFwpByteArray16{[16]uint8{0xFF, 0x02, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1, 0x0, 0x2}}
+	siteLocalDhcpMulticast = wtFwpByteArray16{[16]uint8{0xFF, 0x05, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1, 0x0, 0x3}}
+
+	linkLocalRouterMulticast = wtFwpByteArray16{[16]uint8{0xFF, 0x02, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x2}}
+)
+
 func permitTunInterface(session uintptr, baseObjects *baseObjects, weight uint8, ifLuid uint64) error {
 	ifaceCondition := wtFwpmFilterCondition0{
 		fieldKey:  cFWPM_CONDITION_IP_LOCAL_INTERFACE,
@@ -442,15 +454,10 @@ func permitDhcpIpv4(session uintptr, baseObjects *baseObjects, weight uint8) err
 }
 
 func permitDhcpIpv6(session uintptr, baseObjects *baseObjects, weight uint8) error {
-	privateNetwork := wtFwpV6AddrAndMask{[16]uint8{0xfe, 0x80}, 10}
-
 	//
 	// #1 Outbound DHCP request on IPv6.
 	//
 	{
-		linkLocalDhcpMulticast := wtFwpByteArray16{[16]uint8{0xFF, 0x02, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1, 0x0, 0x2}}
-		siteLocalDhcpMulticast := wtFwpByteArray16{[16]uint8{0xFF, 0x05, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1, 0x0, 0x3}}
-
 		var conditions [6]wtFwpmFilterCondition0
 
 		conditions[0].fieldKey = cFWPM_CONDITION_IP_PROTOCOL
@@ -477,7 +484,7 @@ func permitDhcpIpv6(session uintptr, baseObjects *baseObjects, weight uint8) err
 		conditions[4].fieldKey = cFWPM_CONDITION_IP_LOCAL_ADDRESS
 		conditions[4].matchType = cFWP_MATCH_EQUAL
 		conditions[4].conditionValue._type = cFWP_V6_ADDR_MASK
-		conditions[4].conditionValue.value = uintptr(unsafe.Pointer(&privateNetwork))
+		conditions[4].conditionValue.value = uintptr(unsafe.Pointer(&linkLocal))
 
 		conditions[5].fieldKey = cFWPM_CONDITION_IP_LOCAL_PORT
 		conditions[5].matchType = cFWP_MATCH_EQUAL
@@ -524,7 +531,7 @@ func permitDhcpIpv6(session uintptr, baseObjects *baseObjects, weight uint8) err
 		conditions[1].fieldKey = cFWPM_CONDITION_IP_REMOTE_ADDRESS
 		conditions[1].matchType = cFWP_MATCH_EQUAL
 		conditions[1].conditionValue._type = cFWP_V6_ADDR_MASK
-		conditions[1].conditionValue.value = uintptr(unsafe.Pointer(&privateNetwork))
+		conditions[1].conditionValue.value = uintptr(unsafe.Pointer(&linkLocal))
 
 		conditions[2].fieldKey = cFWPM_CONDITION_IP_REMOTE_PORT
 		conditions[2].matchType = cFWP_MATCH_EQUAL
@@ -534,7 +541,7 @@ func permitDhcpIpv6(session uintptr, baseObjects *baseObjects, weight uint8) err
 		conditions[3].fieldKey = cFWPM_CONDITION_IP_LOCAL_ADDRESS
 		conditions[3].matchType = cFWP_MATCH_EQUAL
 		conditions[3].conditionValue._type = cFWP_V6_ADDR_MASK
-		conditions[3].conditionValue.value = uintptr(unsafe.Pointer(&privateNetwork))
+		conditions[3].conditionValue.value = uintptr(unsafe.Pointer(&linkLocal))
 
 		conditions[4].fieldKey = cFWPM_CONDITION_IP_LOCAL_PORT
 		conditions[4].matchType = cFWP_MATCH_EQUAL
@@ -610,8 +617,6 @@ func permitNdp(session uintptr, baseObjects *baseObjects, weight uint8) error {
 		conditions[2].conditionValue._type = cFWP_UINT16
 		conditions[2].conditionValue.value = uintptr(0)
 
-		linkLocalRouterMulticast := wtFwpByteArray16{[16]uint8{0xFF, 0x02, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x2}}
-
 		conditions[3].fieldKey = cFWPM_CONDITION_IP_REMOTE_ADDRESS
 		conditions[3].matchType = cFWP_MATCH_EQUAL
 		conditions[3].conditionValue._type = cFWP_BYTE_ARRAY16_TYPE
@@ -650,8 +655,6 @@ func permitNdp(session uintptr, baseObjects *baseObjects, weight uint8) error {
 		conditions[2].matchType = cFWP_MATCH_EQUAL
 		conditions[2].conditionValue._type = cFWP_UINT16
 		conditions[2].conditionValue.value = uintptr(0)
-
-		linkLocal := wtFwpV6AddrAndMask{[16]uint8{0xfe, 0x80}, 10}
 
 		conditions[3].fieldKey = cFWPM_CONDITION_IP_REMOTE_ADDRESS
 		conditions[3].matchType = cFWP_MATCH_EQUAL
@@ -771,8 +774,6 @@ func permitNdp(session uintptr, baseObjects *baseObjects, weight uint8) error {
 		conditions[2].matchType = cFWP_MATCH_EQUAL
 		conditions[2].conditionValue._type = cFWP_UINT16
 		conditions[2].conditionValue.value = uintptr(0)
-
-		linkLocal := wtFwpV6AddrAndMask{[16]uint8{0xfe, 0x80}, 10}
 
 		conditions[3].fieldKey = cFWPM_CONDITION_IP_REMOTE_ADDRESS
 		conditions[3].matchType = cFWP_MATCH_EQUAL
