@@ -9,7 +9,6 @@ import (
 	"archive/zip"
 	"fmt"
 	"github.com/lxn/walk"
-	"github.com/lxn/win"
 	"golang.zx2c4.com/wireguard/windows/conf"
 	"golang.zx2c4.com/wireguard/windows/service"
 	"io/ioutil"
@@ -17,7 +16,6 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
-	"unsafe"
 )
 
 type TunnelsPage struct {
@@ -72,8 +70,7 @@ func NewTunnelsPage() (*TunnelsPage, error) {
 	hlayout.SetMargins(walk.Margins{})
 	tp.fillerContainer.SetLayout(hlayout)
 	tp.fillerButton, _ = walk.NewPushButton(tp.fillerContainer)
-	buttonWidth := tp.DPI() * 2 //TODO: Use dynamic DPI
-	tp.fillerButton.SetMinMaxSize(walk.Size{buttonWidth, 0}, walk.Size{buttonWidth, 0})
+	tp.fillerButton.SetMinMaxSize(walk.Size{200, 0}, walk.Size{200, 0})
 	tp.fillerButton.Clicked().Attach(func() {
 		if tp.fillerHandler != nil {
 			tp.fillerHandler()
@@ -175,9 +172,8 @@ func (tp *TunnelsPage) CreateToolbar() {
 	exportAction.Triggered().Attach(tp.onExportTunnels)
 	tp.listToolbar.Actions().Add(exportAction)
 
-	var size win.SIZE
-	tp.listToolbar.SendMessage(win.TB_GETIDEALSIZE, win.FALSE, uintptr(unsafe.Pointer(&size)))
-	tp.listContainer.SetMinMaxSize(walk.Size{int(size.CX), 0}, walk.Size{int(size.CX), 0})
+	toolbarWidth := tp.listToolbar.SizeHint().Width
+	tp.listContainer.SetMinMaxSizePixels(walk.Size{toolbarWidth, 0}, walk.Size{toolbarWidth, 0})
 
 	contextMenu, _ := walk.NewMenu()
 	toggleAction := walk.NewAction()
