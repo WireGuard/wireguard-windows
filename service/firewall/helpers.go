@@ -8,9 +8,9 @@ package firewall
 import (
 	"fmt"
 	"golang.org/x/sys/windows"
+	"os"
 	"runtime"
 	"syscall"
-	"os"
 	"unsafe"
 )
 

@@ -16,13 +16,13 @@ const (
 
 	wtFwpByteArray6_Size = 6
 
-	wtFwpmAction0_Size = 20
+	wtFwpmAction0_Size              = 20
 	wtFwpmAction0_filterType_Offset = 4
 
-	wtFwpV4AddrAndMask_Size = 8
+	wtFwpV4AddrAndMask_Size        = 8
 	wtFwpV4AddrAndMask_mask_Offset = 4
 
-	wtFwpV6AddrAndMask_Size = 17
+	wtFwpV6AddrAndMask_Size                = 17
 	wtFwpV6AddrAndMask_prefixLength_Offset = 16
 )
 
@@ -44,9 +44,9 @@ const (
 	cFWP_ACTION_CALLOUT_INSPECTION  wtFwpActionType = wtFwpActionType(0x00000004 | cFWP_ACTION_FLAG_CALLOUT | cFWP_ACTION_FLAG_NON_TERMINATING)
 	cFWP_ACTION_CALLOUT_UNKNOWN     wtFwpActionType = wtFwpActionType(0x00000005 | cFWP_ACTION_FLAG_CALLOUT)
 	cFWP_ACTION_CONTINUE            wtFwpActionType = wtFwpActionType(0x00000006 | cFWP_ACTION_FLAG_NON_TERMINATING)
-	//wtFWP_ACTION_NONE                wtFwpActionType = 0x00000007
-	//wtFWP_ACTION_NONE_NO_MATCH       wtFwpActionType = 0x00000008
-	//wtFWP_ACTION_BITMAP_INDEX_SET    wtFwpActionType = 0x00000009
+	cFWP_ACTION_NONE                wtFwpActionType = 0x00000007
+	cFWP_ACTION_NONE_NO_MATCH       wtFwpActionType = 0x00000008
+	cFWP_ACTION_BITMAP_INDEX_SET    wtFwpActionType = 0x00000009
 )
 
 // FWP_BYTE_BLOB defined in fwptypes.h
@@ -169,9 +169,7 @@ var cFWPM_CONDITION_L2_FLAGS = windows.GUID{
 
 type wtFwpmL2Flags uint32
 
-const (
-	cFWP_CONDITION_L2_IS_VM2VM wtFwpmL2Flags = 0x00000010
-)
+const cFWP_CONDITION_L2_IS_VM2VM wtFwpmL2Flags = 0x00000010
 
 // Defined in fwpmtypes.h
 type wtFwpmFilterFlags uint32
@@ -380,9 +378,9 @@ type wtFwpmSublayer0 struct {
 type wtRpcCAuthN uint32
 
 const (
-	cRPC_C_AUTHN_NONE          wtRpcCAuthN = 0
-	cRPC_C_AUTHN_WINNT         wtRpcCAuthN = 10
-	cRPC_C_AUTHN_DEFAULT       wtRpcCAuthN = 0xFFFFFFFF
+	cRPC_C_AUTHN_NONE    wtRpcCAuthN = 0
+	cRPC_C_AUTHN_WINNT   wtRpcCAuthN = 10
+	cRPC_C_AUTHN_DEFAULT wtRpcCAuthN = 0xFFFFFFFF
 )
 
 // FWPM_PROVIDER0 defined in fwpmtypes.h
