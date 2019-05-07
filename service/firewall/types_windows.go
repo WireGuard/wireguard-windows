@@ -17,15 +17,12 @@ const (
 	wtFwpByteArray6_Size = 6
 
 	wtFwpmAction0_Size = 20
-
 	wtFwpmAction0_filterType_Offset = 4
 
 	wtFwpV4AddrAndMask_Size = 8
-
 	wtFwpV4AddrAndMask_mask_Offset = 4
 
 	wtFwpV6AddrAndMask_Size = 17
-
 	wtFwpV6AddrAndMask_prefixLength_Offset = 16
 )
 
@@ -384,38 +381,9 @@ type wtRpcCAuthN uint32
 
 const (
 	cRPC_C_AUTHN_NONE          wtRpcCAuthN = 0
-	cRPC_C_AUTHN_DCE_PRIVATE   wtRpcCAuthN = 1
-	cRPC_C_AUTHN_DCE_PUBLIC    wtRpcCAuthN = 2
-	cRPC_C_AUTHN_DEC_PUBLIC    wtRpcCAuthN = 4
-	cRPC_C_AUTHN_GSS_NEGOTIATE wtRpcCAuthN = 9
 	cRPC_C_AUTHN_WINNT         wtRpcCAuthN = 10
-	cRPC_C_AUTHN_GSS_SCHANNEL  wtRpcCAuthN = 14
-	cRPC_C_AUTHN_GSS_KERBEROS  wtRpcCAuthN = 16
-	cRPC_C_AUTHN_DPA           wtRpcCAuthN = 17
-	cRPC_C_AUTHN_MSN           wtRpcCAuthN = 18
-	cRPC_C_AUTHN_DIGEST        wtRpcCAuthN = 21
-	cRPC_C_AUTHN_KERNEL        wtRpcCAuthN = 20
-	cRPC_C_AUTHN_NEGO_EXTENDER wtRpcCAuthN = 30
-	cRPC_C_AUTHN_PKU2U         wtRpcCAuthN = 31
-	cRPC_C_AUTHN_LIVE_SSP      wtRpcCAuthN = 32
-	cRPC_C_AUTHN_LIVEXP_SSP    wtRpcCAuthN = 35
-	cRPC_C_AUTHN_CLOUD_AP      wtRpcCAuthN = 36
-	cRPC_C_AUTHN_MSONLINE      wtRpcCAuthN = 82
-	cRPC_C_AUTHN_MQ            wtRpcCAuthN = 100
 	cRPC_C_AUTHN_DEFAULT       wtRpcCAuthN = 0xFFFFFFFF
 )
-
-// SEC_WINNT_AUTH_IDENTITY_W defined in rpcdce.h
-// (https://docs.microsoft.com/en-us/windows/desktop/api/rpcdce/ns-rpcdce-_sec_winnt_auth_identity_w).
-type wtSecWinntAuthIdentityW struct {
-	User           *uint16 // Windows type: unsigned short
-	UserLength     int32   // Windows type: long
-	Domain         *uint16 // Windows type: unsigned short
-	DomainLength   int32   // Windows type: long
-	Password       *uint16 // Windows type: unsigned short
-	PasswordLength int32   // Windows type: long
-	Flags          int32   // Windows type: long
-}
 
 // FWPM_PROVIDER0 defined in fwpmtypes.h
 // (https://docs.microsoft.com/sv-se/windows/desktop/api/fwpmtypes/ns-fwpmtypes-fwpm_provider0_).
