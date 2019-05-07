@@ -16,10 +16,11 @@ import (
 )
 
 //sys internetGetConnectedState(flags *uint32, reserved uint32) (connected bool) = wininet.InternetGetConnectedState
+//sys getTickCount64() (ms uint64) = kernel32.GetTickCount64
 
 func resolveHostname(name string) (resolvedIpString string, err error) {
 	const maxTries = 10
-
+	systemJustBooted := getTickCount64() <= uint64(time.Minute*4/time.Millisecond)
 	for i := 0; i < maxTries; i++ {
 		resolvedIpString, err = resolveHostnameOnce(name)
 		if err == nil {
@@ -31,7 +32,7 @@ func resolveHostname(name string) (resolvedIpString string, err error) {
 			continue
 		}
 		var state uint32
-		if err == windows.WSAHOST_NOT_FOUND && !internetGetConnectedState(&state, 0) {
+		if err == windows.WSAHOST_NOT_FOUND && systemJustBooted && !internetGetConnectedState(&state, 0) {
 			log.Printf("Host not found when resolving %s, but no Internet connection available, sleeping for 4 seconds", name)
 			time.Sleep(time.Second * 4)
 			continue
