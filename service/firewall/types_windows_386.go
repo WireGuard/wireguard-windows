@@ -8,16 +8,16 @@ package firewall
 import "golang.org/x/sys/windows"
 
 const (
-	wtFwpByteBlob_Size = 8
+	wtFwpByteBlob_Size        = 8
 	wtFwpByteBlob_data_Offset = 4
 
-	wtFwpConditionValue0_Size = 8
+	wtFwpConditionValue0_Size         = 8
 	wtFwpConditionValue0_uint8_Offset = 4
 
-	wtFwpmDisplayData0_Size = 8
+	wtFwpmDisplayData0_Size               = 8
 	wtFwpmDisplayData0_description_Offset = 4
 
-	wtFwpmFilter0_Size = 152
+	wtFwpmFilter0_Size                       = 152
 	wtFwpmFilter0_displayData_Offset         = 16
 	wtFwpmFilter0_flags_Offset               = 24
 	wtFwpmFilter0_providerKey_Offset         = 28
@@ -33,11 +33,11 @@ const (
 	wtFwpmFilter0_filterId_Offset            = 136
 	wtFwpmFilter0_effectiveWeight_Offset     = 144
 
-	wtFwpmFilterCondition0_Size = 28
+	wtFwpmFilterCondition0_Size                  = 28
 	wtFwpmFilterCondition0_matchType_Offset      = 16
 	wtFwpmFilterCondition0_conditionValue_Offset = 20
 
-	wtFwpmSession0_Size = 48
+	wtFwpmSession0_Size                        = 48
 	wtFwpmSession0_displayData_Offset          = 16
 	wtFwpmSession0_flags_Offset                = 24
 	wtFwpmSession0_txnWaitTimeoutInMSec_Offset = 28
@@ -46,14 +46,14 @@ const (
 	wtFwpmSession0_username_Offset             = 40
 	wtFwpmSession0_kernelMode_Offset           = 44
 
-	wtFwpmSublayer0_Size = 44
+	wtFwpmSublayer0_Size                = 44
 	wtFwpmSublayer0_displayData_Offset  = 16
 	wtFwpmSublayer0_flags_Offset        = 24
 	wtFwpmSublayer0_providerKey_Offset  = 28
 	wtFwpmSublayer0_providerData_Offset = 32
 	wtFwpmSublayer0_weight_Offset       = 40
 
-	wtFwpProvider0_Size = 40
+	wtFwpProvider0_Size                = 40
 	wtFwpProvider0_displayData_Offset  = 16
 	wtFwpProvider0_flags_Offset        = 24
 	wtFwpProvider0_providerData_Offset = 28
@@ -61,7 +61,7 @@ const (
 
 	wtFwpTokenInformation_Size = 16
 
-	wtFwpValue0_Size = 8
+	wtFwpValue0_Size         = 8
 	wtFwpValue0_value_Offset = 4
 )
 

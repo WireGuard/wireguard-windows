@@ -12,7 +12,7 @@ import (
 )
 
 //
-// Known addresses. These should be const but there are initialization issues.
+// Known addresses.
 //
 var (
 	linkLocal = wtFwpV6AddrAndMask{[16]uint8{0xfe, 0x80}, 10}
@@ -579,20 +579,20 @@ func permitDhcpIpv6(session uintptr, baseObjects *baseObjects, weight uint8) err
 
 func permitNdp(session uintptr, baseObjects *baseObjects, weight uint8) error {
 
-	/*
-	 *  icmpv6 133: must be outgoing, dst must be FF02::2/128, hop limit must be 255
-	 *  icmpv6 134: must be incoming, src must be FE80::/10, hop limit must be 255
-	 *  icmpv6 135: either incoming or outgoing, hop limit must be 255
-	 *  icmpv6 136: either incoming or outgoing, hop limit must be 255
-	 *  icmpv6 137: must be incoming, src must be FE80::/10, hop limit must be 255
+	/* TODO: actually handle the hop limit somehow! The rules should vaguely be:
+	 *  - icmpv6 133: must be outgoing, dst must be FF02::2/128, hop limit must be 255
+	 *  - icmpv6 134: must be incoming, src must be FE80::/10, hop limit must be 255
+	 *  - icmpv6 135: either incoming or outgoing, hop limit must be 255
+	 *  - icmpv6 136: either incoming or outgoing, hop limit must be 255
+	 *  - icmpv6 137: must be incoming, src must be FE80::/10, hop limit must be 255
 	 */
 
-	 type filterDefinition struct {
+	type filterDefinition struct {
 		displayData *wtFwpmDisplayData0
-		conditions []wtFwpmFilterCondition0
-		layer windows.GUID
+		conditions  []wtFwpmFilterCondition0
+		layer       windows.GUID
 	}
-	
+
 	var defs []filterDefinition
 
 	//
@@ -629,8 +629,8 @@ func permitNdp(session uintptr, baseObjects *baseObjects, weight uint8) error {
 
 		defs = append(defs, filterDefinition{
 			displayData: displayData,
-			conditions: conditions,
-			layer: cFWPM_LAYER_ALE_AUTH_CONNECT_V6,
+			conditions:  conditions,
+			layer:       cFWPM_LAYER_ALE_AUTH_CONNECT_V6,
 		})
 	}
 
@@ -668,8 +668,8 @@ func permitNdp(session uintptr, baseObjects *baseObjects, weight uint8) error {
 
 		defs = append(defs, filterDefinition{
 			displayData: displayData,
-			conditions: conditions,
-			layer: cFWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6,
+			conditions:  conditions,
+			layer:       cFWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6,
 		})
 	}
 
@@ -702,14 +702,14 @@ func permitNdp(session uintptr, baseObjects *baseObjects, weight uint8) error {
 
 		defs = append(defs, filterDefinition{
 			displayData: displayData,
-			conditions: conditions,
-			layer: cFWPM_LAYER_ALE_AUTH_CONNECT_V6,
+			conditions:  conditions,
+			layer:       cFWPM_LAYER_ALE_AUTH_CONNECT_V6,
 		})
 
 		defs = append(defs, filterDefinition{
 			displayData: displayData,
-			conditions: conditions,
-			layer: cFWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6,
+			conditions:  conditions,
+			layer:       cFWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6,
 		})
 	}
 
@@ -742,14 +742,14 @@ func permitNdp(session uintptr, baseObjects *baseObjects, weight uint8) error {
 
 		defs = append(defs, filterDefinition{
 			displayData: displayData,
-			conditions: conditions,
-			layer: cFWPM_LAYER_ALE_AUTH_CONNECT_V6,
+			conditions:  conditions,
+			layer:       cFWPM_LAYER_ALE_AUTH_CONNECT_V6,
 		})
 
 		defs = append(defs, filterDefinition{
 			displayData: displayData,
-			conditions: conditions,
-			layer: cFWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6,
+			conditions:  conditions,
+			layer:       cFWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6,
 		})
 	}
 
@@ -787,8 +787,8 @@ func permitNdp(session uintptr, baseObjects *baseObjects, weight uint8) error {
 
 		defs = append(defs, filterDefinition{
 			displayData: displayData,
-			conditions: conditions,
-			layer: cFWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6,
+			conditions:  conditions,
+			layer:       cFWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6,
 		})
 	}
 
@@ -807,7 +807,7 @@ func permitNdp(session uintptr, baseObjects *baseObjects, weight uint8) error {
 		filter.displayData = *definition.displayData
 		filter.layerKey = definition.layer
 		filter.numFilterConditions = uint32(len(definition.conditions))
-		filter.filterCondition = (*wtFwpmFilterCondition0)(unsafe.Pointer(&definition.conditions))
+		filter.filterCondition = (*wtFwpmFilterCondition0)(unsafe.Pointer(&definition.conditions[0]))
 
 		err := fwpmFilterAdd0(session, &filter, 0, &filterId)
 		if err != nil {
@@ -828,7 +828,7 @@ func permitHyperV(session uintptr, baseObjects *baseObjects, weight uint8) error
 			panic(err)
 		}
 
-		win8plus := v.MajorVersion > 6 ||  (v.MajorVersion == 6 && v.MinorVersion >= 3)
+		win8plus := v.MajorVersion > 6 || (v.MajorVersion == 6 && v.MinorVersion >= 3)
 
 		if !win8plus {
 			return nil
