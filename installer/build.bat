@@ -8,7 +8,9 @@ set WIREGUARD_VERSION=%WIREGUARD_VERSION:"=%
 set STARTDIR=%cd%
 set OLDWIX=%WIX%
 set WIX_CANDLE_FLAGS=-nologo -dWIREGUARD_VERSION="%WIREGUARD_VERSION%"
-set WIX_LIGHT_FLAGS=-nologo -spdb -sice:ICE30
+set WIX_LIGHT_FLAGS=-nologo -spdb
+set WIX_LIGHT_FLAGS=%WIX_LIGHT_FLAGS% -sice:ICE30
+set WIX_LIGHT_FLAGS=%WIX_LIGHT_FLAGS% -sice:ICE61
 
 if exist .deps\prepared goto :build
 :installdeps
