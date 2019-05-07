@@ -16,6 +16,7 @@ import (
 	"runtime/debug"
 	"sync"
 	"syscall"
+	"time"
 	"unsafe"
 )
 
@@ -190,6 +191,10 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 			ourReader.Close()
 			ourWriter.Close()
 			ourEvents.Close()
+
+			if !stoppingManager {
+				time.Sleep(time.Second)
+			}
 		}
 	}
 
