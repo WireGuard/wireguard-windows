@@ -18,7 +18,7 @@
 		Manufacturer="WireGuard LLC"
 		UpgradeCode="5e5a1da5-ba36-404d-92ec-41050d1c799c">
 		<Package
-			InstallerVersion="200"
+			InstallerVersion="400"
 			Compressed="yes"
 			InstallScope="perMachine"
 			Description="WireGuard: Fast, Modern, Secure VPN Tunnel"
