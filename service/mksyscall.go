@@ -5,4 +5,4 @@
 
 package service
 
-//go:generate go run $GOROOT/src/syscall/mksyscall_windows.go -output zsyscall_windows.go service_manager.go tunneltracker.go
+//go:generate go run $GOROOT/src/syscall/mksyscall_windows.go -output zsyscall_windows.go securityapi.go tunneltracker.go

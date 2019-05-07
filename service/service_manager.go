@@ -54,12 +54,6 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 		serviceError = ErrorDetermineExecutablePath
 		return
 	}
-	securityAttributes, err := getCurrentSecurityAttributes()
-	if err != nil {
-		serviceError = ErrorCreateSecurityDescriptor
-		return
-	}
-	defer windows.LocalFree(windows.Handle(securityAttributes.SecurityDescriptor))
 
 	devNull, err := os.OpenFile(os.DevNull, os.O_RDWR, 0)
 	if err != nil {
@@ -124,6 +118,11 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 			log.Printf("Unable to determine elevated environment: %v", err)
 			return
 		}
+		securityAttributes, err := getSecurityAttributes(userTokenInfo.elevatedToken, userToken)
+		if err != nil {
+			log.Printf("Unable to extract security attributes from elevated token and combine them with SID from user token: %v", err)
+			return
+		}
 		for {
 			if stoppingManager {
 				return
@@ -153,19 +152,9 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 			log.Printf("Starting UI process for user: '%s@%s'", username, domain)
 			attr := &os.ProcAttr{
 				Sys: &syscall.SysProcAttr{
-					Token: syscall.Token(userToken),
-
-					/* TODO: XXX: BUG: HACK: DO NOT SHIP WITH THIS COMMENT:
-					 *  These next two lines are commented out, because:
-					 *    - We're uncertain of their correctness, especially with regards to integrity level.
-					 *    - The permissions are too tight and they interfere with some UI things like notification
-					 *      balloon icons.
-					 *  These will be reenabled once we've figured out the right way to do it, and this
-					 *  program should not ship until we've done so.
-
-					ProcessAttributes: &securityAttributes,
-					ThreadAttributes:  &securityAttributes,
-					*/
+					Token:             syscall.Token(userToken),
+					ProcessAttributes: sliceToSecurityAttributes(securityAttributes),
+					ThreadAttributes:  sliceToSecurityAttributes(securityAttributes),
 				},
 				Files: []*os.File{devNull, devNull, devNull},
 				Env:   env,
