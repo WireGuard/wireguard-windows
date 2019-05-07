@@ -213,6 +213,14 @@ func (mw *MainWindow) SetFullscreen(fullscreen bool) error {
 
 func (mw *MainWindow) WndProc(hwnd win.HWND, msg uint32, wParam, lParam uintptr) uintptr {
 	switch msg {
+	case win.WM_QUERYENDSESSION:
+		if lParam == win.ENDSESSION_CLOSEAPP {
+			return win.TRUE
+		}
+	case win.WM_ENDSESSION:
+		if lParam == win.ENDSESSION_CLOSEAPP && wParam == 1 {
+			App().Exit(198)
+		}
 	case win.WM_SIZE, win.WM_SIZING:
 		cb := mw.ClientBoundsPixels()
 
