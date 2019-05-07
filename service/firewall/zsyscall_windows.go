@@ -54,7 +54,7 @@ var (
 	procGetSecurityDescriptorLength = modadvapi32.NewProc("GetSecurityDescriptorLength")
 )
 
-func fwpmEngineOpen0(serverName *uint16, authnService wtRpcCAuthN, authIdentity *wtSecWinntAuthIdentityW, session *wtFwpmSession0, engineHandle unsafe.Pointer) (err error) {
+func fwpmEngineOpen0(serverName *uint16, authnService wtRpcCAuthN, authIdentity *uintptr, session *wtFwpmSession0, engineHandle unsafe.Pointer) (err error) {
 	r1, _, e1 := syscall.Syscall6(procFwpmEngineOpen0.Addr(), 5, uintptr(unsafe.Pointer(serverName)), uintptr(authnService), uintptr(unsafe.Pointer(authIdentity)), uintptr(unsafe.Pointer(session)), uintptr(engineHandle), 0)
 	if r1 != 0 {
 		if e1 != 0 {

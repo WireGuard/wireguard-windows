@@ -8,7 +8,6 @@ package firewall
 import (
 	"golang.org/x/sys/windows"
 	"golang.zx2c4.com/wireguard/windows/version"
-	"os"
 	"unsafe"
 )
 
@@ -108,39 +107,6 @@ func permitTunInterface(session uintptr, baseObjects *baseObjects, weight uint8,
 	}
 
 	return nil
-}
-
-func getCurrentProcessSecurityDescriptor() (*wtFwpByteBlob, error) {
-	procHandle, err := windows.GetCurrentProcess()
-	if err != nil {
-		panic(err)
-	}
-	blob := &wtFwpByteBlob{}
-	err = getSecurityInfo(procHandle, cSE_KERNEL_OBJECT, cDACL_SECURITY_INFORMATION, nil, nil, nil, nil, (*uintptr)(unsafe.Pointer(&blob.data)))
-	if err != nil {
-		return nil, wrapErr(err)
-	}
-	blob.size = getSecurityDescriptorLength(uintptr(unsafe.Pointer(blob.data)))
-	return blob, nil
-}
-
-func getCurrentProcessAppId() (*wtFwpByteBlob, error) {
-	currentFile, err := os.Executable()
-	if err != nil {
-		return nil, wrapErr(err)
-	}
-
-	curFilePtr, err := windows.UTF16PtrFromString(currentFile)
-	if err != nil {
-		return nil, wrapErr(err)
-	}
-
-	var appId *wtFwpByteBlob
-	err = fwpmGetAppIdFromFileName0(curFilePtr, unsafe.Pointer(&appId))
-	if err != nil {
-		return nil, wrapErr(err)
-	}
-	return appId, nil
 }
 
 func permitWireGuardService(session uintptr, baseObjects *baseObjects, weight uint8) error {
@@ -853,7 +819,7 @@ func permitNdp(session uintptr, baseObjects *baseObjects, weight uint8) error {
 
 func permitHyperV(session uintptr, baseObjects *baseObjects, weight uint8) error {
 	//
-	// Only applicable on Win8+
+	// Only applicable on Win8+.
 	//
 	{
 		v, err := version.OsVersion()
@@ -890,6 +856,9 @@ func permitHyperV(session uintptr, baseObjects *baseObjects, weight uint8) error
 
 	filterId := uint64(0)
 
+	//
+	// #1 Outbound.
+	//
 	{
 		displayData, err := createWtFwpmDisplayData0("Permit Hyper-V => Hyper-V outbound", "")
 		if err != nil {
@@ -905,6 +874,9 @@ func permitHyperV(session uintptr, baseObjects *baseObjects, weight uint8) error
 		}
 	}
 
+	//
+	// #2 Inbound.
+	//
 	{
 		displayData, err := createWtFwpmDisplayData0("Permit Hyper-V => Hyper-V inbound", "")
 		if err != nil {
