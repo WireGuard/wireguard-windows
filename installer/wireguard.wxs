@@ -77,7 +77,7 @@
 				<File Source="..\$(var.Platform)\wireguard.exe" KeyPath="yes">
 					<Shortcut Id="WireGuardStartMenuShortcut" Directory="ProgramMenuFolder" Name="WireGuard" Description="WireGuard: Fast, Modern, Secure VPN Tunnel" WorkingDirectory="INSTALLFOLDER" Advertise="yes" />
 				</File>
-				<ServiceControl Id="DummyService.3AA0C492_29F4_4342_B608_DB95B2DECB13" Name="DummyService.3AA0C492_29F4_4342_B608_DB95B2DECB13"></ServiceControl><!-- A dummy to make WiX create ServiceControl table for us. -->
+				<ServiceControl Id="DummyService.3AA0C492_29F4_4342_B608_DB95B2DECB13" Name="DummyService.3AA0C492_29F4_4342_B608_DB95B2DECB13"/><!-- A dummy to make WiX create ServiceControl table for us. -->
 			</Component>
 		</ComponentGroup>
 
