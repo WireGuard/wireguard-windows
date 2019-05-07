@@ -37,15 +37,23 @@ func errnoErr(e syscall.Errno) error {
 }
 
 var (
+	modwininet  = windows.NewLazySystemDLL("wininet.dll")
 	modole32    = windows.NewLazySystemDLL("ole32.dll")
 	modshell32  = windows.NewLazySystemDLL("shell32.dll")
 	modkernel32 = windows.NewLazySystemDLL("kernel32.dll")
 
+	procInternetGetConnectedState    = modwininet.NewProc("InternetGetConnectedState")
 	procCoTaskMemFree                = modole32.NewProc("CoTaskMemFree")
 	procSHGetKnownFolderPath         = modshell32.NewProc("SHGetKnownFolderPath")
 	procFindFirstChangeNotificationW = modkernel32.NewProc("FindFirstChangeNotificationW")
 	procFindNextChangeNotification   = modkernel32.NewProc("FindNextChangeNotification")
 )
+
+func internetGetConnectedState(flags *uint32, reserved uint32) (connected bool) {
+	r0, _, _ := syscall.Syscall(procInternetGetConnectedState.Addr(), 2, uintptr(unsafe.Pointer(flags)), uintptr(reserved), 0)
+	connected = r0 != 0
+	return
+}
 
 func coTaskMemFree(pointer uintptr) {
 	syscall.Syscall(procCoTaskMemFree.Addr(), 1, uintptr(pointer), 0, 0)
