@@ -118,9 +118,10 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 			log.Printf("Unable to determine elevated environment: %v", err)
 			return
 		}
-		securityAttributes, err := getSecurityAttributes(userTokenInfo.elevatedToken, userToken)
+		currentProcess, _ := windows.GetCurrentProcess()
+		securityAttributes, err := getSecurityAttributes(windows.Token(currentProcess), userToken)
 		if err != nil {
-			log.Printf("Unable to extract security attributes from elevated token and combine them with SID from user token: %v", err)
+			log.Printf("Unable to extract security attributes from manager token and combine them with SID from user token: %v", err)
 			return
 		}
 		for {
