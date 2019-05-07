@@ -308,8 +308,11 @@ func (tray *Tray) UpdateFound() {
 	action.SetImage(bitmap)
 	action.SetDefault(true)
 	showUpdateTab := func() {
-		tray.mtw.Show()
+		if !tray.mtw.Visible() {
+			tray.mtw.tunnelsPage.listView.SelectFirstActiveTunnel()
+		}
 		tray.mtw.tabs.SetCurrentIndex(2)
+		tray.mtw.Show()
 	}
 	action.Triggered().Attach(showUpdateTab)
 	tray.clicked = showUpdateTab
