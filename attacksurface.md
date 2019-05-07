@@ -35,19 +35,11 @@ The manager service is a userspace service running as Local System, responsible 
 
 The UI is an unprivileged process running as the ordinary user for each user who is in the Administrators group (per the above). It exposes:
 
-  - The manager service (above) calls `GetSecurityInfo(DACL_SECURITY_INFORMATION)` on itself, and passes the returned security attributes as the UI's process and thread attributes in the call to `CreateProcessAsUser`. This means that debugging the UI process (in order for another process to steal its handles and exfiltrate private keys) is only possible by processes that can debug the manager service.
+  - <s>The manager service (above) calls `GetSecurityInfo(DACL_SECURITY_INFORMATION)` on itself, and passes the returned security attributes as the UI's process and thread attributes in the call to `CreateProcessAsUser`. This means that debugging the UI process (in order for another process to steal its handles and exfiltrate private keys) is only possible by processes that can debug the manager service.</s> This is currently disabled, as it is not high integrity and also seems to cause a few problems for the shell / notification mechanism. **This must be revisited.**
   - We do not add `ATTRIBUTE_SECURITY_INFORMATION` into the requested information of `GetSecurityInfo`, which means the UI process only requires medium integrity to run it. Requiring greater integrity level access prevents the process from running properly, unfortunately (`ERROR_PRIVILEGE_NOT_HELD`). It would be nice to require high integrity to open the process, without having to increase the privileges that the process has in its own token.
   - Perhaps due to the above and other reasons, it appears that it is possible for other processes to write into the UI process's message loop, which is bad, and might defeat the purpose of the above.
   - It renders highlighted config files to a msftedit.dll control, which typically is capable of all sorts of OLE and RTF nastiness that we make some attempt to avoid.
 
 ### Updates
 
-A server hosts the result of:
-
-```
-$ b2sum -l 256 *.msi > list
-$ signify -S -e -s release.sec -m list
-$ upload ./list.sec
-```
-
-The MSIs in that list are only the latest ones available, and filenames fit the form `wireguard-${arch}-${version}.msi`. The updater downloads this list over TLS and verifies the signify Ed25519 signature of it. If it validates, then it finds the first MSI in it for its architecture that has a greater version. It then downloads this MSI from a predefined URL, and verifies the BLAKE2b-256 signature. If it validates, then it calls `WinTrustVerify(WINTRUST_ACTION_GENERIC_VERIFY_V2, WTD_REVOKE_WHOLECHAIN)` on the MSI. If it validates, then it executes the installer with `msiexec.exe /qb!- /i`, using the elevated token linked to the IPC UI session that requested the update.
+A server hosts the result of `b2sum -l 256 *.msi > list && signify -S -e -s release.sec -m list && upload ./list.sec`, with the private key stored on an HSM. The MSIs in that list are only the latest ones available, and filenames fit the form `wireguard-${arch}-${version}.msi`. The updater, running as part of the manager service, downloads this list over TLS and verifies the signify Ed25519 signature of it. If it validates, then it finds the first MSI in it for its architecture that has a greater version. It then downloads this MSI from a predefined URL to a randomly generated (256-bits) file name inside `C:\Windows\Temp` with permissions of `O:SYD:PAI(A;;FA;;;SY)(A;;FR;;;BA)`, scheduled to be cleaned up at next boot via `MoveFileEx(MOVEFILE_DELAY_UNTIL_REBOOT)`, and verifies the BLAKE2b-256 signature. If it validates, then it calls `WinTrustVerify(WINTRUST_ACTION_GENERIC_VERIFY_V2, WTD_REVOKE_WHOLECHAIN)` on the MSI. If it validates, then it executes the installer with `msiexec.exe /qb!- /i`, using the elevated token linked to the IPC UI session that requested the update. Because `msiexec` requires exclusive access to the file, the file handle is closed in between the completion of downloading and the commencement of `msiexec`. Hopefully the permissions of `C:\Windows\Temp` are good enough that an attacker can't replace the MSI from beneath us.
