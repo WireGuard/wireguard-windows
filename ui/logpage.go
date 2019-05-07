@@ -76,7 +76,7 @@ func NewLogPage() (*LogPage, error) {
 	stampCol.SetName("Stamp")
 	stampCol.SetTitle("Time")
 	stampCol.SetFormat("2006-01-02 15:04:05.000")
-	stampCol.SetWidth(150)
+	stampCol.SetWidth(140)
 	lp.logView.Columns().Add(stampCol)
 
 	msgCol := walk.NewTableViewColumn()
