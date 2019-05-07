@@ -17,6 +17,7 @@ import (
 var iconProvider *IconProvider
 
 var shouldQuitManagerWhenExiting = false
+var startTime = time.Now()
 
 func RunUI() {
 	runtime.LockOSThread()

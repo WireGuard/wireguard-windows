@@ -10,6 +10,7 @@ import (
 	"golang.zx2c4.com/wireguard/windows/conf"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/lxn/walk"
 	"golang.zx2c4.com/wireguard/windows/service"
@@ -303,7 +304,6 @@ func (tray *Tray) UpdateFound() {
 	action := walk.NewAction()
 	action.SetText("An Update is Available!")
 	icon, _ := loadSystemIcon("imageres", 1)
-	defer icon.Dispose()
 	bitmap, _ := walk.NewBitmapFromIcon(icon, walk.Size{tray.mtw.DPI() / 6, tray.mtw.DPI() / 6}) //TODO: This should use dynamic DPI.
 	action.SetImage(bitmap)
 	action.SetDefault(true)
@@ -318,8 +318,19 @@ func (tray *Tray) UpdateFound() {
 	tray.clicked = showUpdateTab
 	tray.ContextMenu().Actions().Insert(tray.ContextMenu().Actions().Len()-2, action)
 
-	//TODO: make clicking on this call showUpdateTab
-	tray.ShowCustom("WireGuard Update Available", "An update to WireGuard is now available. You are advised to update as soon as possible.", icon)
+	showUpdateBalloon := func() {
+		tray.ShowCustom("WireGuard Update Available", "An update to WireGuard is now available. You are advised to update as soon as possible.", icon)
+		defer icon.Dispose()
+	}
+
+	timeSinceStart := time.Now().Sub(startTime)
+	if timeSinceStart < time.Second*3 {
+		time.AfterFunc(time.Second*3-timeSinceStart, func() {
+			tray.mtw.Synchronize(showUpdateBalloon)
+		})
+	} else {
+		showUpdateBalloon()
+	}
 }
 
 func (tray *Tray) onManageTunnels() {
