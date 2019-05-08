@@ -25,7 +25,7 @@ func onAbout(owner walk.Form) {
 	dlg, _ := walk.NewDialogWithFixedSize(owner)
 	dlg.SetTitle("About WireGuard")
 	dlg.SetLayout(vbl)
-	wireguardIcon, err := walk.NewIconFromResourceWithSize("$wireguard.ico", walk.Size{dlg.DPI()/3, dlg.DPI()/3}) //TODO: calculate DPI dynamically
+	wireguardIcon, err := walk.NewIconFromResourceWithSize("$wireguard.ico", walk.Size{dlg.DPI() / 3, dlg.DPI() / 3}) //TODO: calculate DPI dynamically
 	if err == nil {
 		dlg.SetIcon(wireguardIcon)
 	}

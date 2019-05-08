@@ -156,7 +156,7 @@ func (tray *Tray) addTunnelAction(tunnel *service.Tunnel) {
 			oldState, err := tclosure.Toggle()
 			if err != nil {
 				tray.mtw.Synchronize(func() {
-					tray.mtw.Show()
+					raise(tray.mtw.Handle())
 					tray.mtw.tunnelsPage.listView.selectTunnel(tclosure.Name)
 					tray.mtw.tabs.SetCurrentIndex(0)
 					if oldState == service.TunnelUnknown {
@@ -321,7 +321,7 @@ func (tray *Tray) UpdateFound() {
 			tray.mtw.tunnelsPage.listView.SelectFirstActiveTunnel()
 		}
 		tray.mtw.tabs.SetCurrentIndex(2)
-		tray.mtw.Show()
+		raise(tray.mtw.Handle())
 	}
 	action.Triggered().Attach(showUpdateTab)
 	tray.clicked = showUpdateTab
@@ -348,7 +348,7 @@ func (tray *Tray) onManageTunnels() {
 		tray.mtw.tunnelsPage.listView.SelectFirstActiveTunnel()
 		tray.mtw.tabs.SetCurrentIndex(0)
 	}
-	tray.mtw.Show()
+	raise(tray.mtw.Handle())
 }
 
 func (tray *Tray) onAbout() {
@@ -360,6 +360,6 @@ func (tray *Tray) onAbout() {
 }
 
 func (tray *Tray) onImport() {
-	tray.mtw.Show()
+	raise(tray.mtw.Handle())
 	tray.mtw.tunnelsPage.onImport()
 }
