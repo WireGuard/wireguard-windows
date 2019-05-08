@@ -84,7 +84,7 @@ func (conf *Config) ToUAPI() (uapi string, dnsErr error) {
 		output.WriteString(fmt.Sprintf("public_key=%s\n", peer.PublicKey.HexString()))
 
 		if !peer.PresharedKey.IsZero() {
-			output.WriteString(fmt.Sprintf("preshared_key = %s\n", peer.PresharedKey.String()))
+			output.WriteString(fmt.Sprintf("preshared_key=%s\n", peer.PresharedKey.HexString()))
 		}
 
 		if !peer.Endpoint.IsEmpty() {
