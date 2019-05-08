@@ -400,7 +400,7 @@ func SHBrowseForFolder(lpbi *BROWSEINFO) uintptr {
 	return ret
 }
 
-func SHDefExtractIconW(pszIconFile *uint16, iIndex int32, uFlags uint32, phiconLarge, phiconSmall *HICON, nIconSize uint32) HRESULT {
+func SHDefExtractIcon(pszIconFile *uint16, iIndex int32, uFlags uint32, phiconLarge, phiconSmall *HICON, nIconSize uint32) HRESULT {
 	ret, _, _ := syscall.Syscall6(shDefExtractIcon.Addr(), 6,
 		uintptr(unsafe.Pointer(pszIconFile)),
 		uintptr(iIndex),
