@@ -26,9 +26,10 @@ func NewUpdatePage() (*UpdatePage, error) {
 
 	up.SetTitle("An Update is Available!")
 
-	tabIcon, _ := loadSystemIcon("imageres", 1)
+	iconSize := up.DPI() / 6
+	tabIcon, _ := loadSystemIcon("imageres", 1, iconSize)
 	defer tabIcon.Dispose()
-	bitmap, _ := walk.NewBitmapFromIcon(tabIcon, walk.Size{up.DPI() / 6, up.DPI() / 6}) //TODO: this should use dynamic DPI
+	bitmap, _ := walk.NewBitmapFromIcon(tabIcon, walk.Size{iconSize, iconSize}) //TODO: this should use dynamic DPI
 	up.SetImage(bitmap)
 
 	//TODO: make title bold
@@ -46,8 +47,8 @@ func NewUpdatePage() (*UpdatePage, error) {
 	bar.SetVisible(false)
 
 	button, _ := walk.NewPushButton(up)
-	updateIcon, _ := loadSystemIcon("shell32", 46)
-	button.SetImage(updateIcon) //TODO: the placement of this looks sort of weird
+	updateIcon, _ := loadSystemIcon("shell32", 46, bar.HeightPixels())
+	button.SetImage(updateIcon)
 	button.SetText("Update Now")
 
 	walk.NewVSpacer(up)

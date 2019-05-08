@@ -127,7 +127,7 @@ func (tp *TunnelsPage) CreateToolbar() {
 	tp.AddDisposable(addMenu)
 	importAction := walk.NewAction()
 	importAction.SetText("Import tunnel(s) from file...")
-	importActionIcon, _ := loadSystemIcon("imageres", 3)
+	importActionIcon, _ := loadSystemIcon("imageres", 3, imageSize.Width)
 	importActionImage, _ := walk.NewBitmapFromIcon(importActionIcon, imageSize)
 	importAction.SetImage(importActionImage)
 	importAction.SetShortcut(walk.Shortcut{walk.ModControl, walk.KeyO})
@@ -135,7 +135,7 @@ func (tp *TunnelsPage) CreateToolbar() {
 	importAction.Triggered().Attach(tp.onImport)
 	addAction := walk.NewAction()
 	addAction.SetText("Add empty tunnel...")
-	addActionIcon, _ := loadSystemIcon("imageres", 2)
+	addActionIcon, _ := loadSystemIcon("imageres", 2, imageSize.Width)
 	addActionImage, _ := walk.NewBitmapFromIcon(addActionIcon, imageSize)
 	addAction.SetImage(addActionImage)
 	addAction.SetShortcut(walk.Shortcut{walk.ModControl, walk.KeyN})
@@ -143,7 +143,7 @@ func (tp *TunnelsPage) CreateToolbar() {
 	addMenu.Actions().Add(importAction)
 	addMenu.Actions().Add(addAction)
 	addMenuAction := walk.NewMenuAction(addMenu)
-	addMenuActionIcon, _ := loadSystemIcon("shell32", 149)
+	addMenuActionIcon, _ := loadSystemIcon("shell32", 149, imageSize.Width)
 	addMenuActionImage, _ := walk.NewBitmapFromIcon(addMenuActionIcon, imageSize)
 	addMenuAction.SetImage(addMenuActionImage)
 	addMenuAction.SetText("Add Tunnel")
@@ -154,7 +154,7 @@ func (tp *TunnelsPage) CreateToolbar() {
 	tp.listToolbar.Actions().Add(walk.NewSeparatorAction())
 
 	deleteAction := walk.NewAction()
-	deleteActionIcon, _ := loadSystemIcon("shell32", 131)
+	deleteActionIcon, _ := loadSystemIcon("shell32", 131, imageSize.Width)
 	deleteActionImage, _ := walk.NewBitmapFromIcon(deleteActionIcon, imageSize)
 	deleteAction.SetImage(deleteActionImage)
 	deleteAction.SetShortcut(walk.Shortcut{0, walk.KeyDelete})
@@ -164,7 +164,7 @@ func (tp *TunnelsPage) CreateToolbar() {
 	tp.listToolbar.Actions().Add(walk.NewSeparatorAction())
 
 	exportAction := walk.NewAction()
-	exportActionIcon, _ := loadSystemIcon("imageres", 165) // Or "shell32", 45?
+	exportActionIcon, _ := loadSystemIcon("imageres", 165, imageSize.Width) // Or "shell32", 45?
 	exportActionImage, _ := walk.NewBitmapFromIcon(exportActionIcon, imageSize)
 	exportAction.SetImage(exportActionImage)
 	exportAction.SetToolTip("Export all tunnels to zip...")

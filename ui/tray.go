@@ -54,7 +54,10 @@ func (tray *Tray) setup() error {
 
 	tray.SetToolTip("WireGuard: Deactivated")
 	tray.SetVisible(true)
-	tray.SetIcon(iconProvider.wireguardIcon)
+	wireguardIcon, err := walk.NewIconFromResourceWithSize("$wireguard.ico", walk.Size{tray.mtw.DPI() / 6, tray.mtw.DPI() / 6}) //TODO: calculate DPI dynamically
+	if err == nil {
+		tray.SetIcon(wireguardIcon)
+	}
 
 	tray.MouseDown().Attach(func(x, y int, button walk.MouseButton) {
 		if button == walk.LeftButton {
@@ -216,8 +219,12 @@ func (tray *Tray) onTunnelChange(tunnel *service.Tunnel, state service.TunnelSta
 }
 
 func (tray *Tray) updateGlobalState(globalState service.TunnelState) {
-	if icon, err := iconProvider.IconWithOverlayForState(globalState); err == nil {
+	if icon, err := iconWithOverlayForState(globalState, tray.mtw.DPI()/6); err == nil { //TODO: calculate DPI dynamically
+		prior := tray.Icon()
 		tray.SetIcon(icon)
+		if prior != nil {
+			prior.Dispose()
+		}
 	}
 
 	actions := tray.ContextMenu().Actions()
@@ -286,14 +293,14 @@ func (tray *Tray) SetTunnelState(tunnel *service.Tunnel, state service.TunnelSta
 		tunnelAction.SetEnabled(true)
 		tunnelAction.SetChecked(true)
 		if !wasChecked && showNotifications {
-			icon, _ := iconProvider.IconWithOverlayForState(state)
+			icon, _ := iconWithOverlayForState(state, tray.mtw.DPI()*4/3) //TODO: calculate dpi dynamically
 			tray.ShowCustom("WireGuard Activated", fmt.Sprintf("The %s tunnel has been activated.", tunnel.Name), icon)
 		}
 
 	case service.TunnelStopped:
 		tunnelAction.SetChecked(false)
 		if wasChecked && showNotifications {
-			icon, _ := loadSystemIcon("imageres", 26) //TODO: this icon isn't very good...
+			icon, _ := loadSystemIcon("imageres", 26, tray.mtw.DPI()*4/3) //TODO: this icon isn't very good..., also calculate dpi dynamically
 			defer icon.Dispose()
 			tray.ShowCustom("WireGuard Deactivated", fmt.Sprintf("The %s tunnel has been deactivated.", tunnel.Name), icon)
 		}
@@ -303,8 +310,10 @@ func (tray *Tray) SetTunnelState(tunnel *service.Tunnel, state service.TunnelSta
 func (tray *Tray) UpdateFound() {
 	action := walk.NewAction()
 	action.SetText("An Update is Available!")
-	icon, _ := loadSystemIcon("imageres", 1)
-	bitmap, _ := walk.NewBitmapFromIcon(icon, walk.Size{tray.mtw.DPI() / 6, tray.mtw.DPI() / 6}) //TODO: This should use dynamic DPI.
+	iconSize := tray.mtw.DPI() / 6 //TODO: This should use dynamic DPI.
+	menuIcon, _ := loadSystemIcon("imageres", 1, iconSize)
+	bitmap, _ := walk.NewBitmapFromIcon(menuIcon, walk.Size{iconSize, iconSize})
+	menuIcon.Dispose()
 	action.SetImage(bitmap)
 	action.SetDefault(true)
 	showUpdateTab := func() {
@@ -319,8 +328,9 @@ func (tray *Tray) UpdateFound() {
 	tray.ContextMenu().Actions().Insert(tray.ContextMenu().Actions().Len()-2, action)
 
 	showUpdateBalloon := func() {
+		icon, _ := loadSystemIcon("imageres", 1, tray.mtw.DPI()*4/3) //TODO: calculate DPI dynamically
 		tray.ShowCustom("WireGuard Update Available", "An update to WireGuard is now available. You are advised to update as soon as possible.", icon)
-		defer icon.Dispose()
+		icon.Dispose()
 	}
 
 	timeSinceStart := time.Now().Sub(startTime)
