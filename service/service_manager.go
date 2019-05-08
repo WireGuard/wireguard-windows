@@ -151,7 +151,7 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 				return
 			}
 
-			log.Printf("Starting UI process for user: '%s@%s'", username, domain)
+			log.Printf("Starting UI process for user '%s@%s'", username, domain)
 			attr := &os.ProcAttr{
 				Sys: &syscall.SysProcAttr{
 					Token:             syscall.Token(userToken),
@@ -168,14 +168,21 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 			windows.Close(theirLogMappingHandle)
 			runtime.UnlockOSThread()
 			if err != nil {
-				log.Printf("Unable to start manager UI process: %v", err)
+				log.Printf("Unable to start manager UI process for user '%s@%s': %v", username, domain, err)
 				return
 			}
 
 			procsLock.Lock()
 			procs[session] = proc
 			procsLock.Unlock()
-			proc.Wait()
+
+			processStatus, err := proc.Wait()
+			if err == nil {
+				log.Printf("Exited UI process for user '%s@%s' with status %d", username, domain, processStatus.ExitCode())
+			} else {
+				log.Printf("Unable to wait for UI process for user '%s@%s': %v", username, domain, err)
+			}
+
 			procsLock.Lock()
 			delete(procs, session)
 			procsLock.Unlock()
