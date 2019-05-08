@@ -109,6 +109,7 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 		userTokenInfo.elevatedToken, err = getElevatedToken(userToken)
 		if err != nil {
 			log.Printf("Unable to elevate token: %v", err)
+			return
 		}
 		if userTokenInfo.elevatedToken != userToken {
 			defer userTokenInfo.elevatedToken.Close()
