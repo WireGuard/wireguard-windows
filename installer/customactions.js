@@ -90,7 +90,9 @@ function EvaluateWireGuardServices() {
 
 function RemoveConfigFolder() {
 	try {
-		fso.DeleteFolder(fso.BuildPath(fso.GetSpecialFolder(1), "config\\systemprofile\\AppData\\Local\\WireGuard"), true);
+		var path = wsh.RegRead("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList\\S-1-5-18\\ProfileImagePath");
+		path = wsh.ExpandEnvironmentStrings(path.toString());
+		fso.DeleteFolder(fso.BuildPath(path, "AppData\\Local\\WireGuard"), true);
 	} catch(e) {
 		logMessage("Failed to remove configuration on uninstall: " + e.message);
 	}
