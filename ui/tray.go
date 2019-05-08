@@ -265,6 +265,9 @@ func (tray *Tray) updateGlobalState(globalState service.TunnelState) {
 
 func (tray *Tray) SetTunnelState(tunnel *service.Tunnel, state service.TunnelState, showNotifications bool) {
 	tunnelAction := tray.tunnels[tunnel.Name]
+	if tunnelAction == nil {
+		return
+	}
 
 	actions := tray.ContextMenu().Actions()
 	activeCIDRsAction := actions.At(1)
