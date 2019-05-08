@@ -102,16 +102,15 @@ type ACE_HEADER struct {
 }
 
 //sys getSecurityInfo(handle windows.Handle, objectType uint32, si uint32, owner *uintptr, group *uintptr, dacl *uintptr, sacl *uintptr, securityDescriptor *uintptr) (err error) [failretval!=0] = advapi32.GetSecurityInfo
-//sys getSecurityDescriptorLength(securityDescriptor uintptr) (len uint32) = advapi32.GetSecurityDescriptorLength
-//sys addAccessAllowedAce(acl uintptr, aceRevision uint32, accessmask uint32, sid *windows.SID) (err error) = advapi32.AddAccessAllowedAce
-//sys setSecurityDescriptorDacl(securityDescriptor uintptr, daclPresent bool, dacl uintptr, defaulted bool) (err error) = advapi32.SetSecurityDescriptorDacl
-//sys setSecurityDescriptorSacl(securityDescriptor uintptr, saclPresent bool, sacl uintptr, defaulted bool) (err error) = advapi32.SetSecurityDescriptorSacl
-//sys getAclInformation(acl uintptr, info unsafe.Pointer, len uint32, infoclass uint32) (err error) = advapi32.GetAclInformation
-//sys getAce(acl uintptr, index uint32, ace *uintptr) (err error) = advapi32.GetAce
-//sys addAce(acl uintptr, revision uint32, index uint32, ace uintptr, lenAce uint32) (err error) = advapi32.AddAce
-//sys initializeAcl(acl uintptr, len uint32, revision uint32) (err error) = advapi32.InitializeAcl
-//sys makeAbsoluteSd(selfRelativeSecurityDescriptor uintptr, absoluteSecurityDescriptor uintptr, absoluteSecurityDescriptorSize *uint32, dacl uintptr, daclSize *uint32, sacl uintptr, saclSize *uint32, owner uintptr, ownerSize *uint32, primaryGroup uintptr, primaryGroupSize *uint32) (err error) = advapi32.MakeAbsoluteSD
-//sys makeSelfRelativeSd(absoluteSecurityDescriptor uintptr, relativeSecurityDescriptor uintptr, relativeSecurityDescriptorSize *uint32) (err error) = advapi32.MakeSelfRelativeSD
+//sys addAccessAllowedAce(acl *byte, aceRevision uint32, accessmask uint32, sid *windows.SID) (err error) = advapi32.AddAccessAllowedAce
+//sys setSecurityDescriptorDacl(securityDescriptor *byte, daclPresent bool, dacl *byte, defaulted bool) (err error) = advapi32.SetSecurityDescriptorDacl
+//sys setSecurityDescriptorSacl(securityDescriptor *byte, saclPresent bool, sacl *byte, defaulted bool) (err error) = advapi32.SetSecurityDescriptorSacl
+//sys getAclInformation(acl *byte, info *ACL_SIZE_INFORMATION, len uint32, infoclass uint32) (err error) = advapi32.GetAclInformation
+//sys getAce(acl *byte, index uint32, ace **ACE_HEADER) (err error) = advapi32.GetAce
+//sys addAce(acl *byte, revision uint32, index uint32, ace *ACE_HEADER, lenAce uint32) (err error) = advapi32.AddAce
+//sys initializeAcl(acl *byte, len uint32, revision uint32) (err error) = advapi32.InitializeAcl
+//sys makeAbsoluteSd(selfRelativeSecurityDescriptor uintptr, absoluteSecurityDescriptor *byte, absoluteSecurityDescriptorSize *uint32, dacl *byte, daclSize *uint32, sacl *byte, saclSize *uint32, owner *byte, ownerSize *uint32, primaryGroup *byte, primaryGroupSize *uint32) (err error) = advapi32.MakeAbsoluteSD
+//sys makeSelfRelativeSd(absoluteSecurityDescriptor *byte, relativeSecurityDescriptor *byte, relativeSecurityDescriptorSize *uint32) (err error) = advapi32.MakeSelfRelativeSD
 
 //sys createEnvironmentBlock(block *uintptr, token windows.Token, inheritExisting bool) (err error) = userenv.CreateEnvironmentBlock
 //sys destroyEnvironmentBlock(block uintptr) (err error) = userenv.DestroyEnvironmentBlock
@@ -226,7 +225,7 @@ func getSecurityAttributes(mainToken windows.Token, tokenThatHasLogonSession win
 		ownerSize                      uint32
 		primaryGroupSize               uint32
 	)
-	err = makeAbsoluteSd(originalSecurityDescriptor, 0, &absoluteSecurityDescriptorSize, 0, &daclSize, 0, &saclSize, 0, &ownerSize, 0, &primaryGroupSize)
+	err = makeAbsoluteSd(originalSecurityDescriptor, nil, &absoluteSecurityDescriptorSize, nil, &daclSize, nil, &saclSize, nil, &ownerSize, nil, &primaryGroupSize)
 	if err != windows.ERROR_INSUFFICIENT_BUFFER {
 		windows.LocalFree(windows.Handle(originalSecurityDescriptor))
 		return nil, fmt.Errorf("Expected insufficient buffer from MakeAbsoluteSd, but got: %v", err)
@@ -236,7 +235,7 @@ func getSecurityAttributes(mainToken windows.Token, tokenThatHasLogonSession win
 	sacl := make([]byte, saclSize)
 	owner := make([]byte, ownerSize)
 	primaryGroup := make([]byte, primaryGroupSize)
-	err = makeAbsoluteSd(originalSecurityDescriptor, uintptr(unsafe.Pointer(&absoluteSecurityDescriptor[0])), &absoluteSecurityDescriptorSize, uintptr(unsafe.Pointer(&dacl[0])), &daclSize, uintptr(unsafe.Pointer(&sacl[0])), &saclSize, uintptr(unsafe.Pointer(&owner[0])), &ownerSize, uintptr(unsafe.Pointer(&primaryGroup[0])), &primaryGroupSize)
+	err = makeAbsoluteSd(originalSecurityDescriptor, &absoluteSecurityDescriptor[0], &absoluteSecurityDescriptorSize, &dacl[0], &daclSize, &sacl[0], &saclSize, &owner[0], &ownerSize, &primaryGroup[0], &primaryGroupSize)
 	if err != nil {
 		windows.LocalFree(windows.Handle(originalSecurityDescriptor))
 		return nil, err
@@ -244,48 +243,48 @@ func getSecurityAttributes(mainToken windows.Token, tokenThatHasLogonSession win
 	windows.LocalFree(windows.Handle(originalSecurityDescriptor))
 
 	var daclInfo ACL_SIZE_INFORMATION
-	err = getAclInformation(uintptr(unsafe.Pointer(&dacl[0])), unsafe.Pointer(&daclInfo), uint32(unsafe.Sizeof(daclInfo)), AclSizeInformation)
+	err = getAclInformation(&dacl[0], &daclInfo, uint32(unsafe.Sizeof(daclInfo)), AclSizeInformation)
 	if err != nil {
 		return nil, err
 	}
 	newDacl := make([]byte, daclInfo.aclBytesInUse*2)
-	err = initializeAcl(uintptr(unsafe.Pointer(&newDacl[0])), uint32(len(newDacl)), ACL_REVISION)
+	err = initializeAcl(&newDacl[0], uint32(len(newDacl)), ACL_REVISION)
 	if err != nil {
 		return nil, err
 	}
-	var ace uintptr
+	var ace *ACE_HEADER
 	for i := uint32(0); i < daclInfo.aceCount; i++ {
-		err = getAce(uintptr(unsafe.Pointer(&dacl[0])), i, &ace)
+		err = getAce(&dacl[0], i, &ace)
 		if err != nil {
 			return nil, err
 		}
-		err = addAce(uintptr(unsafe.Pointer(&newDacl[0])), ACL_REVISION, ^uint32(0), ace, uint32(((*ACE_HEADER)(unsafe.Pointer(ace))).aceSize))
+		err = addAce(&newDacl[0], ACL_REVISION, ^uint32(0), ace, uint32(ace.aceSize))
 		if err != nil {
 			return nil, err
 		}
 	}
 	runtime.KeepAlive(dacl)
-	err = addAccessAllowedAce(uintptr(unsafe.Pointer(&newDacl[0])), ACL_REVISION, PROCESS_QUERY_LIMITED_INFORMATION, logonSid)
+	err = addAccessAllowedAce(&newDacl[0], ACL_REVISION, PROCESS_QUERY_LIMITED_INFORMATION, logonSid)
 	if err != nil {
 		return nil, err
 	}
 	runtime.KeepAlive(gs)
-	err = setSecurityDescriptorDacl(uintptr(unsafe.Pointer(&absoluteSecurityDescriptor[0])), true, uintptr(unsafe.Pointer(&newDacl[0])), false)
+	err = setSecurityDescriptorDacl(&absoluteSecurityDescriptor[0], true, &newDacl[0], false)
 	if err != nil {
 		return nil, err
 	}
 	//TODO: This should not be required!! But right now we can't give the process the high integrity SACL, which is unfortunate. So we unset it.
-	err = setSecurityDescriptorSacl(uintptr(unsafe.Pointer(&absoluteSecurityDescriptor[0])), false, 0, true)
+	err = setSecurityDescriptorSacl(&absoluteSecurityDescriptor[0], false, nil, true)
 	if err != nil {
 		return nil, err
 	}
 	var selfRelativeSecurityDescriptorSize uint32
-	err = makeSelfRelativeSd(uintptr(unsafe.Pointer(&absoluteSecurityDescriptor[0])), 0, &selfRelativeSecurityDescriptorSize)
+	err = makeSelfRelativeSd(&absoluteSecurityDescriptor[0], nil, &selfRelativeSecurityDescriptorSize)
 	if err != windows.ERROR_INSUFFICIENT_BUFFER {
 		return nil, fmt.Errorf("Expected insufficient buffer from MakeSelfRelativeSd, but got: %v", err)
 	}
 	relativeSecurityDescriptor := make([]byte, selfRelativeSecurityDescriptorSize)
-	err = makeSelfRelativeSd(uintptr(unsafe.Pointer(&absoluteSecurityDescriptor[0])), uintptr(unsafe.Pointer(&relativeSecurityDescriptor[0])), &selfRelativeSecurityDescriptorSize)
+	err = makeSelfRelativeSd(&absoluteSecurityDescriptor[0], &relativeSecurityDescriptor[0], &selfRelativeSecurityDescriptorSize)
 	if err != nil {
 		return nil, err
 	}
