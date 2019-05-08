@@ -559,6 +559,9 @@ func (tp *TunnelsPage) onTunnelsChanged() {
 }
 
 func (tp *TunnelsPage) onSelectedTunnelsChanged() {
+	if tp.listView.model.RowCount() == 0 {
+		return
+	}
 	indices := tp.listView.SelectedIndexes()
 	if tp.swapFiller(len(indices) > 1) {
 		tp.fillerButton.SetText(fmt.Sprintf("Delete %d tunnels", len(indices)))
