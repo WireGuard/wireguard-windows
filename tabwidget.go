@@ -32,6 +32,10 @@ type TabWidget struct {
 }
 
 func NewTabWidget(parent Container) (*TabWidget, error) {
+	return NewTabWidgetWithStyle(parent, 0)
+}
+
+func NewTabWidgetWithStyle(parent Container, style uint32) (*TabWidget, error) {
 	tw := &TabWidget{currentIndex: -1}
 	tw.pages = newTabPageList(tw)
 
@@ -55,7 +59,7 @@ func NewTabWidget(parent Container) (*TabWidget, error) {
 
 	tw.hWndTab = win.CreateWindowEx(
 		0, syscall.StringToUTF16Ptr("SysTabControl32"), nil,
-		win.WS_CHILD|win.WS_CLIPSIBLINGS|win.WS_TABSTOP|win.WS_VISIBLE,
+		win.WS_CHILD|win.WS_CLIPSIBLINGS|win.WS_TABSTOP|win.WS_VISIBLE|style,
 		0, 0, 0, 0, tw.hWnd, 0, 0, nil)
 	if tw.hWndTab == 0 {
 		return nil, lastError("CreateWindowEx")
@@ -344,6 +348,69 @@ func (tw *TabWidget) WndProc(hwnd win.HWND, msg uint32, wParam, lParam uintptr) 
 			case win.TCN_SELCHANGE:
 				tw.onSelChange()
 			}
+
+		case win.WM_DRAWITEM:
+			dis := (*win.DRAWITEMSTRUCT)(unsafe.Pointer(lParam))
+
+			page := tw.pages.At(int(dis.ItemID))
+
+			rc := dis.RcItem
+			hdc := dis.HDC
+			savedDC := win.SaveDC(hdc)
+			defer win.RestoreDC(hdc, savedDC)
+
+			canvas, err := newCanvasFromHDC(hdc)
+			if err != nil {
+				return 1
+			}
+			defer canvas.Dispose()
+
+			if err := canvas.FillRectangle(sysColorBtnFaceBrush, rectangleFromRECT(rc)); err != nil {
+				return 1
+			}
+
+			if bg, wnd := page.AsWindowBase().backgroundEffective(); bg != nil {
+				tw.prepareDCForBackground(canvas.hdc, hwnd, wnd)
+
+				hRgn := win.CreateRectRgn(rc.Left, rc.Top, rc.Right, rc.Bottom+2)
+				defer win.DeleteObject(win.HGDIOBJ(hRgn))
+				if !win.FillRgn(canvas.hdc, hRgn, bg.handle()) {
+					return 1
+				}
+
+				if page.image != nil {
+					x := rc.Left + 6
+					y := rc.Top
+					s := int32(16)
+
+					if imageCanvas, err := NewCanvasFromImage(page.image); err == nil {
+						defer imageCanvas.Dispose()
+
+						if !win.TransparentBlt(
+							canvas.hdc, x, y, s, s,
+							imageCanvas.hdc, 0, 0, int32(page.image.size.Width), int32(page.image.size.Height),
+							0) {
+							break
+						}
+					}
+
+					rc.Left += s + 6
+				}
+
+				rc.Left += 6
+				rc.Top += 1
+
+				title := syscall.StringToUTF16(page.title)
+
+				hOldFont := win.SelectObject(canvas.hdc, win.HGDIOBJ(page.TitleFont().handleForDPI(0)))
+				defer win.SelectObject(canvas.hdc, hOldFont)
+
+				if 0 == win.DrawTextEx(canvas.hdc, &title[0], int32(len(title)), &rc, 0, nil) {
+					break
+				}
+			}
+
+			return 1
 		}
 	}
 

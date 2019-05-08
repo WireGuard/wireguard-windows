@@ -24,6 +24,7 @@ func init() {
 
 type TabPage struct {
 	ContainerBase
+	titleFont             *Font
 	image                 *Bitmap
 	title                 string
 	tabWidget             *TabWidget
@@ -118,6 +119,18 @@ func (tp *TabPage) Font() *Font {
 	}
 
 	return defaultFont
+}
+
+func (tp *TabPage) TitleFont() *Font {
+	if tp.titleFont == nil {
+		return tp.Font()
+	}
+
+	return tp.titleFont
+}
+
+func (tp *TabPage) SetTitleFont(font *Font) {
+	tp.titleFont = font
 }
 
 func (tp *TabPage) Image() *Bitmap {
