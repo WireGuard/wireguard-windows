@@ -7,23 +7,34 @@ package ui
 
 import (
 	"fmt"
+	"os"
+	"runtime"
+
 	"github.com/lxn/walk"
 	"github.com/lxn/win"
 	"golang.org/x/sys/windows"
-	"os"
-	"runtime"
 )
 
 const wireguardUIClass = "WireGuard UI - MainWindow"
+
+func raise(hwnd win.HWND) {
+	if win.IsIconic(hwnd) {
+		win.ShowWindow(hwnd, win.SW_RESTORE)
+	}
+
+	win.SetActiveWindow(hwnd)
+
+	win.SetWindowPos(hwnd, win.HWND_TOPMOST, 0, 0, 0, 0, win.SWP_NOMOVE|win.SWP_NOSIZE|win.SWP_SHOWWINDOW)
+	win.SetForegroundWindow(hwnd)
+	win.SetWindowPos(hwnd, win.HWND_NOTOPMOST, 0, 0, 0, 0, win.SWP_NOMOVE|win.SWP_NOSIZE|win.SWP_SHOWWINDOW)
+}
 
 func RaiseUI() bool {
 	hwnd := win.FindWindow(windows.StringToUTF16Ptr(wireguardUIClass), nil)
 	if hwnd == 0 {
 		return false
 	}
-	win.ShowWindow(hwnd, win.SW_NORMAL)
-	win.BringWindowToTop(hwnd)
-	win.SetForegroundWindow(hwnd)
+	raise(hwnd)
 	return true
 }
 
@@ -37,9 +48,7 @@ func WaitForRaiseUIThenQuit() {
 			return 0
 		}
 		win.UnhookWinEvent(handle)
-		win.ShowWindow(hwnd, win.SW_NORMAL)
-		win.BringWindowToTop(hwnd)
-		win.SetForegroundWindow(hwnd)
+		raise(hwnd)
 		os.Exit(0)
 		return 0
 	}, 0, 0, win.WINEVENT_SKIPOWNPROCESS|win.WINEVENT_OUTOFCONTEXT)

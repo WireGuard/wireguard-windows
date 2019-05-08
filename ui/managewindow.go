@@ -36,7 +36,7 @@ func NewManageTunnelsWindow() (*ManageTunnelsWindow, error) {
 	}
 	disposables.Add(mtw)
 
-	wireguardIcon, err := walk.NewIconFromResourceWithSize("$wireguard.ico", walk.Size{mtw.DPI()/3, mtw.DPI()/3}) //TODO: calculate DPI dynamically
+	wireguardIcon, err := walk.NewIconFromResourceWithSize("$wireguard.ico", walk.Size{mtw.DPI() / 3, mtw.DPI() / 3}) //TODO: calculate DPI dynamically
 	if err == nil {
 		mtw.SetIcon(wireguardIcon)
 	}
