@@ -1661,6 +1661,7 @@ var (
 	getDpiForWindow            *windows.LazyProc
 	getFocus                   *windows.LazyProc
 	getForegroundWindow        *windows.LazyProc
+	getIconInfo                *windows.LazyProc
 	getKeyState                *windows.LazyProc
 	getMenuInfo                *windows.LazyProc
 	getMessage                 *windows.LazyProc
@@ -1793,6 +1794,7 @@ func init() {
 	getDpiForWindow = libuser32.NewProc("GetDpiForWindow")
 	getFocus = libuser32.NewProc("GetFocus")
 	getForegroundWindow = libuser32.NewProc("GetForegroundWindow")
+	getIconInfo = libuser32.NewProc("GetIconInfo")
 	getKeyState = libuser32.NewProc("GetKeyState")
 	getMenuInfo = libuser32.NewProc("GetMenuInfo")
 	getMessage = libuser32.NewProc("GetMessageW")
@@ -2355,6 +2357,15 @@ func GetForegroundWindow() HWND {
 		0)
 
 	return HWND(ret)
+}
+
+func GetIconInfo(hicon HICON, piconinfo *ICONINFO) bool {
+	ret, _, _ := syscall.Syscall(getIconInfo.Addr(), 2,
+		uintptr(hicon),
+		uintptr(unsafe.Pointer(piconinfo)),
+		0)
+
+	return ret != 0
 }
 
 func GetKeyState(nVirtKey int32) int16 {
