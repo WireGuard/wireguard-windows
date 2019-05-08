@@ -12,9 +12,11 @@ import (
 	"golang.zx2c4.com/wireguard/windows/service"
 	"golang.zx2c4.com/wireguard/windows/ui"
 	"os"
+	"runtime"
 	"strconv"
 	"strings"
 	"time"
+	"unsafe"
 )
 
 var flags = [...]string{
@@ -48,16 +50,41 @@ func usage() {
 
 func checkForWow64() {
 	var b bool
-	p, err := windows.GetCurrentProcess()
-	if err != nil {
-		fatal("Unable to determine current process handle: ", err)
-	}
-	err = isWow64Process(p, &b)
+	p, _ := windows.GetCurrentProcess()
+	err := isWow64Process(p, &b)
 	if err != nil {
 		fatal("Unable to determine whether the process is running under WOW64: ", err)
 	}
 	if b {
 		fatal("You must use the 64-bit version of WireGuard on this computer.")
+	}
+}
+
+func checkForAdminGroup() {
+	// This is not a security check, but rather a user-confusion one.
+	adminSid, err := windows.CreateWellKnownSid(windows.WinBuiltinAdministratorsSid)
+	if err != nil {
+		fatal("Unable to create well-known SID for Builtin Administrators: ", err)
+	}
+	token, err := windows.OpenCurrentProcessToken()
+	if err != nil {
+		fatal("Unable to open current process token: ", err)
+	}
+	gs, err := token.GetTokenGroups()
+	if err != nil {
+		fatal("Unable to get groups of current process token: ", err)
+	}
+	groups := (*[(1 << 28) - 1]windows.SIDAndAttributes)(unsafe.Pointer(&gs.Groups[0]))[:gs.GroupCount]
+	isAdmin := false
+	for _, g := range groups {
+		if windows.EqualSid(g.Sid, adminSid) {
+			isAdmin = true
+			break
+		}
+	}
+	runtime.KeepAlive(gs)
+	if !isAdmin {
+		fatal("WireGuard may only be used by users who are a member of the Builtin Administrators group.")
 	}
 }
 
@@ -87,6 +114,7 @@ func main() {
 	checkForWow64()
 
 	if len(os.Args) <= 1 {
+		checkForAdminGroup()
 		if ui.RaiseUI() {
 			return
 		}
