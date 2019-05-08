@@ -545,7 +545,13 @@ func (cv *ConfView) setTunnel(tunnel *service.Tunnel, config *conf.Config, state
 			cv.SetSuspended(false)
 		}
 	}()
-	title := "Interface: " + config.Name
+	title := "Interface: "
+	if cv.name.Title() == title {
+		//TODO: This here is a filthy hack that shouldn't be required!
+		suspend()
+		cv.SendMessage(win.WM_SIZING, 0, 0)
+	}
+	title += config.Name
 	if cv.name.Title() != title {
 		cv.name.SetTitle(title)
 	}
