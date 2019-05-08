@@ -130,6 +130,14 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 				return
 			}
 
+			procsLock.Lock()
+			if _, ok := procs[session]; ok {
+				log.Printf("Session %d already has a UI process, giving up", session)
+				procsLock.Unlock()
+				return
+			}
+			procsLock.Unlock()
+
 			//TODO: we lock the OS thread so that these inheritable handles don't escape into other processes that
 			// might be running in parallel Go routines. But the Go runtime is strange and who knows what's really
 			// happening with these or what is inherited. We need to do some analysis to be certain of what's going on.
@@ -151,7 +159,7 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 				return
 			}
 
-			log.Printf("Starting UI process for user '%s@%s'", username, domain)
+			log.Printf("Starting UI process for user '%s@%s' for session %d", username, domain, session)
 			attr := &os.ProcAttr{
 				Sys: &syscall.SysProcAttr{
 					Token:             syscall.Token(userToken),
@@ -168,19 +176,25 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 			windows.Close(theirLogMappingHandle)
 			runtime.UnlockOSThread()
 			if err != nil {
-				log.Printf("Unable to start manager UI process for user '%s@%s': %v", username, domain, err)
+				log.Printf("Unable to start manager UI process for user '%s@%s' for session %d: %v", username, domain, session, err)
 				return
 			}
 
 			procsLock.Lock()
+			if _, ok := procs[session]; ok {
+				log.Printf("Session %d already has a UI process, killing newly created one", session)
+				proc.Kill()
+				procsLock.Unlock()
+				continue
+			}
 			procs[session] = proc
 			procsLock.Unlock()
 
 			processStatus, err := proc.Wait()
 			if err == nil {
-				log.Printf("Exited UI process for user '%s@%s' with status %d", username, domain, processStatus.ExitCode())
+				log.Printf("Exited UI process for user '%s@%s' for session %d with status %d", username, domain, session, processStatus.ExitCode())
 			} else {
-				log.Printf("Unable to wait for UI process for user '%s@%s': %v", username, domain, err)
+				log.Printf("Unable to wait for UI process for user '%s@%s' for session %d: %v", username, domain, session, err)
 			}
 
 			procsLock.Lock()
