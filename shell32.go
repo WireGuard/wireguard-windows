@@ -324,6 +324,7 @@ var (
 	dragQueryFile          *windows.LazyProc
 	extractIcon            *windows.LazyProc
 	shBrowseForFolder      *windows.LazyProc
+	shDefExtractIcon       *windows.LazyProc
 	shGetFileInfo          *windows.LazyProc
 	shGetPathFromIDList    *windows.LazyProc
 	shGetSpecialFolderPath *windows.LazyProc
@@ -343,6 +344,7 @@ func init() {
 	dragQueryFile = libshell32.NewProc("DragQueryFileW")
 	extractIcon = libshell32.NewProc("ExtractIconW")
 	shBrowseForFolder = libshell32.NewProc("SHBrowseForFolderW")
+	shDefExtractIcon = libshell32.NewProc("SHDefExtractIconW")
 	shGetFileInfo = libshell32.NewProc("SHGetFileInfoW")
 	shGetPathFromIDList = libshell32.NewProc("SHGetPathFromIDListW")
 	shGetSpecialFolderPath = libshell32.NewProc("SHGetSpecialFolderPathW")
@@ -396,6 +398,18 @@ func SHBrowseForFolder(lpbi *BROWSEINFO) uintptr {
 		0)
 
 	return ret
+}
+
+func SHDefExtractIconW(pszIconFile *uint16, iIndex int32, uFlags uint32, phiconLarge, phiconSmall *HICON, nIconSize uint32) HRESULT {
+	ret, _, _ := syscall.Syscall6(shDefExtractIcon.Addr(), 6,
+		uintptr(unsafe.Pointer(pszIconFile)),
+		uintptr(iIndex),
+		uintptr(uFlags),
+		uintptr(unsafe.Pointer(phiconLarge)),
+		uintptr(unsafe.Pointer(phiconSmall)),
+		uintptr(nIconSize))
+
+	return HRESULT(ret)
 }
 
 func SHGetFileInfo(pszPath *uint16, dwFileAttributes uint32, psfi *SHFILEINFO, cbFileInfo, uFlags uint32) uintptr {

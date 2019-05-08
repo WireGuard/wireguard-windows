@@ -219,7 +219,7 @@ func FindResource(hModule HMODULE, lpName, lpType *uint16) HRSRC {
 	ret, _, _ := syscall.Syscall(findResource.Addr(), 3,
 		uintptr(hModule),
 		uintptr(unsafe.Pointer(lpName)),
-		uintptr(unsafe.Pointer(lpType)));
+		uintptr(unsafe.Pointer(lpType)))
 
 	return HRSRC(ret)
 }
@@ -408,10 +408,10 @@ func MulDiv(nNumber, nNumerator, nDenominator int32) int32 {
 }
 
 func LoadResource(hModule HMODULE, hResInfo HRSRC) HGLOBAL {
-	ret, _, _ := syscall.Syscall(loadResource.Addr(), 2, 
-		uintptr(hModule), 
-		uintptr(hResInfo), 
-		0);
+	ret, _, _ := syscall.Syscall(loadResource.Addr(), 2,
+		uintptr(hModule),
+		uintptr(hResInfo),
+		0)
 
 	return HGLOBAL(ret)
 }
@@ -420,7 +420,7 @@ func LockResource(hResData HGLOBAL) uintptr {
 	ret, _, _ := syscall.Syscall(lockResource.Addr(), 1,
 		uintptr(hResData),
 		0,
-		0);
+		0)
 
 	return ret
 }
@@ -436,7 +436,7 @@ func SizeofResource(hModule HMODULE, hResInfo HRSRC) uint32 {
 	ret, _, _ := syscall.Syscall(sizeofResource.Addr(), 2,
 		uintptr(hModule),
 		uintptr(hResInfo),
-		0);
+		0)
 
 	return uint32(ret)
 }
