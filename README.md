@@ -6,7 +6,7 @@ If you just want to build and install this from source, but don't care about doi
 
 ### Building
 
-Windows 10 64-bit is required. The build script will take care of downloading, verifying, and extracting the right versions of the various dependencies:
+Windows 10 64-bit or Windows Server 2019, and Git for Windows is required. The build script will take care of downloading, verifying, and extracting the right versions of the various dependencies:
 
 ```
 C:\Projects> git clone https://git.zx2c4.com/wireguard-windows
