@@ -26,6 +26,13 @@ func NewUpdatePage() (*UpdatePage, error) {
 
 	up.SetTitle("An Update is Available!")
 
+	font, err := walk.NewFont("Segoe UI", 9, walk.FontBold)
+	if err != nil {
+		return nil, err
+	}
+	up.AddDisposable(font)
+	up.SetTitleFont(font)
+
 	iconSize := up.DPI() / 6
 	tabIcon, _ := loadSystemIcon("imageres", 1, iconSize)
 	defer tabIcon.Dispose()

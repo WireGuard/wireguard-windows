@@ -65,7 +65,7 @@ func NewManageTunnelsWindow() (*ManageTunnelsWindow, error) {
 		}
 	})
 
-	mtw.tabs, _ = walk.NewTabWidget(mtw)
+	mtw.tabs, _ = walk.NewTabWidgetWithStyle(mtw, win.TCS_OWNERDRAWFIXED)
 
 	if mtw.tunnelsPage, err = NewTunnelsPage(); err != nil {
 		return nil, err
