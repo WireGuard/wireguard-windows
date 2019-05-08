@@ -1684,8 +1684,10 @@ var (
 	isChild                    *windows.LazyProc
 	isClipboardFormatAvailable *windows.LazyProc
 	isDialogMessage            *windows.LazyProc
+	isIconic                   *windows.LazyProc
 	isWindowEnabled            *windows.LazyProc
 	isWindowVisible            *windows.LazyProc
+	isZoomed                   *windows.LazyProc
 	killTimer                  *windows.LazyProc
 	loadCursor                 *windows.LazyProc
 	loadIcon                   *windows.LazyProc
@@ -1822,8 +1824,10 @@ func init() {
 	isChild = libuser32.NewProc("IsChild")
 	isClipboardFormatAvailable = libuser32.NewProc("IsClipboardFormatAvailable")
 	isDialogMessage = libuser32.NewProc("IsDialogMessageW")
+	isIconic = libuser32.NewProc("IsIconic")
 	isWindowEnabled = libuser32.NewProc("IsWindowEnabled")
 	isWindowVisible = libuser32.NewProc("IsWindowVisible")
+	isZoomed = libuser32.NewProc("IsZoomed")
 	killTimer = libuser32.NewProc("KillTimer")
 	loadCursor = libuser32.NewProc("LoadCursorW")
 	loadIcon = libuser32.NewProc("LoadIconW")
@@ -2570,6 +2574,15 @@ func IsDialogMessage(hWnd HWND, msg *MSG) bool {
 	return ret != 0
 }
 
+func IsIconic(hWnd HWND) bool {
+	ret, _, _ := syscall.Syscall(isIconic.Addr(), 1,
+		uintptr(hWnd),
+		0,
+		0)
+
+	return ret != 0
+}
+
 func IsWindowEnabled(hWnd HWND) bool {
 	ret, _, _ := syscall.Syscall(isWindowEnabled.Addr(), 1,
 		uintptr(hWnd),
@@ -2581,6 +2594,15 @@ func IsWindowEnabled(hWnd HWND) bool {
 
 func IsWindowVisible(hWnd HWND) bool {
 	ret, _, _ := syscall.Syscall(isWindowVisible.Addr(), 1,
+		uintptr(hWnd),
+		0,
+		0)
+
+	return ret != 0
+}
+
+func IsZoomed(hWnd HWND) bool {
+	ret, _, _ := syscall.Syscall(isZoomed.Addr(), 1,
 		uintptr(hWnd),
 		0,
 		0)
