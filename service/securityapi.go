@@ -247,7 +247,7 @@ func getSecurityAttributes(mainToken windows.Token, tokenThatHasLogonSession win
 	if err != nil {
 		return nil, err
 	}
-	newDacl := make([]byte, daclInfo.aclBytesInUse*2)
+	newDacl := make([]byte, daclInfo.aclBytesInUse*2+0x1000)
 	err = initializeAcl(&newDacl[0], uint32(len(newDacl)), ACL_REVISION)
 	if err != nil {
 		return nil, err
