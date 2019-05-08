@@ -28,6 +28,7 @@ var flags = [...]string{
 	"/managerservice",
 	"/tunnelservice CONFIG_PATH",
 	"/ui CMD_READ_HANDLE CMD_WRITE_HANDLE CMD_EVENT_HANDLE LOG_MAPPING_HANDLE",
+	"/dumplog OUTPUT_PATH",
 }
 
 //sys messageBoxEx(hwnd windows.Handle, text *uint16, title *uint16, typ uint, languageId uint16) = user32.MessageBoxExW
@@ -204,6 +205,20 @@ func main() {
 		}
 		service.InitializeIPCClient(readPipe, writePipe, eventPipe)
 		ui.RunUI()
+		return
+	case "/dumplog":
+		if len(os.Args) != 3 {
+			usage()
+		}
+		file, err := os.Create(os.Args[2])
+		if err != nil {
+			fatal(err)
+		}
+		defer file.Close()
+		err = ringlogger.DumpTo(file, true)
+		if err != nil {
+			fatal(err)
+		}
 		return
 	}
 	usage()
