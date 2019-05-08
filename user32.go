@@ -1683,6 +1683,7 @@ var (
 	isChild                    *windows.LazyProc
 	isClipboardFormatAvailable *windows.LazyProc
 	isDialogMessage            *windows.LazyProc
+	isIconic                   *windows.LazyProc
 	isWindowEnabled            *windows.LazyProc
 	isWindowVisible            *windows.LazyProc
 	killTimer                  *windows.LazyProc
@@ -1820,6 +1821,7 @@ func init() {
 	isChild = libuser32.NewProc("IsChild")
 	isClipboardFormatAvailable = libuser32.NewProc("IsClipboardFormatAvailable")
 	isDialogMessage = libuser32.NewProc("IsDialogMessageW")
+	isIconic = libuser32.NewProc("IsIconic")
 	isWindowEnabled = libuser32.NewProc("IsWindowEnabled")
 	isWindowVisible = libuser32.NewProc("IsWindowVisible")
 	killTimer = libuser32.NewProc("KillTimer")
@@ -2554,6 +2556,15 @@ func IsDialogMessage(hWnd HWND, msg *MSG) bool {
 	ret, _, _ := syscall.Syscall(isDialogMessage.Addr(), 2,
 		uintptr(hWnd),
 		uintptr(unsafe.Pointer(msg)),
+		0)
+
+	return ret != 0
+}
+
+func IsIconic(hWnd HWND) bool {
+	ret, _, _ := syscall.Syscall(isIconic.Addr(), 1,
+		uintptr(hWnd),
+		0,
 		0)
 
 	return ret != 0
