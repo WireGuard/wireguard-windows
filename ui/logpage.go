@@ -176,7 +176,7 @@ type logModel struct {
 func newLogModel(lp *LogPage) *logModel {
 	mdl := &logModel{lp: lp, quit: make(chan bool)}
 	go func() {
-		ticker := time.NewTicker(time.Millisecond * 300)
+		ticker := time.NewTicker(time.Second)
 		cursor := ringlogger.CursorAll
 
 		for {

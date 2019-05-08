@@ -433,6 +433,9 @@ func NewConfView(parent walk.Container) (*ConfView, error) {
 	cv.updateTicker = time.NewTicker(time.Second)
 	go func() {
 		for range cv.updateTicker.C {
+			if !cv.Visible() || !cv.Form().Visible() || win.IsIconic(cv.Form().Handle()) {
+				continue
+			}
 			if cv.tunnel != nil {
 				tunnel := cv.tunnel
 				var state service.TunnelState
