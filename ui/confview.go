@@ -566,11 +566,31 @@ func (cv *ConfView) setTunnel(tunnel *service.Tunnel, config *conf.Config, state
 	cv.interfaze.status.update(state)
 	cv.interfaze.toggleActive.update(state)
 	inverse := make(map[*peerView]bool, len(cv.peers))
+	all := make([]*peerView, 0, len(cv.peers))
 	for _, pv := range cv.peers {
 		inverse[pv] = true
+		all = append(all, pv)
+	}
+	someMatch := false
+	for _, peer := range config.Peers {
+		_, ok := cv.peers[peer.PublicKey]
+		if ok {
+			someMatch = true
+			break
+		}
 	}
 	for _, peer := range config.Peers {
-		if pv := cv.peers[peer.PublicKey]; pv != nil {
+		if pv := cv.peers[peer.PublicKey]; (!someMatch && len(all) > 0) || pv != nil {
+			if pv == nil {
+				pv = all[0]
+				all = all[1:]
+				k, e := conf.NewPrivateKeyFromString(pv.publicKey.text.Text())
+				if e != nil {
+					continue
+				}
+				delete(cv.peers, *k)
+				cv.peers[peer.PublicKey] = pv
+			}
 			pv.apply(&peer)
 			inverse[pv] = false
 		} else {
