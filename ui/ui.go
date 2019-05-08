@@ -14,8 +14,6 @@ import (
 	"time"
 )
 
-var iconProvider *IconProvider
-
 var shouldQuitManagerWhenExiting = false
 var startTime = time.Now()
 
@@ -35,8 +33,6 @@ func RunUI() {
 		mtw  *ManageTunnelsWindow
 		tray *Tray
 	)
-
-	iconProvider, _ = NewIconProvider()
 
 	for mtw == nil {
 		mtw, err = NewManageTunnelsWindow()
@@ -83,7 +79,6 @@ func RunUI() {
 	mtw.Run()
 	tray.Dispose()
 	mtw.Dispose()
-	iconProvider.Dispose()
 
 	if shouldQuitManagerWhenExiting {
 		_, err := service.IPCClientQuit(true)

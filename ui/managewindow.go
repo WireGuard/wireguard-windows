@@ -36,7 +36,10 @@ func NewManageTunnelsWindow() (*ManageTunnelsWindow, error) {
 	}
 	disposables.Add(mtw)
 
-	mtw.SetIcon(iconProvider.wireguardIcon)
+	wireguardIcon, err := walk.NewIconFromResourceWithSize("$wireguard.ico", walk.Size{256, 256}) //TODO: calculate DPI dynamically
+	if err == nil {
+		mtw.SetIcon(wireguardIcon)
+	}
 	mtw.SetTitle("WireGuard")
 	font, err := walk.NewFont("Segoe UI", 9, 0)
 	if err != nil {
@@ -94,7 +97,7 @@ func (mtw *ManageTunnelsWindow) Dispose() {
 
 func (mtw *ManageTunnelsWindow) onTunnelChange(tunnel *service.Tunnel, state service.TunnelState, globalState service.TunnelState, err error) {
 	mtw.Synchronize(func() {
-		icon, err2 := iconProvider.IconWithOverlayForState(globalState)
+		icon, err2 := iconWithOverlayForState(globalState, mtw.DPI()/3) //TODO: calculate DPI dynamically
 		if err2 == nil {
 			mtw.SetIcon(icon)
 		}

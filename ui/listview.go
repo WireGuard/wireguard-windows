@@ -132,7 +132,7 @@ func (tv *ListView) StyleCell(style *walk.CellStyle) {
 	b.Y += margin
 	b.Height -= margin * 2
 	b.Width = b.Height
-	icon, err := iconProvider.IconForState(state)
+	icon, err := iconForState(state, b.Size().Width)
 	if err != nil {
 		return
 	}

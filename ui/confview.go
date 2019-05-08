@@ -79,17 +79,17 @@ func (lsl *labelStatusLine) widgets() (walk.Widget, walk.Widget) {
 }
 
 func (lsl *labelStatusLine) update(state service.TunnelState) {
-	icon, err := iconProvider.IconForState(state)
+	margin := lsl.label.DPI() / 48 //TODO: Do some sort of dynamic DPI calculation here
+	labelSize := lsl.label.SizeHint()
+	imageRect := walk.Rectangle{0, 0, labelSize.Height, labelSize.Height}
+	img, _ := walk.NewBitmapWithTransparentPixels(imageRect.Size())
+	canvas, _ := walk.NewCanvasFromImage(img)
+	imageRect.X += margin
+	imageRect.Y += margin * 2 //TODO: the *2 here fixes weird alignment bugs. Why?
+	imageRect.Height -= margin * 2
+	imageRect.Width -= margin * 2
+	icon, err := iconForState(state, imageRect.Size().Width)
 	if err == nil {
-		margin := lsl.label.DPI() / 48 //TODO: Do some sort of dynamic DPI calculation here
-		labelSize := lsl.label.SizeHint()
-		imageRect := walk.Rectangle{0, 0, labelSize.Height, labelSize.Height}
-		img, _ := walk.NewBitmapWithTransparentPixels(imageRect.Size())
-		canvas, _ := walk.NewCanvasFromImage(img)
-		imageRect.X += margin
-		imageRect.Y += margin * 2 //TODO: the *2 here fixes weird alignment bugs. Why?
-		imageRect.Height -= margin * 2
-		imageRect.Width -= margin * 2
 		canvas.DrawImageStretched(icon, imageRect)
 		icon.Dispose()
 		canvas.Dispose()
@@ -99,7 +99,11 @@ func (lsl *labelStatusLine) update(state service.TunnelState) {
 			prior.Dispose()
 		}
 	} else {
+		prior := lsl.statusImage.Image()
 		lsl.statusImage.SetImage(nil)
+		if prior != nil {
+			prior.Dispose()
+		}
 	}
 	s, e := lsl.statusLabel.TextSelection()
 	switch state {
