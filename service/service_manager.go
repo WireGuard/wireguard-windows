@@ -6,6 +6,7 @@
 package service
 
 import (
+	"errors"
 	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/svc"
 	"golang.zx2c4.com/wireguard/windows/conf"
@@ -71,12 +72,18 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 	conf.RegisterStoreChangeCallback(IPCServerNotifyTunnelsChange)
 
 	procs := make(map[uint32]*os.Process)
+	aliveSessions := make(map[uint32]bool)
 	procsLock := sync.Mutex{}
 	var startProcess func(session uint32)
 	stoppingManager := false
 
 	startProcess = func(session uint32) {
-		defer runtime.UnlockOSThread()
+		defer func() {
+			runtime.UnlockOSThread()
+			procsLock.Lock()
+			delete(aliveSessions, session)
+			procsLock.Unlock()
+		}()
 
 		var userToken windows.Token
 		err := wtsQueryUserToken(session, &userToken)
@@ -125,18 +132,24 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 			log.Printf("Unable to extract security attributes from manager token and combine them with SID from user token: %v", err)
 			return
 		}
+		first := true
 		for {
 			if stoppingManager {
 				return
 			}
 
 			procsLock.Lock()
-			if _, ok := procs[session]; ok {
-				log.Printf("Session %d already has a UI process, giving up", session)
+			if alive := aliveSessions[session]; !alive {
 				procsLock.Unlock()
 				return
 			}
 			procsLock.Unlock()
+
+			if !first {
+				time.Sleep(time.Second)
+			} else {
+				first = false
+			}
 
 			//TODO: we lock the OS thread so that these inheritable handles don't escape into other processes that
 			// might be running in parallel Go routines. But the Go runtime is strange and who knows what's really
@@ -169,30 +182,38 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 				Files: []*os.File{devNull, devNull, devNull},
 				Env:   env,
 			}
-			proc, err := os.StartProcess(path, []string{path, "/ui", theirReaderStr, theirWriterStr, theirEventStr, theirLogMapping}, attr)
+			procsLock.Lock()
+			var proc *os.Process
+			if alive := aliveSessions[session]; alive {
+				proc, err = os.StartProcess(path, []string{path, "/ui", theirReaderStr, theirWriterStr, theirEventStr, theirLogMapping}, attr)
+			} else {
+				err = errors.New("Session has logged out")
+			}
+			procsLock.Unlock()
 			theirReader.Close()
 			theirWriter.Close()
 			theirEvents.Close()
 			windows.Close(theirLogMappingHandle)
 			runtime.UnlockOSThread()
 			if err != nil {
+				ourReader.Close()
+				ourWriter.Close()
+				ourEvents.Close()
 				log.Printf("Unable to start manager UI process for user '%s@%s' for session %d: %v", username, domain, session, err)
 				return
 			}
 
 			procsLock.Lock()
-			if _, ok := procs[session]; ok {
-				log.Printf("Session %d already has a UI process, killing newly created one", session)
-				proc.Kill()
-				procsLock.Unlock()
-				continue
-			}
 			procs[session] = proc
 			procsLock.Unlock()
 
+			sessionIsDead := false
 			processStatus, err := proc.Wait()
 			if err == nil {
-				log.Printf("Exited UI process for user '%s@%s' for session %d with status %d", username, domain, session, processStatus.ExitCode())
+				exitCode := processStatus.Sys().(syscall.WaitStatus).ExitCode
+				log.Printf("Exited UI process for user '%s@%s' for session %d with status %x", username, domain, session, exitCode)
+				const STATUS_DLL_INIT_FAILED_LOGOFF = 0xC000026B
+				sessionIsDead = exitCode == STATUS_DLL_INIT_FAILED_LOGOFF
 			} else {
 				log.Printf("Unable to wait for UI process for user '%s@%s' for session %d: %v", username, domain, session, err)
 			}
@@ -204,8 +225,8 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 			ourWriter.Close()
 			ourEvents.Close()
 
-			if !stoppingManager {
-				time.Sleep(time.Second)
+			if sessionIsDead {
+				return
 			}
 		}
 	}
@@ -225,9 +246,17 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 		cap  int
 	}{sessionsPointer, int(count), int(count)}))
 	for _, session := range sessions {
-		if session.state == wtsActive {
-			go startProcess(session.sessionID)
+		if session.state != wtsActive {
+			continue
 		}
+		procsLock.Lock()
+		if alive := aliveSessions[session.sessionID]; !alive {
+			aliveSessions[session.sessionID] = true
+			if _, ok := procs[session.sessionID]; !ok {
+				go startProcess(session.sessionID)
+			}
+		}
+		procsLock.Unlock()
 	}
 	wtsFreeMemory(uintptr(unsafe.Pointer(sessionsPointer)))
 
@@ -257,14 +286,18 @@ loop:
 				}
 				if c.EventType == wtsSessionLogoff {
 					procsLock.Lock()
+					delete(aliveSessions, sessionNotification.sessionID)
 					if proc, ok := procs[sessionNotification.sessionID]; ok {
 						proc.Kill()
 					}
 					procsLock.Unlock()
 				} else if c.EventType == wtsSessionLogon {
 					procsLock.Lock()
-					if _, ok := procs[sessionNotification.sessionID]; !ok {
-						go startProcess(sessionNotification.sessionID)
+					if alive := aliveSessions[sessionNotification.sessionID]; !alive {
+						aliveSessions[sessionNotification.sessionID] = true
+						if _, ok := procs[sessionNotification.sessionID]; !ok {
+							go startProcess(sessionNotification.sessionID)
+						}
 					}
 					procsLock.Unlock()
 				}
