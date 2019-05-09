@@ -80,7 +80,11 @@ func parseEndpoint(s string) (*Endpoint, error) {
 	if host[0] == '[' || host[len(host)-1] == ']' || hostColon > 0 {
 		err := &ParseError{"Brackets must contain an IPv6 address", host}
 		if len(host) > 3 && host[0] == '[' && host[len(host)-1] == ']' && hostColon > 0 {
-			maybeV6 := net.ParseIP(host[1 : len(host)-1])
+			end := len(host) - 1
+			if i := strings.LastIndexByte(host, '%'); i > 1 {
+				end = i
+			}
+			maybeV6 := net.ParseIP(host[1:end])
 			if maybeV6 == nil || len(maybeV6) != net.IPv6len {
 				return nil, err
 			}
