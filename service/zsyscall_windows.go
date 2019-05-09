@@ -270,21 +270,14 @@ func notifyServiceStatusChange(service windows.Handle, notifyMask uint32, notify
 	return
 }
 
-func sleepEx(milliseconds uint32, alertable bool) (ret uint32, err error) {
+func sleepEx(milliseconds uint32, alertable bool) (ret uint32) {
 	var _p0 uint32
 	if alertable {
 		_p0 = 1
 	} else {
 		_p0 = 0
 	}
-	r0, _, e1 := syscall.Syscall(procSleepEx.Addr(), 2, uintptr(milliseconds), uintptr(_p0), 0)
+	r0, _, _ := syscall.Syscall(procSleepEx.Addr(), 2, uintptr(milliseconds), uintptr(_p0), 0)
 	ret = uint32(r0)
-	if ret == 0 {
-		if e1 != 0 {
-			err = errnoErr(e1)
-		} else {
-			err = syscall.EINVAL
-		}
-	}
 	return
 }
