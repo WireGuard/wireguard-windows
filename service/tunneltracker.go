@@ -11,14 +11,16 @@ import (
 	"golang.org/x/sys/windows/svc"
 	"golang.org/x/sys/windows/svc/mgr"
 	"golang.zx2c4.com/wireguard/windows/conf"
+	"log"
 	"runtime"
 	"sync"
 	"syscall"
+	"time"
 	"unsafe"
 )
 
 //sys notifyServiceStatusChange(service windows.Handle, notifyMask uint32, notifyBuffer uintptr) (status uint32) = advapi32.NotifyServiceStatusChangeW
-//sys sleepEx(milliseconds uint32, alertable bool) (ret uint32, err error) = kernel32.SleepEx
+//sys sleepEx(milliseconds uint32, alertable bool) (ret uint32) = kernel32.SleepEx
 
 const (
 	serviceNotify_CREATED          uint32 = 0x00000080
@@ -35,6 +37,7 @@ const (
 const serviceNotify_STATUS_CHANGE uint32 = 2
 const errorServiceMARKED_FOR_DELETE uint32 = 1072
 const errorServiceNOTIFY_CLIENT_LAGGING uint32 = 1294
+const sleepWAIT_IO_COMPLETION uint32 = 0x000000C0
 
 type serviceStatus struct {
 	serviceType             uint32
@@ -120,7 +123,10 @@ func trackedTunnelsGlobalState() (state TunnelState) {
 }
 
 func trackTunnelService(tunnelName string, service *mgr.Service) {
-	defer service.Close()
+	defer func() {
+		service.Close()
+		log.Printf("[%s] Tunnel service tracker finished", tunnelName)
+	}()
 
 	trackedTunnelsLock.Lock()
 	if _, found := trackedTunnels[tunnelName]; found {
@@ -141,13 +147,37 @@ func trackTunnelService(tunnelName string, service *mgr.Service) {
 		notifyCallback: serviceTrackerCallbackPtr,
 	}
 
+	checkForDisabled := func() (shouldReturn bool) {
+		config, err := service.Config()
+		if err == syscall.Errno(serviceMARKED_FOR_DELETE) || config.StartType == windows.SERVICE_DISABLED {
+			log.Printf("[%s] Found disabled service via timeout, so deleting", tunnelName)
+			service.Delete()
+			trackedTunnelsLock.Lock()
+			trackedTunnels[tunnelName] = TunnelStopped
+			trackedTunnelsLock.Unlock()
+			IPCServerNotifyTunnelChange(tunnelName, TunnelStopped, nil)
+			return true
+		}
+		return false
+	}
+	if checkForDisabled() {
+		return
+	}
+
 	runtime.LockOSThread()
+	defer runtime.UnlockOSThread()
 	lastState := TunnelUnknown
 	for {
 		ret := notifyServiceStatusChange(service.Handle, serviceNotifications, uintptr(unsafe.Pointer(notifier)))
 		switch ret {
 		case 0:
-			sleepEx(windows.INFINITE, true)
+			for {
+				if sleepEx(uint32(time.Second*3/time.Millisecond), true) == sleepWAIT_IO_COMPLETION {
+					break
+				} else if checkForDisabled() {
+					return
+				}
+			}
 		case errorServiceMARKED_FOR_DELETE:
 			trackedTunnelsLock.Lock()
 			trackedTunnels[tunnelName] = TunnelStopped
