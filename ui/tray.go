@@ -77,7 +77,7 @@ func (tray *Tray) setup() error {
 		defawlt   bool
 	}{
 		{label: "Status: Unknown"},
-		{label: "Networks: None", hidden: true},
+		{label: "Addresses: None", hidden: true},
 		{separator: true},
 		{separator: true},
 		{label: "&Manage tunnels...", handler: tray.onManageTunnels, enabled: true, defawlt: true},
@@ -289,7 +289,7 @@ func (tray *Tray) SetTunnelState(tunnel *service.Tunnel, state service.TunnelSta
 					sb.WriteString(addr.String())
 				}
 				tray.mtw.Synchronize(func() {
-					activeCIDRsAction.SetText(fmt.Sprintf("Networks: %s", sb.String()))
+					activeCIDRsAction.SetText(fmt.Sprintf("Addresses: %s", sb.String()))
 				})
 			}
 		}()
