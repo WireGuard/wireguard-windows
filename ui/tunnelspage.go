@@ -452,7 +452,7 @@ func (tp *TunnelsPage) onDelete() {
 	if len(indices) > 1 {
 		topic = fmt.Sprintf("%d tunnels", len(indices))
 	} else {
-		topic = fmt.Sprintf("‘%s’", tp.listView.model.tunnels[0].Name)
+		topic = fmt.Sprintf("‘%s’", tp.listView.model.tunnels[indices[0]].Name)
 	}
 	if walk.DlgCmdNo == walk.MsgBox(
 		tp.Form(),
