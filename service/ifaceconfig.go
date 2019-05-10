@@ -51,16 +51,12 @@ func bindSocketRoute(family winipcfg.AddressFamily, device *device.Device, ourLu
 }
 
 func monitorDefaultRoutes(device *device.Device, autoMTU bool, tun *tun.NativeTun) (*winipcfg.RouteChangeCallback, error) {
-	guid := tun.GUID()
-	ourLuid, err := winipcfg.InterfaceGuidToLuid(&guid)
+	ourLuid := tun.LUID()
 	lastLuid4 := uint64(0)
 	lastLuid6 := uint64(0)
 	lastMtu := uint32(0)
-	if err != nil {
-		return nil, err
-	}
 	doIt := func() error {
-		err = bindSocketRoute(winipcfg.AF_INET, device, ourLuid, &lastLuid4)
+		err := bindSocketRoute(winipcfg.AF_INET, device, ourLuid, &lastLuid4)
 		if err != nil {
 			return err
 		}
@@ -120,7 +116,7 @@ func monitorDefaultRoutes(device *device.Device, autoMTU bool, tun *tun.NativeTu
 		}
 		return nil
 	}
-	err = doIt()
+	err := doIt()
 	if err != nil {
 		return nil, err
 	}
@@ -181,8 +177,7 @@ func cleanupAddressesOnDisconnectedInterfaces(addresses []*net.IPNet) {
 }
 
 func configureInterface(conf *conf.Config, tun *tun.NativeTun) error {
-	guid := tun.GUID()
-	iface, err := winipcfg.InterfaceFromGUID(&guid)
+	iface, err := winipcfg.InterfaceFromLUID(tun.LUID())
 	if err != nil {
 		return err
 	}
@@ -319,11 +314,6 @@ func configureInterface(conf *conf.Config, tun *tun.NativeTun) error {
 }
 
 func enableFirewall(conf *conf.Config, tun *tun.NativeTun) error {
-	guid := tun.GUID()
-	luid, err := winipcfg.InterfaceGuidToLuid(&guid)
-	if err != nil {
-		return err
-	}
 	restrictDNS := len(conf.Interface.Dns) > 0
 	restrictAll := false
 	if len(conf.Peers) == 1 {
@@ -344,5 +334,5 @@ func enableFirewall(conf *conf.Config, tun *tun.NativeTun) error {
 		name, _ := tun.Name()
 		log.Printf("[%s] Warning: no DNS server specified, despite having an allowed IPs of 0.0.0.0/0 or ::/0. There may be connectivity issues.", name)
 	}
-	return firewall.EnableFirewall(luid, restrictDNS, restrictAll)
+	return firewall.EnableFirewall(tun.LUID(), restrictDNS, restrictAll)
 }
