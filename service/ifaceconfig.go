@@ -8,6 +8,7 @@ package service
 import (
 	"bytes"
 	"errors"
+	"golang.org/x/sys/windows"
 	"golang.zx2c4.com/winipcfg"
 	"golang.zx2c4.com/wireguard/device"
 	"golang.zx2c4.com/wireguard/tun"
@@ -15,6 +16,7 @@ import (
 	"golang.zx2c4.com/wireguard/windows/service/firewall"
 	"log"
 	"net"
+	"os"
 	"sort"
 )
 
@@ -133,6 +135,51 @@ func monitorDefaultRoutes(device *device.Device, autoMTU bool, tun *tun.NativeTu
 	return cb, nil
 }
 
+func cleanupAddressesOnDisconnectedInterfaces(addresses []*net.IPNet) {
+	if len(addresses) == 0 {
+		return
+	}
+	includedInAddresses := func(a *net.IPNet) bool {
+		//TODO: this makes the whole algorithm O(n^2). But we can't stick net.IPNet in a Go hashmap. Bummer!
+		for _, addr := range addresses {
+			ip := addr.IP
+			if ip4 := ip.To4(); ip4 != nil {
+				ip = ip4
+			}
+			mA, _ := addr.Mask.Size()
+			mB, _ := a.Mask.Size()
+			if bytes.Equal(ip, a.IP) && mA == mB {
+				return true
+			}
+		}
+		return false
+	}
+	interfaces, err := winipcfg.GetInterfaces()
+	if err != nil {
+		return
+	}
+	for _, iface := range interfaces {
+		if iface.OperStatus == winipcfg.IfOperStatusUp {
+			continue
+		}
+		addressesToKeep := make([]*net.IPNet, 0, len(iface.UnicastAddresses))
+		for _, address := range iface.UnicastAddresses {
+			ip := address.Address.Address
+			if ip4 := ip.To4(); ip4 != nil {
+				ip = ip4
+			}
+			ipnet := &net.IPNet{ip, net.CIDRMask(int(address.OnLinkPrefixLength), 8*len(ip))}
+			if !includedInAddresses(ipnet) {
+				addressesToKeep = append(addressesToKeep, ipnet)
+			}
+		}
+		if len(addressesToKeep) < len(iface.UnicastAddresses) {
+			log.Printf("Cleaning up stale addresses from interface '%s'", iface.FriendlyName)
+			iface.SetAddresses(addressesToKeep)
+		}
+	}
+}
+
 func configureInterface(conf *conf.Config, tun *tun.NativeTun) error {
 	guid := tun.GUID()
 	iface, err := winipcfg.InterfaceFromGUID(&guid)
@@ -196,6 +243,10 @@ func configureInterface(conf *conf.Config, tun *tun.NativeTun) error {
 	}
 
 	err = iface.SetAddresses(addresses)
+	if sysErr, ok := err.(*os.SyscallError); ok && sysErr.Err == windows.ERROR_OBJECT_ALREADY_EXISTS {
+		cleanupAddressesOnDisconnectedInterfaces(addresses)
+		err = iface.SetAddresses(addresses)
+	}
 	if err != nil {
 		return err
 	}
