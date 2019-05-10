@@ -28,11 +28,9 @@ func NewUpdatePage() (*UpdatePage, error) {
 
 	iconSize := up.DPI() / 6
 	tabIcon, _ := loadSystemIcon("imageres", 1, iconSize)
-	defer tabIcon.Dispose()
 	bitmap, _ := walk.NewBitmapFromIcon(tabIcon, walk.Size{iconSize, iconSize}) //TODO: this should use dynamic DPI
 	up.SetImage(bitmap)
 
-	//TODO: make title bold
 	up.SetLayout(walk.NewVBoxLayout())
 
 	instructions, _ := walk.NewTextLabel(up)

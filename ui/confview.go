@@ -25,11 +25,18 @@ type widgetsLinesView interface {
 	widgetsLines() []widgetsLine
 }
 
+type rectAndSizeAndState struct {
+	rect  walk.Rectangle
+	size  walk.Size
+	state service.TunnelState
+}
+
 type labelStatusLine struct {
 	label           *walk.TextLabel
 	statusComposite *walk.Composite
 	statusImage     *walk.ImageView
 	statusLabel     *walk.LineEdit
+	cachedImages    map[rectAndSizeAndState]walk.Image
 }
 
 type labelTextLine struct {
@@ -80,31 +87,26 @@ func (lsl *labelStatusLine) widgets() (walk.Widget, walk.Widget) {
 
 func (lsl *labelStatusLine) update(state service.TunnelState) {
 	margin := lsl.label.DPI() / 48 //TODO: Do some sort of dynamic DPI calculation here
-	labelSize := lsl.label.SizeHint()
-	imageRect := walk.Rectangle{0, 0, labelSize.Height, labelSize.Height}
-	img, _ := walk.NewBitmapWithTransparentPixels(imageRect.Size())
-	canvas, _ := walk.NewCanvasFromImage(img)
-	imageRect.X += margin
-	imageRect.Y += margin * 2 //TODO: the *2 here fixes weird alignment bugs. Why?
-	imageRect.Height -= margin * 2
-	imageRect.Width -= margin * 2
-	icon, err := iconForState(state, imageRect.Size().Width)
-	if err == nil {
-		canvas.DrawImageStretched(icon, imageRect)
-		icon.Dispose()
-		canvas.Dispose()
-		prior := lsl.statusImage.Image()
-		lsl.statusImage.SetImage(img)
-		if prior != nil {
-			prior.Dispose()
-		}
-	} else {
-		prior := lsl.statusImage.Image()
-		lsl.statusImage.SetImage(nil)
-		if prior != nil {
-			prior.Dispose()
+	imageSize := lsl.label.SizeHint()
+	imageSize.Width = imageSize.Height
+	//TODO: the *2 in the Y coordinate fixes weird alignment bugs. Why?
+	imageRect := walk.Rectangle{margin, margin * 2, imageSize.Width - margin*2, imageSize.Height - margin*2}
+	img := lsl.cachedImages[rectAndSizeAndState{imageRect, imageSize, state}]
+	if img == nil {
+		img, _ = walk.NewBitmapWithTransparentPixels(imageSize)
+		canvas, _ := walk.NewCanvasFromImage(img)
+		icon, err := iconForState(state, imageRect.Size().Width)
+		if err == nil {
+			canvas.DrawImageStretched(icon, imageRect)
+			canvas.Dispose()
+			lsl.cachedImages[rectAndSizeAndState{imageRect, imageSize, state}] = img
+		} else {
+			canvas.Dispose()
+			img.Dispose()
+			img = nil
 		}
 	}
+	lsl.statusImage.SetImage(img)
 	s, e := lsl.statusLabel.TextSelection()
 	switch state {
 	case service.TunnelStarted:
@@ -127,6 +129,8 @@ func (lsl *labelStatusLine) update(state service.TunnelState) {
 
 func newLabelStatusLine(parent walk.Container) *labelStatusLine {
 	lsl := new(labelStatusLine)
+
+	lsl.cachedImages = make(map[rectAndSizeAndState]walk.Image)
 
 	lsl.label, _ = walk.NewTextLabel(parent)
 	lsl.label.SetText("Status:")
