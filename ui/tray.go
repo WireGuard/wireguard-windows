@@ -41,7 +41,7 @@ func NewTray(mtw *ManageTunnelsWindow) (*Tray, error) {
 		tunnels: make(map[string]*walk.Action),
 	}
 
-	tray.NotifyIcon, err = walk.NewNotifyIcon(mtw.MainWindow)
+	tray.NotifyIcon, err = walk.NewNotifyIcon(mtw)
 	if err != nil {
 		return nil, err
 	}

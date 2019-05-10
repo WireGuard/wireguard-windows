@@ -12,7 +12,7 @@ import (
 )
 
 type ManageTunnelsWindow struct {
-	*walk.MainWindow
+	walk.FormBase
 
 	tabs        *walk.TabWidget
 	tunnelsPage *TunnelsPage
@@ -22,28 +22,36 @@ type ManageTunnelsWindow struct {
 	tunnelChangedCB *service.TunnelChangeCallback
 }
 
+const (
+	manageWindowWindowClass = "WireGuard UI - Manage Tunnels"
+	selectCorrectTabMsg     = win.WM_USER + 8993
+)
+
+func init() {
+	walk.MustRegisterWindowClass(manageWindowWindowClass)
+}
+
 func NewManageTunnelsWindow() (*ManageTunnelsWindow, error) {
 	var err error
 
-	var disposables walk.Disposables
-	defer disposables.Treat()
-
-	mtw := &ManageTunnelsWindow{}
-
-	mtw.MainWindow, err = walk.NewMainWindowWithName("WireGuard")
+	font, err := walk.NewFont("Segoe UI", 9, 0)
 	if err != nil {
 		return nil, err
 	}
-	disposables.Add(mtw)
+
+	mtw := new(ManageTunnelsWindow)
+	mtw.SetName("WireGuard")
+
+	err = walk.InitWindow(mtw, nil, manageWindowWindowClass, win.WS_OVERLAPPEDWINDOW, win.WS_EX_CONTROLPARENT)
+	if err != nil {
+		return nil, err
+	}
+	mtw.SetPersistent(true)
 
 	if icon, err := loadLogoIcon(mtw.DPI() / 3); err == nil { //TODO: calculate DPI dynamically
 		mtw.SetIcon(icon)
 	}
 	mtw.SetTitle("WireGuard")
-	font, err := walk.NewFont("Segoe UI", 9, 0)
-	if err != nil {
-		return nil, err
-	}
 	mtw.AddDisposable(font)
 	mtw.SetFont(font)
 	mtw.SetSize(walk.Size{640, 480})
@@ -77,8 +85,6 @@ func NewManageTunnelsWindow() (*ManageTunnelsWindow, error) {
 	}
 	mtw.tabs.Pages().Add(mtw.logPage.TabPage)
 
-	disposables.Spare()
-
 	mtw.tunnelChangedCB = service.IPCClientRegisterTunnelChange(mtw.onTunnelChange)
 	globalState, _ := service.IPCClientGlobalState()
 	mtw.onTunnelChange(nil, service.TunnelUnknown, globalState, nil)
@@ -91,7 +97,7 @@ func (mtw *ManageTunnelsWindow) Dispose() {
 		mtw.tunnelChangedCB.Unregister()
 		mtw.tunnelChangedCB = nil
 	}
-	mtw.MainWindow.Dispose()
+	mtw.FormBase.Dispose()
 }
 
 func (mtw *ManageTunnelsWindow) onTunnelChange(tunnel *service.Tunnel, state service.TunnelState, globalState service.TunnelState, err error) {
@@ -121,4 +127,29 @@ func (mtw *ManageTunnelsWindow) UpdateFound() {
 		mtw.updatePage = updatePage
 		mtw.tabs.Pages().Add(updatePage.TabPage)
 	}
+}
+
+func (mtw *ManageTunnelsWindow) WndProc(hwnd win.HWND, msg uint32, wParam, lParam uintptr) uintptr {
+	switch msg {
+	case win.WM_QUERYENDSESSION:
+		if lParam == win.ENDSESSION_CLOSEAPP {
+			return win.TRUE
+		}
+	case win.WM_ENDSESSION:
+		if lParam == win.ENDSESSION_CLOSEAPP && wParam == 1 {
+			walk.App().Exit(198)
+		}
+	case selectCorrectTabMsg:
+		if !mtw.Visible() {
+			mtw.tunnelsPage.listView.SelectFirstActiveTunnel()
+			if mtw.tabs.Pages().Len() != 3 {
+				mtw.tabs.SetCurrentIndex(0)
+			}
+		}
+		if mtw.tabs.Pages().Len() == 3 {
+			mtw.tabs.SetCurrentIndex(2)
+		}
+	}
+
+	return mtw.FormBase.WndProc(hwnd, msg, wParam, lParam)
 }
