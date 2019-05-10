@@ -137,7 +137,6 @@ func (tv *ListView) StyleCell(style *walk.CellStyle) {
 		return
 	}
 	canvas.DrawImageStretched(icon, b)
-	icon.Dispose()
 }
 
 func (tv *ListView) CurrentTunnel() *service.Tunnel {

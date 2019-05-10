@@ -54,9 +54,8 @@ func (tray *Tray) setup() error {
 
 	tray.SetToolTip("WireGuard: Deactivated")
 	tray.SetVisible(true)
-	wireguardIcon, err := walk.NewIconFromResourceWithSize("$wireguard.ico", walk.Size{tray.mtw.DPI() / 6, tray.mtw.DPI() / 6}) //TODO: calculate DPI dynamically
-	if err == nil {
-		tray.SetIcon(wireguardIcon)
+	if icon, err := loadLogoIcon(tray.mtw.DPI() / 6); err == nil { //TODO: calculate DPI dynamically
+		tray.SetIcon(icon)
 	}
 
 	tray.MouseDown().Attach(func(x, y int, button walk.MouseButton) {
@@ -220,11 +219,7 @@ func (tray *Tray) onTunnelChange(tunnel *service.Tunnel, state service.TunnelSta
 
 func (tray *Tray) updateGlobalState(globalState service.TunnelState) {
 	if icon, err := iconWithOverlayForState(globalState, tray.mtw.DPI()/6); err == nil { //TODO: calculate DPI dynamically
-		prior := tray.Icon()
 		tray.SetIcon(icon)
-		if prior != nil {
-			prior.Dispose()
-		}
 	}
 
 	actions := tray.ContextMenu().Actions()
@@ -304,7 +299,6 @@ func (tray *Tray) SetTunnelState(tunnel *service.Tunnel, state service.TunnelSta
 		tunnelAction.SetChecked(false)
 		if wasChecked && showNotifications {
 			icon, _ := loadSystemIcon("imageres", 26, tray.mtw.DPI()*4/3) //TODO: this icon isn't very good..., also calculate dpi dynamically
-			defer icon.Dispose()
 			tray.ShowCustom("WireGuard Deactivated", fmt.Sprintf("The %s tunnel has been deactivated.", tunnel.Name), icon)
 		}
 	}
@@ -316,7 +310,6 @@ func (tray *Tray) UpdateFound() {
 	iconSize := tray.mtw.DPI() / 6 //TODO: This should use dynamic DPI.
 	menuIcon, _ := loadSystemIcon("imageres", 1, iconSize)
 	bitmap, _ := walk.NewBitmapFromIcon(menuIcon, walk.Size{iconSize, iconSize})
-	menuIcon.Dispose()
 	action.SetImage(bitmap)
 	action.SetDefault(true)
 	showUpdateTab := func() {
@@ -333,7 +326,6 @@ func (tray *Tray) UpdateFound() {
 	showUpdateBalloon := func() {
 		icon, _ := loadSystemIcon("imageres", 1, tray.mtw.DPI()*4/3) //TODO: calculate DPI dynamically
 		tray.ShowCustom("WireGuard Update Available", "An update to WireGuard is now available. You are advised to update as soon as possible.", icon)
-		icon.Dispose()
 	}
 
 	timeSinceStart := time.Now().Sub(startTime)

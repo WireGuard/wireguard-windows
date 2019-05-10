@@ -25,23 +25,23 @@ func onAbout(owner walk.Form) {
 	dlg, _ := walk.NewDialogWithFixedSize(owner)
 	dlg.SetTitle("About WireGuard")
 	dlg.SetLayout(vbl)
-	wireguardIcon, err := walk.NewIconFromResourceWithSize("$wireguard.ico", walk.Size{dlg.DPI() / 3, dlg.DPI() / 3}) //TODO: calculate DPI dynamically
-	if err == nil {
-		dlg.SetIcon(wireguardIcon)
+	if icon, err := loadLogoIcon(dlg.DPI() / 3); err == nil { //TODO: calculate DPI dynamically
+		dlg.SetIcon(icon)
 	}
 
 	font, _ := walk.NewFont("Segoe UI", 9, 0)
 	dlg.SetFont(font)
 
 	iv, _ := walk.NewImageView(dlg)
-	logo, _ := walk.NewIconFromResourceWithSize("$wireguard.ico", walk.Size{dlg.DPI() * 4 / 3, dlg.DPI() * 4 / 3}) //TODO: calculate DPI dynamically
 	iv.SetCursor(walk.CursorHand())
 	iv.MouseUp().Attach(func(x, y int, button walk.MouseButton) {
 		if button == walk.LeftButton {
 			win.ShellExecute(dlg.Handle(), nil, windows.StringToUTF16Ptr("https://www.wireguard.com/"), nil, nil, win.SW_SHOWNORMAL)
 		}
 	})
-	iv.SetImage(logo)
+	if logo, err := loadLogoIcon(dlg.DPI() * 4 / 3); err == nil { //TODO: calculate DPI dynamically
+		iv.SetImage(logo)
+	}
 
 	wgLbl, _ := walk.NewTextLabel(dlg)
 	wgFont, _ := walk.NewFont("Segoe UI", 16, walk.FontBold)

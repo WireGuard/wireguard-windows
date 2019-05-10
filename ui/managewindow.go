@@ -36,9 +36,8 @@ func NewManageTunnelsWindow() (*ManageTunnelsWindow, error) {
 	}
 	disposables.Add(mtw)
 
-	wireguardIcon, err := walk.NewIconFromResourceWithSize("$wireguard.ico", walk.Size{mtw.DPI() / 3, mtw.DPI() / 3}) //TODO: calculate DPI dynamically
-	if err == nil {
-		mtw.SetIcon(wireguardIcon)
+	if icon, err := loadLogoIcon(mtw.DPI() / 3); err == nil { //TODO: calculate DPI dynamically
+		mtw.SetIcon(icon)
 	}
 	mtw.SetTitle("WireGuard")
 	font, err := walk.NewFont("Segoe UI", 9, 0)
