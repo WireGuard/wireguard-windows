@@ -90,26 +90,24 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 		if err != nil {
 			return
 		}
-		defer userToken.Close()
 		if !tokenIsMemberOfBuiltInAdministrator(userToken) {
+			userToken.Close()
 			return
 		}
 		user, err := userToken.GetTokenUser()
 		if err != nil {
 			log.Printf("Unable to lookup user from token: %v", err)
+			userToken.Close()
 			return
 		}
 		username, domain, accType, err := user.User.Sid.LookupAccount("")
 		if err != nil {
 			log.Printf("Unable to lookup username from sid: %v", err)
+			userToken.Close()
 			return
 		}
 		if accType != windows.SidTypeUser {
-			return
-		}
-		env, err := userEnviron(userToken)
-		if err != nil {
-			log.Printf("Unable to determine user environment: %v", err)
+			userToken.Close()
 			return
 		}
 		userTokenInfo := &UserTokenInfo{}
@@ -119,22 +117,13 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 			return
 		}
 		if userTokenInfo.elevatedToken != userToken {
-			defer userTokenInfo.elevatedToken.Close()
+			userToken.Close()
 		}
-		userTokenInfo.elevatedEnvironment, err = userEnviron(userTokenInfo.elevatedToken)
+		defer userTokenInfo.elevatedToken.Close()
+		userToken = 0
+		userTokenInfo.elevatedEnvironment, err = userEnviron(userTokenInfo.elevatedToken) //TODO: This seems to have the same PATH as the userToken. Aren't there attacks?
 		if err != nil {
 			log.Printf("Unable to determine elevated environment: %v", err)
-			return
-		}
-		currentProcess, _ := windows.GetCurrentProcess()
-		securityAttributes, err := getSecurityAttributes(windows.Token(currentProcess), userToken)
-		if err != nil {
-			log.Printf("Unable to extract security attributes from manager token and combine them with SID from user token: %v", err)
-			return
-		}
-		err = addElevatedIntegrityToUserToken(userTokenInfo.elevatedToken, userToken)
-		if err != nil {
-			log.Printf("Unable to copy integrity level from elevated token to user token")
 			return
 		}
 		first := true
@@ -180,12 +169,10 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 			log.Printf("Starting UI process for user '%s@%s' for session %d", username, domain, session)
 			attr := &os.ProcAttr{
 				Sys: &syscall.SysProcAttr{
-					Token:             syscall.Token(userToken),
-					ProcessAttributes: sliceToSecurityAttributes(securityAttributes),
-					ThreadAttributes:  sliceToSecurityAttributes(securityAttributes),
+					Token: syscall.Token(userTokenInfo.elevatedToken),
 				},
 				Files: []*os.File{devNull, devNull, devNull},
-				Env:   env,
+				Env:   userTokenInfo.elevatedEnvironment,
 			}
 			procsLock.Lock()
 			var proc *os.Process

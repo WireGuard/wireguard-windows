@@ -38,24 +38,13 @@ func errnoErr(e syscall.Errno) error {
 
 var (
 	modwtsapi32 = windows.NewLazySystemDLL("wtsapi32.dll")
-	modadvapi32 = windows.NewLazySystemDLL("advapi32.dll")
 	moduserenv  = windows.NewLazySystemDLL("userenv.dll")
+	modadvapi32 = windows.NewLazySystemDLL("advapi32.dll")
 	modkernel32 = windows.NewLazySystemDLL("kernel32.dll")
 
 	procWTSQueryUserToken          = modwtsapi32.NewProc("WTSQueryUserToken")
 	procWTSEnumerateSessionsW      = modwtsapi32.NewProc("WTSEnumerateSessionsW")
 	procWTSFreeMemory              = modwtsapi32.NewProc("WTSFreeMemory")
-	procGetSecurityInfo            = modadvapi32.NewProc("GetSecurityInfo")
-	procAddAccessAllowedAce        = modadvapi32.NewProc("AddAccessAllowedAce")
-	procSetSecurityDescriptorDacl  = modadvapi32.NewProc("SetSecurityDescriptorDacl")
-	procSetSecurityDescriptorSacl  = modadvapi32.NewProc("SetSecurityDescriptorSacl")
-	procGetAclInformation          = modadvapi32.NewProc("GetAclInformation")
-	procGetAce                     = modadvapi32.NewProc("GetAce")
-	procAddAce                     = modadvapi32.NewProc("AddAce")
-	procInitializeAcl              = modadvapi32.NewProc("InitializeAcl")
-	procMakeAbsoluteSD             = modadvapi32.NewProc("MakeAbsoluteSD")
-	procMakeSelfRelativeSD         = modadvapi32.NewProc("MakeSelfRelativeSD")
-	procSetTokenInformation        = modadvapi32.NewProc("SetTokenInformation")
 	procCreateEnvironmentBlock     = moduserenv.NewProc("CreateEnvironmentBlock")
 	procDestroyEnvironmentBlock    = moduserenv.NewProc("DestroyEnvironmentBlock")
 	procNotifyServiceStatusChangeW = modadvapi32.NewProc("NotifyServiceStatusChangeW")
@@ -88,162 +77,6 @@ func wtsEnumerateSessions(handle windows.Handle, reserved uint32, version uint32
 
 func wtsFreeMemory(ptr uintptr) {
 	syscall.Syscall(procWTSFreeMemory.Addr(), 1, uintptr(ptr), 0, 0)
-	return
-}
-
-func getSecurityInfo(handle windows.Handle, objectType uint32, si uint32, owner *uintptr, group *uintptr, dacl *uintptr, sacl *uintptr, securityDescriptor *uintptr) (err error) {
-	r1, _, e1 := syscall.Syscall9(procGetSecurityInfo.Addr(), 8, uintptr(handle), uintptr(objectType), uintptr(si), uintptr(unsafe.Pointer(owner)), uintptr(unsafe.Pointer(group)), uintptr(unsafe.Pointer(dacl)), uintptr(unsafe.Pointer(sacl)), uintptr(unsafe.Pointer(securityDescriptor)), 0)
-	if r1 != 0 {
-		if e1 != 0 {
-			err = errnoErr(e1)
-		} else {
-			err = syscall.EINVAL
-		}
-	}
-	return
-}
-
-func addAccessAllowedAce(acl *byte, aceRevision uint32, accessmask uint32, sid *windows.SID) (err error) {
-	r1, _, e1 := syscall.Syscall6(procAddAccessAllowedAce.Addr(), 4, uintptr(unsafe.Pointer(acl)), uintptr(aceRevision), uintptr(accessmask), uintptr(unsafe.Pointer(sid)), 0, 0)
-	if r1 == 0 {
-		if e1 != 0 {
-			err = errnoErr(e1)
-		} else {
-			err = syscall.EINVAL
-		}
-	}
-	return
-}
-
-func setSecurityDescriptorDacl(securityDescriptor *byte, daclPresent bool, dacl *byte, defaulted bool) (err error) {
-	var _p0 uint32
-	if daclPresent {
-		_p0 = 1
-	} else {
-		_p0 = 0
-	}
-	var _p1 uint32
-	if defaulted {
-		_p1 = 1
-	} else {
-		_p1 = 0
-	}
-	r1, _, e1 := syscall.Syscall6(procSetSecurityDescriptorDacl.Addr(), 4, uintptr(unsafe.Pointer(securityDescriptor)), uintptr(_p0), uintptr(unsafe.Pointer(dacl)), uintptr(_p1), 0, 0)
-	if r1 == 0 {
-		if e1 != 0 {
-			err = errnoErr(e1)
-		} else {
-			err = syscall.EINVAL
-		}
-	}
-	return
-}
-
-func setSecurityDescriptorSacl(securityDescriptor *byte, saclPresent bool, sacl *byte, defaulted bool) (err error) {
-	var _p0 uint32
-	if saclPresent {
-		_p0 = 1
-	} else {
-		_p0 = 0
-	}
-	var _p1 uint32
-	if defaulted {
-		_p1 = 1
-	} else {
-		_p1 = 0
-	}
-	r1, _, e1 := syscall.Syscall6(procSetSecurityDescriptorSacl.Addr(), 4, uintptr(unsafe.Pointer(securityDescriptor)), uintptr(_p0), uintptr(unsafe.Pointer(sacl)), uintptr(_p1), 0, 0)
-	if r1 == 0 {
-		if e1 != 0 {
-			err = errnoErr(e1)
-		} else {
-			err = syscall.EINVAL
-		}
-	}
-	return
-}
-
-func getAclInformation(acl *byte, info *ACL_SIZE_INFORMATION, len uint32, infoclass uint32) (err error) {
-	r1, _, e1 := syscall.Syscall6(procGetAclInformation.Addr(), 4, uintptr(unsafe.Pointer(acl)), uintptr(unsafe.Pointer(info)), uintptr(len), uintptr(infoclass), 0, 0)
-	if r1 == 0 {
-		if e1 != 0 {
-			err = errnoErr(e1)
-		} else {
-			err = syscall.EINVAL
-		}
-	}
-	return
-}
-
-func getAce(acl *byte, index uint32, ace **ACE_HEADER) (err error) {
-	r1, _, e1 := syscall.Syscall(procGetAce.Addr(), 3, uintptr(unsafe.Pointer(acl)), uintptr(index), uintptr(unsafe.Pointer(ace)))
-	if r1 == 0 {
-		if e1 != 0 {
-			err = errnoErr(e1)
-		} else {
-			err = syscall.EINVAL
-		}
-	}
-	return
-}
-
-func addAce(acl *byte, revision uint32, index uint32, ace *ACE_HEADER, lenAce uint32) (err error) {
-	r1, _, e1 := syscall.Syscall6(procAddAce.Addr(), 5, uintptr(unsafe.Pointer(acl)), uintptr(revision), uintptr(index), uintptr(unsafe.Pointer(ace)), uintptr(lenAce), 0)
-	if r1 == 0 {
-		if e1 != 0 {
-			err = errnoErr(e1)
-		} else {
-			err = syscall.EINVAL
-		}
-	}
-	return
-}
-
-func initializeAcl(acl *byte, len uint32, revision uint32) (err error) {
-	r1, _, e1 := syscall.Syscall(procInitializeAcl.Addr(), 3, uintptr(unsafe.Pointer(acl)), uintptr(len), uintptr(revision))
-	if r1 == 0 {
-		if e1 != 0 {
-			err = errnoErr(e1)
-		} else {
-			err = syscall.EINVAL
-		}
-	}
-	return
-}
-
-func makeAbsoluteSd(selfRelativeSecurityDescriptor uintptr, absoluteSecurityDescriptor *byte, absoluteSecurityDescriptorSize *uint32, dacl *byte, daclSize *uint32, sacl *byte, saclSize *uint32, owner *byte, ownerSize *uint32, primaryGroup *byte, primaryGroupSize *uint32) (err error) {
-	r1, _, e1 := syscall.Syscall12(procMakeAbsoluteSD.Addr(), 11, uintptr(selfRelativeSecurityDescriptor), uintptr(unsafe.Pointer(absoluteSecurityDescriptor)), uintptr(unsafe.Pointer(absoluteSecurityDescriptorSize)), uintptr(unsafe.Pointer(dacl)), uintptr(unsafe.Pointer(daclSize)), uintptr(unsafe.Pointer(sacl)), uintptr(unsafe.Pointer(saclSize)), uintptr(unsafe.Pointer(owner)), uintptr(unsafe.Pointer(ownerSize)), uintptr(unsafe.Pointer(primaryGroup)), uintptr(unsafe.Pointer(primaryGroupSize)), 0)
-	if r1 == 0 {
-		if e1 != 0 {
-			err = errnoErr(e1)
-		} else {
-			err = syscall.EINVAL
-		}
-	}
-	return
-}
-
-func makeSelfRelativeSd(absoluteSecurityDescriptor *byte, relativeSecurityDescriptor *byte, relativeSecurityDescriptorSize *uint32) (err error) {
-	r1, _, e1 := syscall.Syscall(procMakeSelfRelativeSD.Addr(), 3, uintptr(unsafe.Pointer(absoluteSecurityDescriptor)), uintptr(unsafe.Pointer(relativeSecurityDescriptor)), uintptr(unsafe.Pointer(relativeSecurityDescriptorSize)))
-	if r1 == 0 {
-		if e1 != 0 {
-			err = errnoErr(e1)
-		} else {
-			err = syscall.EINVAL
-		}
-	}
-	return
-}
-
-func setTokenInformation(token windows.Token, infoClass uint32, info *byte, infoSize uint32) (err error) {
-	r1, _, e1 := syscall.Syscall6(procSetTokenInformation.Addr(), 4, uintptr(token), uintptr(infoClass), uintptr(unsafe.Pointer(info)), uintptr(infoSize), 0, 0)
-	if r1 == 0 {
-		if e1 != 0 {
-			err = errnoErr(e1)
-		} else {
-			err = syscall.EINVAL
-		}
-	}
 	return
 }
 
