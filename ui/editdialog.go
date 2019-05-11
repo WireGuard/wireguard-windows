@@ -257,13 +257,14 @@ func (dlg *EditDialog) onSaveButtonClicked() {
 		return
 	}
 
-	names, err := conf.ListConfigNames()
+	existingTunnelList, err := service.IPCClientTunnels()
 	if err != nil {
 		walk.MsgBox(dlg, "Unable to list existing tunnels", err.Error(), walk.MsgBoxIconError)
 		return
 	}
-	for _, name := range names {
-		if strings.ToLower(name) == strings.ToLower(newName) {
+	newNameLower := strings.ToLower(newName)
+	for _, tunnel := range existingTunnelList {
+		if strings.ToLower(tunnel.Name) == newNameLower {
 			walk.MsgBox(dlg, "Tunnel already exists", fmt.Sprintf("Another tunnel already exists with the name ‘%s’.", newName), walk.MsgBoxIconWarning)
 			return
 		}
