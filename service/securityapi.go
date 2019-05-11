@@ -111,6 +111,7 @@ type ACE_HEADER struct {
 //sys initializeAcl(acl *byte, len uint32, revision uint32) (err error) = advapi32.InitializeAcl
 //sys makeAbsoluteSd(selfRelativeSecurityDescriptor uintptr, absoluteSecurityDescriptor *byte, absoluteSecurityDescriptorSize *uint32, dacl *byte, daclSize *uint32, sacl *byte, saclSize *uint32, owner *byte, ownerSize *uint32, primaryGroup *byte, primaryGroupSize *uint32) (err error) = advapi32.MakeAbsoluteSD
 //sys makeSelfRelativeSd(absoluteSecurityDescriptor *byte, relativeSecurityDescriptor *byte, relativeSecurityDescriptorSize *uint32) (err error) = advapi32.MakeSelfRelativeSD
+//sys setTokenInformation(token windows.Token, infoClass uint32, info *byte, infoSize uint32) (err error) = advapi32.SetTokenInformation
 
 //sys createEnvironmentBlock(block *uintptr, token windows.Token, inheritExisting bool) (err error) = userenv.CreateEnvironmentBlock
 //sys destroyEnvironmentBlock(block uintptr) (err error) = userenv.DestroyEnvironmentBlock
@@ -295,4 +296,19 @@ func getSecurityAttributes(mainToken windows.Token, tokenThatHasLogonSession win
 	runtime.KeepAlive(primaryGroup)
 
 	return relativeSecurityDescriptor, nil
+}
+
+func addElevatedIntegrityToUserToken(elevatedToken, userToken windows.Token) error {
+	//TODO: We really don't want to be doing this. See the note above. We'd rather the UI process have very few permissions in its token, and do everything with its SACL. But we can't.
+	var integrityLevel [0x2000]byte
+	len := uint32(len(integrityLevel))
+	err := windows.GetTokenInformation(elevatedToken, windows.TokenIntegrityLevel, &integrityLevel[0], len, &len)
+	if err != nil {
+		return err
+	}
+	err = setTokenInformation(userToken, windows.TokenIntegrityLevel, &integrityLevel[0], len)
+	if err != nil {
+		return err
+	}
+	return nil
 }
