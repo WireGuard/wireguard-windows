@@ -134,6 +134,7 @@ func (tp *TunnelsPage) CreateToolbar() {
 	importAction.SetShortcut(walk.Shortcut{walk.ModControl, walk.KeyO})
 	importAction.SetDefault(true)
 	importAction.Triggered().Attach(tp.onImport)
+	addMenu.Actions().Add(importAction)
 	addAction := walk.NewAction()
 	addAction.SetText("Add empty tunnel...")
 	addActionIcon, _ := loadSystemIcon("imageres", 2, imageSize.Width)
@@ -141,7 +142,6 @@ func (tp *TunnelsPage) CreateToolbar() {
 	addAction.SetImage(addActionImage)
 	addAction.SetShortcut(walk.Shortcut{walk.ModControl, walk.KeyN})
 	addAction.Triggered().Attach(tp.onAddTunnel)
-	addMenu.Actions().Add(importAction)
 	addMenu.Actions().Add(addAction)
 	addMenuAction := walk.NewMenuAction(addMenu)
 	addMenuActionIcon, _ := loadSystemIcon("shell32", 149, imageSize.Width)
@@ -204,6 +204,10 @@ func (tp *TunnelsPage) CreateToolbar() {
 	editAction.SetShortcut(walk.Shortcut{walk.ModControl, walk.KeyE})
 	editAction.Triggered().Attach(tp.onEditTunnel)
 	contextMenu.Actions().Add(editAction)
+	cloneAction := walk.NewAction()
+	cloneAction.SetText("Clone selected tunnel...")
+	cloneAction.Triggered().Attach(tp.onCloneTunnel)
+	contextMenu.Actions().Add(cloneAction)
 	deleteAction2 := walk.NewAction()
 	deleteAction2.SetText("Remove selected tunnel(s)")
 	deleteAction2.SetShortcut(walk.Shortcut{0, walk.KeyDelete})
@@ -228,6 +232,7 @@ func (tp *TunnelsPage) CreateToolbar() {
 		toggleAction.SetEnabled(selected == 1)
 		selectAllAction.SetEnabled(selected < all)
 		editAction.SetEnabled(selected == 1)
+		cloneAction.SetEnabled(selected == 1)
 	}
 	tp.listView.SelectedIndexesChanged().Attach(setSelectionOrientedOptions)
 	setSelectionOrientedOptions()
@@ -418,11 +423,10 @@ func (tp *TunnelsPage) onTunnelsViewItemActivated() {
 func (tp *TunnelsPage) onEditTunnel() {
 	tunnel := tp.listView.CurrentTunnel()
 	if tunnel == nil {
-		// Misfired event?
 		return
 	}
 
-	if config := runTunnelEditDialog(tp.Form(), tunnel); config != nil {
+	if config := runTunnelEditDialog(tp.Form(), tunnel, false); config != nil {
 		go func() {
 			priorState, err := tunnel.State()
 			tunnel.Delete()
@@ -435,8 +439,20 @@ func (tp *TunnelsPage) onEditTunnel() {
 	}
 }
 
+func (tp *TunnelsPage) onCloneTunnel() {
+	tunnel := tp.listView.CurrentTunnel()
+	if tunnel == nil {
+		return
+	}
+
+	if config := runTunnelEditDialog(tp.Form(), tunnel, true); config != nil {
+		// Save new
+		tp.addTunnel(config)
+	}
+}
+
 func (tp *TunnelsPage) onAddTunnel() {
-	if config := runTunnelEditDialog(tp.Form(), nil); config != nil {
+	if config := runTunnelEditDialog(tp.Form(), nil, false); config != nil {
 		// Save new
 		tp.addTunnel(config)
 	}
