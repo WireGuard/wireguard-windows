@@ -4,11 +4,20 @@
 
 	Copyright (C) 2019 WireGuard LLC. All Rights Reserved.
 -->
-<?if $(var.Platform) = x86?>
+
+<?if $(var.Platform) = "x86"?>
 	<?define PlatformProgramFilesFolder = "ProgramFilesFolder"?>
 <?else?>
 	<?define PlatformProgramFilesFolder = "ProgramFiles64Folder"?>
 <?endif?>
+<?if $(var.Platform) = "amd64"?>
+	<?define UpgradeCode = "5e5a1da5-ba36-404d-92ec-41050d1c799c"?>
+<?elseif $(var.Platform) = "x86"?>
+	<?define UpgradeCode = "62754a0a-fee9-4412-b739-e8da2e7c9405"?>
+<?else?>
+	<?error Unknown platform ?>
+<?endif?>
+
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
 	<Product
 		Id="*"
@@ -16,7 +25,7 @@
 		Language="1033"
 		Version="$(var.WIREGUARD_VERSION)"
 		Manufacturer="WireGuard LLC"
-		UpgradeCode="5e5a1da5-ba36-404d-92ec-41050d1c799c">
+		UpgradeCode="$(var.UpgradeCode)">
 		<Package
 			InstallerVersion="400"
 			Compressed="yes"
@@ -42,6 +51,12 @@
 			AllowSameVersionUpgrades="yes"
 			DowngradeErrorMessage="A newer version of [ProductName] is already installed."
 			Schedule="afterInstallExecute" />
+		<!-- The upgrade code was forked in WireGuard 0.0.4. The amd64 retained it, the x86 line got a new one. -->
+		<?if $(var.Platform) = "x86"?>
+			<Upgrade Id="5e5a1da5-ba36-404d-92ec-41050d1c799c">
+				<UpgradeVersion Maximum="0.0.4" MigrateFeatures="yes" Property="PRODUCT_UPGRADE_DETECTED"/>
+			</Upgrade>
+		<?endif?>
 		<Property Id="INSTALLFOLDERPREV">
 			<ComponentSearch Id="WireGuardExecutable" Guid="c3508d23-3362-47ce-9220-321bdb1a1acc"/>
 		</Property>
