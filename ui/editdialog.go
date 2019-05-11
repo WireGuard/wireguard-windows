@@ -27,7 +27,7 @@ type EditDialog struct {
 	blockUntunneledTraficCheckGuard bool
 }
 
-func runTunnelEditDialog(owner walk.Form, tunnel *service.Tunnel) *conf.Config {
+func runTunnelEditDialog(owner walk.Form, tunnel *service.Tunnel, clone bool) *conf.Config {
 	var (
 		title string
 		name  string
@@ -35,14 +35,21 @@ func runTunnelEditDialog(owner walk.Form, tunnel *service.Tunnel) *conf.Config {
 
 	dlg := &EditDialog{}
 
+	if tunnel == nil || clone {
+		title = "Create new tunnel"
+	} else {
+		title = "Edit tunnel"
+	}
+
 	if tunnel == nil {
 		// Creating a new tunnel, create a new private key and use the default template
-		title = "Create new tunnel"
 		pk, _ := conf.NewPrivateKey()
 		dlg.config = conf.Config{Interface: conf.Interface{PrivateKey: *pk}}
 	} else {
-		title = "Edit tunnel"
 		name = tunnel.Name
+		if clone {
+			name += "-copy"
+		}
 		dlg.config, _ = tunnel.StoredConfig()
 	}
 
@@ -107,7 +114,7 @@ func runTunnelEditDialog(owner walk.Form, tunnel *service.Tunnel) *conf.Config {
 	dlg.syntaxEdit.BlockUntunneledTrafficStateChanged().Attach(dlg.onBlockUntunneledTrafficStateChanged)
 	dlg.syntaxEdit.SetText(dlg.config.ToWgQuick())
 
-	if tunnel != nil {
+	if tunnel != nil && !clone {
 		dlg.nameEdit.SetFocus() //TODO: This works around a walk issue with scrolling in weird ways <https://github.com/lxn/walk/issues/505>. We should fix this in walk instead of here.
 
 		dlg.Starting().Attach(func() {
