@@ -28,13 +28,9 @@ type EditDialog struct {
 }
 
 func runTunnelEditDialog(owner walk.Form, tunnel *service.Tunnel, clone bool) *conf.Config {
-	var (
-		title string
-		name  string
-	)
-
 	dlg := &EditDialog{}
 
+	var title string
 	if tunnel == nil || clone {
 		title = "Create new tunnel"
 	} else {
@@ -46,11 +42,10 @@ func runTunnelEditDialog(owner walk.Form, tunnel *service.Tunnel, clone bool) *c
 		pk, _ := conf.NewPrivateKey()
 		dlg.config = conf.Config{Interface: conf.Interface{PrivateKey: *pk}}
 	} else {
-		name = tunnel.Name
-		if clone {
-			name += "-copy"
-		}
 		dlg.config, _ = tunnel.StoredConfig()
+		if clone {
+			dlg.config.Name += "-copy"
+		}
 	}
 
 	layout := walk.NewGridLayout()
@@ -71,7 +66,7 @@ func runTunnelEditDialog(owner walk.Form, tunnel *service.Tunnel, clone bool) *c
 
 	dlg.nameEdit, _ = walk.NewLineEdit(dlg)
 	layout.SetRange(dlg.nameEdit, walk.Rectangle{1, 0, 1, 1})
-	dlg.nameEdit.SetText(name)
+	dlg.nameEdit.SetText(dlg.config.Name)
 
 	pubkeyLabel, _ := walk.NewTextLabel(dlg)
 	layout.SetRange(pubkeyLabel, walk.Rectangle{0, 1, 1, 1})
@@ -113,6 +108,10 @@ func runTunnelEditDialog(owner walk.Form, tunnel *service.Tunnel, clone bool) *c
 	dlg.syntaxEdit.PrivateKeyChanged().Attach(dlg.onSyntaxEditPrivateKeyChanged)
 	dlg.syntaxEdit.BlockUntunneledTrafficStateChanged().Attach(dlg.onBlockUntunneledTrafficStateChanged)
 	dlg.syntaxEdit.SetText(dlg.config.ToWgQuick())
+
+	if clone {
+		dlg.config.Name = ""
+	}
 
 	if tunnel != nil && !clone {
 		dlg.nameEdit.SetFocus() //TODO: This works around a walk issue with scrolling in weird ways <https://github.com/lxn/walk/issues/505>. We should fix this in walk instead of here.
@@ -263,17 +262,19 @@ func (dlg *EditDialog) onSaveButtonClicked() {
 		walk.MsgBox(dlg, "Invalid name", fmt.Sprintf("Tunnel name ‘%s’ is invalid.", newName), walk.MsgBoxIconWarning)
 		return
 	}
-
-	existingTunnelList, err := service.IPCClientTunnels()
-	if err != nil {
-		walk.MsgBox(dlg, "Unable to list existing tunnels", err.Error(), walk.MsgBoxIconError)
-		return
-	}
 	newNameLower := strings.ToLower(newName)
-	for _, tunnel := range existingTunnelList {
-		if strings.ToLower(tunnel.Name) == newNameLower {
-			walk.MsgBox(dlg, "Tunnel already exists", fmt.Sprintf("Another tunnel already exists with the name ‘%s’.", newName), walk.MsgBoxIconWarning)
+
+	if newNameLower != strings.ToLower(dlg.config.Name) {
+		existingTunnelList, err := service.IPCClientTunnels()
+		if err != nil {
+			walk.MsgBox(dlg, "Unable to list existing tunnels", err.Error(), walk.MsgBoxIconError)
 			return
+		}
+		for _, tunnel := range existingTunnelList {
+			if strings.ToLower(tunnel.Name) == newNameLower {
+				walk.MsgBox(dlg, "Tunnel already exists", fmt.Sprintf("Another tunnel already exists with the name ‘%s’.", newName), walk.MsgBoxIconWarning)
+				return
+			}
 		}
 	}
 
