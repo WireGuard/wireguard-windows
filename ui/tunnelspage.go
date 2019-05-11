@@ -200,7 +200,7 @@ func (tp *TunnelsPage) CreateToolbar() {
 	contextMenu.Actions().Add(exportAction2)
 	contextMenu.Actions().Add(walk.NewSeparatorAction())
 	editAction := walk.NewAction()
-	editAction.SetText("Edit selected tunnel")
+	editAction.SetText("Edit selected tunnel...")
 	editAction.SetShortcut(walk.Shortcut{walk.ModControl, walk.KeyE})
 	editAction.Triggered().Attach(tp.onEditTunnel)
 	contextMenu.Actions().Add(editAction)
