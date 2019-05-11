@@ -132,6 +132,11 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 			log.Printf("Unable to extract security attributes from manager token and combine them with SID from user token: %v", err)
 			return
 		}
+		err = addElevatedIntegrityToUserToken(userTokenInfo.elevatedToken, userToken)
+		if err != nil {
+			log.Printf("Unable to copy integrity level from elevated token to user token")
+			return
+		}
 		first := true
 		for {
 			if stoppingManager {

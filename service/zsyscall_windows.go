@@ -55,6 +55,7 @@ var (
 	procInitializeAcl              = modadvapi32.NewProc("InitializeAcl")
 	procMakeAbsoluteSD             = modadvapi32.NewProc("MakeAbsoluteSD")
 	procMakeSelfRelativeSD         = modadvapi32.NewProc("MakeSelfRelativeSD")
+	procSetTokenInformation        = modadvapi32.NewProc("SetTokenInformation")
 	procCreateEnvironmentBlock     = moduserenv.NewProc("CreateEnvironmentBlock")
 	procDestroyEnvironmentBlock    = moduserenv.NewProc("DestroyEnvironmentBlock")
 	procNotifyServiceStatusChangeW = modadvapi32.NewProc("NotifyServiceStatusChangeW")
@@ -224,6 +225,18 @@ func makeAbsoluteSd(selfRelativeSecurityDescriptor uintptr, absoluteSecurityDesc
 
 func makeSelfRelativeSd(absoluteSecurityDescriptor *byte, relativeSecurityDescriptor *byte, relativeSecurityDescriptorSize *uint32) (err error) {
 	r1, _, e1 := syscall.Syscall(procMakeSelfRelativeSD.Addr(), 3, uintptr(unsafe.Pointer(absoluteSecurityDescriptor)), uintptr(unsafe.Pointer(relativeSecurityDescriptor)), uintptr(unsafe.Pointer(relativeSecurityDescriptorSize)))
+	if r1 == 0 {
+		if e1 != 0 {
+			err = errnoErr(e1)
+		} else {
+			err = syscall.EINVAL
+		}
+	}
+	return
+}
+
+func setTokenInformation(token windows.Token, infoClass uint32, info *byte, infoSize uint32) (err error) {
+	r1, _, e1 := syscall.Syscall6(procSetTokenInformation.Addr(), 4, uintptr(token), uintptr(infoClass), uintptr(unsafe.Pointer(info)), uintptr(infoSize), 0, 0)
 	if r1 == 0 {
 		if e1 != 0 {
 			err = errnoErr(e1)
