@@ -37,6 +37,9 @@ func iconWithOverlayForState(state service.TunnelState, size int) (icon *walk.Ic
 	if err != nil {
 		return
 	}
+	if state == service.TunnelStopped {
+		return wireguardIcon, err //TODO: if we find something prettier than the gray dot, then remove this clause
+	}
 	iconSize := wireguardIcon.Size()
 	bmp, err := walk.NewBitmapWithTransparentPixels(iconSize)
 	if err != nil {
