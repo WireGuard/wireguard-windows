@@ -39,6 +39,7 @@ func RaiseUI() bool {
 func WaitForRaiseUIThenQuit() {
 	var handle win.HWINEVENTHOOK
 	runtime.LockOSThread()
+	defer runtime.UnlockOSThread()
 	handle, err := win.SetWinEventHook(win.EVENT_OBJECT_CREATE, win.EVENT_OBJECT_CREATE, 0, func(hWinEventHook win.HWINEVENTHOOK, event uint32, hwnd win.HWND, idObject int32, idChild int32, idEventThread uint32, dwmsEventTime uint32) uintptr {
 		class := make([]uint16, len(manageWindowWindowClass)+2) /* Plus 2, one for the null terminator, and one to see if this is only a prefix */
 		n, err := win.GetClassName(hwnd, &class[0], len(class))
