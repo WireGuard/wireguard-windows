@@ -1,6 +1,5 @@
 export CFLAGS := -O3 -Wall -std=gnu11
 GOFLAGS := -ldflags="-H windowsgui -s -w" -v
-WINDRES := x86_64-w64-mingw32-windres
 export CGO_ENABLED := 1
 export GOOS := windows
 OLD_GOROOT := $(GOROOT)
