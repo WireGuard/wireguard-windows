@@ -33,6 +33,7 @@ func RaiseUI() bool {
 		return false
 	}
 	win.SendMessage(hwnd, raiseMsg, 0, 0)
+	win.SetForegroundWindow(hwnd)
 	return true
 }
 
@@ -48,6 +49,7 @@ func WaitForRaiseUIThenQuit() {
 		}
 		win.UnhookWinEvent(handle)
 		win.SendMessage(hwnd, raiseMsg, 0, 0)
+		win.SetForegroundWindow(hwnd)
 		os.Exit(0)
 		return 0
 	}, 0, 0, win.WINEVENT_SKIPOWNPROCESS|win.WINEVENT_OUTOFCONTEXT)
