@@ -169,7 +169,6 @@ func (tp *TunnelsPage) CreateToolbar() {
 	exportActionImage, _ := walk.NewBitmapFromIcon(exportActionIcon, imageSize)
 	exportAction.SetImage(exportActionImage)
 	exportAction.SetToolTip("Export all tunnels to zip...")
-	exportAction.SetShortcut(walk.Shortcut{walk.ModControl, walk.KeyS})
 	exportAction.Triggered().Attach(tp.onExportTunnels)
 	tp.listToolbar.Actions().Add(exportAction)
 
@@ -195,7 +194,6 @@ func (tp *TunnelsPage) CreateToolbar() {
 	contextMenu.Actions().Add(addAction2)
 	exportAction2 := walk.NewAction()
 	exportAction2.SetText("Export all tunnels to zip...")
-	exportAction2.SetShortcut(walk.Shortcut{walk.ModControl, walk.KeyS})
 	exportAction2.Triggered().Attach(tp.onExportTunnels)
 	contextMenu.Actions().Add(exportAction2)
 	contextMenu.Actions().Add(walk.NewSeparatorAction())
