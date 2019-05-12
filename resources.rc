@@ -10,9 +10,6 @@ CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST manifest.xml
 
 $wireguard.ico ICON ui/icon/wireguard.ico
 dot-gray.ico ICON ui/icon/dot-gray.ico
-dot-yellow.ico ICON ui/icon/dot-yellow.ico
-dot-green.ico ICON ui/icon/dot-green.ico
-dot-red.ico ICON ui/icon/dot-red.ico
 
 VS_VERSION_INFO VERSIONINFO
 FILEVERSION    WIREGUARD_WINDOWS_VERSION_ARRAY
