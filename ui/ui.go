@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"github.com/lxn/walk"
 	"golang.zx2c4.com/wireguard/windows/service"
+	"runtime"
 	"runtime/debug"
 	"time"
 )
@@ -17,6 +18,7 @@ var shouldQuitManagerWhenExiting = false
 var startTime = time.Now()
 
 func RunUI() {
+	runtime.LockOSThread()
 	defer func() {
 		if err := recover(); err != nil {
 			walk.MsgBox(nil, "Panic", fmt.Sprint(err, "\n\n", string(debug.Stack())), walk.MsgBoxIconError)
