@@ -32,8 +32,7 @@ func RaiseUI() bool {
 	if hwnd == 0 {
 		return false
 	}
-	win.SendMessage(hwnd, selectCorrectTabMsg, 0, 0)
-	raise(hwnd)
+	win.SendMessage(hwnd, raiseMsg, 0, 0)
 	return true
 }
 
@@ -47,8 +46,7 @@ func WaitForRaiseUIThenQuit() {
 			return 0
 		}
 		win.UnhookWinEvent(handle)
-		win.SendMessage(hwnd, selectCorrectTabMsg, 0, 0)
-		raise(hwnd)
+		win.SendMessage(hwnd, raiseMsg, 0, 0)
 		os.Exit(0)
 		return 0
 	}, 0, 0, win.WINEVENT_SKIPOWNPROCESS|win.WINEVENT_OUTOFCONTEXT)

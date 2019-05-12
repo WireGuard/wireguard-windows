@@ -24,7 +24,7 @@ type ManageTunnelsWindow struct {
 
 const (
 	manageWindowWindowClass = "WireGuard UI - Manage Tunnels"
-	selectCorrectTabMsg     = win.WM_USER + 8993
+	raiseMsg                = win.WM_USER + 0x3510
 )
 
 func init() {
@@ -46,6 +46,7 @@ func NewManageTunnelsWindow() (*ManageTunnelsWindow, error) {
 	if err != nil {
 		return nil, err
 	}
+	win.ChangeWindowMessageFilterEx(mtw.Handle(), raiseMsg, win.MSGFLT_ALLOW, nil)
 	mtw.SetPersistent(true)
 
 	if icon, err := loadLogoIcon(mtw.DPI() / 3); err == nil { //TODO: calculate DPI dynamically
@@ -140,7 +141,7 @@ func (mtw *ManageTunnelsWindow) WndProc(hwnd win.HWND, msg uint32, wParam, lPara
 		if lParam == win.ENDSESSION_CLOSEAPP && wParam == 1 {
 			walk.App().Exit(198)
 		}
-	case selectCorrectTabMsg:
+	case raiseMsg:
 		if !mtw.Visible() {
 			mtw.tunnelsPage.listView.SelectFirstActiveTunnel()
 			if mtw.tabs.Pages().Len() != 3 {
@@ -150,6 +151,7 @@ func (mtw *ManageTunnelsWindow) WndProc(hwnd win.HWND, msg uint32, wParam, lPara
 		if mtw.tabs.Pages().Len() == 3 {
 			mtw.tabs.SetCurrentIndex(2)
 		}
+		raise(mtw.Handle())
 	}
 
 	return mtw.FormBase.WndProc(hwnd, msg, wParam, lParam)
