@@ -104,6 +104,15 @@ func (mtw *ManageTunnelsWindow) Dispose() {
 
 func (mtw *ManageTunnelsWindow) onTunnelChange(tunnel *service.Tunnel, state service.TunnelState, globalState service.TunnelState, err error) {
 	mtw.Synchronize(func() {
+		if pi := mtw.ProgressIndicator(); pi != nil {
+			switch globalState {
+			case service.TunnelStopping, service.TunnelStarting:
+				pi.SetState(walk.PIIndeterminate)
+			default:
+				pi.SetState(walk.PINoProgress)
+			}
+		}
+
 		icon, err2 := iconWithOverlayForState(globalState, mtw.DPI()/3) //TODO: calculate DPI dynamically
 		if err2 == nil {
 			mtw.SetIcon(icon)
