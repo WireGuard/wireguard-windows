@@ -314,7 +314,6 @@ func configureInterface(conf *conf.Config, tun *tun.NativeTun) error {
 }
 
 func enableFirewall(conf *conf.Config, tun *tun.NativeTun) error {
-	restrictDNS := len(conf.Interface.Dns) > 0
 	restrictAll := false
 	if len(conf.Peers) == 1 {
 	nextallowedip:
@@ -330,9 +329,9 @@ func enableFirewall(conf *conf.Config, tun *tun.NativeTun) error {
 			}
 		}
 	}
-	if restrictAll && !restrictDNS {
+	if restrictAll && len(conf.Interface.Dns) == 0 {
 		name, _ := tun.Name()
 		log.Printf("[%s] Warning: no DNS server specified, despite having an allowed IPs of 0.0.0.0/0 or ::/0. There may be connectivity issues.", name)
 	}
-	return firewall.EnableFirewall(tun.LUID(), restrictDNS, restrictAll)
+	return firewall.EnableFirewall(tun.LUID(), conf.Interface.Dns, restrictAll)
 }

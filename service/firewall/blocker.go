@@ -7,6 +7,7 @@ package firewall
 
 import (
 	"errors"
+	"net"
 	"unsafe"
 
 	"golang.org/x/sys/windows"
@@ -106,7 +107,7 @@ func registerBaseObjects(session uintptr) (*baseObjects, error) {
 	}, nil
 }
 
-func EnableFirewall(luid uint64, restrictDNS bool, restrictAll bool) error {
+func EnableFirewall(luid uint64, restrictToDNSServers []net.IP, restrictAll bool) error {
 	if wfpSession != 0 {
 		return errors.New("The firewall has already been enabled")
 	}
@@ -122,43 +123,8 @@ func EnableFirewall(luid uint64, restrictDNS bool, restrictAll bool) error {
 			return wrapErr(err)
 		}
 
-		err = permitTunInterface(session, baseObjects, 15, luid)
-		if err != nil {
-			return wrapErr(err)
-		}
-
-		err = permitWireGuardService(session, baseObjects, 15)
-		if err != nil {
-			return wrapErr(err)
-		}
-
-		if restrictAll {
-			err = permitDhcpIpv4(session, baseObjects, 15)
-			if err != nil {
-				return wrapErr(err)
-			}
-
-			err = permitDhcpIpv6(session, baseObjects, 15)
-			if err != nil {
-				return wrapErr(err)
-			}
-
-			err = permitNdp(session, baseObjects, 15)
-			if err != nil {
-				return wrapErr(err)
-			}
-
-			/* TODO: actually evaluate if this does anything and if we need this. It's layer 2; our other rules are layer 3.
-			 *  In other words, if somebody complains, try enabling it. For now, keep it off.
-			err = permitHyperV(session, baseObjects, 15)
-			if err != nil {
-				return wrapErr(err)
-			}
-			*/
-		}
-
-		if restrictDNS {
-			err = blockDns(session, baseObjects, 14)
+		if len(restrictToDNSServers) > 0 {
+			err = blockDns(restrictToDNSServers, session, baseObjects, 15, 14)
 			if err != nil {
 				return wrapErr(err)
 			}
@@ -169,7 +135,44 @@ func EnableFirewall(luid uint64, restrictDNS bool, restrictAll bool) error {
 			if err != nil {
 				return wrapErr(err)
 			}
+		}
 
+		err = permitTunInterface(session, baseObjects, 12, luid)
+		if err != nil {
+			return wrapErr(err)
+		}
+
+		err = permitWireGuardService(session, baseObjects, 12)
+		if err != nil {
+			return wrapErr(err)
+		}
+
+		if restrictAll {
+			err = permitDhcpIpv4(session, baseObjects, 12)
+			if err != nil {
+				return wrapErr(err)
+			}
+
+			err = permitDhcpIpv6(session, baseObjects, 12)
+			if err != nil {
+				return wrapErr(err)
+			}
+
+			err = permitNdp(session, baseObjects, 12)
+			if err != nil {
+				return wrapErr(err)
+			}
+
+			/* TODO: actually evaluate if this does anything and if we need this. It's layer 2; our other rules are layer 3.
+			 *  In other words, if somebody complains, try enabling it. For now, keep it off.
+			err = permitHyperV(session, baseObjects, 12)
+			if err != nil {
+				return wrapErr(err)
+			}
+			*/
+		}
+
+		if restrictAll {
 			err = blockAll(session, baseObjects, 0)
 			if err != nil {
 				return wrapErr(err)
