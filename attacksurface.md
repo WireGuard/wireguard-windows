@@ -25,19 +25,18 @@ The tunnel service is a userspace service running as Local System, responsible f
 
 The manager service is a userspace service running as Local System, responsible for starting and stopping tunnel services, and ensuring a UI program with certain handles is available to Administrators. It exposes:
 
-  - Extensive IPC using unnamed pipes, inherited by the unprivileged UI process.
-  - A writable `CreateFileMapping` handle to a binary ringlog shared by all services, inherited by the unprivileged UI process. It's unclear if this brings with it surprising hidden attack surface in the mm system.
+  - Extensive IPC using unnamed pipes, inherited by the UI process.
+  - A readable `CreateFileMapping` handle to a binary ringlog shared by all services, inherited by the UI process.
   - It listens for service changes in tunnel services according to the string prefix "WireGuardTunnel$".
   - It manages DPAPI-encrypted configuration files in Local System's local appdata directory, and makes some effort to enforce good configuration filenames.
-  - It uses `WTSEnumerateSessions` and `WTS_SESSION_NOTIFICATION` to walk through each available session. It then uses `WTSQueryUserToken`, and then calls `GetTokenInformation(TokenGroups)` on it. If one of the returned group's SIDs matches `CreateWellKnownSid(WinBuiltinAdministratorsSid)`, and has attributes of either `SE_GROUP_ENABLED` or `SE_GROUP_USE_FOR_DENY_ONLY` and calling `GetTokenInformation(TokenElevation)` on it or its `TokenLinkedToken` indicates that either is elevated, then it spawns the UI process as that the elevated user token, passing it three unnamed pipe handles for IPC and the log mapping handle, as descried above.
+  - It uses `WTSEnumerateSessions` and `WTS_SESSION_NOTIFICATION` to walk through each available session. It then uses `WTSQueryUserToken`, and then calls `GetTokenInformation(TokenGroups)` on it. If one of the returned group's SIDs matches `CreateWellKnownSid(WinBuiltinAdministratorsSid)`, and has attributes of either `SE_GROUP_ENABLED` or `SE_GROUP_USE_FOR_DENY_ONLY` and calling `GetTokenInformation(TokenElevation)` on it or its `TokenLinkedToken` indicates that either is elevated, then it spawns the UI process as that the elevated user token, passing it three unnamed pipe handles for IPC and the log mapping handle, as described above.
 
 ### UI
 
-The UI is a process running for each user who is in the Administrators group (per the above). It exposes:
+The UI is a process running for each user who is in the Administrators group (per the above), running with the elevated high integrity linked token. It exposes:
 
   - Since the UI process is executed with an elevated token, it runs at high integrity and should be immune to various shatter attacks, modulo the great variety of clever bypasses in the latest Windows release.
   - It renders highlighted config files to a msftedit.dll control, which typically is capable of all sorts of OLE and RTF nastiness that we make some attempt to avoid.
-  - The syntax editor invokes `IID_ITextDocument` with `QueryInterface`, which might undermine the high integrity token.
 
 ### Updates
 
