@@ -70,7 +70,7 @@ func CheckForUpdate() (*UpdateFound, error) {
 
 var updateInProgress = uint32(0)
 
-func DownloadVerifyAndExecute(userToken uintptr, userEnvironment []string) (progress chan DownloadProgress) {
+func DownloadVerifyAndExecute(userToken uintptr) (progress chan DownloadProgress) {
 	progress = make(chan DownloadProgress, 128)
 	progress <- DownloadProgress{Activity: "Initializing"}
 
@@ -158,7 +158,7 @@ func DownloadVerifyAndExecute(userToken uintptr, userEnvironment []string) (prog
 		}
 
 		progress <- DownloadProgress{Activity: "Installing update"}
-		err = runMsi(name, userToken, userEnvironment)
+		err = runMsi(name, userToken)
 		os.Remove(name) //TODO: Do we have any sort of TOCTOU here?
 		if err != nil {
 			progress <- DownloadProgress{Error: err}

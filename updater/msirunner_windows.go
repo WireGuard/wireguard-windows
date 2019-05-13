@@ -19,7 +19,7 @@ import (
 	"unsafe"
 )
 
-func runMsi(msiPath string, userToken uintptr, env []string) error {
+func runMsi(msiPath string, userToken uintptr) error {
 	system32, err := windows.GetSystemDirectory()
 	if err != nil {
 		return err
@@ -34,7 +34,6 @@ func runMsi(msiPath string, userToken uintptr, env []string) error {
 			Token: syscall.Token(userToken),
 		},
 		Files: []*os.File{devNull, devNull, devNull},
-		Env:   env,
 		Dir:   path.Dir(msiPath),
 	}
 	msiexec := path.Join(system32, "msiexec.exe")

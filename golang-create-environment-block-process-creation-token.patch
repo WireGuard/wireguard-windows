@@ -1,0 +1,164 @@
+From 3746d930467a486fb714a885ad92ebe16cf33c2a Mon Sep 17 00:00:00 2001
+From: Jason A. Donenfeld <Jason@zx2c4.com>
+Date: Sun, 12 May 2019 14:34:30 +0200
+Subject: [PATCH] os: pass correct environment when creating Windows processes
+
+This is CVE-2019-11888.
+
+Previously, passing a nil environment but a non-nil token would result
+in the new potentially unprivileged process inheriting the parent
+potentially privileged environment, or would result in the new
+potentially privileged process inheriting the parent potentially
+unprivileged environment. Either way, it's bad. In the former case, it's
+an infoleak. In the latter case, it's a possible EoP, since things like
+PATH could be overwritten.
+
+Not specifying an environment currently means, "use the existing
+environment". This commit amends the behavior to be, "use the existing
+environment of the token the process is being created for." The behavior
+therefore stays the same when creating processes without specifying a
+token. And it does the correct thing when creating processes when
+specifying a token.
+
+Change-Id: Ia57f6e89b97bdbaf7274d6a89c1d9948b6d40ef5
+---
+
+diff --git a/src/internal/syscall/windows/syscall_windows.go b/src/internal/syscall/windows/syscall_windows.go
+index 121132f..099e91e 100644
+--- a/src/internal/syscall/windows/syscall_windows.go
++++ b/src/internal/syscall/windows/syscall_windows.go
+@@ -305,3 +305,6 @@
+ func LoadGetFinalPathNameByHandle() error {
+ 	return procGetFinalPathNameByHandleW.Find()
+ }
++
++//sys	CreateEnvironmentBlock(block **uint16, token syscall.Token, inheritExisting bool) (err error) = userenv.CreateEnvironmentBlock
++//sys	DestroyEnvironmentBlock(block *uint16) (err error) = userenv.DestroyEnvironmentBlock
+diff --git a/src/internal/syscall/windows/zsyscall_windows.go b/src/internal/syscall/windows/zsyscall_windows.go
+index 9527a37..ca5b4e6 100644
+--- a/src/internal/syscall/windows/zsyscall_windows.go
++++ b/src/internal/syscall/windows/zsyscall_windows.go
+@@ -58,6 +58,8 @@
+ 	procNetShareAdd                  = modnetapi32.NewProc("NetShareAdd")
+ 	procNetShareDel                  = modnetapi32.NewProc("NetShareDel")
+ 	procGetFinalPathNameByHandleW    = modkernel32.NewProc("GetFinalPathNameByHandleW")
++	procCreateEnvironmentBlock       = moduserenv.NewProc("CreateEnvironmentBlock")
++	procDestroyEnvironmentBlock      = moduserenv.NewProc("DestroyEnvironmentBlock")
+ 	procImpersonateSelf              = modadvapi32.NewProc("ImpersonateSelf")
+ 	procRevertToSelf                 = modadvapi32.NewProc("RevertToSelf")
+ 	procOpenThreadToken              = modadvapi32.NewProc("OpenThreadToken")
+@@ -220,6 +222,36 @@
+ 	return
+ }
+ 
++func CreateEnvironmentBlock(block **uint16, token syscall.Token, inheritExisting bool) (err error) {
++	var _p0 uint32
++	if inheritExisting {
++		_p0 = 1
++	} else {
++		_p0 = 0
++	}
++	r1, _, e1 := syscall.Syscall(procCreateEnvironmentBlock.Addr(), 3, uintptr(unsafe.Pointer(block)), uintptr(token), uintptr(_p0))
++	if r1 == 0 {
++		if e1 != 0 {
++			err = errnoErr(e1)
++		} else {
++			err = syscall.EINVAL
++		}
++	}
++	return
++}
++
++func DestroyEnvironmentBlock(block *uint16) (err error) {
++	r1, _, e1 := syscall.Syscall(procDestroyEnvironmentBlock.Addr(), 1, uintptr(unsafe.Pointer(block)), 0, 0)
++	if r1 == 0 {
++		if e1 != 0 {
++			err = errnoErr(e1)
++		} else {
++			err = syscall.EINVAL
++		}
++	}
++	return
++}
++
+ func ImpersonateSelf(impersonationlevel uint32) (err error) {
+ 	r1, _, e1 := syscall.Syscall(procImpersonateSelf.Addr(), 1, uintptr(impersonationlevel), 0, 0)
+ 	if r1 == 0 {
+diff --git a/src/os/env_default.go b/src/os/env_default.go
+new file mode 100644
+index 0000000..91c5e9a
+--- /dev/null
++++ b/src/os/env_default.go
+@@ -0,0 +1,13 @@
++// Copyright 2019 The Go Authors. All rights reserved.
++// Use of this source code is governed by a BSD-style
++// license that can be found in the LICENSE file.
++
++// +build !windows
++
++package os
++
++import "syscall"
++
++func environForSysProcAttr(sys *syscall.SysProcAttr) (env []string) {
++	return Environ()
++}
+diff --git a/src/os/env_windows.go b/src/os/env_windows.go
+new file mode 100644
+index 0000000..76cf011
+--- /dev/null
++++ b/src/os/env_windows.go
+@@ -0,0 +1,40 @@
++// Copyright 2019 The Go Authors. All rights reserved.
++// Use of this source code is governed by a BSD-style
++// license that can be found in the LICENSE file.
++
++package os
++
++import (
++	"internal/syscall/windows"
++	"syscall"
++	"unicode/utf16"
++	"unsafe"
++)
++
++func environForSysProcAttr(sys *syscall.SysProcAttr) (env []string) {
++	if sys == nil || sys.Token == 0 {
++		return Environ()
++	}
++	var block *uint16
++	err := windows.CreateEnvironmentBlock(&block, sys.Token, false)
++	if err != nil {
++		return nil
++	}
++	blockp := uintptr(unsafe.Pointer(block))
++	for {
++		entry := (*[(1 << 30) - 1]uint16)(unsafe.Pointer(blockp))[:]
++		for i, v := range entry {
++			if v == 0 {
++				entry = entry[:i]
++				break
++			}
++		}
++		if len(entry) == 0 {
++			break
++		}
++		env = append(env, string(utf16.Decode(entry)))
++		blockp += 2 * (uintptr(len(entry)) + 1)
++	}
++	windows.DestroyEnvironmentBlock(block)
++	return
++}
+diff --git a/src/os/exec_posix.go b/src/os/exec_posix.go
+index 7b1ef67..651d24d 100644
+--- a/src/os/exec_posix.go
++++ b/src/os/exec_posix.go
+@@ -38,7 +38,7 @@
+ 		Sys: attr.Sys,
+ 	}
+ 	if sysattr.Env == nil {
+-		sysattr.Env = Environ()
++		sysattr.Env = environForSysProcAttr(sysattr.Sys)
+ 	}
+ 	sysattr.Files = make([]uintptr, 0, len(attr.Files))
+ 	for _, f := range attr.Files {

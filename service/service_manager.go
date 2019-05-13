@@ -110,22 +110,17 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 			userToken.Close()
 			return
 		}
-		userTokenInfo := &UserTokenInfo{}
-		userTokenInfo.elevatedToken, err = getElevatedToken(userToken)
+		//TODO: The environment that Go gets from CreateEnvironmentBlock seems to have the same PATH as the userToken. Aren't there attacks?
+		elevatedToken, err := getElevatedToken(userToken)
 		if err != nil {
 			log.Printf("Unable to elevate token: %v", err)
 			return
 		}
-		if userTokenInfo.elevatedToken != userToken {
+		if elevatedToken != userToken {
 			userToken.Close()
 		}
-		defer userTokenInfo.elevatedToken.Close()
+		defer elevatedToken.Close()
 		userToken = 0
-		userTokenInfo.elevatedEnvironment, err = userEnviron(userTokenInfo.elevatedToken) //TODO: This seems to have the same PATH as the userToken. Aren't there attacks?
-		if err != nil {
-			log.Printf("Unable to determine elevated environment: %v", err)
-			return
-		}
 		first := true
 		for {
 			if stoppingManager {
@@ -155,7 +150,7 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 				return
 			}
 			ourEvents, theirEvents, theirEventStr, err := inheritableEvents()
-			err = IPCServerListen(ourReader, ourWriter, ourEvents, userTokenInfo)
+			err = IPCServerListen(ourReader, ourWriter, ourEvents, elevatedToken)
 			if err != nil {
 				log.Printf("Unable to listen on IPC pipes: %v", err)
 				return
@@ -169,10 +164,9 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 			log.Printf("Starting UI process for user '%s@%s' for session %d", username, domain, session)
 			attr := &os.ProcAttr{
 				Sys: &syscall.SysProcAttr{
-					Token: syscall.Token(userTokenInfo.elevatedToken),
+					Token: syscall.Token(elevatedToken),
 				},
 				Files: []*os.File{devNull, devNull, devNull},
-				Env:   userTokenInfo.elevatedEnvironment,
 			}
 			procsLock.Lock()
 			var proc *os.Process

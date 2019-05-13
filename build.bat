@@ -20,7 +20,7 @@ if exist .deps\prepared goto :render
 	rem Mirror of https://sourceforge.net/projects/gnuwin32/files/patch/2.5.9-7/patch-2.5.9-7-bin.zip with fixed manifest
 	call :download patch.zip https://download.wireguard.com/windows-toolchain/distfiles/patch-2.5.9-7-bin-fixed-manifest.zip 25977006ca9713f2662a5d0a2ed3a5a138225b8be3757035bd7da9dcf985d0a1 "--strip-components 1 bin" || goto :error
 	echo [+] Patching go
-	.\patch.exe -f -N -r- -d go -p1 --binary < ..\golang-security-attribute-process-creation.patch || goto :error
+	for %%a in ("..\golang-*.patch") do .\patch.exe -f -N -r- -d go -p1 --binary < "%%a" || goto :error
 	copy /y NUL prepared > NUL || goto :error
 	cd .. || goto :error
 

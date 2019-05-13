@@ -9,7 +9,6 @@ import (
 	"errors"
 	"golang.org/x/sys/windows"
 	"runtime"
-	"unicode/utf16"
 	"unsafe"
 )
 
@@ -52,34 +51,6 @@ const (
 	SE_GROUP_ENABLED           = 0x00000004
 	SE_GROUP_USE_FOR_DENY_ONLY = 0x00000010
 )
-
-//sys createEnvironmentBlock(block *uintptr, token windows.Token, inheritExisting bool) (err error) = userenv.CreateEnvironmentBlock
-//sys destroyEnvironmentBlock(block uintptr) (err error) = userenv.DestroyEnvironmentBlock
-
-func userEnviron(token windows.Token) (env []string, err error) {
-	var block uintptr
-	err = createEnvironmentBlock(&block, token, false)
-	if err != nil {
-		return
-	}
-	offset := uintptr(0)
-	for {
-		entry := (*[(1 << 30) - 1]uint16)(unsafe.Pointer(block + offset))[:]
-		for i, v := range entry {
-			if v == 0 {
-				entry = entry[:i]
-				break
-			}
-		}
-		if len(entry) == 0 {
-			break
-		}
-		env = append(env, string(utf16.Decode(entry)))
-		offset += 2 * (uintptr(len(entry)) + 1)
-	}
-	destroyEnvironmentBlock(block)
-	return
-}
 
 func tokenIsElevated(token windows.Token) bool {
 	var isElevated uint32
