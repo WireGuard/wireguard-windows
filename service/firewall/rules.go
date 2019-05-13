@@ -990,7 +990,7 @@ func blockAll(session uintptr, baseObjects *baseObjects, weight uint8) error {
 
 // Block all DNS traffic except towards specified DNS servers.
 func blockDns(except []net.IP, session uintptr, baseObjects *baseObjects, weightAllow uint8, weightDeny uint8) error {
-	if weightDeny <= weightAllow {
+	if weightDeny >= weightAllow {
 		return errors.New("The allow weight must be greater than the deny weight")
 	}
 
