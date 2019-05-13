@@ -6,8 +6,12 @@
 package firewall
 
 import (
+	"encoding/binary"
+	"errors"
 	"golang.org/x/sys/windows"
 	"golang.zx2c4.com/wireguard/windows/version"
+	"net"
+	"runtime"
 	"unsafe"
 )
 
@@ -984,42 +988,46 @@ func blockAll(session uintptr, baseObjects *baseObjects, weight uint8) error {
 	return nil
 }
 
-// Block all DNS except what is matched by a permissive rule.
-func blockDns(session uintptr, baseObjects *baseObjects, weight uint8) error {
-	var conditions [3]wtFwpmFilterCondition0
+// Block all DNS traffic except towards specified DNS servers.
+func blockDns(except []net.IP, session uintptr, baseObjects *baseObjects, weightAllow uint8, weightDeny uint8) error {
+	if weightDeny <= weightAllow {
+		return errors.New("The allow weight must be greater than the deny weight")
+	}
 
-	conditions[0] = wtFwpmFilterCondition0{
-		fieldKey:  cFWPM_CONDITION_IP_REMOTE_PORT,
-		matchType: cFWP_MATCH_EQUAL,
-		conditionValue: wtFwpConditionValue0{
-			_type: cFWP_UINT16,
-			value: uintptr(53),
+	denyConditions := []wtFwpmFilterCondition0{
+		{
+			fieldKey:  cFWPM_CONDITION_IP_REMOTE_PORT,
+			matchType: cFWP_MATCH_EQUAL,
+			conditionValue: wtFwpConditionValue0{
+				_type: cFWP_UINT16,
+				value: uintptr(53),
+			},
 		},
-	}
-	conditions[1] = wtFwpmFilterCondition0{
-		fieldKey:  cFWPM_CONDITION_IP_PROTOCOL,
-		matchType: cFWP_MATCH_EQUAL,
-		conditionValue: wtFwpConditionValue0{
-			_type: cFWP_UINT8,
-			value: uintptr(cIPPROTO_UDP),
+		{
+			fieldKey:  cFWPM_CONDITION_IP_PROTOCOL,
+			matchType: cFWP_MATCH_EQUAL,
+			conditionValue: wtFwpConditionValue0{
+				_type: cFWP_UINT8,
+				value: uintptr(cIPPROTO_UDP),
+			},
 		},
-	}
-	// Repeat the condition type for logical OR.
-	conditions[2] = wtFwpmFilterCondition0{
-		fieldKey:  cFWPM_CONDITION_IP_PROTOCOL,
-		matchType: cFWP_MATCH_EQUAL,
-		conditionValue: wtFwpConditionValue0{
-			_type: cFWP_UINT8,
-			value: uintptr(cIPPROTO_TCP),
+		// Repeat the condition type for logical OR.
+		{
+			fieldKey:  cFWPM_CONDITION_IP_PROTOCOL,
+			matchType: cFWP_MATCH_EQUAL,
+			conditionValue: wtFwpConditionValue0{
+				_type: cFWP_UINT8,
+				value: uintptr(cIPPROTO_TCP),
+			},
 		},
 	}
 
 	filter := wtFwpmFilter0{
 		providerKey:         &baseObjects.provider,
 		subLayerKey:         baseObjects.filters,
-		weight:              filterWeight(weight),
-		numFilterConditions: uint32(len(conditions)),
-		filterCondition:     (*wtFwpmFilterCondition0)(unsafe.Pointer(&conditions[0])),
+		weight:              filterWeight(weightDeny),
+		numFilterConditions: uint32(len(denyConditions)),
+		filterCondition:     (*wtFwpmFilterCondition0)(unsafe.Pointer(&denyConditions[0])),
 		action: wtFwpmAction0{
 			_type: cFWP_ACTION_BLOCK,
 		},
@@ -1098,6 +1106,133 @@ func blockDns(session uintptr, baseObjects *baseObjects, weight uint8) error {
 			return wrapErr(err)
 		}
 	}
+
+	allowConditionsV4 := make([]wtFwpmFilterCondition0, 0, len(denyConditions)+len(except))
+	allowConditionsV4 = append(allowConditionsV4, denyConditions...)
+	for _, ip := range except {
+		ip4 := ip.To4()
+		if ip4 == nil {
+			continue
+		}
+		allowConditionsV4 = append(allowConditionsV4, wtFwpmFilterCondition0{
+			fieldKey:  cFWPM_CONDITION_IP_REMOTE_ADDRESS,
+			matchType: cFWP_MATCH_EQUAL,
+			conditionValue: wtFwpConditionValue0{
+				_type: cFWP_UINT32,
+				value: uintptr(binary.BigEndian.Uint32(ip4)),
+			},
+		})
+	}
+
+	storedPointers := make([]*wtFwpByteArray16, 0, len(except))
+	allowConditionsV6 := make([]wtFwpmFilterCondition0, 0, len(denyConditions)+len(except))
+	allowConditionsV6 = append(allowConditionsV6, denyConditions...)
+	for _, ip := range except {
+		if ip.To4() != nil {
+			continue
+		}
+		var address wtFwpByteArray16
+		copy(address.byteArray16[:], ip)
+		allowConditionsV6 = append(allowConditionsV6, wtFwpmFilterCondition0{
+			fieldKey:  cFWPM_CONDITION_IP_REMOTE_ADDRESS,
+			matchType: cFWP_MATCH_EQUAL,
+			conditionValue: wtFwpConditionValue0{
+				_type: cFWP_BYTE_ARRAY16_TYPE,
+				value: uintptr(unsafe.Pointer(&address)),
+			},
+		})
+		storedPointers = append(storedPointers, &address)
+	}
+
+	filter = wtFwpmFilter0{
+		providerKey:         &baseObjects.provider,
+		subLayerKey:         baseObjects.filters,
+		weight:              filterWeight(weightAllow),
+		numFilterConditions: uint32(len(allowConditionsV4)),
+		filterCondition:     (*wtFwpmFilterCondition0)(unsafe.Pointer(&allowConditionsV4[0])),
+		action: wtFwpmAction0{
+			_type: cFWP_ACTION_PERMIT,
+		},
+	}
+
+	filterId = uint64(0)
+
+	//
+	// #5 Allow IPv4 outbound DNS.
+	//
+	{
+		displayData, err := createWtFwpmDisplayData0("Allow DNS outbound (IPv4)", "")
+		if err != nil {
+			return wrapErr(err)
+		}
+
+		filter.displayData = *displayData
+		filter.layerKey = cFWPM_LAYER_ALE_AUTH_CONNECT_V4
+
+		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
+		if err != nil {
+			return wrapErr(err)
+		}
+	}
+
+	//
+	// #6 Allow IPv4 inbound DNS.
+	//
+	{
+		displayData, err := createWtFwpmDisplayData0("Allow DNS inbound (IPv4)", "")
+		if err != nil {
+			return wrapErr(err)
+		}
+
+		filter.displayData = *displayData
+		filter.layerKey = cFWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V4
+
+		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
+		if err != nil {
+			return wrapErr(err)
+		}
+	}
+
+	filter.filterCondition = (*wtFwpmFilterCondition0)(unsafe.Pointer(&allowConditionsV6[0]))
+	filter.numFilterConditions = uint32(len(allowConditionsV6))
+
+	//
+	// #7 Allow IPv6 outbound DNS.
+	//
+	{
+		displayData, err := createWtFwpmDisplayData0("Allow DNS outbound (IPv6)", "")
+		if err != nil {
+			return wrapErr(err)
+		}
+
+		filter.displayData = *displayData
+		filter.layerKey = cFWPM_LAYER_ALE_AUTH_CONNECT_V6
+
+		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
+		if err != nil {
+			return wrapErr(err)
+		}
+	}
+
+	//
+	// #8 Allow IPv6 inbound DNS.
+	//
+	{
+		displayData, err := createWtFwpmDisplayData0("Allow DNS inbound (IPv6)", "")
+		if err != nil {
+			return wrapErr(err)
+		}
+
+		filter.displayData = *displayData
+		filter.layerKey = cFWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6
+
+		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
+		if err != nil {
+			return wrapErr(err)
+		}
+	}
+
+	runtime.KeepAlive(storedPointers)
 
 	return nil
 }
