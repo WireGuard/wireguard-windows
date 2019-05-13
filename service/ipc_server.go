@@ -29,14 +29,9 @@ var managerServicesLock sync.RWMutex
 var haveQuit uint32
 var quitManagersChan = make(chan struct{}, 1)
 
-type UserTokenInfo struct {
-	elevatedToken       windows.Token
-	elevatedEnvironment []string
-}
-
 type ManagerService struct {
 	events        *os.File
-	userTokenInfo *UserTokenInfo
+	elevatedToken windows.Token
 }
 
 func (s *ManagerService) StoredConfig(tunnelName string, config *conf.Config) error {
@@ -258,7 +253,7 @@ func (s *ManagerService) UpdateState(_ uintptr, state *UpdateState) error {
 }
 
 func (s *ManagerService) Update(_ uintptr, _ *uintptr) error {
-	progress := updater.DownloadVerifyAndExecute(uintptr(s.userTokenInfo.elevatedToken), s.userTokenInfo.elevatedEnvironment)
+	progress := updater.DownloadVerifyAndExecute(uintptr(s.elevatedToken))
 	go func() {
 		for {
 			dp := <-progress
@@ -271,10 +266,10 @@ func (s *ManagerService) Update(_ uintptr, _ *uintptr) error {
 	return nil
 }
 
-func IPCServerListen(reader *os.File, writer *os.File, events *os.File, userTokenInfo *UserTokenInfo) error {
+func IPCServerListen(reader *os.File, writer *os.File, events *os.File, elevatedToken windows.Token) error {
 	service := &ManagerService{
 		events:        events,
-		userTokenInfo: userTokenInfo,
+		elevatedToken: elevatedToken,
 	}
 
 	server := rpc.NewServer()
