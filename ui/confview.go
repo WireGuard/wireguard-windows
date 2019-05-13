@@ -558,9 +558,7 @@ func (cv *ConfView) setTunnel(tunnel *service.Tunnel, config *conf.Config, state
 	}()
 	title := "Interface: "
 	if cv.name.Title() == title {
-		//TODO: This here is a filthy hack that shouldn't be required!
 		suspend()
-		cv.SendMessage(win.WM_SIZING, 0, 0)
 	}
 	title += config.Name
 	if cv.name.Title() != title {
@@ -620,4 +618,5 @@ func (cv *ConfView) setTunnel(tunnel *service.Tunnel, config *conf.Config, state
 		groupBox.Parent().Children().Remove(groupBox)
 		groupBox.Dispose()
 	}
+	cv.SendMessage(win.WM_SIZING, 0, 0) //TODO: This here is a filthy hack that shouldn't be required!
 }
