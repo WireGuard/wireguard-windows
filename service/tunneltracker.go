@@ -16,49 +16,36 @@ import (
 	"sync"
 	"syscall"
 	"time"
-	"unsafe"
 )
 
-//sys notifyServiceStatusChange(service windows.Handle, notifyMask uint32, notifyBuffer uintptr) (status uint32) = advapi32.NotifyServiceStatusChangeW
+//sys notifyServiceStatusChange(service windows.Handle, notifyMask uint32, notifier *SERVICE_NOTIFY) (ret error) = advapi32.NotifyServiceStatusChangeW
 //sys sleepEx(milliseconds uint32, alertable bool) (ret uint32) = kernel32.SleepEx
 
 const (
-	serviceNotify_CREATED          uint32 = 0x00000080
-	serviceNotify_CONTINUE_PENDING        = 0x00000010
-	serviceNotify_DELETE_PENDING          = 0x00000200
-	serviceNotify_DELETED                 = 0x00000100
-	serviceNotify_PAUSE_PENDING           = 0x00000020
-	serviceNotify_PAUSED                  = 0x00000040
-	serviceNotify_RUNNING                 = 0x00000008
-	serviceNotify_START_PENDING           = 0x00000002
-	serviceNotify_STOP_PENDING            = 0x00000004
-	serviceNotify_STOPPED                 = 0x00000001
+	SERVICE_NOTIFY_STATUS_CHANGE    = 2
+	SERVICE_NOTIFY_STOPPED          = 0x00000001
+	SERVICE_NOTIFY_START_PENDING    = 0x00000002
+	SERVICE_NOTIFY_STOP_PENDING     = 0x00000004
+	SERVICE_NOTIFY_RUNNING          = 0x00000008
+	SERVICE_NOTIFY_CONTINUE_PENDING = 0x00000010
+	SERVICE_NOTIFY_PAUSE_PENDING    = 0x00000020
+	SERVICE_NOTIFY_PAUSED           = 0x00000040
+	SERVICE_NOTIFY_CREATED          = 0x00000080
+	SERVICE_NOTIFY_DELETED          = 0x00000100
+	SERVICE_NOTIFY_DELETE_PENDING   = 0x00000200
+
+	STATUS_USER_APC    = 0x000000C0
+	WAIT_IO_COMPLETION = STATUS_USER_APC
 )
-const serviceNotify_STATUS_CHANGE uint32 = 2
-const errorServiceMARKED_FOR_DELETE uint32 = 1072
-const errorServiceNOTIFY_CLIENT_LAGGING uint32 = 1294
-const sleepWAIT_IO_COMPLETION uint32 = 0x000000C0
 
-type serviceStatus struct {
-	serviceType             uint32
-	currentState            uint32
-	controlsAccepted        uint32
-	win32ExitCode           uint32
-	serviceSpecificExitCode uint32
-	checkPoint              uint32
-	waitHint                uint32
-	processId               uint32
-	serviceFlags            uint32
-}
-
-type serviceNotify struct {
-	version               uint32
-	notifyCallback        uintptr
-	context               uintptr
-	notificationStatus    uint32
-	serviceStatus         serviceStatus
-	notificationTriggered uint32
-	serviceNames          *uint16
+type SERVICE_NOTIFY struct {
+	Version               uint32
+	NotifyCallback        uintptr
+	Context               uintptr
+	NotificationStatus    uint32
+	ServiceStatus         windows.SERVICE_STATUS_PROCESS
+	NotificationTriggered uint32
+	ServiceNames          *uint16
 }
 
 func trackExistingTunnels() error {
@@ -84,7 +71,7 @@ func trackExistingTunnels() error {
 	return nil
 }
 
-var serviceTrackerCallbackPtr = windows.NewCallback(func(notifier *serviceNotify) uintptr {
+var serviceTrackerCallbackPtr = windows.NewCallback(func(notifier *SERVICE_NOTIFY) uintptr {
 	return 0
 })
 
@@ -141,10 +128,10 @@ func trackTunnelService(tunnelName string, service *mgr.Service) {
 		trackedTunnelsLock.Unlock()
 	}()
 
-	const serviceNotifications = serviceNotify_RUNNING | serviceNotify_START_PENDING | serviceNotify_STOP_PENDING | serviceNotify_STOPPED | serviceNotify_DELETE_PENDING
-	notifier := &serviceNotify{
-		version:        serviceNotify_STATUS_CHANGE,
-		notifyCallback: serviceTrackerCallbackPtr,
+	const serviceNotifications = SERVICE_NOTIFY_RUNNING | SERVICE_NOTIFY_START_PENDING | SERVICE_NOTIFY_STOP_PENDING | SERVICE_NOTIFY_STOPPED | SERVICE_NOTIFY_DELETE_PENDING
+	notifier := &SERVICE_NOTIFY{
+		Version:        SERVICE_NOTIFY_STATUS_CHANGE,
+		NotifyCallback: serviceTrackerCallbackPtr,
 	}
 
 	checkForDisabled := func() (shouldReturn bool) {
@@ -168,46 +155,46 @@ func trackTunnelService(tunnelName string, service *mgr.Service) {
 	defer runtime.UnlockOSThread()
 	lastState := TunnelUnknown
 	for {
-		ret := notifyServiceStatusChange(service.Handle, serviceNotifications, uintptr(unsafe.Pointer(notifier)))
-		switch ret {
-		case 0:
+		err := notifyServiceStatusChange(service.Handle, serviceNotifications, notifier)
+		switch err {
+		case nil:
 			for {
-				if sleepEx(uint32(time.Second*3/time.Millisecond), true) == sleepWAIT_IO_COMPLETION {
+				if sleepEx(uint32(time.Second*3/time.Millisecond), true) == WAIT_IO_COMPLETION {
 					break
 				} else if checkForDisabled() {
 					return
 				}
 			}
-		case errorServiceMARKED_FOR_DELETE:
+		case windows.ERROR_SERVICE_MARKED_FOR_DELETE:
 			trackedTunnelsLock.Lock()
 			trackedTunnels[tunnelName] = TunnelStopped
 			trackedTunnelsLock.Unlock()
 			IPCServerNotifyTunnelChange(tunnelName, TunnelStopped, nil)
 			return
-		case errorServiceNOTIFY_CLIENT_LAGGING:
+		case windows.ERROR_SERVICE_NOTIFY_CLIENT_LAGGING:
 			continue
 		default:
 			trackedTunnelsLock.Lock()
 			trackedTunnels[tunnelName] = TunnelStopped
 			trackedTunnelsLock.Unlock()
-			IPCServerNotifyTunnelChange(tunnelName, TunnelStopped, fmt.Errorf("Unable to continue monitoring service, so stopping: %v", syscall.Errno(ret)))
+			IPCServerNotifyTunnelChange(tunnelName, TunnelStopped, fmt.Errorf("Unable to continue monitoring service, so stopping: %v", err))
 			service.Control(svc.Stop)
 			return
 		}
 
-		state := svcStateToTunState(svc.State(notifier.serviceStatus.currentState))
+		state := svcStateToTunState(svc.State(notifier.ServiceStatus.CurrentState))
 		var tunnelError error
 		if state == TunnelStopped {
-			if notifier.serviceStatus.win32ExitCode == uint32(windows.ERROR_SERVICE_SPECIFIC_ERROR) {
-				maybeErr := Error(notifier.serviceStatus.serviceSpecificExitCode)
+			if notifier.ServiceStatus.Win32ExitCode == uint32(windows.ERROR_SERVICE_SPECIFIC_ERROR) {
+				maybeErr := Error(notifier.ServiceStatus.ServiceSpecificExitCode)
 				if maybeErr != ErrorSuccess {
 					tunnelError = maybeErr
 				}
 			} else {
-				switch notifier.serviceStatus.win32ExitCode {
+				switch notifier.ServiceStatus.Win32ExitCode {
 				case uint32(windows.NO_ERROR), serviceNEVER_STARTED:
 				default:
-					tunnelError = syscall.Errno(notifier.serviceStatus.win32ExitCode)
+					tunnelError = syscall.Errno(notifier.ServiceStatus.Win32ExitCode)
 				}
 			}
 		}

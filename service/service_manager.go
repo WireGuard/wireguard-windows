@@ -219,27 +219,27 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 
 	go checkForUpdates()
 
-	var sessionsPointer *wtsSessionInfo
+	var sessionsPointer *WTS_SESSION_INFO
 	var count uint32
 	err = wtsEnumerateSessions(0, 0, 1, &sessionsPointer, &count)
 	if err != nil {
 		serviceError = ErrorEnumerateSessions
 		return
 	}
-	sessions := *(*[]wtsSessionInfo)(unsafe.Pointer(&struct {
-		addr *wtsSessionInfo
+	sessions := *(*[]WTS_SESSION_INFO)(unsafe.Pointer(&struct {
+		addr *WTS_SESSION_INFO
 		len  int
 		cap  int
 	}{sessionsPointer, int(count), int(count)}))
 	for _, session := range sessions {
-		if session.state != wtsActive {
+		if session.State != WTSActive {
 			continue
 		}
 		procsLock.Lock()
-		if alive := aliveSessions[session.sessionID]; !alive {
-			aliveSessions[session.sessionID] = true
-			if _, ok := procs[session.sessionID]; !ok {
-				go startProcess(session.sessionID)
+		if alive := aliveSessions[session.SessionID]; !alive {
+			aliveSessions[session.SessionID] = true
+			if _, ok := procs[session.SessionID]; !ok {
+				go startProcess(session.SessionID)
 			}
 		}
 		procsLock.Unlock()
@@ -262,27 +262,27 @@ loop:
 			case svc.Interrogate:
 				changes <- c.CurrentStatus
 			case svc.SessionChange:
-				if c.EventType != wtsSessionLogon && c.EventType != wtsSessionLogoff {
+				if c.EventType != WTS_SESSION_LOGON && c.EventType != WTS_SESSION_LOGOFF {
 					continue
 				}
-				sessionNotification := (*wtsSessionNotification)(unsafe.Pointer(c.EventData))
-				if uintptr(sessionNotification.size) != unsafe.Sizeof(*sessionNotification) {
-					log.Printf("Unexpected size of WTSSESSION_NOTIFICATION: %d", sessionNotification.size)
+				sessionNotification := (*WTS_SESSION_NOTIFICATION)(unsafe.Pointer(c.EventData))
+				if uintptr(sessionNotification.Size) != unsafe.Sizeof(*sessionNotification) {
+					log.Printf("Unexpected size of WTS_SESSION_NOTIFICATION: %d", sessionNotification.Size)
 					continue
 				}
-				if c.EventType == wtsSessionLogoff {
+				if c.EventType == WTS_SESSION_LOGOFF {
 					procsLock.Lock()
-					delete(aliveSessions, sessionNotification.sessionID)
-					if proc, ok := procs[sessionNotification.sessionID]; ok {
+					delete(aliveSessions, sessionNotification.SessionID)
+					if proc, ok := procs[sessionNotification.SessionID]; ok {
 						proc.Kill()
 					}
 					procsLock.Unlock()
-				} else if c.EventType == wtsSessionLogon {
+				} else if c.EventType == WTS_SESSION_LOGON {
 					procsLock.Lock()
-					if alive := aliveSessions[sessionNotification.sessionID]; !alive {
-						aliveSessions[sessionNotification.sessionID] = true
-						if _, ok := procs[sessionNotification.sessionID]; !ok {
-							go startProcess(sessionNotification.sessionID)
+					if alive := aliveSessions[sessionNotification.SessionID]; !alive {
+						aliveSessions[sessionNotification.SessionID] = true
+						if _, ok := procs[sessionNotification.SessionID]; !ok {
+							go startProcess(sessionNotification.SessionID)
 						}
 					}
 					procsLock.Unlock()

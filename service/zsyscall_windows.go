@@ -60,7 +60,7 @@ func wtsQueryUserToken(session uint32, token *windows.Token) (err error) {
 	return
 }
 
-func wtsEnumerateSessions(handle windows.Handle, reserved uint32, version uint32, sessions **wtsSessionInfo, count *uint32) (err error) {
+func wtsEnumerateSessions(handle windows.Handle, reserved uint32, version uint32, sessions **WTS_SESSION_INFO, count *uint32) (err error) {
 	r1, _, e1 := syscall.Syscall6(procWTSEnumerateSessionsW.Addr(), 5, uintptr(handle), uintptr(reserved), uintptr(version), uintptr(unsafe.Pointer(sessions)), uintptr(unsafe.Pointer(count)), 0)
 	if r1 == 0 {
 		if e1 != 0 {
@@ -77,9 +77,11 @@ func wtsFreeMemory(ptr uintptr) {
 	return
 }
 
-func notifyServiceStatusChange(service windows.Handle, notifyMask uint32, notifyBuffer uintptr) (status uint32) {
-	r0, _, _ := syscall.Syscall(procNotifyServiceStatusChangeW.Addr(), 3, uintptr(service), uintptr(notifyMask), uintptr(notifyBuffer))
-	status = uint32(r0)
+func notifyServiceStatusChange(service windows.Handle, notifyMask uint32, notifier *SERVICE_NOTIFY) (ret error) {
+	r0, _, _ := syscall.Syscall(procNotifyServiceStatusChangeW.Addr(), 3, uintptr(service), uintptr(notifyMask), uintptr(unsafe.Pointer(notifier)))
+	if r0 != 0 {
+		ret = syscall.Errno(r0)
+	}
 	return
 }
 
