@@ -318,6 +318,9 @@ static LRESULT CALLBACK child_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lP
 		SendMessage(hWnd, EM_EMPTYUNDOBUFFER, 0, 0);
 		return ret;
 	}
+	case WM_DPICHANGED:
+		highlight_text(hWnd);
+		break;
 	case WM_REFLECT + WM_COMMAND:
 	case WM_COMMAND:
 	case WM_REFLECT + WM_NOTIFY:
