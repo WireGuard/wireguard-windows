@@ -13,38 +13,45 @@ import (
 )
 
 const (
-	wtsSessionLogon  uint32 = 5
-	wtsSessionLogoff uint32 = 6
+	WTS_CONSOLE_CONNECT        = 0x1
+	WTS_CONSOLE_DISCONNECT     = 0x2
+	WTS_REMOTE_CONNECT         = 0x3
+	WTS_REMOTE_DISCONNECT      = 0x4
+	WTS_SESSION_LOGON          = 0x5
+	WTS_SESSION_LOGOFF         = 0x6
+	WTS_SESSION_LOCK           = 0x7
+	WTS_SESSION_UNLOCK         = 0x8
+	WTS_SESSION_REMOTE_CONTROL = 0x9
+	WTS_SESSION_CREATE         = 0xa
+	WTS_SESSION_TERMINATE      = 0xb
 )
-
-type wtsState int
 
 const (
-	wtsActive wtsState = iota
-	wtsConnected
-	wtsConnectQuery
-	wtsShadow
-	wtsDisconnected
-	wtsIdle
-	wtsListen
-	wtsReset
-	wtsDown
-	wtsInit
+	WTSActive       = 0
+	WTSConnected    = 1
+	WTSConnectQuery = 2
+	WTSShadow       = 3
+	WTSDisconnected = 4
+	WTSIdle         = 5
+	WTSListen       = 6
+	WTSReset        = 7
+	WTSDown         = 8
+	WTSInit         = 9
 )
 
-type wtsSessionNotification struct {
-	size      uint32
-	sessionID uint32
+type WTS_SESSION_NOTIFICATION struct {
+	Size      uint32
+	SessionID uint32
 }
 
-type wtsSessionInfo struct {
-	sessionID         uint32
-	windowStationName *uint16
-	state             wtsState
+type WTS_SESSION_INFO struct {
+	SessionID         uint32
+	WindowStationName *uint16
+	State             uint32
 }
 
 //sys wtsQueryUserToken(session uint32, token *windows.Token) (err error) = wtsapi32.WTSQueryUserToken
-//sys wtsEnumerateSessions(handle windows.Handle, reserved uint32, version uint32, sessions **wtsSessionInfo, count *uint32) (err error) = wtsapi32.WTSEnumerateSessionsW
+//sys wtsEnumerateSessions(handle windows.Handle, reserved uint32, version uint32, sessions **WTS_SESSION_INFO, count *uint32) (err error) = wtsapi32.WTSEnumerateSessionsW
 //sys wtsFreeMemory(ptr uintptr) = wtsapi32.WTSFreeMemory
 
 const (
