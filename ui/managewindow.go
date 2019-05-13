@@ -63,7 +63,11 @@ func NewManageTunnelsWindow() (*ManageTunnelsWindow, error) {
 	mtw.Closing().Attach(func(canceled *bool, reason walk.CloseReason) {
 		// "Close to tray" instead of exiting application
 		*canceled = true
-		mtw.Hide()
+		if !noTrayAvailable {
+			mtw.Hide()
+		} else {
+			win.ShowWindow(mtw.Handle(), win.SW_MINIMIZE)
+		}
 	})
 	mtw.VisibleChanged().Attach(func() {
 		if mtw.Visible() {
