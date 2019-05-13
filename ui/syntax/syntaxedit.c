@@ -104,10 +104,10 @@ static void evaluate_untunneled_blocking(struct syntaxedit_data *this, HWND hWnd
 		}
 	}
 
-    if (seen_v4_00 || seen_v6_00)
-        state = BlockingUntunneledTraffic;
-    else if ((seen_v4_01 && seen_v4_1281) || (seen_v6_01 && seen_v6_80001))
-        state = NotBlockingUntunneledTraffic;
+	if (seen_v4_00 || seen_v6_00)
+		state = BlockingUntunneledTraffic;
+	else if ((seen_v4_01 && seen_v4_1281) || (seen_v6_01 && seen_v6_80001))
+		state = NotBlockingUntunneledTraffic;
 
 done:
 	if (state != this->last_block_state) {
@@ -295,7 +295,7 @@ static LRESULT CALLBACK child_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lP
 	switch (Msg) {
 	case WM_CREATE: {
 		struct syntaxedit_data *this = calloc(1, sizeof(*this));
-		SetWindowLong(hWnd, GWL_EXSTYLE,  GetWindowLong(hWnd, GWL_EXSTYLE) & ~WS_EX_CLIENTEDGE);
+		SetWindowLong(hWnd, GWL_EXSTYLE, GetWindowLong(hWnd, GWL_EXSTYLE) & ~WS_EX_CLIENTEDGE);
 		assert(this);
 		SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)this);
 		SendMessage(hWnd, EM_GETOLEINTERFACE, 0, (LPARAM)&this->irich);
