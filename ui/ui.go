@@ -8,12 +8,15 @@ package ui
 import (
 	"fmt"
 	"github.com/lxn/walk"
+	"github.com/lxn/win"
 	"golang.zx2c4.com/wireguard/windows/service"
+	"golang.zx2c4.com/wireguard/windows/version"
 	"runtime"
 	"runtime/debug"
 	"time"
 )
 
+var noTrayAvailable = false
 var shouldQuitManagerWhenExiting = false
 var startTime = time.Now()
 
@@ -33,6 +36,8 @@ func RunUI() {
 		tray *Tray
 	)
 
+	noTrayAvailable = version.OsIsCore()
+
 	for mtw == nil {
 		mtw, err = NewManageTunnelsWindow()
 		if err != nil {
@@ -40,7 +45,7 @@ func RunUI() {
 		}
 	}
 
-	for tray == nil {
+	for tray == nil && !noTrayAvailable {
 		tray, err = NewTray(mtw)
 		if err != nil {
 			time.Sleep(time.Millisecond * 400)
@@ -74,6 +79,10 @@ func RunUI() {
 			onUpdateNotification(updateState)
 		}
 	}()
+
+	if noTrayAvailable {
+		win.ShowWindow(mtw.Handle(), win.SW_MINIMIZE)
+	}
 
 	mtw.Run()
 	tray.Dispose()
