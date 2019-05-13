@@ -17,6 +17,8 @@ import (
 	"golang.zx2c4.com/wireguard/windows/version"
 )
 
+var easterEggIndex = -1
+
 func onAbout(owner walk.Form) {
 	vbl := walk.NewVBoxLayout()
 	vbl.SetMargins(walk.Margins{80, 20, 80, 20})
@@ -37,6 +39,16 @@ func onAbout(owner walk.Form) {
 	iv.MouseUp().Attach(func(x, y int, button walk.MouseButton) {
 		if button == walk.LeftButton {
 			win.ShellExecute(dlg.Handle(), nil, windows.StringToUTF16Ptr("https://www.wireguard.com/"), nil, nil, win.SW_SHOWNORMAL)
+		} else if easterEggIndex >= 0 && button == walk.RightButton {
+			if icon, err := loadSystemIcon("moricons", int32(easterEggIndex), dlg.DPI()*4/3); err == nil { //TODO: calculate DPI dynamically
+				iv.SetImage(icon)
+				easterEggIndex++
+			} else {
+				easterEggIndex = -1
+				if logo, err := loadLogoIcon(dlg.DPI() * 4 / 3); err == nil { //TODO: calculate DPI dynamically
+					iv.SetImage(logo)
+				}
+			}
 		}
 	})
 	if logo, err := loadLogoIcon(dlg.DPI() * 4 / 3); err == nil { //TODO: calculate DPI dynamically
@@ -74,6 +86,9 @@ func onAbout(owner walk.Form) {
 	donatePB.SetAlignment(walk.AlignHCenterVNear)
 	donatePB.SetText("♥ Donate!")
 	donatePB.Clicked().Attach(func() {
+		if easterEggIndex == -1 {
+			easterEggIndex = 0
+		}
 		win.ShellExecute(dlg.Handle(), nil, windows.StringToUTF16Ptr("https://www.wireguard.com/donations/"), nil, nil, win.SW_SHOWNORMAL)
 		dlg.Accept()
 	})
