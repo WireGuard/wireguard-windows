@@ -8,16 +8,17 @@ package service
 import (
 	"bytes"
 	"errors"
+	"log"
+	"net"
+	"os"
+	"sort"
+
 	"golang.org/x/sys/windows"
 	"golang.zx2c4.com/winipcfg"
 	"golang.zx2c4.com/wireguard/device"
 	"golang.zx2c4.com/wireguard/tun"
 	"golang.zx2c4.com/wireguard/windows/conf"
 	"golang.zx2c4.com/wireguard/windows/service/firewall"
-	"log"
-	"net"
-	"os"
-	"sort"
 )
 
 func bindSocketRoute(family winipcfg.AddressFamily, device *device.Device, ourLuid uint64, lastLuid *uint64) error {
@@ -42,9 +43,9 @@ func bindSocketRoute(family winipcfg.AddressFamily, device *device.Device, ourLu
 		return nil
 	}
 	*lastLuid = luid
-	if family == winipcfg.AF_INET {
+	if family == windows.AF_INET {
 		return device.BindSocketToInterface4(index)
-	} else if family == winipcfg.AF_INET6 {
+	} else if family == windows.AF_INET6 {
 		return device.BindSocketToInterface6(index)
 	}
 	return nil
@@ -56,11 +57,11 @@ func monitorDefaultRoutes(device *device.Device, autoMTU bool, tun *tun.NativeTu
 	lastLuid6 := uint64(0)
 	lastMtu := uint32(0)
 	doIt := func() error {
-		err := bindSocketRoute(winipcfg.AF_INET, device, ourLuid, &lastLuid4)
+		err := bindSocketRoute(windows.AF_INET, device, ourLuid, &lastLuid4)
 		if err != nil {
 			return err
 		}
-		err = bindSocketRoute(winipcfg.AF_INET6, device, ourLuid, &lastLuid6)
+		err = bindSocketRoute(windows.AF_INET6, device, ourLuid, &lastLuid6)
 		if err != nil {
 			return err
 		}
@@ -87,7 +88,7 @@ func monitorDefaultRoutes(device *device.Device, autoMTU bool, tun *tun.NativeTu
 			}
 		}
 		if mtu > 0 && (lastMtu == 0 || lastMtu != mtu) {
-			iface, err := winipcfg.GetIpInterface(ourLuid, winipcfg.AF_INET)
+			iface, err := winipcfg.GetIpInterface(ourLuid, windows.AF_INET)
 			if err != nil {
 				return err
 			}
@@ -100,7 +101,7 @@ func monitorDefaultRoutes(device *device.Device, autoMTU bool, tun *tun.NativeTu
 				return err
 			}
 			tun.ForceMtu(int(iface.NlMtu)) //TODO: it sort of breaks the model with v6 mtu and v4 mtu being different. Just set v4 one for now.
-			iface, err = winipcfg.GetIpInterface(ourLuid, winipcfg.AF_INET6)
+			iface, err = winipcfg.GetIpInterface(ourLuid, windows.AF_INET6)
 			if err != nil {
 				return err
 			}
@@ -275,7 +276,7 @@ func configureInterface(conf *conf.Config, tun *tun.NativeTun) error {
 		return err
 	}
 
-	ipif, err := iface.GetIpInterface(winipcfg.AF_INET)
+	ipif, err := iface.GetIpInterface(windows.AF_INET)
 	if err != nil {
 		return err
 	}
@@ -292,7 +293,7 @@ func configureInterface(conf *conf.Config, tun *tun.NativeTun) error {
 		return err
 	}
 
-	ipif, err = iface.GetIpInterface(winipcfg.AF_INET6)
+	ipif, err = iface.GetIpInterface(windows.AF_INET6)
 	if err != nil {
 		return err
 	}
