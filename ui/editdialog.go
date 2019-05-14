@@ -58,7 +58,7 @@ func runTunnelEditDialog(owner walk.Form, tunnel *service.Tunnel, clone bool) *c
 	dlg.SetTitle(title)
 	dlg.SetLayout(layout)
 	dlg.SetMinMaxSize(walk.Size{500, 400}, walk.Size{0, 0})
-	if icon, err := loadSystemIcon("imageres", 109, dlg.DPI()/3); err == nil { //TODO: calculate DPI dynamically
+	if icon, err := loadSystemIcon("imageres", 109, 32); err == nil {
 		dlg.SetIcon(icon)
 	}
 

@@ -6,13 +6,7 @@
 package ui
 
 import (
-	"fmt"
-	"path"
-	"syscall"
-
 	"github.com/lxn/walk"
-	"github.com/lxn/win"
-	"golang.org/x/sys/windows"
 	"golang.zx2c4.com/wireguard/windows/service"
 )
 
@@ -27,56 +21,44 @@ type widthAndDllIdx struct {
 	dll   string
 }
 
-var cachedOverlayIconsForWidthAndState = make(map[widthAndState]*walk.Icon)
+var cachedOverlayIconsForWidthAndState = make(map[widthAndState]walk.Image)
 
-func iconWithOverlayForState(state service.TunnelState, size int) (icon *walk.Icon, err error) {
+func iconWithOverlayForState(state service.TunnelState, size int) (icon walk.Image, err error) {
 	icon = cachedOverlayIconsForWidthAndState[widthAndState{size, state}]
 	if icon != nil {
 		return
 	}
+
 	wireguardIcon, err := loadLogoIcon(size)
 	if err != nil {
 		return
 	}
+
 	if state == service.TunnelStopped {
 		return wireguardIcon, err //TODO: if we find something prettier than the gray dot, then remove this clause
 	}
+
 	iconSize := wireguardIcon.Size()
-	bmp, err := walk.NewBitmapWithTransparentPixels(iconSize)
-	if err != nil {
-		return
-	}
-	defer bmp.Dispose()
-
-	canvas, err := walk.NewCanvasFromImage(bmp)
-	if err != nil {
-		return
-	}
-	defer canvas.Dispose()
-
-	err = canvas.DrawImage(wireguardIcon, walk.Point{})
-	if err != nil {
-		return
-	}
-
 	w := int(float64(iconSize.Width) * 0.65)
 	h := int(float64(iconSize.Height) * 0.65)
-	bounds := walk.Rectangle{iconSize.Width - w, iconSize.Height - h, w, h}
-	overlayIcon, err := iconForState(state, bounds.Width)
+	overlayBounds := walk.Rectangle{iconSize.Width - w, iconSize.Height - h, w, h}
+	overlayIcon, err := iconForState(state, overlayBounds.Width)
 	if err != nil {
 		return
 	}
-	defer overlayIcon.Dispose()
-	err = canvas.DrawImageStretched(overlayIcon, bounds)
-	if err != nil {
-		return
-	}
-	canvas.Dispose()
 
-	icon, err = walk.NewIconFromBitmap(bmp)
-	if err == nil {
-		cachedOverlayIconsForWidthAndState[widthAndState{size, state}] = icon
-	}
+	icon = walk.NewPaintFuncImage(walk.Size{size, size}, func(canvas *walk.Canvas, bounds walk.Rectangle) error {
+		if err := canvas.DrawImageStretched(wireguardIcon, bounds); err != nil {
+			return err
+		}
+		if err := canvas.DrawImageStretched(overlayIcon, overlayBounds); err != nil {
+			return err
+		}
+		return nil
+	})
+
+	cachedOverlayIconsForWidthAndState[widthAndState{size, state}] = icon
+
 	return
 }
 
@@ -130,16 +112,7 @@ func loadSystemIcon(dll string, index int32, size int) (icon *walk.Icon, err err
 	if icon != nil {
 		return
 	}
-	system32, err := windows.GetSystemDirectory()
-	if err != nil {
-		return
-	}
-	var hicon win.HICON
-	ret := win.SHDefExtractIcon(windows.StringToUTF16Ptr(path.Join(system32, dll+".dll")), index, 0, &hicon, nil, uint32(size))
-	if ret != 0 {
-		return nil, fmt.Errorf("Unable to find icon %d of %s: %v", index, dll, syscall.Errno(ret))
-	}
-	icon, err = walk.NewIconFromHICON(hicon)
+	icon, err = walk.NewIconFromSysDLLWithSize(dll, int(index), size)
 	if err == nil {
 		cachedSystemIconsForWidthAndDllIdx[widthAndDllIdx{size, index, dll}] = icon
 	}

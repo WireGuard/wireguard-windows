@@ -56,7 +56,7 @@ func NewManageTunnelsWindow() (*ManageTunnelsWindow, error) {
 	win.ChangeWindowMessageFilterEx(mtw.Handle(), raiseMsg, win.MSGFLT_ALLOW, nil)
 	mtw.SetPersistent(true)
 
-	if icon, err := loadLogoIcon(mtw.DPI() / 3); err == nil { //TODO: calculate DPI dynamically
+	if icon, err := loadLogoIcon(32); err == nil {
 		mtw.SetIcon(icon)
 	}
 	mtw.SetTitle("WireGuard")
@@ -140,7 +140,7 @@ func (mtw *ManageTunnelsWindow) updateProgressIndicator(globalState service.Tunn
 	default:
 		pi.SetState(walk.PINoProgress)
 	}
-	if icon, err := iconForState(globalState, mtw.DPI()/6); err == nil { //TODO: calculate DPI dynamically
+	if icon, err := iconForState(globalState, 16); err == nil {
 		if globalState == service.TunnelStopped {
 			icon = nil
 		}
