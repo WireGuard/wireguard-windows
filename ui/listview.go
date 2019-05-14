@@ -76,6 +76,7 @@ func NewListView(parent walk.Container) (*ListView, error) {
 	tv.SetModel(model)
 	tv.SetLastColumnStretched(true)
 	tv.SetHeaderHidden(true)
+	tv.SetIgnoreNowhere(true)
 	tv.Columns().Add(walk.NewTableViewColumn())
 
 	tunnelsView := &ListView{
