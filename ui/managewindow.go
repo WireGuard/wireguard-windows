@@ -23,7 +23,8 @@ type ManageTunnelsWindow struct {
 	logPage     *LogPage
 	updatePage  *UpdatePage
 
-	tunnelChangedCB *service.TunnelChangeCallback
+	tunnelChangedCB      *service.TunnelChangeCallback
+	taskbarButtonCreated bool
 }
 
 const (
@@ -31,6 +32,8 @@ const (
 	raiseMsg                = win.WM_USER + 0x3510
 	aboutWireGuardCmd       = 0x37
 )
+
+var taskbarButtonCreatedMsg = win.RegisterWindowMessage(windows.StringToUTF16Ptr("TaskbarButtonCreated"))
 
 func init() {
 	walk.MustRegisterWindowClass(manageWindowWindowClass)
@@ -128,16 +131,22 @@ func (mtw *ManageTunnelsWindow) Dispose() {
 	mtw.FormBase.Dispose()
 }
 
+func (mtw *ManageTunnelsWindow) updateProgressIndicator(globalState service.TunnelState) {
+	pi := mtw.ProgressIndicator()
+	if pi == nil {
+		return
+	}
+	switch globalState {
+	case service.TunnelStopping, service.TunnelStarting:
+		pi.SetState(walk.PIIndeterminate)
+	default:
+		pi.SetState(walk.PINoProgress)
+	}
+}
+
 func (mtw *ManageTunnelsWindow) onTunnelChange(tunnel *service.Tunnel, state service.TunnelState, globalState service.TunnelState, err error) {
 	mtw.Synchronize(func() {
-		if pi := mtw.ProgressIndicator(); pi != nil {
-			switch globalState {
-			case service.TunnelStopping, service.TunnelStarting:
-				pi.SetState(walk.PIIndeterminate)
-			default:
-				pi.SetState(walk.PINoProgress)
-			}
-		}
+		mtw.updateProgressIndicator(globalState)
 
 		icon, err2 := iconWithOverlayForState(globalState, mtw.DPI()/3) //TODO: calculate DPI dynamically
 		if err2 == nil {
@@ -193,6 +202,16 @@ func (mtw *ManageTunnelsWindow) WndProc(hwnd win.HWND, msg uint32, wParam, lPara
 		}
 		raise(mtw.Handle())
 		return 0
+	case taskbarButtonCreatedMsg:
+		ret := mtw.FormBase.WndProc(hwnd, msg, wParam, lParam)
+		if !mtw.taskbarButtonCreated {
+			mtw.taskbarButtonCreated = true
+			globalState, err := service.IPCClientGlobalState()
+			if err == nil {
+				mtw.updateProgressIndicator(globalState)
+			}
+		}
+		return ret
 	}
 
 	return mtw.FormBase.WndProc(hwnd, msg, wParam, lParam)
