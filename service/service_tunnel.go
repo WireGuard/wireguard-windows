@@ -194,6 +194,13 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 		}
 	}()
 
+	logger.Info.Println("Dropping all privileges")
+	err = dropAllPrivileges()
+	if err != nil {
+		serviceError = ErrorDropPrivileges
+		return
+	}
+
 	changes <- svc.Status{State: svc.Running, Accepts: svc.AcceptStop}
 	logger.Info.Println("Startup complete")
 
