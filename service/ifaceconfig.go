@@ -10,13 +10,13 @@ import (
 	"errors"
 	"log"
 	"net"
-	"os"
 	"sort"
 
 	"golang.org/x/sys/windows"
 	"golang.zx2c4.com/winipcfg"
 	"golang.zx2c4.com/wireguard/device"
 	"golang.zx2c4.com/wireguard/tun"
+
 	"golang.zx2c4.com/wireguard/windows/conf"
 	"golang.zx2c4.com/wireguard/windows/service/firewall"
 )
@@ -244,7 +244,7 @@ func configureInterface(conf *conf.Config, tun *tun.NativeTun) error {
 	}
 
 	err = iface.SetAddresses(addresses)
-	if sysErr, ok := err.(*os.SyscallError); ok && sysErr.Err == windows.ERROR_OBJECT_ALREADY_EXISTS {
+	if err == windows.ERROR_OBJECT_ALREADY_EXISTS {
 		cleanupAddressesOnDisconnectedInterfaces(addresses)
 		err = iface.SetAddresses(addresses)
 	}
