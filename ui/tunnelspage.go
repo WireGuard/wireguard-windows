@@ -121,33 +121,27 @@ func (tp *TunnelsPage) CreateToolbar() {
 	toolBarContainer.SetLayout(hlayout)
 
 	tp.listToolbar, _ = walk.NewToolBarWithOrientationAndButtonStyle(toolBarContainer, walk.Horizontal, walk.ToolBarButtonImageBeforeText)
-	imageSize := walk.Size{tp.DPI() / 6, tp.DPI() / 6} // Dividing by six is the same as dividing by 96 and multiplying by 16. TODO: Use dynamic DPI
-	imageList, _ := walk.NewImageList(imageSize, walk.RGB(0, 0, 0))
-	tp.listToolbar.SetImageList(imageList)
 
 	addMenu, _ := walk.NewMenu()
 	tp.AddDisposable(addMenu)
 	importAction := walk.NewAction()
 	importAction.SetText("Import tunnel(s) from file...")
-	importActionIcon, _ := loadSystemIcon("imageres", 3, imageSize.Width)
-	importActionImage, _ := walk.NewBitmapFromIcon(importActionIcon, imageSize)
-	importAction.SetImage(importActionImage)
+	importActionIcon, _ := loadSystemIcon("imageres", 3, 16)
+	importAction.SetImage(importActionIcon)
 	importAction.SetShortcut(walk.Shortcut{walk.ModControl, walk.KeyO})
 	importAction.SetDefault(true)
 	importAction.Triggered().Attach(tp.onImport)
 	addMenu.Actions().Add(importAction)
 	addAction := walk.NewAction()
 	addAction.SetText("Add empty tunnel...")
-	addActionIcon, _ := loadSystemIcon("imageres", 2, imageSize.Width)
-	addActionImage, _ := walk.NewBitmapFromIcon(addActionIcon, imageSize)
-	addAction.SetImage(addActionImage)
+	addActionIcon, _ := loadSystemIcon("imageres", 2, 16)
+	addAction.SetImage(addActionIcon)
 	addAction.SetShortcut(walk.Shortcut{walk.ModControl, walk.KeyN})
 	addAction.Triggered().Attach(tp.onAddTunnel)
 	addMenu.Actions().Add(addAction)
 	addMenuAction := walk.NewMenuAction(addMenu)
-	addMenuActionIcon, _ := loadSystemIcon("shell32", 149, imageSize.Width)
-	addMenuActionImage, _ := walk.NewBitmapFromIcon(addMenuActionIcon, imageSize)
-	addMenuAction.SetImage(addMenuActionImage)
+	addMenuActionIcon, _ := loadSystemIcon("shell32", 149, 16)
+	addMenuAction.SetImage(addMenuActionIcon)
 	addMenuAction.SetText("Add Tunnel")
 	addMenuAction.SetToolTip(importAction.Text())
 	addMenuAction.Triggered().Attach(tp.onImport)
@@ -156,9 +150,8 @@ func (tp *TunnelsPage) CreateToolbar() {
 	tp.listToolbar.Actions().Add(walk.NewSeparatorAction())
 
 	deleteAction := walk.NewAction()
-	deleteActionIcon, _ := loadSystemIcon("shell32", 131, imageSize.Width)
-	deleteActionImage, _ := walk.NewBitmapFromIcon(deleteActionIcon, imageSize)
-	deleteAction.SetImage(deleteActionImage)
+	deleteActionIcon, _ := loadSystemIcon("shell32", 131, 16)
+	deleteAction.SetImage(deleteActionIcon)
 	deleteAction.SetShortcut(walk.Shortcut{0, walk.KeyDelete})
 	deleteAction.SetToolTip("Remove selected tunnel(s)")
 	deleteAction.Triggered().Attach(tp.onDelete)
@@ -166,15 +159,18 @@ func (tp *TunnelsPage) CreateToolbar() {
 	tp.listToolbar.Actions().Add(walk.NewSeparatorAction())
 
 	exportAction := walk.NewAction()
-	exportActionIcon, _ := loadSystemIcon("imageres", 165, imageSize.Width) // Or "shell32", 45?
-	exportActionImage, _ := walk.NewBitmapFromIcon(exportActionIcon, imageSize)
-	exportAction.SetImage(exportActionImage)
+	exportActionIcon, _ := loadSystemIcon("imageres", 165, 16) // Or "shell32", 45?
+	exportAction.SetImage(exportActionIcon)
 	exportAction.SetToolTip("Export all tunnels to zip...")
 	exportAction.Triggered().Attach(tp.onExportTunnels)
 	tp.listToolbar.Actions().Add(exportAction)
 
-	toolbarWidth := tp.listToolbar.SizeHint().Width
-	tp.listContainer.SetMinMaxSizePixels(walk.Size{toolbarWidth, 0}, walk.Size{toolbarWidth, 0})
+	fixContainerWidthToToolbarWidth := func() {
+		toolbarWidth := tp.listToolbar.SizeHint().Width
+		tp.listContainer.SetMinMaxSizePixels(walk.Size{toolbarWidth, 0}, walk.Size{toolbarWidth, 0})
+	}
+	fixContainerWidthToToolbarWidth()
+	tp.listToolbar.SizeChanged().Attach(fixContainerWidthToToolbarWidth)
 
 	contextMenu, _ := walk.NewMenu()
 	toggleAction := walk.NewAction()

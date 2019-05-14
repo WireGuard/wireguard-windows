@@ -129,7 +129,7 @@ func (tv *ListView) StyleCell(style *walk.CellStyle) {
 	if err != nil {
 		return
 	}
-	margin := tv.DPI() / 48 //TODO: Do some sort of dynamic DPI calculation here
+	const margin = 2
 	b.X = margin
 	b.Y += margin
 	b.Height -= margin * 2

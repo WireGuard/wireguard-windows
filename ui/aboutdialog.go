@@ -27,7 +27,7 @@ func onAbout(owner walk.Form) {
 	dlg, _ := walk.NewDialogWithFixedSize(owner)
 	dlg.SetTitle("About WireGuard")
 	dlg.SetLayout(vbl)
-	if icon, err := loadLogoIcon(dlg.DPI() / 3); err == nil { //TODO: calculate DPI dynamically
+	if icon, err := loadLogoIcon(32); err == nil {
 		dlg.SetIcon(icon)
 	}
 
@@ -40,18 +40,18 @@ func onAbout(owner walk.Form) {
 		if button == walk.LeftButton {
 			win.ShellExecute(dlg.Handle(), nil, windows.StringToUTF16Ptr("https://www.wireguard.com/"), nil, nil, win.SW_SHOWNORMAL)
 		} else if easterEggIndex >= 0 && button == walk.RightButton {
-			if icon, err := loadSystemIcon("moricons", int32(easterEggIndex), dlg.DPI()*4/3); err == nil { //TODO: calculate DPI dynamically
+			if icon, err := loadSystemIcon("moricons", int32(easterEggIndex), 128); err == nil {
 				iv.SetImage(icon)
 				easterEggIndex++
 			} else {
 				easterEggIndex = -1
-				if logo, err := loadLogoIcon(dlg.DPI() * 4 / 3); err == nil { //TODO: calculate DPI dynamically
+				if logo, err := loadLogoIcon(128); err == nil {
 					iv.SetImage(logo)
 				}
 			}
 		}
 	})
-	if logo, err := loadLogoIcon(dlg.DPI() * 4 / 3); err == nil { //TODO: calculate DPI dynamically
+	if logo, err := loadLogoIcon(128); err == nil {
 		iv.SetImage(logo)
 	}
 
