@@ -181,7 +181,7 @@ type OsVersionInfo struct {
 	_                 byte
 }
 
-//sys rtlGetVersion(versionInfo *OsVersionInfo) (err error) [failretval!=0] = ntdll.RtlGetVersion
+//sys	rtlGetVersion(versionInfo *OsVersionInfo) (err error) [failretval!=0] = ntdll.RtlGetVersion
 
 func OsVersion() (versionInfo OsVersionInfo, err error) {
 	versionInfo.osVersionInfoSize = uint32(unsafe.Sizeof(versionInfo))

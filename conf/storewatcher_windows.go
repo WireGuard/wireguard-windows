@@ -22,8 +22,8 @@ const (
 	fncSECURITY    uint32 = 0x00000100
 )
 
-//sys findFirstChangeNotification(path *uint16, watchSubtree bool, filter uint32) (handle windows.Handle, err error) = kernel32.FindFirstChangeNotificationW
-//sys findNextChangeNotification(handle windows.Handle) (err error) = kernel32.FindNextChangeNotification
+//sys	findFirstChangeNotification(path *uint16, watchSubtree bool, filter uint32) (handle windows.Handle, err error) = kernel32.FindFirstChangeNotificationW
+//sys	findNextChangeNotification(handle windows.Handle) (err error) = kernel32.FindNextChangeNotification
 
 var haveStartedWatchingConfigDir bool
 

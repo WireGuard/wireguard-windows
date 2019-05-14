@@ -51,9 +51,9 @@ type WTS_SESSION_INFO struct {
 	State             uint32
 }
 
-//sys wtsQueryUserToken(session uint32, token *windows.Token) (err error) = wtsapi32.WTSQueryUserToken
-//sys wtsEnumerateSessions(handle windows.Handle, reserved uint32, version uint32, sessions **WTS_SESSION_INFO, count *uint32) (err error) = wtsapi32.WTSEnumerateSessionsW
-//sys wtsFreeMemory(ptr uintptr) = wtsapi32.WTSFreeMemory
+//sys	wtsQueryUserToken(session uint32, token *windows.Token) (err error) = wtsapi32.WTSQueryUserToken
+//sys	wtsEnumerateSessions(handle windows.Handle, reserved uint32, version uint32, sessions **WTS_SESSION_INFO, count *uint32) (err error) = wtsapi32.WTSEnumerateSessionsW
+//sys	wtsFreeMemory(ptr uintptr) = wtsapi32.WTSFreeMemory
 
 const (
 	SE_GROUP_ENABLED           = 0x00000004
