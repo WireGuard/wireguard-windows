@@ -1689,6 +1689,7 @@ var (
 	getScrollInfo               *windows.LazyProc
 	getSysColor                 *windows.LazyProc
 	getSysColorBrush            *windows.LazyProc
+	getSystemMenu               *windows.LazyProc
 	getSystemMetrics            *windows.LazyProc
 	getSystemMetricsForDpi      *windows.LazyProc
 	getWindow                   *windows.LazyProc
@@ -1825,6 +1826,7 @@ func init() {
 	getScrollInfo = libuser32.NewProc("GetScrollInfo")
 	getSysColor = libuser32.NewProc("GetSysColor")
 	getSysColorBrush = libuser32.NewProc("GetSysColorBrush")
+	getSystemMenu = libuser32.NewProc("GetSystemMenu")
 	getSystemMetrics = libuser32.NewProc("GetSystemMetrics")
 	getSystemMetricsForDpi = libuser32.NewProc("GetSystemMetricsForDpi")
 	getWindow = libuser32.NewProc("GetWindow")
@@ -2487,6 +2489,14 @@ func GetSysColorBrush(nIndex int) HBRUSH {
 		0)
 
 	return HBRUSH(ret)
+}
+
+func GetSystemMenu(hWnd HWND, revert bool) HMENU {
+	ret, _, _ := syscall.Syscall(getSystemMenu.Addr(), 2,
+		uintptr(hWnd),
+		uintptr(BoolToBOOL(revert)),
+		0)
+	return HMENU(ret)
 }
 
 func GetSystemMetrics(nIndex int32) int32 {
