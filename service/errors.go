@@ -30,6 +30,7 @@ const (
 	ErrorOpenNULFile
 	ErrorTrackTunnels
 	ErrorEnumerateSessions
+	ErrorDropPrivileges
 	ErrorWin32
 )
 
@@ -65,6 +66,8 @@ func (e Error) Error() string {
 		return "Unable to track existing tunnels"
 	case ErrorEnumerateSessions:
 		return "Unable to enumerate current sessions"
+	case ErrorDropPrivileges:
+		return "Unable to drop privileges"
 	case ErrorWin32:
 		return "An internal Windows error has occurred"
 	default:

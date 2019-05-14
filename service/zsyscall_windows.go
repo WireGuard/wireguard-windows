@@ -44,6 +44,8 @@ var (
 	procWTSQueryUserToken          = modwtsapi32.NewProc("WTSQueryUserToken")
 	procWTSEnumerateSessionsW      = modwtsapi32.NewProc("WTSEnumerateSessionsW")
 	procWTSFreeMemory              = modwtsapi32.NewProc("WTSFreeMemory")
+	procAdjustTokenPrivileges      = modadvapi32.NewProc("AdjustTokenPrivileges")
+	procOpenProcessToken           = modadvapi32.NewProc("OpenProcessToken")
 	procNotifyServiceStatusChangeW = modadvapi32.NewProc("NotifyServiceStatusChangeW")
 	procSleepEx                    = modkernel32.NewProc("SleepEx")
 )
@@ -74,6 +76,36 @@ func wtsEnumerateSessions(handle windows.Handle, reserved uint32, version uint32
 
 func wtsFreeMemory(ptr uintptr) {
 	syscall.Syscall(procWTSFreeMemory.Addr(), 1, uintptr(ptr), 0, 0)
+	return
+}
+
+func adjustTokenPrivileges(token windows.Token, disableAllPrivileges bool, newstate *TOKEN_PRIVILEGES, buflen uint32, prevstate *TOKEN_PRIVILEGES, returnlen *uint32) (err error) {
+	var _p0 uint32
+	if disableAllPrivileges {
+		_p0 = 1
+	} else {
+		_p0 = 0
+	}
+	r1, _, e1 := syscall.Syscall6(procAdjustTokenPrivileges.Addr(), 6, uintptr(token), uintptr(_p0), uintptr(unsafe.Pointer(newstate)), uintptr(buflen), uintptr(unsafe.Pointer(prevstate)), uintptr(unsafe.Pointer(returnlen)))
+	if r1 == 0 {
+		if e1 != 0 {
+			err = errnoErr(e1)
+		} else {
+			err = syscall.EINVAL
+		}
+	}
+	return
+}
+
+func openProcessToken(processHandle windows.Handle, accessFlags uint32, token *windows.Token) (err error) {
+	r1, _, e1 := syscall.Syscall(procOpenProcessToken.Addr(), 3, uintptr(processHandle), uintptr(accessFlags), uintptr(unsafe.Pointer(token)))
+	if r1 == 0 {
+		if e1 != 0 {
+			err = errnoErr(e1)
+		} else {
+			err = syscall.EINVAL
+		}
+	}
 	return
 }
 
