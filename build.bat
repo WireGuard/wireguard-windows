@@ -34,7 +34,7 @@ if exist .deps\prepared goto :render
 	set GOPATH=%STARTDIR%\.deps\gopath
 	set GOROOT=%STARTDIR%\.deps\go
 	set CGO_ENABLED=1
-	set CGO_CFLAGS=-O3 -Wall -Wno-switch -std=gnu11 -DWINVER=0x0601
+	set CGO_CFLAGS=-O3 -Wall -Wno-unused-function -Wno-switch -std=gnu11 -DWINVER=0x0601
 	call :build_plat x86 i686 386 || goto :error
 	call :build_plat amd64 x86_64 amd64 || goto :error
 
