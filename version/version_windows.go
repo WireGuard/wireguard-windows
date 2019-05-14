@@ -16,9 +16,9 @@ import (
 	"golang.org/x/sys/windows"
 )
 
-//sys GetFileVersionInfoSize(filename *uint16, zero *uint32) (size uint32, err error) = version.GetFileVersionInfoSizeW
-//sys GetFileVersionInfo(filename *uint16, zero uint32, size uint32, block *byte) (err error) = version.GetFileVersionInfoW
-//sys VerQueryValue(block *byte, section *uint16, value **byte, size *uint32) (err error) = version.VerQueryValueW
+//sys	GetFileVersionInfoSize(filename *uint16, zero *uint32) (size uint32, err error) = version.GetFileVersionInfoSizeW
+//sys	GetFileVersionInfo(filename *uint16, zero uint32, size uint32, block *byte) (err error) = version.GetFileVersionInfoW
+//sys	VerQueryValue(block *byte, section *uint16, value **byte, size *uint32) (err error) = version.VerQueryValueW
 
 type vsFixedFileInfo struct {
 	Signature        uint32

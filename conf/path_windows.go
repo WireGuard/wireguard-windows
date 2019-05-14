@@ -14,8 +14,8 @@ import (
 	"golang.org/x/sys/windows"
 )
 
-//sys coTaskMemFree(pointer uintptr) = ole32.CoTaskMemFree
-//sys shGetKnownFolderPath(id *windows.GUID, flags uint32, token windows.Handle, path **uint16) (err error) [failretval!=0] = shell32.SHGetKnownFolderPath
+//sys	coTaskMemFree(pointer uintptr) = ole32.CoTaskMemFree
+//sys	shGetKnownFolderPath(id *windows.GUID, flags uint32, token windows.Handle, path **uint16) (err error) [failretval!=0] = shell32.SHGetKnownFolderPath
 var folderIDLocalAppData = windows.GUID{0xf1b32785, 0x6fba, 0x4fcf, [8]byte{0x9d, 0x55, 0x7b, 0x8e, 0x7f, 0x15, 0x70, 0x91}}
 
 const kfFlagCreate = 0x00008000

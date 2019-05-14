@@ -19,8 +19,8 @@ import (
 	"golang.zx2c4.com/wireguard/windows/conf"
 )
 
-//sys notifyServiceStatusChange(service windows.Handle, notifyMask uint32, notifier *SERVICE_NOTIFY) (ret error) = advapi32.NotifyServiceStatusChangeW
-//sys sleepEx(milliseconds uint32, alertable bool) (ret uint32) = kernel32.SleepEx
+//sys	notifyServiceStatusChange(service windows.Handle, notifyMask uint32, notifier *SERVICE_NOTIFY) (ret error) = advapi32.NotifyServiceStatusChangeW
+//sys	sleepEx(milliseconds uint32, alertable bool) (ret uint32) = kernel32.SleepEx
 
 const (
 	SERVICE_NOTIFY_STATUS_CHANGE    = 2

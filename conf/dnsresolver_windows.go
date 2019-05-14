@@ -16,8 +16,8 @@ import (
 	"golang.org/x/sys/windows"
 )
 
-//sys internetGetConnectedState(flags *uint32, reserved uint32) (connected bool) = wininet.InternetGetConnectedState
-//sys getTickCount64() (ms uint64) = kernel32.GetTickCount64
+//sys	internetGetConnectedState(flags *uint32, reserved uint32) (connected bool) = wininet.InternetGetConnectedState
+//sys	getTickCount64() (ms uint64) = kernel32.GetTickCount64
 
 func resolveHostname(name string) (resolvedIpString string, err error) {
 	const maxTries = 10

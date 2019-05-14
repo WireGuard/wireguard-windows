@@ -113,4 +113,4 @@ type CertStrongSignPara struct {
 	InfoOrSerializedInfoOrOID uintptr
 }
 
-//sys WinVerifyTrust(hWnd windows.Handle, actionId *windows.GUID, data *WinTrustData) (err error) [r1 != 0] = wintrust.WinVerifyTrust
+//sys	WinVerifyTrust(hWnd windows.Handle, actionId *windows.GUID, data *WinTrustData) (err error) [r1 != 0] = wintrust.WinVerifyTrust

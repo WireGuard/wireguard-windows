@@ -19,7 +19,7 @@ const (
 	CERT_QUERY_FORMAT_FLAG_ALL                 = 14
 )
 
-//sys CryptQueryObject(objectType uint32, object uintptr, expectedContentTypeFlags uint32, expectedFormatTypeFlags uint32, flags uint32, msgAndCertEncodingType *uint32, contentType *uint32, formatType *uint32, certStore *windows.Handle, msg *windows.Handle, context *uintptr) (err error) = crypt32.CryptQueryObject
+//sys	CryptQueryObject(objectType uint32, object uintptr, expectedContentTypeFlags uint32, expectedFormatTypeFlags uint32, flags uint32, msgAndCertEncodingType *uint32, contentType *uint32, formatType *uint32, certStore *windows.Handle, msg *windows.Handle, context *uintptr) (err error) = crypt32.CryptQueryObject
 
 func ExtractCertificates(path string) ([]x509.Certificate, error) {
 	path16, err := windows.UTF16PtrFromString(path)

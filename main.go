@@ -32,8 +32,8 @@ var flags = [...]string{
 	"/dumplog OUTPUT_PATH",
 }
 
-//sys messageBoxEx(hwnd windows.Handle, text *uint16, title *uint16, typ uint, languageId uint16) = user32.MessageBoxExW
-//sys isWow64Process(handle windows.Handle, isWow64 *bool) (err error) = kernel32.IsWow64Process
+//sys	messageBoxEx(hwnd windows.Handle, text *uint16, title *uint16, typ uint, languageId uint16) = user32.MessageBoxExW
+//sys	isWow64Process(handle windows.Handle, isWow64 *bool) (err error) = kernel32.IsWow64Process
 
 func fatal(v ...interface{}) {
 	messageBoxEx(0, windows.StringToUTF16Ptr(fmt.Sprint(v...)), windows.StringToUTF16Ptr("Error"), 0x00000010, 0)
@@ -90,7 +90,7 @@ func checkForAdminGroup() {
 	}
 }
 
-//sys shellExecute(hwnd windows.Handle, verb *uint16, file *uint16, args *uint16, cwd *uint16, showCmd int) (err error) = shell32.ShellExecuteW
+//sys	shellExecute(hwnd windows.Handle, verb *uint16, file *uint16, args *uint16, cwd *uint16, showCmd int) (err error) = shell32.ShellExecuteW
 func execElevatedManagerServiceInstaller() error {
 	path, err := os.Executable()
 	if err != nil {
