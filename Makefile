@@ -3,7 +3,7 @@ export CGO_ENABLED := 1
 export CGO_CFLAGS := -O3 -Wall -Wno-switch -std=gnu11 -DWINVER=0x0601
 export GOOS := windows
 OLD_GOROOT := $(GOROOT)
-export GOROOT := $(PWD)/.deps/goroot
+export GOROOT := $(CURDIR)/.deps/goroot
 
 rwildcard=$(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subst *,%,$2),$d))
 SOURCE_FILES := $(call rwildcard,,*.go *.c *.h) .deps/prepared
