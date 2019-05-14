@@ -1,6 +1,6 @@
 GOFLAGS := -ldflags="-H windowsgui -s -w" -v
 export CGO_ENABLED := 1
-export CGO_CFLAGS := -O3 -Wall -Wno-switch -std=gnu11 -DWINVER=0x0601
+export CGO_CFLAGS := -O3 -Wall -Wno-unused-function -Wno-switch -std=gnu11 -DWINVER=0x0601
 export GOOS := windows
 OLD_GOROOT := $(GOROOT)
 export GOROOT := $(CURDIR)/.deps/goroot
