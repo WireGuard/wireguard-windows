@@ -108,22 +108,7 @@ func (lsl *labelStatusLine) update(state service.TunnelState) {
 	}
 	lsl.statusImage.SetImage(img)
 	s, e := lsl.statusLabel.TextSelection()
-	switch state {
-	case service.TunnelStarted:
-		lsl.statusLabel.SetText("Active")
-
-	case service.TunnelStarting:
-		lsl.statusLabel.SetText("Activating")
-
-	case service.TunnelStopped:
-		lsl.statusLabel.SetText("Inactive")
-
-	case service.TunnelStopping:
-		lsl.statusLabel.SetText("Deactivating")
-
-	case service.TunnelUnknown:
-		lsl.statusLabel.SetText("Unknown state")
-	}
+	lsl.statusLabel.SetText(textForState(state, false))
 	lsl.statusLabel.SetTextSelection(s, e)
 }
 
@@ -208,16 +193,10 @@ func (tal *toggleActiveLine) update(state service.TunnelState) {
 	switch state {
 	case service.TunnelStarted:
 		text = "Deactivate"
-
-	case service.TunnelStarting:
-		text = "Activating..."
-
 	case service.TunnelStopped:
 		text = "Activate"
-
-	case service.TunnelStopping:
-		text = "Deactivating..."
-
+	case service.TunnelStarting, service.TunnelStopping:
+		text = textForState(state, true)
 	default:
 		text = ""
 	}

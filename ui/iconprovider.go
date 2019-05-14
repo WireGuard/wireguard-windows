@@ -101,6 +101,28 @@ func iconForState(state service.TunnelState, size int) (icon *walk.Icon, err err
 	return
 }
 
+func textForState(state service.TunnelState, withEllipsis bool) (text string) {
+	switch state {
+	case service.TunnelStarted:
+		text = "Active"
+	case service.TunnelStarting:
+		text = "Activating"
+	case service.TunnelStopped:
+		text = "Inactive"
+	case service.TunnelStopping:
+		text = "Deactivating"
+	case service.TunnelUnknown:
+		text = "Unknown state"
+	}
+	if withEllipsis {
+		switch state {
+		case service.TunnelStarting, service.TunnelStopping:
+			text += "..."
+		}
+	}
+	return
+}
+
 var cachedSystemIconsForWidthAndDllIdx = make(map[widthAndDllIdx]*walk.Icon)
 
 func loadSystemIcon(dll string, index int32, size int) (icon *walk.Icon, err error) {
