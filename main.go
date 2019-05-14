@@ -8,13 +8,12 @@ package main
 import (
 	"fmt"
 	"os"
-	"runtime"
 	"strconv"
 	"strings"
 	"time"
-	"unsafe"
 
 	"golang.org/x/sys/windows"
+
 	"golang.zx2c4.com/wireguard/windows/ringlogger"
 	"golang.zx2c4.com/wireguard/windows/service"
 	"golang.zx2c4.com/wireguard/windows/ui"
@@ -64,28 +63,12 @@ func checkForWow64() {
 
 func checkForAdminGroup() {
 	// This is not a security check, but rather a user-confusion one.
-	adminSid, err := windows.CreateWellKnownSid(windows.WinBuiltinAdministratorsSid)
-	if err != nil {
-		fatal("Unable to create well-known SID for Builtin Administrators: ", err)
-	}
-	token, err := windows.OpenCurrentProcessToken()
+	processToken, err := windows.OpenCurrentProcessToken()
 	if err != nil {
 		fatal("Unable to open current process token: ", err)
 	}
-	gs, err := token.GetTokenGroups()
-	if err != nil {
-		fatal("Unable to get groups of current process token: ", err)
-	}
-	groups := (*[(1 << 28) - 1]windows.SIDAndAttributes)(unsafe.Pointer(&gs.Groups[0]))[:gs.GroupCount]
-	isAdmin := false
-	for _, g := range groups {
-		if windows.EqualSid(g.Sid, adminSid) {
-			isAdmin = true
-			break
-		}
-	}
-	runtime.KeepAlive(gs)
-	if !isAdmin {
+	defer processToken.Close()
+	if !service.TokenIsMemberOfBuiltInAdministrator(processToken) {
 		fatal("WireGuard may only be used by users who are a member of the Builtin Administrators group.")
 	}
 }

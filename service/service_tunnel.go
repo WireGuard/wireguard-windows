@@ -150,6 +150,13 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 		return
 	}
 
+	logger.Info.Println("Dropping all privileges")
+	err = dropAllPrivileges()
+	if err != nil {
+		serviceError = ErrorDropPrivileges
+		return
+	}
+
 	logger.Info.Println("Creating interface instance")
 	dev = device.NewDevice(wintun, logger)
 
@@ -193,13 +200,6 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 			go dev.IpcHandle(conn)
 		}
 	}()
-
-	logger.Info.Println("Dropping all privileges")
-	err = dropAllPrivileges()
-	if err != nil {
-		serviceError = ErrorDropPrivileges
-		return
-	}
 
 	changes <- svc.Status{State: svc.Running, Accepts: svc.AcceptStop}
 	logger.Info.Println("Startup complete")

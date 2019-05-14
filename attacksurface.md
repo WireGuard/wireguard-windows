@@ -19,7 +19,7 @@ The tunnel service is a userspace service running as Local System, responsible f
   - A listening pipe in `\\.\pipe\WireGuard\%s`, where `%s` is some basename of an already valid filename. Its permissions are set to `O:SYD:(A;;GA;;;SY)`, which presumably means only the "Local System" user can access it and do things, but it might be worth double checking that. This pipe gives access to private keys and allows for reconfiguration of the interface, as well as rebinding to different ports (below 1024, even).
   - It handles data from its two UDP sockets, accessible to the public Internet.
   - It handles data from Wintun, accessible to all users who can do anything with the network stack.
-  - It does not yet drop privileges.
+  - After some initial setup, it uses `AdjustTokenPrivileges` to remove all privileges.
 
 ### Manager Service
 
