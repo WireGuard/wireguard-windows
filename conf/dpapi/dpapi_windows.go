@@ -7,9 +7,10 @@ package dpapi
 
 import (
 	"errors"
-	"golang.org/x/sys/windows"
 	"runtime"
 	"unsafe"
+
+	"golang.org/x/sys/windows"
 )
 
 const (

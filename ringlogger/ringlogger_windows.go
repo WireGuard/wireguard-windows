@@ -8,7 +8,6 @@ package ringlogger
 import (
 	"bytes"
 	"fmt"
-	"golang.org/x/sys/windows"
 	"io"
 	"os"
 	"runtime"
@@ -16,6 +15,8 @@ import (
 	"sync/atomic"
 	"time"
 	"unsafe"
+
+	"golang.org/x/sys/windows"
 )
 
 const (

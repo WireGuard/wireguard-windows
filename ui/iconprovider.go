@@ -7,12 +7,13 @@ package ui
 
 import (
 	"fmt"
+	"path"
+	"syscall"
+
 	"github.com/lxn/walk"
 	"github.com/lxn/win"
 	"golang.org/x/sys/windows"
 	"golang.zx2c4.com/wireguard/windows/service"
-	"path"
-	"syscall"
 )
 
 type widthAndState struct {

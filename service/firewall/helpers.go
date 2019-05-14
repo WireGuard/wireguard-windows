@@ -7,11 +7,12 @@ package firewall
 
 import (
 	"fmt"
-	"golang.org/x/sys/windows"
 	"os"
 	"runtime"
 	"syscall"
 	"unsafe"
+
+	"golang.org/x/sys/windows"
 )
 
 func runTransaction(session uintptr, operation wfpObjectInstaller) error {

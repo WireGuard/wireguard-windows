@@ -7,9 +7,10 @@ package wintrust
 
 import (
 	"crypto/x509"
-	"golang.org/x/sys/windows"
 	"syscall"
 	"unsafe"
+
+	"golang.org/x/sys/windows"
 )
 
 const (

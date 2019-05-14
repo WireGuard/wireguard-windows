@@ -9,13 +9,6 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"golang.org/x/sys/windows/svc"
-	"golang.zx2c4.com/winipcfg"
-	"golang.zx2c4.com/wireguard/device"
-	"golang.zx2c4.com/wireguard/ipc"
-	"golang.zx2c4.com/wireguard/tun"
-	"golang.zx2c4.com/wireguard/windows/conf"
-	"golang.zx2c4.com/wireguard/windows/ringlogger"
 	"log"
 	"net"
 	"os"
@@ -23,6 +16,14 @@ import (
 	"runtime/debug"
 	"strings"
 	"time"
+
+	"golang.org/x/sys/windows/svc"
+	"golang.zx2c4.com/winipcfg"
+	"golang.zx2c4.com/wireguard/device"
+	"golang.zx2c4.com/wireguard/ipc"
+	"golang.zx2c4.com/wireguard/tun"
+	"golang.zx2c4.com/wireguard/windows/conf"
+	"golang.zx2c4.com/wireguard/windows/ringlogger"
 )
 
 type tunnelService struct {

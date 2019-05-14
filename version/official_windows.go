@@ -6,10 +6,11 @@
 package version
 
 import (
-	"golang.org/x/sys/windows"
-	"golang.zx2c4.com/wireguard/windows/version/wintrust"
 	"os"
 	"unsafe"
+
+	"golang.org/x/sys/windows"
+	"golang.zx2c4.com/wireguard/windows/version/wintrust"
 )
 
 const (

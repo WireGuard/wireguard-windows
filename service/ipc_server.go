@@ -9,11 +9,6 @@ import (
 	"bytes"
 	"encoding/gob"
 	"fmt"
-	"github.com/Microsoft/go-winio"
-	"golang.org/x/sys/windows"
-	"golang.org/x/sys/windows/svc"
-	"golang.zx2c4.com/wireguard/windows/conf"
-	"golang.zx2c4.com/wireguard/windows/updater"
 	"io/ioutil"
 	"log"
 	"net/rpc"
@@ -22,6 +17,12 @@ import (
 	"sync/atomic"
 	"syscall"
 	"time"
+
+	"github.com/Microsoft/go-winio"
+	"golang.org/x/sys/windows"
+	"golang.org/x/sys/windows/svc"
+	"golang.zx2c4.com/wireguard/windows/conf"
+	"golang.zx2c4.com/wireguard/windows/updater"
 )
 
 var managerServices = make(map[*ManagerService]bool)

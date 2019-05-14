@@ -6,12 +6,13 @@
 package ringlogger
 
 import (
-	"golang.org/x/sys/windows"
-	"golang.org/x/sys/windows/registry"
-	"golang.zx2c4.com/wireguard/windows/conf"
 	"io"
 	"os"
 	"path"
+
+	"golang.org/x/sys/windows"
+	"golang.org/x/sys/windows/registry"
+	"golang.zx2c4.com/wireguard/windows/conf"
 )
 
 func DumpTo(out io.Writer, localSystem bool) error {

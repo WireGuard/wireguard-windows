@@ -7,9 +7,10 @@ package dpapi
 
 import (
 	"bytes"
-	"golang.org/x/sys/windows"
 	"testing"
 	"unsafe"
+
+	"golang.org/x/sys/windows"
 )
 
 func TestRoundTrip(t *testing.T) {

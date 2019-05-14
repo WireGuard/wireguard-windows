@@ -6,9 +6,10 @@
 package service
 
 import (
-	"golang.org/x/sys/windows"
 	"os"
 	"strconv"
+
+	"golang.org/x/sys/windows"
 )
 
 type pipeRWC struct {

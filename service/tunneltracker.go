@@ -7,15 +7,16 @@ package service
 
 import (
 	"fmt"
-	"golang.org/x/sys/windows"
-	"golang.org/x/sys/windows/svc"
-	"golang.org/x/sys/windows/svc/mgr"
-	"golang.zx2c4.com/wireguard/windows/conf"
 	"log"
 	"runtime"
 	"sync"
 	"syscall"
 	"time"
+
+	"golang.org/x/sys/windows"
+	"golang.org/x/sys/windows/svc"
+	"golang.org/x/sys/windows/svc/mgr"
+	"golang.zx2c4.com/wireguard/windows/conf"
 )
 
 //sys notifyServiceStatusChange(service windows.Handle, notifyMask uint32, notifier *SERVICE_NOTIFY) (ret error) = advapi32.NotifyServiceStatusChangeW

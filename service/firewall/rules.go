@@ -8,11 +8,12 @@ package firewall
 import (
 	"encoding/binary"
 	"errors"
-	"golang.org/x/sys/windows"
-	"golang.zx2c4.com/wireguard/windows/version"
 	"net"
 	"runtime"
 	"unsafe"
+
+	"golang.org/x/sys/windows"
+	"golang.zx2c4.com/wireguard/windows/version"
 )
 
 //

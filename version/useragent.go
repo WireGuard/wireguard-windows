@@ -7,8 +7,9 @@ package version
 
 import (
 	"fmt"
-	"golang.zx2c4.com/wireguard/device"
 	"runtime"
+
+	"golang.zx2c4.com/wireguard/device"
 )
 
 func UserAgent() string {

@@ -9,14 +9,15 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"errors"
-	"github.com/Microsoft/go-winio"
-	"golang.org/x/sys/windows"
 	"os"
 	"os/exec"
 	"path"
 	"runtime"
 	"syscall"
 	"unsafe"
+
+	"github.com/Microsoft/go-winio"
+	"golang.org/x/sys/windows"
 )
 
 func runMsi(msiPath string, userToken uintptr) error {

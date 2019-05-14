@@ -7,6 +7,7 @@ package ui
 
 import (
 	"fmt"
+
 	"github.com/lxn/walk"
 	"golang.zx2c4.com/wireguard/windows/service"
 	"golang.zx2c4.com/wireguard/windows/updater"

@@ -8,15 +8,16 @@ package ui
 import (
 	"archive/zip"
 	"fmt"
-	"github.com/lxn/walk"
-	"github.com/lxn/win"
-	"golang.zx2c4.com/wireguard/windows/conf"
-	"golang.zx2c4.com/wireguard/windows/service"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
+
+	"github.com/lxn/walk"
+	"github.com/lxn/win"
+	"golang.zx2c4.com/wireguard/windows/conf"
+	"golang.zx2c4.com/wireguard/windows/service"
 )
 
 type TunnelsPage struct {

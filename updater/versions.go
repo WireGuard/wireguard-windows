@@ -8,10 +8,11 @@ package updater
 import (
 	"errors"
 	"fmt"
-	"golang.zx2c4.com/wireguard/windows/version"
 	"runtime"
 	"strconv"
 	"strings"
+
+	"golang.zx2c4.com/wireguard/windows/version"
 )
 
 func versionNewerThanUs(candidate string) (bool, error) {

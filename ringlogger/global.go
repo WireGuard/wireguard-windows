@@ -6,9 +6,10 @@
 package ringlogger
 
 import (
-	"golang.zx2c4.com/wireguard/windows/conf"
 	"log"
 	"path"
+
+	"golang.zx2c4.com/wireguard/windows/conf"
 )
 
 var Global *Ringlogger
