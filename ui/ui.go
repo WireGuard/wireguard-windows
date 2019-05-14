@@ -37,8 +37,6 @@ func RunUI() {
 		tray *Tray
 	)
 
-	noTrayAvailable = version.OsIsCore()
-
 	for mtw == nil {
 		mtw, err = NewManageTunnelsWindow()
 		if err != nil {
@@ -46,9 +44,13 @@ func RunUI() {
 		}
 	}
 
-	for tray == nil && !noTrayAvailable {
+	for tray == nil {
 		tray, err = NewTray(mtw)
 		if err != nil {
+			if version.OsIsCore() {
+				noTrayAvailable = true
+				break
+			}
 			time.Sleep(time.Millisecond * 400)
 		}
 	}
