@@ -233,7 +233,7 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 		cap  int
 	}{sessionsPointer, int(count), int(count)}))
 	for _, session := range sessions {
-		if session.State != WTSActive {
+		if session.State != WTSActive && session.State != WTSDisconnected {
 			continue
 		}
 		procsLock.Lock()
