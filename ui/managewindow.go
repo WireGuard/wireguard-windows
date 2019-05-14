@@ -6,8 +6,12 @@
 package ui
 
 import (
+	"unsafe"
+
 	"github.com/lxn/walk"
 	"github.com/lxn/win"
+	"golang.org/x/sys/windows"
+
 	"golang.zx2c4.com/wireguard/windows/service"
 )
 
@@ -25,6 +29,7 @@ type ManageTunnelsWindow struct {
 const (
 	manageWindowWindowClass = "WireGuard UI - Manage Tunnels"
 	raiseMsg                = win.WM_USER + 0x3510
+	aboutWireGuardCmd       = 0x37
 )
 
 func init() {
@@ -95,6 +100,23 @@ func NewManageTunnelsWindow() (*ManageTunnelsWindow, error) {
 	globalState, _ := service.IPCClientGlobalState()
 	mtw.onTunnelChange(nil, service.TunnelUnknown, globalState, nil)
 
+	systemMenu := win.GetSystemMenu(mtw.Handle(), false)
+	if systemMenu != 0 {
+		win.InsertMenuItem(systemMenu, 0, true, &win.MENUITEMINFO{
+			CbSize:     uint32(unsafe.Sizeof(win.MENUITEMINFO{})),
+			FMask:      win.MIIM_ID | win.MIIM_STRING | win.MIIM_FTYPE,
+			FType:      win.MIIM_STRING,
+			DwTypeData: windows.StringToUTF16Ptr("About WireGuard..."),
+			WID:        uint32(aboutWireGuardCmd),
+		})
+		win.InsertMenuItem(systemMenu, 1, true, &win.MENUITEMINFO{
+			CbSize: uint32(unsafe.Sizeof(win.MENUITEMINFO{})),
+			FMask:  win.MIIM_TYPE,
+			FType:  win.MFT_SEPARATOR,
+		})
+		win.CloseHandle(win.HANDLE(systemMenu))
+	}
+
 	return mtw, nil
 }
 
@@ -154,6 +176,11 @@ func (mtw *ManageTunnelsWindow) WndProc(hwnd win.HWND, msg uint32, wParam, lPara
 		if lParam == win.ENDSESSION_CLOSEAPP && wParam == 1 {
 			walk.App().Exit(198)
 		}
+	case win.WM_SYSCOMMAND:
+		if wParam == aboutWireGuardCmd {
+			onAbout(mtw)
+			return 0
+		}
 	case raiseMsg:
 		if !mtw.Visible() {
 			mtw.tunnelsPage.listView.SelectFirstActiveTunnel()
@@ -165,6 +192,7 @@ func (mtw *ManageTunnelsWindow) WndProc(hwnd win.HWND, msg uint32, wParam, lPara
 			mtw.tabs.SetCurrentIndex(2)
 		}
 		raise(mtw.Handle())
+		return 0
 	}
 
 	return mtw.FormBase.WndProc(hwnd, msg, wParam, lParam)
