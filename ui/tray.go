@@ -234,28 +234,23 @@ func (tray *Tray) updateGlobalState(globalState service.TunnelState) {
 		}
 	}
 
+	tray.SetToolTip(fmt.Sprintf("WireGuard: %s", textForState(globalState, true)))
+	statusAction.SetText(fmt.Sprintf("Status: %s", textForState(globalState, false)))
+
 	switch globalState {
 	case service.TunnelStarting:
-		statusAction.SetText("Status: Activating")
 		setTunnelActionsEnabled(false)
-		tray.SetToolTip("WireGuard: Activating...")
 
 	case service.TunnelStarted:
 		activeCIDRsAction.SetVisible(true)
-		statusAction.SetText("Status: Active")
 		setTunnelActionsEnabled(true)
-		tray.SetToolTip("WireGuard: Activated")
 
 	case service.TunnelStopping:
-		statusAction.SetText("Status: Deactivating")
 		setTunnelActionsEnabled(false)
-		tray.SetToolTip("WireGuard: Deactivating...")
 
 	case service.TunnelStopped:
 		activeCIDRsAction.SetVisible(false)
-		statusAction.SetText("Status: Inactive")
 		setTunnelActionsEnabled(true)
-		tray.SetToolTip("WireGuard: Deactivated")
 	}
 }
 
