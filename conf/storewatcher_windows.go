@@ -6,8 +6,9 @@
 package conf
 
 import (
-	"golang.org/x/sys/windows"
 	"log"
+
+	"golang.org/x/sys/windows"
 )
 
 const (

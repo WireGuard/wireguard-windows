@@ -7,10 +7,11 @@ package ui
 
 import (
 	"fmt"
-	"golang.zx2c4.com/wireguard/windows/conf"
 	"sort"
 	"strings"
 	"time"
+
+	"golang.zx2c4.com/wireguard/windows/conf"
 
 	"github.com/lxn/walk"
 	"golang.zx2c4.com/wireguard/windows/service"

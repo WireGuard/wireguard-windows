@@ -9,13 +9,14 @@ import (
 	"crypto/hmac"
 	"errors"
 	"fmt"
-	"golang.org/x/crypto/blake2b"
-	"golang.zx2c4.com/wireguard/windows/version"
 	"hash"
 	"io"
 	"net/http"
 	"os"
 	"sync/atomic"
+
+	"golang.org/x/crypto/blake2b"
+	"golang.zx2c4.com/wireguard/windows/version"
 )
 
 type DownloadProgress struct {

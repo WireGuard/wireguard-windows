@@ -7,10 +7,11 @@ package conf
 
 import (
 	"errors"
-	"golang.org/x/sys/windows"
 	"os"
 	"path/filepath"
 	"unsafe"
+
+	"golang.org/x/sys/windows"
 )
 
 //sys coTaskMemFree(pointer uintptr) = ole32.CoTaskMemFree

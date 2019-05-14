@@ -8,11 +8,12 @@ package version
 import (
 	"errors"
 	"fmt"
-	"golang.org/x/sys/windows"
 	"os"
 	"runtime"
 	"strings"
 	"unsafe"
+
+	"golang.org/x/sys/windows"
 )
 
 //sys GetFileVersionInfoSize(filename *uint16, zero *uint32) (size uint32, err error) = version.GetFileVersionInfoSizeW

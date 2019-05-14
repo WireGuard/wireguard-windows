@@ -7,13 +7,14 @@ package service
 
 import (
 	"errors"
+	"os"
+	"syscall"
+	"time"
+
 	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/svc"
 	"golang.org/x/sys/windows/svc/mgr"
 	"golang.zx2c4.com/wireguard/windows/conf"
-	"os"
-	"syscall"
-	"time"
 )
 
 var cachedServiceManager *mgr.Mgr

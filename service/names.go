@@ -7,6 +7,7 @@ package service
 
 import (
 	"errors"
+
 	"golang.zx2c4.com/wireguard/windows/conf"
 )
 

@@ -8,6 +8,7 @@ package version
 import (
 	"bytes"
 	"fmt"
+
 	"golang.org/x/sys/unix"
 )
 

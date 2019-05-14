@@ -7,8 +7,9 @@ package service
 
 import (
 	"fmt"
-	"golang.org/x/sys/windows"
 	"syscall"
+
+	"golang.org/x/sys/windows"
 )
 
 type Error uint32

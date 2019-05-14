@@ -6,10 +6,11 @@
 package service
 
 import (
-	"golang.zx2c4.com/wireguard/windows/updater"
-	"golang.zx2c4.com/wireguard/windows/version"
 	"log"
 	"time"
+
+	"golang.zx2c4.com/wireguard/windows/updater"
+	"golang.zx2c4.com/wireguard/windows/version"
 )
 
 type UpdateState uint32

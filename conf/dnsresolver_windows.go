@@ -7,12 +7,13 @@ package conf
 
 import (
 	"fmt"
-	"golang.org/x/sys/windows"
 	"log"
 	"net"
 	"syscall"
 	"time"
 	"unsafe"
+
+	"golang.org/x/sys/windows"
 )
 
 //sys internetGetConnectedState(flags *uint32, reserved uint32) (connected bool) = wininet.InternetGetConnectedState

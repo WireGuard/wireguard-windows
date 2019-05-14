@@ -7,16 +7,17 @@ package main
 
 import (
 	"fmt"
-	"golang.org/x/sys/windows"
-	"golang.zx2c4.com/wireguard/windows/ringlogger"
-	"golang.zx2c4.com/wireguard/windows/service"
-	"golang.zx2c4.com/wireguard/windows/ui"
 	"os"
 	"runtime"
 	"strconv"
 	"strings"
 	"time"
 	"unsafe"
+
+	"golang.org/x/sys/windows"
+	"golang.zx2c4.com/wireguard/windows/ringlogger"
+	"golang.zx2c4.com/wireguard/windows/service"
+	"golang.zx2c4.com/wireguard/windows/ui"
 )
 
 var flags = [...]string{

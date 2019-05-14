@@ -7,10 +7,6 @@ package service
 
 import (
 	"errors"
-	"golang.org/x/sys/windows"
-	"golang.org/x/sys/windows/svc"
-	"golang.zx2c4.com/wireguard/windows/conf"
-	"golang.zx2c4.com/wireguard/windows/ringlogger"
 	"log"
 	"os"
 	"runtime"
@@ -19,6 +15,11 @@ import (
 	"syscall"
 	"time"
 	"unsafe"
+
+	"golang.org/x/sys/windows"
+	"golang.org/x/sys/windows/svc"
+	"golang.zx2c4.com/wireguard/windows/conf"
+	"golang.zx2c4.com/wireguard/windows/ringlogger"
 )
 
 type managerService struct{}

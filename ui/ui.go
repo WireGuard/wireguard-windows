@@ -7,13 +7,14 @@ package ui
 
 import (
 	"fmt"
+	"runtime"
+	"runtime/debug"
+	"time"
+
 	"github.com/lxn/walk"
 	"github.com/lxn/win"
 	"golang.zx2c4.com/wireguard/windows/service"
 	"golang.zx2c4.com/wireguard/windows/version"
-	"runtime"
-	"runtime/debug"
-	"time"
 )
 
 var noTrayAvailable = false

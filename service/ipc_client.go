@@ -8,10 +8,11 @@ package service
 import (
 	"encoding/gob"
 	"errors"
-	"golang.zx2c4.com/wireguard/windows/conf"
-	"golang.zx2c4.com/wireguard/windows/updater"
 	"net/rpc"
 	"os"
+
+	"golang.zx2c4.com/wireguard/windows/conf"
+	"golang.zx2c4.com/wireguard/windows/updater"
 )
 
 type Tunnel struct {

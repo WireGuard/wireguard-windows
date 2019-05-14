@@ -7,8 +7,9 @@ package version
 
 import (
 	"fmt"
-	"golang.org/x/sys/windows/registry"
 	"unsafe"
+
+	"golang.org/x/sys/windows/registry"
 )
 
 const (

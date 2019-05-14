@@ -7,11 +7,12 @@ package conf
 
 import (
 	"errors"
-	"golang.zx2c4.com/wireguard/windows/conf/dpapi"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"golang.zx2c4.com/wireguard/windows/conf/dpapi"
 )
 
 const configFileSuffix = ".conf.dpapi"
