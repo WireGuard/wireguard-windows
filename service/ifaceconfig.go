@@ -33,6 +33,11 @@ func bindSocketRoute(family winipcfg.AddressFamily, device *device.Device, ourLu
 		if route.DestinationPrefix.PrefixLength != 0 || route.InterfaceLuid == ourLuid {
 			continue
 		}
+		ifrow, err := winipcfg.GetIfRow(route.InterfaceLuid, winipcfg.MibIfEntryNormalWithoutStatistics)
+		if err != nil || ifrow.OperStatus != winipcfg.IfOperStatusUp {
+			log.Printf("Found default route for interface %d, but not up, so skipping", route.InterfaceIndex)
+			continue
+		}
 		if route.Metric < lowestMetric {
 			lowestMetric = route.Metric
 			index = route.InterfaceIndex
