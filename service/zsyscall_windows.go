@@ -38,14 +38,10 @@ func errnoErr(e syscall.Errno) error {
 
 var (
 	modwtsapi32 = windows.NewLazySystemDLL("wtsapi32.dll")
-	modadvapi32 = windows.NewLazySystemDLL("advapi32.dll")
-	modkernel32 = windows.NewLazySystemDLL("kernel32.dll")
 
-	procWTSQueryUserToken          = modwtsapi32.NewProc("WTSQueryUserToken")
-	procWTSEnumerateSessionsW      = modwtsapi32.NewProc("WTSEnumerateSessionsW")
-	procWTSFreeMemory              = modwtsapi32.NewProc("WTSFreeMemory")
-	procNotifyServiceStatusChangeW = modadvapi32.NewProc("NotifyServiceStatusChangeW")
-	procSleepEx                    = modkernel32.NewProc("SleepEx")
+	procWTSQueryUserToken     = modwtsapi32.NewProc("WTSQueryUserToken")
+	procWTSEnumerateSessionsW = modwtsapi32.NewProc("WTSEnumerateSessionsW")
+	procWTSFreeMemory         = modwtsapi32.NewProc("WTSFreeMemory")
 )
 
 func wtsQueryUserToken(session uint32, token *windows.Token) (err error) {
@@ -74,25 +70,5 @@ func wtsEnumerateSessions(handle windows.Handle, reserved uint32, version uint32
 
 func wtsFreeMemory(ptr uintptr) {
 	syscall.Syscall(procWTSFreeMemory.Addr(), 1, uintptr(ptr), 0, 0)
-	return
-}
-
-func notifyServiceStatusChange(service windows.Handle, notifyMask uint32, notifier *SERVICE_NOTIFY) (ret error) {
-	r0, _, _ := syscall.Syscall(procNotifyServiceStatusChangeW.Addr(), 3, uintptr(service), uintptr(notifyMask), uintptr(unsafe.Pointer(notifier)))
-	if r0 != 0 {
-		ret = syscall.Errno(r0)
-	}
-	return
-}
-
-func sleepEx(milliseconds uint32, alertable bool) (ret uint32) {
-	var _p0 uint32
-	if alertable {
-		_p0 = 1
-	} else {
-		_p0 = 0
-	}
-	r0, _, _ := syscall.Syscall(procSleepEx.Addr(), 2, uintptr(milliseconds), uintptr(_p0), 0)
-	ret = uint32(r0)
 	return
 }
