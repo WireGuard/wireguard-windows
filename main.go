@@ -171,6 +171,10 @@ func main() {
 		if len(os.Args) != 6 {
 			usage()
 		}
+		err := service.DropAllPrivileges()
+		if err != nil {
+			fatal(err)
+		}
 		readPipe, err := pipeFromHandleArgument(os.Args[2])
 		if err != nil {
 			fatal(err)

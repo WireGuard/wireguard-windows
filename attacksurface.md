@@ -36,6 +36,7 @@ The manager service is a userspace service running as Local System, responsible 
 The UI is a process running for each user who is in the Administrators group (per the above), running with the elevated high integrity linked token. It exposes:
 
   - Since the UI process is executed with an elevated token, it runs at high integrity and should be immune to various shatter attacks, modulo the great variety of clever bypasses in the latest Windows release.
+  - It uses `AdjustTokenPrivileges` to remove all privileges.
   - It renders highlighted config files to a msftedit.dll control, which typically is capable of all sorts of OLE and RTF nastiness that we make some attempt to avoid.
 
 ### Updates
