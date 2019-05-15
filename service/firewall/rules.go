@@ -173,6 +173,7 @@ func permitWireGuardService(session uintptr, baseObjects *baseObjects, weight ui
 		providerKey:         &baseObjects.provider,
 		subLayerKey:         baseObjects.filters,
 		weight:              filterWeight(weight),
+		flags:               cFWPM_FILTER_FLAG_CLEAR_ACTION_RIGHT,
 		numFilterConditions: uint32(len(conditions)),
 		filterCondition:     (*wtFwpmFilterCondition0)(unsafe.Pointer(&conditions)),
 		action: wtFwpmAction0{
