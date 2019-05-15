@@ -87,7 +87,7 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 		}()
 
 		var userToken windows.Token
-		err := wtsQueryUserToken(session, &userToken)
+		err := windows.WTSQueryUserToken(session, &userToken)
 		if err != nil {
 			return
 		}
@@ -220,20 +220,20 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 
 	go checkForUpdates()
 
-	var sessionsPointer *WTS_SESSION_INFO
+	var sessionsPointer *windows.WTS_SESSION_INFO
 	var count uint32
-	err = wtsEnumerateSessions(0, 0, 1, &sessionsPointer, &count)
+	err = windows.WTSEnumerateSessions(0, 0, 1, &sessionsPointer, &count)
 	if err != nil {
 		serviceError = ErrorEnumerateSessions
 		return
 	}
-	sessions := *(*[]WTS_SESSION_INFO)(unsafe.Pointer(&struct {
-		addr *WTS_SESSION_INFO
+	sessions := *(*[]windows.WTS_SESSION_INFO)(unsafe.Pointer(&struct {
+		addr *windows.WTS_SESSION_INFO
 		len  int
 		cap  int
 	}{sessionsPointer, int(count), int(count)}))
 	for _, session := range sessions {
-		if session.State != WTSActive && session.State != WTSDisconnected {
+		if session.State != windows.WTSActive && session.State != windows.WTSDisconnected {
 			continue
 		}
 		procsLock.Lock()
@@ -245,7 +245,7 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 		}
 		procsLock.Unlock()
 	}
-	wtsFreeMemory(uintptr(unsafe.Pointer(sessionsPointer)))
+	windows.WTSFreeMemory(uintptr(unsafe.Pointer(sessionsPointer)))
 
 	changes <- svc.Status{State: svc.Running, Accepts: svc.AcceptStop | svc.AcceptSessionChange}
 
@@ -263,22 +263,22 @@ loop:
 			case svc.Interrogate:
 				changes <- c.CurrentStatus
 			case svc.SessionChange:
-				if c.EventType != WTS_SESSION_LOGON && c.EventType != WTS_SESSION_LOGOFF {
+				if c.EventType != windows.WTS_SESSION_LOGON && c.EventType != windows.WTS_SESSION_LOGOFF {
 					continue
 				}
-				sessionNotification := (*WTS_SESSION_NOTIFICATION)(unsafe.Pointer(c.EventData))
+				sessionNotification := (*windows.WTSSESSION_NOTIFICATION)(unsafe.Pointer(c.EventData))
 				if uintptr(sessionNotification.Size) != unsafe.Sizeof(*sessionNotification) {
-					log.Printf("Unexpected size of WTS_SESSION_NOTIFICATION: %d", sessionNotification.Size)
+					log.Printf("Unexpected size of WTSSESSION_NOTIFICATION: %d", sessionNotification.Size)
 					continue
 				}
-				if c.EventType == WTS_SESSION_LOGOFF {
+				if c.EventType == windows.WTS_SESSION_LOGOFF {
 					procsLock.Lock()
 					delete(aliveSessions, sessionNotification.SessionID)
 					if proc, ok := procs[sessionNotification.SessionID]; ok {
 						proc.Kill()
 					}
 					procsLock.Unlock()
-				} else if c.EventType == WTS_SESSION_LOGON {
+				} else if c.EventType == windows.WTS_SESSION_LOGON {
 					procsLock.Lock()
 					if alive := aliveSessions[sessionNotification.SessionID]; !alive {
 						aliveSessions[sessionNotification.SessionID] = true
