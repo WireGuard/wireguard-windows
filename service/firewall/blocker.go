@@ -94,6 +94,7 @@ func registerBaseObjects(session uintptr) (*baseObjects, error) {
 			subLayerKey: filtersGuid,
 			displayData: *displayData,
 			providerKey: &providerGuid,
+			weight:      ^uint16(0),
 		}
 		err = fwpmSubLayerAdd0(session, &sublayer, 0)
 		if err != nil {
