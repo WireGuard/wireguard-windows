@@ -19,36 +19,6 @@ import (
 	"golang.zx2c4.com/wireguard/windows/conf"
 )
 
-//sys	notifyServiceStatusChange(service windows.Handle, notifyMask uint32, notifier *SERVICE_NOTIFY) (ret error) = advapi32.NotifyServiceStatusChangeW
-//sys	sleepEx(milliseconds uint32, alertable bool) (ret uint32) = kernel32.SleepEx
-
-const (
-	SERVICE_NOTIFY_STATUS_CHANGE    = 2
-	SERVICE_NOTIFY_STOPPED          = 0x00000001
-	SERVICE_NOTIFY_START_PENDING    = 0x00000002
-	SERVICE_NOTIFY_STOP_PENDING     = 0x00000004
-	SERVICE_NOTIFY_RUNNING          = 0x00000008
-	SERVICE_NOTIFY_CONTINUE_PENDING = 0x00000010
-	SERVICE_NOTIFY_PAUSE_PENDING    = 0x00000020
-	SERVICE_NOTIFY_PAUSED           = 0x00000040
-	SERVICE_NOTIFY_CREATED          = 0x00000080
-	SERVICE_NOTIFY_DELETED          = 0x00000100
-	SERVICE_NOTIFY_DELETE_PENDING   = 0x00000200
-
-	STATUS_USER_APC    = 0x000000C0
-	WAIT_IO_COMPLETION = STATUS_USER_APC
-)
-
-type SERVICE_NOTIFY struct {
-	Version               uint32
-	NotifyCallback        uintptr
-	Context               uintptr
-	NotificationStatus    uint32
-	ServiceStatus         windows.SERVICE_STATUS_PROCESS
-	NotificationTriggered uint32
-	ServiceNames          *uint16
-}
-
 func trackExistingTunnels() error {
 	m, err := serviceManager()
 	if err != nil {
@@ -72,7 +42,7 @@ func trackExistingTunnels() error {
 	return nil
 }
 
-var serviceTrackerCallbackPtr = windows.NewCallback(func(notifier *SERVICE_NOTIFY) uintptr {
+var serviceTrackerCallbackPtr = windows.NewCallback(func(notifier *windows.SERVICE_NOTIFY) uintptr {
 	return 0
 })
 
@@ -129,9 +99,9 @@ func trackTunnelService(tunnelName string, service *mgr.Service) {
 		trackedTunnelsLock.Unlock()
 	}()
 
-	const serviceNotifications = SERVICE_NOTIFY_RUNNING | SERVICE_NOTIFY_START_PENDING | SERVICE_NOTIFY_STOP_PENDING | SERVICE_NOTIFY_STOPPED | SERVICE_NOTIFY_DELETE_PENDING
-	notifier := &SERVICE_NOTIFY{
-		Version:        SERVICE_NOTIFY_STATUS_CHANGE,
+	const serviceNotifications = windows.SERVICE_NOTIFY_RUNNING | windows.SERVICE_NOTIFY_START_PENDING | windows.SERVICE_NOTIFY_STOP_PENDING | windows.SERVICE_NOTIFY_STOPPED | windows.SERVICE_NOTIFY_DELETE_PENDING
+	notifier := &windows.SERVICE_NOTIFY{
+		Version:        windows.SERVICE_NOTIFY_STATUS_CHANGE,
 		NotifyCallback: serviceTrackerCallbackPtr,
 	}
 
@@ -156,11 +126,11 @@ func trackTunnelService(tunnelName string, service *mgr.Service) {
 	defer runtime.UnlockOSThread()
 	lastState := TunnelUnknown
 	for {
-		err := notifyServiceStatusChange(service.Handle, serviceNotifications, notifier)
+		err := windows.NotifyServiceStatusChange(service.Handle, serviceNotifications, notifier)
 		switch err {
 		case nil:
 			for {
-				if sleepEx(uint32(time.Second*3/time.Millisecond), true) == WAIT_IO_COMPLETION {
+				if windows.SleepEx(uint32(time.Second*3/time.Millisecond), true) == windows.WAIT_IO_COMPLETION {
 					break
 				} else if checkForDisabled() {
 					return
