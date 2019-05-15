@@ -11,6 +11,7 @@ import (
 	"log"
 	"net"
 	"sort"
+	"time"
 
 	"golang.org/x/sys/windows"
 	"golang.zx2c4.com/winipcfg"
@@ -56,12 +57,25 @@ func bindSocketRoute(family winipcfg.AddressFamily, device *device.Device, ourLu
 	return nil
 }
 
+func getIpInterfaceRetry(luid uint64, family winipcfg.AddressFamily, retry bool) (ipi *winipcfg.IpInterface, err error) {
+	const maxRetries = 100
+	for i := 0; i < maxRetries; i++ {
+		ipi, err = winipcfg.GetIpInterface(luid, family)
+		if retry && i != maxRetries-1 && err == windows.ERROR_NOT_FOUND {
+			time.Sleep(time.Millisecond * 50)
+			continue
+		}
+		break
+	}
+	return
+}
+
 func monitorDefaultRoutes(device *device.Device, autoMTU bool, tun *tun.NativeTun) (*winipcfg.RouteChangeCallback, error) {
 	ourLuid := tun.LUID()
 	lastLuid4 := uint64(0)
 	lastLuid6 := uint64(0)
 	lastMtu := uint32(0)
-	doIt := func() error {
+	doIt := func(retry bool) error {
 		err := bindSocketRoute(windows.AF_INET, device, ourLuid, &lastLuid4)
 		if err != nil {
 			return err
@@ -93,7 +107,7 @@ func monitorDefaultRoutes(device *device.Device, autoMTU bool, tun *tun.NativeTu
 			}
 		}
 		if mtu > 0 && (lastMtu == 0 || lastMtu != mtu) {
-			iface, err := winipcfg.GetIpInterface(ourLuid, windows.AF_INET)
+			iface, err := getIpInterfaceRetry(ourLuid, windows.AF_INET, retry)
 			if err != nil {
 				return err
 			}
@@ -106,7 +120,7 @@ func monitorDefaultRoutes(device *device.Device, autoMTU bool, tun *tun.NativeTu
 				return err
 			}
 			tun.ForceMtu(int(iface.NlMtu)) //TODO: it sort of breaks the model with v6 mtu and v4 mtu being different. Just set v4 one for now.
-			iface, err = winipcfg.GetIpInterface(ourLuid, windows.AF_INET6)
+			iface, err = getIpInterfaceRetry(ourLuid, windows.AF_INET6, retry)
 			if err != nil {
 				return err
 			}
@@ -122,13 +136,13 @@ func monitorDefaultRoutes(device *device.Device, autoMTU bool, tun *tun.NativeTu
 		}
 		return nil
 	}
-	err := doIt()
+	err := doIt(true)
 	if err != nil {
 		return nil, err
 	}
 	cb, err := winipcfg.RegisterRouteChangeCallback(func(notificationType winipcfg.MibNotificationType, route *winipcfg.Route) {
 		if route.DestinationPrefix.PrefixLength == 0 {
-			_ = doIt()
+			_ = doIt(false)
 		}
 	})
 	if err != nil {
