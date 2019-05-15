@@ -116,7 +116,6 @@ func NewManageTunnelsWindow() (*ManageTunnelsWindow, error) {
 			FMask:  win.MIIM_TYPE,
 			FType:  win.MFT_SEPARATOR,
 		})
-		win.CloseHandle(win.HANDLE(systemMenu))
 	}
 
 	return mtw, nil
