@@ -1,5 +1,5 @@
-From 3746d930467a486fb714a885ad92ebe16cf33c2a Mon Sep 17 00:00:00 2001
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From 04a4a755d8835d7b05373c19977c4d8f31cbe119 Mon Sep 17 00:00:00 2001
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 Date: Sun, 12 May 2019 14:34:30 +0200
 Subject: [PATCH] os: pass correct environment when creating Windows processes
 
@@ -20,14 +20,24 @@ therefore stays the same when creating processes without specifying a
 token. And it does the correct thing when creating processes when
 specifying a token.
 
+Fixes #32000
+
 Change-Id: Ia57f6e89b97bdbaf7274d6a89c1d9948b6d40ef5
 ---
+ .../syscall/windows/syscall_windows.go        |  3 ++
+ .../syscall/windows/zsyscall_windows.go       | 32 +++++++++++++++
+ src/os/env_default.go                         | 13 ++++++
+ src/os/env_windows.go                         | 41 +++++++++++++++++++
+ src/os/exec_posix.go                          |  5 ++-
+ 5 files changed, 93 insertions(+), 1 deletion(-)
+ create mode 100644 src/os/env_default.go
+ create mode 100644 src/os/env_windows.go
 
 diff --git a/src/internal/syscall/windows/syscall_windows.go b/src/internal/syscall/windows/syscall_windows.go
-index 121132f..099e91e 100644
+index 121132f6f7..099e91ed68 100644
 --- a/src/internal/syscall/windows/syscall_windows.go
 +++ b/src/internal/syscall/windows/syscall_windows.go
-@@ -305,3 +305,6 @@
+@@ -305,3 +305,6 @@ const (
  func LoadGetFinalPathNameByHandle() error {
  	return procGetFinalPathNameByHandleW.Find()
  }
@@ -35,10 +45,10 @@ index 121132f..099e91e 100644
 +//sys	CreateEnvironmentBlock(block **uint16, token syscall.Token, inheritExisting bool) (err error) = userenv.CreateEnvironmentBlock
 +//sys	DestroyEnvironmentBlock(block *uint16) (err error) = userenv.DestroyEnvironmentBlock
 diff --git a/src/internal/syscall/windows/zsyscall_windows.go b/src/internal/syscall/windows/zsyscall_windows.go
-index 9527a37..ca5b4e6 100644
+index 9527a370a4..ca5b4e6f16 100644
 --- a/src/internal/syscall/windows/zsyscall_windows.go
 +++ b/src/internal/syscall/windows/zsyscall_windows.go
-@@ -58,6 +58,8 @@
+@@ -58,6 +58,8 @@ var (
  	procNetShareAdd                  = modnetapi32.NewProc("NetShareAdd")
  	procNetShareDel                  = modnetapi32.NewProc("NetShareDel")
  	procGetFinalPathNameByHandleW    = modkernel32.NewProc("GetFinalPathNameByHandleW")
@@ -47,7 +57,7 @@ index 9527a37..ca5b4e6 100644
  	procImpersonateSelf              = modadvapi32.NewProc("ImpersonateSelf")
  	procRevertToSelf                 = modadvapi32.NewProc("RevertToSelf")
  	procOpenThreadToken              = modadvapi32.NewProc("OpenThreadToken")
-@@ -220,6 +222,36 @@
+@@ -220,6 +222,36 @@ func GetFinalPathNameByHandle(file syscall.Handle, filePath *uint16, filePathSiz
  	return
  }
  
@@ -86,7 +96,7 @@ index 9527a37..ca5b4e6 100644
  	if r1 == 0 {
 diff --git a/src/os/env_default.go b/src/os/env_default.go
 new file mode 100644
-index 0000000..91c5e9a
+index 0000000000..c11ccce7e3
 --- /dev/null
 +++ b/src/os/env_default.go
 @@ -0,0 +1,13 @@
@@ -100,15 +110,15 @@ index 0000000..91c5e9a
 +
 +import "syscall"
 +
-+func environForSysProcAttr(sys *syscall.SysProcAttr) (env []string) {
-+	return Environ()
++func environForSysProcAttr(sys *syscall.SysProcAttr) ([]string, error) {
++	return Environ(), nil
 +}
 diff --git a/src/os/env_windows.go b/src/os/env_windows.go
 new file mode 100644
-index 0000000..76cf011
+index 0000000000..2a5b82010e
 --- /dev/null
 +++ b/src/os/env_windows.go
-@@ -0,0 +1,40 @@
+@@ -0,0 +1,41 @@
 +// Copyright 2019 The Go Authors. All rights reserved.
 +// Use of this source code is governed by a BSD-style
 +// license that can be found in the LICENSE file.
@@ -122,14 +132,15 @@ index 0000000..76cf011
 +	"unsafe"
 +)
 +
-+func environForSysProcAttr(sys *syscall.SysProcAttr) (env []string) {
++func environForSysProcAttr(sys *syscall.SysProcAttr) (env []string, err error) {
 +	if sys == nil || sys.Token == 0 {
-+		return Environ()
++		env = Environ()
++		return
 +	}
 +	var block *uint16
-+	err := windows.CreateEnvironmentBlock(&block, sys.Token, false)
++	err = windows.CreateEnvironmentBlock(&block, sys.Token, false)
 +	if err != nil {
-+		return nil
++		return
 +	}
 +	blockp := uintptr(unsafe.Pointer(block))
 +	for {
@@ -150,15 +161,21 @@ index 0000000..76cf011
 +	return
 +}
 diff --git a/src/os/exec_posix.go b/src/os/exec_posix.go
-index 7b1ef67..651d24d 100644
+index 7b1ef67d1c..5c1dcc3801 100644
 --- a/src/os/exec_posix.go
 +++ b/src/os/exec_posix.go
-@@ -38,7 +38,7 @@
+@@ -38,7 +38,10 @@ func startProcess(name string, argv []string, attr *ProcAttr) (p *Process, err e
  		Sys: attr.Sys,
  	}
  	if sysattr.Env == nil {
 -		sysattr.Env = Environ()
-+		sysattr.Env = environForSysProcAttr(sysattr.Sys)
++		sysattr.Env, err = environForSysProcAttr(sysattr.Sys)
++		if err != nil {
++			return
++		}
  	}
  	sysattr.Files = make([]uintptr, 0, len(attr.Files))
  	for _, f := range attr.Files {
+-- 
+2.21.0
+
