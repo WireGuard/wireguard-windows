@@ -151,7 +151,7 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 	}
 
 	logger.Info.Println("Dropping all privileges")
-	err = dropAllPrivileges()
+	err = DropAllPrivileges()
 	if err != nil {
 		serviceError = ErrorDropPrivileges
 		return

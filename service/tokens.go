@@ -61,7 +61,7 @@ func TokenIsMemberOfBuiltInAdministrator(token windows.Token) bool {
 	return isAdmin
 }
 
-func dropAllPrivileges() error {
+func DropAllPrivileges() error {
 	processHandle, err := windows.GetCurrentProcess()
 	if err != nil {
 		return err
