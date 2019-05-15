@@ -70,7 +70,7 @@ const (
 type wtFwpmFilter0 struct {
 	filterKey           windows.GUID // Windows type: GUID
 	displayData         wtFwpmDisplayData0
-	flags               uint32
+	flags               wtFwpmFilterFlags
 	providerKey         *windows.GUID // Windows type: *GUID
 	providerData        wtFwpByteBlob
 	layerKey            windows.GUID // Windows type: GUID
