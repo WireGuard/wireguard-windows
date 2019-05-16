@@ -30,7 +30,7 @@ const (
 	wtFwpmFilter0_action_Offset              = 88
 	wtFwpmFilter0_providerContextKey_Offset  = 112
 	wtFwpmFilter0_reserved_Offset            = 128
-	wtFwpmFilter0_filterId_Offset            = 136
+	wtFwpmFilter0_filterID_Offset            = 136
 	wtFwpmFilter0_effectiveWeight_Offset     = 144
 
 	wtFwpmFilterCondition0_Size                  = 28
@@ -83,6 +83,6 @@ type wtFwpmFilter0 struct {
 	providerContextKey  windows.GUID  // Windows type: GUID
 	reserved            *windows.GUID // Windows type: *GUID
 	offset2             [4]byte       // Layout correction field
-	filterId            uint64
+	filterID            uint64
 	effectiveWeight     wtFwpValue0
 }

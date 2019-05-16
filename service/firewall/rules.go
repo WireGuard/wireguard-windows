@@ -49,7 +49,7 @@ func permitTunInterface(session uintptr, baseObjects *baseObjects, weight uint8,
 		},
 	}
 
-	filterId := uint64(0)
+	filterID := uint64(0)
 
 	//
 	// #1 Permit outbound IPv4 traffic.
@@ -63,7 +63,7 @@ func permitTunInterface(session uintptr, baseObjects *baseObjects, weight uint8,
 		filter.displayData = *displayData
 		filter.layerKey = cFWPM_LAYER_ALE_AUTH_CONNECT_V4
 
-		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
+		err = fwpmFilterAdd0(session, &filter, 0, &filterID)
 		if err != nil {
 			return wrapErr(err)
 		}
@@ -81,7 +81,7 @@ func permitTunInterface(session uintptr, baseObjects *baseObjects, weight uint8,
 		filter.displayData = *displayData
 		filter.layerKey = cFWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V4
 
-		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
+		err = fwpmFilterAdd0(session, &filter, 0, &filterID)
 		if err != nil {
 			return wrapErr(err)
 		}
@@ -99,7 +99,7 @@ func permitTunInterface(session uintptr, baseObjects *baseObjects, weight uint8,
 		filter.displayData = *displayData
 		filter.layerKey = cFWPM_LAYER_ALE_AUTH_CONNECT_V6
 
-		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
+		err = fwpmFilterAdd0(session, &filter, 0, &filterID)
 		if err != nil {
 			return wrapErr(err)
 		}
@@ -117,7 +117,7 @@ func permitTunInterface(session uintptr, baseObjects *baseObjects, weight uint8,
 		filter.displayData = *displayData
 		filter.layerKey = cFWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6
 
-		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
+		err = fwpmFilterAdd0(session, &filter, 0, &filterID)
 		if err != nil {
 			return wrapErr(err)
 		}
@@ -132,18 +132,18 @@ func permitWireGuardService(session uintptr, baseObjects *baseObjects, weight ui
 	//
 	// First condition is the exe path of the current process.
 	//
-	appId, err := getCurrentProcessAppId()
+	appID, err := getCurrentProcessAppID()
 	if err != nil {
 		return wrapErr(err)
 	}
-	defer fwpmFreeMemory0(unsafe.Pointer(&appId))
+	defer fwpmFreeMemory0(unsafe.Pointer(&appID))
 
 	conditions[0] = wtFwpmFilterCondition0{
 		fieldKey:  cFWPM_CONDITION_ALE_APP_ID,
 		matchType: cFWP_MATCH_EQUAL,
 		conditionValue: wtFwpConditionValue0{
 			_type: cFWP_BYTE_BLOB_TYPE,
-			value: uintptr(unsafe.Pointer(appId)),
+			value: uintptr(unsafe.Pointer(appID)),
 		},
 	}
 
@@ -181,7 +181,7 @@ func permitWireGuardService(session uintptr, baseObjects *baseObjects, weight ui
 		},
 	}
 
-	filterId := uint64(0)
+	filterID := uint64(0)
 
 	//
 	// #1 Permit outbound IPv4 traffic.
@@ -195,7 +195,7 @@ func permitWireGuardService(session uintptr, baseObjects *baseObjects, weight ui
 		filter.displayData = *displayData
 		filter.layerKey = cFWPM_LAYER_ALE_AUTH_CONNECT_V4
 
-		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
+		err = fwpmFilterAdd0(session, &filter, 0, &filterID)
 		if err != nil {
 			return wrapErr(err)
 		}
@@ -213,7 +213,7 @@ func permitWireGuardService(session uintptr, baseObjects *baseObjects, weight ui
 		filter.displayData = *displayData
 		filter.layerKey = cFWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V4
 
-		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
+		err = fwpmFilterAdd0(session, &filter, 0, &filterID)
 		if err != nil {
 			return wrapErr(err)
 		}
@@ -231,7 +231,7 @@ func permitWireGuardService(session uintptr, baseObjects *baseObjects, weight ui
 		filter.displayData = *displayData
 		filter.layerKey = cFWPM_LAYER_ALE_AUTH_CONNECT_V6
 
-		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
+		err = fwpmFilterAdd0(session, &filter, 0, &filterID)
 		if err != nil {
 			return wrapErr(err)
 		}
@@ -249,7 +249,7 @@ func permitWireGuardService(session uintptr, baseObjects *baseObjects, weight ui
 		filter.displayData = *displayData
 		filter.layerKey = cFWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6
 
-		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
+		err = fwpmFilterAdd0(session, &filter, 0, &filterID)
 		if err != nil {
 			return wrapErr(err)
 		}
@@ -279,7 +279,7 @@ func permitLoopback(session uintptr, baseObjects *baseObjects, weight uint8) err
 		},
 	}
 
-	filterId := uint64(0)
+	filterID := uint64(0)
 
 	//
 	// #1 Permit outbound IPv4 on loopback.
@@ -293,7 +293,7 @@ func permitLoopback(session uintptr, baseObjects *baseObjects, weight uint8) err
 		filter.displayData = *displayData
 		filter.layerKey = cFWPM_LAYER_ALE_AUTH_CONNECT_V4
 
-		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
+		err = fwpmFilterAdd0(session, &filter, 0, &filterID)
 		if err != nil {
 			return wrapErr(err)
 		}
@@ -311,7 +311,7 @@ func permitLoopback(session uintptr, baseObjects *baseObjects, weight uint8) err
 		filter.displayData = *displayData
 		filter.layerKey = cFWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V4
 
-		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
+		err = fwpmFilterAdd0(session, &filter, 0, &filterID)
 		if err != nil {
 			return wrapErr(err)
 		}
@@ -329,7 +329,7 @@ func permitLoopback(session uintptr, baseObjects *baseObjects, weight uint8) err
 		filter.displayData = *displayData
 		filter.layerKey = cFWPM_LAYER_ALE_AUTH_CONNECT_V6
 
-		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
+		err = fwpmFilterAdd0(session, &filter, 0, &filterID)
 		if err != nil {
 			return wrapErr(err)
 		}
@@ -347,7 +347,7 @@ func permitLoopback(session uintptr, baseObjects *baseObjects, weight uint8) err
 		filter.displayData = *displayData
 		filter.layerKey = cFWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6
 
-		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
+		err = fwpmFilterAdd0(session, &filter, 0, &filterID)
 		if err != nil {
 			return wrapErr(err)
 		}
@@ -401,9 +401,9 @@ func permitDHCPIPv4(session uintptr, baseObjects *baseObjects, weight uint8) err
 			},
 		}
 
-		filterId := uint64(0)
+		filterID := uint64(0)
 
-		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
+		err = fwpmFilterAdd0(session, &filter, 0, &filterID)
 		if err != nil {
 			return wrapErr(err)
 		}
@@ -448,9 +448,9 @@ func permitDHCPIPv4(session uintptr, baseObjects *baseObjects, weight uint8) err
 			},
 		}
 
-		filterId := uint64(0)
+		filterID := uint64(0)
 
-		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
+		err = fwpmFilterAdd0(session, &filter, 0, &filterID)
 		if err != nil {
 			return wrapErr(err)
 		}
@@ -515,9 +515,9 @@ func permitDHCPIPv6(session uintptr, baseObjects *baseObjects, weight uint8) err
 			},
 		}
 
-		filterId := uint64(0)
+		filterID := uint64(0)
 
-		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
+		err = fwpmFilterAdd0(session, &filter, 0, &filterID)
 		if err != nil {
 			return wrapErr(err)
 		}
@@ -572,9 +572,9 @@ func permitDHCPIPv6(session uintptr, baseObjects *baseObjects, weight uint8) err
 			},
 		}
 
-		filterId := uint64(0)
+		filterID := uint64(0)
 
-		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
+		err = fwpmFilterAdd0(session, &filter, 0, &filterID)
 		if err != nil {
 			return wrapErr(err)
 		}
@@ -807,7 +807,7 @@ func permitNdp(session uintptr, baseObjects *baseObjects, weight uint8) error {
 		},
 	}
 
-	filterId := uint64(0)
+	filterID := uint64(0)
 
 	for _, definition := range defs {
 		filter.displayData = *definition.displayData
@@ -815,7 +815,7 @@ func permitNdp(session uintptr, baseObjects *baseObjects, weight uint8) error {
 		filter.numFilterConditions = uint32(len(definition.conditions))
 		filter.filterCondition = (*wtFwpmFilterCondition0)(unsafe.Pointer(&definition.conditions[0]))
 
-		err := fwpmFilterAdd0(session, &filter, 0, &filterId)
+		err := fwpmFilterAdd0(session, &filter, 0, &filterID)
 		if err != nil {
 			return wrapErr(err)
 		}
@@ -861,7 +861,7 @@ func permitHyperV(session uintptr, baseObjects *baseObjects, weight uint8) error
 		},
 	}
 
-	filterId := uint64(0)
+	filterID := uint64(0)
 
 	//
 	// #1 Outbound.
@@ -875,7 +875,7 @@ func permitHyperV(session uintptr, baseObjects *baseObjects, weight uint8) error
 		filter.displayData = *displayData
 		filter.layerKey = cFWPM_LAYER_OUTBOUND_MAC_FRAME_NATIVE
 
-		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
+		err = fwpmFilterAdd0(session, &filter, 0, &filterID)
 		if err != nil {
 			return wrapErr(err)
 		}
@@ -893,7 +893,7 @@ func permitHyperV(session uintptr, baseObjects *baseObjects, weight uint8) error
 		filter.displayData = *displayData
 		filter.layerKey = cFWPM_LAYER_INBOUND_MAC_FRAME_NATIVE
 
-		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
+		err = fwpmFilterAdd0(session, &filter, 0, &filterID)
 		if err != nil {
 			return wrapErr(err)
 		}
@@ -913,7 +913,7 @@ func blockAll(session uintptr, baseObjects *baseObjects, weight uint8) error {
 		},
 	}
 
-	filterId := uint64(0)
+	filterID := uint64(0)
 
 	//
 	// #1 Block outbound traffic on IPv4.
@@ -927,7 +927,7 @@ func blockAll(session uintptr, baseObjects *baseObjects, weight uint8) error {
 		filter.displayData = *displayData
 		filter.layerKey = cFWPM_LAYER_ALE_AUTH_CONNECT_V4
 
-		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
+		err = fwpmFilterAdd0(session, &filter, 0, &filterID)
 		if err != nil {
 			return wrapErr(err)
 		}
@@ -945,7 +945,7 @@ func blockAll(session uintptr, baseObjects *baseObjects, weight uint8) error {
 		filter.displayData = *displayData
 		filter.layerKey = cFWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V4
 
-		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
+		err = fwpmFilterAdd0(session, &filter, 0, &filterID)
 		if err != nil {
 			return wrapErr(err)
 		}
@@ -963,7 +963,7 @@ func blockAll(session uintptr, baseObjects *baseObjects, weight uint8) error {
 		filter.displayData = *displayData
 		filter.layerKey = cFWPM_LAYER_ALE_AUTH_CONNECT_V6
 
-		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
+		err = fwpmFilterAdd0(session, &filter, 0, &filterID)
 		if err != nil {
 			return wrapErr(err)
 		}
@@ -981,7 +981,7 @@ func blockAll(session uintptr, baseObjects *baseObjects, weight uint8) error {
 		filter.displayData = *displayData
 		filter.layerKey = cFWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6
 
-		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
+		err = fwpmFilterAdd0(session, &filter, 0, &filterID)
 		if err != nil {
 			return wrapErr(err)
 		}
@@ -1035,7 +1035,7 @@ func blockDNS(except []net.IP, session uintptr, baseObjects *baseObjects, weight
 		},
 	}
 
-	filterId := uint64(0)
+	filterID := uint64(0)
 
 	//
 	// #1 Block IPv4 outbound DNS.
@@ -1049,7 +1049,7 @@ func blockDNS(except []net.IP, session uintptr, baseObjects *baseObjects, weight
 		filter.displayData = *displayData
 		filter.layerKey = cFWPM_LAYER_ALE_AUTH_CONNECT_V4
 
-		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
+		err = fwpmFilterAdd0(session, &filter, 0, &filterID)
 		if err != nil {
 			return wrapErr(err)
 		}
@@ -1067,7 +1067,7 @@ func blockDNS(except []net.IP, session uintptr, baseObjects *baseObjects, weight
 		filter.displayData = *displayData
 		filter.layerKey = cFWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V4
 
-		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
+		err = fwpmFilterAdd0(session, &filter, 0, &filterID)
 		if err != nil {
 			return wrapErr(err)
 		}
@@ -1085,7 +1085,7 @@ func blockDNS(except []net.IP, session uintptr, baseObjects *baseObjects, weight
 		filter.displayData = *displayData
 		filter.layerKey = cFWPM_LAYER_ALE_AUTH_CONNECT_V6
 
-		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
+		err = fwpmFilterAdd0(session, &filter, 0, &filterID)
 		if err != nil {
 			return wrapErr(err)
 		}
@@ -1103,7 +1103,7 @@ func blockDNS(except []net.IP, session uintptr, baseObjects *baseObjects, weight
 		filter.displayData = *displayData
 		filter.layerKey = cFWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6
 
-		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
+		err = fwpmFilterAdd0(session, &filter, 0, &filterID)
 		if err != nil {
 			return wrapErr(err)
 		}
@@ -1157,7 +1157,7 @@ func blockDNS(except []net.IP, session uintptr, baseObjects *baseObjects, weight
 		},
 	}
 
-	filterId = uint64(0)
+	filterID = uint64(0)
 
 	//
 	// #5 Allow IPv4 outbound DNS.
@@ -1171,7 +1171,7 @@ func blockDNS(except []net.IP, session uintptr, baseObjects *baseObjects, weight
 		filter.displayData = *displayData
 		filter.layerKey = cFWPM_LAYER_ALE_AUTH_CONNECT_V4
 
-		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
+		err = fwpmFilterAdd0(session, &filter, 0, &filterID)
 		if err != nil {
 			return wrapErr(err)
 		}
@@ -1189,7 +1189,7 @@ func blockDNS(except []net.IP, session uintptr, baseObjects *baseObjects, weight
 		filter.displayData = *displayData
 		filter.layerKey = cFWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V4
 
-		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
+		err = fwpmFilterAdd0(session, &filter, 0, &filterID)
 		if err != nil {
 			return wrapErr(err)
 		}
@@ -1210,7 +1210,7 @@ func blockDNS(except []net.IP, session uintptr, baseObjects *baseObjects, weight
 		filter.displayData = *displayData
 		filter.layerKey = cFWPM_LAYER_ALE_AUTH_CONNECT_V6
 
-		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
+		err = fwpmFilterAdd0(session, &filter, 0, &filterID)
 		if err != nil {
 			return wrapErr(err)
 		}
@@ -1228,7 +1228,7 @@ func blockDNS(except []net.IP, session uintptr, baseObjects *baseObjects, weight
 		filter.displayData = *displayData
 		filter.layerKey = cFWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6
 
-		err = fwpmFilterAdd0(session, &filter, 0, &filterId)
+		err = fwpmFilterAdd0(session, &filter, 0, &filterID)
 		if err != nil {
 			return wrapErr(err)
 		}

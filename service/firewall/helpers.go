@@ -67,9 +67,8 @@ func wrapErr(err error) error {
 	_, file, line, ok := runtime.Caller(1)
 	if !ok {
 		return fmt.Errorf("Firewall error at unknown location: %v", err)
-	} else {
-		return fmt.Errorf("Firewall error at %s:%d: %v", file, line, err)
 	}
+	return fmt.Errorf("Firewall error at %s:%d: %v", file, line, err)
 }
 
 func getCurrentProcessSecurityDescriptor() (*wtFwpByteBlob, error) {
@@ -86,7 +85,7 @@ func getCurrentProcessSecurityDescriptor() (*wtFwpByteBlob, error) {
 	return blob, nil
 }
 
-func getCurrentProcessAppId() (*wtFwpByteBlob, error) {
+func getCurrentProcessAppID() (*wtFwpByteBlob, error) {
 	currentFile, err := os.Executable()
 	if err != nil {
 		return nil, wrapErr(err)
@@ -97,10 +96,10 @@ func getCurrentProcessAppId() (*wtFwpByteBlob, error) {
 		return nil, wrapErr(err)
 	}
 
-	var appId *wtFwpByteBlob
-	err = fwpmGetAppIdFromFileName0(curFilePtr, unsafe.Pointer(&appId))
+	var appID *wtFwpByteBlob
+	err = fwpmGetAppIdFromFileName0(curFilePtr, unsafe.Pointer(&appID))
 	if err != nil {
 		return nil, wrapErr(err)
 	}
-	return appId, nil
+	return appID, nil
 }

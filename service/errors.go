@@ -89,9 +89,8 @@ func combineErrors(err error, serviceError Error) error {
 	if serviceError != ErrorSuccess {
 		if err != nil {
 			return fmt.Errorf("%v: %v", serviceError, err)
-		} else {
-			return serviceError
 		}
+		return serviceError
 	}
 	return err
 }
