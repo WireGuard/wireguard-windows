@@ -19,11 +19,11 @@ import (
 //sys	internetGetConnectedState(flags *uint32, reserved uint32) (connected bool) = wininet.InternetGetConnectedState
 //sys	getTickCount64() (ms uint64) = kernel32.GetTickCount64
 
-func resolveHostname(name string) (resolvedIpString string, err error) {
+func resolveHostname(name string) (resolvedIPString string, err error) {
 	const maxTries = 10
 	systemJustBooted := getTickCount64() <= uint64(time.Minute*4/time.Millisecond)
 	for i := 0; i < maxTries; i++ {
-		resolvedIpString, err = resolveHostnameOnce(name)
+		resolvedIPString, err = resolveHostnameOnce(name)
 		if err == nil {
 			return
 		}
@@ -43,7 +43,7 @@ func resolveHostname(name string) (resolvedIpString string, err error) {
 	return
 }
 
-func resolveHostnameOnce(name string) (resolvedIpString string, err error) {
+func resolveHostnameOnce(name string) (resolvedIPString string, err error) {
 	hints := windows.AddrinfoW{
 		Family:   windows.AF_UNSPEC,
 		Socktype: windows.SOCK_DGRAM,

@@ -177,7 +177,7 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 	dev.Up()
 
 	logger.Info.Println("Monitoring default routes")
-	routeChangeCallback, err = monitorDefaultRoutes(dev, conf.Interface.Mtu == 0, nativeTun)
+	routeChangeCallback, err = monitorDefaultRoutes(dev, conf.Interface.MTU == 0, nativeTun)
 	if err != nil {
 		serviceError = ErrorBindSocketsToDefaultRoutes
 		return

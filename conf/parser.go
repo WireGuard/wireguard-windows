@@ -253,7 +253,7 @@ func FromWgQuick(s string, name string) (*Config, error) {
 				if err != nil {
 					return nil, err
 				}
-				conf.Interface.Mtu = m
+				conf.Interface.MTU = m
 			case "address":
 				addresses, err := splitList(val)
 				if err != nil {
@@ -276,7 +276,7 @@ func FromWgQuick(s string, name string) (*Config, error) {
 					if a == nil {
 						return nil, &ParseError{"Invalid IP address", address}
 					}
-					conf.Interface.Dns = append(conf.Interface.Dns, a)
+					conf.Interface.DNS = append(conf.Interface.DNS, a)
 				}
 			default:
 				return nil, &ParseError{"Invalid key for [Interface] section", key}
@@ -345,8 +345,8 @@ func FromUAPI(s string, existingConfig *Config) (*Config, error) {
 		Name: existingConfig.Name,
 		Interface: Interface{
 			Addresses: existingConfig.Interface.Addresses,
-			Dns:       existingConfig.Interface.Dns,
-			Mtu:       existingConfig.Interface.Mtu,
+			DNS:       existingConfig.Interface.DNS,
+			MTU:       existingConfig.Interface.MTU,
 		},
 	}
 	var peer *Peer

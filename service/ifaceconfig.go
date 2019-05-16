@@ -22,7 +22,7 @@ import (
 	"golang.zx2c4.com/wireguard/windows/service/firewall"
 )
 
-func bindSocketRoute(family winipcfg.AddressFamily, device *device.Device, ourLuid uint64, lastLuid *uint64) error {
+func bindSocketRoute(family winipcfg.AddressFamily, device *device.Device, ourLUID uint64, lastLUID *uint64) error {
 	routes, err := winipcfg.GetRoutes(family)
 	if err != nil {
 		return err
@@ -31,10 +31,10 @@ func bindSocketRoute(family winipcfg.AddressFamily, device *device.Device, ourLu
 	index := uint32(0) // Zero is "unspecified", which for IP_UNICAST_IF resets the value, which is what we want.
 	luid := uint64(0)  // Hopefully luid zero is unspecified, but hard to find docs saying so.
 	for _, route := range routes {
-		if route.DestinationPrefix.PrefixLength != 0 || route.InterfaceLuid == ourLuid {
+		if route.DestinationPrefix.PrefixLength != 0 || route.InterfaceLUID == ourLUID {
 			continue
 		}
-		ifrow, err := winipcfg.GetIfRow(route.InterfaceLuid)
+		ifrow, err := winipcfg.GetIfRow(route.InterfaceLUID)
 		if err != nil || ifrow.OperStatus != winipcfg.IfOperStatusUp {
 			log.Printf("Found default route for interface %d, but not up, so skipping", route.InterfaceIndex)
 			continue
@@ -42,13 +42,13 @@ func bindSocketRoute(family winipcfg.AddressFamily, device *device.Device, ourLu
 		if route.Metric < lowestMetric {
 			lowestMetric = route.Metric
 			index = route.InterfaceIndex
-			luid = route.InterfaceLuid
+			luid = route.InterfaceLUID
 		}
 	}
-	if luid == *lastLuid {
+	if luid == *lastLUID {
 		return nil
 	}
-	*lastLuid = luid
+	*lastLUID = luid
 	if family == windows.AF_INET {
 		return device.BindSocketToInterface4(index)
 	} else if family == windows.AF_INET6 {
@@ -57,10 +57,10 @@ func bindSocketRoute(family winipcfg.AddressFamily, device *device.Device, ourLu
 	return nil
 }
 
-func getIpInterfaceRetry(luid uint64, family winipcfg.AddressFamily, retry bool) (ipi *winipcfg.IpInterface, err error) {
+func getIPInterfaceRetry(luid uint64, family winipcfg.AddressFamily, retry bool) (ipi *winipcfg.IPInterface, err error) {
 	const maxRetries = 100
 	for i := 0; i < maxRetries; i++ {
-		ipi, err = winipcfg.GetIpInterface(luid, family)
+		ipi, err = winipcfg.GetIPInterface(luid, family)
 		if retry && i != maxRetries-1 && err == windows.ERROR_NOT_FOUND {
 			time.Sleep(time.Millisecond * 50)
 			continue
@@ -71,16 +71,16 @@ func getIpInterfaceRetry(luid uint64, family winipcfg.AddressFamily, retry bool)
 }
 
 func monitorDefaultRoutes(device *device.Device, autoMTU bool, tun *tun.NativeTun) (*winipcfg.RouteChangeCallback, error) {
-	ourLuid := tun.LUID()
-	lastLuid4 := uint64(0)
-	lastLuid6 := uint64(0)
-	lastMtu := uint32(0)
+	ourLUID := tun.LUID()
+	lastLUID4 := uint64(0)
+	lastLUID6 := uint64(0)
+	lastMTU := uint32(0)
 	doIt := func(retry bool) error {
-		err := bindSocketRoute(windows.AF_INET, device, ourLuid, &lastLuid4)
+		err := bindSocketRoute(windows.AF_INET, device, ourLUID, &lastLUID4)
 		if err != nil {
 			return err
 		}
-		err = bindSocketRoute(windows.AF_INET6, device, ourLuid, &lastLuid6)
+		err = bindSocketRoute(windows.AF_INET6, device, ourLUID, &lastLUID6)
 		if err != nil {
 			return err
 		}
@@ -88,51 +88,51 @@ func monitorDefaultRoutes(device *device.Device, autoMTU bool, tun *tun.NativeTu
 			return nil
 		}
 		mtu := uint32(0)
-		if lastLuid4 != 0 {
-			iface, err := winipcfg.InterfaceFromLUID(lastLuid4)
+		if lastLUID4 != 0 {
+			iface, err := winipcfg.InterfaceFromLUID(lastLUID4)
 			if err != nil {
 				return err
 			}
-			if iface.Mtu > 0 {
-				mtu = iface.Mtu
+			if iface.MTU > 0 {
+				mtu = iface.MTU
 			}
 		}
-		if lastLuid6 != 0 {
-			iface, err := winipcfg.InterfaceFromLUID(lastLuid6)
+		if lastLUID6 != 0 {
+			iface, err := winipcfg.InterfaceFromLUID(lastLUID6)
 			if err != nil {
 				return err
 			}
-			if iface.Mtu > 0 && iface.Mtu < mtu {
-				mtu = iface.Mtu
+			if iface.MTU > 0 && iface.MTU < mtu {
+				mtu = iface.MTU
 			}
 		}
-		if mtu > 0 && (lastMtu == 0 || lastMtu != mtu) {
-			iface, err := getIpInterfaceRetry(ourLuid, windows.AF_INET, retry)
+		if mtu > 0 && (lastMTU == 0 || lastMTU != mtu) {
+			iface, err := getIPInterfaceRetry(ourLUID, windows.AF_INET, retry)
 			if err != nil {
 				return err
 			}
-			iface.NlMtu = mtu - 80
-			if iface.NlMtu < 576 {
-				iface.NlMtu = 576
+			iface.NLMTU = mtu - 80
+			if iface.NLMTU < 576 {
+				iface.NLMTU = 576
 			}
 			err = iface.Set()
 			if err != nil {
 				return err
 			}
-			tun.ForceMtu(int(iface.NlMtu)) //TODO: it sort of breaks the model with v6 mtu and v4 mtu being different. Just set v4 one for now.
-			iface, err = getIpInterfaceRetry(ourLuid, windows.AF_INET6, retry)
+			tun.ForceMTU(int(iface.NLMTU)) //TODO: it sort of breaks the model with v6 mtu and v4 mtu being different. Just set v4 one for now.
+			iface, err = getIPInterfaceRetry(ourLUID, windows.AF_INET6, retry)
 			if err != nil {
 				return err
 			}
-			iface.NlMtu = mtu - 80
-			if iface.NlMtu < 1280 {
-				iface.NlMtu = 1280
+			iface.NLMTU = mtu - 80
+			if iface.NLMTU < 1280 {
+				iface.NLMTU = 1280
 			}
 			err = iface.Set()
 			if err != nil {
 				return err
 			}
-			lastMtu = mtu
+			lastMTU = mtu
 		}
 		return nil
 	}
@@ -290,12 +290,12 @@ func configureInterface(conf *conf.Config, tun *tun.NativeTun) error {
 		return nil
 	}
 
-	err = iface.SetDNS(conf.Interface.Dns)
+	err = iface.SetDNS(conf.Interface.DNS)
 	if err != nil {
 		return err
 	}
 
-	ipif, err := iface.GetIpInterface(windows.AF_INET)
+	ipif, err := iface.GetIPInterface(windows.AF_INET)
 	if err != nil {
 		return err
 	}
@@ -303,16 +303,16 @@ func configureInterface(conf *conf.Config, tun *tun.NativeTun) error {
 		ipif.UseAutomaticMetric = false
 		ipif.Metric = 0
 	}
-	if conf.Interface.Mtu > 0 {
-		ipif.NlMtu = uint32(conf.Interface.Mtu)
-		tun.ForceMtu(int(ipif.NlMtu))
+	if conf.Interface.MTU > 0 {
+		ipif.NLMTU = uint32(conf.Interface.MTU)
+		tun.ForceMTU(int(ipif.NLMTU))
 	}
 	err = ipif.Set()
 	if err != nil {
 		return err
 	}
 
-	ipif, err = iface.GetIpInterface(windows.AF_INET6)
+	ipif, err = iface.GetIPInterface(windows.AF_INET6)
 	if err != nil {
 		return err
 	}
@@ -320,8 +320,8 @@ func configureInterface(conf *conf.Config, tun *tun.NativeTun) error {
 		ipif.UseAutomaticMetric = false
 		ipif.Metric = 0
 	}
-	if conf.Interface.Mtu > 0 {
-		ipif.NlMtu = uint32(conf.Interface.Mtu)
+	if conf.Interface.MTU > 0 {
+		ipif.NLMTU = uint32(conf.Interface.MTU)
 	}
 	ipif.DadTransmits = 0
 	ipif.RouterDiscoveryBehavior = winipcfg.RouterDiscoveryDisabled
@@ -349,9 +349,9 @@ func enableFirewall(conf *conf.Config, tun *tun.NativeTun) error {
 			}
 		}
 	}
-	if restrictAll && len(conf.Interface.Dns) == 0 {
+	if restrictAll && len(conf.Interface.DNS) == 0 {
 		name, _ := tun.Name()
 		log.Printf("[%s] Warning: no DNS server specified, despite having an allowed IPs of 0.0.0.0/0 or ::/0. There may be connectivity issues.", name)
 	}
-	return firewall.EnableFirewall(tun.LUID(), conf.Interface.Dns, restrictAll)
+	return firewall.EnableFirewall(tun.LUID(), conf.Interface.DNS, restrictAll)
 }

@@ -28,16 +28,16 @@ func (conf *Config) ToWgQuick() string {
 		output.WriteString(fmt.Sprintf("Address = %s\n", strings.Join(addrStrings[:], ", ")))
 	}
 
-	if len(conf.Interface.Dns) > 0 {
-		addrStrings := make([]string, len(conf.Interface.Dns))
-		for i, address := range conf.Interface.Dns {
+	if len(conf.Interface.DNS) > 0 {
+		addrStrings := make([]string, len(conf.Interface.DNS))
+		for i, address := range conf.Interface.DNS {
 			addrStrings[i] = address.String()
 		}
 		output.WriteString(fmt.Sprintf("DNS = %s\n", strings.Join(addrStrings[:], ", ")))
 	}
 
-	if conf.Interface.Mtu > 0 {
-		output.WriteString(fmt.Sprintf("MTU = %d\n", conf.Interface.Mtu))
+	if conf.Interface.MTU > 0 {
+		output.WriteString(fmt.Sprintf("MTU = %d\n", conf.Interface.MTU))
 	}
 
 	for _, peer := range conf.Peers {
@@ -88,12 +88,12 @@ func (conf *Config) ToUAPI() (uapi string, dnsErr error) {
 		}
 
 		if !peer.Endpoint.IsEmpty() {
-			var resolvedIp string
-			resolvedIp, dnsErr = resolveHostname(peer.Endpoint.Host)
+			var resolvedIP string
+			resolvedIP, dnsErr = resolveHostname(peer.Endpoint.Host)
 			if dnsErr != nil {
 				return
 			}
-			resolvedEndpoint := Endpoint{resolvedIp, peer.Endpoint.Port}
+			resolvedEndpoint := Endpoint{resolvedIP, peer.Endpoint.Port}
 			output.WriteString(fmt.Sprintf("endpoint=%s\n", resolvedEndpoint.String()))
 		}
 

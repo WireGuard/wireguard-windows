@@ -44,8 +44,8 @@ type Interface struct {
 	PrivateKey Key
 	Addresses  []IPCidr
 	ListenPort uint16
-	Mtu        uint16
-	Dns        []net.IP
+	MTU        uint16
+	DNS        []net.IP
 }
 
 type Peer struct {

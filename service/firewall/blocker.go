@@ -49,14 +49,14 @@ func createWfpSession() (uintptr, error) {
 
 func registerBaseObjects(session uintptr) (*baseObjects, error) {
 	// {48E29F38-7492-4436-8F92-29D78A8D29D3}
-	providerGuid := windows.GUID{
+	providerGUID := windows.GUID{
 		Data1: 0x48e29f38,
 		Data2: 0x7492,
 		Data3: 0x4436,
 		Data4: [8]byte{0x8f, 0x92, 0x29, 0xd7, 0x8a, 0x8d, 0x29, 0xd3},
 	}
 	// {FE3DB7F8-4658-4DE5-8DA9-CE5086A8266B}
-	filtersGuid := windows.GUID{
+	filtersGUID := windows.GUID{
 		Data1: 0xfe3db7f8,
 		Data2: 0x4658,
 		Data3: 0x4de5,
@@ -72,7 +72,7 @@ func registerBaseObjects(session uintptr) (*baseObjects, error) {
 			return nil, wrapErr(err)
 		}
 		provider := wtFwpmProvider0{
-			providerKey: providerGuid,
+			providerKey: providerGUID,
 			displayData: *displayData,
 		}
 		err = fwpmProviderAdd0(session, &provider, 0)
@@ -91,9 +91,9 @@ func registerBaseObjects(session uintptr) (*baseObjects, error) {
 			return nil, wrapErr(err)
 		}
 		sublayer := wtFwpmSublayer0{
-			subLayerKey: filtersGuid,
+			subLayerKey: filtersGUID,
 			displayData: *displayData,
-			providerKey: &providerGuid,
+			providerKey: &providerGUID,
 			weight:      ^uint16(0),
 		}
 		err = fwpmSubLayerAdd0(session, &sublayer, 0)
@@ -103,8 +103,8 @@ func registerBaseObjects(session uintptr) (*baseObjects, error) {
 	}
 
 	return &baseObjects{
-		providerGuid,
-		filtersGuid,
+		providerGUID,
+		filtersGUID,
 	}, nil
 }
 
@@ -125,7 +125,7 @@ func EnableFirewall(luid uint64, restrictToDNSServers []net.IP, restrictAll bool
 		}
 
 		if len(restrictToDNSServers) > 0 {
-			err = blockDns(restrictToDNSServers, session, baseObjects, 15, 14)
+			err = blockDNS(restrictToDNSServers, session, baseObjects, 15, 14)
 			if err != nil {
 				return wrapErr(err)
 			}
@@ -149,12 +149,12 @@ func EnableFirewall(luid uint64, restrictToDNSServers []net.IP, restrictAll bool
 		}
 
 		if restrictAll {
-			err = permitDhcpIpv4(session, baseObjects, 12)
+			err = permitDHCPIPv4(session, baseObjects, 12)
 			if err != nil {
 				return wrapErr(err)
 			}
 
-			err = permitDhcpIpv6(session, baseObjects, 12)
+			err = permitDHCPIPv6(session, baseObjects, 12)
 			if err != nil {
 				return wrapErr(err)
 			}
