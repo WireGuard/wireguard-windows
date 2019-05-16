@@ -20,6 +20,7 @@ import (
 	"golang.org/x/sys/windows/svc"
 	"golang.zx2c4.com/wireguard/windows/conf"
 	"golang.zx2c4.com/wireguard/windows/ringlogger"
+	"golang.zx2c4.com/wireguard/windows/version"
 )
 
 type managerService struct{}
@@ -50,6 +51,8 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 			panic(x)
 		}
 	}()
+
+	log.Println("Starting", version.UserAgent())
 
 	path, err := os.Executable()
 	if err != nil {
