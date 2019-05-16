@@ -407,10 +407,10 @@ const (
 	cIF_TYPE_SOFTWARE_LOOPBACK wtIfType = 24
 )
 
-type wtIpProto uint32
+type wtIPProto uint32
 
 const (
-	cIPPROTO_ICMP wtIpProto = 1
-	cIPPROTO_TCP  wtIpProto = 6
-	cIPPROTO_UDP  wtIpProto = 17
+	cIPPROTO_ICMP wtIPProto = 1
+	cIPPROTO_TCP  wtIPProto = 6
+	cIPPROTO_UDP  wtIPProto = 17
 )

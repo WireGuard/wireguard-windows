@@ -22,19 +22,19 @@ import (
 var (
 	linkLocal = wtFwpV6AddrAndMask{[16]uint8{0xfe, 0x80}, 10}
 
-	linkLocalDhcpMulticast = wtFwpByteArray16{[16]uint8{0xFF, 0x02, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1, 0x0, 0x2}}
-	siteLocalDhcpMulticast = wtFwpByteArray16{[16]uint8{0xFF, 0x05, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1, 0x0, 0x3}}
+	linkLocalDHCPMulticast = wtFwpByteArray16{[16]uint8{0xFF, 0x02, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1, 0x0, 0x2}}
+	siteLocalDHCPMulticast = wtFwpByteArray16{[16]uint8{0xFF, 0x05, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1, 0x0, 0x3}}
 
 	linkLocalRouterMulticast = wtFwpByteArray16{[16]uint8{0xFF, 0x02, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x2}}
 )
 
-func permitTunInterface(session uintptr, baseObjects *baseObjects, weight uint8, ifLuid uint64) error {
+func permitTunInterface(session uintptr, baseObjects *baseObjects, weight uint8, ifLUID uint64) error {
 	ifaceCondition := wtFwpmFilterCondition0{
 		fieldKey:  cFWPM_CONDITION_IP_LOCAL_INTERFACE,
 		matchType: cFWP_MATCH_EQUAL,
 		conditionValue: wtFwpConditionValue0{
 			_type: cFWP_UINT64,
-			value: (uintptr)(unsafe.Pointer(&ifLuid)),
+			value: (uintptr)(unsafe.Pointer(&ifLUID)),
 		},
 	}
 
@@ -356,7 +356,7 @@ func permitLoopback(session uintptr, baseObjects *baseObjects, weight uint8) err
 	return nil
 }
 
-func permitDhcpIpv4(session uintptr, baseObjects *baseObjects, weight uint8) error {
+func permitDHCPIPv4(session uintptr, baseObjects *baseObjects, weight uint8) error {
 	//
 	// #1 Outbound DHCP request on IPv4.
 	//
@@ -459,7 +459,7 @@ func permitDhcpIpv4(session uintptr, baseObjects *baseObjects, weight uint8) err
 	return nil
 }
 
-func permitDhcpIpv6(session uintptr, baseObjects *baseObjects, weight uint8) error {
+func permitDHCPIPv6(session uintptr, baseObjects *baseObjects, weight uint8) error {
 	//
 	// #1 Outbound DHCP request on IPv6.
 	//
@@ -474,13 +474,13 @@ func permitDhcpIpv6(session uintptr, baseObjects *baseObjects, weight uint8) err
 		conditions[1].fieldKey = cFWPM_CONDITION_IP_REMOTE_ADDRESS
 		conditions[1].matchType = cFWP_MATCH_EQUAL
 		conditions[1].conditionValue._type = cFWP_BYTE_ARRAY16_TYPE
-		conditions[1].conditionValue.value = uintptr(unsafe.Pointer(&linkLocalDhcpMulticast))
+		conditions[1].conditionValue.value = uintptr(unsafe.Pointer(&linkLocalDHCPMulticast))
 
 		// Repeat the condition type for logical OR.
 		conditions[2].fieldKey = cFWPM_CONDITION_IP_REMOTE_ADDRESS
 		conditions[2].matchType = cFWP_MATCH_EQUAL
 		conditions[2].conditionValue._type = cFWP_BYTE_ARRAY16_TYPE
-		conditions[2].conditionValue.value = uintptr(unsafe.Pointer(&siteLocalDhcpMulticast))
+		conditions[2].conditionValue.value = uintptr(unsafe.Pointer(&siteLocalDHCPMulticast))
 
 		conditions[3].fieldKey = cFWPM_CONDITION_IP_REMOTE_PORT
 		conditions[3].matchType = cFWP_MATCH_EQUAL
@@ -991,7 +991,7 @@ func blockAll(session uintptr, baseObjects *baseObjects, weight uint8) error {
 }
 
 // Block all DNS traffic except towards specified DNS servers.
-func blockDns(except []net.IP, session uintptr, baseObjects *baseObjects, weightAllow uint8, weightDeny uint8) error {
+func blockDNS(except []net.IP, session uintptr, baseObjects *baseObjects, weightAllow uint8, weightDeny uint8) error {
 	if weightDeny >= weightAllow {
 		return errors.New("The allow weight must be greater than the deny weight")
 	}

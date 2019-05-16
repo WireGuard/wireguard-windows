@@ -278,8 +278,8 @@ func (iv *interfaceView) apply(c *conf.Interface) {
 		iv.listenPort.hide()
 	}
 
-	if c.Mtu > 0 {
-		iv.mtu.show(strconv.Itoa(int(c.Mtu)))
+	if c.MTU > 0 {
+		iv.mtu.show(strconv.Itoa(int(c.MTU)))
 	} else {
 		iv.mtu.hide()
 	}
@@ -294,9 +294,9 @@ func (iv *interfaceView) apply(c *conf.Interface) {
 		iv.addresses.hide()
 	}
 
-	if len(c.Dns) > 0 {
-		addrStrings := make([]string, len(c.Dns))
-		for i, address := range c.Dns {
+	if len(c.DNS) > 0 {
+		addrStrings := make([]string, len(c.DNS))
+		for i, address := range c.DNS {
 			addrStrings[i] = address.String()
 		}
 		iv.dns.show(strings.Join(addrStrings[:], ", "))
