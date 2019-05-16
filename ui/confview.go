@@ -480,10 +480,6 @@ func (cv *ConfView) SetTunnel(tunnel *service.Tunnel) {
 	var config conf.Config
 	var state service.TunnelState
 	if tunnel != nil {
-		title := "Interface: " + tunnel.Name
-		if title != cv.name.Title() {
-			//TODO: display some sort of loading screen here!
-		}
 		go func() {
 			if state, _ = tunnel.State(); state == service.TunnelStarted {
 				config, _ = tunnel.RuntimeConfig()
