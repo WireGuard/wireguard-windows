@@ -105,8 +105,19 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 		return
 	}
 	defer func() {
+		logIt := func(a ...interface{}) {
+			if logger != nil {
+				logger.Error.Println(a...)
+			} else {
+				log.Println(a...)
+			}
+		}
 		if x := recover(); x != nil {
-			log.Printf("%v:\n%s", x, string(debug.Stack()))
+			for _, line := range append([]string{fmt.Sprint(x)}, strings.Split(string(debug.Stack()), "\n")...) {
+				if len(strings.TrimSpace(line)) > 0 {
+					logIt(line)
+				}
+			}
 			panic(x)
 		}
 	}()

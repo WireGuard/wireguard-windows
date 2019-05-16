@@ -7,7 +7,6 @@ package service
 
 import (
 	"bytes"
-	"errors"
 	"log"
 	"net"
 	"sort"
@@ -202,12 +201,11 @@ func configureInterface(conf *conf.Config, tun *tun.NativeTun) error {
 		return err
 	}
 
-	routeCount := len(conf.Interface.Addresses)
+	estimatedRouteCount := len(conf.Interface.Addresses)
 	for _, peer := range conf.Peers {
-		routeCount += len(peer.AllowedIPs)
+		estimatedRouteCount += len(peer.AllowedIPs)
 	}
-	routes := make([]winipcfg.RouteData, routeCount)
-	routeCount = 0
+	routes := make([]winipcfg.RouteData, 0, estimatedRouteCount)
 	var firstGateway4 *net.IP
 	var firstGateway6 *net.IP
 	addresses := make([]*net.IPNet, len(conf.Interface.Addresses))
@@ -220,15 +218,14 @@ func configureInterface(conf *conf.Config, tun *tun.NativeTun) error {
 		} else if addr.Bits() == 128 && firstGateway6 == nil {
 			firstGateway6 = &gateway
 		}
-		routes[routeCount] = winipcfg.RouteData{
+		routes = append(routes, winipcfg.RouteData{
 			Destination: net.IPNet{
 				IP:   gateway,
 				Mask: ipnet.Mask,
 			},
 			NextHop: gateway,
 			Metric:  0,
-		}
-		routeCount++
+		})
 	}
 
 	foundDefault4 := false
@@ -236,9 +233,9 @@ func configureInterface(conf *conf.Config, tun *tun.NativeTun) error {
 	for _, peer := range conf.Peers {
 		for _, allowedip := range peer.AllowedIPs {
 			if (allowedip.Bits() == 32 && firstGateway4 == nil) || (allowedip.Bits() == 128 && firstGateway6 == nil) {
-				return errors.New("Due to a Windows limitation, one cannot have interface routes without an interface address")
+				continue
 			}
-			routes[routeCount] = winipcfg.RouteData{
+			route := winipcfg.RouteData{
 				Destination: allowedip.IPNet(),
 				Metric:      0,
 			}
@@ -246,14 +243,14 @@ func configureInterface(conf *conf.Config, tun *tun.NativeTun) error {
 				if allowedip.Cidr == 0 {
 					foundDefault4 = true
 				}
-				routes[routeCount].NextHop = *firstGateway4
+				route.NextHop = *firstGateway4
 			} else if allowedip.Bits() == 128 {
 				if allowedip.Cidr == 0 {
 					foundDefault6 = true
 				}
-				routes[routeCount].NextHop = *firstGateway6
+				route.NextHop = *firstGateway6
 			}
-			routeCount++
+			routes = append(routes, route)
 		}
 	}
 
@@ -266,8 +263,7 @@ func configureInterface(conf *conf.Config, tun *tun.NativeTun) error {
 		return err
 	}
 
-	deduplicatedRoutes := make([]*winipcfg.RouteData, routeCount)
-	routeCount = 0
+	deduplicatedRoutes := make([]*winipcfg.RouteData, 0, len(routes))
 	sort.Slice(routes, func(i, j int) bool {
 		return routes[i].Metric < routes[j].Metric ||
 			bytes.Compare(routes[i].NextHop, routes[j].NextHop) == -1 ||
@@ -281,11 +277,10 @@ func configureInterface(conf *conf.Config, tun *tun.NativeTun) error {
 			bytes.Equal(routes[i].Destination.Mask, routes[i-1].Destination.Mask) {
 			continue
 		}
-		deduplicatedRoutes[routeCount] = &routes[i]
-		routeCount++
+		deduplicatedRoutes = append(deduplicatedRoutes, &routes[i])
 	}
 
-	err = iface.SetRoutes(deduplicatedRoutes[:routeCount])
+	err = iface.SetRoutes(deduplicatedRoutes)
 	if err != nil {
 		return nil
 	}

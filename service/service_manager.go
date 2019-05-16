@@ -7,10 +7,12 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"os"
 	"runtime"
 	"runtime/debug"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -47,7 +49,11 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 	}
 	defer func() {
 		if x := recover(); x != nil {
-			log.Printf("%v:\n%s", x, string(debug.Stack()))
+			for _, line := range append([]string{fmt.Sprint(x)}, strings.Split(string(debug.Stack()), "\n")...) {
+				if len(strings.TrimSpace(line)) > 0 {
+					log.Println(line)
+				}
+			}
 			panic(x)
 		}
 	}()
