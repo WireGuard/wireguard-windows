@@ -15,12 +15,12 @@ import (
 	"os"
 	"sync"
 	"sync/atomic"
-	"syscall"
 	"time"
 
 	"github.com/Microsoft/go-winio"
 	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/svc"
+
 	"golang.zx2c4.com/wireguard/windows/conf"
 	"golang.zx2c4.com/wireguard/windows/updater"
 )
@@ -121,7 +121,7 @@ func (s *ManagerService) Start(tunnelName string, unused *uintptr) error {
 
 func (s *ManagerService) Stop(tunnelName string, _ *uintptr) error {
 	err := UninstallTunnel(tunnelName)
-	if err == syscall.Errno(serviceDOES_NOT_EXIST) {
+	if err == windows.ERROR_SERVICE_DOES_NOT_EXIST {
 		_, notExistsError := conf.LoadFromName(tunnelName)
 		if notExistsError == nil {
 			return nil
@@ -141,7 +141,7 @@ func (s *ManagerService) WaitForStop(tunnelName string, _ *uintptr) error {
 	}
 	for {
 		service, err := m.OpenService(serviceName)
-		if err == nil || err == syscall.Errno(serviceMARKED_FOR_DELETE) {
+		if err == nil || err == windows.ERROR_SERVICE_MARKED_FOR_DELETE {
 			service.Close()
 			time.Sleep(time.Second / 3)
 		} else {

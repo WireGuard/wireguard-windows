@@ -95,9 +95,3 @@ func combineErrors(err error, serviceError Error) error {
 	}
 	return err
 }
-
-const (
-	serviceDOES_NOT_EXIST    uint32 = 0x00000424
-	serviceMARKED_FOR_DELETE uint32 = 0x00000430
-	serviceNEVER_STARTED     uint32 = 0x00000435
-)

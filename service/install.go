@@ -8,12 +8,12 @@ package service
 import (
 	"errors"
 	"os"
-	"syscall"
 	"time"
 
 	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/svc"
 	"golang.org/x/sys/windows/svc/mgr"
+
 	"golang.zx2c4.com/wireguard/windows/conf"
 )
 
@@ -130,22 +130,22 @@ func InstallTunnel(configPath string) error {
 	service, err := m.OpenService(serviceName)
 	if err == nil {
 		status, err := service.Query()
-		if err != nil && err != syscall.Errno(serviceMARKED_FOR_DELETE) {
+		if err != nil && err != windows.ERROR_SERVICE_MARKED_FOR_DELETE {
 			service.Close()
 			return err
 		}
-		if status.State != svc.Stopped && err != syscall.Errno(serviceMARKED_FOR_DELETE) {
+		if status.State != svc.Stopped && err != windows.ERROR_SERVICE_MARKED_FOR_DELETE {
 			service.Close()
 			return errors.New("Tunnel already installed and running")
 		}
 		err = service.Delete()
 		service.Close()
-		if err != nil && err != syscall.Errno(serviceMARKED_FOR_DELETE) {
+		if err != nil && err != windows.ERROR_SERVICE_MARKED_FOR_DELETE {
 			return err
 		}
 		for {
 			service, err = m.OpenService(serviceName)
-			if err != nil && err != syscall.Errno(serviceMARKED_FOR_DELETE) {
+			if err != nil && err != windows.ERROR_SERVICE_MARKED_FOR_DELETE {
 				break
 			}
 			service.Close()
@@ -185,7 +185,7 @@ func UninstallTunnel(name string) error {
 	service.Control(svc.Stop)
 	err = service.Delete()
 	err2 := service.Close()
-	if err != nil && err != syscall.Errno(serviceMARKED_FOR_DELETE) {
+	if err != nil && err != windows.ERROR_SERVICE_MARKED_FOR_DELETE {
 		return err
 	}
 	return err2
