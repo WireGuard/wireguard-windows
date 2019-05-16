@@ -611,7 +611,7 @@ func permitNdp(session uintptr, baseObjects *baseObjects, weight uint8) error {
 		conditions[0].fieldKey = cFWPM_CONDITION_IP_PROTOCOL
 		conditions[0].matchType = cFWP_MATCH_EQUAL
 		conditions[0].conditionValue._type = cFWP_UINT8
-		conditions[0].conditionValue.value = uintptr(cIPPROTO_ICMP)
+		conditions[0].conditionValue.value = uintptr(cIPPROTO_ICMPV6)
 
 		conditions[1].fieldKey = cFWPM_CONDITION_ICMP_TYPE
 		conditions[1].matchType = cFWP_MATCH_EQUAL
@@ -650,7 +650,7 @@ func permitNdp(session uintptr, baseObjects *baseObjects, weight uint8) error {
 		conditions[0].fieldKey = cFWPM_CONDITION_IP_PROTOCOL
 		conditions[0].matchType = cFWP_MATCH_EQUAL
 		conditions[0].conditionValue._type = cFWP_UINT8
-		conditions[0].conditionValue.value = uintptr(cIPPROTO_ICMP)
+		conditions[0].conditionValue.value = uintptr(cIPPROTO_ICMPV6)
 
 		conditions[1].fieldKey = cFWPM_CONDITION_ICMP_TYPE
 		conditions[1].matchType = cFWP_MATCH_EQUAL
@@ -689,7 +689,7 @@ func permitNdp(session uintptr, baseObjects *baseObjects, weight uint8) error {
 		conditions[0].fieldKey = cFWPM_CONDITION_IP_PROTOCOL
 		conditions[0].matchType = cFWP_MATCH_EQUAL
 		conditions[0].conditionValue._type = cFWP_UINT8
-		conditions[0].conditionValue.value = uintptr(cIPPROTO_ICMP)
+		conditions[0].conditionValue.value = uintptr(cIPPROTO_ICMPV6)
 
 		conditions[1].fieldKey = cFWPM_CONDITION_ICMP_TYPE
 		conditions[1].matchType = cFWP_MATCH_EQUAL
@@ -729,7 +729,7 @@ func permitNdp(session uintptr, baseObjects *baseObjects, weight uint8) error {
 		conditions[0].fieldKey = cFWPM_CONDITION_IP_PROTOCOL
 		conditions[0].matchType = cFWP_MATCH_EQUAL
 		conditions[0].conditionValue._type = cFWP_UINT8
-		conditions[0].conditionValue.value = uintptr(cIPPROTO_ICMP)
+		conditions[0].conditionValue.value = uintptr(cIPPROTO_ICMPV6)
 
 		conditions[1].fieldKey = cFWPM_CONDITION_ICMP_TYPE
 		conditions[1].matchType = cFWP_MATCH_EQUAL
@@ -769,7 +769,7 @@ func permitNdp(session uintptr, baseObjects *baseObjects, weight uint8) error {
 		conditions[0].fieldKey = cFWPM_CONDITION_IP_PROTOCOL
 		conditions[0].matchType = cFWP_MATCH_EQUAL
 		conditions[0].conditionValue._type = cFWP_UINT8
-		conditions[0].conditionValue.value = uintptr(cIPPROTO_ICMP)
+		conditions[0].conditionValue.value = uintptr(cIPPROTO_ICMPV6)
 
 		conditions[1].fieldKey = cFWPM_CONDITION_ICMP_TYPE
 		conditions[1].matchType = cFWP_MATCH_EQUAL
