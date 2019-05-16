@@ -24,6 +24,7 @@ import (
 	"golang.zx2c4.com/wireguard/tun"
 	"golang.zx2c4.com/wireguard/windows/conf"
 	"golang.zx2c4.com/wireguard/windows/ringlogger"
+	"golang.zx2c4.com/wireguard/windows/version"
 )
 
 type tunnelService struct {
@@ -119,7 +120,7 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 	stdLog := log.New(ringlogger.Global, fmt.Sprintf("[%s] ", conf.Name), 0)
 	logger = &device.Logger{stdLog, stdLog, stdLog}
 
-	logger.Info.Println("Starting wireguard-go version", device.WireGuardGoVersion)
+	logger.Info.Println("Starting", version.UserAgent())
 
 	logger.Info.Println("Resolving DNS names")
 	uapiConf, err := conf.ToUAPI()
