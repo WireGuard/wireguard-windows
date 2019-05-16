@@ -410,7 +410,8 @@ const (
 type wtIPProto uint32
 
 const (
-	cIPPROTO_ICMP wtIPProto = 1
-	cIPPROTO_TCP  wtIPProto = 6
-	cIPPROTO_UDP  wtIPProto = 17
+	cIPPROTO_ICMP   wtIPProto = 1
+	cIPPROTO_ICMPV6 wtIPProto = 58
+	cIPPROTO_TCP    wtIPProto = 6
+	cIPPROTO_UDP    wtIPProto = 17
 )
