@@ -44,7 +44,7 @@ func NewUpdatePage() (*UpdatePage, error) {
 	bar.SetVisible(false)
 
 	button, _ := walk.NewPushButton(up)
-	updateIcon, _ := loadSystemIcon("shell32", 46, bar.Height())
+	updateIcon, _ := loadSystemIcon("shell32", 46, 32)
 	button.SetImage(updateIcon)
 	button.SetText("Update Now")
 
