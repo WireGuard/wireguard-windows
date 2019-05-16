@@ -13,33 +13,6 @@ import (
 	"golang.org/x/sys/windows"
 )
 
-func tokenIsElevated(token windows.Token) bool {
-	var isElevated uint32
-	var outLen uint32
-	err := windows.GetTokenInformation(token, windows.TokenElevation, (*byte)(unsafe.Pointer(&isElevated)), uint32(unsafe.Sizeof(isElevated)), &outLen)
-	if err != nil {
-		return false
-	}
-	return outLen == uint32(unsafe.Sizeof(isElevated)) && isElevated != 0
-}
-
-func getElevatedToken(token windows.Token) (windows.Token, error) {
-	if tokenIsElevated(token) {
-		return token, nil
-	}
-	var linkedToken windows.Token
-	var outLen uint32
-	err := windows.GetTokenInformation(token, windows.TokenLinkedToken, (*byte)(unsafe.Pointer(&linkedToken)), uint32(unsafe.Sizeof(linkedToken)), &outLen)
-	if err != nil {
-		return windows.Token(0), err
-	}
-	if tokenIsElevated(linkedToken) {
-		return linkedToken, nil
-	}
-	linkedToken.Close()
-	return windows.Token(0), errors.New("the linked token is not elevated")
-}
-
 func TokenIsMemberOfBuiltInAdministrator(token windows.Token) bool {
 	adminSid, err := windows.CreateWellKnownSid(windows.WinBuiltinAdministratorsSid)
 	if err != nil {

@@ -111,14 +111,21 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 			userToken.Close()
 			return
 		}
-		//TODO: The environment that Go gets from CreateEnvironmentBlock seems to have the same PATH as the userToken. Aren't there attacks?
-		elevatedToken, err := getElevatedToken(userToken)
-		if err != nil {
-			log.Printf("Unable to elevate token: %v", err)
-			return
-		}
-		if elevatedToken != userToken {
+		var elevatedToken windows.Token
+		if userToken.IsElevated() {
+			elevatedToken = userToken
+		} else {
+			elevatedToken, err = userToken.GetLinkedToken()
 			userToken.Close()
+			if err != nil {
+				log.Printf("Unable to elevate token: %v", err)
+				return
+			}
+			if !elevatedToken.IsElevated() {
+				elevatedToken.Close()
+				log.Println("Linked token is not elevated")
+				return
+			}
 		}
 		defer elevatedToken.Close()
 		userToken = 0
