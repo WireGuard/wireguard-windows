@@ -22,6 +22,7 @@ struct syntaxedit_data {
 	IRichEditOle *irich;
 	ITextDocument *idoc;
 	enum block_state last_block_state;
+	LONG yheight;
 	bool highlight_guard;
 };
 
@@ -118,6 +119,7 @@ done:
 
 static void highlight_text(HWND hWnd)
 {
+	struct syntaxedit_data *this = (struct syntaxedit_data *)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 	GETTEXTLENGTHEX gettextlengthex = {
 		.flags = GTL_NUMBYTES,
 		.codepage = CP_ACP /* Probably CP_UTF8 would be better, but (wine at least) returns utf32 sizes. */
@@ -130,10 +132,9 @@ static void highlight_text(HWND hWnd)
 		.cbSize = sizeof(CHARFORMAT2),
 		.dwMask = CFM_COLOR | CFM_CHARSET | CFM_SIZE | CFM_BOLD | CFM_ITALIC | CFM_UNDERLINE,
 		.dwEffects = CFE_AUTOCOLOR,
-		.yHeight = 20 * 10,
+		.yHeight = this->yheight ?: 20 * 10,
 		.bCharSet = ANSI_CHARSET
 	};
-	struct syntaxedit_data *this = (struct syntaxedit_data *)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 	LRESULT msg_size;
 	char *msg = NULL;
 	struct highlight_span *spans = NULL;
@@ -318,9 +319,16 @@ static LRESULT CALLBACK child_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lP
 		SendMessage(hWnd, EM_EMPTYUNDOBUFFER, 0, 0);
 		return ret;
 	}
-	case WM_DPICHANGED:
+	case SE_SET_PARENT_DPI: {
+		struct syntaxedit_data *this = (struct syntaxedit_data *)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+		HDC hdc = GetDC(hWnd);
+		if (this->yheight)
+			SendMessage(hWnd, EM_SETZOOM, GetDeviceCaps(hdc, LOGPIXELSY), wParam);
+		this->yheight = MulDiv(20 * 10, wParam, GetDeviceCaps(hdc, LOGPIXELSY));
+		ReleaseDC(hWnd, hdc);
 		highlight_text(hWnd);
-		break;
+		return 0;
+	}
 	case WM_REFLECT + WM_COMMAND:
 	case WM_COMMAND:
 	case WM_REFLECT + WM_NOTIFY:

@@ -15,6 +15,7 @@ import (
 	"github.com/lxn/win"
 )
 
+// #cgo LDFLAGS: -lgdi32
 // #include "syntaxedit.h"
 import "C"
 
@@ -108,6 +109,7 @@ func NewSyntaxEdit(parent walk.Container) (*SyntaxEdit, error) {
 	if err != nil {
 		return nil, err
 	}
+	se.SendMessage(C.SE_SET_PARENT_DPI, uintptr(parent.DPI()), 0)
 
 	se.GraphicsEffects().Add(walk.InteractionEffect)
 	se.GraphicsEffects().Add(walk.FocusEffect)
@@ -125,4 +127,8 @@ func NewSyntaxEdit(parent walk.Container) (*SyntaxEdit, error) {
 		se.textChangedPublisher.Event()))
 
 	return se, nil
+}
+
+func (se *SyntaxEdit) ApplyDPI(dpi int) {
+	se.SendMessage(C.SE_SET_PARENT_DPI, uintptr(dpi), 0)
 }
