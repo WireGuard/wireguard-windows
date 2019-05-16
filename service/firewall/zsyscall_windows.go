@@ -90,8 +90,8 @@ func fwpmSubLayerAdd0(engineHandle uintptr, subLayer *wtFwpmSublayer0, sd uintpt
 	return
 }
 
-func fwpmGetAppIdFromFileName0(fileName *uint16, appId unsafe.Pointer) (err error) {
-	r1, _, e1 := syscall.Syscall(procFwpmGetAppIdFromFileName0.Addr(), 2, uintptr(unsafe.Pointer(fileName)), uintptr(appId), 0)
+func fwpmGetAppIdFromFileName0(fileName *uint16, appID unsafe.Pointer) (err error) {
+	r1, _, e1 := syscall.Syscall(procFwpmGetAppIdFromFileName0.Addr(), 2, uintptr(unsafe.Pointer(fileName)), uintptr(appID), 0)
 	if r1 != 0 {
 		if e1 != 0 {
 			err = errnoErr(e1)

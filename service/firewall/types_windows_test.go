@@ -346,11 +346,11 @@ func TestWtFwpmFilter0Offsets(t *testing.T) {
 		return
 	}
 
-	offset = uintptr(unsafe.Pointer(&s.filterId)) - sp
+	offset = uintptr(unsafe.Pointer(&s.filterID)) - sp
 
-	if offset != wtFwpmFilter0_filterId_Offset {
-		t.Errorf("wtFwpmFilter0.filterId offset is %d although %d is expected", offset,
-			wtFwpmFilter0_filterId_Offset)
+	if offset != wtFwpmFilter0_filterID_Offset {
+		t.Errorf("wtFwpmFilter0.filterID offset is %d although %d is expected", offset,
+			wtFwpmFilter0_filterID_Offset)
 		return
 	}
 

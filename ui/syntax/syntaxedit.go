@@ -120,9 +120,8 @@ func NewSyntaxEdit(parent walk.Container) (*SyntaxEdit, error) {
 		func(v interface{}) error {
 			if s, ok := v.(string); ok {
 				return se.SetText(s)
-			} else {
-				return se.SetText("")
 			}
+			return se.SetText("")
 		},
 		se.textChangedPublisher.Event()))
 
