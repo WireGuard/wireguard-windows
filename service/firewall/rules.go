@@ -1162,7 +1162,7 @@ func blockDNS(except []net.IP, session uintptr, baseObjects *baseObjects, weight
 	//
 	// #5 Allow IPv4 outbound DNS.
 	//
-	{
+	if len(allowConditionsV4) > len(denyConditions) {
 		displayData, err := createWtFwpmDisplayData0("Allow DNS outbound (IPv4)", "")
 		if err != nil {
 			return wrapErr(err)
@@ -1180,7 +1180,7 @@ func blockDNS(except []net.IP, session uintptr, baseObjects *baseObjects, weight
 	//
 	// #6 Allow IPv4 inbound DNS.
 	//
-	{
+	if len(allowConditionsV4) > len(denyConditions) {
 		displayData, err := createWtFwpmDisplayData0("Allow DNS inbound (IPv4)", "")
 		if err != nil {
 			return wrapErr(err)
@@ -1201,7 +1201,7 @@ func blockDNS(except []net.IP, session uintptr, baseObjects *baseObjects, weight
 	//
 	// #7 Allow IPv6 outbound DNS.
 	//
-	{
+	if len(allowConditionsV6) > len(denyConditions) {
 		displayData, err := createWtFwpmDisplayData0("Allow DNS outbound (IPv6)", "")
 		if err != nil {
 			return wrapErr(err)
@@ -1219,7 +1219,7 @@ func blockDNS(except []net.IP, session uintptr, baseObjects *baseObjects, weight
 	//
 	// #8 Allow IPv6 inbound DNS.
 	//
-	{
+	if len(allowConditionsV6) > len(denyConditions) {
 		displayData, err := createWtFwpmDisplayData0("Allow DNS inbound (IPv6)", "")
 		if err != nil {
 			return wrapErr(err)
