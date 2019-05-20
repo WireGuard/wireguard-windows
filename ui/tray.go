@@ -12,9 +12,9 @@ import (
 	"time"
 
 	"golang.zx2c4.com/wireguard/windows/conf"
+	"golang.zx2c4.com/wireguard/windows/manager"
 
 	"github.com/lxn/walk"
-	"golang.zx2c4.com/wireguard/windows/service"
 )
 
 // Status + active CIDRs + separator
@@ -28,8 +28,8 @@ type Tray struct {
 
 	mtw *ManageTunnelsWindow
 
-	tunnelChangedCB  *service.TunnelChangeCallback
-	tunnelsChangedCB *service.TunnelsChangeCallback
+	tunnelChangedCB  *manager.TunnelChangeCallback
+	tunnelsChangedCB *manager.TunnelsChangeCallback
 
 	clicked func()
 }
@@ -102,10 +102,10 @@ func (tray *Tray) setup() error {
 
 		tray.ContextMenu().Actions().Add(action)
 	}
-	tray.tunnelChangedCB = service.IPCClientRegisterTunnelChange(tray.onTunnelChange)
-	tray.tunnelsChangedCB = service.IPCClientRegisterTunnelsChange(tray.onTunnelsChange)
+	tray.tunnelChangedCB = manager.IPCClientRegisterTunnelChange(tray.onTunnelChange)
+	tray.tunnelsChangedCB = manager.IPCClientRegisterTunnelsChange(tray.onTunnelsChange)
 	tray.onTunnelsChange()
-	globalState, _ := service.IPCClientGlobalState()
+	globalState, _ := manager.IPCClientGlobalState()
 	tray.updateGlobalState(globalState)
 
 	return nil
@@ -124,7 +124,7 @@ func (tray *Tray) Dispose() error {
 }
 
 func (tray *Tray) onTunnelsChange() {
-	tunnels, err := service.IPCClientTunnels()
+	tunnels, err := manager.IPCClientTunnels()
 	if err != nil {
 		return
 	}
@@ -144,7 +144,7 @@ func (tray *Tray) onTunnelsChange() {
 	})
 }
 
-func (tray *Tray) addTunnelAction(tunnel *service.Tunnel) {
+func (tray *Tray) addTunnelAction(tunnel *manager.Tunnel) {
 	tunnelAction := walk.NewAction()
 	tunnelAction.SetText(tunnel.Name)
 	tunnelAction.SetEnabled(true)
@@ -159,11 +159,11 @@ func (tray *Tray) addTunnelAction(tunnel *service.Tunnel) {
 					raise(tray.mtw.Handle())
 					tray.mtw.tunnelsPage.listView.selectTunnel(tclosure.Name)
 					tray.mtw.tabs.SetCurrentIndex(0)
-					if oldState == service.TunnelUnknown {
+					if oldState == manager.TunnelUnknown {
 						walk.MsgBox(tray.mtw, "Failed to determine tunnel state", err.Error(), walk.MsgBoxIconError)
-					} else if oldState == service.TunnelStopped {
+					} else if oldState == manager.TunnelStopped {
 						walk.MsgBox(tray.mtw, "Failed to activate tunnel", err.Error(), walk.MsgBoxIconError)
-					} else if oldState == service.TunnelStarted {
+					} else if oldState == manager.TunnelStarted {
 						walk.MsgBox(tray.mtw, "Failed to deactivate tunnel", err.Error(), walk.MsgBoxIconError)
 					}
 				})
@@ -208,7 +208,7 @@ func (tray *Tray) removeTunnelAction(tunnelName string) {
 	delete(tray.tunnels, tunnelName)
 }
 
-func (tray *Tray) onTunnelChange(tunnel *service.Tunnel, state service.TunnelState, globalState service.TunnelState, err error) {
+func (tray *Tray) onTunnelChange(tunnel *manager.Tunnel, state manager.TunnelState, globalState manager.TunnelState, err error) {
 	tray.mtw.Synchronize(func() {
 		tray.updateGlobalState(globalState)
 		tray.SetTunnelState(tunnel, state, err == nil)
@@ -218,7 +218,7 @@ func (tray *Tray) onTunnelChange(tunnel *service.Tunnel, state service.TunnelSta
 	})
 }
 
-func (tray *Tray) updateGlobalState(globalState service.TunnelState) {
+func (tray *Tray) updateGlobalState(globalState manager.TunnelState) {
 	if icon, err := iconWithOverlayForState(globalState, 16); err == nil {
 		tray.SetIcon(icon)
 	}
@@ -238,23 +238,23 @@ func (tray *Tray) updateGlobalState(globalState service.TunnelState) {
 	statusAction.SetText(fmt.Sprintf("Status: %s", textForState(globalState, false)))
 
 	switch globalState {
-	case service.TunnelStarting:
+	case manager.TunnelStarting:
 		setTunnelActionsEnabled(false)
 
-	case service.TunnelStarted:
+	case manager.TunnelStarted:
 		activeCIDRsAction.SetVisible(true)
 		setTunnelActionsEnabled(true)
 
-	case service.TunnelStopping:
+	case manager.TunnelStopping:
 		setTunnelActionsEnabled(false)
 
-	case service.TunnelStopped:
+	case manager.TunnelStopped:
 		activeCIDRsAction.SetVisible(false)
 		setTunnelActionsEnabled(true)
 	}
 }
 
-func (tray *Tray) SetTunnelState(tunnel *service.Tunnel, state service.TunnelState, showNotifications bool) {
+func (tray *Tray) SetTunnelState(tunnel *manager.Tunnel, state manager.TunnelState, showNotifications bool) {
 	tunnelAction := tray.tunnels[tunnel.Name]
 	if tunnelAction == nil {
 		return
@@ -266,7 +266,7 @@ func (tray *Tray) SetTunnelState(tunnel *service.Tunnel, state service.TunnelSta
 	wasChecked := tunnelAction.Checked()
 
 	switch state {
-	case service.TunnelStarted:
+	case manager.TunnelStarted:
 		activeCIDRsAction.SetText("")
 		go func() {
 			config, err := tunnel.RuntimeConfig()
@@ -291,7 +291,7 @@ func (tray *Tray) SetTunnelState(tunnel *service.Tunnel, state service.TunnelSta
 			tray.ShowCustom("WireGuard Activated", fmt.Sprintf("The %s tunnel has been activated.", tunnel.Name), icon)
 		}
 
-	case service.TunnelStopped:
+	case manager.TunnelStopped:
 		tunnelAction.SetChecked(false)
 		if wasChecked && showNotifications {
 			icon, _ := loadSystemIcon("imageres", 26, 128) //TODO: this icon isn't very good...

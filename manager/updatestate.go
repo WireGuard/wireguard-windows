@@ -3,7 +3,7 @@
  * Copyright (C) 2019 WireGuard LLC. All Rights Reserved.
  */
 
-package service
+package manager
 
 import (
 	"log"

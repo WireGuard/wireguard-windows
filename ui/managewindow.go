@@ -12,7 +12,7 @@ import (
 	"github.com/lxn/win"
 	"golang.org/x/sys/windows"
 
-	"golang.zx2c4.com/wireguard/windows/service"
+	"golang.zx2c4.com/wireguard/windows/manager"
 )
 
 type ManageTunnelsWindow struct {
@@ -23,7 +23,7 @@ type ManageTunnelsWindow struct {
 	logPage     *LogPage
 	updatePage  *UpdatePage
 
-	tunnelChangedCB *service.TunnelChangeCallback
+	tunnelChangedCB *manager.TunnelChangeCallback
 }
 
 const (
@@ -98,9 +98,9 @@ func NewManageTunnelsWindow() (*ManageTunnelsWindow, error) {
 	}
 	mtw.tabs.Pages().Add(mtw.logPage.TabPage)
 
-	mtw.tunnelChangedCB = service.IPCClientRegisterTunnelChange(mtw.onTunnelChange)
-	globalState, _ := service.IPCClientGlobalState()
-	mtw.onTunnelChange(nil, service.TunnelUnknown, globalState, nil)
+	mtw.tunnelChangedCB = manager.IPCClientRegisterTunnelChange(mtw.onTunnelChange)
+	globalState, _ := manager.IPCClientGlobalState()
+	mtw.onTunnelChange(nil, manager.TunnelUnknown, globalState, nil)
 
 	systemMenu := win.GetSystemMenu(mtw.Handle(), false)
 	if systemMenu != 0 {
@@ -129,26 +129,26 @@ func (mtw *ManageTunnelsWindow) Dispose() {
 	mtw.FormBase.Dispose()
 }
 
-func (mtw *ManageTunnelsWindow) updateProgressIndicator(globalState service.TunnelState) {
+func (mtw *ManageTunnelsWindow) updateProgressIndicator(globalState manager.TunnelState) {
 	pi := mtw.ProgressIndicator()
 	if pi == nil {
 		return
 	}
 	switch globalState {
-	case service.TunnelStopping, service.TunnelStarting:
+	case manager.TunnelStopping, manager.TunnelStarting:
 		pi.SetState(walk.PIIndeterminate)
 	default:
 		pi.SetState(walk.PINoProgress)
 	}
 	if icon, err := iconForState(globalState, 16); err == nil {
-		if globalState == service.TunnelStopped {
+		if globalState == manager.TunnelStopped {
 			icon = nil
 		}
 		pi.SetOverlayIcon(icon, textForState(globalState, false))
 	}
 }
 
-func (mtw *ManageTunnelsWindow) onTunnelChange(tunnel *service.Tunnel, state service.TunnelState, globalState service.TunnelState, err error) {
+func (mtw *ManageTunnelsWindow) onTunnelChange(tunnel *manager.Tunnel, state manager.TunnelState, globalState manager.TunnelState, err error) {
 	mtw.Synchronize(func() {
 		mtw.updateProgressIndicator(globalState)
 
@@ -204,7 +204,7 @@ func (mtw *ManageTunnelsWindow) WndProc(hwnd win.HWND, msg uint32, wParam, lPara
 	case taskbarButtonCreatedMsg:
 		ret := mtw.FormBase.WndProc(hwnd, msg, wParam, lParam)
 		go func() {
-			globalState, err := service.IPCClientGlobalState()
+			globalState, err := manager.IPCClientGlobalState()
 			if err == nil {
 				mtw.Synchronize(func() {
 					mtw.updateProgressIndicator(globalState)

@@ -14,8 +14,9 @@ import (
 
 	"golang.org/x/sys/windows"
 
+	"golang.zx2c4.com/wireguard/windows/manager"
 	"golang.zx2c4.com/wireguard/windows/ringlogger"
-	"golang.zx2c4.com/wireguard/windows/service"
+	"golang.zx2c4.com/wireguard/windows/services"
 	"golang.zx2c4.com/wireguard/windows/ui"
 )
 
@@ -68,7 +69,7 @@ func checkForAdminGroup() {
 		fatal("Unable to open current process token: ", err)
 	}
 	defer processToken.Close()
-	if !service.TokenIsMemberOfBuiltInAdministrator(processToken) {
+	if !services.TokenIsMemberOfBuiltInAdministrator(processToken) {
 		fatal("WireGuard may only be used by users who are a member of the Builtin Administrators group.")
 	}
 }
@@ -115,7 +116,7 @@ func main() {
 			usage()
 		}
 		go ui.WaitForRaiseUIThenQuit()
-		err := service.InstallManager()
+		err := manager.InstallManager()
 		if err != nil {
 			fatal(err)
 		}
@@ -126,7 +127,7 @@ func main() {
 		if len(os.Args) != 2 {
 			usage()
 		}
-		err := service.UninstallManager()
+		err := manager.UninstallManager()
 		if err != nil {
 			fatal(err)
 		}
@@ -135,7 +136,7 @@ func main() {
 		if len(os.Args) != 2 {
 			usage()
 		}
-		err := service.RunManager()
+		err := manager.RunManager()
 		if err != nil {
 			fatal(err)
 		}
@@ -144,7 +145,7 @@ func main() {
 		if len(os.Args) != 3 {
 			usage()
 		}
-		err := service.InstallTunnel(os.Args[2])
+		err := manager.InstallTunnel(os.Args[2])
 		if err != nil {
 			fatal(err)
 		}
@@ -153,7 +154,7 @@ func main() {
 		if len(os.Args) != 3 {
 			usage()
 		}
-		err := service.UninstallTunnel(os.Args[2])
+		err := manager.UninstallTunnel(os.Args[2])
 		if err != nil {
 			fatal(err)
 		}
@@ -162,7 +163,7 @@ func main() {
 		if len(os.Args) != 3 {
 			usage()
 		}
-		err := service.RunTunnel(os.Args[2])
+		err := manager.RunTunnel(os.Args[2])
 		if err != nil {
 			fatal(err)
 		}
@@ -171,7 +172,7 @@ func main() {
 		if len(os.Args) != 6 {
 			usage()
 		}
-		err := service.DropAllPrivileges()
+		err := services.DropAllPrivileges()
 		if err != nil {
 			fatal(err)
 		}
@@ -191,7 +192,7 @@ func main() {
 		if err != nil {
 			fatal(err)
 		}
-		service.InitializeIPCClient(readPipe, writePipe, eventPipe)
+		manager.InitializeIPCClient(readPipe, writePipe, eventPipe)
 		ui.RunUI()
 		return
 	case "/dumplog":

@@ -7,12 +7,13 @@ package ui
 
 import (
 	"github.com/lxn/walk"
-	"golang.zx2c4.com/wireguard/windows/service"
+
+	"golang.zx2c4.com/wireguard/windows/manager"
 )
 
 type widthAndState struct {
 	width int
-	state service.TunnelState
+	state manager.TunnelState
 }
 
 type widthAndDllIdx struct {
@@ -23,7 +24,7 @@ type widthAndDllIdx struct {
 
 var cachedOverlayIconsForWidthAndState = make(map[widthAndState]walk.Image)
 
-func iconWithOverlayForState(state service.TunnelState, size int) (icon walk.Image, err error) {
+func iconWithOverlayForState(state manager.TunnelState, size int) (icon walk.Image, err error) {
 	icon = cachedOverlayIconsForWidthAndState[widthAndState{size, state}]
 	if icon != nil {
 		return
@@ -34,7 +35,7 @@ func iconWithOverlayForState(state service.TunnelState, size int) (icon walk.Ima
 		return
 	}
 
-	if state == service.TunnelStopped {
+	if state == manager.TunnelStopped {
 		return wireguardIcon, err //TODO: if we find something prettier than the gray dot, then remove this clause
 	}
 
@@ -64,15 +65,15 @@ func iconWithOverlayForState(state service.TunnelState, size int) (icon walk.Ima
 
 var cachedIconsForWidthAndState = make(map[widthAndState]*walk.Icon)
 
-func iconForState(state service.TunnelState, size int) (icon *walk.Icon, err error) {
+func iconForState(state manager.TunnelState, size int) (icon *walk.Icon, err error) {
 	icon = cachedIconsForWidthAndState[widthAndState{size, state}]
 	if icon != nil {
 		return
 	}
 	switch state {
-	case service.TunnelStarted:
+	case manager.TunnelStarted:
 		icon, err = loadSystemIcon("imageres", 101, size)
-	case service.TunnelStopped:
+	case manager.TunnelStopped:
 		icon, err = walk.NewIconFromResourceWithSize("dot-gray.ico", walk.Size{size, size}) //TODO: replace with real icon
 	default:
 		icon, err = loadSystemIcon("shell32", 238, size) //TODO: this doesn't look that great overlayed on the app icon
@@ -83,22 +84,22 @@ func iconForState(state service.TunnelState, size int) (icon *walk.Icon, err err
 	return
 }
 
-func textForState(state service.TunnelState, withEllipsis bool) (text string) {
+func textForState(state manager.TunnelState, withEllipsis bool) (text string) {
 	switch state {
-	case service.TunnelStarted:
+	case manager.TunnelStarted:
 		text = "Active"
-	case service.TunnelStarting:
+	case manager.TunnelStarting:
 		text = "Activating"
-	case service.TunnelStopped:
+	case manager.TunnelStopped:
 		text = "Inactive"
-	case service.TunnelStopping:
+	case manager.TunnelStopping:
 		text = "Deactivating"
-	case service.TunnelUnknown:
+	case manager.TunnelUnknown:
 		text = "Unknown state"
 	}
 	if withEllipsis {
 		switch state {
-		case service.TunnelStarting, service.TunnelStopping:
+		case manager.TunnelStarting, manager.TunnelStopping:
 			text += "..."
 		}
 	}

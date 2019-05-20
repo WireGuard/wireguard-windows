@@ -13,7 +13,8 @@ import (
 
 	"github.com/lxn/walk"
 	"github.com/lxn/win"
-	"golang.zx2c4.com/wireguard/windows/service"
+
+	"golang.zx2c4.com/wireguard/windows/manager"
 	"golang.zx2c4.com/wireguard/windows/version"
 )
 
@@ -55,29 +56,29 @@ func RunUI() {
 		}
 	}
 
-	service.IPCClientRegisterManagerStopping(func() {
+	manager.IPCClientRegisterManagerStopping(func() {
 		mtw.Synchronize(func() {
 			walk.App().Exit(0)
 		})
 	})
 
-	onUpdateNotification := func(updateState service.UpdateState) {
-		if updateState == service.UpdateStateUnknown {
+	onUpdateNotification := func(updateState manager.UpdateState) {
+		if updateState == manager.UpdateStateUnknown {
 			return
 		}
 		mtw.Synchronize(func() {
 			switch updateState {
-			case service.UpdateStateFoundUpdate:
+			case manager.UpdateStateFoundUpdate:
 				mtw.UpdateFound()
 				tray.UpdateFound()
-			case service.UpdateStateUpdatesDisabledUnofficialBuild:
+			case manager.UpdateStateUpdatesDisabledUnofficialBuild:
 				mtw.SetTitle(mtw.Title() + " (unsigned build, no updates)")
 			}
 		})
 	}
-	service.IPCClientRegisterUpdateFound(onUpdateNotification)
+	manager.IPCClientRegisterUpdateFound(onUpdateNotification)
 	go func() {
-		updateState, err := service.IPCClientUpdateState()
+		updateState, err := manager.IPCClientUpdateState()
 		if err == nil {
 			onUpdateNotification(updateState)
 		}
@@ -92,7 +93,7 @@ func RunUI() {
 	mtw.Dispose()
 
 	if shouldQuitManagerWhenExiting {
-		_, err := service.IPCClientQuit(true)
+		_, err := manager.IPCClientQuit(true)
 		if err != nil {
 			walk.MsgBox(nil, "Error Exiting WireGuard", fmt.Sprintf("Unable to exit service due to: %s. You may want to stop WireGuard from the service manager.", err), walk.MsgBoxIconError)
 		}

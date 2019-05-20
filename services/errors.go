@@ -3,7 +3,7 @@
  * Copyright (C) 2017-2019 WireGuard LLC. All Rights Reserved.
  */
 
-package service
+package services
 
 import (
 	"fmt"
@@ -75,7 +75,7 @@ func (e Error) Error() string {
 	}
 }
 
-func determineErrorCode(err error, serviceError Error) (bool, uint32) {
+func DetermineErrorCode(err error, serviceError Error) (bool, uint32) {
 	if syserr, ok := err.(syscall.Errno); ok {
 		return false, uint32(syserr)
 	} else if serviceError != ErrorSuccess {
@@ -85,7 +85,7 @@ func determineErrorCode(err error, serviceError Error) (bool, uint32) {
 	}
 }
 
-func combineErrors(err error, serviceError Error) error {
+func CombineErrors(err error, serviceError Error) error {
 	if serviceError != ErrorSuccess {
 		if err != nil {
 			return fmt.Errorf("%v: %v", serviceError, err)

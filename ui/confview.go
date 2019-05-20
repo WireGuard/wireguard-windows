@@ -13,8 +13,9 @@ import (
 
 	"github.com/lxn/walk"
 	"github.com/lxn/win"
+
 	"golang.zx2c4.com/wireguard/windows/conf"
-	"golang.zx2c4.com/wireguard/windows/service"
+	"golang.zx2c4.com/wireguard/windows/manager"
 )
 
 type widgetsLine interface {
@@ -28,7 +29,7 @@ type widgetsLinesView interface {
 type rectAndSizeAndState struct {
 	rect  walk.Rectangle
 	size  walk.Size
-	state service.TunnelState
+	state manager.TunnelState
 }
 
 type labelStatusLine struct {
@@ -75,8 +76,8 @@ type ConfView struct {
 	name            *walk.GroupBox
 	interfaze       *interfaceView
 	peers           map[conf.Key]*peerView
-	tunnelChangedCB *service.TunnelChangeCallback
-	tunnel          *service.Tunnel
+	tunnelChangedCB *manager.TunnelChangeCallback
+	tunnel          *manager.Tunnel
 	updateTicker    *time.Ticker
 }
 
@@ -84,7 +85,7 @@ func (lsl *labelStatusLine) widgets() (walk.Widget, walk.Widget) {
 	return lsl.label, lsl.statusComposite
 }
 
-func (lsl *labelStatusLine) update(state service.TunnelState) {
+func (lsl *labelStatusLine) update(state manager.TunnelState) {
 	icon, err := iconForState(state, 14)
 	if err == nil {
 		lsl.statusImage.SetImage(icon)
@@ -122,7 +123,7 @@ func newLabelStatusLine(parent walk.Container) *labelStatusLine {
 	lsl.statusLabel.FocusedChanged().Attach(func() {
 		lsl.statusLabel.SetTextSelection(0, 0)
 	})
-	lsl.update(service.TunnelUnknown)
+	lsl.update(manager.TunnelUnknown)
 
 	return lsl
 }
@@ -167,26 +168,26 @@ func (tal *toggleActiveLine) widgets() (walk.Widget, walk.Widget) {
 	return nil, tal.composite
 }
 
-func (tal *toggleActiveLine) updateGlobal(globalState service.TunnelState) {
-	tal.button.SetEnabled(globalState == service.TunnelStarted || globalState == service.TunnelStopped)
+func (tal *toggleActiveLine) updateGlobal(globalState manager.TunnelState) {
+	tal.button.SetEnabled(globalState == manager.TunnelStarted || globalState == manager.TunnelStopped)
 }
 
-func (tal *toggleActiveLine) update(state service.TunnelState) {
+func (tal *toggleActiveLine) update(state manager.TunnelState) {
 	var text string
 
 	switch state {
-	case service.TunnelStarted:
+	case manager.TunnelStarted:
 		text = "Deactivate"
-	case service.TunnelStopped:
+	case manager.TunnelStopped:
 		text = "Activate"
-	case service.TunnelStarting, service.TunnelStopping:
+	case manager.TunnelStarting, manager.TunnelStopping:
 		text = textForState(state, true)
 	default:
 		text = ""
 	}
 
 	tal.button.SetText(text)
-	tal.button.SetVisible(state != service.TunnelUnknown)
+	tal.button.SetVisible(state != manager.TunnelUnknown)
 }
 
 func newToggleActiveLine(parent walk.Container) *toggleActiveLine {
@@ -199,7 +200,7 @@ func newToggleActiveLine(parent walk.Container) *toggleActiveLine {
 
 	tal.button, _ = walk.NewPushButton(tal.composite)
 	walk.NewHSpacer(tal.composite)
-	tal.update(service.TunnelStopped)
+	tal.update(manager.TunnelStopped)
 
 	return tal
 }
@@ -388,9 +389,9 @@ func NewConfView(parent walk.Container) (*ConfView, error) {
 	cv.interfaze = newInterfaceView(cv.name)
 	cv.interfaze.toggleActive.button.Clicked().Attach(cv.onToggleActiveClicked)
 	cv.peers = make(map[conf.Key]*peerView)
-	cv.tunnelChangedCB = service.IPCClientRegisterTunnelChange(cv.onTunnelChanged)
+	cv.tunnelChangedCB = manager.IPCClientRegisterTunnelChange(cv.onTunnelChanged)
 	cv.SetTunnel(nil)
-	globalState, _ := service.IPCClientGlobalState()
+	globalState, _ := manager.IPCClientGlobalState()
 	cv.interfaze.toggleActive.updateGlobal(globalState)
 
 	if err := walk.InitWrapperWindow(cv); err != nil {
@@ -405,9 +406,9 @@ func NewConfView(parent walk.Container) (*ConfView, error) {
 			}
 			if cv.tunnel != nil {
 				tunnel := cv.tunnel
-				var state service.TunnelState
+				var state manager.TunnelState
 				var config conf.Config
-				if state, _ = tunnel.State(); state == service.TunnelStarted {
+				if state, _ = tunnel.State(); state == manager.TunnelStarted {
 					config, _ = tunnel.RuntimeConfig()
 				}
 				if config.Name == "" {
@@ -440,11 +441,11 @@ func (cv *ConfView) onToggleActiveClicked() {
 		oldState, err := cv.tunnel.Toggle()
 		if err != nil {
 			cv.Synchronize(func() {
-				if oldState == service.TunnelUnknown {
+				if oldState == manager.TunnelUnknown {
 					walk.MsgBox(cv.Form(), "Failed to determine tunnel state", err.Error(), walk.MsgBoxIconError)
-				} else if oldState == service.TunnelStopped {
+				} else if oldState == manager.TunnelStopped {
 					walk.MsgBox(cv.Form(), "Failed to activate tunnel", err.Error(), walk.MsgBoxIconError)
-				} else if oldState == service.TunnelStarted {
+				} else if oldState == manager.TunnelStarted {
 					walk.MsgBox(cv.Form(), "Failed to deactivate tunnel", err.Error(), walk.MsgBoxIconError)
 				}
 			})
@@ -452,7 +453,7 @@ func (cv *ConfView) onToggleActiveClicked() {
 	}()
 }
 
-func (cv *ConfView) onTunnelChanged(tunnel *service.Tunnel, state service.TunnelState, globalState service.TunnelState, err error) {
+func (cv *ConfView) onTunnelChanged(tunnel *manager.Tunnel, state manager.TunnelState, globalState manager.TunnelState, err error) {
 	cv.Synchronize(func() {
 		cv.interfaze.toggleActive.updateGlobal(globalState)
 		if cv.tunnel != nil && cv.tunnel.Name == tunnel.Name {
@@ -462,7 +463,7 @@ func (cv *ConfView) onTunnelChanged(tunnel *service.Tunnel, state service.Tunnel
 	})
 	if cv.tunnel != nil && cv.tunnel.Name == tunnel.Name {
 		var config conf.Config
-		if state == service.TunnelStarted {
+		if state == manager.TunnelStarted {
 			config, _ = tunnel.RuntimeConfig()
 		}
 		if config.Name == "" {
@@ -474,14 +475,14 @@ func (cv *ConfView) onTunnelChanged(tunnel *service.Tunnel, state service.Tunnel
 	}
 }
 
-func (cv *ConfView) SetTunnel(tunnel *service.Tunnel) {
+func (cv *ConfView) SetTunnel(tunnel *manager.Tunnel) {
 	cv.tunnel = tunnel //XXX: This races with the read in the updateTicker, but it's pointer-sized!
 
 	var config conf.Config
-	var state service.TunnelState
+	var state manager.TunnelState
 	if tunnel != nil {
 		go func() {
-			if state, _ = tunnel.State(); state == service.TunnelStarted {
+			if state, _ = tunnel.State(); state == manager.TunnelStarted {
 				config, _ = tunnel.RuntimeConfig()
 			}
 			if config.Name == "" {
@@ -496,7 +497,7 @@ func (cv *ConfView) SetTunnel(tunnel *service.Tunnel) {
 	}
 }
 
-func (cv *ConfView) setTunnel(tunnel *service.Tunnel, config *conf.Config, state service.TunnelState) {
+func (cv *ConfView) setTunnel(tunnel *manager.Tunnel, config *conf.Config, state manager.TunnelState) {
 	if !(cv.tunnel == nil || tunnel == nil || tunnel.Name == cv.tunnel.Name) {
 		return
 	}

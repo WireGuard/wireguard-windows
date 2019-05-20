@@ -9,7 +9,8 @@ import (
 	"fmt"
 
 	"github.com/lxn/walk"
-	"golang.zx2c4.com/wireguard/windows/service"
+
+	"golang.zx2c4.com/wireguard/windows/manager"
 	"golang.zx2c4.com/wireguard/windows/updater"
 )
 
@@ -77,14 +78,14 @@ func NewUpdatePage() (*UpdatePage, error) {
 
 	button.Clicked().Attach(func() {
 		switchToUpdatingState()
-		err := service.IPCClientUpdate()
+		err := manager.IPCClientUpdate()
 		if err != nil {
 			switchToReadyState()
 			status.SetText(fmt.Sprintf("Error: %v. Please try again.", err))
 		}
 	})
 
-	service.IPCClientRegisterUpdateProgress(func(dp updater.DownloadProgress) {
+	manager.IPCClientRegisterUpdateProgress(func(dp updater.DownloadProgress) {
 		up.Synchronize(func() {
 			switchToUpdatingState()
 			if dp.Error != nil {
