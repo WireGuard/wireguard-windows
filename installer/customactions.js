@@ -22,7 +22,7 @@ function runWithNoWindowFlash(command) {
 	var tmpfile = fso.BuildPath(fso.GetSpecialFolder(2), fso.GetTempName());
 	try {
 		//TODO: Obviously cmd and tmpfile are unescaped here...
-		var cmd = fso.BuildPath(fso.GetSpecialFolder(1), "cmd.exe") + " /c " + command + " > " + tmpfile;
+		var cmd = fso.BuildPath(fso.GetSpecialFolder(1), "cmd.exe") + " /c " + command + " > \"" + tmpfile + "\"";
 		var ret = wsh.Run(cmd, 0, true);
 		if (ret != 0) {
 			logMessage("Command " + cmd + " exited with error " + ret.toString());
