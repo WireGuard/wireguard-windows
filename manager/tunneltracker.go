@@ -3,7 +3,7 @@
  * Copyright (C) 2019 WireGuard LLC. All Rights Reserved.
  */
 
-package service
+package manager
 
 import (
 	"fmt"
@@ -16,7 +16,9 @@ import (
 	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/svc"
 	"golang.org/x/sys/windows/svc/mgr"
+
 	"golang.zx2c4.com/wireguard/windows/conf"
+	"golang.zx2c4.com/wireguard/windows/services"
 )
 
 func trackExistingTunnels() error {
@@ -83,7 +85,7 @@ func trackedTunnelsGlobalState() (state TunnelState) {
 func trackTunnelService(tunnelName string, service *mgr.Service) {
 	defer func() {
 		service.Close()
-		log.Printf("[%s] Tunnel service tracker finished", tunnelName)
+		log.Printf("[%s] Tunnel managerService tracker finished", tunnelName)
 	}()
 
 	trackedTunnelsLock.Lock()
@@ -148,7 +150,7 @@ func trackTunnelService(tunnelName string, service *mgr.Service) {
 			trackedTunnelsLock.Lock()
 			trackedTunnels[tunnelName] = TunnelStopped
 			trackedTunnelsLock.Unlock()
-			IPCServerNotifyTunnelChange(tunnelName, TunnelStopped, fmt.Errorf("Unable to continue monitoring service, so stopping: %v", err))
+			IPCServerNotifyTunnelChange(tunnelName, TunnelStopped, fmt.Errorf("Unable to continue monitoring managerService, so stopping: %v", err))
 			service.Control(svc.Stop)
 			return
 		}
@@ -157,8 +159,8 @@ func trackTunnelService(tunnelName string, service *mgr.Service) {
 		var tunnelError error
 		if state == TunnelStopped {
 			if notifier.ServiceStatus.Win32ExitCode == uint32(windows.ERROR_SERVICE_SPECIFIC_ERROR) {
-				maybeErr := Error(notifier.ServiceStatus.ServiceSpecificExitCode)
-				if maybeErr != ErrorSuccess {
+				maybeErr := services.Error(notifier.ServiceStatus.ServiceSpecificExitCode)
+				if maybeErr != services.ErrorSuccess {
 					tunnelError = maybeErr
 				}
 			} else {

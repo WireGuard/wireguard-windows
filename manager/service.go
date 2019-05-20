@@ -3,7 +3,7 @@
  * Copyright (C) 2019 WireGuard LLC. All Rights Reserved.
  */
 
-package service
+package manager
 
 import (
 	"errors"
@@ -20,8 +20,10 @@ import (
 
 	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/svc"
+
 	"golang.zx2c4.com/wireguard/windows/conf"
 	"golang.zx2c4.com/wireguard/windows/ringlogger"
+	"golang.zx2c4.com/wireguard/windows/services"
 	"golang.zx2c4.com/wireguard/windows/version"
 )
 
@@ -31,11 +33,11 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 	changes <- svc.Status{State: svc.StartPending}
 
 	var err error
-	serviceError := ErrorSuccess
+	serviceError := services.ErrorSuccess
 
 	defer func() {
-		svcSpecificEC, exitCode = determineErrorCode(err, serviceError)
-		logErr := combineErrors(err, serviceError)
+		svcSpecificEC, exitCode = services.DetermineErrorCode(err, serviceError)
+		logErr := services.CombineErrors(err, serviceError)
 		if logErr != nil {
 			log.Print(logErr)
 		}
@@ -44,7 +46,7 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 
 	err = ringlogger.InitGlobalLogger("MGR")
 	if err != nil {
-		serviceError = ErrorRingloggerOpen
+		serviceError = services.ErrorRingloggerOpen
 		return
 	}
 	defer func() {
@@ -62,19 +64,19 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 
 	path, err := os.Executable()
 	if err != nil {
-		serviceError = ErrorDetermineExecutablePath
+		serviceError = services.ErrorDetermineExecutablePath
 		return
 	}
 
 	devNull, err := os.OpenFile(os.DevNull, os.O_RDWR, 0)
 	if err != nil {
-		serviceError = ErrorOpenNULFile
+		serviceError = services.ErrorOpenNULFile
 		return
 	}
 
 	err = trackExistingTunnels()
 	if err != nil {
-		serviceError = ErrorTrackTunnels
+		serviceError = services.ErrorTrackTunnels
 		return
 	}
 
@@ -100,7 +102,7 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 		if err != nil {
 			return
 		}
-		if !TokenIsMemberOfBuiltInAdministrator(userToken) {
+		if !services.TokenIsMemberOfBuiltInAdministrator(userToken) {
 			userToken.Close()
 			return
 		}
@@ -240,7 +242,7 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 	var count uint32
 	err = windows.WTSEnumerateSessions(0, 0, 1, &sessionsPointer, &count)
 	if err != nil {
-		serviceError = ErrorEnumerateSessions
+		serviceError = services.ErrorEnumerateSessions
 		return
 	}
 	sessions := *(*[]windows.WTS_SESSION_INFO)(unsafe.Pointer(&struct {

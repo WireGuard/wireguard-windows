@@ -3,7 +3,7 @@
  * Copyright (C) 2019 WireGuard LLC. All Rights Reserved.
  */
 
-package service
+package tunnel
 
 import (
 	"bytes"
@@ -16,7 +16,7 @@ import (
 	"golang.zx2c4.com/wireguard/tun"
 
 	"golang.zx2c4.com/wireguard/windows/conf"
-	"golang.zx2c4.com/wireguard/windows/service/firewall"
+	"golang.zx2c4.com/wireguard/windows/tunnel/firewall"
 )
 
 func cleanupAddressesOnDisconnectedInterfaces(addresses []*net.IPNet) {

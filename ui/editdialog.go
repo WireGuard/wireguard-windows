@@ -10,8 +10,9 @@ import (
 	"strings"
 
 	"github.com/lxn/walk"
+
 	"golang.zx2c4.com/wireguard/windows/conf"
-	"golang.zx2c4.com/wireguard/windows/service"
+	"golang.zx2c4.com/wireguard/windows/manager"
 	"golang.zx2c4.com/wireguard/windows/ui/syntax"
 )
 
@@ -27,7 +28,7 @@ type EditDialog struct {
 	blockUntunneledTraficCheckGuard bool
 }
 
-func runTunnelEditDialog(owner walk.Form, tunnel *service.Tunnel, clone bool) *conf.Config {
+func runTunnelEditDialog(owner walk.Form, tunnel *manager.Tunnel, clone bool) *conf.Config {
 	dlg := &EditDialog{}
 
 	var title string
@@ -268,7 +269,7 @@ func (dlg *EditDialog) onSaveButtonClicked() {
 	newNameLower := strings.ToLower(newName)
 
 	if newNameLower != strings.ToLower(dlg.config.Name) {
-		existingTunnelList, err := service.IPCClientTunnels()
+		existingTunnelList, err := manager.IPCClientTunnels()
 		if err != nil {
 			walk.MsgBox(dlg, "Unable to list existing tunnels", err.Error(), walk.MsgBoxIconError)
 			return

@@ -16,8 +16,9 @@ import (
 
 	"github.com/lxn/walk"
 	"github.com/lxn/win"
+
 	"golang.zx2c4.com/wireguard/windows/conf"
-	"golang.zx2c4.com/wireguard/windows/service"
+	"golang.zx2c4.com/wireguard/windows/manager"
 )
 
 type TunnelsPage struct {
@@ -314,7 +315,7 @@ func (tp *TunnelsPage) importFiles(paths []string) {
 			return conf.TunnelNameIsLess(unparsedConfigs[j].Name, unparsedConfigs[i].Name)
 		})
 
-		existingTunnelList, err := service.IPCClientTunnels()
+		existingTunnelList, err := manager.IPCClientTunnels()
 		if err != nil {
 			syncedMsgBox("Error", fmt.Sprintf("Could not enumerate existing tunnels: %v", lastErr), walk.MsgBoxIconWarning)
 			return
@@ -336,7 +337,7 @@ func (tp *TunnelsPage) importFiles(paths []string) {
 				lastErr = err
 				continue
 			}
-			_, err = service.IPCClientNewTunnel(config)
+			_, err = manager.IPCClientNewTunnel(config)
 			if err != nil {
 				lastErr = err
 				continue
@@ -384,7 +385,7 @@ func (tp *TunnelsPage) exportTunnels(filePath string) {
 }
 
 func (tp *TunnelsPage) addTunnel(config *conf.Config) {
-	_, err := service.IPCClientNewTunnel(config)
+	_, err := manager.IPCClientNewTunnel(config)
 	if err != nil {
 		walk.MsgBox(tp.Form(), "Unable to create tunnel", err.Error(), walk.MsgBoxIconError)
 	}
@@ -395,18 +396,18 @@ func (tp *TunnelsPage) addTunnel(config *conf.Config) {
 
 func (tp *TunnelsPage) onTunnelsViewItemActivated() {
 	go func() {
-		globalState, err := service.IPCClientGlobalState()
-		if err != nil || (globalState != service.TunnelStarted && globalState != service.TunnelStopped) {
+		globalState, err := manager.IPCClientGlobalState()
+		if err != nil || (globalState != manager.TunnelStarted && globalState != manager.TunnelStopped) {
 			return
 		}
 		oldState, err := tp.listView.CurrentTunnel().Toggle()
 		if err != nil {
 			tp.Synchronize(func() {
-				if oldState == service.TunnelUnknown {
+				if oldState == manager.TunnelUnknown {
 					walk.MsgBox(tp.Form(), "Failed to determine tunnel state", err.Error(), walk.MsgBoxIconError)
-				} else if oldState == service.TunnelStopped {
+				} else if oldState == manager.TunnelStopped {
 					walk.MsgBox(tp.Form(), "Failed to activate tunnel", err.Error(), walk.MsgBoxIconError)
-				} else if oldState == service.TunnelStarted {
+				} else if oldState == manager.TunnelStarted {
 					walk.MsgBox(tp.Form(), "Failed to deactivate tunnel", err.Error(), walk.MsgBoxIconError)
 				}
 			})
@@ -426,8 +427,8 @@ func (tp *TunnelsPage) onEditTunnel() {
 			priorState, err := tunnel.State()
 			tunnel.Delete()
 			tunnel.WaitForStop()
-			tunnel, err2 := service.IPCClientNewTunnel(config)
-			if err == nil && err2 == nil && (priorState == service.TunnelStarting || priorState == service.TunnelStarted) {
+			tunnel, err2 := manager.IPCClientNewTunnel(config)
+			if err == nil && err2 == nil && (priorState == manager.TunnelStarting || priorState == manager.TunnelStarted) {
 				tunnel.Start()
 			}
 		}()
@@ -490,7 +491,7 @@ func (tp *TunnelsPage) onDelete() {
 		tp.listView.selectTunnel(selectTunnelAfter)
 	}
 
-	tunnelsToDelete := make([]service.Tunnel, len(indices))
+	tunnelsToDelete := make([]manager.Tunnel, len(indices))
 	for i, j := range indices {
 		tunnelsToDelete[i] = tp.listView.model.tunnels[j]
 

@@ -3,7 +3,7 @@
  * Copyright (C) 2019 WireGuard LLC. All Rights Reserved.
  */
 
-package service
+package manager
 
 import (
 	"errors"
@@ -15,6 +15,7 @@ import (
 	"golang.org/x/sys/windows/svc/mgr"
 
 	"golang.zx2c4.com/wireguard/windows/conf"
+	"golang.zx2c4.com/wireguard/windows/tunnel"
 )
 
 var cachedServiceManager *mgr.Mgr
@@ -200,5 +201,5 @@ func RunTunnel(confPath string) error {
 	if err != nil {
 		return err
 	}
-	return svc.Run(serviceName, &tunnelService{confPath})
+	return svc.Run(serviceName, &tunnel.Service{confPath})
 }

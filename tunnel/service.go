@@ -3,7 +3,7 @@
  * Copyright (C) 2017-2019 WireGuard LLC. All Rights Reserved.
  */
 
-package service
+package tunnel
 
 import (
 	"bufio"
@@ -22,27 +22,29 @@ import (
 	"golang.zx2c4.com/wireguard/device"
 	"golang.zx2c4.com/wireguard/ipc"
 	"golang.zx2c4.com/wireguard/tun"
+
 	"golang.zx2c4.com/wireguard/windows/conf"
 	"golang.zx2c4.com/wireguard/windows/ringlogger"
+	"golang.zx2c4.com/wireguard/windows/services"
 	"golang.zx2c4.com/wireguard/windows/version"
 )
 
-type tunnelService struct {
-	path string
+type Service struct {
+	Path string
 }
 
-func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest, changes chan<- svc.Status) (svcSpecificEC bool, exitCode uint32) {
+func (service *Service) Execute(args []string, r <-chan svc.ChangeRequest, changes chan<- svc.Status) (svcSpecificEC bool, exitCode uint32) {
 	changes <- svc.Status{State: svc.StartPending}
 
 	var dev *device.Device
 	var uapi net.Listener
 	var routeChangeCallback *winipcfg.RouteChangeCallback
 	var err error
-	serviceError := ErrorSuccess
+	serviceError := services.ErrorSuccess
 
 	defer func() {
-		svcSpecificEC, exitCode = determineErrorCode(err, serviceError)
-		logErr := combineErrors(err, serviceError)
+		svcSpecificEC, exitCode = services.DetermineErrorCode(err, serviceError)
+		logErr := services.CombineErrors(err, serviceError)
 		if logErr != nil {
 			log.Println(logErr)
 		}
@@ -95,7 +97,7 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 
 	err = ringlogger.InitGlobalLogger("TUN")
 	if err != nil {
-		serviceError = ErrorRingloggerOpen
+		serviceError = services.ErrorRingloggerOpen
 		return
 	}
 	defer func() {
@@ -109,9 +111,9 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 		}
 	}()
 
-	conf, err := conf.LoadFromPath(service.path)
+	conf, err := conf.LoadFromPath(service.Path)
 	if err != nil {
-		serviceError = ErrorLoadConfiguration
+		serviceError = services.ErrorLoadConfiguration
 		return
 	}
 
@@ -123,20 +125,20 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 	log.Println("Resolving DNS names")
 	uapiConf, err := conf.ToUAPI()
 	if err != nil {
-		serviceError = ErrorDNSLookup
+		serviceError = services.ErrorDNSLookup
 		return
 	}
 
 	log.Println("Creating Wintun device")
 	wintun, err := tun.CreateTUN(conf.Name)
 	if err != nil {
-		serviceError = ErrorCreateWintun
+		serviceError = services.ErrorCreateWintun
 		return
 	}
 	log.Println("Determining Wintun device name")
 	realInterfaceName, err := wintun.Name()
 	if err != nil {
-		serviceError = ErrorDetermineWintunName
+		serviceError = services.ErrorDetermineWintunName
 		return
 	}
 	conf.Name = realInterfaceName
@@ -145,14 +147,14 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 	log.Println("Enabling firewall rules")
 	err = enableFirewall(conf, nativeTun)
 	if err != nil {
-		serviceError = ErrorFirewall
+		serviceError = services.ErrorFirewall
 		return
 	}
 
 	log.Println("Dropping all privileges")
-	err = DropAllPrivileges()
+	err = services.DropAllPrivileges()
 	if err != nil {
-		serviceError = ErrorDropPrivileges
+		serviceError = services.ErrorDropPrivileges
 		return
 	}
 
@@ -164,13 +166,13 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 	log.Println("Setting interface configuration")
 	uapi, err = ipc.UAPIListen(conf.Name)
 	if err != nil {
-		serviceError = ErrorUAPIListen
+		serviceError = services.ErrorUAPIListen
 		return
 	}
 	ipcErr := dev.IpcSetOperation(bufio.NewReader(strings.NewReader(uapiConf)))
 	if ipcErr != nil {
 		err = ipcErr
-		serviceError = ErrorDeviceSetConfig
+		serviceError = services.ErrorDeviceSetConfig
 		return
 	}
 
@@ -180,14 +182,14 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 	log.Println("Monitoring default routes")
 	routeChangeCallback, err = monitorDefaultRoutes(dev, conf.Interface.MTU == 0, nativeTun)
 	if err != nil {
-		serviceError = ErrorBindSocketsToDefaultRoutes
+		serviceError = services.ErrorBindSocketsToDefaultRoutes
 		return
 	}
 
 	log.Println("Setting device address")
 	err = configureInterface(conf, nativeTun)
 	if err != nil {
-		serviceError = ErrorSetNetConfig
+		serviceError = services.ErrorSetNetConfig
 		return
 	}
 

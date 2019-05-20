@@ -10,9 +10,9 @@ import (
 	"sync/atomic"
 
 	"golang.zx2c4.com/wireguard/windows/conf"
+	"golang.zx2c4.com/wireguard/windows/manager"
 
 	"github.com/lxn/walk"
-	"golang.zx2c4.com/wireguard/windows/service"
 )
 
 // ListModel is a struct to store the currently known tunnels to the GUI, suitable as a model for a walk.TableView.
@@ -20,7 +20,7 @@ type ListModel struct {
 	walk.TableModelBase
 	walk.SorterBase
 
-	tunnels []service.Tunnel
+	tunnels []manager.Tunnel
 }
 
 func (t *ListModel) RowCount() int {
@@ -55,8 +55,8 @@ type ListView struct {
 
 	model *ListModel
 
-	tunnelChangedCB        *service.TunnelChangeCallback
-	tunnelsChangedCB       *service.TunnelsChangeCallback
+	tunnelChangedCB        *manager.TunnelChangeCallback
+	tunnelsChangedCB       *manager.TunnelsChangeCallback
 	tunnelsUpdateSuspended int32
 }
 
@@ -88,8 +88,8 @@ func NewListView(parent walk.Container) (*ListView, error) {
 
 	disposables.Spare()
 
-	tunnelsView.tunnelChangedCB = service.IPCClientRegisterTunnelChange(tunnelsView.onTunnelChange)
-	tunnelsView.tunnelsChangedCB = service.IPCClientRegisterTunnelsChange(tunnelsView.onTunnelsChange)
+	tunnelsView.tunnelChangedCB = manager.IPCClientRegisterTunnelChange(tunnelsView.onTunnelChange)
+	tunnelsView.tunnelsChangedCB = manager.IPCClientRegisterTunnelsChange(tunnelsView.onTunnelsChange)
 
 	return tunnelsView, nil
 }
@@ -141,7 +141,7 @@ func (tv *ListView) StyleCell(style *walk.CellStyle) {
 	canvas.DrawImageStretched(icon, b)
 }
 
-func (tv *ListView) CurrentTunnel() *service.Tunnel {
+func (tv *ListView) CurrentTunnel() *manager.Tunnel {
 	idx := tv.CurrentIndex()
 	if idx == -1 {
 		return nil
@@ -150,7 +150,7 @@ func (tv *ListView) CurrentTunnel() *service.Tunnel {
 	return &tv.model.tunnels[idx]
 }
 
-func (tv *ListView) onTunnelChange(tunnel *service.Tunnel, state service.TunnelState, globalState service.TunnelState, err error) {
+func (tv *ListView) onTunnelChange(tunnel *manager.Tunnel, state manager.TunnelState, globalState manager.TunnelState, err error) {
 	tv.Synchronize(func() {
 		idx := -1
 		for i := range tv.model.tunnels {
@@ -183,13 +183,13 @@ func (tv *ListView) SetSuspendTunnelsUpdate(suspend bool) {
 }
 
 func (tv *ListView) Load(asyncUI bool) {
-	tunnels, err := service.IPCClientTunnels()
+	tunnels, err := manager.IPCClientTunnels()
 	if err != nil {
 		return
 	}
 	doUI := func() {
-		newTunnels := make(map[service.Tunnel]bool, len(tunnels))
-		oldTunnels := make(map[service.Tunnel]bool, len(tv.model.tunnels))
+		newTunnels := make(map[manager.Tunnel]bool, len(tunnels))
+		oldTunnels := make(map[manager.Tunnel]bool, len(tv.model.tunnels))
 		for _, tunnel := range tunnels {
 			newTunnels[tunnel] = true
 		}
@@ -245,7 +245,7 @@ func (tv *ListView) selectTunnel(tunnelName string) {
 }
 
 func (tv *ListView) SelectFirstActiveTunnel() {
-	tunnels := make([]service.Tunnel, len(tv.model.tunnels))
+	tunnels := make([]manager.Tunnel, len(tv.model.tunnels))
 	copy(tunnels, tv.model.tunnels)
 	go func() {
 		for _, tunnel := range tunnels {
@@ -253,7 +253,7 @@ func (tv *ListView) SelectFirstActiveTunnel() {
 			if err != nil {
 				continue
 			}
-			if state == service.TunnelStarting || state == service.TunnelStarted {
+			if state == manager.TunnelStarting || state == manager.TunnelStarted {
 				tv.Synchronize(func() {
 					tv.selectTunnel(tunnel.Name)
 				})
