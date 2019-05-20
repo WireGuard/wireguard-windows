@@ -49,8 +49,10 @@ func bindSocketRoute(family winipcfg.AddressFamily, device *device.Device, ourLU
 	}
 	*lastLUID = luid
 	if family == windows.AF_INET {
+		log.Printf("Binding UDPv4 socket to interface %d", index)
 		return device.BindSocketToInterface4(index)
 	} else if family == windows.AF_INET6 {
+		log.Printf("Binding UDPv6 socket to interface %d", index)
 		return device.BindSocketToInterface6(index)
 	}
 	return nil
