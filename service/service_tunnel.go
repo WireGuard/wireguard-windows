@@ -37,22 +37,14 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 	var dev *device.Device
 	var uapi net.Listener
 	var routeChangeCallback *winipcfg.RouteChangeCallback
-	var logger *device.Logger
 	var err error
 	serviceError := ErrorSuccess
 
 	defer func() {
 		svcSpecificEC, exitCode = determineErrorCode(err, serviceError)
 		logErr := combineErrors(err, serviceError)
-		logIt := func(a ...interface{}) {
-			if logger != nil {
-				logger.Error.Println(a...)
-			} else {
-				log.Println(a...)
-			}
-		}
 		if logErr != nil {
-			logIt(logErr)
+			log.Println(logErr)
 		}
 		changes <- svc.Status{State: svc.StopPending}
 
@@ -73,9 +65,11 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 						buf = make([]byte, 2*len(buf))
 					}
 					lines := bytes.Split(buf, []byte{'\n'})
-					logIt("Failed to shutdown after 30 seconds. Probably dead locked. Printing stack and killing.")
+					log.Println("Failed to shutdown after 30 seconds. Probably dead locked. Printing stack and killing.")
 					for _, line := range lines {
-						logIt(fmt.Sprintf("stack trace: %s", string(line)))
+						if len(bytes.TrimSpace(line)) > 0 {
+							log.Println(string(line))
+						}
 					}
 					os.Exit(777)
 					return
@@ -105,17 +99,10 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 		return
 	}
 	defer func() {
-		logIt := func(a ...interface{}) {
-			if logger != nil {
-				logger.Error.Println(a...)
-			} else {
-				log.Println(a...)
-			}
-		}
 		if x := recover(); x != nil {
 			for _, line := range append([]string{fmt.Sprint(x)}, strings.Split(string(debug.Stack()), "\n")...) {
 				if len(strings.TrimSpace(line)) > 0 {
-					logIt(line)
+					log.Println(line)
 				}
 			}
 			panic(x)
@@ -128,25 +115,25 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 		return
 	}
 
-	stdLog := log.New(ringlogger.Global, fmt.Sprintf("[%s] ", conf.Name), 0)
-	logger = &device.Logger{stdLog, stdLog, stdLog}
+	logPrefix := fmt.Sprintf("[%s] ", conf.Name)
+	log.SetPrefix(logPrefix)
 
-	logger.Info.Println("Starting", version.UserAgent())
+	log.Println("Starting", version.UserAgent())
 
-	logger.Info.Println("Resolving DNS names")
+	log.Println("Resolving DNS names")
 	uapiConf, err := conf.ToUAPI()
 	if err != nil {
 		serviceError = ErrorDNSLookup
 		return
 	}
 
-	logger.Info.Println("Creating Wintun device")
+	log.Println("Creating Wintun device")
 	wintun, err := tun.CreateTUN(conf.Name)
 	if err != nil {
 		serviceError = ErrorCreateWintun
 		return
 	}
-	logger.Info.Println("Determining Wintun device name")
+	log.Println("Determining Wintun device name")
 	realInterfaceName, err := wintun.Name()
 	if err != nil {
 		serviceError = ErrorDetermineWintunName
@@ -155,24 +142,26 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 	conf.Name = realInterfaceName
 	nativeTun := wintun.(*tun.NativeTun)
 
-	logger.Info.Println("Enabling firewall rules")
+	log.Println("Enabling firewall rules")
 	err = enableFirewall(conf, nativeTun)
 	if err != nil {
 		serviceError = ErrorFirewall
 		return
 	}
 
-	logger.Info.Println("Dropping all privileges")
+	log.Println("Dropping all privileges")
 	err = DropAllPrivileges()
 	if err != nil {
 		serviceError = ErrorDropPrivileges
 		return
 	}
 
-	logger.Info.Println("Creating interface instance")
+	log.Println("Creating interface instance")
+	logOutput := log.New(ringlogger.Global, logPrefix, 0)
+	logger := &device.Logger{logOutput, logOutput, logOutput}
 	dev = device.NewDevice(wintun, logger)
 
-	logger.Info.Println("Setting interface configuration")
+	log.Println("Setting interface configuration")
 	uapi, err = ipc.UAPIListen(conf.Name)
 	if err != nil {
 		serviceError = ErrorUAPIListen
@@ -185,24 +174,24 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 		return
 	}
 
-	logger.Info.Println("Bringing peers up")
+	log.Println("Bringing peers up")
 	dev.Up()
 
-	logger.Info.Println("Monitoring default routes")
+	log.Println("Monitoring default routes")
 	routeChangeCallback, err = monitorDefaultRoutes(dev, conf.Interface.MTU == 0, nativeTun)
 	if err != nil {
 		serviceError = ErrorBindSocketsToDefaultRoutes
 		return
 	}
 
-	logger.Info.Println("Setting device address")
+	log.Println("Setting device address")
 	err = configureInterface(conf, nativeTun)
 	if err != nil {
 		serviceError = ErrorSetNetConfig
 		return
 	}
 
-	logger.Info.Println("Listening for UAPI requests")
+	log.Println("Listening for UAPI requests")
 	go func() {
 		for {
 			conn, err := uapi.Accept()
@@ -214,7 +203,7 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 	}()
 
 	changes <- svc.Status{State: svc.Running, Accepts: svc.AcceptStop}
-	logger.Info.Println("Startup complete")
+	log.Println("Startup complete")
 
 	for {
 		select {
@@ -225,7 +214,7 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 			case svc.Interrogate:
 				changes <- c.CurrentStatus
 			default:
-				logger.Error.Printf("Unexpected service control request #%d\n", c)
+				log.Printf("Unexpected service control request #%d\n", c)
 			}
 		case <-dev.Wait():
 			return
