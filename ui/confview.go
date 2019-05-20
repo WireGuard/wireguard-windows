@@ -41,7 +41,7 @@ type labelStatusLine struct {
 
 type labelTextLine struct {
 	label *walk.TextLabel
-	text  *walk.LineEdit
+	text  *walk.TextEdit
 }
 
 type toggleActiveLine struct {
@@ -153,8 +153,9 @@ func newLabelTextLine(fieldName string, parent walk.Container) *labelTextLine {
 	lt.label.SetTextAlignment(walk.AlignHFarVNear)
 	lt.label.SetVisible(false)
 
-	lt.text, _ = walk.NewLineEdit(parent)
+	lt.text, _ = walk.NewTextEdit(parent)
 	win.SetWindowLong(lt.text.Handle(), win.GWL_EXSTYLE, win.GetWindowLong(lt.text.Handle(), win.GWL_EXSTYLE)&^win.WS_EX_CLIENTEDGE)
+	lt.text.SetCompactHeight(true)
 	lt.text.SetReadOnly(true)
 	lt.text.SetBackground(walk.NullBrush())
 	lt.text.SetVisible(false)
