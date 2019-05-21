@@ -1,8 +1,8 @@
 # [WireGuard](https://www.wireguard.com/) for Windows
 
-This is a fully-featured WireGuard client for Windows that uses [Wintun](https://www.wintun.net/).
+***If you've come here looking to simply run WireGuard for Windows, [you may download it here](https://www.wireguard.com/install/).***
 
-If you just want to build and install this from source, but don't care about doing any form of real development with it, simply clone this repo, and then double click on `quickinstall.bat` and stop reading this document. If you do care about doing real development, don't double click that, and instead read onwards.
+This is a fully-featured WireGuard client for Windows that uses [Wintun](https://www.wintun.net/).
 
 ### Building
 
@@ -22,7 +22,7 @@ After you've built the application, run `amd64\wireguard.exe` or `x86\wireguard.
 C:\Projects\wireguard-windows> amd64\wireguard.exe
 ```
 
-Since WireGuard requires the Wintun driver to be installed, and this generally requires a valid Microsoft signature, you may benefit from first installing a release of WireGuard for Windows from the official [wireguard.com](https://www.wireguard.com/install/) builds, which bundles a Microsoft-signed Wintun, and then subsequently run your own wireguard.exe.
+Since WireGuard requires the Wintun driver to be installed, and this generally requires a valid Microsoft signature, you may benefit from first installing a release of WireGuard for Windows from the official [wireguard.com](https://www.wireguard.com/install/) builds, which bundles a Microsoft-signed Wintun, and then subsequently run your own wireguard.exe. Alternatively, you can craft your own installer using the `quickinstall.bat` script.
 
 ### Optional: Creating the Installer
 
