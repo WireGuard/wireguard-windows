@@ -72,16 +72,58 @@ func wrapErr(err error) error {
 }
 
 func getCurrentProcessSecurityDescriptor() (*wtFwpByteBlob, error) {
-	procHandle, err := windows.GetCurrentProcess()
-	if err != nil {
-		panic(err)
-	}
-	blob := &wtFwpByteBlob{}
-	err = getSecurityInfo(procHandle, cSE_KERNEL_OBJECT, cDACL_SECURITY_INFORMATION, nil, nil, nil, nil, (*uintptr)(unsafe.Pointer(&blob.data)))
+	processToken, err := windows.OpenCurrentProcessToken()
 	if err != nil {
 		return nil, wrapErr(err)
 	}
-	blob.size = getSecurityDescriptorLength(uintptr(unsafe.Pointer(blob.data)))
+	defer processToken.Close()
+	gs, err := processToken.GetTokenGroups()
+	if err != nil {
+		return nil, wrapErr(err)
+	}
+	var sid *windows.SID
+	groups := (*[(1 << 28) - 1]windows.SIDAndAttributes)(unsafe.Pointer(&gs.Groups[0]))[:gs.GroupCount]
+	for _, g := range groups {
+		if g.Attributes != windows.SE_GROUP_ENABLED|windows.SE_GROUP_ENABLED_BY_DEFAULT|windows.SE_GROUP_OWNER {
+			continue
+		}
+		if *(*byte)(unsafe.Pointer(g.Sid)) != 1 { // The revision.
+			continue
+		}
+		if *getSidIdentifierAuthority(g.Sid) != windows.SECURITY_NT_AUTHORITY {
+			continue
+		}
+		// We could be checking != 6, but hopefully Microsoft will update
+		// RtlCreateServiceSid to use SHA2, which will then likely bump
+		// this up. So instead just roll with a minimum.
+		if *getSidSubAuthorityCount(g.Sid) < 6 {
+			continue
+		}
+		if *getSidSubAuthority(g.Sid, 0) != 80 {
+			continue
+		}
+
+		sid = g.Sid
+		break
+	}
+	if sid == nil {
+		return nil, wrapErr(windows.ERROR_NO_SUCH_GROUP)
+	}
+
+	access := &wtExplicitAccess{
+		accessPermissions: cFWP_ACTRL_MATCH_FILTER,
+		accessMode:        cGRANT_ACCESS,
+		trustee: wtTrustee{
+			trusteeForm: cTRUSTEE_IS_SID,
+			trusteeType: cTRUSTEE_IS_GROUP,
+			sid:         sid,
+		},
+	}
+	blob := &wtFwpByteBlob{}
+	err = buildSecurityDescriptor(nil, nil, 1, access, 0, nil, nil, &blob.size, &blob.data)
+	if err != nil {
+		return nil, wrapErr(err)
+	}
 	return blob, nil
 }
 

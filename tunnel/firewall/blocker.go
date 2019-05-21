@@ -124,6 +124,11 @@ func EnableFirewall(luid uint64, restrictToDNSServers []net.IP, restrictAll bool
 			return wrapErr(err)
 		}
 
+		err = permitWireGuardService(session, baseObjects, 15)
+		if err != nil {
+			return wrapErr(err)
+		}
+
 		if len(restrictToDNSServers) > 0 {
 			err = blockDNS(restrictToDNSServers, session, baseObjects, 15, 14)
 			if err != nil {
@@ -139,11 +144,6 @@ func EnableFirewall(luid uint64, restrictToDNSServers []net.IP, restrictAll bool
 		}
 
 		err = permitTunInterface(session, baseObjects, 12, luid)
-		if err != nil {
-			return wrapErr(err)
-		}
-
-		err = permitWireGuardService(session, baseObjects, 12)
 		if err != nil {
 			return wrapErr(err)
 		}

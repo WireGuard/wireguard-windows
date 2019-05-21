@@ -40,18 +40,20 @@ var (
 	modfwpuclnt = windows.NewLazySystemDLL("fwpuclnt.dll")
 	modadvapi32 = windows.NewLazySystemDLL("advapi32.dll")
 
-	procFwpmEngineOpen0             = modfwpuclnt.NewProc("FwpmEngineOpen0")
-	procFwpmEngineClose0            = modfwpuclnt.NewProc("FwpmEngineClose0")
-	procFwpmSubLayerAdd0            = modfwpuclnt.NewProc("FwpmSubLayerAdd0")
-	procFwpmGetAppIdFromFileName0   = modfwpuclnt.NewProc("FwpmGetAppIdFromFileName0")
-	procFwpmFreeMemory0             = modfwpuclnt.NewProc("FwpmFreeMemory0")
-	procFwpmFilterAdd0              = modfwpuclnt.NewProc("FwpmFilterAdd0")
-	procFwpmTransactionBegin0       = modfwpuclnt.NewProc("FwpmTransactionBegin0")
-	procFwpmTransactionCommit0      = modfwpuclnt.NewProc("FwpmTransactionCommit0")
-	procFwpmTransactionAbort0       = modfwpuclnt.NewProc("FwpmTransactionAbort0")
-	procFwpmProviderAdd0            = modfwpuclnt.NewProc("FwpmProviderAdd0")
-	procGetSecurityInfo             = modadvapi32.NewProc("GetSecurityInfo")
-	procGetSecurityDescriptorLength = modadvapi32.NewProc("GetSecurityDescriptorLength")
+	procFwpmEngineOpen0           = modfwpuclnt.NewProc("FwpmEngineOpen0")
+	procFwpmEngineClose0          = modfwpuclnt.NewProc("FwpmEngineClose0")
+	procFwpmSubLayerAdd0          = modfwpuclnt.NewProc("FwpmSubLayerAdd0")
+	procFwpmGetAppIdFromFileName0 = modfwpuclnt.NewProc("FwpmGetAppIdFromFileName0")
+	procFwpmFreeMemory0           = modfwpuclnt.NewProc("FwpmFreeMemory0")
+	procFwpmFilterAdd0            = modfwpuclnt.NewProc("FwpmFilterAdd0")
+	procFwpmTransactionBegin0     = modfwpuclnt.NewProc("FwpmTransactionBegin0")
+	procFwpmTransactionCommit0    = modfwpuclnt.NewProc("FwpmTransactionCommit0")
+	procFwpmTransactionAbort0     = modfwpuclnt.NewProc("FwpmTransactionAbort0")
+	procFwpmProviderAdd0          = modfwpuclnt.NewProc("FwpmProviderAdd0")
+	procGetSidIdentifierAuthority = modadvapi32.NewProc("GetSidIdentifierAuthority")
+	procGetSidSubAuthorityCount   = modadvapi32.NewProc("GetSidSubAuthorityCount")
+	procGetSidSubAuthority        = modadvapi32.NewProc("GetSidSubAuthority")
+	procBuildSecurityDescriptorW  = modadvapi32.NewProc("BuildSecurityDescriptorW")
 )
 
 func fwpmEngineOpen0(serverName *uint16, authnService wtRpcCAuthN, authIdentity *uintptr, session *wtFwpmSession0, engineHandle unsafe.Pointer) (err error) {
@@ -167,20 +169,28 @@ func fwpmProviderAdd0(engineHandle uintptr, provider *wtFwpmProvider0, sd uintpt
 	return
 }
 
-func getSecurityInfo(handle windows.Handle, objectType wtObjectType, si uint32, sidOwner *windows.SID, sidGroup *windows.SID, dacl *uintptr, sacl *uintptr, securityDescriptor *uintptr) (err error) {
-	r1, _, e1 := syscall.Syscall9(procGetSecurityInfo.Addr(), 8, uintptr(handle), uintptr(objectType), uintptr(si), uintptr(unsafe.Pointer(sidOwner)), uintptr(unsafe.Pointer(sidGroup)), uintptr(unsafe.Pointer(dacl)), uintptr(unsafe.Pointer(sacl)), uintptr(unsafe.Pointer(securityDescriptor)), 0)
-	if r1 != 0 {
-		if e1 != 0 {
-			err = errnoErr(e1)
-		} else {
-			err = syscall.EINVAL
-		}
-	}
+func getSidIdentifierAuthority(sid *windows.SID) (authority *windows.SidIdentifierAuthority) {
+	r0, _, _ := syscall.Syscall(procGetSidIdentifierAuthority.Addr(), 1, uintptr(unsafe.Pointer(sid)), 0, 0)
+	authority = (*windows.SidIdentifierAuthority)(unsafe.Pointer(r0))
 	return
 }
 
-func getSecurityDescriptorLength(securityDescriptor uintptr) (len uint32) {
-	r0, _, _ := syscall.Syscall(procGetSecurityDescriptorLength.Addr(), 1, uintptr(securityDescriptor), 0, 0)
-	len = uint32(r0)
+func getSidSubAuthorityCount(sid *windows.SID) (count *uint8) {
+	r0, _, _ := syscall.Syscall(procGetSidSubAuthorityCount.Addr(), 1, uintptr(unsafe.Pointer(sid)), 0, 0)
+	count = (*uint8)(unsafe.Pointer(r0))
+	return
+}
+
+func getSidSubAuthority(sid *windows.SID, index uint32) (subAuthority *uint32) {
+	r0, _, _ := syscall.Syscall(procGetSidSubAuthority.Addr(), 2, uintptr(unsafe.Pointer(sid)), uintptr(index), 0)
+	subAuthority = (*uint32)(unsafe.Pointer(r0))
+	return
+}
+
+func buildSecurityDescriptor(owner *wtTrustee, group *wtTrustee, countAccessEntries uint32, accessEntries *wtExplicitAccess, countAuditEntries uint32, auditEntries *wtExplicitAccess, oldSd **byte, sizeNewSd *uint32, newSd **byte) (ret error) {
+	r0, _, _ := syscall.Syscall9(procBuildSecurityDescriptorW.Addr(), 9, uintptr(unsafe.Pointer(owner)), uintptr(unsafe.Pointer(group)), uintptr(countAccessEntries), uintptr(unsafe.Pointer(accessEntries)), uintptr(countAuditEntries), uintptr(unsafe.Pointer(auditEntries)), uintptr(unsafe.Pointer(oldSd)), uintptr(unsafe.Pointer(sizeNewSd)), uintptr(unsafe.Pointer(newSd)))
+	if r0 != 0 {
+		ret = syscall.Errno(r0)
+	}
 	return
 }

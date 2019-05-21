@@ -393,14 +393,6 @@ type wtFwpmProvider0 struct {
 	serviceName  *uint16
 }
 
-type wtObjectType uint32
-
-const (
-	cSE_KERNEL_OBJECT wtObjectType = 6
-
-	cDACL_SECURITY_INFORMATION = 4
-)
-
 type wtIfType uint32
 
 const (
@@ -414,4 +406,52 @@ const (
 	cIPPROTO_ICMPV6 wtIPProto = 58
 	cIPPROTO_TCP    wtIPProto = 6
 	cIPPROTO_UDP    wtIPProto = 17
+)
+
+type wtExplicitAccess struct {
+	accessPermissions uint32
+	accessMode        uint32
+	inheritance       uint32
+	trustee           wtTrustee
+}
+
+type wtTrustee struct {
+	multipleTrustee          *wtTrustee
+	multipleTrusteeOperation uint32
+	trusteeForm              uint32
+	trusteeType              uint32
+	sid                      *windows.SID
+}
+
+const (
+	cTRUSTEE_IS_UNKNOWN = iota
+	cTRUSTEE_IS_USER
+	cTRUSTEE_IS_GROUP
+	cTRUSTEE_IS_DOMAIN
+	cTRUSTEE_IS_ALIAS
+	cTRUSTEE_IS_WELL_KNOWN_GROUP
+	cTRUSTEE_IS_DELETED
+	cTRUSTEE_IS_INVALID
+	cTRUSTEE_IS_COMPUTER
+)
+const (
+	cTRUSTEE_IS_SID = iota
+	cTRUSTEE_IS_NAME
+	cTRUSTEE_BAD_FORM
+	cTRUSTEE_IS_OBJECTS_AND_SID
+	cTRUSTEE_IS_OBJECTS_AND_NAME
+)
+
+const (
+	cNOT_USED_ACCESS = iota
+	cGRANT_ACCESS
+	cSET_ACCESS
+	cDENY_ACCESS
+	cREVOKE_ACCESS
+	cSET_AUDIT_SUCCESS
+	cSET_AUDIT_FAILURE
+)
+
+const (
+	cFWP_ACTRL_MATCH_FILTER = 1
 )

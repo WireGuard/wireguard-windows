@@ -35,8 +35,16 @@ package firewall
 // https://docs.microsoft.com/en-us/windows/desktop/api/fwpmu/nf-fwpmu-fwpmprovideradd0
 //sys	fwpmProviderAdd0(engineHandle uintptr, provider *wtFwpmProvider0, sd uintptr) (err error) [failretval!=0] = fwpuclnt.FwpmProviderAdd0
 
-// https://docs.microsoft.com/sv-se/windows/desktop/api/aclapi/nf-aclapi-getsecurityinfo
-//sys	getSecurityInfo(handle windows.Handle, objectType wtObjectType, si uint32, sidOwner *windows.SID, sidGroup *windows.SID, dacl *uintptr, sacl *uintptr, securityDescriptor *uintptr) (err error) [failretval!=0] = advapi32.GetSecurityInfo
+//TODO: Add these to x/sys/windows:
 
-// https://docs.microsoft.com/en-us/windows/desktop/api/securitybaseapi/nf-securitybaseapi-getsecuritydescriptorlength
-//sys	getSecurityDescriptorLength(securityDescriptor uintptr) (len uint32) = advapi32.GetSecurityDescriptorLength
+// https://docs.microsoft.com/en-us/windows/desktop/api/securitybaseapi/nf-securitybaseapi-getsididentifierauthority
+//sys	getSidIdentifierAuthority(sid *windows.SID) (authority *windows.SidIdentifierAuthority) = advapi32.GetSidIdentifierAuthority
+
+// https://docs.microsoft.com/en-us/windows/desktop/api/securitybaseapi/nf-securitybaseapi-getsidsubauthoritycount
+//sys	getSidSubAuthorityCount(sid *windows.SID) (count *uint8) = advapi32.GetSidSubAuthorityCount
+
+// https://docs.microsoft.com/en-us/windows/desktop/api/securitybaseapi/nf-securitybaseapi-getsidsubauthority
+//sys	getSidSubAuthority(sid *windows.SID, index uint32) (subAuthority *uint32) = advapi32.GetSidSubAuthority
+
+// https://docs.microsoft.com/en-us/windows/desktop/api/aclapi/nf-aclapi-buildsecuritydescriptorw
+//sys	buildSecurityDescriptor(owner *wtTrustee, group *wtTrustee, countAccessEntries uint32, accessEntries *wtExplicitAccess, countAuditEntries uint32, auditEntries *wtExplicitAccess, oldSd **byte, sizeNewSd *uint32, newSd **byte) (ret error) = advapi32.BuildSecurityDescriptorW

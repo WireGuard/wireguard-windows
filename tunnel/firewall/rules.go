@@ -149,7 +149,7 @@ func permitWireGuardService(session uintptr, baseObjects *baseObjects, weight ui
 
 	//
 	// Second condition is the SECURITY_DESCRIPTOR of the current process.
-	// This prevents low privileged applications hosted in the same exe from matching this filter.
+	// This prevents other processes hosted in the same exe from matching this filter.
 	//
 	sd, err := getCurrentProcessSecurityDescriptor()
 	if err != nil {
