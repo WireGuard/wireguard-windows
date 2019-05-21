@@ -9,6 +9,7 @@ import (
 	"errors"
 	"os"
 	"time"
+	"unsafe"
 
 	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/svc"
@@ -165,6 +166,14 @@ func InstallTunnel(configPath string) error {
 	if err != nil {
 		return err
 	}
+	sidType := uint32(windows.SERVICE_SID_TYPE_UNRESTRICTED)
+	err = windows.ChangeServiceConfig2(service.Handle, windows.SERVICE_CONFIG_SERVICE_SID_INFO, (*byte)(unsafe.Pointer(&sidType)))
+	if err != nil {
+		service.Delete()
+		service.Close()
+		return err
+	}
+
 	err = service.Start()
 	go trackTunnelService(name, service) // Pass off reference to handle.
 	return err
