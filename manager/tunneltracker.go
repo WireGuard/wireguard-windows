@@ -85,7 +85,7 @@ func trackedTunnelsGlobalState() (state TunnelState) {
 func trackTunnelService(tunnelName string, service *mgr.Service) {
 	defer func() {
 		service.Close()
-		log.Printf("[%s] Tunnel managerService tracker finished", tunnelName)
+		log.Printf("[%s] Tunnel service tracker finished", tunnelName)
 	}()
 
 	trackedTunnelsLock.Lock()
@@ -150,7 +150,7 @@ func trackTunnelService(tunnelName string, service *mgr.Service) {
 			trackedTunnelsLock.Lock()
 			trackedTunnels[tunnelName] = TunnelStopped
 			trackedTunnelsLock.Unlock()
-			IPCServerNotifyTunnelChange(tunnelName, TunnelStopped, fmt.Errorf("Unable to continue monitoring managerService, so stopping: %v", err))
+			IPCServerNotifyTunnelChange(tunnelName, TunnelStopped, fmt.Errorf("Unable to continue monitoring service, so stopping: %v", err))
 			service.Control(svc.Stop)
 			return
 		}
