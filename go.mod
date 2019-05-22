@@ -7,6 +7,7 @@ require (
 	golang.org/x/crypto latest
 	golang.org/x/net latest
 	golang.org/x/sys latest
+	golang.org/x/text v0.3.0
 
 	github.com/Microsoft/go-winio latest
 	github.com/lxn/walk latest
