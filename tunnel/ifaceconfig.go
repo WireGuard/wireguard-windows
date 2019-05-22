@@ -207,6 +207,8 @@ func unconfigureInterface(tun *tun.NativeTun) {
 	winipcfg.FlushInterfaceIPAddresses(luid, windows.AF_INET6)
 
 	//TODO: also flush DNS servers once rozmansi fixes the API for that to take a LUID
+
+	firewall.DisableFirewall()
 }
 
 func enableFirewall(conf *conf.Config, tun *tun.NativeTun) error {
