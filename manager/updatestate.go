@@ -31,8 +31,6 @@ func checkForUpdates() {
 		return
 	}
 
-	time.Sleep(time.Second * 10)
-
 	first := true
 	for {
 		update, err := updater.CheckForUpdate()
