@@ -39,6 +39,7 @@ func (service *Service) Execute(args []string, r <-chan svc.ChangeRequest, chang
 	var dev *device.Device
 	var uapi net.Listener
 	var routeChangeCallback *winipcfg.RouteChangeCallback
+	var nativeTun *tun.NativeTun
 	var err error
 	serviceError := services.ErrorSuccess
 
@@ -84,6 +85,9 @@ func (service *Service) Execute(args []string, r <-chan svc.ChangeRequest, chang
 
 		if routeChangeCallback != nil {
 			routeChangeCallback.Unregister()
+		}
+		if nativeTun != nil {
+			unconfigureInterface(nativeTun)
 		}
 		if uapi != nil {
 			uapi.Close()
@@ -142,7 +146,7 @@ func (service *Service) Execute(args []string, r <-chan svc.ChangeRequest, chang
 		return
 	}
 	conf.Name = realInterfaceName
-	nativeTun := wintun.(*tun.NativeTun)
+	nativeTun = wintun.(*tun.NativeTun)
 
 	log.Println("Enabling firewall rules")
 	err = enableFirewall(conf, nativeTun)
