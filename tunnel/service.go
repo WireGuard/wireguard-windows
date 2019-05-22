@@ -18,7 +18,6 @@ import (
 	"time"
 
 	"golang.org/x/sys/windows/svc"
-	"golang.zx2c4.com/winipcfg"
 	"golang.zx2c4.com/wireguard/device"
 	"golang.zx2c4.com/wireguard/ipc"
 	"golang.zx2c4.com/wireguard/tun"
@@ -26,6 +25,7 @@ import (
 	"golang.zx2c4.com/wireguard/windows/conf"
 	"golang.zx2c4.com/wireguard/windows/ringlogger"
 	"golang.zx2c4.com/wireguard/windows/services"
+	"golang.zx2c4.com/wireguard/windows/tunnel/winipcfg"
 	"golang.zx2c4.com/wireguard/windows/version"
 )
 

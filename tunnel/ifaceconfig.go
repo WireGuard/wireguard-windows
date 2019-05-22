@@ -12,18 +12,18 @@ import (
 	"sort"
 
 	"golang.org/x/sys/windows"
-	"golang.zx2c4.com/winipcfg"
 	"golang.zx2c4.com/wireguard/tun"
 
 	"golang.zx2c4.com/wireguard/windows/conf"
 	"golang.zx2c4.com/wireguard/windows/tunnel/firewall"
+	"golang.zx2c4.com/wireguard/windows/tunnel/winipcfg"
 )
 
-func cleanupAddressesOnDisconnectedInterfaces(addresses []*net.IPNet) {
+func cleanupAddressesOnDisconnectedInterfaces(addresses []net.IPNet) {
 	if len(addresses) == 0 {
 		return
 	}
-	includedInAddresses := func(a *net.IPNet) bool {
+	includedInAddresses := func(a net.IPNet) bool {
 		//TODO: this makes the whole algorithm O(n^2). But we can't stick net.IPNet in a Go hashmap. Bummer!
 		for _, addr := range addresses {
 			ip := addr.IP
@@ -38,7 +38,7 @@ func cleanupAddressesOnDisconnectedInterfaces(addresses []*net.IPNet) {
 		}
 		return false
 	}
-	interfaces, err := winipcfg.GetInterfaces()
+	interfaces, err := winipcfg.GetAdaptersAddresses(windows.AF_UNSPEC, winipcfg.GAAFlagDefault)
 	if err != nil {
 		return
 	}
@@ -46,29 +46,19 @@ func cleanupAddressesOnDisconnectedInterfaces(addresses []*net.IPNet) {
 		if iface.OperStatus == winipcfg.IfOperStatusUp {
 			continue
 		}
-		addressesToKeep := make([]*net.IPNet, 0, len(iface.UnicastAddresses))
-		for _, address := range iface.UnicastAddresses {
-			ip := address.Address.Address
-			if ip4 := ip.To4(); ip4 != nil {
-				ip = ip4
+		for address := iface.FirstUnicastAddress; address != nil; address = address.Next {
+			ip := winipcfg.SocketAddressToIP(&address.Address)
+			ipnet := net.IPNet{IP: ip, Mask: net.CIDRMask(int(address.OnLinkPrefixLength), 8*len(ip))}
+			if includedInAddresses(ipnet) {
+				log.Printf("Cleaning up stale address %s from interface '%s'", ip.String(), iface.FriendlyName())
+				iface.LUID.DeleteIPAddress(ip)
 			}
-			ipnet := &net.IPNet{ip, net.CIDRMask(int(address.OnLinkPrefixLength), 8*len(ip))}
-			if !includedInAddresses(ipnet) {
-				addressesToKeep = append(addressesToKeep, ipnet)
-			}
-		}
-		if len(addressesToKeep) < len(iface.UnicastAddresses) {
-			log.Printf("Cleaning up stale addresses from interface '%s'", iface.FriendlyName)
-			iface.SetAddresses(addressesToKeep)
 		}
 	}
 }
 
 func configureInterface(conf *conf.Config, tun *tun.NativeTun) error {
-	iface, err := winipcfg.InterfaceFromLUID(tun.LUID())
-	if err != nil {
-		return err
-	}
+	luid := winipcfg.LUID(tun.LUID())
 
 	estimatedRouteCount := len(conf.Interface.Addresses)
 	for _, peer := range conf.Peers {
@@ -77,10 +67,10 @@ func configureInterface(conf *conf.Config, tun *tun.NativeTun) error {
 	routes := make([]winipcfg.RouteData, 0, estimatedRouteCount)
 	var firstGateway4 *net.IP
 	var firstGateway6 *net.IP
-	addresses := make([]*net.IPNet, len(conf.Interface.Addresses))
+	addresses := make([]net.IPNet, len(conf.Interface.Addresses))
 	for i, addr := range conf.Interface.Addresses {
 		ipnet := addr.IPNet()
-		addresses[i] = &ipnet
+		addresses[i] = ipnet
 		gateway := ipnet.IP.Mask(ipnet.Mask)
 		if addr.Bits() == 32 && firstGateway4 == nil {
 			firstGateway4 = &gateway
@@ -123,10 +113,10 @@ func configureInterface(conf *conf.Config, tun *tun.NativeTun) error {
 		}
 	}
 
-	err = iface.SetAddresses(addresses)
+	err := luid.SetIPAddresses(addresses)
 	if err == windows.ERROR_OBJECT_ALREADY_EXISTS {
 		cleanupAddressesOnDisconnectedInterfaces(addresses)
-		err = iface.SetAddresses(addresses)
+		err = luid.SetIPAddresses(addresses)
 	}
 	if err != nil {
 		return err
@@ -149,17 +139,12 @@ func configureInterface(conf *conf.Config, tun *tun.NativeTun) error {
 		deduplicatedRoutes = append(deduplicatedRoutes, &routes[i])
 	}
 
-	err = iface.SetRoutes(deduplicatedRoutes)
+	err = luid.SetRoutes(deduplicatedRoutes)
 	if err != nil {
 		return nil
 	}
 
-	err = iface.SetDNS(conf.Interface.DNS)
-	if err != nil {
-		return err
-	}
-
-	ipif, err := iface.GetIPInterface(windows.AF_INET)
+	ipif, err := luid.IPInterface(windows.AF_INET)
 	if err != nil {
 		return err
 	}
@@ -176,7 +161,7 @@ func configureInterface(conf *conf.Config, tun *tun.NativeTun) error {
 		return err
 	}
 
-	ipif, err = iface.GetIPInterface(windows.AF_INET6)
+	ipif, err = luid.IPInterface(windows.AF_INET6)
 	if err != nil {
 		return err
 	}
@@ -194,19 +179,23 @@ func configureInterface(conf *conf.Config, tun *tun.NativeTun) error {
 		return err
 	}
 
+	err = luid.SetDNS(conf.Interface.DNS)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
 func unconfigureInterface(tun *tun.NativeTun) {
 	// It seems that the Windows networking stack doesn't like it when we destroy interfaces that have active
 	// routes, so to be certain, just remove everything before destroying.
-	luid := tun.LUID()
-	winipcfg.FlushInterfaceRoutes(luid, windows.AF_INET)
-	winipcfg.FlushInterfaceIPAddresses(luid, windows.AF_INET)
-	winipcfg.FlushInterfaceRoutes(luid, windows.AF_INET6)
-	winipcfg.FlushInterfaceIPAddresses(luid, windows.AF_INET6)
-
-	//TODO: also flush DNS servers once rozmansi fixes the API for that to take a LUID
+	luid := winipcfg.LUID(tun.LUID())
+	luid.FlushRoutes(windows.AF_INET)
+	luid.FlushIPAddresses(windows.AF_INET)
+	luid.FlushRoutes(windows.AF_INET6)
+	luid.FlushIPAddresses(windows.AF_INET6)
+	luid.FlushDNS()
 
 	firewall.DisableFirewall()
 }
