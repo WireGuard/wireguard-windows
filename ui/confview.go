@@ -507,6 +507,7 @@ func (cv *ConfView) setTunnel(tunnel *manager.Tunnel, config *conf.Config, state
 
 	hasSuspended := false
 	suspend := func() {
+		return //TODO: this line shouldn't be here! But walk's layout system is totally borked and suspending causes problems.
 		if !hasSuspended {
 			cv.SetSuspended(true)
 			hasSuspended = true
@@ -579,5 +580,4 @@ func (cv *ConfView) setTunnel(tunnel *manager.Tunnel, config *conf.Config, state
 		groupBox.Parent().Children().Remove(groupBox)
 		groupBox.Dispose()
 	}
-	cv.SendMessage(win.WM_SIZING, 0, 0) //TODO: This here is a filthy hack that shouldn't be required!
 }
