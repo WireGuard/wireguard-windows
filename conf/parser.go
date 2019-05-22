@@ -13,6 +13,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"golang.org/x/text/encoding/unicode"
 )
 
 type ParseError struct {
@@ -336,6 +338,23 @@ func FromWgQuick(s string, name string) (*Config, error) {
 	}
 
 	return &conf, nil
+}
+
+func FromWgQuickWithUnknownEncoding(s string, name string) (*Config, error) {
+	c, firstErr := FromWgQuick(s, name)
+	if firstErr == nil {
+		return c, nil
+	}
+	for _, encoding := range unicode.All {
+		decoded, err := encoding.NewDecoder().String(s)
+		if err == nil {
+			c, err := FromWgQuick(decoded, name)
+			if err == nil {
+				return c, nil
+			}
+		}
+	}
+	return nil, firstErr
 }
 
 func FromUAPI(s string, existingConfig *Config) (*Config, error) {

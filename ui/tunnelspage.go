@@ -332,7 +332,7 @@ func (tp *TunnelsPage) importFiles(paths []string) {
 				lastErr = fmt.Errorf("Another tunnel already exists with the name ‘%s’", unparsedConfig.Name)
 				continue
 			}
-			config, err := conf.FromWgQuick(unparsedConfig.Config, unparsedConfig.Name)
+			config, err := conf.FromWgQuickWithUnknownEncoding(unparsedConfig.Config, unparsedConfig.Name)
 			if err != nil {
 				lastErr = err
 				continue
