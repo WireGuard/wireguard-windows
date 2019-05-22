@@ -197,6 +197,18 @@ func configureInterface(conf *conf.Config, tun *tun.NativeTun) error {
 	return nil
 }
 
+func unconfigureInterface(tun *tun.NativeTun) {
+	// It seems that the Windows networking stack doesn't like it when we destroy interfaces that have active
+	// routes, so to be certain, just remove everything before destroying.
+	luid := tun.LUID()
+	winipcfg.FlushInterfaceRoutes(luid, windows.AF_INET)
+	winipcfg.FlushInterfaceIPAddresses(luid, windows.AF_INET)
+	winipcfg.FlushInterfaceRoutes(luid, windows.AF_INET6)
+	winipcfg.FlushInterfaceIPAddresses(luid, windows.AF_INET6)
+
+	//TODO: also flush DNS servers once rozmansi fixes the API for that to take a LUID
+}
+
 func enableFirewall(conf *conf.Config, tun *tun.NativeTun) error {
 	restrictAll := false
 	if len(conf.Peers) == 1 {
