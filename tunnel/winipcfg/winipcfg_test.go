@@ -3,6 +3,22 @@
  * Copyright (C) 2019 WireGuard LLC. All Rights Reserved.
  */
 
+/*
+
+Some tests in this file require:
+
+- A dedicated network adapter
+	Any network adapter will do. It may be virtual (Wintun etc.). The adapter name
+	must contain string "winipcfg_test".
+	Tests will add, remove, flush DNS servers, change adapter IP address, manipulate
+	routes etc.
+	The adapter will not be returned to previous state, so use an expendable one.
+
+- Elevation
+	Run go test as Administrator
+
+*/
+
 package winipcfg
 
 import (
