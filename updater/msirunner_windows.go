@@ -16,8 +16,8 @@ import (
 	"syscall"
 	"unsafe"
 
-	"github.com/Microsoft/go-winio"
 	"golang.org/x/sys/windows"
+	"golang.zx2c4.com/wireguard/ipc/winpipe"
 )
 
 func runMsi(msiPath string, userToken uintptr) error {
@@ -61,7 +61,7 @@ func msiTempFile() (*os.File, error) {
 	if n != int(len(randBytes)) {
 		return nil, errors.New("Unable to generate random bytes")
 	}
-	sd, err := winio.SddlToSecurityDescriptor("O:SYD:PAI(A;;FA;;;SY)(A;;FR;;;BA)")
+	sd, err := winpipe.SddlToSecurityDescriptor("O:SYD:PAI(A;;FA;;;SY)(A;;FR;;;BA)")
 	if err != nil {
 		return nil, err
 	}
