@@ -95,7 +95,7 @@ func RunUI() {
 	if shouldQuitManagerWhenExiting {
 		_, err := manager.IPCClientQuit(true)
 		if err != nil {
-			walk.MsgBox(nil, "Error Exiting WireGuard", fmt.Sprintf("Unable to exit service due to: %s. You may want to stop WireGuard from the service manager.", err), walk.MsgBoxIconError)
+			walk.MsgBox(nil, "Error Exiting WireGuard", fmt.Sprintf("Unable to exit service due to: %v. You may want to stop WireGuard from the service manager.", err), walk.MsgBoxIconError)
 		}
 	}
 }
