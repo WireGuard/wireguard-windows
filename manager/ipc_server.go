@@ -57,6 +57,7 @@ func (s *ManagerService) RuntimeConfig(tunnelName string, config *conf.Config) e
 	if err != nil {
 		return err
 	}
+	defer pipe.Close()
 	pipe.SetWriteDeadline(time.Now().Add(time.Second * 2))
 	_, err = pipe.Write([]byte("get=1\n\n"))
 	if err != nil {
@@ -67,7 +68,6 @@ func (s *ManagerService) RuntimeConfig(tunnelName string, config *conf.Config) e
 	if err != nil {
 		return err
 	}
-	pipe.Close()
 	runtimeConfig, err := conf.FromUAPI(string(resp), storedConfig)
 	if err != nil {
 		return err
