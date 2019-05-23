@@ -17,9 +17,9 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/Microsoft/go-winio"
 	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/svc"
+	"golang.zx2c4.com/wireguard/ipc/winpipe"
 
 	"golang.zx2c4.com/wireguard/windows/conf"
 	"golang.zx2c4.com/wireguard/windows/updater"
@@ -53,7 +53,7 @@ func (s *ManagerService) RuntimeConfig(tunnelName string, config *conf.Config) e
 	if err != nil {
 		return err
 	}
-	pipe, err := winio.DialPipe(pipePath, nil)
+	pipe, err := winpipe.DialPipe(pipePath, nil)
 	if err != nil {
 		return err
 	}
