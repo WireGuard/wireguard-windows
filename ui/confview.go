@@ -577,6 +577,7 @@ func (cv *ConfView) setTunnel(tunnel *manager.Tunnel, config *conf.Config, state
 		suspend()
 		delete(cv.peers, *k)
 		groupBox := pv.publicKey.label.Parent().AsContainerBase().Parent().(*walk.GroupBox)
+		groupBox.SetVisible(false)
 		groupBox.Parent().Children().Remove(groupBox)
 		groupBox.Dispose()
 	}
