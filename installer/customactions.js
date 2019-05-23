@@ -48,8 +48,8 @@ function runWithNoWindowFlash(command) {
 function EvaluateWireGuardServices() {
 	var inst = Session.Installer;
 	var db = Session.Database;
-	var view = db.OpenView("INSERT INTO `ServiceControl` (`ServiceControl`, `Name`, `Event`, `Component_`) VALUES(?, ?, ?, ?) TEMPORARY");
-	var rec = inst.CreateRecord(4);
+	var view = db.OpenView("INSERT INTO `ServiceControl` (`ServiceControl`, `Name`, `Event`, `Component_`, `Wait`) VALUES(?, ?, ?, ?, ?) TEMPORARY");
+	var rec = inst.CreateRecord(5);
 	var serviceKey = "HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Services";
 	var servicePrefix = "WireGuardTunnel$";
 	var serviceKeyPrefix = serviceKey + "\\" + servicePrefix;
@@ -58,20 +58,23 @@ function EvaluateWireGuardServices() {
 	var index = 0;
 
 	function insertServiceControl(serviceName) {
-		var flags = 0x2/*msidbServiceControlEventStop*/ | 0x20/*msidbServiceControlEventUninstallStop*/ | 0x80/*msidbServiceControlEventUninstallDelete*/;
-
-		if (shl.IsServiceRunning(serviceName)) {
-			flags |= 0x1/*msidbServiceControlEventStart*/;
-			logMessage("Scheduling stop on upgrade/uninstall and removal on uninstall of service " + serviceName);
-		} else {
-			logMessage("Scheduling removal on uninstall of service " + serviceName);
-		}
-
-		rec.StringData (1/*ServiceControl*/) = serviceName.replace(msiOperators, "_") + (index++).toString();
+		logMessage("Scheduling stop on upgrade or removal on uninstall of service " + serviceName);
+		rec.StringData (1/*ServiceControl*/) = "stop_" + serviceName.replace(msiOperators, "_") + (index++).toString();
 		rec.StringData (2/*Name          */) = serviceName;
-		rec.IntegerData(3/*Event         */) = flags;
+		rec.IntegerData(3/*Event         */) = 0x2/*msidbServiceControlEventStop*/ | 0x20/*msidbServiceControlEventUninstallStop*/ | 0x80/*msidbServiceControlEventUninstallDelete*/;
 		rec.StringData (4/*Component_    */) = "WireGuardExecutable";
-
+		rec.IntegerData(5/*Wait          */) = 1; /* Waits 30 seconds. */
+		view.Execute(rec);
+		
+		if (!shl.IsServiceRunning(serviceName))
+			return;
+		
+		logMessage("Scheduling start on upgrade of service " + serviceName);
+		rec.StringData (1/*ServiceControl*/) = "start_" + serviceName.replace(msiOperators, "_") + (index++).toString();
+		rec.StringData (2/*Name          */) = serviceName;
+		rec.IntegerData(3/*Event         */) = 0x1/*msidbServiceControlEventStart*/;
+		rec.StringData (4/*Component_    */) = "WireGuardExecutable";
+		rec.IntegerData(5/*Wait          */) = 0; /* No wait, so that failure to restart again isn't fatal. */
 		view.Execute(rec);
 	}
 
