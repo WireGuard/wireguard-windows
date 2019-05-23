@@ -28,18 +28,7 @@ func (t *ListModel) RowCount() int {
 }
 
 func (t *ListModel) Value(row, col int) interface{} {
-	if row < 0 || row >= len(t.tunnels) {
-		return nil
-	}
-	tunnel := t.tunnels[row]
-
-	switch col {
-	case 0:
-		return tunnel.Name
-
-	default:
-		panic("unreachable col")
-	}
+	return ""
 }
 
 func (t *ListModel) Sort(col int, order walk.SortOrder) error {
@@ -122,7 +111,7 @@ func (tv *ListView) StyleCell(style *walk.CellStyle) {
 
 	b.X = b.Height
 	b.Width -= b.Height
-	canvas.DrawText(tunnel.Name, tv.Font(), 0, b, walk.TextVCenter|walk.TextSingleLine)
+	canvas.DrawText(tunnel.Name, tv.Font(), style.TextColor, b, walk.TextVCenter|walk.TextSingleLine)
 
 	//TODO: don't make an IPC call from the drawing thread like this!
 	state, err := tunnel.State()
