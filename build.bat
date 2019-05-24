@@ -77,6 +77,6 @@ if exist .deps\prepared goto :render
 	echo [+] Assembling resources %1
 	windres.exe -i resources.rc -o resources.syso -O coff || exit /b %errorlevel%
 	echo [+] Building program %1
-	go build -ldflags="-H windowsgui -s -w" -v -o "%~1\wireguard.exe" || exit /b 1
+	go build -ldflags="-H windowsgui -s -w" -tags walk_use_cgo -v -o "%~1\wireguard.exe" || exit /b 1
 	set PATH=%OLDPATH2%
 	goto :eof

@@ -1,4 +1,4 @@
-GOFLAGS := -ldflags="-H windowsgui -s -w" -v
+GOFLAGS := -ldflags="-H windowsgui -s -w" -v -tags walk_use_cgo
 export CGO_ENABLED := 1
 export CGO_CFLAGS := -O3 -Wall -Wno-unused-function -Wno-switch -std=gnu11 -DWINVER=0x0601
 export GOOS := windows
