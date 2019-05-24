@@ -40,7 +40,6 @@ var (
 	modiphlpapi = windows.NewLazySystemDLL("iphlpapi.dll")
 
 	procFreeMibTable                    = modiphlpapi.NewProc("FreeMibTable")
-	procGetAdaptersAddresses            = modiphlpapi.NewProc("GetAdaptersAddresses")
 	procInitializeIpInterfaceEntry      = modiphlpapi.NewProc("InitializeIpInterfaceEntry")
 	procGetIpInterfaceTable             = modiphlpapi.NewProc("GetIpInterfaceTable")
 	procGetIpInterfaceEntry             = modiphlpapi.NewProc("GetIpInterfaceEntry")
@@ -73,14 +72,6 @@ var (
 
 func freeMibTable(memory unsafe.Pointer) {
 	syscall.Syscall(procFreeMibTable.Addr(), 1, uintptr(memory), 0, 0)
-	return
-}
-
-func getAdaptersAddresses(family uint32, flags GAAFlags, reserved uintptr, adapterAddresses *IPAdapterAddresses, sizePointer *uint32) (ret error) {
-	r0, _, _ := syscall.Syscall6(procGetAdaptersAddresses.Addr(), 5, uintptr(family), uintptr(flags), uintptr(reserved), uintptr(unsafe.Pointer(adapterAddresses)), uintptr(unsafe.Pointer(sizePointer)), 0)
-	if r0 != 0 {
-		ret = syscall.Errno(r0)
-	}
 	return
 }
 
