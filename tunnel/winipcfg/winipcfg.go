@@ -21,7 +21,6 @@ import (
 // Interface-related functions
 //
 
-//sys	getAdaptersAddresses(family uint32, flags GAAFlags, reserved uintptr, adapterAddresses *IPAdapterAddresses, sizePointer *uint32) (ret error) = iphlpapi.GetAdaptersAddresses
 //sys	initializeIPInterfaceEntry(row *MibIPInterfaceRow) = iphlpapi.InitializeIpInterfaceEntry
 //sys	getIPInterfaceTable(family AddressFamily, table **mibIPInterfaceTable) (ret error) = iphlpapi.GetIpInterfaceTable
 //sys	getIPInterfaceEntry(row *MibIPInterfaceRow) (ret error) = iphlpapi.GetIpInterfaceEntry
@@ -39,7 +38,7 @@ func GetAdaptersAddresses(family uint32, flags GAAFlags) ([]*IPAdapterAddresses,
 
 	for {
 		b = make([]byte, size)
-		err := getAdaptersAddresses(family, flags, 0, (*IPAdapterAddresses)(unsafe.Pointer(&b[0])), &size)
+		err := windows.GetAdaptersAddresses(family, uint32(flags), 0, (*windows.IpAdapterAddresses)(unsafe.Pointer(&b[0])), &size)
 		if err == nil {
 			break
 		}
