@@ -256,7 +256,7 @@ func (luid LUID) DNS() ([]net.IP, error) {
 	for _, addr := range addresses {
 		if addr.LUID == luid {
 			for dns := addr.FirstDNSServerAddress; dns != nil; dns = dns.Next {
-				if ip := SocketAddressToIP(&dns.Address); len(ip) != 0 {
+				if ip := dns.Address.IP(); ip != nil {
 					r = append(r, ip)
 				} else {
 					return nil, windows.ERROR_INVALID_PARAMETER
