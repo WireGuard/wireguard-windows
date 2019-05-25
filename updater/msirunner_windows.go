@@ -11,7 +11,7 @@ import (
 	"errors"
 	"os"
 	"os/exec"
-	"path"
+	"path/filepath"
 	"runtime"
 	"syscall"
 	"unsafe"
@@ -35,10 +35,10 @@ func runMsi(msiPath string, userToken uintptr) error {
 			Token: syscall.Token(userToken),
 		},
 		Files: []*os.File{devNull, devNull, devNull},
-		Dir:   path.Dir(msiPath),
+		Dir:   filepath.Dir(msiPath),
 	}
-	msiexec := path.Join(system32, "msiexec.exe")
-	proc, err := os.StartProcess(msiexec, []string{msiexec, "/qb!-", "/i", path.Base(msiPath)}, attr)
+	msiexec := filepath.Join(system32, "msiexec.exe")
+	proc, err := os.StartProcess(msiexec, []string{msiexec, "/qb!-", "/i", filepath.Base(msiPath)}, attr)
 	if err != nil {
 		return err
 	}
@@ -71,7 +71,7 @@ func msiTempFile() (*os.File, error) {
 	}
 	//TODO: os.TempDir() returns C:\windows\temp when calling from this context. Supposedly this is mostly secure
 	// against TOCTOU, but who knows! Look into this!
-	name := path.Join(os.TempDir(), hex.EncodeToString(randBytes[:]))
+	name := filepath.Join(os.TempDir(), hex.EncodeToString(randBytes[:]))
 	name16 := windows.StringToUTF16Ptr(name)
 	//TODO: it would be nice to specify delete_on_close, but msiexec.exe doesn't open its files with read sharing.
 	fileHandle, err := windows.CreateFile(name16, windows.GENERIC_WRITE, windows.FILE_SHARE_READ, sa, windows.CREATE_NEW, windows.FILE_ATTRIBUTE_NORMAL, 0)

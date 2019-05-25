@@ -8,7 +8,7 @@ package ringlogger
 import (
 	"io"
 	"os"
-	"path"
+	"path/filepath"
 
 	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/registry"
@@ -16,13 +16,13 @@ import (
 )
 
 func DumpTo(out io.Writer, localSystem bool) error {
-	var filepath string
+	var path string
 	if !localSystem {
 		root, err := conf.RootDirectory()
 		if err != nil {
 			return err
 		}
-		filepath = path.Join(root, "log.bin")
+		path = filepath.Join(root, "log.bin")
 	} else {
 		k, err := registry.OpenKey(registry.LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList\\S-1-5-18", registry.QUERY_VALUE)
 		if err != nil {
@@ -38,9 +38,9 @@ func DumpTo(out io.Writer, localSystem bool) error {
 		if err != nil {
 			return err
 		}
-		filepath = path.Join(systemprofile, "AppData", "Local", "WireGuard", "log.bin")
+		path = filepath.Join(systemprofile, "AppData", "Local", "WireGuard", "log.bin")
 	}
-	file, err := os.Open(filepath)
+	file, err := os.Open(path)
 	if err != nil {
 		return err
 	}
