@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"io"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
 	"golang.org/x/sys/windows"
@@ -23,7 +24,7 @@ func runNetsh(cmds []string) error {
 	if err != nil {
 		return err
 	}
-	cmd := exec.Command(system32 + "\\netsh.exe") // I wish we could append (, "-f", "CONIN$") but Go sets up the process context wrong.
+	cmd := exec.Command(filepath.Join(system32, "netsh.exe")) // I wish we could append (, "-f", "CONIN$") but Go sets up the process context wrong.
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
 		return fmt.Errorf("runNetsh stdin pipe - %v", err)
