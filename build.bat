@@ -35,6 +35,7 @@ if exist .deps\prepared goto :render
 	set GOROOT=%STARTDIR%\.deps\go
 	set CGO_ENABLED=1
 	set CGO_CFLAGS=-O3 -Wall -Wno-unused-function -Wno-switch -std=gnu11 -DWINVER=0x0601
+	set CGO_LDFLAGS=-Wl,--major-os-version=6 -Wl,--minor-os-version=1 -Wl,--major-subsystem-version=6 -Wl,--minor-subsystem-version=1
 	call :build_plat x86 i686 386 || goto :error
 	call :build_plat amd64 x86_64 amd64 || goto :error
 
