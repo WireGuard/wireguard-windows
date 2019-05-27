@@ -32,11 +32,8 @@ var flags = [...]string{
 	"/dumplog OUTPUT_PATH",
 }
 
-//sys	messageBoxEx(hwnd windows.Handle, text *uint16, title *uint16, typ uint, languageId uint16) = user32.MessageBoxExW
-//sys	isWow64Process(handle windows.Handle, isWow64 *bool) (err error) = kernel32.IsWow64Process
-
 func fatal(v ...interface{}) {
-	messageBoxEx(0, windows.StringToUTF16Ptr(fmt.Sprint(v...)), windows.StringToUTF16Ptr("Error"), 0x00000010, 0)
+	windows.MessageBox(0, windows.StringToUTF16Ptr(fmt.Sprint(v...)), windows.StringToUTF16Ptr("Error"), windows.MB_ICONERROR)
 	os.Exit(1)
 }
 
@@ -46,14 +43,17 @@ func usage() {
 		builder.WriteString(fmt.Sprintf("    %s\n", flag))
 	}
 	msg := fmt.Sprintf("Usage: %s [\n%s]", os.Args[0], builder.String())
-	messageBoxEx(0, windows.StringToUTF16Ptr(msg), windows.StringToUTF16Ptr("Command Line Options"), 0x00000040, 0)
+	windows.MessageBox(0, windows.StringToUTF16Ptr(msg), windows.StringToUTF16Ptr("Command Line Options"), windows.MB_ICONINFORMATION)
 	os.Exit(1)
 }
 
 func checkForWow64() {
 	var b bool
-	p, _ := windows.GetCurrentProcess()
-	err := isWow64Process(p, &b)
+	p, err := windows.GetCurrentProcess()
+	if err != nil {
+		fatal(err)
+	}
+	err = windows.IsWow64Process(p, &b)
 	if err != nil {
 		fatal("Unable to determine whether the process is running under WOW64: ", err)
 	}
@@ -74,13 +74,12 @@ func checkForAdminGroup() {
 	}
 }
 
-//sys	shellExecute(hwnd windows.Handle, verb *uint16, file *uint16, args *uint16, cwd *uint16, showCmd int) (err error) = shell32.ShellExecuteW
 func execElevatedManagerServiceInstaller() error {
 	path, err := os.Executable()
 	if err != nil {
 		return err
 	}
-	err = shellExecute(0, windows.StringToUTF16Ptr("runas"), windows.StringToUTF16Ptr(path), windows.StringToUTF16Ptr("/installmanagerservice"), nil, windows.SW_SHOW)
+	err = windows.ShellExecute(0, windows.StringToUTF16Ptr("runas"), windows.StringToUTF16Ptr(path), windows.StringToUTF16Ptr("/installmanagerservice"), nil, windows.SW_SHOW)
 	if err != nil {
 		return err
 	}
