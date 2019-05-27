@@ -581,4 +581,5 @@ func (cv *ConfView) setTunnel(tunnel *manager.Tunnel, config *conf.Config, state
 		groupBox.Parent().Children().Remove(groupBox)
 		groupBox.Dispose()
 	}
+	cv.SendMessage(win.WM_SIZING, 0, 0) //TODO: This here is a filthy hack that shouldn't be required!
 }
