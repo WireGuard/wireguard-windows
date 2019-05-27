@@ -84,8 +84,7 @@ func getCurrentProcessSecurityDescriptor() (*wtFwpByteBlob, error) {
 		return nil, wrapErr(err)
 	}
 	var sid *windows.SID
-	groups := (*[(1 << 28) - 1]windows.SIDAndAttributes)(unsafe.Pointer(&gs.Groups[0]))[:gs.GroupCount]
-	for _, g := range groups {
+	for _, g := range gs.AllGroups() {
 		if g.Attributes != windows.SE_GROUP_ENABLED|windows.SE_GROUP_ENABLED_BY_DEFAULT|windows.SE_GROUP_OWNER {
 			continue
 		}
