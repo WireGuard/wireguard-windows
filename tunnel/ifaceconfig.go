@@ -51,7 +51,7 @@ func cleanupAddressesOnDisconnectedInterfaces(addresses []net.IPNet) {
 			ipnet := net.IPNet{IP: ip, Mask: net.CIDRMask(int(address.OnLinkPrefixLength), 8*len(ip))}
 			if includedInAddresses(ipnet) {
 				log.Printf("Cleaning up stale address %s from interface '%s'", ipnet.String(), iface.FriendlyName())
-				iface.LUID.DeleteIPAddress(ipnet.IP) //TODO: BUG(rozmansi): DeleteIPAddress needs to take the full IPNet, not just the IP
+				iface.LUID.DeleteIPAddress(ipnet)
 			}
 		}
 	}

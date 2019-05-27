@@ -439,7 +439,7 @@ func TestAddDeleteIPAddress(t *testing.T) {
 		t.Errorf("Notification handler has not been called on add.")
 	}
 
-	err = ifc.LUID.DeleteIPAddress(unexistentIPAddresToAdd.IP)
+	err = ifc.LUID.DeleteIPAddress(unexistentIPAddresToAdd)
 	if err != nil {
 		t.Errorf("LUID.DeleteIPAddress() returned an error: %v", err)
 	}
