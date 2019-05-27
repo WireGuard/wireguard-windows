@@ -118,11 +118,17 @@ func (luid LUID) SetIPAddresses(addresses []net.IPNet) error {
 
 // DeleteIPAddress method deletes interface's unicast IP address. Corresponds to DeleteUnicastIpAddressEntry function
 // (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-deleteunicastipaddressentry).
-func (luid LUID) DeleteIPAddress(ip net.IP) error {
-	row, err := luid.IPAddress(ip)
+func (luid LUID) DeleteIPAddress(address net.IPNet) error {
+	row := &MibUnicastIPAddressRow{}
+	initializeUnicastIPAddressEntry(row)
+	row.InterfaceLUID = luid
+	err := row.Address.SetIP(address.IP, 0)
 	if err != nil {
 		return err
 	}
+	// Note: OnLinkPrefixLength member is ignored by DeleteUnicastIpAddressEntry().
+	ones, _ := address.Mask.Size()
+	row.OnLinkPrefixLength = uint8(ones)
 	return row.Delete()
 }
 
