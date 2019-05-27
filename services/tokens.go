@@ -18,9 +18,8 @@ func TokenIsMemberOfBuiltInAdministrator(token windows.Token) bool {
 	if err != nil {
 		return false
 	}
-	groups := (*[(1 << 28) - 1]windows.SIDAndAttributes)(unsafe.Pointer(&gs.Groups[0]))[:gs.GroupCount]
 	isAdmin := false
-	for _, g := range groups {
+	for _, g := range gs.AllGroups() {
 		if (g.Attributes&windows.SE_GROUP_USE_FOR_DENY_ONLY != 0 || g.Attributes&windows.SE_GROUP_ENABLED != 0) && g.Sid.IsWellKnown(windows.WinBuiltinAdministratorsSid) {
 			isAdmin = true
 			break
