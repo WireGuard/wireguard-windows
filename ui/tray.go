@@ -193,12 +193,12 @@ func (tray *Tray) addTunnelAction(tunnel *manager.Tunnel) {
 	tray.ContextMenu().Actions().Insert(trayTunnelActionsOffset+idx, tunnelAction)
 
 	go func() {
-		state, err := tunnel.State()
+		state, err := tclosure.State()
 		if err != nil {
 			return
 		}
 		tray.mtw.Synchronize(func() {
-			tray.SetTunnelState(tunnel, state, false)
+			tray.SetTunnelState(&tclosure, state, false)
 		})
 	}()
 }
