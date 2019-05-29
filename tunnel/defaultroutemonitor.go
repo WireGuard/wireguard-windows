@@ -104,7 +104,7 @@ func monitorDefaultRoutes(device *device.Device, autoMTU bool, tun *tun.NativeTu
 				mtu = iface.MTU
 			}
 		}
-		if mtu > 0 && (lastMTU == 0 || lastMTU != mtu) {
+		if mtu > 0 && lastMTU != mtu {
 			iface, err := getIPInterfaceRetry(ourLUID, windows.AF_INET, retry, 100)
 			if err != nil {
 				return err
