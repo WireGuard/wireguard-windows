@@ -7,9 +7,16 @@
 package win
 
 import (
-	"golang.org/x/sys/windows"
 	"syscall"
 	"unsafe"
+
+	"golang.org/x/sys/windows"
+)
+
+// TMT_COLOR property ids
+const (
+	TMT_FILLCOLOR = 3802
+	TMT_TEXTCOLOR = 3803
 )
 
 // CheckBox parts
@@ -145,6 +152,7 @@ var (
 	closeThemeData      *windows.LazyProc
 	drawThemeBackground *windows.LazyProc
 	drawThemeTextEx     *windows.LazyProc
+	getThemeColor       *windows.LazyProc
 	getThemePartSize    *windows.LazyProc
 	getThemeTextExtent  *windows.LazyProc
 	isAppThemed         *windows.LazyProc
@@ -160,6 +168,7 @@ func init() {
 	closeThemeData = libuxtheme.NewProc("CloseThemeData")
 	drawThemeBackground = libuxtheme.NewProc("DrawThemeBackground")
 	drawThemeTextEx = libuxtheme.NewProc("DrawThemeTextEx")
+	getThemeColor = libuxtheme.NewProc("GetThemeColor")
 	getThemePartSize = libuxtheme.NewProc("GetThemePartSize")
 	getThemeTextExtent = libuxtheme.NewProc("GetThemeTextExtent")
 	isAppThemed = libuxtheme.NewProc("IsAppThemed")
@@ -202,6 +211,18 @@ func DrawThemeTextEx(hTheme HTHEME, hdc HDC, iPartId, iStateId int32, pszText *u
 		uintptr(dwFlags),
 		uintptr(unsafe.Pointer(pRect)),
 		uintptr(unsafe.Pointer(pOptions)))
+
+	return HRESULT(ret)
+}
+
+func GetThemeColor(hTheme HTHEME, iPartId, iStateId, iPropId int32, pColor *COLORREF) HRESULT {
+	ret, _, _ := syscall.Syscall6(getThemeColor.Addr(), 5,
+		uintptr(hTheme),
+		uintptr(iPartId),
+		uintptr(iStateId),
+		uintptr(iPropId),
+		uintptr(unsafe.Pointer(pColor)),
+		0)
 
 	return HRESULT(ret)
 }
