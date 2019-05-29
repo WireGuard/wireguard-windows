@@ -54,8 +54,7 @@ func bindSocketRoute(family winipcfg.AddressFamily, device *device.Device, ourLU
 	return nil
 }
 
-func getIPInterfaceRetry(luid winipcfg.LUID, family winipcfg.AddressFamily, retry bool) (ipi *winipcfg.MibIPInterfaceRow, err error) {
-	const maxRetries = 100
+func getIPInterfaceRetry(luid winipcfg.LUID, family winipcfg.AddressFamily, retry bool, maxRetries int) (ipi *winipcfg.MibIPInterfaceRow, err error) {
 	for i := 0; i < maxRetries; i++ {
 		ipi, err = luid.IPInterface(family)
 		if retry && i != maxRetries-1 && err == windows.ERROR_NOT_FOUND {
@@ -106,7 +105,7 @@ func monitorDefaultRoutes(device *device.Device, autoMTU bool, tun *tun.NativeTu
 			}
 		}
 		if mtu > 0 && (lastMTU == 0 || lastMTU != mtu) {
-			iface, err := getIPInterfaceRetry(ourLUID, windows.AF_INET, retry)
+			iface, err := getIPInterfaceRetry(ourLUID, windows.AF_INET, retry, 100)
 			if err != nil {
 				return err
 			}
@@ -119,17 +118,16 @@ func monitorDefaultRoutes(device *device.Device, autoMTU bool, tun *tun.NativeTu
 				return err
 			}
 			tun.ForceMTU(int(iface.NLMTU)) //TODO: it sort of breaks the model with v6 mtu and v4 mtu being different. Just set v4 one for now.
-			iface, err = getIPInterfaceRetry(ourLUID, windows.AF_INET6, retry)
-			if err != nil {
-				return err
-			}
-			iface.NLMTU = mtu - 80
-			if iface.NLMTU < 1280 {
-				iface.NLMTU = 1280
-			}
-			err = iface.Set()
-			if err != nil {
-				return err
+			iface, err = getIPInterfaceRetry(ourLUID, windows.AF_INET6, retry, 3)
+			if err == nil { // People seem to like to disable IPv6, so we make this non-fatal.
+				iface.NLMTU = mtu - 80
+				if iface.NLMTU < 1280 {
+					iface.NLMTU = 1280
+				}
+				err = iface.Set()
+				if err != nil {
+					return err
+				}
 			}
 			lastMTU = mtu
 		}
