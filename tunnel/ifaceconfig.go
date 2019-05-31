@@ -10,6 +10,7 @@ import (
 	"log"
 	"net"
 	"sort"
+	"time"
 
 	"golang.org/x/sys/windows"
 	"golang.zx2c4.com/wireguard/tun"
@@ -220,4 +221,22 @@ func enableFirewall(conf *conf.Config, tun *tun.NativeTun) error {
 		log.Println("Warning: no DNS server specified, despite having an allowed IPs of 0.0.0.0/0 or ::/0. There may be connectivity issues.")
 	}
 	return firewall.EnableFirewall(tun.LUID(), conf.Interface.DNS, restrictAll)
+}
+
+func waitForFamilies(tun *tun.NativeTun) {
+	//TODO: This whole thing is a disgusting hack that shouldn't be neccessary.
+
+	f := func(luid winipcfg.LUID, family winipcfg.AddressFamily, maxRetries int) {
+		for i := 0; i < maxRetries; i++ {
+			_, err := luid.IPInterface(family)
+			if i != maxRetries-1 && err == windows.ERROR_NOT_FOUND {
+				time.Sleep(time.Millisecond * 50)
+				continue
+			}
+			break
+		}
+	}
+	luid := winipcfg.LUID(tun.LUID())
+	f(luid, windows.AF_INET, 100)
+	f(luid, windows.AF_INET6, 3)
 }
