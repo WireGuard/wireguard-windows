@@ -48,31 +48,27 @@ func createWfpSession() (uintptr, error) {
 }
 
 func registerBaseObjects(session uintptr) (*baseObjects, error) {
-	// {48E29F38-7492-4436-8F92-29D78A8D29D3}
-	providerGUID := windows.GUID{
-		Data1: 0x48e29f38,
-		Data2: 0x7492,
-		Data3: 0x4436,
-		Data4: [8]byte{0x8f, 0x92, 0x29, 0xd7, 0x8a, 0x8d, 0x29, 0xd3},
+	bo := &baseObjects{}
+	var err error
+	bo.provider, err = randGUID()
+	if err != nil {
+		return nil, wrapErr(err)
 	}
-	// {FE3DB7F8-4658-4DE5-8DA9-CE5086A8266B}
-	filtersGUID := windows.GUID{
-		Data1: 0xfe3db7f8,
-		Data2: 0x4658,
-		Data3: 0x4de5,
-		Data4: [8]byte{0x8d, 0xa9, 0xce, 0x50, 0x86, 0xa8, 0x26, 0x6b},
+	bo.filters, err = randGUID()
+	if err != nil {
+		return nil, wrapErr(err)
 	}
 
 	//
 	// Register provider.
 	//
 	{
-		displayData, err := createWtFwpmDisplayData0("WireGuard", "The WireGuard provider")
+		displayData, err := createWtFwpmDisplayData0("WireGuard", "WireGuard provider")
 		if err != nil {
 			return nil, wrapErr(err)
 		}
 		provider := wtFwpmProvider0{
-			providerKey: providerGUID,
+			providerKey: bo.provider,
 			displayData: *displayData,
 		}
 		err = fwpmProviderAdd0(session, &provider, 0)
@@ -91,9 +87,9 @@ func registerBaseObjects(session uintptr) (*baseObjects, error) {
 			return nil, wrapErr(err)
 		}
 		sublayer := wtFwpmSublayer0{
-			subLayerKey: filtersGUID,
+			subLayerKey: bo.filters,
 			displayData: *displayData,
-			providerKey: &providerGUID,
+			providerKey: &bo.provider,
 			weight:      ^uint16(0),
 		}
 		err = fwpmSubLayerAdd0(session, &sublayer, 0)
@@ -102,10 +98,7 @@ func registerBaseObjects(session uintptr) (*baseObjects, error) {
 		}
 	}
 
-	return &baseObjects{
-		providerGUID,
-		filtersGUID,
-	}, nil
+	return bo, nil
 }
 
 func EnableFirewall(luid uint64, restrictToDNSServers []net.IP, restrictAll bool) error {

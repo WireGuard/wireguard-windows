@@ -7,10 +7,12 @@ package firewall
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"runtime"
 	"syscall"
 	"unsafe"
+	"crypto/rand"
 
 	"golang.org/x/sys/windows"
 )
@@ -134,4 +136,16 @@ func getCurrentProcessAppID() (*wtFwpByteBlob, error) {
 		return nil, wrapErr(err)
 	}
 	return appID, nil
+}
+
+func randGUID() (windows.GUID, error) {
+	guid := windows.GUID{}
+	n, err := rand.Read((*[16]byte)(unsafe.Pointer(&guid))[:])
+	if err != nil {
+		return guid, err
+	}
+	if n != 16 {
+		return guid, io.ErrShortBuffer
+	}
+	return guid, nil
 }
