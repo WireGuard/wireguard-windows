@@ -7,7 +7,6 @@ package tunnel
 
 import (
 	"log"
-	"time"
 
 	"golang.org/x/sys/windows"
 	"golang.zx2c4.com/wireguard/device"
@@ -54,18 +53,6 @@ func bindSocketRoute(family winipcfg.AddressFamily, device *device.Device, ourLU
 	return nil
 }
 
-func getIPInterfaceRetry(luid winipcfg.LUID, family winipcfg.AddressFamily, retry bool, maxRetries int) (ipi *winipcfg.MibIPInterfaceRow, err error) {
-	for i := 0; i < maxRetries; i++ {
-		ipi, err = luid.IPInterface(family)
-		if retry && i != maxRetries-1 && err == windows.ERROR_NOT_FOUND {
-			time.Sleep(time.Millisecond * 50)
-			continue
-		}
-		break
-	}
-	return
-}
-
 func monitorDefaultRoutes(device *device.Device, autoMTU bool, tun *tun.NativeTun) (*winipcfg.RouteChangeCallback, error) {
 	ourLUID := winipcfg.LUID(tun.LUID())
 	lastLUID4 := winipcfg.LUID(0)
@@ -73,7 +60,7 @@ func monitorDefaultRoutes(device *device.Device, autoMTU bool, tun *tun.NativeTu
 	lastIndex4 := uint32(0)
 	lastIndex6 := uint32(0)
 	lastMTU := uint32(0)
-	doIt := func(retry bool) error {
+	doIt := func() error {
 		err := bindSocketRoute(windows.AF_INET, device, ourLUID, &lastLUID4, &lastIndex4)
 		if err != nil {
 			return err
@@ -105,7 +92,7 @@ func monitorDefaultRoutes(device *device.Device, autoMTU bool, tun *tun.NativeTu
 			}
 		}
 		if mtu > 0 && lastMTU != mtu {
-			iface, err := getIPInterfaceRetry(ourLUID, windows.AF_INET, retry, 100)
+			iface, err := ourLUID.IPInterface(windows.AF_INET)
 			if err != nil {
 				return err
 			}
@@ -118,7 +105,7 @@ func monitorDefaultRoutes(device *device.Device, autoMTU bool, tun *tun.NativeTu
 				return err
 			}
 			tun.ForceMTU(int(iface.NLMTU)) //TODO: it sort of breaks the model with v6 mtu and v4 mtu being different. Just set v4 one for now.
-			iface, err = getIPInterfaceRetry(ourLUID, windows.AF_INET6, retry, 3)
+			iface, err = ourLUID.IPInterface(windows.AF_INET6)
 			if err == nil { // People seem to like to disable IPv6, so we make this non-fatal.
 				iface.NLMTU = mtu - 80
 				if iface.NLMTU < 1280 {
@@ -133,13 +120,13 @@ func monitorDefaultRoutes(device *device.Device, autoMTU bool, tun *tun.NativeTu
 		}
 		return nil
 	}
-	err := doIt(true)
+	err := doIt()
 	if err != nil {
 		return nil, err
 	}
 	cb, err := winipcfg.RegisterRouteChangeCallback(func(notificationType winipcfg.MibNotificationType, route *winipcfg.MibIPforwardRow2) {
 		if route != nil && route.DestinationPrefix.PrefixLength == 0 {
-			_ = doIt(false)
+			_ = doIt()
 		}
 	})
 	if err != nil {
