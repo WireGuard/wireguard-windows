@@ -73,3 +73,5 @@ $ stat wg.exe
 ```
 
 It interacts with WireGuard instances run by the main WireGuard for Windows program.
+
+When building on Windows, the aforementioned `build.bat` script takes care of building this.

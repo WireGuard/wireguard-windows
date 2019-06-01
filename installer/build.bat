@@ -12,6 +12,7 @@ set WIX_LIGHT_FLAGS=-nologo -spdb
 set WIX_LIGHT_FLAGS=%WIX_LIGHT_FLAGS% -sw1056
 set WIX_LIGHT_FLAGS=%WIX_LIGHT_FLAGS% -sice:ICE30
 set WIX_LIGHT_FLAGS=%WIX_LIGHT_FLAGS% -sice:ICE61
+set WIX_LIGHT_FLAGS=%WIX_LIGHT_FLAGS% -sice:ICE09
 
 if exist .deps\prepared goto :build
 :installdeps
