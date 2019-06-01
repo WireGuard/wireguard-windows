@@ -75,6 +75,10 @@
 				<Directory Id="INSTALLFOLDER" Name="WireGuard"/>
 			</Directory>
 			<Directory Id="ProgramMenuFolder"/>
+			<Directory Id="SystemFolder"/>
+			<?if $(var.Platform) != "x86"?>
+			<Directory Id="System64Folder"/>
+			<?endif?>
 		</Directory>
 
 		<!--
@@ -87,6 +91,14 @@
 				</File>
 				<ServiceControl Id="DummyService.3AA0C492_29F4_4342_B608_DB95B2DECB13" Name="DummyService.3AA0C492_29F4_4342_B608_DB95B2DECB13"/><!-- A dummy to make WiX create ServiceControl table for us. -->
 			</Component>
+			<Component Directory="SystemFolder" Win64="no" Id="Wg32Executable" Guid="5ca31841-97d8-4614-a318-f1e268135ba7">
+				<File Source="..\x86\wg.exe" Id="Wg32Executable"/>
+			</Component>
+			<?if $(var.Platform) != "x86"?>
+			<Component Directory="System64Folder" Win64="yes" Id="Wg64Executable" Guid="d9b494ec-0959-442c-89ad-6aa175acfd03">
+				<File Source="..\$(var.Platform)\wg.exe" Id="Wg64Executable"/>
+			</Component>
+			<?endif?>
 		</ComponentGroup>
 
 		<!--
