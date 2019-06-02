@@ -2,6 +2,9 @@
 rem SPDX-License-Identifier: MIT
 rem Copyright (C) 2019 WireGuard LLC. All Rights Reserved.
 
+set OLDPATHEXT=%PATHEXT%
+set PATHEXT=.exe
+
 for /f "tokens=3" %%a in ('findstr /r "WIREGUARD_WINDOWS_VERSION_STRING.*[0-9.]*" ..\version.h') do set WIREGUARD_VERSION=%%a
 set WIREGUARD_VERSION=%WIREGUARD_VERSION:"=%
 
@@ -35,16 +38,14 @@ if exist .deps\prepared goto :build
 	call :msi x86 x86 || goto :error
 	call :msi amd64 x64 || goto :error
 	if exist ..\sign.bat call ..\sign.bat
-	if "%SigningCertificate%"=="" goto :build_sfx
-	if "%TimestampServer%"=="" goto :build_sfx
+	if "%SigningCertificate%"=="" goto :out
+	if "%TimestampServer%"=="" goto :out
 	echo [+] Signing
-	signtool.exe sign /sha1 "%SigningCertificate%" /fd sha256 /tr "%TimestampServer%" /td sha256 /d "WireGuard Setup" "dist\wireguard-*-%WIREGUARD_VERSION%.msi" || goto :error
-
-:build_sfx
-	rem TODO: Build SFX bundle with all MSIs.
+	signtool sign /sha1 "%SigningCertificate%" /fd sha256 /tr "%TimestampServer%" /td sha256 /d "WireGuard Setup" "dist\wireguard-*-%WIREGUARD_VERSION%.msi" || goto :error
 
 :out
 	set WIX=%OLDWIX%
+	set PATHEXT=%OLDPATHEXT%
 	cd %STARTDIR%
 	exit /b %errorlevel%
 
@@ -61,7 +62,7 @@ if exist .deps\prepared goto :build
 
 :msi
 	echo [+] Compiling %1
-	"%WIX%bin\candle.exe" %WIX_CANDLE_FLAGS% -dPlatform="%~1" -out "%~1\wireguard.wixobj" -arch %2 wireguard.wxs || exit /b %errorlevel%
+	"%WIX%bin\candle" %WIX_CANDLE_FLAGS% -dPlatform="%~1" -out "%~1\wireguard.wixobj" -arch %2 wireguard.wxs || exit /b %errorlevel%
 	echo [+] Linking %1
-	"%WIX%bin\light.exe" %WIX_LIGHT_FLAGS% -out "dist\wireguard-%~1-%WIREGUARD_VERSION%.msi" "%~1\wireguard.wixobj" || exit /b %errorlevel%
+	"%WIX%bin\light" %WIX_LIGHT_FLAGS% -out "dist\wireguard-%~1-%WIREGUARD_VERSION%.msi" "%~1\wireguard.wixobj" || exit /b %errorlevel%
 	goto :eof

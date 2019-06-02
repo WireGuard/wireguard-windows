@@ -4,6 +4,8 @@ rem Copyright (C) 2019 WireGuard LLC. All Rights Reserved.
 
 set STARTDIR=%cd%
 set OLDPATH=%PATH%
+set OLDPATHEXT=%PATHEXT%
+set PATHEXT=.exe
 
 if exist .deps\prepared goto :render
 :installdeps
@@ -23,13 +25,13 @@ if exist .deps\prepared goto :render
 	call :download make.zip https://download.wireguard.com/windows-toolchain/distfiles/make-4.2.1-without-guile-w32-bin.zip 30641be9602712be76212b99df7209f4f8f518ba764cf564262bc9d6e4047cc7 "--strip-components 1 bin" || goto :error
 	call :download wireguard-tools.zip https://git.zx2c4.com/WireGuard/snapshot/WireGuard-0.0.20190601.zip 881868b07d585246426f7f514706e82af168d0e3f4767dd96508ae0608a4ad8b "--exclude wg-quick --strip-components 1" || goto :error
 	echo [+] Patching go
-	for %%a in ("..\golang-*.patch") do .\patch.exe -f -N -r- -d go -p1 --binary < "%%a" || goto :error
+	for %%a in ("..\golang-*.patch") do .\patch -f -N -r- -d go -p1 --binary < "%%a" || goto :error
 	copy /y NUL prepared > NUL || goto :error
 	cd .. || goto :error
 
 :render
 	echo [+] Rendering icons
-	for %%a in ("ui\icon\*.svg") do "%STARTDIR%\.deps\convert.exe" -background none "%%~fa" -define icon:auto-resize="256,128,96,64,48,32,16" "%%~dpna.ico" || goto :error
+	for %%a in ("ui\icon\*.svg") do "%STARTDIR%\.deps\convert" -background none "%%~fa" -define icon:auto-resize="256,128,96,64,48,32,16" "%%~dpna.ico" || goto :error
 
 :build
 	set PATH=%STARTDIR%\.deps\go\bin\;%STARTDIR%\.deps\;%PATH%
@@ -47,13 +49,14 @@ if exist .deps\prepared goto :render
 	if "%SigningCertificate%"=="" goto :success
 	if "%TimestampServer%"=="" goto :success
 	echo [+] Signing
-	signtool.exe sign /sha1 "%SigningCertificate%" /fd sha256 /tr "%TimestampServer%" /td sha256 /d WireGuard x86\wireguard.exe x86\wg.exe amd64\wireguard.exe amd64\wg.exe || goto :error
+	signtool sign /sha1 "%SigningCertificate%" /fd sha256 /tr "%TimestampServer%" /td sha256 /d WireGuard x86\wireguard.exe x86\wg.exe amd64\wireguard.exe amd64\wg.exe || goto :error
 
 :success
 	echo [+] Success. Launch wireguard.exe.
 
 :out
 	set PATH=%OLDPATH%
+	set PATHEXT=%OLDPATHEXT%
 	cd %STARTDIR%
 	exit /b %errorlevel%
 
@@ -75,11 +78,11 @@ if exist .deps\prepared goto :render
 :build_plat
 	set OLDPATH2=%PATH%
 	set PATH=%STARTDIR%\.deps\%~2-w64-mingw32-native\bin;%PATH%
-	set CC=%~2-w64-mingw32-gcc.exe
+	set CC=%~2-w64-mingw32-gcc
 	set GOARCH=%~3
 	mkdir %1 >NUL 2>&1
 	echo [+] Assembling resources %1
-	windres.exe -i resources.rc -o resources.syso -O coff || exit /b %errorlevel%
+	windres -i resources.rc -o resources.syso -O coff || exit /b %errorlevel%
 	echo [+] Building program %1
 	go build -ldflags="-H windowsgui -s -w" -tags walk_use_cgo -v -o "%~1\wireguard.exe" || exit /b 1
 	if not exist "%~1\wg.exe" (
