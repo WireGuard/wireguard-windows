@@ -138,16 +138,12 @@ func (lt *labelTextLine) show(text string) {
 	lt.label.SetVisible(true)
 	lt.text.SetVisible(true)
 	lt.text.SetTextSelection(s, e)
-
-	lt.label.Parent().SendMessage(win.WM_SIZING, 0, 0) //TODO: This here is a filthy hack that shouldn't be required!
 }
 
 func (lt *labelTextLine) hide() {
 	lt.text.SetText("")
 	lt.label.SetVisible(false)
 	lt.text.SetVisible(false)
-
-	lt.label.Parent().SendMessage(win.WM_SIZING, 0, 0) //TODO: This here is a filthy hack that shouldn't be required!
 }
 
 func newLabelTextLine(fieldName string, parent walk.Container) *labelTextLine {
@@ -506,27 +502,12 @@ func (cv *ConfView) setTunnel(tunnel *manager.Tunnel, config *conf.Config, state
 	if !(cv.tunnel == nil || tunnel == nil || tunnel.Name == cv.tunnel.Name) {
 		return
 	}
+	cv.SetSuspended(true)
+	defer cv.SetSuspended(false)
 
 	cv.name.SetVisible(tunnel != nil)
 
-	hasSuspended := false
-	suspend := func() {
-		return //TODO: this line shouldn't be here! But walk's layout system is totally borked and suspending causes problems.
-		if !hasSuspended {
-			cv.SetSuspended(true)
-			hasSuspended = true
-		}
-	}
-	defer func() {
-		if hasSuspended {
-			cv.SetSuspended(false)
-		}
-	}()
-	title := "Interface: "
-	if cv.name.Title() == title {
-		suspend()
-	}
-	title += config.Name
+	title := "Interface: " + config.Name
 	if cv.name.Title() != title {
 		cv.name.SetTitle(title)
 	}
@@ -562,7 +543,6 @@ func (cv *ConfView) setTunnel(tunnel *manager.Tunnel, config *conf.Config, state
 			pv.apply(&peer)
 			inverse[pv] = false
 		} else {
-			suspend()
 			group, _ := newPaddedGroupGrid(cv)
 			group.SetTitle("Peer")
 			pv := newPeerView(group)
@@ -578,12 +558,10 @@ func (cv *ConfView) setTunnel(tunnel *manager.Tunnel, config *conf.Config, state
 		if e != nil {
 			continue
 		}
-		suspend()
 		delete(cv.peers, *k)
 		groupBox := pv.publicKey.label.Parent().AsContainerBase().Parent().(*walk.GroupBox)
 		groupBox.SetVisible(false)
 		groupBox.Parent().Children().Remove(groupBox)
 		groupBox.Dispose()
 	}
-	cv.SendMessage(win.WM_SIZING, 0, 0) //TODO: This here is a filthy hack that shouldn't be required!
 }
