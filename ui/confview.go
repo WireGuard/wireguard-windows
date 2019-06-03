@@ -138,12 +138,16 @@ func (lt *labelTextLine) show(text string) {
 	lt.label.SetVisible(true)
 	lt.text.SetVisible(true)
 	lt.text.SetTextSelection(s, e)
+
+	lt.label.Parent().SendMessage(win.WM_SIZING, 0, 0) //TODO: This here is a filthy hack that shouldn't be required!
 }
 
 func (lt *labelTextLine) hide() {
 	lt.text.SetText("")
 	lt.label.SetVisible(false)
 	lt.text.SetVisible(false)
+
+	lt.label.Parent().SendMessage(win.WM_SIZING, 0, 0) //TODO: This here is a filthy hack that shouldn't be required!
 }
 
 func newLabelTextLine(fieldName string, parent walk.Container) *labelTextLine {
