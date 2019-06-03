@@ -6,13 +6,13 @@
 package firewall
 
 import (
+	"crypto/rand"
 	"fmt"
 	"io"
 	"os"
 	"runtime"
 	"syscall"
 	"unsafe"
-	"crypto/rand"
 
 	"golang.org/x/sys/windows"
 )
