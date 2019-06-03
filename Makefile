@@ -41,6 +41,10 @@ x86/wireguard.exe: export GOARCH := 386
 x86/wireguard.exe: resources_386.syso $(SOURCE_FILES)
 	go build $(GOFLAGS) -o $@
 
+fmt: export CC := i686-w64-mingw32-gcc
+fmt:
+	go fmt ./...
+
 deploy: amd64/wireguard.exe
 	-ssh $(DEPLOYMENT_HOST) -- 'taskkill /im wireguard.exe /f'
 	scp $< $(DEPLOYMENT_HOST):$(DEPLOYMENT_PATH)
@@ -48,4 +52,4 @@ deploy: amd64/wireguard.exe
 clean:
 	rm -rf *.syso ui/icon/*.ico x86/ amd64/ .deps
 
-.PHONY: deploy clean all
+.PHONY: deploy clean fmt all
