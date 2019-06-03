@@ -20,7 +20,8 @@ type ListModel struct {
 	walk.TableModelBase
 	walk.SorterBase
 
-	tunnels []manager.Tunnel
+	tunnels           []manager.Tunnel
+	lastObservedState map[manager.Tunnel]manager.TunnelState
 }
 
 func (t *ListModel) RowCount() int {
@@ -62,6 +63,7 @@ func NewListView(parent walk.Container) (*ListView, error) {
 	tv.SetDoubleBuffering(true)
 
 	model := new(ListModel)
+	model.lastObservedState = make(map[manager.Tunnel]manager.TunnelState)
 	tv.SetModel(model)
 	tv.SetLastColumnStretched(true)
 	tv.SetHeaderHidden(true)
@@ -113,10 +115,16 @@ func (tv *ListView) StyleCell(style *walk.CellStyle) {
 	b.Width -= b.Height
 	canvas.DrawText(tunnel.Name, tv.Font(), style.TextColor, b, walk.TextVCenter|walk.TextSingleLine)
 
-	//TODO: don't make an IPC call from the drawing thread like this!
-	state, err := tunnel.State()
-	if err != nil {
-		return
+	var state manager.TunnelState
+	var ok bool
+	state, ok = tv.model.lastObservedState[tv.model.tunnels[row]]
+	if !ok {
+		var err error
+		state, err = tunnel.State()
+		if err != nil {
+			return
+		}
+		tv.model.lastObservedState[tv.model.tunnels[row]] = state
 	}
 	const margin = 2
 	b.X = margin
@@ -150,6 +158,7 @@ func (tv *ListView) onTunnelChange(tunnel *manager.Tunnel, state manager.TunnelS
 		}
 
 		if idx != -1 {
+			tv.model.lastObservedState[tv.model.tunnels[idx]] = state
 			tv.model.PublishRowChanged(idx)
 			return
 		}
@@ -193,6 +202,7 @@ func (tv *ListView) Load(asyncUI bool) {
 					if t.Name == tunnel.Name {
 						tv.model.tunnels = append(tv.model.tunnels[:i], tv.model.tunnels[i+1:]...)
 						tv.model.PublishRowsRemoved(i, i) //TODO: Do we have to call that everytime or can we pass a range?
+						delete(tv.model.lastObservedState, t)
 						break
 					}
 				}
