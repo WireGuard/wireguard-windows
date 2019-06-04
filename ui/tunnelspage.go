@@ -15,7 +15,6 @@ import (
 	"strings"
 
 	"github.com/lxn/walk"
-	"github.com/lxn/win"
 
 	"golang.zx2c4.com/wireguard/windows/conf"
 	"golang.zx2c4.com/wireguard/windows/manager"
@@ -556,11 +555,10 @@ func (tp *TunnelsPage) swapFiller(enabled bool) bool {
 	if tp.fillerContainer.Visible() == enabled {
 		return enabled
 	}
-	//tp.SetSuspended(true) TODO: uncomment me! it's the right thing to do. But see WM_SIZING hack.
+	tp.SetSuspended(true)
 	tp.fillerContainer.SetVisible(enabled)
 	tp.currentTunnelContainer.SetVisible(!enabled)
-	tp.SendMessage(win.WM_SIZING, 0, 0) //TODO: This hack shouldn't be neccessary
-	//tp.SetSuspended(false) TODO: uncomment me! it's the right thing to do. But see WM_SIZING hack.
+	tp.SetSuspended(false)
 	return enabled
 }
 
