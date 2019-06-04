@@ -163,21 +163,23 @@ func configureInterface(conf *conf.Config, tun *tun.NativeTun) error {
 	}
 
 	ipif, err = luid.IPInterface(windows.AF_INET6)
-	if err != nil {
+	if err != nil && firstGateway6 != nil {
+		log.Printf("Is IPv6 disabled by Windows?")
 		return err
-	}
-	if foundDefault6 {
-		ipif.UseAutomaticMetric = false
-		ipif.Metric = 0
-	}
-	if conf.Interface.MTU > 0 {
-		ipif.NLMTU = uint32(conf.Interface.MTU)
-	}
-	ipif.DadTransmits = 0
-	ipif.RouterDiscoveryBehavior = winipcfg.RouterDiscoveryDisabled
-	err = ipif.Set()
-	if err != nil {
-		return err
+	} else if err == nil { // People seem to like to disable IPv6, so we make this non-fatal.
+		if foundDefault6 {
+			ipif.UseAutomaticMetric = false
+			ipif.Metric = 0
+		}
+		if conf.Interface.MTU > 0 {
+			ipif.NLMTU = uint32(conf.Interface.MTU)
+		}
+		ipif.DadTransmits = 0
+		ipif.RouterDiscoveryBehavior = winipcfg.RouterDiscoveryDisabled
+		err = ipif.Set()
+		if err != nil {
+			return err
+		}
 	}
 
 	err = luid.SetDNS(conf.Interface.DNS)
