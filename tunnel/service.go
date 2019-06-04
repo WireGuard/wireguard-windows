@@ -155,8 +155,8 @@ func (service *Service) Execute(args []string, r <-chan svc.ChangeRequest, chang
 		return
 	}
 
-	log.Println("Dropping all privileges")
-	err = services.DropAllPrivileges()
+	log.Println("Dropping privileges")
+	err = services.DropAllPrivileges(true)
 	if err != nil {
 		serviceError = services.ErrorDropPrivileges
 		return

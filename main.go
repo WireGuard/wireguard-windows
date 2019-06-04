@@ -171,7 +171,7 @@ func main() {
 		if len(os.Args) != 6 {
 			usage()
 		}
-		err := services.DropAllPrivileges()
+		err := services.DropAllPrivileges(false)
 		if err != nil {
 			fatal(err)
 		}

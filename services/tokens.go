@@ -29,10 +29,17 @@ func TokenIsMemberOfBuiltInAdministrator(token windows.Token) bool {
 	return isAdmin
 }
 
-func DropAllPrivileges() error {
+func DropAllPrivileges(retainDriverLoading bool) error {
 	processHandle, err := windows.GetCurrentProcess()
 	if err != nil {
 		return err
+	}
+	var luid windows.LUID
+	if retainDriverLoading {
+		err = windows.LookupPrivilegeValue(nil, windows.StringToUTF16Ptr("SeLoadDriverPrivilege"), &luid)
+		if err != nil {
+			return err
+		}
 	}
 	var processToken windows.Token
 	err = windows.OpenProcessToken(processHandle, windows.TOKEN_READ|windows.TOKEN_WRITE, &processToken)
@@ -57,7 +64,11 @@ func DropAllPrivileges() error {
 	}
 	tokenPrivileges := (*windows.Tokenprivileges)(unsafe.Pointer(&buffer[0]))
 	for i := uint32(0); i < tokenPrivileges.PrivilegeCount; i++ {
-		(*windows.LUIDAndAttributes)(unsafe.Pointer(uintptr(unsafe.Pointer(&tokenPrivileges.Privileges[0])) + unsafe.Sizeof(tokenPrivileges.Privileges[0])*uintptr(i))).Attributes = windows.SE_PRIVILEGE_REMOVED
+		item := (*windows.LUIDAndAttributes)(unsafe.Pointer(uintptr(unsafe.Pointer(&tokenPrivileges.Privileges[0])) + unsafe.Sizeof(tokenPrivileges.Privileges[0])*uintptr(i)))
+		if retainDriverLoading && item.Luid == luid {
+			continue
+		}
+		item.Attributes = windows.SE_PRIVILEGE_REMOVED
 	}
 	err = windows.AdjustTokenPrivileges(processToken, false, tokenPrivileges, 0, nil, nil)
 	runtime.KeepAlive(buffer)
