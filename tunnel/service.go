@@ -211,14 +211,14 @@ func (service *Service) Execute(args []string, r <-chan svc.ChangeRequest, chang
 		}
 	}()
 
-	changes <- svc.Status{State: svc.Running, Accepts: svc.AcceptStop}
+	changes <- svc.Status{State: svc.Running, Accepts: svc.AcceptStop | svc.AcceptShutdown}
 	log.Println("Startup complete")
 
 	for {
 		select {
 		case c := <-r:
 			switch c.Cmd {
-			case svc.Stop:
+			case svc.Stop, svc.Shutdown:
 				return
 			case svc.Interrogate:
 				changes <- c.CurrentStatus
