@@ -73,7 +73,7 @@ func registerBaseObjects(session uintptr) (*baseObjects, error) {
 		}
 		err = fwpmProviderAdd0(session, &provider, 0)
 		if err != nil {
-			//TODO: cleanup entire call chain of these if failure?
+			// TODO: cleanup entire call chain of these if failure?
 			return nil, wrapErr(err)
 		}
 	}

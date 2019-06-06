@@ -35,7 +35,7 @@ package firewall
 // https://docs.microsoft.com/en-us/windows/desktop/api/fwpmu/nf-fwpmu-fwpmprovideradd0
 //sys	fwpmProviderAdd0(engineHandle uintptr, provider *wtFwpmProvider0, sd uintptr) (err error) [failretval!=0] = fwpuclnt.FwpmProviderAdd0
 
-//TODO: Add these to x/sys/windows:
+// TODO: Add these to x/sys/windows:
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/securitybaseapi/nf-securitybaseapi-getsididentifierauthority
 //sys	getSidIdentifierAuthority(sid *windows.SID) (authority *windows.SidIdentifierAuthority) = advapi32.GetSidIdentifierAuthority

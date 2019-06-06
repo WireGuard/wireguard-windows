@@ -36,7 +36,7 @@ func iconWithOverlayForState(state manager.TunnelState, size int) (icon walk.Ima
 	}
 
 	if state == manager.TunnelStopped {
-		return wireguardIcon, err //TODO: if we find something prettier than the gray dot, then remove this clause
+		return wireguardIcon, err // TODO: if we find something prettier than the gray dot, then remove this clause
 	}
 
 	iconSize := wireguardIcon.Size()
@@ -74,9 +74,9 @@ func iconForState(state manager.TunnelState, size int) (icon *walk.Icon, err err
 	case manager.TunnelStarted:
 		icon, err = loadSystemIcon("imageres", 101, size)
 	case manager.TunnelStopped:
-		icon, err = walk.NewIconFromResourceWithSize("dot-gray.ico", walk.Size{size, size}) //TODO: replace with real icon
+		icon, err = walk.NewIconFromResourceWithSize("dot-gray.ico", walk.Size{size, size}) // TODO: replace with real icon
 	default:
-		icon, err = loadSystemIcon("shell32", 238, size) //TODO: this doesn't look that great overlayed on the app icon
+		icon, err = loadSystemIcon("shell32", 238, size) // TODO: this doesn't look that great overlayed on the app icon
 	}
 	if err == nil {
 		cachedIconsForWidthAndState[widthAndState{size, state}] = icon

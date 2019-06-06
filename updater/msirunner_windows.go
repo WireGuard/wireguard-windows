@@ -69,11 +69,11 @@ func msiTempFile() (*os.File, error) {
 		Length:             uint32(len(sd)),
 		SecurityDescriptor: uintptr(unsafe.Pointer(&sd[0])),
 	}
-	//TODO: os.TempDir() returns C:\windows\temp when calling from this context. Supposedly this is mostly secure
+	// TODO: os.TempDir() returns C:\windows\temp when calling from this context. Supposedly this is mostly secure
 	// against TOCTOU, but who knows! Look into this!
 	name := filepath.Join(os.TempDir(), hex.EncodeToString(randBytes[:]))
 	name16 := windows.StringToUTF16Ptr(name)
-	//TODO: it would be nice to specify delete_on_close, but msiexec.exe doesn't open its files with read sharing.
+	// TODO: it would be nice to specify delete_on_close, but msiexec.exe doesn't open its files with read sharing.
 	fileHandle, err := windows.CreateFile(name16, windows.GENERIC_WRITE, windows.FILE_SHARE_READ, sa, windows.CREATE_NEW, windows.FILE_ATTRIBUTE_NORMAL, 0)
 	runtime.KeepAlive(sd)
 	if err != nil {

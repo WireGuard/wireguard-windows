@@ -106,7 +106,7 @@ func DownloadVerifyAndExecute(userToken uintptr) (progress chan DownloadProgress
 				file.Seek(0, io.SeekStart)
 				file.Truncate(0)
 				file.Close()
-				os.Remove(name) //TODO: Do we have any sort of TOCTOU here?
+				os.Remove(name) // TODO: Do we have any sort of TOCTOU here?
 			}
 		}()
 
@@ -145,7 +145,7 @@ func DownloadVerifyAndExecute(userToken uintptr) (progress chan DownloadProgress
 			return
 		}
 
-		//TODO: it would be nice to rename in place from "file.msi.unverified" to "file.msi", but Windows TOCTOU stuff
+		// TODO: it would be nice to rename in place from "file.msi.unverified" to "file.msi", but Windows TOCTOU stuff
 		// is hard, so we'll come back to this later.
 		name := file.Name()
 		file.Close()
@@ -153,14 +153,14 @@ func DownloadVerifyAndExecute(userToken uintptr) (progress chan DownloadProgress
 
 		progress <- DownloadProgress{Activity: "Verifying authenticode signature"}
 		if !version.VerifyAuthenticode(name) {
-			os.Remove(name) //TODO: Do we have any sort of TOCTOU here?
+			os.Remove(name) // TODO: Do we have any sort of TOCTOU here?
 			progress <- DownloadProgress{Error: errors.New("The downloaded update does not have an authentic authenticode signature")}
 			return
 		}
 
 		progress <- DownloadProgress{Activity: "Installing update"}
 		err = runMsi(name, userToken)
-		os.Remove(name) //TODO: Do we have any sort of TOCTOU here?
+		os.Remove(name) // TODO: Do we have any sort of TOCTOU here?
 		if err != nil {
 			progress <- DownloadProgress{Error: err}
 			return

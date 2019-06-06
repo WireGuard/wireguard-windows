@@ -205,8 +205,8 @@ func (s *ManagerService) Create(tunnelConfig conf.Config, tunnel *Tunnel) error 
 	}
 	*tunnel = Tunnel{tunnelConfig.Name}
 	return nil
-	//TODO: handle already existing situation
-	//TODO: handle already running and existing situation
+	// TODO: handle already existing situation
+	// TODO: handle already running and existing situation
 }
 
 func (s *ManagerService) Tunnels(_ uintptr, tunnels *[]Tunnel) error {
@@ -219,7 +219,7 @@ func (s *ManagerService) Tunnels(_ uintptr, tunnels *[]Tunnel) error {
 		(*tunnels)[i].Name = names[i]
 	}
 	return nil
-	//TODO: account for running ones that aren't in the configuration store somehow
+	// TODO: account for running ones that aren't in the configuration store somehow
 }
 
 func (s *ManagerService) Quit(stopTunnelsOnQuit bool, alreadyQuit *bool) error {

@@ -118,7 +118,7 @@ func runTunnelEditDialog(owner walk.Form, tunnel *manager.Tunnel, clone bool) *c
 	}
 
 	if tunnel != nil && !clone {
-		dlg.nameEdit.SetFocus() //TODO: This works around a walk issue with scrolling in weird ways <https://github.com/lxn/walk/issues/505>. We should fix this in walk instead of here.
+		dlg.nameEdit.SetFocus() // TODO: This works around a walk issue with scrolling in weird ways <https://github.com/lxn/walk/issues/505>. We should fix this in walk instead of here.
 
 		dlg.Starting().Attach(func() {
 			dlg.syntaxEdit.SetFocus()

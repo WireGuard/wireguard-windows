@@ -55,7 +55,7 @@ func NewTunnelsPage() (*TunnelsPage, error) {
 	vlayout.SetSpacing(0)
 	tp.listContainer.SetLayout(vlayout)
 
-	//TODO: deal with remaining disposables in case the next line fails
+	// TODO: deal with remaining disposables in case the next line fails
 
 	if tp.listView, err = NewListView(tp.listContainer); err != nil {
 		return nil, err
@@ -97,7 +97,7 @@ func NewTunnelsPage() (*TunnelsPage, error) {
 
 	disposables.Spare()
 
-	//TODO: expose walk.TableView.itemCountChangedPublisher.Event()
+	// TODO: expose walk.TableView.itemCountChangedPublisher.Event()
 	tp.listView.Property("ItemCount").Changed().Attach(tp.onTunnelsChanged)
 	tp.listView.SelectedIndexesChanged().Attach(tp.onSelectedTunnelsChanged)
 	tp.listView.ItemActivated().Attach(tp.onTunnelsViewItemActivated)

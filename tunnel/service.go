@@ -184,7 +184,7 @@ func (service *Service) Execute(args []string, r <-chan svc.ChangeRequest, chang
 	dev.Up()
 
 	log.Println("Waiting for TCP/IP to attach to interface")
-	waitForFamilies(nativeTun) //TODO: move this sort of thing into tun/wintun/CreateInterface
+	waitForFamilies(nativeTun) // TODO: move this sort of thing into tun/wintun/CreateInterface
 
 	log.Println("Monitoring default routes")
 	routeChangeCallback, err = monitorDefaultRoutes(dev, conf.Interface.MTU == 0, nativeTun)
