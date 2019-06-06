@@ -17,11 +17,10 @@ import (
 )
 
 //sys	internetGetConnectedState(flags *uint32, reserved uint32) (connected bool) = wininet.InternetGetConnectedState
-//sys	getTickCount64() (ms uint64) = kernel32.GetTickCount64
 
 func resolveHostname(name string) (resolvedIPString string, err error) {
 	const maxTries = 10
-	systemJustBooted := getTickCount64() <= uint64(time.Minute*4/time.Millisecond)
+	systemJustBooted := windows.DurationSinceBoot() <= time.Minute*4
 	for i := 0; i < maxTries; i++ {
 		resolvedIPString, err = resolveHostnameOnce(name)
 		if err == nil {
