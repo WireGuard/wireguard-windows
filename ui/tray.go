@@ -294,7 +294,7 @@ func (tray *Tray) SetTunnelState(tunnel *manager.Tunnel, state manager.TunnelSta
 	case manager.TunnelStopped:
 		tunnelAction.SetChecked(false)
 		if wasChecked && showNotifications {
-			icon, _ := loadSystemIcon("imageres", 26, 128) //TODO: this icon isn't very good...
+			icon, _ := loadSystemIcon("imageres", 26, 128) // TODO: this icon isn't very good...
 			tray.ShowCustom("WireGuard Deactivated", fmt.Sprintf("The %s tunnel has been deactivated.", tunnel.Name), icon)
 		}
 	}

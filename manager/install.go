@@ -43,7 +43,7 @@ func InstallManager() error {
 		return nil
 	}
 
-	//TODO: Do we want to bail if executable isn't being run from the right location?
+	// TODO: Do we want to bail if executable isn't being run from the right location?
 
 	serviceName := "WireGuardManager"
 	service, err := m.OpenService(serviceName)

@@ -104,7 +104,7 @@ func monitorDefaultRoutes(device *device.Device, autoMTU bool, tun *tun.NativeTu
 			if err != nil {
 				return err
 			}
-			tun.ForceMTU(int(iface.NLMTU)) //TODO: it sort of breaks the model with v6 mtu and v4 mtu being different. Just set v4 one for now.
+			tun.ForceMTU(int(iface.NLMTU)) // TODO: it sort of breaks the model with v6 mtu and v4 mtu being different. Just set v4 one for now.
 			iface, err = ourLUID.IPInterface(windows.AF_INET6)
 			if err == nil { // People seem to like to disable IPv6, so we make this non-fatal.
 				iface.NLMTU = mtu - 80

@@ -159,7 +159,7 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 				first = false
 			}
 
-			//TODO: we lock the OS thread so that these inheritable handles don't escape into other processes that
+			// TODO: we lock the OS thread so that these inheritable handles don't escape into other processes that
 			// might be running in parallel Go routines. But the Go runtime is strange and who knows what's really
 			// happening with these or what is inherited. We need to do some analysis to be certain of what's going on.
 			runtime.LockOSThread()

@@ -25,7 +25,7 @@ func cleanupAddressesOnDisconnectedInterfaces(addresses []net.IPNet) {
 		return
 	}
 	includedInAddresses := func(a net.IPNet) bool {
-		//TODO: this makes the whole algorithm O(n^2). But we can't stick net.IPNet in a Go hashmap. Bummer!
+		// TODO: this makes the whole algorithm O(n^2). But we can't stick net.IPNet in a Go hashmap. Bummer!
 		for _, addr := range addresses {
 			ip := addr.IP
 			if ip4 := ip.To4(); ip4 != nil {
@@ -226,7 +226,7 @@ func enableFirewall(conf *conf.Config, tun *tun.NativeTun) error {
 }
 
 func waitForFamilies(tun *tun.NativeTun) {
-	//TODO: This whole thing is a disgusting hack that shouldn't be neccessary.
+	// TODO: This whole thing is a disgusting hack that shouldn't be neccessary.
 
 	f := func(luid winipcfg.LUID, family winipcfg.AddressFamily, maxRetries int) {
 		for i := 0; i < maxRetries; i++ {
