@@ -50,11 +50,11 @@ func createWfpSession() (uintptr, error) {
 func registerBaseObjects(session uintptr) (*baseObjects, error) {
 	bo := &baseObjects{}
 	var err error
-	bo.provider, err = randGUID()
+	bo.provider, err = windows.GenerateGUID()
 	if err != nil {
 		return nil, wrapErr(err)
 	}
-	bo.filters, err = randGUID()
+	bo.filters, err = windows.GenerateGUID()
 	if err != nil {
 		return nil, wrapErr(err)
 	}
