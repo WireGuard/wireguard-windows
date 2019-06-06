@@ -16,8 +16,11 @@ import (
 	"runtime/debug"
 	"strings"
 	"time"
+	"unsafe"
 
+	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/svc"
+	"golang.org/x/sys/windows/svc/mgr"
 	"golang.zx2c4.com/wireguard/device"
 	"golang.zx2c4.com/wireguard/ipc"
 	"golang.zx2c4.com/wireguard/tun"
@@ -31,6 +34,29 @@ import (
 
 type Service struct {
 	Path string
+}
+
+// TODO: integrate into x/sys/windows/svc/mgr
+func scmIsLocked() bool {
+	type lockStatus struct {
+		isLocked  uint32
+		owner     *uint16
+		duration  uint32
+		ownerData [1024]uint16
+	}
+	status := &lockStatus{}
+	s, err := mgr.Connect()
+	if err == nil {
+		var needed uint32
+		windows.NewLazySystemDLL("advapi32.dll").NewProc("QueryServiceLockStatusW").Call(
+			uintptr(s.Handle),
+			uintptr(unsafe.Pointer(status)),
+			uintptr(unsafe.Sizeof(lockStatus{})),
+			uintptr(unsafe.Pointer(&needed)),
+		)
+		s.Disconnect()
+	}
+	return status.isLocked != 0
 }
 
 func (service *Service) Execute(args []string, r <-chan svc.ChangeRequest, changes chan<- svc.Status) (svcSpecificEC bool, exitCode uint32) {
@@ -125,6 +151,15 @@ func (service *Service) Execute(args []string, r <-chan svc.ChangeRequest, chang
 	log.SetPrefix(logPrefix)
 
 	log.Println("Starting", version.UserAgent())
+
+	if scmIsLocked() {
+		/* If we don't do this, then the Wintun installation will block forever, because
+		 * Windows doesn't like starting a service from a service that hasn't started, but
+		 * only when it's in the phase of autostarting services at boot, and even then,
+		 * seemingly only on Windows 8.1.
+		 */
+		changes <- svc.Status{State: svc.Running}
+	}
 
 	log.Println("Resolving DNS names")
 	uapiConf, err := conf.ToUAPI()
