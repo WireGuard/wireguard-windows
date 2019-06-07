@@ -16,9 +16,7 @@ import (
 	"runtime/debug"
 	"strings"
 	"time"
-	"unsafe"
 
-	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/svc"
 	"golang.org/x/sys/windows/svc/mgr"
 	"golang.zx2c4.com/wireguard/device"
@@ -34,29 +32,6 @@ import (
 
 type Service struct {
 	Path string
-}
-
-// TODO: integrate into x/sys/windows/svc/mgr
-func scmIsLocked() bool {
-	type lockStatus struct {
-		isLocked  uint32
-		owner     *uint16
-		duration  uint32
-		ownerData [1024]uint16
-	}
-	status := &lockStatus{}
-	s, err := mgr.Connect()
-	if err == nil {
-		var needed uint32
-		windows.NewLazySystemDLL("advapi32.dll").NewProc("QueryServiceLockStatusW").Call(
-			uintptr(s.Handle),
-			uintptr(unsafe.Pointer(status)),
-			uintptr(unsafe.Sizeof(lockStatus{})),
-			uintptr(unsafe.Pointer(&needed)),
-		)
-		s.Disconnect()
-	}
-	return status.isLocked != 0
 }
 
 func (service *Service) Execute(args []string, r <-chan svc.ChangeRequest, changes chan<- svc.Status) (svcSpecificEC bool, exitCode uint32) {
@@ -152,13 +127,17 @@ func (service *Service) Execute(args []string, r <-chan svc.ChangeRequest, chang
 
 	log.Println("Starting", version.UserAgent())
 
-	if scmIsLocked() {
-		/* If we don't do this, then the Wintun installation will block forever, because
-		 * Windows doesn't like starting a service from a service that hasn't started, but
-		 * only when it's in the phase of autostarting services at boot, and even then,
-		 * seemingly only on Windows 8.1.
-		 */
-		changes <- svc.Status{State: svc.Running}
+	if m, err := mgr.Connect(); err == nil {
+		if lockStatus, err := m.LockStatus(); err == nil && lockStatus.IsLocked {
+			/* If we don't do this, then the Wintun installation will block forever, because
+			 * installing a Wintun device starts a service too. Apparently at boot time, Windows
+			 * 8.1 locks the SCM for each service start, creating a deadlock if we don't announce
+			 * that we're running before starting additional services.
+			 */
+			log.Printf("SCM locked for %v by %s, marking service as started", lockStatus.Age, lockStatus.Owner)
+			changes <- svc.Status{State: svc.Running}
+		}
+		m.Disconnect()
 	}
 
 	log.Println("Resolving DNS names")
