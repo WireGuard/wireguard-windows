@@ -25,7 +25,7 @@ var flags = [...]string{
 	"/installmanagerservice",
 	"/installtunnelservice CONFIG_PATH",
 	"/uninstallmanagerservice",
-	"/uninstalltunnelservice CONFIG_PATH",
+	"/uninstalltunnelservice TUNNEL_NAME",
 	"/managerservice",
 	"/tunnelservice CONFIG_PATH",
 	"/ui CMD_READ_HANDLE CMD_WRITE_HANDLE CMD_EVENT_HANDLE LOG_MAPPING_HANDLE",
