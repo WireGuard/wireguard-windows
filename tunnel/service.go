@@ -148,7 +148,7 @@ func (service *Service) Execute(args []string, r <-chan svc.ChangeRequest, chang
 	}
 
 	log.Println("Creating Wintun device")
-	wintun, err := tun.CreateTUN(conf.Name)
+	wintun, err := tun.CreateTUNWithRequestedGUID(conf.Name, deterministicGUID(conf))
 	if err != nil {
 		serviceError = services.ErrorCreateWintun
 		return
