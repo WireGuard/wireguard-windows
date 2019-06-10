@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"golang.org/x/sys/windows"
+	"golang.zx2c4.com/wireguard/tun/wintun"
 
 	"golang.zx2c4.com/wireguard/windows/manager"
 	"golang.zx2c4.com/wireguard/windows/ringlogger"
@@ -30,6 +31,7 @@ var flags = [...]string{
 	"/tunnelservice CONFIG_PATH",
 	"/ui CMD_READ_HANDLE CMD_WRITE_HANDLE CMD_EVENT_HANDLE LOG_MAPPING_HANDLE",
 	"/dumplog OUTPUT_PATH",
+	"/wintun /deleteall",
 }
 
 func fatal(v ...interface{}) {
@@ -208,6 +210,34 @@ func main() {
 			fatal(err)
 		}
 		return
+	case "/wintun":
+		if len(os.Args) < 3 {
+			usage()
+		}
+		switch os.Args[2] {
+		case "/deleteall":
+			if len(os.Args) != 3 {
+				usage()
+			}
+			deleted, rebootRequired, errors := wintun.DeleteAllInterfaces()
+			interfaceString := "no interfaces"
+			if len(deleted) > 0 {
+				interfaceString = fmt.Sprintf("interfaces %v", deleted)
+			}
+			errorString := ""
+			if len(errors) > 0 {
+				errorString = fmt.Sprintf(", encountering errors %v", errors)
+			}
+			rebootString := ""
+			if rebootRequired {
+				rebootString = " A reboot is required."
+			}
+			windows.MessageBox(0, windows.StringToUTF16Ptr(fmt.Sprintf("Deleted %s%s.%s",
+				interfaceString, errorString, rebootString)), windows.StringToUTF16Ptr("Wintun Cleanup"), windows.MB_ICONINFORMATION)
+			return
+		default:
+			usage()
+		}
 	}
 	usage()
 }
