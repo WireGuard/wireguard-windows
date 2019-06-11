@@ -84,7 +84,7 @@ func (luid LUID) IPAddress(ip net.IP) (*MibUnicastIPAddressRow, error) {
 // (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-createunicastipaddressentry).
 func (luid LUID) AddIPAddress(address net.IPNet) error {
 	row := &MibUnicastIPAddressRow{}
-	initializeUnicastIPAddressEntry(row)
+	row.Init()
 	row.InterfaceLUID = luid
 	err := row.Address.SetIP(address.IP, 0)
 	if err != nil {
@@ -120,7 +120,7 @@ func (luid LUID) SetIPAddresses(addresses []net.IPNet) error {
 // (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-deleteunicastipaddressentry).
 func (luid LUID) DeleteIPAddress(address net.IPNet) error {
 	row := &MibUnicastIPAddressRow{}
-	initializeUnicastIPAddressEntry(row)
+	row.Init()
 	row.InterfaceLUID = luid
 	err := row.Address.SetIP(address.IP, 0)
 	if err != nil {
