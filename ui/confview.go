@@ -502,15 +502,15 @@ func (cv *ConfView) setTunnel(tunnel *manager.Tunnel, config *conf.Config, state
 	if !(cv.tunnel == nil || tunnel == nil || tunnel.Name == cv.tunnel.Name) {
 		return
 	}
-	cv.SetSuspended(true)
-	defer cv.SetSuspended(false)
-
-	cv.name.SetVisible(tunnel != nil)
 
 	title := "Interface: " + config.Name
 	if cv.name.Title() != title {
+		cv.SetSuspended(true)
+		defer cv.SetSuspended(false)
 		cv.name.SetTitle(title)
 	}
+	cv.name.SetVisible(tunnel != nil)
+
 	cv.interfaze.apply(&config.Interface)
 	cv.interfaze.status.update(state)
 	cv.interfaze.toggleActive.update(state)
