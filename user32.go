@@ -1070,6 +1070,13 @@ const (
 	WA_INACTIVE    = 0
 )
 
+// Owner drawing actions
+const (
+	ODA_DRAWENTIRE = 0x0001
+	ODA_FOCUS      = 0x0002
+	ODA_SELECT     = 0x0004
+)
+
 // Owner drawing states
 const (
 	ODS_CHECKED      = 0x0001
@@ -1676,6 +1683,7 @@ var (
 	getCursorPos                *windows.LazyProc
 	getDC                       *windows.LazyProc
 	getDesktopWindow            *windows.LazyProc
+	getDlgItem                  *windows.LazyProc
 	getDpiForWindow             *windows.LazyProc
 	getFocus                    *windows.LazyProc
 	getForegroundWindow         *windows.LazyProc
@@ -1813,6 +1821,7 @@ func init() {
 	getCursorPos = libuser32.NewProc("GetCursorPos")
 	getDC = libuser32.NewProc("GetDC")
 	getDesktopWindow = libuser32.NewProc("GetDesktopWindow")
+	getDlgItem = libuser32.NewProc("GetDlgItem")
 	getDpiForWindow = libuser32.NewProc("GetDpiForWindow")
 	getFocus = libuser32.NewProc("GetFocus")
 	getForegroundWindow = libuser32.NewProc("GetForegroundWindow")
@@ -2359,6 +2368,15 @@ func GetDC(hWnd HWND) HDC {
 		0)
 
 	return HDC(ret)
+}
+
+func GetDlgItem(hDlg HWND, nIDDlgItem int32) HWND {
+	ret, _, _ := syscall.Syscall(getDlgItem.Addr(), 2,
+		uintptr(hDlg),
+		uintptr(nIDDlgItem),
+		0)
+
+	return HWND(ret)
 }
 
 func GetDpiForWindow(hwnd HWND) uint32 {

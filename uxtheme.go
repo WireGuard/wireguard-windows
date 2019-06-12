@@ -29,6 +29,19 @@ const (
 	CBS_UNCHECKEDNORMAL = 1
 )
 
+// ListBox parts
+const (
+	LBCP_ITEM = 5
+)
+
+// LBCP_ITEM states
+const (
+	LBPSI_HOT              = 1
+	LBPSI_HOTSELECTED      = 2
+	LBPSI_SELECTED         = 3
+	LBPSI_SELECTEDNOTFOCUS = 4
+)
+
 // LISTVIEW parts
 const (
 	LVP_LISTITEM         = 1
