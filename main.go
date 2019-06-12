@@ -205,7 +205,7 @@ func main() {
 			fatal(err)
 		}
 		defer file.Close()
-		err = ringlogger.DumpTo(file, true)
+		err = ringlogger.DumpTo(file)
 		if err != nil {
 			fatal(err)
 		}
