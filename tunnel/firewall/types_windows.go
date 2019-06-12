@@ -100,14 +100,6 @@ var cFWPM_CONDITION_IP_REMOTE_ADDRESS = windows.GUID{
 	Data4: [8]byte{0xa4, 0x4c, 0x5f, 0xf3, 0xd9, 0x09, 0x50, 0x45},
 }
 
-// Defined in fwpmu.h. daf8cd14-e09e-4c93-a5ae-c5c13b73ffca
-var cFWPM_CONDITION_INTERFACE_TYPE = windows.GUID{
-	Data1: 0xdaf8cd14,
-	Data2: 0xe09e,
-	Data3: 0x4c93,
-	Data4: [8]byte{0xa5, 0xae, 0xc5, 0xc1, 0x3b, 0x73, 0xff, 0xca},
-}
-
 // Defined in fwpmu.h. 3971ef2b-623e-4f9a-8cb1-6e79b806b9a7
 var cFWPM_CONDITION_IP_PROTOCOL = windows.GUID{
 	Data1: 0x3971ef2b,
@@ -170,6 +162,17 @@ var cFWPM_CONDITION_L2_FLAGS = windows.GUID{
 type wtFwpmL2Flags uint32
 
 const cFWP_CONDITION_L2_IS_VM2VM wtFwpmL2Flags = 0x00000010
+
+var cFWPM_CONDITION_FLAGS = windows.GUID{
+	Data1: 0x632ce23b,
+	Data2: 0x5167,
+	Data3: 0x435c,
+	Data4: [8]byte{0x86, 0xd7, 0xe9, 0x03, 0x68, 0x4a, 0xa8, 0x0c},
+}
+
+type wtFwpmFlags uint32
+
+const cFWP_CONDITION_FLAG_IS_LOOPBACK wtFwpmFlags = 0x00000001
 
 // Defined in fwpmtypes.h
 type wtFwpmFilterFlags uint32
@@ -392,12 +395,6 @@ type wtFwpmProvider0 struct {
 	providerData wtFwpByteBlob
 	serviceName  *uint16
 }
-
-type wtIfType uint32
-
-const (
-	cIF_TYPE_SOFTWARE_LOOPBACK wtIfType = 24
-)
 
 type wtIPProto uint32
 
