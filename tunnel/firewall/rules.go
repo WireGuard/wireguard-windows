@@ -260,11 +260,11 @@ func permitWireGuardService(session uintptr, baseObjects *baseObjects, weight ui
 
 func permitLoopback(session uintptr, baseObjects *baseObjects, weight uint8) error {
 	condition := wtFwpmFilterCondition0{
-		fieldKey:  cFWPM_CONDITION_INTERFACE_TYPE,
-		matchType: cFWP_MATCH_EQUAL,
+		fieldKey:  cFWPM_CONDITION_FLAGS,
+		matchType: cFWP_MATCH_FLAGS_ALL_SET,
 		conditionValue: wtFwpConditionValue0{
 			_type: cFWP_UINT32,
-			value: uintptr(cIF_TYPE_SOFTWARE_LOOPBACK),
+			value: uintptr(cFWP_CONDITION_FLAG_IS_LOOPBACK),
 		},
 	}
 
