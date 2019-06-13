@@ -62,7 +62,7 @@ func maybeMigrate(c string) {
 	}
 	if defaulted || !sid.IsWellKnown(windows.WinLocalSystemSid) {
 		sidStr, _ := sid.String()
-		log.Printf("Not migrating configuration from '%s' it is not explicitly owned by SYSTEM, but rather '%s'", oldRoot, sidStr)
+		log.Printf("Not migrating configuration from '%s', as it is not explicitly owned by SYSTEM, but rather '%s'", oldRoot, sidStr)
 		return
 	}
 	err = windows.MoveFileEx(windows.StringToUTF16Ptr(oldC), windows.StringToUTF16Ptr(c), windows.MOVEFILE_COPY_ALLOWED)
