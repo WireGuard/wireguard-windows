@@ -100,20 +100,3 @@ function RemoveConfigFolder() {
 		logMessage("Failed to remove configuration on uninstall: " + e.message);
 	}
 }
-
-/* TODO: Remove me no later than July 2019. This is so that pre-0.0.9 upgrades go smoothly.  */
-function REMOVEME_EnableServiceSidType() {
-	var serviceKey = "HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Services";
-	var servicePrefix = "WireGuardTunnel$";
-	var serviceKeyPrefix = serviceKey + "\\" + servicePrefix;
-	var allowedNameFormat = new RegExp("^[a-zA-Z0-9_=+.-]{1,32}$");
-	var txt = runWithNoWindowFlash(fso.BuildPath(fso.GetSpecialFolder(1), "reg.exe") + " query \"" + serviceKey + "\"");
-	var lines = txt.split(new RegExp("\r?\n", "g"));
-	for (var i = 0; i < lines.length; ++i) {
-		if (lines[i].length > serviceKeyPrefix.length && lines[i].substring(0, serviceKeyPrefix.length) == serviceKeyPrefix) {
-			var tunnelName = lines[i].substring(serviceKeyPrefix.length);
-			if (tunnelName.match(allowedNameFormat) != null)
-				wsh.Run(fso.BuildPath(fso.GetSpecialFolder(1), "sc.exe") + " sidtype " + servicePrefix + tunnelName + " unrestricted", 0, true);
-		}
-	}
-}
