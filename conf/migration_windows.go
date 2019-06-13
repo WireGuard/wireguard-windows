@@ -34,7 +34,7 @@ func maybeMigrate(c string) {
 			break
 		}
 	}
-	if err == windows.ERROR_PATH_NOT_FOUND {
+	if err == windows.ERROR_PATH_NOT_FOUND || err == windows.ERROR_FILE_NOT_FOUND {
 		return
 	}
 	if err != nil {
