@@ -142,13 +142,5 @@
 			<!-- TODO: this should not launch when msiexec is called with whatever flag means it shouldn't launch. -->
 			<Custom Action="LaunchApplication" After="PublishProduct">NOT Installed</Custom>
 		</InstallExecuteSequence>
-
-		<!--
-			TODO: Remove me no later than July 2019. This is so that pre-0.0.9 upgrades go smoothly.
-		-->
-		<CustomAction Id="REMOVEME_EnableServiceSidType" BinaryKey="customactions.js" JScriptCall="REMOVEME_EnableServiceSidType" Execute="deferred" Impersonate="no"/>
-		<InstallExecuteSequence>
-			<Custom Action="REMOVEME_EnableServiceSidType" After="StopServices"/>
-		</InstallExecuteSequence>
 	</Product>
 </Wix>
