@@ -23,7 +23,7 @@ type ParseError struct {
 }
 
 func (e *ParseError) Error() string {
-	return fmt.Sprintf("%s: ‘%s’", e.why, e.offender)
+	return fmt.Sprintf("%s: %q", e.why, e.offender)
 }
 
 func parseIPCidr(s string) (ipcidr *IPCidr, err error) {
