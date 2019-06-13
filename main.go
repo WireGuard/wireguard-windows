@@ -39,13 +39,16 @@ func fatal(v ...interface{}) {
 	os.Exit(1)
 }
 
+func info(title string, format string, v ...interface{}) {
+	windows.MessageBox(0, windows.StringToUTF16Ptr(fmt.Sprintf(format, v...)), windows.StringToUTF16Ptr(title), windows.MB_ICONINFORMATION)
+}
+
 func usage() {
 	builder := strings.Builder{}
 	for _, flag := range flags {
 		builder.WriteString(fmt.Sprintf("    %s\n", flag))
 	}
-	msg := fmt.Sprintf("Usage: %s [\n%s]", os.Args[0], builder.String())
-	windows.MessageBox(0, windows.StringToUTF16Ptr(msg), windows.StringToUTF16Ptr("Command Line Options"), windows.MB_ICONINFORMATION)
+	info("Command Line Options", "Usage: %s [\n%s]", os.Args[0], builder.String())
 	os.Exit(1)
 }
 
@@ -232,8 +235,7 @@ func main() {
 			if rebootRequired {
 				rebootString = " A reboot is required."
 			}
-			windows.MessageBox(0, windows.StringToUTF16Ptr(fmt.Sprintf("Deleted %s%s.%s",
-				interfaceString, errorString, rebootString)), windows.StringToUTF16Ptr("Wintun Cleanup"), windows.MB_ICONINFORMATION)
+			info("Wintun Cleanup", "Deleted %s%s.%s", interfaceString, errorString, rebootString)
 			return
 		default:
 			usage()
