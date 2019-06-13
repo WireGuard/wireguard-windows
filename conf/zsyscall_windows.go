@@ -38,14 +38,10 @@ func errnoErr(e syscall.Errno) error {
 
 var (
 	modwininet  = windows.NewLazySystemDLL("wininet.dll")
-	modole32    = windows.NewLazySystemDLL("ole32.dll")
-	modshell32  = windows.NewLazySystemDLL("shell32.dll")
 	modadvapi32 = windows.NewLazySystemDLL("advapi32.dll")
 	modkernel32 = windows.NewLazySystemDLL("kernel32.dll")
 
 	procInternetGetConnectedState    = modwininet.NewProc("InternetGetConnectedState")
-	procCoTaskMemFree                = modole32.NewProc("CoTaskMemFree")
-	procSHGetKnownFolderPath         = modshell32.NewProc("SHGetKnownFolderPath")
 	procGetFileSecurityW             = modadvapi32.NewProc("GetFileSecurityW")
 	procGetSecurityDescriptorOwner   = modadvapi32.NewProc("GetSecurityDescriptorOwner")
 	procFindFirstChangeNotificationW = modkernel32.NewProc("FindFirstChangeNotificationW")
@@ -55,19 +51,6 @@ var (
 func internetGetConnectedState(flags *uint32, reserved uint32) (connected bool) {
 	r0, _, _ := syscall.Syscall(procInternetGetConnectedState.Addr(), 2, uintptr(unsafe.Pointer(flags)), uintptr(reserved), 0)
 	connected = r0 != 0
-	return
-}
-
-func coTaskMemFree(pointer uintptr) {
-	syscall.Syscall(procCoTaskMemFree.Addr(), 1, uintptr(pointer), 0, 0)
-	return
-}
-
-func shGetKnownFolderPath(id *windows.GUID, flags uint32, token windows.Handle, path **uint16) (ret error) {
-	r0, _, _ := syscall.Syscall6(procSHGetKnownFolderPath.Addr(), 4, uintptr(unsafe.Pointer(id)), uintptr(flags), uintptr(token), uintptr(unsafe.Pointer(path)), 0, 0)
-	if r0 != 0 {
-		ret = syscall.Errno(r0)
-	}
 	return
 }
 

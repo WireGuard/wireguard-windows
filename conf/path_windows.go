@@ -6,24 +6,16 @@
 package conf
 
 import (
-	"errors"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
-	"unsafe"
 
 	"golang.org/x/sys/windows"
 )
 
-//sys	coTaskMemFree(pointer uintptr) = ole32.CoTaskMemFree
-//sys	shGetKnownFolderPath(id *windows.GUID, flags uint32, token windows.Handle, path **uint16) (ret error) = shell32.SHGetKnownFolderPath
 //sys	getFileSecurity(fileName *uint16, securityInformation uint32, securityDescriptor *byte, descriptorLen uint32, requestedLen *uint32) (err error) = advapi32.GetFileSecurityW
 //sys	getSecurityDescriptorOwner(securityDescriptor *byte, sid **windows.SID, ownerDefaulted *bool) (err error) = advapi32.GetSecurityDescriptorOwner
-
-var folderIDLocalAppData = windows.GUID{0xf1b32785, 0x6fba, 0x4fcf, [8]byte{0x9d, 0x55, 0x7b, 0x8e, 0x7f, 0x15, 0x70, 0x91}}
-
-const kfFlagCreate = 0x00008000
 const ownerSecurityInformation = 0x00000001
 
 var cachedConfigFileDir string
@@ -97,15 +89,9 @@ func RootDirectory() (string, error) {
 	if cachedRootDir != "" {
 		return cachedRootDir, nil
 	}
-	var path *uint16
-	err := shGetKnownFolderPath(&folderIDLocalAppData, kfFlagCreate, 0, &path)
+	root, err := windows.KnownFolderPath(windows.FOLDERID_LocalAppData, windows.KF_FLAG_CREATE)
 	if err != nil {
 		return "", err
-	}
-	defer coTaskMemFree(uintptr(unsafe.Pointer(path)))
-	root := windows.UTF16ToString((*[windows.MAX_LONG_PATH + 1]uint16)(unsafe.Pointer(path))[:])
-	if len(root) == 0 {
-		return "", errors.New("Unable to determine configuration directory")
 	}
 	c := filepath.Join(root, "WireGuard")
 	err = os.MkdirAll(c, os.ModeDir|0700)
