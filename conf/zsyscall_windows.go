@@ -104,7 +104,7 @@ func findFirstChangeNotification(path *uint16, watchSubtree bool, filter uint32)
 	}
 	r0, _, e1 := syscall.Syscall(procFindFirstChangeNotificationW.Addr(), 3, uintptr(unsafe.Pointer(path)), uintptr(_p0), uintptr(filter))
 	handle = windows.Handle(r0)
-	if handle == 0 {
+	if handle == windows.InvalidHandle {
 		if e1 != 0 {
 			err = errnoErr(e1)
 		} else {
