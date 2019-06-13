@@ -13,48 +13,62 @@ import (
 
 	"golang.org/x/crypto/blake2s"
 	"golang.org/x/sys/windows"
+	"golang.org/x/text/unicode/norm"
 
 	"golang.zx2c4.com/wireguard/windows/conf"
 )
 
-const deterministicGUIDLabel = "Deterministic WireGuard Windows GUID for interface: "
+const deterministicGUIDLabel = "Deterministic WireGuard Windows GUID v1 jason@zx2c4.com"
 
-/* All peer public keys and allowed ips are sorted. Hash input is:
+/* All peer public keys and allowed ips are sorted. Length/number fields are
+ * little endian 32-bit. Hash input is:
  *
- * label || interface name || zero padding to blake2s blocksize ||
- * interface public key ||
- * little endian 32-bit number of peers ||
- * peer public key || little endian 32-bit number of peer allowed ips ||
- * allowed ip in canonical string notation || '/' || cidr in decimal || '\n' ||
- * allowed ip in canonical string notation || '/' || cidr in decimal || '\n' ||
+ * label || len(interface name) || interface name ||
+ * interface public key || number of peers ||
+ * peer public key || number of peer allowed ips ||
+ * len(allowed ip string) || allowed ip/cidr in canonical string notation ||
+ * len(allowed ip string) || allowed ip/cidr in canonical string notation ||
+ * len(allowed ip string) || allowed ip/cidr in canonical string notation ||
  * ...
- * peer public key || little endian 32-bit number of peer allowed ips ||
- * allowed ip in canonical string notation || '/' || cidr in decimal || '\n' ||
- * allowed ip in canonical string notation || '/' || cidr in decimal || '\n' ||
+ * peer public key || number of peer allowed ips ||
+ * len(allowed ip string) || allowed ip/cidr in canonical string notation ||
+ * len(allowed ip string) || allowed ip/cidr in canonical string notation ||
+ * len(allowed ip string) || allowed ip/cidr in canonical string notation ||
  * ...
  * ...
  */
 
-func deterministicGUID(conf *conf.Config) *windows.GUID {
+func deterministicGUID(c *conf.Config) *windows.GUID {
 	b2, _ := blake2s.New256(nil)
-	u32 := func(i uint32) {
+	b2.Write([]byte(deterministicGUIDLabel))
+	b2Number := func(i int) {
+		if uint(i) > uint(^uint32(0)) {
+			panic("length out of bounds")
+		}
 		var bytes [4]byte
-		binary.LittleEndian.PutUint32(bytes[:], i)
+		binary.LittleEndian.PutUint32(bytes[:], uint32(i))
 		b2.Write(bytes[:])
 	}
-	header := []byte(deterministicGUIDLabel)
-	header = append(header, []byte(conf.Name)...)
-	b2.Write(header)
-	b2.Write(make([]byte, (((len(header)-1)|(blake2s.BlockSize-1))+1)-len(header)))
-	b2.Write(conf.Interface.PrivateKey.Public()[:])
-	u32(uint32(len(conf.Peers)))
-	sortedPeers := conf.Peers
+	b2String := func(s string) {
+		bytes := []byte(s)
+		bytes = norm.NFC.Bytes(bytes)
+		b2Number(len(bytes))
+		b2.Write(bytes)
+	}
+	b2Key := func(k *conf.Key) {
+		b2.Write(k[:])
+	}
+
+	b2String(c.Name)
+	b2Key(c.Interface.PrivateKey.Public())
+	b2Number(len(c.Peers))
+	sortedPeers := c.Peers
 	sort.Slice(sortedPeers, func(i, j int) bool {
 		return bytes.Compare(sortedPeers[i].PublicKey[:], sortedPeers[j].PublicKey[:]) < 0
 	})
 	for _, peer := range sortedPeers {
-		b2.Write(peer.PublicKey[:])
-		u32(uint32(len(peer.AllowedIPs)))
+		b2Key(&peer.PublicKey)
+		b2Number(len(peer.AllowedIPs))
 		sortedAllowedIPs := peer.AllowedIPs
 		sort.Slice(sortedAllowedIPs, func(i, j int) bool {
 			if bi, bj := sortedAllowedIPs[i].Bits(), sortedAllowedIPs[j].Bits(); bi != bj {
@@ -66,7 +80,7 @@ func deterministicGUID(conf *conf.Config) *windows.GUID {
 			return bytes.Compare(sortedAllowedIPs[i].IP[:], sortedAllowedIPs[j].IP[:]) < 0
 		})
 		for _, allowedip := range sortedAllowedIPs {
-			b2.Write([]byte(allowedip.String() + "\n"))
+			b2String(allowedip.String())
 		}
 	}
 	return (*windows.GUID)(unsafe.Pointer(&b2.Sum(nil)[0]))
