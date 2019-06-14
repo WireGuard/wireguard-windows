@@ -12,20 +12,16 @@ if exist .deps\prepared goto :render
 	rmdir /s /q .deps 2> NUL
 	mkdir .deps || goto :error
 	cd .deps || goto :error
-	call :download go.zip https://dl.google.com/go/go1.12.3.windows-amd64.zip 1806e089e85b84f192d782a7f70f90a32e0eccfd181405857e612f806ec04059 || goto :error
+	call :download go.zip https://dl.google.com/go/go1.12.6.windows-amd64.zip 9badf7bbc0ed55f2db967434b033a2cddf2e46dbdc5bb8560d8fde019e8e19d3 || goto :error
 	rem Mirror of https://musl.cc/i686-w64-mingw32-native.zip
 	call :download mingw-x86.zip https://download.wireguard.com/windows-toolchain/distfiles/i686-w64-mingw32-native-20190602.zip 003b7d07c837bfd365cf282772fb478bfd83195ee7f755d789420a6a651553a9 || goto :error
 	rem Mirror of https://musl.cc/x86_64-w64-mingw32-native.zip
 	call :download mingw-amd64.zip https://download.wireguard.com/windows-toolchain/distfiles/x86_64-w64-mingw32-native-20190602.zip 5e6629630f106dcad132f8b4eefdb6d2f98b1db251a1cf48a9f654da68793dad || goto :error
 	rem Mirror of https://imagemagick.org/download/binaries/ImageMagick-7.0.8-42-portable-Q16-x64.zip
 	call :download imagemagick.zip https://download.wireguard.com/windows-toolchain/distfiles/ImageMagick-7.0.8-42-portable-Q16-x64.zip 584e069f56456ce7dde40220948ff9568ac810688c892c5dfb7f6db902aa05aa "convert.exe colors.xml delegates.xml" || goto :error
-	rem Mirror of https://sourceforge.net/projects/gnuwin32/files/patch/2.5.9-7/patch-2.5.9-7-bin.zip with fixed manifest
-	call :download patch.zip https://download.wireguard.com/windows-toolchain/distfiles/patch-2.5.9-7-bin-fixed-manifest.zip 25977006ca9713f2662a5d0a2ed3a5a138225b8be3757035bd7da9dcf985d0a1 "--strip-components 1 bin" || goto :error
 	rem Mirror of https://sourceforge.net/projects/ezwinports/files/make-4.2.1-without-guile-w32-bin.zip
 	call :download make.zip https://download.wireguard.com/windows-toolchain/distfiles/make-4.2.1-without-guile-w32-bin.zip 30641be9602712be76212b99df7209f4f8f518ba764cf564262bc9d6e4047cc7 "--strip-components 1 bin" || goto :error
 	call :download wireguard-tools.zip https://git.zx2c4.com/WireGuard/snapshot/WireGuard-0.0.20190601.zip 881868b07d585246426f7f514706e82af168d0e3f4767dd96508ae0608a4ad8b "--exclude wg-quick --strip-components 1" || goto :error
-	echo [+] Patching go
-	for %%a in ("..\golang-*.patch") do .\patch -f -N -r- -d go -p1 --binary < "%%a" || goto :error
 	copy /y NUL prepared > NUL || goto :error
 	cd .. || goto :error
 
