@@ -19,8 +19,11 @@ import (
 //sys	internetGetConnectedState(flags *uint32, reserved uint32) (connected bool) = wininet.InternetGetConnectedState
 
 func resolveHostname(name string) (resolvedIPString string, err error) {
-	const maxTries = 10
+	maxTries := 10
 	systemJustBooted := windows.DurationSinceBoot() <= time.Minute*4
+	if systemJustBooted {
+		maxTries *= 4
+	}
 	for i := 0; i < maxTries; i++ {
 		resolvedIPString, err = resolveHostnameOnce(name)
 		if err == nil {
