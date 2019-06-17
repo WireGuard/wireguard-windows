@@ -10,7 +10,6 @@ import (
 	"log"
 	"net"
 	"sort"
-	"time"
 
 	"golang.org/x/sys/windows"
 	"golang.zx2c4.com/wireguard/tun"
@@ -20,7 +19,7 @@ import (
 	"golang.zx2c4.com/wireguard/windows/tunnel/winipcfg"
 )
 
-func cleanupAddressesOnDisconnectedInterfaces(addresses []net.IPNet) {
+func cleanupAddressesOnDisconnectedInterfaces(family winipcfg.AddressFamily, addresses []net.IPNet) {
 	if len(addresses) == 0 {
 		return
 	}
@@ -39,7 +38,7 @@ func cleanupAddressesOnDisconnectedInterfaces(addresses []net.IPNet) {
 		}
 		return false
 	}
-	interfaces, err := winipcfg.GetAdaptersAddresses(windows.AF_UNSPEC, winipcfg.GAAFlagDefault)
+	interfaces, err := winipcfg.GetAdaptersAddresses(family, winipcfg.GAAFlagDefault)
 	if err != nil {
 		return
 	}
@@ -58,7 +57,7 @@ func cleanupAddressesOnDisconnectedInterfaces(addresses []net.IPNet) {
 	}
 }
 
-func configureInterface(conf *conf.Config, tun *tun.NativeTun) error {
+func configureInterface(family winipcfg.AddressFamily, conf *conf.Config, tun *tun.NativeTun) error {
 	luid := winipcfg.LUID(tun.LUID())
 
 	estimatedRouteCount := len(conf.Interface.Addresses)
@@ -114,10 +113,10 @@ func configureInterface(conf *conf.Config, tun *tun.NativeTun) error {
 		}
 	}
 
-	err := luid.SetIPAddresses(addresses)
+	err := luid.SetIPAddressesForFamily(family, addresses)
 	if err == windows.ERROR_OBJECT_ALREADY_EXISTS {
-		cleanupAddressesOnDisconnectedInterfaces(addresses)
-		err = luid.SetIPAddresses(addresses)
+		cleanupAddressesOnDisconnectedInterfaces(family, addresses)
+		err = luid.SetIPAddressesForFamily(family, addresses)
 	}
 	if err != nil {
 		return err
@@ -140,67 +139,43 @@ func configureInterface(conf *conf.Config, tun *tun.NativeTun) error {
 		deduplicatedRoutes = append(deduplicatedRoutes, &routes[i])
 	}
 
-	err = luid.SetRoutes(deduplicatedRoutes)
+	err = luid.SetRoutesForFamily(family, deduplicatedRoutes)
 	if err != nil {
 		return nil
 	}
 
-	ipif, err := luid.IPInterface(windows.AF_INET)
+	ipif, err := luid.IPInterface(family)
 	if err != nil {
 		return err
-	}
-	if foundDefault4 {
-		ipif.UseAutomaticMetric = false
-		ipif.Metric = 0
 	}
 	if conf.Interface.MTU > 0 {
 		ipif.NLMTU = uint32(conf.Interface.MTU)
 		tun.ForceMTU(int(ipif.NLMTU))
+	}
+	if family == windows.AF_INET {
+		if foundDefault4 {
+			ipif.UseAutomaticMetric = false
+			ipif.Metric = 0
+		}
+	} else if family == windows.AF_INET6 {
+		if foundDefault6 {
+			ipif.UseAutomaticMetric = false
+			ipif.Metric = 0
+		}
+		ipif.DadTransmits = 0
+		ipif.RouterDiscoveryBehavior = winipcfg.RouterDiscoveryDisabled
 	}
 	err = ipif.Set()
 	if err != nil {
 		return err
 	}
 
-	ipif, err = luid.IPInterface(windows.AF_INET6)
-	if err != nil && firstGateway6 != nil {
-		log.Printf("Is IPv6 disabled by Windows?")
-		return err
-	} else if err == nil { // People seem to like to disable IPv6, so we make this non-fatal.
-		if foundDefault6 {
-			ipif.UseAutomaticMetric = false
-			ipif.Metric = 0
-		}
-		if conf.Interface.MTU > 0 {
-			ipif.NLMTU = uint32(conf.Interface.MTU)
-		}
-		ipif.DadTransmits = 0
-		ipif.RouterDiscoveryBehavior = winipcfg.RouterDiscoveryDisabled
-		err = ipif.Set()
-		if err != nil {
-			return err
-		}
-	}
-
-	err = luid.SetDNS(conf.Interface.DNS)
+	err = luid.SetDNSForFamily(family, conf.Interface.DNS)
 	if err != nil {
 		return err
 	}
 
 	return nil
-}
-
-func unconfigureInterface(tun *tun.NativeTun) {
-	// It seems that the Windows networking stack doesn't like it when we destroy interfaces that have active
-	// routes, so to be certain, just remove everything before destroying.
-	luid := winipcfg.LUID(tun.LUID())
-	luid.FlushRoutes(windows.AF_INET)
-	luid.FlushIPAddresses(windows.AF_INET)
-	luid.FlushRoutes(windows.AF_INET6)
-	luid.FlushIPAddresses(windows.AF_INET6)
-	luid.FlushDNS()
-
-	firewall.DisableFirewall()
 }
 
 func enableFirewall(conf *conf.Config, tun *tun.NativeTun) error {
@@ -223,22 +198,4 @@ func enableFirewall(conf *conf.Config, tun *tun.NativeTun) error {
 		log.Println("Warning: no DNS server specified, despite having an allowed IPs of 0.0.0.0/0 or ::/0. There may be connectivity issues.")
 	}
 	return firewall.EnableFirewall(tun.LUID(), conf.Interface.DNS, restrictAll)
-}
-
-func waitForFamilies(tun *tun.NativeTun) {
-	// TODO: This whole thing is a disgusting hack that shouldn't be neccessary.
-
-	f := func(luid winipcfg.LUID, family winipcfg.AddressFamily, maxRetries int) {
-		for i := 0; i < maxRetries; i++ {
-			_, err := luid.IPInterface(family)
-			if i != maxRetries-1 && err == windows.ERROR_NOT_FOUND {
-				time.Sleep(time.Millisecond * 50)
-				continue
-			}
-			break
-		}
-	}
-	luid := winipcfg.LUID(tun.LUID())
-	f(luid, windows.AF_INET, 100)
-	f(luid, windows.AF_INET6, 3)
 }

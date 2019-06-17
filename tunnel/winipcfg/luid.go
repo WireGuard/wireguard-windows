@@ -116,6 +116,27 @@ func (luid LUID) SetIPAddresses(addresses []net.IPNet) error {
 	return luid.AddIPAddresses(addresses)
 }
 
+// SetIPAddressesForFamily method sets new unicast IP addresses for a specific family to the interface.
+func (luid LUID) SetIPAddressesForFamily(family AddressFamily, addresses []net.IPNet) error {
+	err := luid.FlushIPAddresses(family)
+	if err != nil {
+		return err
+	}
+	for i := range addresses {
+		asV4 := addresses[i].IP.To4()
+		if asV4 == nil && family == windows.AF_INET {
+			continue
+		} else if asV4 != nil && family == windows.AF_INET6 {
+			continue
+		}
+		err := luid.AddIPAddress(addresses[i])
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // DeleteIPAddress method deletes interface's unicast IP address. Corresponds to DeleteUnicastIpAddressEntry function
 // (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-deleteunicastipaddressentry).
 func (luid LUID) DeleteIPAddress(address net.IPNet) error {
@@ -208,6 +229,27 @@ func (luid LUID) SetRoutes(routesData []*RouteData) error {
 		return err
 	}
 	return luid.AddRoutes(routesData)
+}
+
+// SetRoutesForFamily method sets (flush than add) multiple routes for a specific family to the interface.
+func (luid LUID) SetRoutesForFamily(family AddressFamily, routesData []*RouteData) error {
+	err := luid.FlushRoutes(family)
+	if err != nil {
+		return err
+	}
+	for _, rd := range routesData {
+		asV4 := rd.Destination.IP.To4()
+		if asV4 == nil && family == windows.AF_INET {
+			continue
+		} else if asV4 != nil && family == windows.AF_INET6 {
+			continue
+		}
+		err := luid.AddRoute(rd.Destination, rd.NextHop, rd.Metric)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // DeleteRoute method deletes a route that matches the criteria. Corresponds to DeleteIpForwardEntry2 function
@@ -356,6 +398,31 @@ func (luid LUID) SetDNS(dnses []net.IP) error {
 
 	if len(cmds) == 0 {
 		return nil
+	}
+	return runNetsh(cmds)
+}
+
+// SetDNSForFamily method clears previous and associates new DNS servers with the adapter for a specific family.
+func (luid LUID) SetDNSForFamily(family AddressFamily, dnses []net.IP) error {
+	var templateFlush string
+	if family == windows.AF_INET {
+		templateFlush = netshCmdTemplateFlush4
+	} else if family == windows.AF_INET6 {
+		templateFlush = netshCmdTemplateFlush6
+	}
+
+	cmds := make([]string, 0, 1+len(dnses))
+	ipif, err := luid.IPInterface(family)
+	if err != nil {
+		return err
+	}
+	cmds = append(cmds, fmt.Sprintf(templateFlush, ipif.InterfaceIndex))
+	for i := 0; i < len(dnses); i++ {
+		if v4 := dnses[i].To4(); v4 != nil && family == windows.AF_INET {
+			cmds = append(cmds, fmt.Sprintf(netshCmdTemplateAdd4, ipif.InterfaceIndex, v4.String()))
+		} else if v6 := dnses[i].To16(); v4 == nil && v6 != nil && family == windows.AF_INET6 {
+			cmds = append(cmds, fmt.Sprintf(netshCmdTemplateAdd6, ipif.InterfaceIndex, v6.String()))
+		}
 	}
 	return runNetsh(cmds)
 }

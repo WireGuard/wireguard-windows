@@ -32,13 +32,13 @@ import (
 
 // GetAdaptersAddresses function retrieves the addresses associated with the adapters on the local computer.
 // https://docs.microsoft.com/en-us/windows/desktop/api/iphlpapi/nf-iphlpapi-getadaptersaddresses
-func GetAdaptersAddresses(family uint32, flags GAAFlags) ([]*IPAdapterAddresses, error) {
+func GetAdaptersAddresses(family AddressFamily, flags GAAFlags) ([]*IPAdapterAddresses, error) {
 	var b []byte
 	size := uint32(15000)
 
 	for {
 		b = make([]byte, size)
-		err := windows.GetAdaptersAddresses(family, uint32(flags), 0, (*windows.IpAdapterAddresses)(unsafe.Pointer(&b[0])), &size)
+		err := windows.GetAdaptersAddresses(uint32(family), uint32(flags), 0, (*windows.IpAdapterAddresses)(unsafe.Pointer(&b[0])), &size)
 		if err == nil {
 			break
 		}

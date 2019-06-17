@@ -44,28 +44,28 @@ func bindSocketRoute(family winipcfg.AddressFamily, device *device.Device, ourLU
 	*lastLUID = luid
 	*lastIndex = index
 	if family == windows.AF_INET {
-		log.Printf("Binding UDPv4 socket to interface %d", index)
+		log.Printf("Binding v4 socket to interface %d", index)
 		return device.BindSocketToInterface4(index)
 	} else if family == windows.AF_INET6 {
-		log.Printf("Binding UDPv6 socket to interface %d", index)
+		log.Printf("Binding v6 socket to interface %d", index)
 		return device.BindSocketToInterface6(index)
 	}
 	return nil
 }
 
-func monitorDefaultRoutes(device *device.Device, autoMTU bool, tun *tun.NativeTun) (*winipcfg.RouteChangeCallback, error) {
+func monitorDefaultRoutes(family winipcfg.AddressFamily, device *device.Device, autoMTU bool, tun *tun.NativeTun) (*winipcfg.RouteChangeCallback, error) {
+	var minMTU uint32
+	if family == windows.AF_INET {
+		minMTU = 576
+	} else if family == windows.AF_INET6 {
+		minMTU = 1280
+	}
 	ourLUID := winipcfg.LUID(tun.LUID())
-	lastLUID4 := winipcfg.LUID(0)
-	lastLUID6 := winipcfg.LUID(0)
-	lastIndex4 := uint32(0)
-	lastIndex6 := uint32(0)
+	lastLUID := winipcfg.LUID(0)
+	lastIndex := uint32(0)
 	lastMTU := uint32(0)
 	doIt := func() error {
-		err := bindSocketRoute(windows.AF_INET, device, ourLUID, &lastLUID4, &lastIndex4)
-		if err != nil {
-			return err
-		}
-		err = bindSocketRoute(windows.AF_INET6, device, ourLUID, &lastLUID6, &lastIndex6)
+		err := bindSocketRoute(family, device, ourLUID, &lastLUID, &lastIndex)
 		if err != nil {
 			return err
 		}
@@ -73,8 +73,8 @@ func monitorDefaultRoutes(device *device.Device, autoMTU bool, tun *tun.NativeTu
 			return nil
 		}
 		mtu := uint32(0)
-		if lastLUID4 != 0 {
-			iface, err := lastLUID4.Interface()
+		if lastLUID != 0 {
+			iface, err := lastLUID.Interface()
 			if err != nil {
 				return err
 			}
@@ -82,40 +82,20 @@ func monitorDefaultRoutes(device *device.Device, autoMTU bool, tun *tun.NativeTu
 				mtu = iface.MTU
 			}
 		}
-		if lastLUID6 != 0 {
-			iface, err := lastLUID6.Interface()
-			if err != nil {
-				return err
-			}
-			if iface.MTU > 0 && iface.MTU < mtu {
-				mtu = iface.MTU
-			}
-		}
 		if mtu > 0 && lastMTU != mtu {
-			iface, err := ourLUID.IPInterface(windows.AF_INET)
+			iface, err := ourLUID.IPInterface(family)
 			if err != nil {
 				return err
 			}
 			iface.NLMTU = mtu - 80
-			if iface.NLMTU < 576 {
-				iface.NLMTU = 576
+			if iface.NLMTU < minMTU {
+				iface.NLMTU = minMTU
 			}
 			err = iface.Set()
 			if err != nil {
 				return err
 			}
-			tun.ForceMTU(int(iface.NLMTU)) // TODO: it sort of breaks the model with v6 mtu and v4 mtu being different. Just set v4 one for now.
-			iface, err = ourLUID.IPInterface(windows.AF_INET6)
-			if err == nil { // People seem to like to disable IPv6, so we make this non-fatal.
-				iface.NLMTU = mtu - 80
-				if iface.NLMTU < 1280 {
-					iface.NLMTU = 1280
-				}
-				err = iface.Set()
-				if err != nil {
-					return err
-				}
-			}
+			tun.ForceMTU(int(iface.NLMTU)) // TODO: having one MTU for both v4 and v6 kind of breaks the windows model, so right now this just gets the second one which is... bad.
 			lastMTU = mtu
 		}
 		return nil

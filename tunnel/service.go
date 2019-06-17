@@ -26,7 +26,6 @@ import (
 	"golang.zx2c4.com/wireguard/windows/conf"
 	"golang.zx2c4.com/wireguard/windows/ringlogger"
 	"golang.zx2c4.com/wireguard/windows/services"
-	"golang.zx2c4.com/wireguard/windows/tunnel/winipcfg"
 	"golang.zx2c4.com/wireguard/windows/version"
 )
 
@@ -39,7 +38,7 @@ func (service *Service) Execute(args []string, r <-chan svc.ChangeRequest, chang
 
 	var dev *device.Device
 	var uapi net.Listener
-	var routeChangeCallback *winipcfg.RouteChangeCallback
+	var watcher *interfaceWatcher
 	var nativeTun *tun.NativeTun
 	var err error
 	serviceError := services.ErrorSuccess
@@ -84,11 +83,8 @@ func (service *Service) Execute(args []string, r <-chan svc.ChangeRequest, chang
 			}
 		}()
 
-		if routeChangeCallback != nil {
-			routeChangeCallback.Unregister()
-		}
-		if nativeTun != nil {
-			unconfigureInterface(nativeTun)
+		if watcher != nil {
+			watcher.Destroy()
 		}
 		if uapi != nil {
 			uapi.Close()
@@ -138,6 +134,13 @@ func (service *Service) Execute(args []string, r <-chan svc.ChangeRequest, chang
 			changes <- svc.Status{State: svc.Running}
 		}
 		m.Disconnect()
+	}
+
+	log.Println("Watching network interfaces")
+	watcher, err = watchInterface()
+	if err != nil {
+		serviceError = services.ErrorSetNetConfig
+		return
 	}
 
 	log.Println("Resolving DNS names")
@@ -197,22 +200,7 @@ func (service *Service) Execute(args []string, r <-chan svc.ChangeRequest, chang
 	log.Println("Bringing peers up")
 	dev.Up()
 
-	log.Println("Waiting for TCP/IP to attach to interface")
-	waitForFamilies(nativeTun) // TODO: move this sort of thing into tun/wintun/CreateInterface
-
-	log.Println("Monitoring default routes")
-	routeChangeCallback, err = monitorDefaultRoutes(dev, conf.Interface.MTU == 0, nativeTun)
-	if err != nil {
-		serviceError = services.ErrorBindSocketsToDefaultRoutes
-		return
-	}
-
-	log.Println("Setting device address")
-	err = configureInterface(conf, nativeTun)
-	if err != nil {
-		serviceError = services.ErrorSetNetConfig
-		return
-	}
+	watcher.Configure(dev, conf, nativeTun)
 
 	log.Println("Listening for UAPI requests")
 	go func() {
@@ -240,6 +228,9 @@ func (service *Service) Execute(args []string, r <-chan svc.ChangeRequest, chang
 				log.Printf("Unexpected service control request #%d\n", c)
 			}
 		case <-dev.Wait():
+			return
+		case e := <-watcher.errors:
+			serviceError, err = e.serviceError, e.err
 			return
 		}
 	}
