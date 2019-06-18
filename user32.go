@@ -1026,6 +1026,7 @@ const (
 // SystemParametersInfo actions
 const (
 	SPI_GETNONCLIENTMETRICS = 0x0029
+	SPI_GETHIGHCONTRAST     = 0x0042
 )
 
 // Dialog styles
@@ -1353,6 +1354,26 @@ const (
 	MSGFLTINFO_ALLOWED_HIGHER           = 3
 )
 
+// TRACKMOUSEEVENT flags
+const (
+	TME_CANCEL    = 0x80000000
+	TME_HOVER     = 0x00000001
+	TME_LEAVE     = 0x00000002
+	TME_NONCLIENT = 0x00000010
+	TME_QUERY     = 0x40000000
+)
+
+// HIGHCONTRAST flags
+const (
+	HCF_HIGHCONTRASTON  = 0x00000001
+	HCF_AVAILABLE       = 0x00000002
+	HCF_HOTKEYACTIVE    = 0x00000004
+	HCF_CONFIRMHOTKEY   = 0x00000008
+	HCF_HOTKEYSOUND     = 0x00000010
+	HCF_INDICATOR       = 0x00000020
+	HCF_HOTKEYAVAILABLE = 0x00000040
+)
+
 type NMBCDROPDOWN struct {
 	Hdr      NMHDR
 	RcButton RECT
@@ -1626,6 +1647,19 @@ type WINDOWPOS struct {
 	Flags           uint32
 }
 
+type TRACKMOUSEEVENT struct {
+	CbSize      uint32
+	DwFlags     uint32
+	HwndTrack   HWND
+	DwHoverTime uint32
+}
+
+type HIGHCONTRAST struct {
+	CbSize            uint32
+	DwFlags           uint32
+	LpszDefaultScheme *uint16
+}
+
 func GET_X_LPARAM(lp uintptr) int32 {
 	return int32(int16(LOWORD(uint32(lp))))
 }
@@ -1762,6 +1796,7 @@ var (
 	setWindowPos                *windows.LazyProc
 	showWindow                  *windows.LazyProc
 	systemParametersInfo        *windows.LazyProc
+	trackMouseEvent             *windows.LazyProc
 	trackPopupMenuEx            *windows.LazyProc
 	translateMessage            *windows.LazyProc
 	unhookWinEvent              *windows.LazyProc
@@ -1910,6 +1945,7 @@ func init() {
 	setWindowPos = libuser32.NewProc("SetWindowPos")
 	showWindow = libuser32.NewProc("ShowWindow")
 	systemParametersInfo = libuser32.NewProc("SystemParametersInfoW")
+	trackMouseEvent = libuser32.NewProc("TrackMouseEvent")
 	trackPopupMenuEx = libuser32.NewProc("TrackPopupMenuEx")
 	translateMessage = libuser32.NewProc("TranslateMessage")
 	unhookWinEvent = libuser32.NewProc("UnhookWinEvent")
@@ -3154,6 +3190,15 @@ func SystemParametersInfo(uiAction, uiParam uint32, pvParam unsafe.Pointer, fWin
 		uintptr(uiParam),
 		uintptr(pvParam),
 		uintptr(fWinIni),
+		0,
+		0)
+
+	return ret != 0
+}
+
+func TrackMouseEvent(lpEventTrack *TRACKMOUSEEVENT) bool {
+	ret, _, _ := syscall.Syscall(trackMouseEvent.Addr(), 1,
+		uintptr(unsafe.Pointer(lpEventTrack)),
 		0,
 		0)
 
