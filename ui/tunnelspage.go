@@ -116,6 +116,7 @@ func (tp *TunnelsPage) CreateToolbar() {
 	// HACK: Because of https://github.com/lxn/walk/issues/481
 	// we need to put the ToolBar into its own Composite.
 	toolBarContainer, _ := walk.NewComposite(tp.listContainer)
+	toolBarContainer.SetDoubleBuffering(true)
 	hlayout := walk.NewHBoxLayout()
 	hlayout.SetMargins(walk.Margins{})
 	toolBarContainer.SetLayout(hlayout)
