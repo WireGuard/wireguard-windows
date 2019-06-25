@@ -203,10 +203,6 @@ func (tp *TunnelsPage) CreateToolbar() {
 	editAction.Triggered().Attach(tp.onEditTunnel)
 	contextMenu.Actions().Add(editAction)
 	tp.ShortcutActions().Add(editAction)
-	cloneAction := walk.NewAction()
-	cloneAction.SetText("Clone selected tunnel...")
-	cloneAction.Triggered().Attach(tp.onCloneTunnel)
-	contextMenu.Actions().Add(cloneAction)
 	deleteAction2 := walk.NewAction()
 	deleteAction2.SetText("Remove selected tunnel(s)")
 	deleteAction2.SetShortcut(walk.Shortcut{0, walk.KeyDelete})
@@ -230,7 +226,6 @@ func (tp *TunnelsPage) CreateToolbar() {
 		toggleAction.SetEnabled(selected == 1)
 		selectAllAction.SetEnabled(selected < all)
 		editAction.SetEnabled(selected == 1)
-		cloneAction.SetEnabled(selected == 1)
 	}
 	tp.listView.SelectedIndexesChanged().Attach(setSelectionOrientedOptions)
 	setSelectionOrientedOptions()
@@ -424,7 +419,7 @@ func (tp *TunnelsPage) onEditTunnel() {
 		return
 	}
 
-	if config := runTunnelEditDialog(tp.Form(), tunnel, false); config != nil {
+	if config := runTunnelEditDialog(tp.Form(), tunnel); config != nil {
 		go func() {
 			priorState, err := tunnel.State()
 			tunnel.Delete()
@@ -437,20 +432,8 @@ func (tp *TunnelsPage) onEditTunnel() {
 	}
 }
 
-func (tp *TunnelsPage) onCloneTunnel() {
-	tunnel := tp.listView.CurrentTunnel()
-	if tunnel == nil {
-		return
-	}
-
-	if config := runTunnelEditDialog(tp.Form(), tunnel, true); config != nil {
-		// Save new
-		tp.addTunnel(config)
-	}
-}
-
 func (tp *TunnelsPage) onAddTunnel() {
-	if config := runTunnelEditDialog(tp.Form(), nil, false); config != nil {
+	if config := runTunnelEditDialog(tp.Form(), nil); config != nil {
 		// Save new
 		tp.addTunnel(config)
 	}
