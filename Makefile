@@ -1,8 +1,9 @@
-GOFLAGS := -ldflags="-H windowsgui -s -w" -v -tags walk_use_cgo
+GOFLAGS := -ldflags="-H windowsgui -s -w" -v -tags walk_use_cgo -trimpath
 export CGO_ENABLED := 1
 export CGO_CFLAGS := -O3 -Wall -Wno-unused-function -Wno-switch -std=gnu11 -DWINVER=0x0601
 export CGO_LDFLAGS := -Wl,--major-os-version=6 -Wl,--minor-os-version=1 -Wl,--major-subsystem-version=6 -Wl,--minor-subsystem-version=1
 export GOOS := windows
+export GOPROXY := direct
 
 rwildcard=$(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subst *,%,$2),$d))
 SOURCE_FILES := $(call rwildcard,,*.go *.c *.h)
@@ -22,7 +23,7 @@ resources_amd64.syso: $(RESOURCE_FILES)
 resources_386.syso: $(RESOURCE_FILES)
 	i686-w64-mingw32-windres -i $< -o $@ -O coff
 
-VERSIONCHECK := @[ "$$(go version | cut -d ' ' -f 3)" == go1.12.6 ]
+VERSIONCHECK := @[ "$$(go version | cut -d ' ' -f 3)" == go1.13beta1 ]
 
 amd64/wireguard.exe: export CC := x86_64-w64-mingw32-gcc
 amd64/wireguard.exe: export GOARCH := amd64

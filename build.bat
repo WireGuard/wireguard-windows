@@ -12,7 +12,7 @@ if exist .deps\prepared goto :render
 	rmdir /s /q .deps 2> NUL
 	mkdir .deps || goto :error
 	cd .deps || goto :error
-	call :download go.zip https://dl.google.com/go/go1.12.6.windows-amd64.zip 9badf7bbc0ed55f2db967434b033a2cddf2e46dbdc5bb8560d8fde019e8e19d3 || goto :error
+	call :download go.zip https://dl.google.com/go/go1.13beta1.windows-amd64.zip 08098b4b0e1a105971d2fced2842e806f8ffa08973ae8781fd22dd90f76404fb || goto :error
 	rem Mirror of https://musl.cc/i686-w64-mingw32-native.zip
 	call :download mingw-x86.zip https://download.wireguard.com/windows-toolchain/distfiles/i686-w64-mingw32-native-20190602.zip 003b7d07c837bfd365cf282772fb478bfd83195ee7f755d789420a6a651553a9 || goto :error
 	rem Mirror of https://musl.cc/x86_64-w64-mingw32-native.zip
@@ -32,6 +32,7 @@ if exist .deps\prepared goto :render
 :build
 	set PATH=%STARTDIR%\.deps\go\bin\;%STARTDIR%\.deps\;%PATH%
 	set GOOS=windows
+	set GOPROXY=direct
 	set GOPATH=%STARTDIR%\.deps\gopath
 	set GOROOT=%STARTDIR%\.deps\go
 	set CGO_ENABLED=1
@@ -80,7 +81,7 @@ if exist .deps\prepared goto :render
 	echo [+] Assembling resources %1
 	windres -i resources.rc -o resources.syso -O coff || exit /b %errorlevel%
 	echo [+] Building program %1
-	go build -ldflags="-H windowsgui -s -w" -tags walk_use_cgo -v -o "%~1\wireguard.exe" || exit /b 1
+	go build -ldflags="-H windowsgui -s -w" -tags walk_use_cgo -trimpath -v -o "%~1\wireguard.exe" || exit /b 1
 	if not exist "%~1\wg.exe" (
 		echo [+] Building command line tools %1
 		del .deps\src\tools\*.exe .deps\src\tools\*.o .deps\src\tools\wincompat\*.o 2> NUL
