@@ -8,10 +8,8 @@ package version
 import (
 	"fmt"
 	"runtime"
-
-	"golang.zx2c4.com/wireguard/device"
 )
 
 func UserAgent() string {
-	return fmt.Sprintf("WireGuard/%s (wireguard-go %s; %s; %s; %s)", RunningVersion(), device.WireGuardGoVersion, OsName(), runtime.Version(), runtime.GOARCH)
+	return fmt.Sprintf("WireGuard/%s (%s; %s)", RunningVersion(), OsName(), runtime.GOARCH)
 }
