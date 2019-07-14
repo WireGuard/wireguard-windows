@@ -49,7 +49,7 @@ After, run the above `build` commands as usual, from a shell that has [`signtool
 You must first have Go ≥1.12, Mingw, and ImageMagick installed.
 
 ```
-$ sudo apt install mingw-w64 golang-go
+$ sudo apt install mingw-w64 golang-go imagemagick
 $ git clone https://git.zx2c4.com/wireguard-windows
 $ cd wireguard-windows
 $ make
