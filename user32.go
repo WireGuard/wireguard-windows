@@ -1374,6 +1374,13 @@ const (
 	HCF_HOTKEYAVAILABLE = 0x00000040
 )
 
+// EDITWORDBREAKPROC codes
+const (
+	WB_LEFT        = 0
+	WB_RIGHT       = 1
+	WB_ISDELIMITER = 2
+)
+
 type NMBCDROPDOWN struct {
 	Hdr      NMHDR
 	RcButton RECT
