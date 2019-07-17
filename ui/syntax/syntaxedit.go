@@ -44,6 +44,10 @@ func (se *SyntaxEdit) SizeHint() walk.Size {
 	return walk.Size{200, 100}
 }
 
+func (*SyntaxEdit) CreateLayoutItem(ctx *walk.LayoutContext) walk.LayoutItem {
+	return walk.NewGreedyLayoutItem()
+}
+
 func (se *SyntaxEdit) Text() string {
 	textLength := se.SendMessage(win.WM_GETTEXTLENGTH, 0, 0)
 	buf := make([]uint16, textLength+1)
