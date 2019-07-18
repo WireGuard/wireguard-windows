@@ -173,17 +173,17 @@ type FollowLine struct {
 	Stamp time.Time
 }
 
-func (rl *Ringlogger) FollowFromCursor(cursor uint32) ([]FollowLine, uint32) {
-	followLines := make([]FollowLine, 0, maxLines)
+func (rl *Ringlogger) FollowFromCursor(cursor uint32) (followLines []FollowLine, nextCursor uint32) {
+	followLines = make([]FollowLine, 0, maxLines)
+	nextCursor = cursor
 
 	if rl.log == nil {
-		return followLines, cursor
+		return
 	}
-
 	log := *rl.log
-	i := cursor
 
-	if i == CursorAll {
+	i := cursor
+	if cursor == CursorAll {
 		i = log.nextIndex
 	}
 
@@ -205,9 +205,9 @@ func (rl *Ringlogger) FollowFromCursor(cursor uint32) ([]FollowLine, uint32) {
 			followLines = append(followLines, FollowLine{string(line.line[:index]), time.Unix(0, line.timeNs)})
 		}
 		i++
-		cursor = i % maxLines
+		nextCursor = i % maxLines
 	}
-	return followLines, cursor
+	return
 }
 
 func (rl *Ringlogger) Close() error {
