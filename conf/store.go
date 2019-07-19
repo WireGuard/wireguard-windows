@@ -148,6 +148,10 @@ func LoadFromPath(path string) (*Config, error) {
 	return FromWgQuickWithUnknownEncoding(string(bytes), name)
 }
 
+func PathIsEncrypted(path string) bool {
+	return strings.HasSuffix(filepath.Base(path), configFileSuffix)
+}
+
 func NameFromPath(path string) (string, error) {
 	name := filepath.Base(path)
 	if !((len(name) > len(configFileSuffix) && strings.HasSuffix(name, configFileSuffix)) ||

@@ -117,6 +117,11 @@ func (service *Service) Execute(args []string, r <-chan svc.ChangeRequest, chang
 		serviceError = services.ErrorLoadConfiguration
 		return
 	}
+	err = CopyConfigOwnerToIPCSecurityDescriptor(service.Path)
+	if err != nil {
+		serviceError = services.ErrorLoadConfiguration
+		return
+	}
 
 	logPrefix := fmt.Sprintf("[%s] ", conf.Name)
 	log.SetPrefix(logPrefix)
