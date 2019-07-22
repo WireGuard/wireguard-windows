@@ -97,8 +97,7 @@ func NewTunnelsPage() (*TunnelsPage, error) {
 
 	disposables.Spare()
 
-	// TODO: expose walk.TableView.itemCountChangedPublisher.Event()
-	tp.listView.Property("ItemCount").Changed().Attach(tp.onTunnelsChanged)
+	tp.listView.ItemCountChanged().Attach(tp.onTunnelsChanged)
 	tp.listView.SelectedIndexesChanged().Attach(tp.onSelectedTunnelsChanged)
 	tp.listView.ItemActivated().Attach(tp.onTunnelsViewItemActivated)
 	tp.listView.CurrentIndexChanged().Attach(tp.updateConfView)
