@@ -86,6 +86,7 @@ func NewLogPage() (*LogPage, error) {
 	lp.logView.Columns().Add(msgCol)
 
 	lp.model = newLogModel(lp)
+	lp.model.RowsReset().Attach(setSelectionStatus)
 	lp.logView.SetModel(lp.model)
 	setSelectionStatus()
 
