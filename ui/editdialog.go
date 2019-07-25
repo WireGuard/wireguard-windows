@@ -28,8 +28,25 @@ type EditDialog struct {
 	blockUntunneledTraficCheckGuard bool
 }
 
-func runTunnelEditDialog(owner walk.Form, tunnel *manager.Tunnel) *conf.Config {
-	dlg := &EditDialog{}
+func runEditDialog(owner walk.Form, tunnel *manager.Tunnel) *conf.Config {
+	dlg, err := newEditDialog(owner, tunnel)
+	if showError(err, owner) {
+		return nil
+	}
+
+	if dlg.Run() == walk.DlgCmdOK {
+		return &dlg.config
+	}
+
+	return nil
+}
+
+func newEditDialog(owner walk.Form, tunnel *manager.Tunnel) (*EditDialog, error) {
+	var err error
+	var disposables walk.Disposables
+	defer disposables.Treat()
+
+	dlg := new(EditDialog)
 
 	var title string
 	if tunnel == nil {
@@ -51,7 +68,10 @@ func runTunnelEditDialog(owner walk.Form, tunnel *manager.Tunnel) *conf.Config {
 	layout.SetMargins(walk.Margins{10, 10, 10, 10})
 	layout.SetColumnStretchFactor(1, 3)
 
-	dlg.Dialog, _ = walk.NewDialog(owner)
+	if dlg.Dialog, err = walk.NewDialog(owner); err != nil {
+		return nil, err
+	}
+	disposables.Add(dlg)
 	dlg.SetIcon(owner.Icon())
 	dlg.SetTitle(title)
 	dlg.SetLayout(layout)
@@ -60,34 +80,51 @@ func runTunnelEditDialog(owner walk.Form, tunnel *manager.Tunnel) *conf.Config {
 		dlg.SetIcon(icon)
 	}
 
-	nameLabel, _ := walk.NewTextLabel(dlg)
+	nameLabel, err := walk.NewTextLabel(dlg)
+	if err != nil {
+		return nil, err
+	}
 	layout.SetRange(nameLabel, walk.Rectangle{0, 0, 1, 1})
 	nameLabel.SetTextAlignment(walk.AlignHFarVCenter)
 	nameLabel.SetText("Name:")
 
-	dlg.nameEdit, _ = walk.NewLineEdit(dlg)
+	if dlg.nameEdit, err = walk.NewLineEdit(dlg); err != nil {
+		return nil, err
+	}
 	layout.SetRange(dlg.nameEdit, walk.Rectangle{1, 0, 1, 1})
 	dlg.nameEdit.SetText(dlg.config.Name)
 
-	pubkeyLabel, _ := walk.NewTextLabel(dlg)
+	pubkeyLabel, err := walk.NewTextLabel(dlg)
+	if err != nil {
+		return nil, err
+	}
 	layout.SetRange(pubkeyLabel, walk.Rectangle{0, 1, 1, 1})
 	pubkeyLabel.SetTextAlignment(walk.AlignHFarVCenter)
 	pubkeyLabel.SetText("Public key:")
 
-	dlg.pubkeyEdit, _ = walk.NewLineEdit(dlg)
+	if dlg.pubkeyEdit, err = walk.NewLineEdit(dlg); err != nil {
+		return nil, err
+	}
 	layout.SetRange(dlg.pubkeyEdit, walk.Rectangle{1, 1, 1, 1})
 	dlg.pubkeyEdit.SetReadOnly(true)
 	dlg.pubkeyEdit.SetText("(unknown)")
 
-	dlg.syntaxEdit, _ = syntax.NewSyntaxEdit(dlg)
+	if dlg.syntaxEdit, err = syntax.NewSyntaxEdit(dlg); err != nil {
+		return nil, err
+	}
 	layout.SetRange(dlg.syntaxEdit, walk.Rectangle{0, 2, 2, 1})
 
-	buttonsContainer, _ := walk.NewComposite(dlg)
+	buttonsContainer, err := walk.NewComposite(dlg)
+	if err != nil {
+		return nil, err
+	}
 	layout.SetRange(buttonsContainer, walk.Rectangle{0, 3, 2, 1})
 	buttonsContainer.SetLayout(walk.NewHBoxLayout())
 	buttonsContainer.Layout().SetMargins(walk.Margins{})
 
-	dlg.blockUntunneledTrafficCB, _ = walk.NewCheckBox(buttonsContainer)
+	if dlg.blockUntunneledTrafficCB, err = walk.NewCheckBox(buttonsContainer); err != nil {
+		return nil, err
+	}
 	dlg.blockUntunneledTrafficCB.SetText("Block untunneled traffic (kill-switch)")
 	dlg.blockUntunneledTrafficCB.SetToolTipText("When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface, with special exceptions for DHCP and NDP.")
 	dlg.blockUntunneledTrafficCB.SetVisible(false)
@@ -95,11 +132,16 @@ func runTunnelEditDialog(owner walk.Form, tunnel *manager.Tunnel) *conf.Config {
 
 	walk.NewHSpacer(buttonsContainer)
 
-	dlg.saveButton, _ = walk.NewPushButton(buttonsContainer)
+	if dlg.saveButton, err = walk.NewPushButton(buttonsContainer); err != nil {
+		return nil, err
+	}
 	dlg.saveButton.SetText("Save")
 	dlg.saveButton.Clicked().Attach(dlg.onSaveButtonClicked)
 
-	cancelButton, _ := walk.NewPushButton(buttonsContainer)
+	cancelButton, err := walk.NewPushButton(buttonsContainer)
+	if err != nil {
+		return nil, err
+	}
 	cancelButton.SetText("Cancel")
 	cancelButton.Clicked().Attach(dlg.Cancel)
 
@@ -118,11 +160,9 @@ func runTunnelEditDialog(owner walk.Form, tunnel *manager.Tunnel) *conf.Config {
 		})
 	}
 
-	if dlg.Run() == walk.DlgCmdOK {
-		return &dlg.config
-	}
+	disposables.Spare()
 
-	return nil
+	return dlg, nil
 }
 
 func (dlg *EditDialog) onBlockUntunneledTrafficCBCheckedChanged() {
@@ -217,7 +257,7 @@ func (dlg *EditDialog) onBlockUntunneledTrafficCBCheckedChanged() {
 	return
 
 err:
-	walk.MsgBox(dlg, "Invalid configuration", "Unable to toggle untunneled traffic blocking state.", walk.MsgBoxIconWarning)
+	showErrorCustom(dlg, "Invalid configuration", "Unable to toggle untunneled traffic blocking state.")
 	dlg.blockUntunneledTrafficCB.SetVisible(false)
 }
 
@@ -252,11 +292,11 @@ func (dlg *EditDialog) onSyntaxEditPrivateKeyChanged(privateKey string) {
 func (dlg *EditDialog) onSaveButtonClicked() {
 	newName := dlg.nameEdit.Text()
 	if newName == "" {
-		walk.MsgBox(dlg, "Invalid name", "A name is required.", walk.MsgBoxIconWarning)
+		showWarningCustom(dlg, "Invalid name", "A name is required.")
 		return
 	}
 	if !conf.TunnelNameIsValid(newName) {
-		walk.MsgBox(dlg, "Invalid name", fmt.Sprintf("Tunnel name ‘%s’ is invalid.", newName), walk.MsgBoxIconWarning)
+		showWarningCustom(dlg, "Invalid name", fmt.Sprintf("Tunnel name ‘%s’ is invalid.", newName))
 		return
 	}
 	newNameLower := strings.ToLower(newName)
@@ -264,12 +304,12 @@ func (dlg *EditDialog) onSaveButtonClicked() {
 	if newNameLower != strings.ToLower(dlg.config.Name) {
 		existingTunnelList, err := manager.IPCClientTunnels()
 		if err != nil {
-			walk.MsgBox(dlg, "Unable to list existing tunnels", err.Error(), walk.MsgBoxIconError)
+			showWarningCustom(dlg, "Unable to list existing tunnels", err.Error())
 			return
 		}
 		for _, tunnel := range existingTunnelList {
 			if strings.ToLower(tunnel.Name) == newNameLower {
-				walk.MsgBox(dlg, "Tunnel already exists", fmt.Sprintf("Another tunnel already exists with the name ‘%s’.", newName), walk.MsgBoxIconWarning)
+				showWarningCustom(dlg, "Tunnel already exists", fmt.Sprintf("Another tunnel already exists with the name ‘%s’.", newName))
 				return
 			}
 		}
@@ -277,7 +317,7 @@ func (dlg *EditDialog) onSaveButtonClicked() {
 
 	cfg, err := conf.FromWgQuick(dlg.syntaxEdit.Text(), newName)
 	if err != nil {
-		walk.MsgBox(dlg, "Unable to create new configuration", err.Error(), walk.MsgBoxIconError)
+		showErrorCustom(dlg, "Unable to create new configuration", err.Error())
 		return
 	}
 

@@ -24,10 +24,9 @@ const (
 func NewLogPage() (*LogPage, error) {
 	lp := &LogPage{}
 
+	var err error
 	var disposables walk.Disposables
 	defer disposables.Treat()
-
-	var err error
 
 	if lp.TabPage, err = walk.NewTabPage(); err != nil {
 		return nil, err
@@ -47,7 +46,11 @@ func NewLogPage() (*LogPage, error) {
 	lp.logView.SetAlternatingRowBGColor(walk.Color(win.GetSysColor(win.COLOR_BTNFACE)))
 	lp.logView.SetLastColumnStretched(true)
 
-	contextMenu, _ := walk.NewMenu()
+	contextMenu, err := walk.NewMenu()
+	if err != nil {
+		return nil, err
+	}
+	lp.logView.AddDisposable(contextMenu)
 	copyAction := walk.NewAction()
 	copyAction.SetText("&Copy")
 	copyAction.SetShortcut(walk.Shortcut{walk.ModControl, walk.KeyC})

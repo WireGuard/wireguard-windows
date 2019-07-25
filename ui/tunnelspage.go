@@ -36,7 +36,6 @@ type TunnelsPage struct {
 
 func NewTunnelsPage() (*TunnelsPage, error) {
 	var err error
-
 	var disposables walk.Disposables
 	defer disposables.Treat()
 
@@ -55,18 +54,20 @@ func NewTunnelsPage() (*TunnelsPage, error) {
 	vlayout.SetSpacing(0)
 	tp.listContainer.SetLayout(vlayout)
 
-	// TODO: deal with remaining disposables in case the next line fails
-
 	if tp.listView, err = NewListView(tp.listContainer); err != nil {
 		return nil, err
 	}
 
-	tp.currentTunnelContainer, _ = walk.NewComposite(tp)
+	if tp.currentTunnelContainer, err = walk.NewComposite(tp); err != nil {
+		return nil, err
+	}
 	vlayout = walk.NewVBoxLayout()
 	vlayout.SetMargins(walk.Margins{})
 	tp.currentTunnelContainer.SetLayout(vlayout)
 
-	tp.fillerContainer, _ = walk.NewComposite(tp)
+	if tp.fillerContainer, err = walk.NewComposite(tp); err != nil {
+		return nil, err
+	}
 	tp.fillerContainer.SetVisible(false)
 	hlayout := walk.NewHBoxLayout()
 	hlayout.SetMargins(walk.Margins{})
@@ -79,15 +80,23 @@ func NewTunnelsPage() (*TunnelsPage, error) {
 		}
 	})
 
-	tp.confView, _ = NewConfView(tp.currentTunnelContainer)
+	if tp.confView, err = NewConfView(tp.currentTunnelContainer); err != nil {
+		return nil, err
+	}
 
-	controlsContainer, _ := walk.NewComposite(tp.currentTunnelContainer)
+	controlsContainer, err := walk.NewComposite(tp.currentTunnelContainer)
+	if err != nil {
+		return nil, err
+	}
 	controlsContainer.SetLayout(walk.NewHBoxLayout())
 	controlsContainer.Layout().SetMargins(walk.Margins{})
 
 	walk.NewHSpacer(controlsContainer)
 
-	editTunnel, _ := walk.NewPushButton(controlsContainer)
+	editTunnel, err := walk.NewPushButton(controlsContainer)
+	if err != nil {
+		return nil, err
+	}
 	editTunnel.SetEnabled(false)
 	tp.listView.CurrentIndexChanged().Attach(func() {
 		editTunnel.SetEnabled(tp.listView.CurrentIndex() > -1)
@@ -107,22 +116,30 @@ func NewTunnelsPage() (*TunnelsPage, error) {
 	return tp, nil
 }
 
-func (tp *TunnelsPage) CreateToolbar() {
+func (tp *TunnelsPage) CreateToolbar() error {
 	if tp.listToolbar != nil {
-		return
+		return nil
 	}
 
 	// HACK: Because of https://github.com/lxn/walk/issues/481
 	// we need to put the ToolBar into its own Composite.
-	toolBarContainer, _ := walk.NewComposite(tp.listContainer)
+	toolBarContainer, err := walk.NewComposite(tp.listContainer)
+	if err != nil {
+		return err
+	}
 	toolBarContainer.SetDoubleBuffering(true)
 	hlayout := walk.NewHBoxLayout()
 	hlayout.SetMargins(walk.Margins{})
 	toolBarContainer.SetLayout(hlayout)
 
-	tp.listToolbar, _ = walk.NewToolBarWithOrientationAndButtonStyle(toolBarContainer, walk.Horizontal, walk.ToolBarButtonImageBeforeText)
+	if tp.listToolbar, err = walk.NewToolBarWithOrientationAndButtonStyle(toolBarContainer, walk.Horizontal, walk.ToolBarButtonImageBeforeText); err != nil {
+		return err
+	}
 
-	addMenu, _ := walk.NewMenu()
+	addMenu, err := walk.NewMenu()
+	if err != nil {
+		return err
+	}
 	tp.AddDisposable(addMenu)
 	importAction := walk.NewAction()
 	importAction.SetText("Import tunnel(s) from file...")
@@ -172,7 +189,11 @@ func (tp *TunnelsPage) CreateToolbar() {
 	fixContainerWidthToToolbarWidth()
 	tp.listToolbar.SizeChanged().Attach(fixContainerWidthToToolbarWidth)
 
-	contextMenu, _ := walk.NewMenu()
+	contextMenu, err := walk.NewMenu()
+	if err != nil {
+		return err
+	}
+	tp.listView.AddDisposable(contextMenu)
 	toggleAction := walk.NewAction()
 	toggleAction.SetText("&Toggle")
 	toggleAction.SetDefault(true)
@@ -238,6 +259,8 @@ func (tp *TunnelsPage) CreateToolbar() {
 	tp.listView.model.RowsRemoved().Attach(setExportRange)
 	tp.listView.model.RowsReset().Attach(setExport)
 	setExport()
+
+	return nil
 }
 
 func (tp *TunnelsPage) updateConfView() {
@@ -383,7 +406,7 @@ func (tp *TunnelsPage) exportTunnels(filePath string) {
 func (tp *TunnelsPage) addTunnel(config *conf.Config) {
 	_, err := manager.IPCClientNewTunnel(config)
 	if err != nil {
-		walk.MsgBox(tp.Form(), "Unable to create tunnel", err.Error(), walk.MsgBoxIconError)
+		showErrorCustom(tp.Form(), "Unable to create tunnel", err.Error())
 	}
 
 }
@@ -400,11 +423,11 @@ func (tp *TunnelsPage) onTunnelsViewItemActivated() {
 		if err != nil {
 			tp.Synchronize(func() {
 				if oldState == manager.TunnelUnknown {
-					walk.MsgBox(tp.Form(), "Failed to determine tunnel state", err.Error(), walk.MsgBoxIconError)
+					showErrorCustom(tp.Form(), "Failed to determine tunnel state", err.Error())
 				} else if oldState == manager.TunnelStopped {
-					walk.MsgBox(tp.Form(), "Failed to activate tunnel", err.Error(), walk.MsgBoxIconError)
+					showErrorCustom(tp.Form(), "Failed to activate tunnel", err.Error())
 				} else if oldState == manager.TunnelStarted {
-					walk.MsgBox(tp.Form(), "Failed to deactivate tunnel", err.Error(), walk.MsgBoxIconError)
+					showErrorCustom(tp.Form(), "Failed to deactivate tunnel", err.Error())
 				}
 			})
 			return
@@ -418,7 +441,7 @@ func (tp *TunnelsPage) onEditTunnel() {
 		return
 	}
 
-	if config := runTunnelEditDialog(tp.Form(), tunnel); config != nil {
+	if config := runEditDialog(tp.Form(), tunnel); config != nil {
 		go func() {
 			priorState, err := tunnel.State()
 			tunnel.Delete()
@@ -432,7 +455,7 @@ func (tp *TunnelsPage) onEditTunnel() {
 }
 
 func (tp *TunnelsPage) onAddTunnel() {
-	if config := runTunnelEditDialog(tp.Form(), nil); config != nil {
+	if config := runEditDialog(tp.Form(), nil); config != nil {
 		// Save new
 		tp.addTunnel(config)
 	}
@@ -493,9 +516,9 @@ func (tp *TunnelsPage) onDelete() {
 		if len(errors) > 0 {
 			tp.listView.Synchronize(func() {
 				if len(errors) == 1 {
-					walk.MsgBox(tp.Form(), "Unable to delete tunnel", fmt.Sprintf("A tunnel was unable to be removed: %s", errors[0].Error()), walk.MsgBoxIconError)
+					showErrorCustom(tp.Form(), "Unable to delete tunnel", fmt.Sprintf("A tunnel was unable to be removed: %s", errors[0].Error()))
 				} else {
-					walk.MsgBox(tp.Form(), "Unable to delete tunnels", fmt.Sprintf("%d tunnels were unable to be removed.", len(errors)), walk.MsgBoxIconError)
+					showErrorCustom(tp.Form(), "Unable to delete tunnels", fmt.Sprintf("%d tunnels were unable to be removed.", len(errors)))
 				}
 			})
 		}

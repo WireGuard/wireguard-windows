@@ -10,7 +10,6 @@ import (
 	"os"
 	"runtime"
 
-	"github.com/lxn/walk"
 	"github.com/lxn/win"
 	"golang.org/x/sys/windows"
 )
@@ -54,7 +53,7 @@ func WaitForRaiseUIThenQuit() {
 		return 0
 	}, 0, 0, win.WINEVENT_SKIPOWNPROCESS|win.WINEVENT_OUTOFCONTEXT)
 	if err != nil {
-		walk.MsgBox(nil, "WireGuard Detection Error", fmt.Sprintf("Unable to wait for WireGuard window to appear: %v", err), walk.MsgBoxIconError)
+		showErrorCustom(nil, "WireGuard Detection Error", fmt.Sprintf("Unable to wait for WireGuard window to appear: %v", err))
 	}
 	for {
 		var msg win.MSG
