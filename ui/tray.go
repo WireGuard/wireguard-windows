@@ -160,11 +160,11 @@ func (tray *Tray) addTunnelAction(tunnel *manager.Tunnel) {
 					tray.mtw.tunnelsPage.listView.selectTunnel(tclosure.Name)
 					tray.mtw.tabs.SetCurrentIndex(0)
 					if oldState == manager.TunnelUnknown {
-						walk.MsgBox(tray.mtw, "Failed to determine tunnel state", err.Error(), walk.MsgBoxIconError)
+						showErrorCustom(tray.mtw, "Failed to determine tunnel state", err.Error())
 					} else if oldState == manager.TunnelStopped {
-						walk.MsgBox(tray.mtw, "Failed to activate tunnel", err.Error(), walk.MsgBoxIconError)
+						showErrorCustom(tray.mtw, "Failed to activate tunnel", err.Error())
 					} else if oldState == manager.TunnelStarted {
-						walk.MsgBox(tray.mtw, "Failed to deactivate tunnel", err.Error(), walk.MsgBoxIconError)
+						showErrorCustom(tray.mtw, "Failed to deactivate tunnel", err.Error())
 					}
 				})
 			}

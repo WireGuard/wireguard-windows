@@ -98,25 +98,46 @@ func (lsl *labelStatusLine) update(state manager.TunnelState) {
 	lsl.statusLabel.SetTextSelection(s, e)
 }
 
-func newLabelStatusLine(parent walk.Container) *labelStatusLine {
+func (lsl *labelStatusLine) Dispose() {
+	lsl.label.Dispose()
+	lsl.statusComposite.Dispose()
+}
+
+func newLabelStatusLine(parent walk.Container) (*labelStatusLine, error) {
+	var err error
+	var disposables walk.Disposables
+	defer disposables.Treat()
+
 	lsl := new(labelStatusLine)
 
-	lsl.label, _ = walk.NewTextLabel(parent)
+	if lsl.label, err = walk.NewTextLabel(parent); err != nil {
+		return nil, err
+	}
+	disposables.Add(lsl.label)
 	lsl.label.SetText("Status:")
 	lsl.label.SetTextAlignment(walk.AlignHFarVNear)
 
-	lsl.statusComposite, _ = walk.NewComposite(parent)
+	if lsl.statusComposite, err = walk.NewComposite(parent); err != nil {
+		return nil, err
+	}
+	disposables.Add(lsl.statusComposite)
 	layout := walk.NewHBoxLayout()
 	layout.SetMargins(walk.Margins{})
 	layout.SetAlignment(walk.AlignHNearVNear)
 	layout.SetSpacing(0)
 	lsl.statusComposite.SetLayout(layout)
 
-	lsl.statusImage, _ = walk.NewImageView(lsl.statusComposite)
+	if lsl.statusImage, err = walk.NewImageView(lsl.statusComposite); err != nil {
+		return nil, err
+	}
+	disposables.Add(lsl.statusImage)
 	lsl.statusImage.SetMargin(2)
 	lsl.statusImage.SetMode(walk.ImageViewModeIdeal)
 
-	lsl.statusLabel, _ = walk.NewLineEdit(lsl.statusComposite)
+	if lsl.statusLabel, err = walk.NewLineEdit(lsl.statusComposite); err != nil {
+		return nil, err
+	}
+	disposables.Add(lsl.statusLabel)
 	win.SetWindowLong(lsl.statusLabel.Handle(), win.GWL_EXSTYLE, win.GetWindowLong(lsl.statusLabel.Handle(), win.GWL_EXSTYLE)&^win.WS_EX_CLIENTEDGE)
 	lsl.statusLabel.SetReadOnly(true)
 	lsl.statusLabel.SetBackground(walk.NullBrush())
@@ -125,7 +146,9 @@ func newLabelStatusLine(parent walk.Container) *labelStatusLine {
 	})
 	lsl.update(manager.TunnelUnknown)
 
-	return lsl
+	disposables.Spare()
+
+	return lsl, nil
 }
 
 func (lt *labelTextLine) widgets() (walk.Widget, walk.Widget) {
@@ -146,14 +169,30 @@ func (lt *labelTextLine) hide() {
 	lt.text.SetVisible(false)
 }
 
-func newLabelTextLine(fieldName string, parent walk.Container) *labelTextLine {
+func (lt *labelTextLine) Dispose() {
+	lt.label.Dispose()
+	lt.text.Dispose()
+}
+
+func newLabelTextLine(fieldName string, parent walk.Container) (*labelTextLine, error) {
+	var err error
+	var disposables walk.Disposables
+	defer disposables.Treat()
+
 	lt := new(labelTextLine)
-	lt.label, _ = walk.NewTextLabel(parent)
+
+	if lt.label, err = walk.NewTextLabel(parent); err != nil {
+		return nil, err
+	}
+	disposables.Add(lt.label)
 	lt.label.SetText(fieldName + ":")
 	lt.label.SetTextAlignment(walk.AlignHFarVNear)
 	lt.label.SetVisible(false)
 
-	lt.text, _ = walk.NewTextEdit(parent)
+	if lt.text, err = walk.NewTextEdit(parent); err != nil {
+		return nil, err
+	}
+	disposables.Add(lt.text)
 	win.SetWindowLong(lt.text.Handle(), win.GWL_EXSTYLE, win.GetWindowLong(lt.text.Handle(), win.GWL_EXSTYLE)&^win.WS_EX_CLIENTEDGE)
 	lt.text.SetCompactHeight(true)
 	lt.text.SetReadOnly(true)
@@ -162,7 +201,10 @@ func newLabelTextLine(fieldName string, parent walk.Container) *labelTextLine {
 	lt.text.FocusedChanged().Attach(func() {
 		lt.text.SetTextSelection(0, 0)
 	})
-	return lt
+
+	disposables.Spare()
+
+	return lt, nil
 }
 
 func (tal *toggleActiveLine) widgets() (walk.Widget, walk.Widget) {
@@ -191,67 +233,121 @@ func (tal *toggleActiveLine) update(state manager.TunnelState) {
 	tal.button.SetVisible(state != manager.TunnelUnknown)
 }
 
-func newToggleActiveLine(parent walk.Container) *toggleActiveLine {
+func (tal *toggleActiveLine) Dispose() {
+	tal.composite.Dispose()
+}
+
+func newToggleActiveLine(parent walk.Container) (*toggleActiveLine, error) {
+	var err error
+	var disposables walk.Disposables
+	defer disposables.Treat()
+
 	tal := new(toggleActiveLine)
 
-	tal.composite, _ = walk.NewComposite(parent)
+	if tal.composite, err = walk.NewComposite(parent); err != nil {
+		return nil, err
+	}
+	disposables.Add(tal.composite)
 	layout := walk.NewHBoxLayout()
 	layout.SetMargins(walk.Margins{0, 0, 0, 6})
 	tal.composite.SetLayout(layout)
 
-	tal.button, _ = walk.NewPushButton(tal.composite)
+	if tal.button, err = walk.NewPushButton(tal.composite); err != nil {
+		return nil, err
+	}
+	disposables.Add(tal.button)
 	walk.NewHSpacer(tal.composite)
 	tal.update(manager.TunnelStopped)
 
-	return tal
+	disposables.Spare()
+
+	return tal, nil
 }
 
-func newInterfaceView(parent walk.Container) *interfaceView {
-	iv := &interfaceView{
-		newLabelStatusLine(parent),
-		newLabelTextLine("Public key", parent),
-		newLabelTextLine("Listen port", parent),
-		newLabelTextLine("MTU", parent),
-		newLabelTextLine("Addresses", parent),
-		newLabelTextLine("DNS servers", parent),
-		newToggleActiveLine(parent),
-		nil,
+type labelTextLineItem struct {
+	label string
+	ptr   **labelTextLine
+}
+
+func createLabelTextLines(items []labelTextLineItem, parent walk.Container, disposables *walk.Disposables) ([]widgetsLine, error) {
+	var err error
+	var disps walk.Disposables
+	defer disps.Treat()
+
+	wls := make([]widgetsLine, len(items))
+	for i, item := range items {
+		if *item.ptr, err = newLabelTextLine(item.label, parent); err != nil {
+			return nil, err
+		}
+		disps.Add(*item.ptr)
+		if disposables != nil {
+			disposables.Add(*item.ptr)
+		}
+		wls[i] = *item.ptr
 	}
-	iv.lines = []widgetsLine{
-		iv.status,
-		iv.publicKey,
-		iv.listenPort,
-		iv.mtu,
-		iv.addresses,
-		iv.dns,
-		iv.toggleActive,
+
+	disps.Spare()
+
+	return wls, nil
+}
+
+func newInterfaceView(parent walk.Container) (*interfaceView, error) {
+	var err error
+	var disposables walk.Disposables
+	defer disposables.Treat()
+
+	iv := new(interfaceView)
+
+	if iv.status, err = newLabelStatusLine(parent); err != nil {
+		return nil, err
 	}
+	disposables.Add(iv.status)
+
+	items := []labelTextLineItem{
+		{"Public key", &iv.publicKey},
+		{"Listen port", &iv.listenPort},
+		{"MTU", &iv.mtu},
+		{"Addresses", &iv.addresses},
+		{"DNS servers", &iv.dns},
+	}
+	if iv.lines, err = createLabelTextLines(items, parent, &disposables); err != nil {
+		return nil, err
+	}
+
+	if iv.toggleActive, err = newToggleActiveLine(parent); err != nil {
+		return nil, err
+	}
+	disposables.Add(iv.toggleActive)
+
+	iv.lines = append([]widgetsLine{iv.status}, append(iv.lines, iv.toggleActive)...)
+
 	layoutInGrid(iv, parent.Layout().(*walk.GridLayout))
-	return iv
+
+	disposables.Spare()
+
+	return iv, nil
 }
 
-func newPeerView(parent walk.Container) *peerView {
-	pv := &peerView{
-		newLabelTextLine("Public key", parent),
-		newLabelTextLine("Preshared key", parent),
-		newLabelTextLine("Allowed IPs", parent),
-		newLabelTextLine("Endpoint", parent),
-		newLabelTextLine("Persistent keepalive", parent),
-		newLabelTextLine("Latest handshake", parent),
-		newLabelTextLine("Transfer", parent),
-		nil,
+func newPeerView(parent walk.Container) (*peerView, error) {
+	pv := new(peerView)
+
+	items := []labelTextLineItem{
+		{"Public key", &pv.publicKey},
+		{"Preshared key", &pv.presharedKey},
+		{"Allowed IPs", &pv.allowedIPs},
+		{"Endpoint", &pv.endpoint},
+		{"Persistent keepalive", &pv.persistentKeepalive},
+		{"Latest handshake", &pv.latestHandshake},
+		{"Transfer", &pv.transfer},
 	}
-	pv.lines = []widgetsLine{
-		pv.publicKey,
-		pv.presharedKey,
-		pv.allowedIPs,
-		pv.endpoint,
-		pv.persistentKeepalive,
-		pv.latestHandshake,
-		pv.transfer,
+	var err error
+	if pv.lines, err = createLabelTextLines(items, parent, nil); err != nil {
+		return nil, err
 	}
+
 	layoutInGrid(pv, parent.Layout().(*walk.GridLayout))
-	return pv
+
+	return pv, nil
 }
 
 func layoutInGrid(view widgetsLinesView, layout *walk.GridLayout) {
@@ -381,18 +477,32 @@ func newPaddedGroupGrid(parent walk.Container) (group *walk.GroupBox, err error)
 }
 
 func NewConfView(parent walk.Container) (*ConfView, error) {
+	var err error
+	var disposables walk.Disposables
+	defer disposables.Treat()
+
 	cv := new(ConfView)
-	cv.ScrollView, _ = walk.NewScrollView(parent)
+	if cv.ScrollView, err = walk.NewScrollView(parent); err != nil {
+		return nil, err
+	}
+	disposables.Add(cv)
 	vlayout := walk.NewVBoxLayout()
 	vlayout.SetMargins(walk.Margins{5, 0, 5, 0})
 	cv.SetLayout(vlayout)
-	cv.name, _ = newPaddedGroupGrid(cv)
-	cv.interfaze = newInterfaceView(cv.name)
+	if cv.name, err = newPaddedGroupGrid(cv); err != nil {
+		return nil, err
+	}
+	if cv.interfaze, err = newInterfaceView(cv.name); err != nil {
+		return nil, err
+	}
 	cv.interfaze.toggleActive.button.Clicked().Attach(cv.onToggleActiveClicked)
 	cv.peers = make(map[conf.Key]*peerView)
 	cv.tunnelChangedCB = manager.IPCClientRegisterTunnelChange(cv.onTunnelChanged)
 	cv.SetTunnel(nil)
-	globalState, _ := manager.IPCClientGlobalState()
+	globalState, err := manager.IPCClientGlobalState()
+	if err != nil {
+		return nil, err
+	}
 	cv.interfaze.toggleActive.updateGlobal(globalState)
 
 	if err := walk.InitWrapperWindow(cv); err != nil {
@@ -421,6 +531,9 @@ func NewConfView(parent walk.Container) (*ConfView, error) {
 			}
 		}
 	}()
+
+	disposables.Spare()
+
 	return cv, nil
 }
 
@@ -443,11 +556,11 @@ func (cv *ConfView) onToggleActiveClicked() {
 		if err != nil {
 			cv.Synchronize(func() {
 				if oldState == manager.TunnelUnknown {
-					walk.MsgBox(cv.Form(), "Failed to determine tunnel state", err.Error(), walk.MsgBoxIconError)
+					showErrorCustom(cv.Form(), "Failed to determine tunnel state", err.Error())
 				} else if oldState == manager.TunnelStopped {
-					walk.MsgBox(cv.Form(), "Failed to activate tunnel", err.Error(), walk.MsgBoxIconError)
+					showErrorCustom(cv.Form(), "Failed to activate tunnel", err.Error())
 				} else if oldState == manager.TunnelStarted {
-					walk.MsgBox(cv.Form(), "Failed to deactivate tunnel", err.Error(), walk.MsgBoxIconError)
+					showErrorCustom(cv.Form(), "Failed to deactivate tunnel", err.Error())
 				}
 			})
 		}
@@ -543,9 +656,16 @@ func (cv *ConfView) setTunnel(tunnel *manager.Tunnel, config *conf.Config, state
 			pv.apply(&peer)
 			inverse[pv] = false
 		} else {
-			group, _ := newPaddedGroupGrid(cv)
+			group, err := newPaddedGroupGrid(cv)
+			if err != nil {
+				continue
+			}
 			group.SetTitle("Peer")
-			pv := newPeerView(group)
+			pv, err := newPeerView(group)
+			if err != nil {
+				group.Dispose()
+				continue
+			}
 			pv.apply(&peer)
 			cv.peers[peer.PublicKey] = pv
 		}

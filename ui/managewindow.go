@@ -40,6 +40,8 @@ func init() {
 
 func NewManageTunnelsWindow() (*ManageTunnelsWindow, error) {
 	var err error
+	var disposables walk.Disposables
+	defer disposables.Treat()
 
 	font, err := walk.NewFont("Segoe UI", 9, 0)
 	if err != nil {
@@ -53,6 +55,7 @@ func NewManageTunnelsWindow() (*ManageTunnelsWindow, error) {
 	if err != nil {
 		return nil, err
 	}
+	disposables.Add(mtw)
 	win.ChangeWindowMessageFilterEx(mtw.Handle(), raiseMsg, win.MSGFLT_ALLOW, nil)
 	mtw.SetPersistent(true)
 
@@ -60,7 +63,6 @@ func NewManageTunnelsWindow() (*ManageTunnelsWindow, error) {
 		mtw.SetIcon(icon)
 	}
 	mtw.SetTitle("WireGuard")
-	mtw.AddDisposable(font)
 	mtw.SetFont(font)
 	mtw.SetSize(walk.Size{670, 525})
 	mtw.SetMinMaxSize(walk.Size{500, 400}, walk.Size{0, 0})
@@ -85,7 +87,9 @@ func NewManageTunnelsWindow() (*ManageTunnelsWindow, error) {
 		}
 	})
 
-	mtw.tabs, _ = walk.NewTabWidget(mtw)
+	if mtw.tabs, err = walk.NewTabWidget(mtw); err != nil {
+		return nil, err
+	}
 
 	if mtw.tunnelsPage, err = NewTunnelsPage(); err != nil {
 		return nil, err
@@ -117,6 +121,8 @@ func NewManageTunnelsWindow() (*ManageTunnelsWindow, error) {
 			FType:  win.MFT_SEPARATOR,
 		})
 	}
+
+	disposables.Spare()
 
 	return mtw, nil
 }
@@ -157,7 +163,7 @@ func (mtw *ManageTunnelsWindow) onTunnelChange(tunnel *manager.Tunnel, state man
 			if len(errMsg) > 0 && errMsg[len(errMsg)-1] != '.' {
 				errMsg += "."
 			}
-			walk.MsgBox(mtw, "Tunnel Error", errMsg+"\n\nPlease consult the log for more information.", walk.MsgBoxIconWarning)
+			showWarningCustom(mtw, "Tunnel Error", errMsg+"\n\nPlease consult the log for more information.")
 		}
 	})
 }

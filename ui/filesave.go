@@ -18,7 +18,7 @@ func writeFileWithOverwriteHandling(owner walk.Form, filePath string, write func
 			return false
 		}
 
-		walk.MsgBox(owner, "Writing file failed", err.Error(), walk.MsgBoxIconError)
+		showErrorCustom(owner, "Writing file failed", err.Error())
 
 		return true
 	}

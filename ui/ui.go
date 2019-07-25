@@ -26,7 +26,7 @@ func RunUI() {
 	runtime.LockOSThread()
 	defer func() {
 		if err := recover(); err != nil {
-			walk.MsgBox(nil, "Panic", fmt.Sprint(err, "\n\n", string(debug.Stack())), walk.MsgBoxIconError)
+			showErrorCustom(nil, "Panic", fmt.Sprint(err, "\n\n", string(debug.Stack())))
 			panic(err)
 		}
 	}()
@@ -95,7 +95,7 @@ func RunUI() {
 	if shouldQuitManagerWhenExiting {
 		_, err := manager.IPCClientQuit(true)
 		if err != nil {
-			walk.MsgBox(nil, "Error Exiting WireGuard", fmt.Sprintf("Unable to exit service due to: %v. You may want to stop WireGuard from the service manager.", err), walk.MsgBoxIconError)
+			showErrorCustom(nil, "Error Exiting WireGuard", fmt.Sprintf("Unable to exit service due to: %v. You may want to stop WireGuard from the service manager.", err))
 		}
 	}
 }
@@ -103,4 +103,22 @@ func RunUI() {
 func onQuit() {
 	shouldQuitManagerWhenExiting = true
 	walk.App().Exit(0)
+}
+
+func showError(err error, owner walk.Form) bool {
+	if err == nil {
+		return false
+	}
+
+	showErrorCustom(owner, "Error", err.Error())
+
+	return true
+}
+
+func showErrorCustom(owner walk.Form, title, message string) {
+	walk.MsgBox(owner, title, message, walk.MsgBoxIconError)
+}
+
+func showWarningCustom(owner walk.Form, title, message string) {
+	walk.MsgBox(owner, title, message, walk.MsgBoxIconWarning)
 }
