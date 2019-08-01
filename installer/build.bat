@@ -22,8 +22,8 @@ if exist .deps\prepared goto :build
 	rmdir /s /q .deps 2> NUL
 	mkdir .deps || goto :error
 	cd .deps || goto :error
-	call :download wintun-x86.msm https://www.wintun.net/builds/wintun-x86-0.4.msm 9c409c0f189967a69ce8a1365411e3430bde86798f09095f490cbecad9423036 || goto :error
-	call :download wintun-amd64.msm https://www.wintun.net/builds/wintun-amd64-0.4.msm 295ec9e3217fadb94e457a02381053ef0e13c7b4c235e3c769c02c6b212c0608 || goto :error
+	call :download wintun-x86.msm https://www.wintun.net/builds/wintun-x86-0.5.msm b5aae1c237e1304a056a6898aae0f85db35ee7c553aa93fadb4555d0d9778df7 || goto :error
+	call :download wintun-amd64.msm https://www.wintun.net/builds/wintun-amd64-0.5.msm f32c4b9607eb5bb458d0c2373b00a2ec3cada41380b49358497dbd270845cf66 || goto :error
 	call :download wix-binaries.zip http://wixtoolset.org/downloads/v3.14.0.2812/wix314-binaries.zip 923892298f37514622c58cbbd9c2cadf2822d9bb53df8ee83aaeb05280777611 || goto :error
 	echo [+] Extracting wix-binaries.zip
 	mkdir wix\bin || goto :error
