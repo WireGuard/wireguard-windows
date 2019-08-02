@@ -31,17 +31,17 @@
 			Compressed="yes"
 			InstallScope="perMachine"
 			Description="WireGuard: Fast, Modern, Secure VPN Tunnel"
-			ReadOnly="yes"/>
+			ReadOnly="yes" />
 
-		<MediaTemplate EmbedCab="yes" CompressionLevel="high"/>
+		<MediaTemplate EmbedCab="yes" CompressionLevel="high" />
 
-		<Icon Id="wireguard.ico" SourceFile="..\ui\icon\wireguard.ico"/>
-		<Binary Id="customactions.js" SourceFile="customactions.js"/>
+		<Icon Id="wireguard.ico" SourceFile="..\ui\icon\wireguard.ico" />
+		<Binary Id="customactions.js" SourceFile="customactions.js" />
 
-		<Property Id="ARPPRODUCTICON" Value="wireguard.ico"/>
-		<Property Id="ARPURLINFOABOUT" Value="https://www.wireguard.com/"/>
+		<Property Id="ARPPRODUCTICON" Value="wireguard.ico" />
+		<Property Id="ARPURLINFOABOUT" Value="https://www.wireguard.com/" />
 		<Property Id="ARPNOMODIFY" Value="yes" />
-		<Property Id="DISABLEADVTSHORTCUTS" Value="yes"/>
+		<Property Id="DISABLEADVTSHORTCUTS" Value="yes" />
 		<Property Id="DISABLEROLLBACK" Value="yes" />
 
 		<!--
@@ -53,7 +53,7 @@
 			DowngradeErrorMessage="A newer version of [ProductName] is already installed."
 			Schedule="afterInstallExecute" />
 		<Property Id="INSTALLFOLDERPREV">
-			<ComponentSearch Id="WireGuardExecutable" Guid="c3508d23-3362-47ce-9220-321bdb1a1acc"/>
+			<ComponentSearch Id="WireGuardExecutable" Guid="c3508d23-3362-47ce-9220-321bdb1a1acc" />
 		</Property>
 		<SetProperty
 			After="AppSearch"
@@ -73,12 +73,12 @@
 		-->
 		<Directory Id="TARGETDIR" Name="SourceDir">
 			<Directory Id="$(var.PlatformProgramFilesFolder)">
-				<Directory Id="INSTALLFOLDER" Name="WireGuard"/>
+				<Directory Id="INSTALLFOLDER" Name="WireGuard" />
 			</Directory>
-			<Directory Id="ProgramMenuFolder"/>
-			<Directory Id="SystemFolder"/>
+			<Directory Id="ProgramMenuFolder" />
+			<Directory Id="SystemFolder" />
 			<?if $(var.Platform) != "x86"?>
-			<Directory Id="System64Folder"/>
+			<Directory Id="System64Folder" />
 			<?endif?>
 		</Directory>
 
@@ -90,14 +90,14 @@
 				<File Source="..\$(var.Platform)\wireguard.exe" KeyPath="yes">
 					<Shortcut Id="WireGuardStartMenuShortcut" Directory="ProgramMenuFolder" Name="WireGuard" Description="WireGuard: Fast, Modern, Secure VPN Tunnel" WorkingDirectory="INSTALLFOLDER" Advertise="yes" />
 				</File>
-				<ServiceControl Id="DummyService.3AA0C492_29F4_4342_B608_DB95B2DECB13" Name="DummyService.3AA0C492_29F4_4342_B608_DB95B2DECB13"/><!-- A dummy to make WiX create ServiceControl table for us. -->
+				<ServiceControl Id="DummyService.3AA0C492_29F4_4342_B608_DB95B2DECB13" Name="DummyService.3AA0C492_29F4_4342_B608_DB95B2DECB13" /><!-- A dummy to make WiX create ServiceControl table for us. -->
 			</Component>
 			<Component Directory="SystemFolder" Win64="no" Id="Wg32Executable" Guid="5ca31841-97d8-4614-a318-f1e268135ba7">
-				<File Source="..\x86\wg.exe" Id="Wg32Executable"/>
+				<File Source="..\x86\wg.exe" Id="Wg32Executable" />
 			</Component>
 			<?if $(var.Platform) != "x86"?>
 			<Component Directory="System64Folder" Win64="yes" Id="Wg64Executable" Guid="d9b494ec-0959-442c-89ad-6aa175acfd03">
-				<File Source="..\$(var.Platform)\wg.exe" Id="Wg64Executable"/>
+				<File Source="..\$(var.Platform)\wg.exe" Id="Wg64Executable" />
 			</Component>
 			<?endif?>
 		</ComponentGroup>
@@ -106,31 +106,31 @@
 			Merge modules
 		-->
 		<DirectoryRef Id="INSTALLFOLDER">
-			<Merge Id="WintunMergeModule" Language="0" DiskId="1" SourceFile=".deps\wintun-$(var.Platform).msm"/>
+			<Merge Id="WintunMergeModule" Language="0" DiskId="1" SourceFile=".deps\wintun-$(var.Platform).msm" />
 		</DirectoryRef>
 
 		<!--
 			Features
 		-->
 		<Feature Id="WireGuardFeature" Title="WireGuard" Level="1" ConfigurableDirectory="INSTALLFOLDER">
-			<ComponentGroupRef Id="WireGuardComponents"/>
+			<ComponentGroupRef Id="WireGuardComponents" />
 		</Feature>
 		<Feature Id="WintunFeature" Title="Wintun" Level="1">
-			<MergeRef Id="WintunMergeModule"/>
+			<MergeRef Id="WintunMergeModule" />
 		</Feature>
 
 		<!--
 			Evaluate WireGuard services and populate ServiceControl table
 		-->
-		<CustomAction Id="EvaluateWireGuardServices" BinaryKey="customactions.js" JScriptCall="EvaluateWireGuardServices"/>
+		<CustomAction Id="EvaluateWireGuardServices" BinaryKey="customactions.js" JScriptCall="EvaluateWireGuardServices" />
 		<InstallExecuteSequence>
-			<Custom Action="EvaluateWireGuardServices" After="FindRelatedProducts"/>
+			<Custom Action="EvaluateWireGuardServices" After="FindRelatedProducts" />
 		</InstallExecuteSequence>
 
 		<!--
 			Clear out our config folder on uninstall
 		-->
-		<CustomAction Id="RemoveConfigFolder" BinaryKey="customactions.js" JScriptCall="RemoveConfigFolder" Execute="deferred" Impersonate="no"/>
+		<CustomAction Id="RemoveConfigFolder" BinaryKey="customactions.js" JScriptCall="RemoveConfigFolder" Execute="deferred" Impersonate="no" />
 		<InstallExecuteSequence>
 			<Custom Action="RemoveConfigFolder" After="DeleteServices">(NOT UPGRADINGPRODUCTCODE) AND (REMOVE="ALL")</Custom>
 		</InstallExecuteSequence>
@@ -138,7 +138,7 @@
 		<!--
 			Launch wireguard.exe after setup complete
 		-->
-		<CustomAction Id="LaunchApplication" HideTarget="yes" Impersonate="no" Execute="deferred" FileKey="wireguard.exe" ExeCommand="" Return="asyncNoWait"/>
+		<CustomAction Id="LaunchApplication" HideTarget="yes" Impersonate="no" Execute="deferred" FileKey="wireguard.exe" ExeCommand="" Return="asyncNoWait" />
 		<InstallExecuteSequence>
 			<!-- TODO: this should not launch when msiexec is called with whatever flag means it shouldn't launch. -->
 			<Custom Action="LaunchApplication" After="PublishProduct">NOT Installed</Custom>
