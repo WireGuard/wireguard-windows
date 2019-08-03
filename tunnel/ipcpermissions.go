@@ -19,7 +19,7 @@ func CopyConfigOwnerToIPCSecurityDescriptor(filename string) error {
 	if conf.PathIsEncrypted(filename) {
 		return nil
 	}
-	handle, err := windows.CreateFile(windows.StringToUTF16Ptr(filename), windows.STANDARD_RIGHTS_READ, windows.FILE_SHARE_READ | windows.FILE_SHARE_WRITE, nil, windows.OPEN_EXISTING, 0, 0)
+	handle, err := windows.CreateFile(windows.StringToUTF16Ptr(filename), windows.STANDARD_RIGHTS_READ, windows.FILE_SHARE_READ|windows.FILE_SHARE_WRITE, nil, windows.OPEN_EXISTING, 0, 0)
 	if err != nil {
 		return err
 	}
