@@ -15,6 +15,7 @@ import (
 	"golang.org/x/sys/windows"
 	"golang.zx2c4.com/wireguard/tun/wintun"
 
+	"golang.zx2c4.com/wireguard/windows/elevate"
 	"golang.zx2c4.com/wireguard/windows/manager"
 	"golang.zx2c4.com/wireguard/windows/ringlogger"
 	"golang.zx2c4.com/wireguard/windows/services"
@@ -84,7 +85,7 @@ func execElevatedManagerServiceInstaller() error {
 	if err != nil {
 		return err
 	}
-	err = windows.ShellExecute(0, windows.StringToUTF16Ptr("runas"), windows.StringToUTF16Ptr(path), windows.StringToUTF16Ptr("/installmanagerservice"), nil, windows.SW_SHOW)
+	err = elevate.ShellExecute(path, "/installmanagerservice", "", windows.SW_SHOW)
 	if err != nil {
 		return err
 	}
