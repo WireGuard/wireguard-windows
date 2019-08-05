@@ -140,8 +140,15 @@
 		-->
 		<CustomAction Id="LaunchApplication" HideTarget="yes" Impersonate="no" Execute="deferred" FileKey="wireguard.exe" ExeCommand="" Return="asyncNoWait" />
 		<InstallExecuteSequence>
-			<!-- TODO: this should not launch when msiexec is called with whatever flag means it shouldn't launch. -->
-			<Custom Action="LaunchApplication" After="PublishProduct">NOT Installed</Custom>
+			<Custom Action="LaunchApplication" Before="InstallFinalize">NOT Installed AND NOT DO_NOT_LAUNCH</Custom>
+		</InstallExecuteSequence>
+
+		<!--
+			Launch wireguard.exe on product reconfiguration (starting same MSI again)
+		-->
+		<CustomAction Id="LaunchApplicationAsOrdinaryUser" HideTarget="yes" FileKey="wireguard.exe" ExeCommand="" Return="asyncNoWait" />
+		<InstallExecuteSequence>
+			<Custom Action="LaunchApplicationAsOrdinaryUser" After="InstallFinalize">Installed AND ProductState=5 AND NOT DO_NOT_LAUNCH</Custom>
 		</InstallExecuteSequence>
 	</Product>
 </Wix>
