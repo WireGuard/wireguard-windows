@@ -23,9 +23,17 @@ type cUNICODE_STRING struct {
 	Buffer        *uint16
 }
 
+type cLIST_ENTRY struct {
+	Flink *cLIST_ENTRY
+	Blink *cLIST_ENTRY
+}
+
+/* The below three structs have several "reserved" members. These are of course well-known and extensively reverse-
+ * engineered, but the below shows only the documented and therefore stable fields from Microsoft's winternl.h header */
+
 type cLDR_DATA_TABLE_ENTRY struct {
 	Reserved1          [2]uintptr
-	InMemoryOrderLinks [2]uintptr
+	InMemoryOrderLinks cLIST_ENTRY
 	Reserved2          [2]uintptr
 	DllBase            uintptr
 	Reserved3          [2]uintptr
@@ -34,6 +42,34 @@ type cLDR_DATA_TABLE_ENTRY struct {
 	Reserved5          [3]uintptr
 	Reserved6          uintptr
 	TimeDateStamp      uint32
+}
+
+type cPEB_LDR_DATA struct {
+	Reserved1               [8]byte
+	Reserved2               [3]uintptr
+	InMemoryOrderModuleList cLIST_ENTRY
+}
+
+type cPEB struct {
+	Reserved1              [2]byte
+	BeingDebugged          byte
+	Reserved2              [1]byte
+	Reserved3              [2]uintptr
+	Ldr                    *cPEB_LDR_DATA
+	ProcessParameters      uintptr
+	Reserved4              [3]uintptr
+	AtlThunkSListPtr       uintptr
+	Reserved5              uintptr
+	Reserved6              uint32
+	Reserved7              uintptr
+	Reserved8              uint32
+	AtlThunkSListPtr32     uint32
+	Reserved9              [45]uintptr
+	Reserved10             [96]byte
+	PostProcessInitRoutine uintptr
+	Reserved11             [128]byte
+	Reserved12             [1]uintptr
+	SessionId              uint32
 }
 
 const (
@@ -45,7 +81,7 @@ const (
 //sys	getWindowsDirectory(windowsDirectory *uint16, inLen uint32) (outLen uint32, err error) [failretval==0] = kernel32.GetWindowsDirectoryW
 
 //sys	rtlInitUnicodeString(destinationString *cUNICODE_STRING, sourceString *uint16) = ntdll.RtlInitUnicodeString
-//sys	ldrFindEntryForAddress(moduleHandle uintptr, entry **cLDR_DATA_TABLE_ENTRY) (ntstatus uint32) = ntdll.LdrFindEntryForAddress
+//sys	rtlGetCurrentPeb() (peb *cPEB) = ntdll.RtlGetCurrentPeb
 
 //sys	coInitializeEx(reserved uintptr, coInit uint32) (ret error) = ole32.CoInitializeEx
 //sys	coUninitialize() = ole32.CoUninitialize

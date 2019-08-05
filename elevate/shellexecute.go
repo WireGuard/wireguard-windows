@@ -22,6 +22,29 @@ const (
 	cSEE_MASK_DEFAULT = 0
 )
 
+/* We could use the undocumented LdrFindEntryForAddress function instead, but that's undocumented, and we're trying
+ * to be as rock-solid as possible here. */
+func findCurrentDataTableEntry() (entry *cLDR_DATA_TABLE_ENTRY, err error) {
+	ourBase, err := getModuleHandle(nil) /* This is the same as peb->ImageBaseAddress, but that member is undocumented. */
+	if err != nil {
+		return
+	}
+	peb := rtlGetCurrentPeb()
+	if peb == nil || peb.Ldr == nil {
+		err = windows.ERROR_INVALID_ADDRESS
+		return
+	}
+	for cur := peb.Ldr.InMemoryOrderModuleList.Flink; cur != &peb.Ldr.InMemoryOrderModuleList; cur = cur.Flink {
+		entry = (*cLDR_DATA_TABLE_ENTRY)(unsafe.Pointer(uintptr(unsafe.Pointer(cur)) - unsafe.Offsetof(cLDR_DATA_TABLE_ENTRY{}.InMemoryOrderLinks)))
+		if entry.DllBase == ourBase {
+			return
+		}
+	}
+	entry = nil
+	err = windows.ERROR_OBJECT_NOT_FOUND
+	return
+}
+
 func ShellExecute(program string, arguments string, directory string, show int32) (err error) {
 	var (
 		program16   *uint16
@@ -68,14 +91,8 @@ func ShellExecute(program string, arguments string, directory string, show int32
 			return
 		}
 	}
-
-	moduleHandle, err := getModuleHandle(nil)
+	dataTableEntry, err := findCurrentDataTableEntry()
 	if err != nil {
-		return
-	}
-	var dataTableEntry *cLDR_DATA_TABLE_ENTRY
-	if ret := ldrFindEntryForAddress(moduleHandle, &dataTableEntry); ret != 0 {
-		err = syscall.Errno(windows.ERROR_INTERNAL_ERROR)
 		return
 	}
 	var windowsDirectory [windows.MAX_PATH]uint16
