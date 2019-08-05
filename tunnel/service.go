@@ -24,6 +24,7 @@ import (
 	"golang.zx2c4.com/wireguard/tun"
 
 	"golang.zx2c4.com/wireguard/windows/conf"
+	"golang.zx2c4.com/wireguard/windows/elevate"
 	"golang.zx2c4.com/wireguard/windows/ringlogger"
 	"golang.zx2c4.com/wireguard/windows/services"
 	"golang.zx2c4.com/wireguard/windows/version"
@@ -178,7 +179,7 @@ func (service *Service) Execute(args []string, r <-chan svc.ChangeRequest, chang
 	}
 
 	log.Println("Dropping privileges")
-	err = services.DropAllPrivileges(true)
+	err = elevate.DropAllPrivileges(true)
 	if err != nil {
 		serviceError = services.ErrorDropPrivileges
 		return

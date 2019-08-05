@@ -13,8 +13,6 @@ import (
 
 	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/registry"
-
-	"golang.zx2c4.com/wireguard/windows/services"
 )
 
 const (
@@ -79,7 +77,7 @@ func ShellExecute(program string, arguments string, directory string, show int32
 		err = windows.ERROR_SUCCESS
 		return
 	}
-	if !services.TokenIsMemberOfBuiltInAdministrator(processToken) {
+	if !TokenIsMemberOfBuiltInAdministrator(processToken) {
 		err = windows.ERROR_ACCESS_DENIED
 		return
 	}

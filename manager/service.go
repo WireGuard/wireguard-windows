@@ -22,6 +22,7 @@ import (
 	"golang.org/x/sys/windows/svc"
 
 	"golang.zx2c4.com/wireguard/windows/conf"
+	"golang.zx2c4.com/wireguard/windows/elevate"
 	"golang.zx2c4.com/wireguard/windows/ringlogger"
 	"golang.zx2c4.com/wireguard/windows/services"
 	"golang.zx2c4.com/wireguard/windows/version"
@@ -102,7 +103,7 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 		if err != nil {
 			return
 		}
-		if !services.TokenIsMemberOfBuiltInAdministrator(userToken) {
+		if !elevate.TokenIsMemberOfBuiltInAdministrator(userToken) {
 			userToken.Close()
 			return
 		}
