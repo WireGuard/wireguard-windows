@@ -13,6 +13,8 @@ import (
 
 	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/registry"
+
+	"golang.zx2c4.com/wireguard/windows/services"
 )
 
 const (
@@ -77,8 +79,29 @@ func ShellExecute(program string, arguments string, directory string, show int32
 		err = windows.ERROR_SUCCESS
 		return
 	}
+	if !services.TokenIsMemberOfBuiltInAdministrator(processToken) {
+		err = windows.ERROR_ACCESS_DENIED
+		return
+	}
+	key, err := registry.OpenKey(registry.LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System", registry.QUERY_VALUE)
+	if err != nil {
+		return
+	}
+	promptBehavior, _, err := key.GetIntegerValue("ConsentPromptBehaviorAdmin")
+	key.Close()
+	if err != nil {
+		return
+	}
+	if uint32(promptBehavior) == 0 {
+		err = windows.ERROR_SUCCESS
+		return
+	}
+	if uint32(promptBehavior) != 5 {
+		err = windows.ERROR_ACCESS_DENIED
+		return
+	}
 
-	key, err := registry.OpenKey(registry.LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\UAC\\COMAutoApprovalList", registry.QUERY_VALUE)
+	key, err = registry.OpenKey(registry.LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\UAC\\COMAutoApprovalList", registry.QUERY_VALUE)
 	if err == nil {
 		var autoApproved uint64
 		autoApproved, _, err = key.GetIntegerValue("{3E5FC7F9-9A51-4367-9063-A120244FBEC7}")
