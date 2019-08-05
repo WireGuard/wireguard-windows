@@ -325,7 +325,7 @@ loop:
 	if uninstall {
 		err = UninstallManager()
 		if err != nil {
-			log.Printf("Unable to uninstaller manager when quitting: %v", err)
+			log.Printf("Unable to uninstall manager when quitting: %v", err)
 		}
 	}
 	return
