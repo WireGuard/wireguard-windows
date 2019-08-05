@@ -54,7 +54,8 @@ type cPEB struct {
 	Reserved1              [2]byte
 	BeingDebugged          byte
 	Reserved2              [1]byte
-	Reserved3              [2]uintptr
+	Reserved3              uintptr
+	ImageBaseAddress       uintptr
 	Ldr                    *cPEB_LDR_DATA
 	ProcessParameters      uintptr
 	Reserved4              [3]uintptr
@@ -77,7 +78,6 @@ const (
 	cCOINIT_APARTMENTTHREADED = 2
 )
 
-//sys	getModuleHandle(moduleName *uint16) (moduleHandle uintptr, err error) [failretval==0] = kernel32.GetModuleHandleW
 //sys	getWindowsDirectory(windowsDirectory *uint16, inLen uint32) (outLen uint32, err error) [failretval==0] = kernel32.GetWindowsDirectoryW
 
 //sys	rtlInitUnicodeString(destinationString *cUNICODE_STRING, sourceString *uint16) = ntdll.RtlInitUnicodeString

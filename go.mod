@@ -1,7 +1,6 @@
 module golang.zx2c4.com/wireguard/windows
 
 require (
-
 	github.com/lxn/walk v0.0.0-20190619151032-86d8802c197a
 	github.com/lxn/win v0.0.0-20190716185335-d1d36f0e4f48
 
