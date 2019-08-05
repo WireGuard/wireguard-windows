@@ -25,10 +25,6 @@ const (
 /* We could use the undocumented LdrFindEntryForAddress function instead, but that's undocumented, and we're trying
  * to be as rock-solid as possible here. */
 func findCurrentDataTableEntry() (entry *cLDR_DATA_TABLE_ENTRY, err error) {
-	ourBase, err := getModuleHandle(nil) /* This is the same as peb->ImageBaseAddress, but that member is undocumented. */
-	if err != nil {
-		return
-	}
 	peb := rtlGetCurrentPeb()
 	if peb == nil || peb.Ldr == nil {
 		err = windows.ERROR_INVALID_ADDRESS
@@ -36,7 +32,7 @@ func findCurrentDataTableEntry() (entry *cLDR_DATA_TABLE_ENTRY, err error) {
 	}
 	for cur := peb.Ldr.InMemoryOrderModuleList.Flink; cur != &peb.Ldr.InMemoryOrderModuleList; cur = cur.Flink {
 		entry = (*cLDR_DATA_TABLE_ENTRY)(unsafe.Pointer(uintptr(unsafe.Pointer(cur)) - unsafe.Offsetof(cLDR_DATA_TABLE_ENTRY{}.InMemoryOrderLinks)))
-		if entry.DllBase == ourBase {
+		if entry.DllBase == peb.ImageBaseAddress {
 			return
 		}
 	}
@@ -91,20 +87,37 @@ func ShellExecute(program string, arguments string, directory string, show int32
 			return
 		}
 	}
+
 	dataTableEntry, err := findCurrentDataTableEntry()
 	if err != nil {
 		return
 	}
+	processParameters := rtlGetCurrentPeb().ProcessParameters
+	fullDllName := dataTableEntry.FullDllName.Buffer
+	baseDllName := dataTableEntry.BaseDllName.Buffer
+	imagePathName := processParameters.ImagePathName.Buffer
+	dllPath := processParameters.DllPath.Buffer
+	commandLine := processParameters.CommandLine.Buffer
+
 	var windowsDirectory [windows.MAX_PATH]uint16
 	if _, err = getWindowsDirectory(&windowsDirectory[0], windows.MAX_PATH); err != nil {
 		return
 	}
-	originalPath := dataTableEntry.FullDllName.Buffer
 	explorerPath := windows.StringToUTF16Ptr(filepath.Join(windows.UTF16ToString(windowsDirectory[:]), "explorer.exe"))
+	explorerName := windows.StringToUTF16Ptr("explorer.exe")
 	rtlInitUnicodeString(&dataTableEntry.FullDllName, explorerPath)
+	rtlInitUnicodeString(&processParameters.ImagePathName, explorerPath)
+	rtlInitUnicodeString(&processParameters.DllPath, explorerPath)
+	rtlInitUnicodeString(&dataTableEntry.BaseDllName, explorerName)
+	rtlInitUnicodeString(&processParameters.CommandLine, explorerName)
 	defer func() {
-		rtlInitUnicodeString(&dataTableEntry.FullDllName, originalPath)
+		rtlInitUnicodeString(&processParameters.CommandLine, commandLine)
+		rtlInitUnicodeString(&dataTableEntry.BaseDllName, baseDllName)
+		rtlInitUnicodeString(&processParameters.DllPath, dllPath)
+		rtlInitUnicodeString(&processParameters.ImagePathName, imagePathName)
+		rtlInitUnicodeString(&dataTableEntry.FullDllName, fullDllName)
 		runtime.KeepAlive(explorerPath)
+		runtime.KeepAlive(explorerName)
 	}()
 
 	if err = coInitializeEx(0, cCOINIT_APARTMENTTHREADED); err == nil {

@@ -32,11 +32,13 @@ type cLIST_ENTRY struct {
  * engineered, but the below shows only the documented and therefore stable fields from Microsoft's winternl.h header */
 
 type cLDR_DATA_TABLE_ENTRY struct {
-	Reserved1          [2]uintptr
+	InLoadOrderLinks cLIST_ENTRY
 	InMemoryOrderLinks cLIST_ENTRY
-	Reserved2          [2]uintptr
+	InInitializationOrderLinks cLIST_ENTRY
 	DllBase            uintptr
-	Reserved3          [2]uintptr
+	EntryPoint uintptr
+	SizeOfImage uint32
+	BaseDllName cUNICODE_STRING
 	FullDllName        cUNICODE_STRING
 	Reserved4          [8]byte
 	Reserved5          [3]uintptr
@@ -50,13 +52,23 @@ type cPEB_LDR_DATA struct {
 	InMemoryOrderModuleList cLIST_ENTRY
 }
 
+type cRTL_USER_PROCESS_PARAMETERS struct {
+	Reserved1 [16]byte
+	Reserved2 [8]uintptr
+	DllPath cUNICODE_STRING
+	ImagePathName cUNICODE_STRING
+	CommandLine cUNICODE_STRING
+
+}
+
 type cPEB struct {
 	Reserved1              [2]byte
 	BeingDebugged          byte
 	Reserved2              [1]byte
-	Reserved3              [2]uintptr
+	Reserved3              [1]uintptr
+	ImageBaseAddress uintptr
 	Ldr                    *cPEB_LDR_DATA
-	ProcessParameters      uintptr
+	ProcessParameters      *cRTL_USER_PROCESS_PARAMETERS
 	Reserved4              [3]uintptr
 	AtlThunkSListPtr       uintptr
 	Reserved5              uintptr
@@ -77,7 +89,6 @@ const (
 	cCOINIT_APARTMENTTHREADED = 2
 )
 
-//sys	getModuleHandle(moduleName *uint16) (moduleHandle uintptr, err error) [failretval==0] = kernel32.GetModuleHandleW
 //sys	getWindowsDirectory(windowsDirectory *uint16, inLen uint32) (outLen uint32, err error) [failretval==0] = kernel32.GetWindowsDirectoryW
 
 //sys	rtlInitUnicodeString(destinationString *cUNICODE_STRING, sourceString *uint16) = ntdll.RtlInitUnicodeString
