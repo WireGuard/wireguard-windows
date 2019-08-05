@@ -41,13 +41,13 @@ var (
 	modntdll    = windows.NewLazySystemDLL("ntdll.dll")
 	modole32    = windows.NewLazySystemDLL("ole32.dll")
 
-	procGetModuleHandleW       = modkernel32.NewProc("GetModuleHandleW")
-	procGetWindowsDirectoryW   = modkernel32.NewProc("GetWindowsDirectoryW")
-	procRtlInitUnicodeString   = modntdll.NewProc("RtlInitUnicodeString")
-	procLdrFindEntryForAddress = modntdll.NewProc("LdrFindEntryForAddress")
-	procCoInitializeEx         = modole32.NewProc("CoInitializeEx")
-	procCoUninitialize         = modole32.NewProc("CoUninitialize")
-	procCoGetObject            = modole32.NewProc("CoGetObject")
+	procGetModuleHandleW     = modkernel32.NewProc("GetModuleHandleW")
+	procGetWindowsDirectoryW = modkernel32.NewProc("GetWindowsDirectoryW")
+	procRtlInitUnicodeString = modntdll.NewProc("RtlInitUnicodeString")
+	procRtlGetCurrentPeb     = modntdll.NewProc("RtlGetCurrentPeb")
+	procCoInitializeEx       = modole32.NewProc("CoInitializeEx")
+	procCoUninitialize       = modole32.NewProc("CoUninitialize")
+	procCoGetObject          = modole32.NewProc("CoGetObject")
 )
 
 func getModuleHandle(moduleName *uint16) (moduleHandle uintptr, err error) {
@@ -81,9 +81,9 @@ func rtlInitUnicodeString(destinationString *cUNICODE_STRING, sourceString *uint
 	return
 }
 
-func ldrFindEntryForAddress(moduleHandle uintptr, entry **cLDR_DATA_TABLE_ENTRY) (ntstatus uint32) {
-	r0, _, _ := syscall.Syscall(procLdrFindEntryForAddress.Addr(), 2, uintptr(moduleHandle), uintptr(unsafe.Pointer(entry)), 0)
-	ntstatus = uint32(r0)
+func rtlGetCurrentPeb() (peb *cPEB) {
+	r0, _, _ := syscall.Syscall(procRtlGetCurrentPeb.Addr(), 0, 0, 0, 0)
+	peb = (*cPEB)(unsafe.Pointer(r0))
 	return
 }
 
