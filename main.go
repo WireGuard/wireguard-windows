@@ -18,7 +18,6 @@ import (
 	"golang.zx2c4.com/wireguard/windows/elevate"
 	"golang.zx2c4.com/wireguard/windows/manager"
 	"golang.zx2c4.com/wireguard/windows/ringlogger"
-	"golang.zx2c4.com/wireguard/windows/services"
 	"golang.zx2c4.com/wireguard/windows/ui"
 )
 
@@ -75,7 +74,7 @@ func checkForAdminGroup() {
 		fatal("Unable to open current process token: ", err)
 	}
 	defer processToken.Close()
-	if !services.TokenIsMemberOfBuiltInAdministrator(processToken) {
+	if !elevate.TokenIsMemberOfBuiltInAdministrator(processToken) {
 		fatal("WireGuard may only be used by users who are a member of the Builtin Administrators group.")
 	}
 }
@@ -177,7 +176,7 @@ func main() {
 		if len(os.Args) != 6 {
 			usage()
 		}
-		err := services.DropAllPrivileges(false)
+		err := elevate.DropAllPrivileges(false)
 		if err != nil {
 			fatal(err)
 		}
