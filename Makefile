@@ -37,7 +37,15 @@ x86/wireguard.exe: resources_386.syso $(SOURCE_FILES)
 	$(VERSIONCHECK)
 	go build $(GOFLAGS) -o $@
 
-fmt: export CC := i686-w64-mingw32-gcc
+remaster: export CC := x86_64-w64-mingw32-gcc
+remaster: export GOARCH := amd64
+remaster:
+	rm -f go.sum go.mod
+	cp go.mod.master go.mod
+	go get
+
+fmt: export CC := x86_64-w64-mingw32-gcc
+fmt: export GOARCH := amd64
 fmt:
 	go fmt ./...
 
@@ -48,4 +56,4 @@ deploy: amd64/wireguard.exe
 clean:
 	rm -rf *.syso ui/icon/*.ico x86/ amd64/ .deps
 
-.PHONY: deploy clean fmt all
+.PHONY: deploy clean fmt remaster all
