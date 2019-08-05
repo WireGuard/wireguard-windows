@@ -20,10 +20,25 @@ func raise(hwnd win.HWND) {
 	}
 
 	win.SetActiveWindow(hwnd)
-
 	win.SetWindowPos(hwnd, win.HWND_TOPMOST, 0, 0, 0, 0, win.SWP_NOMOVE|win.SWP_NOSIZE|win.SWP_SHOWWINDOW)
 	win.SetForegroundWindow(hwnd)
 	win.SetWindowPos(hwnd, win.HWND_NOTOPMOST, 0, 0, 0, 0, win.SWP_NOMOVE|win.SWP_NOSIZE|win.SWP_SHOWWINDOW)
+}
+
+func raiseRemote(hwnd win.HWND) {
+	runtime.LockOSThread()
+	defer runtime.UnlockOSThread()
+	win.SendMessage(hwnd, raiseMsg, 0, 0)
+	currentForegroundHwnd := win.GetForegroundWindow()
+	currentForegroundThreadId := win.GetWindowThreadProcessId(currentForegroundHwnd, nil)
+	currentThreadId := win.GetCurrentThreadId()
+	win.AttachThreadInput(int32(currentForegroundThreadId), int32(currentThreadId), true)
+	win.SetWindowPos(hwnd, win.HWND_TOPMOST, 0, 0, 0, 0, win.SWP_NOMOVE|win.SWP_NOSIZE|win.SWP_SHOWWINDOW)
+	win.SetWindowPos(hwnd, win.HWND_NOTOPMOST, 0, 0, 0, 0, win.SWP_NOMOVE|win.SWP_NOSIZE|win.SWP_SHOWWINDOW)
+	win.SetForegroundWindow(hwnd)
+	win.AttachThreadInput(int32(currentForegroundThreadId), int32(currentThreadId), false)
+	win.SetFocus(hwnd)
+	win.SetActiveWindow(hwnd)
 }
 
 func RaiseUI() bool {
@@ -31,8 +46,7 @@ func RaiseUI() bool {
 	if hwnd == 0 {
 		return false
 	}
-	win.SendMessage(hwnd, raiseMsg, 0, 0)
-	win.SetForegroundWindow(hwnd)
+	raiseRemote(hwnd)
 	return true
 }
 
@@ -47,8 +61,7 @@ func WaitForRaiseUIThenQuit() {
 			return 0
 		}
 		win.UnhookWinEvent(handle)
-		win.SendMessage(hwnd, raiseMsg, 0, 0)
-		win.SetForegroundWindow(hwnd)
+		raiseRemote(hwnd)
 		os.Exit(0)
 		return 0
 	}, 0, 0, win.WINEVENT_SKIPOWNPROCESS|win.WINEVENT_OUTOFCONTEXT)
