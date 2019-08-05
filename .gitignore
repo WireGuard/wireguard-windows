@@ -6,7 +6,6 @@
 /amd64
 
 # Misc
-/go.sum
 /sign.bat
 *.swp
 *.bak
