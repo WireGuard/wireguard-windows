@@ -2,14 +2,15 @@
 rem SPDX-License-Identifier: MIT
 rem Copyright (C) 2019 WireGuard LLC. All Rights Reserved.
 
+set OLDWIX=%WIX%
 set OLDPATHEXT=%PATHEXT%
 set PATHEXT=.exe
+set BUILDDIR=%~dp0
+pushd %BUILDDIR% || exit /b 1
 
 for /f "tokens=3" %%a in ('findstr /r "WIREGUARD_WINDOWS_VERSION_STRING.*[0-9.]*" ..\version.h') do set WIREGUARD_VERSION=%%a
 set WIREGUARD_VERSION=%WIREGUARD_VERSION:"=%
 
-set STARTDIR=%cd%
-set OLDWIX=%WIX%
 set WIX_CANDLE_FLAGS=-nologo -dWIREGUARD_VERSION="%WIREGUARD_VERSION%"
 set WIX_LIGHT_FLAGS=-nologo -spdb
 set WIX_LIGHT_FLAGS=%WIX_LIGHT_FLAGS% -sw1056
@@ -34,7 +35,7 @@ if exist .deps\prepared goto :build
 	cd .. || goto :error
 
 :build
-	set WIX=%STARTDIR%\.deps\wix\
+	set WIX=%BUILDDIR%.deps\wix\
 	call :msi x86 x86 || goto :error
 	call :msi amd64 x64 || goto :error
 	if exist ..\sign.bat call ..\sign.bat
@@ -46,7 +47,7 @@ if exist .deps\prepared goto :build
 :out
 	set WIX=%OLDWIX%
 	set PATHEXT=%OLDPATHEXT%
-	cd %STARTDIR%
+	popd
 	exit /b %errorlevel%
 
 :error

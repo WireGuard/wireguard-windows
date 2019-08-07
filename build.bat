@@ -2,10 +2,11 @@
 rem SPDX-License-Identifier: MIT
 rem Copyright (C) 2019 WireGuard LLC. All Rights Reserved.
 
-set STARTDIR=%cd%
 set OLDPATH=%PATH%
 set OLDPATHEXT=%PATHEXT%
 set PATHEXT=.exe
+set BUILDDIR=%~dp0
+pushd %BUILDDIR% || exit /b 1
 
 if exist .deps\prepared goto :render
 :installdeps
@@ -27,14 +28,14 @@ if exist .deps\prepared goto :render
 
 :render
 	echo [+] Rendering icons
-	for %%a in ("ui\icon\*.svg") do "%STARTDIR%\.deps\convert" -background none "%%~fa" -define icon:auto-resize="256,128,96,64,48,32,16" "%%~dpna.ico" || goto :error
+	for %%a in ("ui\icon\*.svg") do "%BUILDDIR%.deps\convert" -background none "%%~fa" -define icon:auto-resize="256,128,96,64,48,32,16" "%%~dpna.ico" || goto :error
 
 :build
-	set PATH=%STARTDIR%\.deps\go\bin\;%STARTDIR%\.deps\;%PATH%
+	set PATH=%BUILDDIR%.deps\go\bin\;%BUILDDIR%.deps\;%PATH%
 	set GOOS=windows
 	set GOPROXY=direct
-	set GOPATH=%STARTDIR%\.deps\gopath
-	set GOROOT=%STARTDIR%\.deps\go
+	set GOPATH=%BUILDDIR%.deps\gopath
+	set GOROOT=%BUILDDIR%.deps\go
 	set CGO_ENABLED=1
 	set CGO_CFLAGS=-O3 -Wall -Wno-unused-function -Wno-switch -std=gnu11 -DWINVER=0x0601
 	set CGO_LDFLAGS=-Wl,--major-os-version=6 -Wl,--minor-os-version=1 -Wl,--major-subsystem-version=6 -Wl,--minor-subsystem-version=1
@@ -54,7 +55,7 @@ if exist .deps\prepared goto :render
 :out
 	set PATH=%OLDPATH%
 	set PATHEXT=%OLDPATHEXT%
-	cd %STARTDIR%
+	popd
 	exit /b %errorlevel%
 
 :error
@@ -74,7 +75,7 @@ if exist .deps\prepared goto :render
 
 :build_plat
 	set OLDPATH2=%PATH%
-	set PATH=%STARTDIR%\.deps\%~2-w64-mingw32-native\bin;%PATH%
+	set PATH=%BUILDDIR%.deps\%~2-w64-mingw32-native\bin;%PATH%
 	set CC=%~2-w64-mingw32-gcc
 	set GOARCH=%~3
 	mkdir %1 >NUL 2>&1
