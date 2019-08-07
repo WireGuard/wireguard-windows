@@ -5,14 +5,14 @@
 	Copyright (C) 2019 WireGuard LLC. All Rights Reserved.
 -->
 
-<?if $(var.Platform) = "x86"?>
+<?if $(var.WIREGUARD_PLATFORM) = "x86"?>
 	<?define PlatformProgramFilesFolder = "ProgramFilesFolder"?>
 <?else?>
 	<?define PlatformProgramFilesFolder = "ProgramFiles64Folder"?>
 <?endif?>
-<?if $(var.Platform) = "amd64"?>
+<?if $(var.WIREGUARD_PLATFORM) = "amd64"?>
 	<?define UpgradeCode = "5e5a1da5-ba36-404d-92ec-41050d1c799c"?>
-<?elseif $(var.Platform) = "x86"?>
+<?elseif $(var.WIREGUARD_PLATFORM) = "x86"?>
 	<?define UpgradeCode = "62754a0a-fee9-4412-b739-e8da2e7c9405"?>
 <?else?>
 	<?error Unknown platform ?>
@@ -77,7 +77,7 @@
 			</Directory>
 			<Directory Id="ProgramMenuFolder" />
 			<Directory Id="SystemFolder" />
-			<?if $(var.Platform) != "x86"?>
+			<?if $(var.WIREGUARD_PLATFORM) != "x86"?>
 			<Directory Id="System64Folder" />
 			<?endif?>
 		</Directory>
@@ -87,7 +87,7 @@
 		-->
 		<ComponentGroup Id="WireGuardComponents">
 			<Component Directory="INSTALLFOLDER" Id="WireGuardExecutable" Guid="c3508d23-3362-47ce-9220-321bdb1a1acc">
-				<File Source="..\$(var.Platform)\wireguard.exe" KeyPath="yes">
+				<File Source="..\$(var.WIREGUARD_PLATFORM)\wireguard.exe" KeyPath="yes">
 					<Shortcut Id="WireGuardStartMenuShortcut" Directory="ProgramMenuFolder" Name="WireGuard" Description="WireGuard: Fast, Modern, Secure VPN Tunnel" WorkingDirectory="INSTALLFOLDER" Advertise="yes" />
 				</File>
 				<ServiceControl Id="DummyService.3AA0C492_29F4_4342_B608_DB95B2DECB13" Name="DummyService.3AA0C492_29F4_4342_B608_DB95B2DECB13" /><!-- A dummy to make WiX create ServiceControl table for us. -->
@@ -95,9 +95,9 @@
 			<Component Directory="SystemFolder" Win64="no" Id="Wg32Executable" Guid="5ca31841-97d8-4614-a318-f1e268135ba7">
 				<File Source="..\x86\wg.exe" Id="Wg32Executable" />
 			</Component>
-			<?if $(var.Platform) != "x86"?>
+			<?if $(var.WIREGUARD_PLATFORM) != "x86"?>
 			<Component Directory="System64Folder" Win64="yes" Id="Wg64Executable" Guid="d9b494ec-0959-442c-89ad-6aa175acfd03">
-				<File Source="..\$(var.Platform)\wg.exe" Id="Wg64Executable" />
+				<File Source="..\$(var.WIREGUARD_PLATFORM)\wg.exe" Id="Wg64Executable" />
 			</Component>
 			<?endif?>
 		</ComponentGroup>
@@ -106,7 +106,7 @@
 			Merge modules
 		-->
 		<DirectoryRef Id="INSTALLFOLDER">
-			<Merge Id="WintunMergeModule" Language="0" DiskId="1" SourceFile=".deps\wintun-$(var.Platform).msm" />
+			<Merge Id="WintunMergeModule" Language="0" DiskId="1" SourceFile=".deps\wintun-$(var.WIREGUARD_PLATFORM).msm" />
 		</DirectoryRef>
 
 		<!--
