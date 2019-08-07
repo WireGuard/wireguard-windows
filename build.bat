@@ -2,10 +2,11 @@
 rem SPDX-License-Identifier: MIT
 rem Copyright (C) 2019 WireGuard LLC. All Rights Reserved.
 
+set BUILDDIR=%~dp0
 set OLDPATH=%PATH%
+set PATH=%BUILDDIR%.deps\go\bin;%BUILDDIR%.deps;%PATH%
 set OLDPATHEXT=%PATHEXT%
 set PATHEXT=.exe
-set BUILDDIR=%~dp0
 pushd %BUILDDIR% || exit /b 1
 
 if exist .deps\prepared goto :render
@@ -28,10 +29,9 @@ if exist .deps\prepared goto :render
 
 :render
 	echo [+] Rendering icons
-	for %%a in ("ui\icon\*.svg") do "%BUILDDIR%.deps\convert" -background none "%%~fa" -define icon:auto-resize="256,128,96,64,48,32,16" "%%~dpna.ico" || goto :error
+	for %%a in ("ui\icon\*.svg") do convert -background none "%%~fa" -define icon:auto-resize="256,128,96,64,48,32,16" "%%~dpna.ico" || goto :error
 
 :build
-	set PATH=%BUILDDIR%.deps\go\bin\;%BUILDDIR%.deps\;%PATH%
 	set GOOS=windows
 	set GOPROXY=direct
 	set GOPATH=%BUILDDIR%.deps\gopath
