@@ -36,7 +36,7 @@
 		<MediaTemplate EmbedCab="yes" CompressionLevel="high" />
 
 		<Icon Id="wireguard.ico" SourceFile="..\ui\icon\wireguard.ico" />
-		<Binary Id="customactions.js" SourceFile="customactions.js" />
+		<Binary Id="customactions.dll" SourceFile="$(var.WIREGUARD_PLATFORM)\customactions.dll" />
 
 		<Property Id="ARPPRODUCTICON" Value="wireguard.ico" />
 		<Property Id="ARPURLINFOABOUT" Value="https://www.wireguard.com/" />
@@ -122,7 +122,7 @@
 		<!--
 			Evaluate WireGuard services and populate ServiceControl table
 		-->
-		<CustomAction Id="EvaluateWireGuardServices" BinaryKey="customactions.js" JScriptCall="EvaluateWireGuardServices" />
+		<CustomAction Id="EvaluateWireGuardServices" BinaryKey="customactions.dll" DllEntry="EvaluateWireGuardServices" />
 		<InstallExecuteSequence>
 			<Custom Action="EvaluateWireGuardServices" After="FindRelatedProducts" />
 		</InstallExecuteSequence>
@@ -130,7 +130,7 @@
 		<!--
 			Clear out our config folder on uninstall
 		-->
-		<CustomAction Id="RemoveConfigFolder" BinaryKey="customactions.js" JScriptCall="RemoveConfigFolder" Execute="deferred" Impersonate="no" />
+		<CustomAction Id="RemoveConfigFolder" BinaryKey="customactions.dll" DllEntry="RemoveConfigFolder" Execute="deferred" Impersonate="no" />
 		<InstallExecuteSequence>
 			<Custom Action="RemoveConfigFolder" After="DeleteServices">(NOT UPGRADINGPRODUCTCODE) AND (REMOVE="ALL")</Custom>
 		</InstallExecuteSequence>

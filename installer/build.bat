@@ -36,8 +36,8 @@ if exist .deps\prepared goto :build
 
 :build
 	set WIX=%BUILDDIR%.deps\wix\
-	call :msi x86 x86 || goto :error
-	call :msi amd64 x64 || goto :error
+	call :msi x86 i686 x86 || goto :error
+	call :msi amd64 x86_64 x64 || goto :error
 	if exist ..\sign.bat call ..\sign.bat
 	if "%SigningCertificate%"=="" goto :out
 	if "%TimestampServer%"=="" goto :out
@@ -62,8 +62,18 @@ if exist .deps\prepared goto :build
 	goto :eof
 
 :msi
+	set OLDPATH2=%PATH%
+	set PATH=%BUILDDIR%..\.deps\%~2-w64-mingw32-native\bin;%PATH%
+	set CC=%~2-w64-mingw32-gcc
+	set CFLAGS=-O3 -Wall -std=gnu11 -DWINVER=0x0601 -municode -DUNICODE -D_UNICODE -DNDEBUG
+	set LDFLAGS=-shared -s -Wl,--kill-at -Wl,--major-os-version=6 -Wl,--minor-os-version=1 -Wl,--major-subsystem-version=6 -Wl,--minor-subsystem-version=1
+	set LDLIBS=-lmsi -lole32 -lshlwapi
+	if not exist "%~1" mkdir "%~1"
+	echo [+] Compiling custom actions %1
+	%CC% %CFLAGS% %LDFLAGS% -o "%~1\customactions.dll" customactions.c %LDLIBS% || exit /b 1
 	echo [+] Compiling %1
-	"%WIX%bin\candle" %WIX_CANDLE_FLAGS% -dWIREGUARD_PLATFORM="%~1" -out "%~1\wireguard.wixobj" -arch %2 wireguard.wxs || exit /b %errorlevel%
+	"%WIX%bin\candle" %WIX_CANDLE_FLAGS% -dWIREGUARD_PLATFORM="%~1" -out "%~1\wireguard.wixobj" -arch %3 wireguard.wxs || exit /b %errorlevel%
 	echo [+] Linking %1
 	"%WIX%bin\light" %WIX_LIGHT_FLAGS% -out "dist\wireguard-%~1-%WIREGUARD_VERSION%.msi" "%~1\wireguard.wixobj" || exit /b %errorlevel%
+	set PATH=%OLDPATH2%
 	goto :eof
