@@ -47,10 +47,6 @@ if exist .deps\prepared goto :build
 	echo [+] Success.
 	exit /b 0
 
-:error
-	echo [-] Failed with error #%errorlevel%.
-	exit /b %errorlevel%
-
 :download
 	echo [+] Downloading %1
 	curl -#fLo %1 %2 || exit /b 1
@@ -72,3 +68,7 @@ if exist .deps\prepared goto :build
 	echo [+] Linking %1
 	"%WIX%bin\light" %WIX_LIGHT_FLAGS% -out "dist\wireguard-%~1-%WIREGUARD_VERSION%.msi" "%~1\wireguard.wixobj" || exit /b %errorlevel%
 	goto :eof
+
+:error
+	echo [-] Failed with error #%errorlevel%.
+	cmd /c exit %errorlevel%
