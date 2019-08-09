@@ -2,11 +2,10 @@
 rem SPDX-License-Identifier: MIT
 rem Copyright (C) 2019 WireGuard LLC. All Rights Reserved.
 
-set OLDWIX=%WIX%
-set OLDPATHEXT=%PATHEXT%
+setlocal
 set PATHEXT=.exe
 set BUILDDIR=%~dp0
-pushd %BUILDDIR% || exit /b 1
+cd /d %BUILDDIR% || exit /b 1
 
 for /f "tokens=3" %%a in ('findstr /r "WIREGUARD_WINDOWS_VERSION_STRING.*[0-9.]*" ..\version.h') do set WIREGUARD_VERSION=%%a
 set WIREGUARD_VERSION=%WIREGUARD_VERSION:"=%
@@ -39,20 +38,18 @@ if exist .deps\prepared goto :build
 	call :msi x86 i686 x86 || goto :error
 	call :msi amd64 x86_64 x64 || goto :error
 	if exist ..\sign.bat call ..\sign.bat
-	if "%SigningCertificate%"=="" goto :out
-	if "%TimestampServer%"=="" goto :out
+	if "%SigningCertificate%"=="" goto :success
+	if "%TimestampServer%"=="" goto :success
 	echo [+] Signing
 	signtool sign /sha1 "%SigningCertificate%" /fd sha256 /tr "%TimestampServer%" /td sha256 /d "WireGuard Setup" "dist\wireguard-*-%WIREGUARD_VERSION%.msi" || goto :error
 
-:out
-	set WIX=%OLDWIX%
-	set PATHEXT=%OLDPATHEXT%
-	popd
-	exit /b %errorlevel%
+:success
+	echo [+] Success.
+	exit /b 0
 
 :error
 	echo [-] Failed with error #%errorlevel%.
-	goto :out
+	exit /b %errorlevel%
 
 :download
 	echo [+] Downloading %1
@@ -62,7 +59,6 @@ if exist .deps\prepared goto :build
 	goto :eof
 
 :msi
-	set OLDPATH2=%PATH%
 	set PATH=%BUILDDIR%..\.deps\%~2-w64-mingw32-native\bin;%PATH%
 	set CC=%~2-w64-mingw32-gcc
 	set CFLAGS=-O3 -Wall -std=gnu11 -DWINVER=0x0601 -municode -DUNICODE -D_UNICODE -DNDEBUG
@@ -75,5 +71,4 @@ if exist .deps\prepared goto :build
 	"%WIX%bin\candle" %WIX_CANDLE_FLAGS% -dWIREGUARD_PLATFORM="%~1" -out "%~1\wireguard.wixobj" -arch %3 wireguard.wxs || exit /b %errorlevel%
 	echo [+] Linking %1
 	"%WIX%bin\light" %WIX_LIGHT_FLAGS% -out "dist\wireguard-%~1-%WIREGUARD_VERSION%.msi" "%~1\wireguard.wixobj" || exit /b %errorlevel%
-	set PATH=%OLDPATH2%
 	goto :eof
