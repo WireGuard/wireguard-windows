@@ -2,12 +2,11 @@
 rem SPDX-License-Identifier: MIT
 rem Copyright (C) 2019 WireGuard LLC. All Rights Reserved.
 
+setlocal
 set BUILDDIR=%~dp0
-set OLDPATH=%PATH%
 set PATH=%BUILDDIR%.deps\go\bin;%BUILDDIR%.deps;%PATH%
-set OLDPATHEXT=%PATHEXT%
 set PATHEXT=.exe
-pushd %BUILDDIR% || exit /b 1
+cd /d %BUILDDIR% || exit /b 1
 
 if exist .deps\prepared goto :render
 :installdeps
@@ -51,16 +50,11 @@ if exist .deps\prepared goto :render
 
 :success
 	echo [+] Success. Launch wireguard.exe.
-
-:out
-	set PATH=%OLDPATH%
-	set PATHEXT=%OLDPATHEXT%
-	popd
-	exit /b %errorlevel%
+	exit /b 0
 
 :error
 	echo [-] Failed with error #%errorlevel%.
-	goto :out
+	exit /b %errorlevel%
 
 :download
 	echo [+] Downloading %1
@@ -74,7 +68,6 @@ if exist .deps\prepared goto :render
 	goto :eof
 
 :build_plat
-	set OLDPATH2=%PATH%
 	set PATH=%BUILDDIR%.deps\%~2-w64-mingw32-native\bin;%PATH%
 	set CC=%~2-w64-mingw32-gcc
 	set GOARCH=%~3
@@ -89,5 +82,4 @@ if exist .deps\prepared goto :render
 		make --no-print-directory -C .deps\src\tools PLATFORM=windows CC=%CC% V=1 LDFLAGS=-s RUNSTATEDIR= SYSTEMDUNITDIR= -j%NUMBER_OF_PROCESSORS% || exit /b 1
 		move /Y .deps\src\tools\wg.exe "%~1\wg.exe" > NUL || exit /b 1
 	)
-	set PATH=%OLDPATH2%
 	goto :eof
