@@ -52,10 +52,6 @@ if exist .deps\prepared goto :render
 	echo [+] Success. Launch wireguard.exe.
 	exit /b 0
 
-:error
-	echo [-] Failed with error #%errorlevel%.
-	exit /b %errorlevel%
-
 :download
 	echo [+] Downloading %1
 	curl -#fLo %1 %2 || exit /b 1
@@ -83,3 +79,7 @@ if exist .deps\prepared goto :render
 		move /Y .deps\src\tools\wg.exe "%~1\wg.exe" > NUL || exit /b 1
 	)
 	goto :eof
+
+:error
+	echo [-] Failed with error #%errorlevel%.
+	cmd /c exit %errorlevel%
