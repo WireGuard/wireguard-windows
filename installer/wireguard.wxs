@@ -136,6 +136,14 @@
 		</InstallExecuteSequence>
 
 		<!--
+			Kill lingering processes
+		-->
+		<CustomAction Id="KillWireGuardProcesses" BinaryKey="customactions.dll" DllEntry="KillWireGuardProcesses" Execute="deferred" Impersonate="no" />
+		<InstallExecuteSequence>
+			<Custom Action="KillWireGuardProcesses" After="StopServices" />
+		</InstallExecuteSequence>
+
+		<!--
 			Launch wireguard.exe after setup complete
 		-->
 		<CustomAction Id="LaunchApplication" HideTarget="yes" Impersonate="no" Execute="deferred" FileKey="wireguard.exe" ExeCommand="" Return="asyncNoWait" />

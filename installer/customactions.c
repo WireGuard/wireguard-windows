@@ -4,6 +4,7 @@
  */
 
 #include <windows.h>
+#include <tlhelp32.h>
 #include <msi.h>
 #include <msidefs.h>
 #include <msiquery.h>
@@ -270,6 +271,32 @@ __declspec(dllexport) UINT __stdcall RemoveConfigFolder(MSIHANDLE installer)
 	}
 	remove_directory_recursive(installer, path, 10);
 out:
+	if (is_com_initialized)
+		CoUninitialize();
+	return ERROR_SUCCESS;
+}
+
+__declspec(dllexport) UINT __stdcall KillWireGuardProcesses(MSIHANDLE installer)
+{
+	HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPALL, 0), process;
+	PROCESSENTRY32 entry = { .dwSize = sizeof(PROCESSENTRY32) };
+	bool is_com_initialized = SUCCEEDED(CoInitialize(NULL));
+
+	for (bool ret = Process32First(snapshot, &entry); ret; ret = Process32Next(snapshot, &entry)) {
+		if (_tcsicmp(entry.szExeFile, TEXT("wireguard.exe")) && _tcsicmp(entry.szExeFile, TEXT("wg.exe")))
+			continue;
+		//TODO: check that wireguard.exe and wg.exe are actually ours somehow. Metadata?
+
+		process = OpenProcess(PROCESS_TERMINATE, false, entry.th32ProcessID);
+		if (!process)
+			continue;
+		log_messagef(installer, LOG_LEVEL_INFO, TEXT("Killing %1 (pid %2!d!)"), entry.szExeFile, entry.th32ProcessID);
+		if (TerminateProcess(process, 0))
+			WaitForSingleObject(process, INFINITE);
+		CloseHandle(process);
+	}
+	CloseHandle(snapshot);
+
 	if (is_com_initialized)
 		CoUninitialize();
 	return ERROR_SUCCESS;
