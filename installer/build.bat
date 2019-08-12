@@ -57,9 +57,9 @@ if exist .deps\prepared goto :build
 :msi
 	set PATH=%BUILDDIR%..\.deps\%~2-w64-mingw32-native\bin;%PATH%
 	set CC=%~2-w64-mingw32-gcc
-	set CFLAGS=-O3 -Wall -std=gnu11 -DWINVER=0x0601 -municode -DUNICODE -D_UNICODE -DNDEBUG
+	set CFLAGS=-O3 -Wall -std=gnu11 -DWINVER=0x0601 -D_WIN32_WINNT=0x0601 -municode -DUNICODE -D_UNICODE -DNDEBUG
 	set LDFLAGS=-shared -s -Wl,--kill-at -Wl,--major-os-version=6 -Wl,--minor-os-version=1 -Wl,--major-subsystem-version=6 -Wl,--minor-subsystem-version=1
-	set LDLIBS=-lmsi -lole32 -lshlwapi
+	set LDLIBS=-lmsi -lole32 -lshlwapi -lshell32 -luuid
 	if not exist "%~1" mkdir "%~1"
 	echo [+] Compiling %1
 	%CC% %CFLAGS% %LDFLAGS% -o "%~1\customactions.dll" customactions.c %LDLIBS% || exit /b 1
