@@ -135,7 +135,7 @@
 		-->
 		<CustomAction Id="LaunchApplication" HideTarget="yes" Impersonate="no" Execute="deferred" FileKey="wireguard.exe" ExeCommand="" Return="asyncNoWait" />
 		<InstallExecuteSequence>
-			<Custom Action="LaunchApplication" Before="InstallFinalize">NOT Installed AND NOT DO_NOT_LAUNCH</Custom>
+			<Custom Action="LaunchApplication" Before="InstallFinalize">(&amp;WireGuardFeature = 3) AND NOT DO_NOT_LAUNCH</Custom>
 		</InstallExecuteSequence>
 
 		<!--
@@ -143,7 +143,7 @@
 		-->
 		<CustomAction Id="LaunchApplicationAsOrdinaryUser" HideTarget="yes" FileKey="wireguard.exe" ExeCommand="" Return="asyncNoWait" />
 		<InstallExecuteSequence>
-			<Custom Action="LaunchApplicationAsOrdinaryUser" After="InstallFinalize">Installed AND ProductState=5 AND NOT DO_NOT_LAUNCH</Custom>
+			<Custom Action="LaunchApplicationAsOrdinaryUser" After="InstallFinalize">(&amp;WireGuardFeature = -1) AND (!WireGuardFeature = 3) AND NOT DO_NOT_LAUNCH</Custom>
 		</InstallExecuteSequence>
 	</Product>
 </Wix>
