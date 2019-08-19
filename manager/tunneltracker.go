@@ -125,7 +125,15 @@ func trackTunnelService(tunnelName string, service *mgr.Service) {
 	}
 
 	runtime.LockOSThread()
-	defer runtime.UnlockOSThread()
+
+	// This line would be fitting but is intentionally commented out:
+	//
+	//     defer runtime.UnlockOSThread()
+	//
+	// The reason is that NotifyServiceStatusChange used queued APC, which winds up messing
+	// with the thread local context, which in turn appears to corrupt Go's own usage of TLS,
+	// leading to crashes sometime later (usually in runtime_unlock()) when the thread is recycled.
+
 	lastState := TunnelUnknown
 	for {
 		err := windows.NotifyServiceStatusChange(service.Handle, serviceNotifications, notifier)
