@@ -87,10 +87,9 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 	procs := make(map[uint32]*os.Process)
 	aliveSessions := make(map[uint32]bool)
 	procsLock := sync.Mutex{}
-	var startProcess func(session uint32)
 	stoppingManager := false
 
-	startProcess = func(session uint32) {
+	startProcess := func(session uint32) {
 		defer func() {
 			runtime.UnlockOSThread()
 			procsLock.Lock()
@@ -236,6 +235,14 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 			}
 		}
 	}
+	procsGroup := sync.WaitGroup{}
+	goStartProcess := func(session uint32) {
+		procsGroup.Add(1)
+		go func() {
+			startProcess(session)
+			procsGroup.Done()
+		}()
+	}
 
 	go checkForUpdates()
 
@@ -259,7 +266,7 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 		if alive := aliveSessions[session.SessionID]; !alive {
 			aliveSessions[session.SessionID] = true
 			if _, ok := procs[session.SessionID]; !ok {
-				go startProcess(session.SessionID)
+				goStartProcess(session.SessionID)
 			}
 		}
 		procsLock.Unlock()
@@ -302,7 +309,7 @@ loop:
 					if alive := aliveSessions[sessionNotification.SessionID]; !alive {
 						aliveSessions[sessionNotification.SessionID] = true
 						if _, ok := procs[sessionNotification.SessionID]; !ok {
-							go startProcess(sessionNotification.SessionID)
+							goStartProcess(sessionNotification.SessionID)
 						}
 					}
 					procsLock.Unlock()
@@ -322,6 +329,7 @@ loop:
 		proc.Kill()
 	}
 	procsLock.Unlock()
+	procsGroup.Wait()
 	if uninstall {
 		err = UninstallManager()
 		if err != nil {
