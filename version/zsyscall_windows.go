@@ -37,26 +37,12 @@ func errnoErr(e syscall.Errno) error {
 }
 
 var (
-	modntdll   = windows.NewLazySystemDLL("ntdll.dll")
 	modversion = windows.NewLazySystemDLL("version.dll")
 
-	procRtlGetVersion           = modntdll.NewProc("RtlGetVersion")
 	procGetFileVersionInfoSizeW = modversion.NewProc("GetFileVersionInfoSizeW")
 	procGetFileVersionInfoW     = modversion.NewProc("GetFileVersionInfoW")
 	procVerQueryValueW          = modversion.NewProc("VerQueryValueW")
 )
-
-func rtlGetVersion(versionInfo *OsVersionInfo) (err error) {
-	r1, _, e1 := syscall.Syscall(procRtlGetVersion.Addr(), 1, uintptr(unsafe.Pointer(versionInfo)), 0, 0)
-	if r1 != 0 {
-		if e1 != 0 {
-			err = errnoErr(e1)
-		} else {
-			err = syscall.EINVAL
-		}
-	}
-	return
-}
 
 func GetFileVersionInfoSize(filename *uint16, zero *uint32) (size uint32, err error) {
 	r0, _, e1 := syscall.Syscall(procGetFileVersionInfoSizeW.Addr(), 2, uintptr(unsafe.Pointer(filename)), uintptr(unsafe.Pointer(zero)), 0)

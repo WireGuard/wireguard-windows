@@ -13,7 +13,6 @@ import (
 	"unsafe"
 
 	"golang.org/x/sys/windows"
-	"golang.zx2c4.com/wireguard/windows/version"
 )
 
 //
@@ -829,12 +828,9 @@ func permitHyperV(session uintptr, baseObjects *baseObjects, weight uint8) error
 	// Only applicable on Win8+.
 	//
 	{
-		v, err := version.OsVersion()
-		if err != nil {
-			panic(err)
-		}
-
-		win8plus := v.MajorVersion > 6 || (v.MajorVersion == 6 && v.MinorVersion >= 3)
+		//TODO: use RtlGetNtVersionNumbers instead when that's merged.
+		versionInfo := windows.RtlGetVersion()
+		win8plus := versionInfo.MajorVersion > 6 || (versionInfo.MajorVersion == 6 && versionInfo.MinorVersion >= 3)
 
 		if !win8plus {
 			return nil

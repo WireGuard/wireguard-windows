@@ -7,8 +7,8 @@ package version
 
 import (
 	"fmt"
-	"unsafe"
 
+	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/registry"
 )
 
@@ -167,35 +167,9 @@ const (
 	PRODUCT_UNLICENSED                          = 0xABCDABCD
 )
 
-type OsVersionInfo struct {
-	osVersionInfoSize uint32
-	MajorVersion      uint32
-	MinorVersion      uint32
-	BuildNumber       uint32
-	PlatformId        uint32
-	CsdVersion        [128]uint16
-	ServicePackMajor  uint16
-	ServicePackMinor  uint16
-	SuiteMask         uint16
-	ProductType       byte
-	_                 byte
-}
-
-//sys	rtlGetVersion(versionInfo *OsVersionInfo) (err error) [failretval!=0] = ntdll.RtlGetVersion
-
-func OsVersion() (versionInfo OsVersionInfo, err error) {
-	versionInfo.osVersionInfoSize = uint32(unsafe.Sizeof(versionInfo))
-	err = rtlGetVersion(&versionInfo)
-	return
-}
 
 func OsIsCore() bool {
-	versionInfo := OsVersionInfo{osVersionInfoSize: uint32(unsafe.Sizeof(OsVersionInfo{}))}
-	err := rtlGetVersion(&versionInfo)
-	if err != nil {
-		return false
-	}
-
+	versionInfo := windows.RtlGetVersion()
 	if versionInfo.MajorVersion > 6 || (versionInfo.MajorVersion == 6 && versionInfo.MinorVersion >= 2) {
 		k, err := registry.OpenKey(registry.LOCAL_MACHINE, `Software\Microsoft\Windows NT\CurrentVersion\Server\ServerLevels`, registry.READ)
 		if err != nil {
@@ -219,10 +193,7 @@ func OsIsCore() bool {
 }
 
 func OsName() string {
-	versionInfo, err := OsVersion()
-	if err != nil {
-		return "Windows Unknown"
-	}
+	versionInfo := windows.RtlGetVersion()
 	winType := ""
 	switch versionInfo.ProductType {
 	case 3:
