@@ -255,8 +255,9 @@ func (dlg *EditDialog) onBlockUntunneledTrafficCBCheckedChanged() {
 	return
 
 err:
-	showErrorCustom(dlg, "Invalid configuration", "Unable to toggle untunneled traffic blocking state.")
-	dlg.blockUntunneledTrafficCB.SetVisible(false)
+	text := dlg.syntaxEdit.Text()
+	dlg.syntaxEdit.SetText("")
+	dlg.syntaxEdit.SetText(text)
 }
 
 func (dlg *EditDialog) onBlockUntunneledTrafficStateChanged(state int) {
