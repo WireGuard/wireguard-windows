@@ -341,3 +341,7 @@ loop:
 	}
 	return
 }
+
+func Run() error {
+	return svc.Run("WireGuardManager", &managerService{})
+}

@@ -22,6 +22,7 @@ import (
 	"golang.zx2c4.com/wireguard/ipc/winpipe"
 
 	"golang.zx2c4.com/wireguard/windows/conf"
+	"golang.zx2c4.com/wireguard/windows/services"
 	"golang.zx2c4.com/wireguard/windows/updater"
 )
 
@@ -49,7 +50,7 @@ func (s *ManagerService) RuntimeConfig(tunnelName string, config *conf.Config) e
 	if err != nil {
 		return err
 	}
-	pipePath, err := PipePathOfTunnel(storedConfig.Name)
+	pipePath, err := services.PipePathOfTunnel(storedConfig.Name)
 	if err != nil {
 		return err
 	}
@@ -131,7 +132,7 @@ func (s *ManagerService) Stop(tunnelName string, _ *uintptr) error {
 }
 
 func (s *ManagerService) WaitForStop(tunnelName string, _ *uintptr) error {
-	serviceName, err := ServiceNameOfTunnel(tunnelName)
+	serviceName, err := services.ServiceNameOfTunnel(tunnelName)
 	if err != nil {
 		return err
 	}
@@ -159,7 +160,7 @@ func (s *ManagerService) Delete(tunnelName string, _ *uintptr) error {
 }
 
 func (s *ManagerService) State(tunnelName string, state *TunnelState) error {
-	serviceName, err := ServiceNameOfTunnel(tunnelName)
+	serviceName, err := services.ServiceNameOfTunnel(tunnelName)
 	if err != nil {
 		return err
 	}

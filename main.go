@@ -18,6 +18,7 @@ import (
 	"golang.zx2c4.com/wireguard/windows/elevate"
 	"golang.zx2c4.com/wireguard/windows/manager"
 	"golang.zx2c4.com/wireguard/windows/ringlogger"
+	"golang.zx2c4.com/wireguard/windows/tunnel"
 	"golang.zx2c4.com/wireguard/windows/ui"
 )
 
@@ -140,7 +141,7 @@ func main() {
 		if len(os.Args) != 2 {
 			usage()
 		}
-		err := manager.RunManager()
+		err := manager.Run()
 		if err != nil {
 			fatal(err)
 		}
@@ -167,7 +168,7 @@ func main() {
 		if len(os.Args) != 3 {
 			usage()
 		}
-		err := manager.RunTunnel(os.Args[2])
+		err := tunnel.Run(os.Args[2])
 		if err != nil {
 			fatal(err)
 		}

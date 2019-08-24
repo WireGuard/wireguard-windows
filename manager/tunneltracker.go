@@ -31,7 +31,7 @@ func trackExistingTunnels() error {
 		return err
 	}
 	for _, name := range names {
-		serviceName, err := ServiceNameOfTunnel(name)
+		serviceName, err := services.ServiceNameOfTunnel(name)
 		if err != nil {
 			continue
 		}

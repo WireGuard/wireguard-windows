@@ -15,7 +15,7 @@ import (
 	"golang.org/x/sys/windows/svc/mgr"
 
 	"golang.zx2c4.com/wireguard/windows/conf"
-	"golang.zx2c4.com/wireguard/windows/tunnel"
+	"golang.zx2c4.com/wireguard/windows/services"
 )
 
 var cachedServiceManager *mgr.Mgr
@@ -105,10 +105,6 @@ func UninstallManager() error {
 	return err2
 }
 
-func RunManager() error {
-	return svc.Run("WireGuardManager", &managerService{})
-}
-
 func InstallTunnel(configPath string) error {
 	m, err := serviceManager()
 	if err != nil {
@@ -124,7 +120,7 @@ func InstallTunnel(configPath string) error {
 		return err
 	}
 
-	serviceName, err := ServiceNameOfTunnel(name)
+	serviceName, err := services.ServiceNameOfTunnel(name)
 	if err != nil {
 		return err
 	}
@@ -177,7 +173,7 @@ func UninstallTunnel(name string) error {
 	if err != nil {
 		return err
 	}
-	serviceName, err := ServiceNameOfTunnel(name)
+	serviceName, err := services.ServiceNameOfTunnel(name)
 	if err != nil {
 		return err
 	}
@@ -192,16 +188,4 @@ func UninstallTunnel(name string) error {
 		return err
 	}
 	return err2
-}
-
-func RunTunnel(confPath string) error {
-	name, err := conf.NameFromPath(confPath)
-	if err != nil {
-		return err
-	}
-	serviceName, err := ServiceNameOfTunnel(name)
-	if err != nil {
-		return err
-	}
-	return svc.Run(serviceName, &tunnel.Service{confPath})
 }

@@ -30,11 +30,11 @@ import (
 	"golang.zx2c4.com/wireguard/windows/version"
 )
 
-type Service struct {
+type tunnelService struct {
 	Path string
 }
 
-func (service *Service) Execute(args []string, r <-chan svc.ChangeRequest, changes chan<- svc.Status) (svcSpecificEC bool, exitCode uint32) {
+func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest, changes chan<- svc.Status) (svcSpecificEC bool, exitCode uint32) {
 	changes <- svc.Status{State: svc.StartPending}
 
 	var dev *device.Device
@@ -240,4 +240,16 @@ func (service *Service) Execute(args []string, r <-chan svc.ChangeRequest, chang
 			return
 		}
 	}
+}
+
+func Run(confPath string) error {
+	name, err := conf.NameFromPath(confPath)
+	if err != nil {
+		return err
+	}
+	serviceName, err := services.ServiceNameOfTunnel(name)
+	if err != nil {
+		return err
+	}
+	return svc.Run(serviceName, &tunnelService{confPath})
 }
