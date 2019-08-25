@@ -828,9 +828,8 @@ func permitHyperV(session uintptr, baseObjects *baseObjects, weight uint8) error
 	// Only applicable on Win8+.
 	//
 	{
-		//TODO: use RtlGetNtVersionNumbers instead when that's merged.
-		versionInfo := windows.RtlGetVersion()
-		win8plus := versionInfo.MajorVersion > 6 || (versionInfo.MajorVersion == 6 && versionInfo.MinorVersion >= 3)
+		major, minor, _ := windows.RtlGetNtVersionNumbers()
+		win8plus := major > 6 || (major == 6 && minor >= 3)
 
 		if !win8plus {
 			return nil
