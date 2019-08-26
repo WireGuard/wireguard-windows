@@ -94,7 +94,7 @@ func ShellExecute(program string, arguments string, directory string, show int32
 		return
 	}
 	var windowsDirectory [windows.MAX_PATH]uint16
-	if _, err = getWindowsDirectory(&windowsDirectory[0], windows.MAX_PATH); err != nil {
+	if _, err = getSystemWindowsDirectory(&windowsDirectory[0], windows.MAX_PATH); err != nil {
 		return
 	}
 	originalPath := dataTableEntry.FullDllName.Buffer
