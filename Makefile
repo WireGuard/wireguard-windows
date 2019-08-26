@@ -3,7 +3,6 @@ export CGO_ENABLED := 1
 export CGO_CFLAGS := -O3 -Wall -Wno-unused-function -Wno-switch -std=gnu11 -DWINVER=0x0601
 export CGO_LDFLAGS := -Wl,--major-os-version=6 -Wl,--minor-os-version=1 -Wl,--major-subsystem-version=6 -Wl,--minor-subsystem-version=1 -Wl,--tsaware
 export GOOS := windows
-export GOPROXY := direct
 
 rwildcard=$(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subst *,%,$2),$d))
 SOURCE_FILES := $(call rwildcard,,*.go *.c *.h)
@@ -39,6 +38,7 @@ x86/wireguard.exe: resources_386.syso $(SOURCE_FILES)
 
 remaster: export CC := x86_64-w64-mingw32-gcc
 remaster: export GOARCH := amd64
+remaster: export GOPROXY := direct
 remaster:
 	rm -f go.sum go.mod
 	cp go.mod.master go.mod
