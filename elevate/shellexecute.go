@@ -93,12 +93,12 @@ func ShellExecute(program string, arguments string, directory string, show int32
 	if err != nil {
 		return
 	}
-	var windowsDirectory [windows.MAX_PATH]uint16
-	if _, err = getSystemWindowsDirectory(&windowsDirectory[0], windows.MAX_PATH); err != nil {
+	windowsDirectory, err := windows.GetSystemWindowsDirectory()
+	if err != nil {
 		return
 	}
 	originalPath := dataTableEntry.FullDllName.Buffer
-	explorerPath := windows.StringToUTF16Ptr(filepath.Join(windows.UTF16ToString(windowsDirectory[:]), "explorer.exe"))
+	explorerPath := windows.StringToUTF16Ptr(filepath.Join(windowsDirectory, "explorer.exe"))
 	rtlInitUnicodeString(&dataTableEntry.FullDllName, explorerPath)
 	defer func() {
 		rtlInitUnicodeString(&dataTableEntry.FullDllName, originalPath)
