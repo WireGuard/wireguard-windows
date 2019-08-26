@@ -78,7 +78,7 @@ const (
 	cCOINIT_APARTMENTTHREADED = 2
 )
 
-//sys	getWindowsDirectory(windowsDirectory *uint16, inLen uint32) (outLen uint32, err error) [failretval==0] = kernel32.GetWindowsDirectoryW
+//sys	getSystemWindowsDirectory(windowsDirectory *uint16, inLen uint32) (outLen uint32, err error) [failretval==0] = kernel32.GetSystemWindowsDirectoryW
 
 //sys	rtlInitUnicodeString(destinationString *cUNICODE_STRING, sourceString *uint16) = ntdll.RtlInitUnicodeString
 //sys	rtlGetCurrentPeb() (peb *cPEB) = ntdll.RtlGetCurrentPeb

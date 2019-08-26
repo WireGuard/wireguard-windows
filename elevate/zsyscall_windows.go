@@ -41,30 +41,16 @@ var (
 	modntdll    = windows.NewLazySystemDLL("ntdll.dll")
 	modole32    = windows.NewLazySystemDLL("ole32.dll")
 
-	procGetModuleHandleW     = modkernel32.NewProc("GetModuleHandleW")
-	procGetWindowsDirectoryW = modkernel32.NewProc("GetWindowsDirectoryW")
-	procRtlInitUnicodeString = modntdll.NewProc("RtlInitUnicodeString")
-	procRtlGetCurrentPeb     = modntdll.NewProc("RtlGetCurrentPeb")
-	procCoInitializeEx       = modole32.NewProc("CoInitializeEx")
-	procCoUninitialize       = modole32.NewProc("CoUninitialize")
-	procCoGetObject          = modole32.NewProc("CoGetObject")
+	procGetSystemWindowsDirectoryW = modkernel32.NewProc("GetSystemWindowsDirectoryW")
+	procRtlInitUnicodeString       = modntdll.NewProc("RtlInitUnicodeString")
+	procRtlGetCurrentPeb           = modntdll.NewProc("RtlGetCurrentPeb")
+	procCoInitializeEx             = modole32.NewProc("CoInitializeEx")
+	procCoUninitialize             = modole32.NewProc("CoUninitialize")
+	procCoGetObject                = modole32.NewProc("CoGetObject")
 )
 
-func getModuleHandle(moduleName *uint16) (moduleHandle uintptr, err error) {
-	r0, _, e1 := syscall.Syscall(procGetModuleHandleW.Addr(), 1, uintptr(unsafe.Pointer(moduleName)), 0, 0)
-	moduleHandle = uintptr(r0)
-	if moduleHandle == 0 {
-		if e1 != 0 {
-			err = errnoErr(e1)
-		} else {
-			err = syscall.EINVAL
-		}
-	}
-	return
-}
-
-func getWindowsDirectory(windowsDirectory *uint16, inLen uint32) (outLen uint32, err error) {
-	r0, _, e1 := syscall.Syscall(procGetWindowsDirectoryW.Addr(), 2, uintptr(unsafe.Pointer(windowsDirectory)), uintptr(inLen), 0)
+func getSystemWindowsDirectory(windowsDirectory *uint16, inLen uint32) (outLen uint32, err error) {
+	r0, _, e1 := syscall.Syscall(procGetSystemWindowsDirectoryW.Addr(), 2, uintptr(unsafe.Pointer(windowsDirectory)), uintptr(inLen), 0)
 	outLen = uint32(r0)
 	if outLen == 0 {
 		if e1 != 0 {
