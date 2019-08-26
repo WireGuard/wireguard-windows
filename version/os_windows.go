@@ -167,7 +167,6 @@ const (
 	PRODUCT_UNLICENSED                          = 0xABCDABCD
 )
 
-
 func OsIsCore() bool {
 	versionInfo := windows.RtlGetVersion()
 	if versionInfo.MajorVersion > 6 || (versionInfo.MajorVersion == 6 && versionInfo.MinorVersion >= 2) {

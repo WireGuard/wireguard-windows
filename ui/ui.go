@@ -13,6 +13,7 @@ import (
 
 	"github.com/lxn/walk"
 	"github.com/lxn/win"
+	"golang.org/x/sys/windows"
 
 	"golang.zx2c4.com/wireguard/windows/manager"
 	"golang.zx2c4.com/wireguard/windows/version"
@@ -24,6 +25,8 @@ var startTime = time.Now()
 
 func RunUI() {
 	runtime.LockOSThread()
+	thisProcess, _ := windows.GetCurrentProcess()
+	windows.SetProcessPriorityBoost(thisProcess, false)
 	defer func() {
 		if err := recover(); err != nil {
 			showErrorCustom(nil, "Panic", fmt.Sprint(err, "\n\n", string(debug.Stack())))
