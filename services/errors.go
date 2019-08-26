@@ -19,7 +19,6 @@ const (
 	ErrorRingloggerOpen
 	ErrorLoadConfiguration
 	ErrorCreateWintun
-	ErrorDetermineWintunName
 	ErrorUAPIListen
 	ErrorDNSLookup
 	ErrorFirewall
@@ -46,8 +45,6 @@ func (e Error) Error() string {
 		return "Unable to load configuration from path"
 	case ErrorCreateWintun:
 		return "Unable to create Wintun device"
-	case ErrorDetermineWintunName:
-		return "Unable to determine Wintun name"
 	case ErrorUAPIListen:
 		return "Unable to listen on named pipe"
 	case ErrorDNSLookup:

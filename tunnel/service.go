@@ -162,13 +162,6 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 		serviceError = services.ErrorCreateWintun
 		return
 	}
-	log.Println("Determining Wintun device name")
-	realInterfaceName, err := wintun.Name()
-	if err != nil {
-		serviceError = services.ErrorDetermineWintunName
-		return
-	}
-	conf.Name = realInterfaceName
 	nativeTun = wintun.(*tun.NativeTun)
 
 	log.Println("Enabling firewall rules")
