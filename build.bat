@@ -32,7 +32,6 @@ if exist .deps\prepared goto :render
 
 :build
 	set GOOS=windows
-	set GOPROXY=direct
 	set GOPATH=%BUILDDIR%.deps\gopath
 	set GOROOT=%BUILDDIR%.deps\go
 	set CGO_ENABLED=1
