@@ -164,11 +164,13 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 	}
 	nativeTun = wintun.(*tun.NativeTun)
 
-	log.Println("Enabling firewall rules")
-	err = enableFirewall(conf, nativeTun)
-	if err != nil {
-		serviceError = services.ErrorFirewall
-		return
+	if shouldEnableFirewall(conf) {
+		log.Println("Enabling firewall rules (\"kill-switch\")")
+		err = enableFirewall(conf, nativeTun)
+		if err != nil {
+			serviceError = services.ErrorFirewall
+			return
+		}
 	}
 
 	log.Println("Dropping privileges")
