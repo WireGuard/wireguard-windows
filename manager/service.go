@@ -247,6 +247,7 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 		}()
 	}
 
+	go cleanStaleAdapters()
 	go checkForUpdates()
 
 	var sessionsPointer *windows.WTS_SESSION_INFO
