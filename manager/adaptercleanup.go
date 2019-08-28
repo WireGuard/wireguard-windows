@@ -7,6 +7,7 @@ package manager
 
 import (
 	"log"
+	"strings"
 
 	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/svc"
@@ -16,12 +17,13 @@ import (
 	"golang.zx2c4.com/wireguard/windows/services"
 )
 
-func cleanStaleAdapters() {
+const unnamedWintunInterface = "Local Area Connection"
+
+func cleanupStaleAdapters() {
 	defer printPanic()
 
 	m, err := mgr.Connect()
 	if err != nil {
-		log.Printf("Error connecting to Service Control Manager: %v", err)
 		return
 	}
 	defer m.Disconnect()
@@ -32,36 +34,28 @@ func cleanStaleAdapters() {
 			log.Printf("Removing Wintun interface %s because determining interface name failed: %v", wintun.GUID().String(), err)
 			return true
 		}
+		if strings.HasPrefix(interfaceName, unnamedWintunInterface) {
+			return false
+		}
 		serviceName, err := services.ServiceNameOfTunnel(interfaceName)
 		if err != nil {
-			log.Printf("Removing Wintun interface %s because determining tunnel service name failed: %v", interfaceName, err)
+			log.Printf("Removing Wintun interface ‘%s’ because determining tunnel service name failed: %v", interfaceName, err)
 			return true
 		}
 		service, err := m.OpenService(serviceName)
 		if err == windows.ERROR_SERVICE_DOES_NOT_EXIST {
-			log.Printf("Removing orphaned Wintun interface %s", interfaceName)
+			log.Printf("Removing Wintun interface ‘%s’ because no service for it exists", interfaceName)
 			return true
-		}
-		if err != nil {
-			log.Printf("Error opening service %s: %v", serviceName, err)
+		} else if err != nil {
 			return false
 		}
 		defer service.Close()
-		config, err := service.Config()
-		if err != nil {
-			log.Printf("Error getting service %s configuration: %v", serviceName, err)
-			return false
-		}
-		if config.StartType == mgr.StartAutomatic {
-			return false
-		}
 		status, err := service.Query()
 		if err != nil {
-			log.Printf("Error getting service %s status: %v", serviceName, err)
 			return false
 		}
 		if status.State == svc.Stopped {
-			log.Printf("Removing unused Wintun interface %s", interfaceName)
+			log.Printf("Removing Wintun interface ‘%s’ because its service is stopped", interfaceName)
 			return true
 		}
 		return false

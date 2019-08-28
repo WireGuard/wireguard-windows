@@ -182,7 +182,7 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 				return
 			}
 
-			log.Printf("Starting UI process for user '%s@%s' for session %d", username, domain, session)
+			log.Printf("Starting UI process for user ‘%s@%s’ for session %d", username, domain, session)
 			attr := &os.ProcAttr{
 				Sys: &syscall.SysProcAttr{
 					Token: syscall.Token(elevatedToken),
@@ -247,7 +247,7 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 		}()
 	}
 
-	go cleanStaleAdapters()
+	go cleanupStaleAdapters()
 	go checkForUpdates()
 
 	var sessionsPointer *windows.WTS_SESSION_INFO
