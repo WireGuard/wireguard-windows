@@ -38,27 +38,27 @@ func maybeMigrate(c string) {
 		return
 	}
 	if err != nil {
-		log.Printf("Not migrating configuration from '%s' due to GetFileSecurity error: %v", oldRoot, err)
+		log.Printf("Not migrating configuration from ‘%s’ due to GetFileSecurity error: %v", oldRoot, err)
 		return
 	}
 	var defaulted bool
 	var sid *windows.SID
 	err = getSecurityDescriptorOwner(&sd[0], &sid, &defaulted)
 	if err != nil {
-		log.Printf("Not migrating configuration from '%s' due to GetSecurityDescriptorOwner error: %v", oldRoot, err)
+		log.Printf("Not migrating configuration from ‘%s’ due to GetSecurityDescriptorOwner error: %v", oldRoot, err)
 		return
 	}
 	if defaulted || !sid.IsWellKnown(windows.WinLocalSystemSid) {
 		sidStr, _ := sid.String()
-		log.Printf("Not migrating configuration from '%s', as it is not explicitly owned by SYSTEM, but rather '%s'", oldRoot, sidStr)
+		log.Printf("Not migrating configuration from ‘%s’, as it is not explicitly owned by SYSTEM, but rather ‘%s’", oldRoot, sidStr)
 		return
 	}
 	err = windows.MoveFileEx(windows.StringToUTF16Ptr(oldC), windows.StringToUTF16Ptr(c), windows.MOVEFILE_COPY_ALLOWED)
 	if err != nil {
 		if err != windows.ERROR_FILE_NOT_FOUND && err != windows.ERROR_ALREADY_EXISTS {
-			log.Printf("Not migrating configuration from '%s' due to error when moving files: %v", oldRoot, err)
+			log.Printf("Not migrating configuration from ‘%s’ due to error when moving files: %v", oldRoot, err)
 		}
 		return
 	}
-	log.Printf("Migrated configuration from '%s'", oldRoot)
+	log.Printf("Migrated configuration from ‘%s’", oldRoot)
 }

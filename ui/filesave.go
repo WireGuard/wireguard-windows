@@ -26,7 +26,7 @@ func writeFileWithOverwriteHandling(owner walk.Form, filePath string, write func
 	file, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY|os.O_EXCL, 0600)
 	if err != nil {
 		if os.IsExist(err) {
-			if walk.DlgCmdNo == walk.MsgBox(owner, "Writing file failed", fmt.Sprintf(`File "%s" already exists.
+			if walk.DlgCmdNo == walk.MsgBox(owner, "Writing file failed", fmt.Sprintf(`File ‘%s’ already exists.
 
 Do you want to overwrite it?`, filePath), walk.MsgBoxYesNo|walk.MsgBoxDefButton2|walk.MsgBoxIconWarning) {
 				return false

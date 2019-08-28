@@ -50,7 +50,7 @@ func cleanupAddressesOnDisconnectedInterfaces(family winipcfg.AddressFamily, add
 			ip := address.Address.IP()
 			ipnet := net.IPNet{IP: ip, Mask: net.CIDRMask(int(address.OnLinkPrefixLength), 8*len(ip))}
 			if includedInAddresses(ipnet) {
-				log.Printf("Cleaning up stale address %s from interface '%s'", ipnet.String(), iface.FriendlyName())
+				log.Printf("Cleaning up stale address %s from interface ‘%s’", ipnet.String(), iface.FriendlyName())
 				iface.LUID.DeleteIPAddress(ipnet)
 			}
 		}

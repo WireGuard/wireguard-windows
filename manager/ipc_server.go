@@ -107,6 +107,7 @@ func (s *ManagerService) Start(tunnelName string, unused *uintptr) error {
 			}
 		}
 	}()
+	go cleanupStaleAdapters()
 
 	// After that process is started -- it's somewhat asynchronous -- we install the new one.
 	c, err := conf.LoadFromName(tunnelName)
@@ -121,6 +122,8 @@ func (s *ManagerService) Start(tunnelName string, unused *uintptr) error {
 }
 
 func (s *ManagerService) Stop(tunnelName string, _ *uintptr) error {
+	go cleanupStaleAdapters()
+
 	err := UninstallTunnel(tunnelName)
 	if err == windows.ERROR_SERVICE_DOES_NOT_EXIST {
 		_, notExistsError := conf.LoadFromName(tunnelName)
