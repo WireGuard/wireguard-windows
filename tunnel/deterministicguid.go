@@ -19,6 +19,10 @@ import (
 )
 
 const deterministicGUIDLabel = "Deterministic WireGuard Windows GUID v1 jason@zx2c4.com"
+const fixedGUIDLabel = "Fixed WireGuard Windows GUID v1 jason@zx2c4.com"
+
+// Escape hatch for external consumers, not us.
+var UseFixedGUIDInsteadOfDeterministic = false
 
 /* All peer public keys and allowed ips are sorted. Length/number fields are
  * little endian 32-bit. Hash input is:
@@ -40,7 +44,11 @@ const deterministicGUIDLabel = "Deterministic WireGuard Windows GUID v1 jason@zx
 
 func deterministicGUID(c *conf.Config) *windows.GUID {
 	b2, _ := blake2s.New256(nil)
-	b2.Write([]byte(deterministicGUIDLabel))
+	if !UseFixedGUIDInsteadOfDeterministic {
+		b2.Write([]byte(deterministicGUIDLabel))
+	} else {
+		b2.Write([]byte(fixedGUIDLabel))
+	}
 	b2Number := func(i int) {
 		if uint(i) > uint(^uint32(0)) {
 			panic("length out of bounds")
@@ -60,27 +68,29 @@ func deterministicGUID(c *conf.Config) *windows.GUID {
 	}
 
 	b2String(c.Name)
-	b2Key(c.Interface.PrivateKey.Public())
-	b2Number(len(c.Peers))
-	sortedPeers := c.Peers
-	sort.Slice(sortedPeers, func(i, j int) bool {
-		return bytes.Compare(sortedPeers[i].PublicKey[:], sortedPeers[j].PublicKey[:]) < 0
-	})
-	for _, peer := range sortedPeers {
-		b2Key(&peer.PublicKey)
-		b2Number(len(peer.AllowedIPs))
-		sortedAllowedIPs := peer.AllowedIPs
-		sort.Slice(sortedAllowedIPs, func(i, j int) bool {
-			if bi, bj := sortedAllowedIPs[i].Bits(), sortedAllowedIPs[j].Bits(); bi != bj {
-				return bi < bj
-			}
-			if sortedAllowedIPs[i].Cidr != sortedAllowedIPs[j].Cidr {
-				return sortedAllowedIPs[i].Cidr < sortedAllowedIPs[j].Cidr
-			}
-			return bytes.Compare(sortedAllowedIPs[i].IP[:], sortedAllowedIPs[j].IP[:]) < 0
+	if !UseFixedGUIDInsteadOfDeterministic {
+		b2Key(c.Interface.PrivateKey.Public())
+		b2Number(len(c.Peers))
+		sortedPeers := c.Peers
+		sort.Slice(sortedPeers, func(i, j int) bool {
+			return bytes.Compare(sortedPeers[i].PublicKey[:], sortedPeers[j].PublicKey[:]) < 0
 		})
-		for _, allowedip := range sortedAllowedIPs {
-			b2String(allowedip.String())
+		for _, peer := range sortedPeers {
+			b2Key(&peer.PublicKey)
+			b2Number(len(peer.AllowedIPs))
+			sortedAllowedIPs := peer.AllowedIPs
+			sort.Slice(sortedAllowedIPs, func(i, j int) bool {
+				if bi, bj := sortedAllowedIPs[i].Bits(), sortedAllowedIPs[j].Bits(); bi != bj {
+					return bi < bj
+				}
+				if sortedAllowedIPs[i].Cidr != sortedAllowedIPs[j].Cidr {
+					return sortedAllowedIPs[i].Cidr < sortedAllowedIPs[j].Cidr
+				}
+				return bytes.Compare(sortedAllowedIPs[i].IP[:], sortedAllowedIPs[j].IP[:]) < 0
+			})
+			for _, allowedip := range sortedAllowedIPs {
+				b2String(allowedip.String())
+			}
 		}
 	}
 	return (*windows.GUID)(unsafe.Pointer(&b2.Sum(nil)[0]))
