@@ -6,23 +6,32 @@
 package elevate
 
 import (
-	"runtime"
-
 	"golang.org/x/sys/windows"
 )
 
-func TokenIsMemberOfBuiltInAdministrator(token windows.Token) bool {
-	gs, err := token.GetTokenGroups()
+func isAdmin(token windows.Token) bool {
+	builtinAdminsGroup, err := windows.CreateWellKnownSid(windows.WinBuiltinAdministratorsSid)
 	if err != nil {
 		return false
 	}
-	isAdmin := false
-	for _, g := range gs.AllGroups() {
-		if (g.Attributes&windows.SE_GROUP_USE_FOR_DENY_ONLY != 0 || g.Attributes&windows.SE_GROUP_ENABLED != 0) && g.Sid.IsWellKnown(windows.WinBuiltinAdministratorsSid) {
-			isAdmin = true
-			break
-		}
+	var checkableToken windows.Token
+	err = windows.DuplicateTokenEx(token, windows.TOKEN_QUERY | windows.TOKEN_IMPERSONATE, nil, windows.SecurityIdentification, windows.TokenImpersonation, &checkableToken)
+	if err != nil {
+		return false
 	}
-	runtime.KeepAlive(gs)
-	return isAdmin
+	defer checkableToken.Close()
+	isAdmin, err := checkableToken.IsMember(builtinAdminsGroup)
+	return isAdmin && err == nil
+}
+
+func TokenIsElevatedOrElevatable(token windows.Token) bool {
+	if token.IsElevated() && isAdmin(token) {
+		return true
+	}
+	linked, err := token.GetLinkedToken()
+	if err != nil {
+		return false
+	}
+	defer linked.Close()
+	return linked.IsElevated() && isAdmin(linked)
 }

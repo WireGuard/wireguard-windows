@@ -54,7 +54,7 @@ func ShellExecute(program string, arguments string, directory string, show int32
 		err = windows.ERROR_SUCCESS
 		return
 	}
-	if !TokenIsMemberOfBuiltInAdministrator(processToken) {
+	if !TokenIsElevatedOrElevatable(processToken) {
 		err = windows.ERROR_ACCESS_DENIED
 		return
 	}
