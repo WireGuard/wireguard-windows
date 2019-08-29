@@ -112,7 +112,7 @@ func NewManageTunnelsWindow() (*ManageTunnelsWindow, error) {
 			CbSize:     uint32(unsafe.Sizeof(win.MENUITEMINFO{})),
 			FMask:      win.MIIM_ID | win.MIIM_STRING | win.MIIM_FTYPE,
 			FType:      win.MIIM_STRING,
-			DwTypeData: windows.StringToUTF16Ptr("About WireGuard..."),
+			DwTypeData: windows.StringToUTF16Ptr("&About WireGuard..."),
 			WID:        uint32(aboutWireGuardCmd),
 		})
 		win.InsertMenuItem(systemMenu, 1, true, &win.MENUITEMINFO{

@@ -220,9 +220,9 @@ func (tal *toggleActiveLine) update(state manager.TunnelState) {
 
 	switch state {
 	case manager.TunnelStarted:
-		text = "Deactivate"
+		text = "&Deactivate"
 	case manager.TunnelStopped:
-		text = "Activate"
+		text = "&Activate"
 	case manager.TunnelStarting, manager.TunnelStopping:
 		text = textForState(state, true)
 	default:

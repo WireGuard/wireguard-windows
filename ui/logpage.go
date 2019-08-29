@@ -106,7 +106,7 @@ func NewLogPage() (*LogPage, error) {
 	if err != nil {
 		return nil, err
 	}
-	saveButton.SetText("Save")
+	saveButton.SetText("&Save")
 	saveButton.Clicked().Attach(lp.onSave)
 
 	disposables.Spare()
