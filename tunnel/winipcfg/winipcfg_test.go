@@ -27,7 +27,6 @@ import (
 	"strings"
 	"testing"
 	"time"
-	"unsafe"
 
 	"golang.org/x/sys/windows"
 )
@@ -56,19 +55,13 @@ var (
 	}
 )
 
-func runningAsAdmin() bool {
+func runningElevated() bool {
 	process, err := windows.OpenCurrentProcessToken()
 	if err != nil {
 		return false
 	}
 	defer process.Close()
-	var isElevated uint32
-	var outLen uint32
-	err = windows.GetTokenInformation(process, windows.TokenElevation, (*byte)(unsafe.Pointer(&isElevated)), uint32(unsafe.Sizeof(isElevated)), &outLen)
-	if err != nil {
-		return false
-	}
-	return outLen == uint32(unsafe.Sizeof(isElevated)) && isElevated != 0
+	return process.IsElevated()
 }
 
 func getTestInterface() (*IPAdapterAddresses, error) {
@@ -198,7 +191,7 @@ func TestIPChangeMetric(t *testing.T) {
 		t.Errorf("getTestIPInterface() returned an error: %v", err)
 		return
 	}
-	if !runningAsAdmin() {
+	if !runningElevated() {
 		t.Errorf("%s requires elevation", t.Name())
 		return
 	}
@@ -288,7 +281,7 @@ func TestIPChangeMTU(t *testing.T) {
 		t.Errorf("getTestIPInterface() returned an error: %v", err)
 		return
 	}
-	if !runningAsAdmin() {
+	if !runningElevated() {
 		t.Errorf("%s requires elevation", t.Name())
 		return
 	}
@@ -380,7 +373,7 @@ func TestAddDeleteIPAddress(t *testing.T) {
 		t.Errorf("getTestInterface() returned an error: %v", err)
 		return
 	}
-	if !runningAsAdmin() {
+	if !runningElevated() {
 		t.Errorf("%s requires elevation", t.Name())
 		return
 	}
@@ -494,7 +487,7 @@ func TestAddDeleteRoute(t *testing.T) {
 		t.Errorf("getTestInterface() returned an error: %v", err)
 		return
 	}
-	if !runningAsAdmin() {
+	if !runningElevated() {
 		t.Errorf("%s requires elevation", t.Name())
 		return
 	}
@@ -588,7 +581,7 @@ func TestFlushDNS(t *testing.T) {
 		t.Errorf("getTestInterface() returned an error: %v", err)
 		return
 	}
-	if !runningAsAdmin() {
+	if !runningElevated() {
 		t.Errorf("%s requires elevation", t.Name())
 		return
 	}
@@ -631,7 +624,7 @@ func TestAddDNS(t *testing.T) {
 		t.Errorf("getTestInterface() returned an error: %v", err)
 		return
 	}
-	if !runningAsAdmin() {
+	if !runningElevated() {
 		t.Errorf("%s requires elevation", t.Name())
 		return
 	}
@@ -675,7 +668,7 @@ func TestSetDNS(t *testing.T) {
 		t.Errorf("getTestInterface() returned an error: %v", err)
 		return
 	}
-	if !runningAsAdmin() {
+	if !runningElevated() {
 		t.Errorf("%s requires elevation", t.Name())
 		return
 	}
