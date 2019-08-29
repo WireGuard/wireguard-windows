@@ -35,3 +35,27 @@ func TokenIsElevatedOrElevatable(token windows.Token) bool {
 	defer linked.Close()
 	return linked.IsElevated() && isAdmin(linked)
 }
+
+func IsAdminDesktop() (bool, error) {
+	hwnd := getShellWindow()
+	if hwnd == 0 {
+		return false, windows.ERROR_INVALID_WINDOW_HANDLE
+	}
+	var pid uint32
+	_, err := getWindowThreadProcessId(hwnd, &pid)
+	if err != nil {
+		return false, err
+	}
+	process, err := windows.OpenProcess(windows.PROCESS_QUERY_INFORMATION, false, pid)
+	if err != nil {
+		return false, err
+	}
+	defer windows.CloseHandle(process)
+	var token windows.Token
+	err = windows.OpenProcessToken(process, windows.TOKEN_QUERY | windows.TOKEN_IMPERSONATE, &token)
+	if err != nil {
+		return false, err
+	}
+	defer token.Close()
+	return TokenIsElevatedOrElevatable(token), nil
+}

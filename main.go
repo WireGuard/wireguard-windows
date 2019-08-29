@@ -80,6 +80,13 @@ func checkForAdminGroup() {
 	}
 }
 
+func checkForAdminDesktop() {
+	adminDesktop, err := elevate.IsAdminDesktop()
+	if !adminDesktop && err == nil {
+		fatal("WireGuard is running, but the UI is only accessible from desktops of the Builtin Administrators group.")
+	}
+}
+
 func execElevatedManagerServiceInstaller() error {
 	path, err := os.Executable()
 	if err != nil {
@@ -123,8 +130,12 @@ func main() {
 		go ui.WaitForRaiseUIThenQuit()
 		err := manager.InstallManager()
 		if err != nil {
+			if err == manager.ErrManagerAlreadyRunning {
+				checkForAdminDesktop()
+			}
 			fatal(err)
 		}
+		checkForAdminDesktop()
 		time.Sleep(30 * time.Second)
 		fatal("WireGuard system tray icon did not appear after 30 seconds.")
 		return

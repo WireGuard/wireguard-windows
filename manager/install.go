@@ -32,6 +32,8 @@ func serviceManager() (*mgr.Mgr, error) {
 	return cachedServiceManager, nil
 }
 
+var ErrManagerAlreadyRunning = errors.New("Manager already installed and running")
+
 func InstallManager() error {
 	m, err := serviceManager()
 	if err != nil {
@@ -54,7 +56,7 @@ func InstallManager() error {
 		}
 		if status.State != svc.Stopped {
 			service.Close()
-			return errors.New("Manager already installed and running")
+			return ErrManagerAlreadyRunning
 		}
 		err = service.Delete()
 		service.Close()
