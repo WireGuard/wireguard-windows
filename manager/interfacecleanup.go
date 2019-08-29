@@ -17,7 +17,7 @@ import (
 	"golang.zx2c4.com/wireguard/windows/services"
 )
 
-func cleanupStaleAdapters() {
+func cleanupStaleWintunInterfaces() {
 	defer printPanic()
 
 	m, err := mgr.Connect()
