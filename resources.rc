@@ -4,7 +4,7 @@
  */
 
 #include <windows.h>
-#include "version.h"
+#include "version/version.h"
 
 CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST manifest.xml
 
