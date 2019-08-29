@@ -104,7 +104,7 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 		if err != nil {
 			return
 		}
-		if !elevate.TokenIsMemberOfBuiltInAdministrator(userToken) {
+		if !elevate.TokenIsElevatedOrElevatable(userToken) {
 			userToken.Close()
 			return
 		}

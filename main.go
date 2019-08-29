@@ -75,7 +75,7 @@ func checkForAdminGroup() {
 		fatal("Unable to open current process token: ", err)
 	}
 	defer processToken.Close()
-	if !elevate.TokenIsMemberOfBuiltInAdministrator(processToken) {
+	if !elevate.TokenIsElevatedOrElevatable(processToken) {
 		fatal("WireGuard may only be used by users who are a member of the Builtin Administrators group.")
 	}
 }
