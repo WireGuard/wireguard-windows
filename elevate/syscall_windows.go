@@ -84,3 +84,6 @@ const (
 //sys	coInitializeEx(reserved uintptr, coInit uint32) (ret error) = ole32.CoInitializeEx
 //sys	coUninitialize() = ole32.CoUninitialize
 //sys	coGetObject(name *uint16, bindOpts *cBIND_OPTS3, guid *windows.GUID, functionTable ***[0xffff]uintptr) (ret error) = ole32.CoGetObject
+
+//sys	getWindowThreadProcessId(hwnd uintptr, pid *uint32) (tid uint32, err error) = user32.GetWindowThreadProcessId
+//sys	getShellWindow() (hwnd uintptr) = user32.GetShellWindow
