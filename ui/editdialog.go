@@ -86,7 +86,7 @@ func newEditDialog(owner walk.Form, tunnel *manager.Tunnel) (*EditDialog, error)
 	}
 	layout.SetRange(nameLabel, walk.Rectangle{0, 0, 1, 1})
 	nameLabel.SetTextAlignment(walk.AlignHFarVCenter)
-	nameLabel.SetText("Name:")
+	nameLabel.SetText("&Name:")
 
 	if dlg.nameEdit, err = walk.NewLineEdit(dlg); err != nil {
 		return nil, err
@@ -100,7 +100,7 @@ func newEditDialog(owner walk.Form, tunnel *manager.Tunnel) (*EditDialog, error)
 	}
 	layout.SetRange(pubkeyLabel, walk.Rectangle{0, 1, 1, 1})
 	pubkeyLabel.SetTextAlignment(walk.AlignHFarVCenter)
-	pubkeyLabel.SetText("Public key:")
+	pubkeyLabel.SetText("&Public key:")
 
 	if dlg.pubkeyEdit, err = walk.NewLineEdit(dlg); err != nil {
 		return nil, err
@@ -125,7 +125,7 @@ func newEditDialog(owner walk.Form, tunnel *manager.Tunnel) (*EditDialog, error)
 	if dlg.blockUntunneledTrafficCB, err = walk.NewCheckBox(buttonsContainer); err != nil {
 		return nil, err
 	}
-	dlg.blockUntunneledTrafficCB.SetText("Block untunneled traffic (kill-switch)")
+	dlg.blockUntunneledTrafficCB.SetText("&Block untunneled traffic (kill-switch)")
 	dlg.blockUntunneledTrafficCB.SetToolTipText("When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface, with special exceptions for DHCP and NDP.")
 	dlg.blockUntunneledTrafficCB.SetVisible(false)
 	dlg.blockUntunneledTrafficCB.CheckedChanged().Attach(dlg.onBlockUntunneledTrafficCBCheckedChanged)
@@ -135,7 +135,7 @@ func newEditDialog(owner walk.Form, tunnel *manager.Tunnel) (*EditDialog, error)
 	if dlg.saveButton, err = walk.NewPushButton(buttonsContainer); err != nil {
 		return nil, err
 	}
-	dlg.saveButton.SetText("Save")
+	dlg.saveButton.SetText("&Save")
 	dlg.saveButton.Clicked().Attach(dlg.onSaveButtonClicked)
 
 	cancelButton, err := walk.NewPushButton(buttonsContainer)

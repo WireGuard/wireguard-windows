@@ -108,15 +108,13 @@ func runAboutDialog(owner walk.Form) error {
 	}
 	closePB.SetAlignment(walk.AlignHCenterVNear)
 	closePB.SetText("Close")
-	closePB.Clicked().Attach(func() {
-		dlg.Accept()
-	})
+	closePB.Clicked().Attach(dlg.Accept)
 	donatePB, err := walk.NewPushButton(buttonCP)
 	if err != nil {
 		return err
 	}
 	donatePB.SetAlignment(walk.AlignHCenterVNear)
-	donatePB.SetText("♥ Donate!")
+	donatePB.SetText("♥ &Donate!")
 	donatePB.Clicked().Attach(func() {
 		if easterEggIndex == -1 {
 			easterEggIndex = 0
