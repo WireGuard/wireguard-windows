@@ -11,5 +11,6 @@ import (
 )
 
 func UserAgent() string {
-	return fmt.Sprintf("WireGuard/%s (%s; %s)", RunningVersion(), OsName(), runtime.GOARCH)
+	name, ver := RunningNameVersion()
+	return fmt.Sprintf("%s/%s (%s; %s)", name, ver, OsName(), runtime.GOARCH)
 }
