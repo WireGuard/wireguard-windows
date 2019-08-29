@@ -15,7 +15,7 @@ func isAdmin(token windows.Token) bool {
 		return false
 	}
 	var checkableToken windows.Token
-	err = windows.DuplicateTokenEx(token, windows.TOKEN_QUERY | windows.TOKEN_IMPERSONATE, nil, windows.SecurityIdentification, windows.TokenImpersonation, &checkableToken)
+	err = windows.DuplicateTokenEx(token, windows.TOKEN_QUERY|windows.TOKEN_IMPERSONATE, nil, windows.SecurityIdentification, windows.TokenImpersonation, &checkableToken)
 	if err != nil {
 		return false
 	}
@@ -52,10 +52,22 @@ func IsAdminDesktop() (bool, error) {
 	}
 	defer windows.CloseHandle(process)
 	var token windows.Token
-	err = windows.OpenProcessToken(process, windows.TOKEN_QUERY | windows.TOKEN_IMPERSONATE, &token)
+	err = windows.OpenProcessToken(process, windows.TOKEN_QUERY|windows.TOKEN_IMPERSONATE, &token)
 	if err != nil {
 		return false, err
 	}
 	defer token.Close()
 	return TokenIsElevatedOrElevatable(token), nil
+}
+
+func AdminGroupName() string {
+	builtinAdminsGroup, err := windows.CreateWellKnownSid(windows.WinBuiltinAdministratorsSid)
+	if err != nil {
+		return "Administrators"
+	}
+	name, _, _, err := builtinAdminsGroup.LookupAccount("")
+	if err != nil {
+		return "Administrators"
+	}
+	return name
 }
