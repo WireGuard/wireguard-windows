@@ -10,6 +10,8 @@ import (
 	"path/filepath"
 
 	"golang.org/x/sys/windows"
+
+	"golang.zx2c4.com/wireguard/windows/version"
 )
 
 var cachedConfigFileDir string
@@ -41,7 +43,8 @@ func RootDirectory() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	c := filepath.Join(root, "WireGuard")
+	name, _ := version.RunningNameVersion()
+	c := filepath.Join(root, name)
 	err = os.MkdirAll(c, os.ModeDir|0700)
 	if err != nil {
 		return "", err
