@@ -12,8 +12,8 @@ import (
 
 	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/registry"
+
 	"golang.zx2c4.com/wireguard/windows/conf"
-	"golang.zx2c4.com/wireguard/windows/version"
 )
 
 func DumpTo(out io.Writer, localSystem bool) error {
@@ -39,8 +39,7 @@ func DumpTo(out io.Writer, localSystem bool) error {
 		if err != nil {
 			return err
 		}
-		name, _ := version.RunningNameVersion()
-		path = filepath.Join(systemprofile, "AppData", "Local", name, "log.bin")
+		path = filepath.Join(systemprofile, "AppData", "Local", "WireGuard", "log.bin")
 	}
 	file, err := os.Open(path)
 	if err != nil {

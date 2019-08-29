@@ -10,8 +10,6 @@ import (
 	"path/filepath"
 
 	"golang.org/x/sys/windows"
-
-	"golang.zx2c4.com/wireguard/windows/version"
 )
 
 var cachedConfigFileDir string
@@ -35,6 +33,13 @@ func tunnelConfigurationsDirectory() (string, error) {
 	return cachedConfigFileDir, nil
 }
 
+// PresetRootDirectory causes RootDirectory() to not try any automatic deduction, and instead
+// uses what's passed to it. This isn't used by wireguard-windows, but is useful for external
+// consumers of our libraries who might want to do strange things.
+func PresetRootDirectory(root string) {
+	cachedRootDir = root
+}
+
 func RootDirectory() (string, error) {
 	if cachedRootDir != "" {
 		return cachedRootDir, nil
@@ -43,8 +48,7 @@ func RootDirectory() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	name, _ := version.RunningNameVersion()
-	c := filepath.Join(root, name)
+	c := filepath.Join(root, "WireGuard")
 	err = os.MkdirAll(c, os.ModeDir|0700)
 	if err != nil {
 		return "", err

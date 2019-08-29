@@ -10,7 +10,11 @@ import (
 	"runtime"
 )
 
+// #include "version.h"
+import "C"
+
+const Number = C.WIREGUARD_WINDOWS_VERSION_STRING
+
 func UserAgent() string {
-	name, ver := RunningNameVersion()
-	return fmt.Sprintf("%s/%s (%s; %s)", name, ver, OsName(), runtime.GOARCH)
+	return fmt.Sprintf("WireGuard/%s (%s; %s)", Number, OsName(), runtime.GOARCH)
 }

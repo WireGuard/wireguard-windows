@@ -17,8 +17,7 @@ import (
 
 func versionNewerThanUs(candidate string) (bool, error) {
 	candidateParts := strings.Split(candidate, ".")
-	_, ver := version.RunningNameVersion()
-	ourParts := strings.Split(ver, ".")
+	ourParts := strings.Split(version.Number, ".")
 	if len(candidateParts) == 0 || len(ourParts) == 0 {
 		return false, errors.New("Empty version")
 	}

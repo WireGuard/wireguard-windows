@@ -30,10 +30,6 @@ func OsName() string {
 	return fmt.Sprintf("%s %s %s", utsToStr(utsname.Sysname), utsToStr(utsname.Release), utsToStr(utsname.Version))
 }
 
-func RunningNameVersion() (string, string) {
-	return "WireGuard", "0.0.0.0"
-}
-
 func VerifyAuthenticode(path string) bool {
 	return true
 }

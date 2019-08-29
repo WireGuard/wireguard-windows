@@ -8,7 +8,7 @@ export GOROOT := $(CURDIR)/.deps/goroot
 
 rwildcard=$(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subst *,%,$2),$d))
 SOURCE_FILES := $(call rwildcard,,*.go *.c *.h) .deps/prepared
-RESOURCE_FILES := resources.rc version.h manifest.xml $(patsubst %.svg,%.ico,$(wildcard ui/icon/*.svg))
+RESOURCE_FILES := resources.rc version/version.h manifest.xml $(patsubst %.svg,%.ico,$(wildcard ui/icon/*.svg))
 
 REQUIRED_GO_VERSION := go1.13beta1
 ifneq ($(shell go version 2>/dev/null | cut -d ' ' -f 3),$(REQUIRED_GO_VERSION))
