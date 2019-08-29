@@ -13,7 +13,6 @@ import (
 	"time"
 
 	"golang.org/x/sys/windows"
-	"golang.zx2c4.com/wireguard/tun/wintun"
 
 	"golang.zx2c4.com/wireguard/windows/elevate"
 	"golang.zx2c4.com/wireguard/windows/manager"
@@ -32,7 +31,6 @@ var flags = [...]string{
 	"/tunnelservice CONFIG_PATH",
 	"/ui CMD_READ_HANDLE CMD_WRITE_HANDLE CMD_EVENT_HANDLE LOG_MAPPING_HANDLE",
 	"/dumplog OUTPUT_PATH",
-	"/wintun /deleteall",
 }
 
 func fatal(v ...interface{}) {
@@ -229,33 +227,6 @@ func main() {
 			fatal(err)
 		}
 		return
-	case "/wintun":
-		if len(os.Args) < 3 {
-			usage()
-		}
-		switch os.Args[2] {
-		case "/deleteall":
-			if len(os.Args) != 3 {
-				usage()
-			}
-			deleted, rebootRequired, errors := wintun.DeleteAllInterfaces()
-			interfaceString := "no interfaces"
-			if len(deleted) > 0 {
-				interfaceString = fmt.Sprintf("interfaces %v", deleted)
-			}
-			errorString := ""
-			if len(errors) > 0 {
-				errorString = fmt.Sprintf(", encountering errors %v", errors)
-			}
-			rebootString := ""
-			if rebootRequired {
-				rebootString = " A reboot is required."
-			}
-			info("Wintun Cleanup", "Deleted %s%s.%s", interfaceString, errorString, rebootString)
-			return
-		default:
-			usage()
-		}
 	}
 	usage()
 }

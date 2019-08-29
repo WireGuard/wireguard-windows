@@ -7,17 +7,15 @@ package manager
 
 import (
 	"log"
-	"strings"
 
 	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/svc"
 	"golang.org/x/sys/windows/svc/mgr"
-
 	"golang.zx2c4.com/wireguard/tun/wintun"
+
+	"golang.zx2c4.com/wireguard/tun"
 	"golang.zx2c4.com/wireguard/windows/services"
 )
-
-const unnamedWintunInterface = "Local Area Connection"
 
 func cleanupStaleAdapters() {
 	defer printPanic()
@@ -28,14 +26,11 @@ func cleanupStaleAdapters() {
 	}
 	defer m.Disconnect()
 
-	wintun.DeleteMatchingInterfaces(func(wintun *wintun.Wintun) bool {
-		interfaceName, err := wintun.InterfaceName()
+	tun.WintunPool.DeleteMatchingInterfaces(func(wintun *wintun.Interface) bool {
+		interfaceName, err := wintun.Name()
 		if err != nil {
 			log.Printf("Removing Wintun interface %s because determining interface name failed: %v", wintun.GUID().String(), err)
 			return true
-		}
-		if strings.HasPrefix(interfaceName, unnamedWintunInterface) {
-			return false
 		}
 		serviceName, err := services.ServiceNameOfTunnel(interfaceName)
 		if err != nil {
