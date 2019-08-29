@@ -40,6 +40,10 @@ func fatal(v ...interface{}) {
 	os.Exit(1)
 }
 
+func fatalf(format string, v ...interface{}) {
+	fatal(fmt.Sprintf(format, v...))
+}
+
 func info(title string, format string, v ...interface{}) {
 	windows.MessageBox(0, windows.StringToUTF16Ptr(fmt.Sprintf(format, v...)), windows.StringToUTF16Ptr(title), windows.MB_ICONINFORMATION)
 }
@@ -61,7 +65,7 @@ func checkForWow64() {
 	}
 	err = windows.IsWow64Process(p, &b)
 	if err != nil {
-		fatal("Unable to determine whether the process is running under WOW64: ", err)
+		fatalf("Unable to determine whether the process is running under WOW64: %v", err)
 	}
 	if b {
 		fatal("You must use the 64-bit version of WireGuard on this computer.")
@@ -72,18 +76,18 @@ func checkForAdminGroup() {
 	// This is not a security check, but rather a user-confusion one.
 	processToken, err := windows.OpenCurrentProcessToken()
 	if err != nil {
-		fatal("Unable to open current process token: ", err)
+		fatalf("Unable to open current process token: %v", err)
 	}
 	defer processToken.Close()
 	if !elevate.TokenIsElevatedOrElevatable(processToken) {
-		fatal("WireGuard may only be used by users who are a member of the Builtin Administrators group.")
+		fatalf("WireGuard may only be used by users who are a member of the Builtin %s group.", elevate.AdminGroupName())
 	}
 }
 
 func checkForAdminDesktop() {
 	adminDesktop, err := elevate.IsAdminDesktop()
 	if !adminDesktop && err == nil {
-		fatal("WireGuard is running, but the UI is only accessible from desktops of the Builtin Administrators group.")
+		fatalf("WireGuard is running, but the UI is only accessible from desktops of the Builtin %s group.", elevate.AdminGroupName())
 	}
 }
 
