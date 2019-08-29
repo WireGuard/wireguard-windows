@@ -52,7 +52,7 @@ func IsAdminDesktop() (bool, error) {
 	}
 	defer windows.CloseHandle(process)
 	var token windows.Token
-	err = windows.OpenProcessToken(process, windows.TOKEN_QUERY|windows.TOKEN_IMPERSONATE, &token)
+	err = windows.OpenProcessToken(process, windows.TOKEN_QUERY|windows.TOKEN_DUPLICATE, &token)
 	if err != nil {
 		return false, err
 	}
