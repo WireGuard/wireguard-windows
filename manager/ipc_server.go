@@ -15,6 +15,7 @@ import (
 	"os"
 	"sync"
 	"sync/atomic"
+	"syscall"
 	"time"
 
 	"golang.org/x/sys/windows"
@@ -54,7 +55,11 @@ func (s *ManagerService) RuntimeConfig(tunnelName string, config *conf.Config) e
 	if err != nil {
 		return err
 	}
-	pipe, err := winpipe.DialPipe(pipePath, nil)
+	localSystem, err := windows.CreateWellKnownSid(windows.WinLocalSystemSid)
+	if err != nil {
+		return err
+	}
+	pipe, err := winpipe.DialPipe(pipePath, nil, (*syscall.SID)(localSystem))
 	if err != nil {
 		return err
 	}
