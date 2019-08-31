@@ -22,5 +22,5 @@ func PipePathOfTunnel(tunnelName string) (string, error) {
 	if !conf.TunnelNameIsValid(tunnelName) {
 		return "", errors.New("Tunnel name is not valid")
 	}
-	return "\\\\.\\pipe\\WireGuard\\" + tunnelName, nil
+	return `\\.\pipe\ProtectedPrefix\Administrators\WireGuard\` + tunnelName, nil
 }
