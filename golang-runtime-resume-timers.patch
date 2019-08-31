@@ -1,5 +1,5 @@
-From e7384a38af94ff5e7e748f1424d766e1d3316f8d Mon Sep 17 00:00:00 2001
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From d85072ff86e61752fb89363d7c929c850e0a8a8d Mon Sep 17 00:00:00 2001
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 Date: Tue, 27 Aug 2019 06:46:16 -0600
 Subject: [PATCH] runtime: monitor for suspend/resume to kick timeouts
 
@@ -12,13 +12,20 @@ amount of time left to wait.
 Fixes: #31528
 
 Change-Id: I0db02cc72188cb620954e87a0180e0a3c83f4a56
+Reviewed-on: https://go-review.googlesource.com/c/go/+/191957
+Run-TryBot: Jason A. Donenfeld <Jason@zx2c4.com>
+TryBot-Result: Gobot Gobot <gobot@golang.org>
+Reviewed-by: Alex Brainman <alex.brainman@gmail.com>
 ---
+ src/runtime/os_windows.go      | 83 ++++++++++++++++++++++++++++++----
+ src/runtime/syscall_windows.go | 12 +++--
+ 2 files changed, 82 insertions(+), 13 deletions(-)
 
 diff --git a/src/runtime/os_windows.go b/src/runtime/os_windows.go
-index 074ae0f..6cc9670 100644
+index 60c55cf3254..2a2b5fa122c 100644
 --- a/src/runtime/os_windows.go
 +++ b/src/runtime/os_windows.go
-@@ -49,6 +49,7 @@
+@@ -49,6 +49,7 @@ const (
  //go:cgo_import_dynamic runtime._VirtualFree VirtualFree%3 "kernel32.dll"
  //go:cgo_import_dynamic runtime._VirtualQuery VirtualQuery%3 "kernel32.dll"
  //go:cgo_import_dynamic runtime._WaitForSingleObject WaitForSingleObject%2 "kernel32.dll"
@@ -26,7 +33,7 @@ index 074ae0f..6cc9670 100644
  //go:cgo_import_dynamic runtime._WriteConsoleW WriteConsoleW%5 "kernel32.dll"
  //go:cgo_import_dynamic runtime._WriteFile WriteFile%5 "kernel32.dll"
  
-@@ -96,6 +97,7 @@
+@@ -94,6 +95,7 @@ var (
  	_VirtualFree,
  	_VirtualQuery,
  	_WaitForSingleObject,
@@ -34,7 +41,7 @@ index 074ae0f..6cc9670 100644
  	_WriteConsoleW,
  	_WriteFile,
  	_ stdFunction
-@@ -139,7 +141,8 @@
+@@ -137,7 +139,8 @@ func tstart_stdcall(newm *m)
  func ctrlhandler()
  
  type mOS struct {
@@ -44,11 +51,17 @@ index 074ae0f..6cc9670 100644
  }
  
  //go:linkname os_sigpipe os.sigpipe
-@@ -258,6 +261,34 @@
+@@ -251,6 +254,42 @@ func loadOptionalSyscalls() {
  	}
  }
  
 +func monitorSuspendResume() {
++	const _DEVICE_NOTIFY_CALLBACK = 2
++	type _DEVICE_NOTIFY_SUBSCRIBE_PARAMETERS struct {
++		callback uintptr
++		context  uintptr
++	}
++
 +	powrprof := windowsLoadSystemLib([]byte("powrprof.dll\000"))
 +	if powrprof == 0 {
 +		return // Running on Windows 7, where we don't need it anyway.
@@ -67,10 +80,12 @@ index 074ae0f..6cc9670 100644
 +		unlock(&allglock)
 +		return 0
 +	}
-+	var handle uintptr
-+	callback := compileCallback(*efaceOf(&fn), true)
-+	if stdcall3(powerRegisterSuspendResumeNotification, 2,
-+		uintptr(unsafe.Pointer(&[2]uintptr{callback, 0})),
++	params := _DEVICE_NOTIFY_SUBSCRIBE_PARAMETERS{
++		callback: compileCallback(*efaceOf(&fn), true),
++	}
++	handle := uintptr(0)
++	if stdcall3(powerRegisterSuspendResumeNotification, _DEVICE_NOTIFY_CALLBACK,
++		uintptr(unsafe.Pointer(&params)),
 +		uintptr(unsafe.Pointer(&handle))) != 0 {
 +		throw("PowerRegisterSuspendResumeNotification failure")
 +	}
@@ -79,7 +94,7 @@ index 074ae0f..6cc9670 100644
  //go:nosplit
  func getLoadLibrary() uintptr {
  	return uintptr(unsafe.Pointer(_LoadLibraryW))
-@@ -488,6 +519,10 @@
+@@ -410,6 +449,10 @@ func goenvs() {
  	}
  
  	stdcall1(_FreeEnvironmentStringsW, uintptr(strings))
@@ -90,14 +105,12 @@ index 074ae0f..6cc9670 100644
  }
  
  // exiting is set to non-zero when the process is exiting.
-@@ -606,21 +641,34 @@
+@@ -528,19 +571,32 @@ func semasleep(ns int64) int32 {
  		_WAIT_FAILED    = 0xFFFFFFFF
  	)
  
 -	// store ms in ns to save stack space
 +	var result uintptr
-+	var elapsed, start int64
-+retry:
  	if ns < 0 {
 -		ns = _INFINITE
 +		result = stdcall2(_WaitForSingleObject, getg().m.waitsema, uintptr(_INFINITE))
@@ -105,34 +118,35 @@ index 074ae0f..6cc9670 100644
 -		ns = int64(timediv(ns, 1000000, nil))
 -		if ns == 0 {
 -			ns = 1
-+		if start == 0 {
-+			start = nanotime()
++		start := nanotime()
++		elapsed := int64(0)
++		for {
++			ms := int64(timediv(ns-elapsed, 1000000, nil))
++			if ms == 0 {
++				ms = 1
++			}
++			result = stdcall4(_WaitForMultipleObjects, 2,
++				uintptr(unsafe.Pointer(&[2]uintptr{getg().m.waitsema, getg().m.resumesema})),
++				0, uintptr(ms))
++			if result != _WAIT_OBJECT_0+1 {
++				// Not a suspend/resume event
++				break
++			}
++			elapsed = nanotime() - start
++			if elapsed >= ns {
++				return -1
++			}
  		}
-+		ms := int64(timediv(ns-elapsed, 1000000, nil))
-+		if ms == 0 {
-+			ms = 1
-+		}
-+		result = stdcall4(_WaitForMultipleObjects, 2,
-+			uintptr(unsafe.Pointer(&[2]uintptr{getg().m.waitsema, getg().m.resumesema})),
-+			0, uintptr(ms))
  	}
 -
 -	result := stdcall2(_WaitForSingleObject, getg().m.waitsema, uintptr(ns))
  	switch result {
- 	case _WAIT_OBJECT_0: //signaled
+-	case _WAIT_OBJECT_0: //signaled
++	case _WAIT_OBJECT_0: // Signaled
  		return 0
  
-+	case _WAIT_OBJECT_0 + 1: //system resume
-+		elapsed = nanotime() - start
-+		if elapsed >= ns {
-+			return -1
-+		}
-+		goto retry
-+
  	case _WAIT_TIMEOUT:
- 		return -1
- 
-@@ -667,6 +715,15 @@
+@@ -589,6 +645,15 @@ func semacreate(mp *m) {
  			throw("runtime.semacreate")
  		})
  	}
@@ -149,10 +163,10 @@ index 074ae0f..6cc9670 100644
  
  // May run with m.p==nil, so write barriers are not allowed. This
 diff --git a/src/runtime/syscall_windows.go b/src/runtime/syscall_windows.go
-index 722a73d..0e2fcfb 100644
+index 722a73d108e..0e2fcfb02da 100644
 --- a/src/runtime/syscall_windows.go
 +++ b/src/runtime/syscall_windows.go
-@@ -74,16 +74,18 @@
+@@ -74,16 +74,18 @@ func compileCallback(fn eface, cleanstack bool) (code uintptr) {
  		argsize += uintptrSize
  	}
  
@@ -174,7 +188,7 @@ index 722a73d..0e2fcfb 100644
  		throw("too many callback functions")
  	}
  
-@@ -99,7 +101,9 @@
+@@ -99,7 +101,9 @@ func compileCallback(fn eface, cleanstack bool) (code uintptr) {
  	cbs.ctxt[n] = c
  	cbs.n++
  
