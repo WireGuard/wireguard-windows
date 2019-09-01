@@ -66,7 +66,7 @@ func (callback *UnicastAddressChangeCallback) Unregister() error {
 func unicastAddressChanged(callerContext uintptr, row *MibUnicastIPAddressRow, notificationType MibNotificationType) uintptr {
 	unicastAddressChangeMutex.Lock()
 	for cb := range unicastAddressChangeCallbacks {
-		cb.cb(notificationType, row)
+		go cb.cb(notificationType, row)
 	}
 	unicastAddressChangeMutex.Unlock()
 	return 0
