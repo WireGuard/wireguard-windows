@@ -68,6 +68,7 @@ var (
 	procNotifyUnicastIpAddressChange    = modiphlpapi.NewProc("NotifyUnicastIpAddressChange")
 	procNotifyRouteChange2              = modiphlpapi.NewProc("NotifyRouteChange2")
 	procCancelMibChangeNotify2          = modiphlpapi.NewProc("CancelMibChangeNotify2")
+	procSetInterfaceDnsSettings         = modiphlpapi.NewProc("SetInterfaceDnsSettings")
 )
 
 func freeMibTable(memory unsafe.Pointer) {
@@ -302,6 +303,14 @@ func notifyRouteChange2(family AddressFamily, callback uintptr, callerContext ui
 
 func cancelMibChangeNotify2(notificationHandle windows.Handle) (ret error) {
 	r0, _, _ := syscall.Syscall(procCancelMibChangeNotify2.Addr(), 1, uintptr(notificationHandle), 0, 0)
+	if r0 != 0 {
+		ret = syscall.Errno(r0)
+	}
+	return
+}
+
+func setInterfaceDnsSettings(guid *windows.GUID, settings *DnsInterfaceSettings) (ret error) {
+	r0, _, _ := syscall.Syscall(procSetInterfaceDnsSettings.Addr(), 2, uintptr(unsafe.Pointer(guid)), uintptr(unsafe.Pointer(settings)), 0)
 	if r0 != 0 {
 		ret = syscall.Errno(r0)
 	}

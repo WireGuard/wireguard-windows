@@ -166,3 +166,6 @@ func GetIPForwardTable2(family AddressFamily) ([]MibIPforwardRow2, error) {
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-cancelmibchangenotify2
 //sys	cancelMibChangeNotify2(notificationHandle windows.Handle) (ret error) = iphlpapi.CancelMibChangeNotify2
+
+// Undocumented
+//sys	setInterfaceDnsSettings(guid *windows.GUID, settings *DnsInterfaceSettings) (ret error) = iphlpapi.SetInterfaceDnsSettings

@@ -950,3 +950,28 @@ func (tab *mibIPforwardTable2) get() []MibIPforwardRow2 {
 func (tab *mibIPforwardTable2) free() {
 	freeMibTable(unsafe.Pointer(tab))
 }
+
+type DnsInterfaceSettings struct {
+	Version uint32
+	Flags uint64
+	Domain *uint16
+	NameServer *uint16
+	SearchList *uint16
+	RegistrationEnabled uint32
+	RegisterAdapterName uint32
+	EnableLLMNR uint32
+	QueryAdapterName uint32
+	ProfileNameServer *uint16
+}
+
+const (
+	DisVersion = 1
+
+	DisFlagsHaveNameServer = 2 << iota
+	DisFlagsHaveSearchList
+	DisFlagsHaveRegistrationEnabled
+	DisFlagsHaveDomain
+	DisFlagsHaveEnableLLMNR
+	DisFlagsHaveQueryAdapterName
+	DisFlagsHaveProfileNameServer
+)
