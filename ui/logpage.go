@@ -45,6 +45,7 @@ func NewLogPage() (*LogPage, error) {
 	}
 	lp.logView.SetAlternatingRowBGColor(walk.Color(win.GetSysColor(win.COLOR_BTNFACE)))
 	lp.logView.SetLastColumnStretched(true)
+	lp.logView.SetGridlines(true)
 
 	contextMenu, err := walk.NewMenu()
 	if err != nil {
