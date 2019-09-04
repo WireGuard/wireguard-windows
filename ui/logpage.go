@@ -11,8 +11,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/lxn/win"
-
 	"github.com/lxn/walk"
 	"golang.zx2c4.com/wireguard/windows/ringlogger"
 )
@@ -20,6 +18,12 @@ import (
 const (
 	maxLogLinesDisplayed = 10000
 )
+
+type LogPage struct {
+	*walk.TabPage
+	logView *walk.TableView
+	model   *logModel
+}
 
 func NewLogPage() (*LogPage, error) {
 	lp := &LogPage{}
@@ -43,7 +47,7 @@ func NewLogPage() (*LogPage, error) {
 	if lp.logView, err = walk.NewTableView(lp); err != nil {
 		return nil, err
 	}
-	lp.logView.SetAlternatingRowBGColor(walk.Color(win.GetSysColor(win.COLOR_BTNFACE)))
+	lp.logView.SetAlternatingRowBG(true)
 	lp.logView.SetLastColumnStretched(true)
 	lp.logView.SetGridlines(true)
 
@@ -113,12 +117,6 @@ func NewLogPage() (*LogPage, error) {
 	disposables.Spare()
 
 	return lp, nil
-}
-
-type LogPage struct {
-	*walk.TabPage
-	logView *walk.TableView
-	model   *logModel
 }
 
 func (lp *LogPage) isAtBottom() bool {
