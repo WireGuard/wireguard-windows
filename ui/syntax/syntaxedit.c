@@ -362,6 +362,14 @@ static LRESULT CALLBACK child_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lP
 	case WM_THEMECHANGED:
 		highlight_text(hWnd);
 		break;
+	case WM_GETDLGCODE: {
+		MSG *m = (MSG *)lParam;
+		LRESULT lres = parent_proc(hWnd, Msg, wParam, lParam);
+		lres &= ~DLGC_WANTTAB;
+		if (m && m->message == WM_KEYDOWN && m->wParam == VK_TAB && GetKeyState(VK_CONTROL) >= 0)
+			lres &= ~DLGC_WANTMESSAGE;
+		return lres;
+	}
 	}
 	return parent_proc(hWnd, Msg, wParam, lParam);
 }
