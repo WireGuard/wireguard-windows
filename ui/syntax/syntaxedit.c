@@ -141,6 +141,7 @@ static void highlight_text(HWND hWnd)
 	CHARRANGE orig_selection;
 	POINT original_scroll;
 	bool found_private_key = false;
+	COLORREF bg_color, bg_inversion;
 
 	if (this->highlight_guard)
 		return;
@@ -175,10 +176,13 @@ static void highlight_text(HWND hWnd)
 	SendMessage(hWnd, EM_GETSCROLLPOS, 0, (LPARAM)&original_scroll);
 	SendMessage(hWnd, EM_HIDESELECTION, TRUE, 0);
 	SendMessage(hWnd, EM_SETCHARFORMAT, SCF_ALL, (LPARAM)&format);
+	bg_color = GetSysColor(COLOR_WINDOW);
+	bg_inversion = (bg_color & RGB(0xFF, 0xFF, 0xFF)) ^ RGB(0xFF, 0xFF, 0xFF);
+	SendMessage(hWnd, EM_SETBKGNDCOLOR, 0, bg_color);
 	for (struct highlight_span *span = spans; span->type != HighlightEnd; ++span) {
 		CHARRANGE selection = { span->start, span->len + span->start };
 		SendMessage(hWnd, EM_EXSETSEL, 0, (LPARAM)&selection);
-		format.crTextColor = stylemap[span->type].color;
+		format.crTextColor = stylemap[span->type].color ^ bg_inversion;
 		format.dwEffects = stylemap[span->type].effects;
 		SendMessage(hWnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&format);
 		if (span->type == HighlightPrivateKey && !found_private_key) {
@@ -354,6 +358,9 @@ static LRESULT CALLBACK child_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lP
 	case WM_CONTEXTMENU:
 		context_menu(hWnd, LOWORD(lParam), HIWORD(lParam));
 		return 0;
+	case WM_THEMECHANGED:
+		highlight_text(hWnd);
+		break;
 	}
 	return parent_proc(hWnd, Msg, wParam, lParam);
 }
