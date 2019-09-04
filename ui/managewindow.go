@@ -6,6 +6,7 @@
 package ui
 
 import (
+	"sync"
 	"unsafe"
 
 	"github.com/lxn/walk"
@@ -32,13 +33,18 @@ const (
 	aboutWireGuardCmd       = 0x37
 )
 
-var taskbarButtonCreatedMsg = win.RegisterWindowMessage(windows.StringToUTF16Ptr("TaskbarButtonCreated"))
+var taskbarButtonCreatedMsg uint32
 
-func init() {
-	walk.MustRegisterWindowClass(manageWindowWindowClass)
-}
+var initedManageTunnels sync.Once
 
 func NewManageTunnelsWindow() (*ManageTunnelsWindow, error) {
+	initedManageTunnels.Do(func() {
+		walk.AppendToWalkInit(func() {
+				walk.MustRegisterWindowClass(manageWindowWindowClass)
+				taskbarButtonCreatedMsg = win.RegisterWindowMessage(windows.StringToUTF16Ptr("TaskbarButtonCreated"))
+		})
+	})
+
 	var err error
 	var disposables walk.Disposables
 	defer disposables.Treat()
