@@ -346,15 +346,15 @@ static LRESULT CALLBACK child_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lP
 	case WM_PASTE:
 		SendMessage(hWnd, EM_PASTESPECIAL, CF_TEXT, 0);
 		return 0;
-	case WM_KEYDOWN:
-		if (!(GetKeyState(VK_CONTROL) & 0x8000))
-			break;
-		switch (LOWORD(wParam)) {
-		case 'V':
+	case WM_KEYDOWN: {
+		WORD key = LOWORD(wParam);
+		if ((key == 'V' && GetKeyState(VK_CONTROL) < 0) ||
+		    (key == VK_INSERT && GetKeyState(VK_SHIFT) < 0)) {
 			SendMessage(hWnd, EM_PASTESPECIAL, CF_TEXT, 0);
 			return 0;
 		}
 		break;
+	}
 	case WM_CONTEXTMENU:
 		context_menu(hWnd, LOWORD(lParam), HIWORD(lParam));
 		return 0;
