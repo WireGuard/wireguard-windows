@@ -156,7 +156,7 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 		return
 	}
 
-	log.Println("Creating Wintun device")
+	log.Println("Creating Wintun interface")
 	wintun, err := tun.CreateTUNWithRequestedGUID(conf.Name, deterministicGUID(conf))
 	if err != nil {
 		serviceError = services.ErrorCreateWintun
