@@ -44,7 +44,7 @@ func (e Error) Error() string {
 	case ErrorLoadConfiguration:
 		return "Unable to load configuration from path"
 	case ErrorCreateWintun:
-		return "Unable to create Wintun device"
+		return "Unable to create Wintun interface"
 	case ErrorUAPIListen:
 		return "Unable to listen on named pipe"
 	case ErrorDNSLookup:
