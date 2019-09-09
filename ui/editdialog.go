@@ -108,11 +108,14 @@ func newEditDialog(owner walk.Form, tunnel *manager.Tunnel) (*EditDialog, error)
 	layout.SetRange(dlg.pubkeyEdit, walk.Rectangle{1, 1, 1, 1})
 	dlg.pubkeyEdit.SetReadOnly(true)
 	dlg.pubkeyEdit.SetText("(unknown)")
+	dlg.pubkeyEdit.Accessibility().SetRole(walk.AccRoleStatictext)
 
 	if dlg.syntaxEdit, err = syntax.NewSyntaxEdit(dlg); err != nil {
 		return nil, err
 	}
 	layout.SetRange(dlg.syntaxEdit, walk.Rectangle{0, 2, 2, 1})
+	// TODO: This doesn't work - RTF control overrides us with "RichEdit Control".
+	dlg.syntaxEdit.Accessibility().SetName("Configuration")
 
 	buttonsContainer, err := walk.NewComposite(dlg)
 	if err != nil {

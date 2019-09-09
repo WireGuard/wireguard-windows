@@ -145,6 +145,7 @@ func newLabelStatusLine(parent walk.Container) (*labelStatusLine, error) {
 		lsl.statusLabel.SetTextSelection(0, 0)
 	})
 	lsl.update(manager.TunnelUnknown)
+	lsl.statusLabel.Accessibility().SetRole(walk.AccRoleStatictext)
 
 	disposables.Spare()
 
@@ -201,6 +202,7 @@ func newLabelTextLine(fieldName string, parent walk.Container) (*labelTextLine, 
 	lt.text.FocusedChanged().Attach(func() {
 		lt.text.SetTextSelection(0, 0)
 	})
+	lt.text.Accessibility().SetRole(walk.AccRoleStatictext)
 
 	disposables.Spare()
 
