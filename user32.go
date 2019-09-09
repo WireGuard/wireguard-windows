@@ -1841,6 +1841,7 @@ var (
 	messageBox                  *windows.LazyProc
 	monitorFromWindow           *windows.LazyProc
 	moveWindow                  *windows.LazyProc
+	notifyWinEvent              *windows.LazyProc
 	unregisterClass             *windows.LazyProc
 	openClipboard               *windows.LazyProc
 	peekMessage                 *windows.LazyProc
@@ -1985,6 +1986,7 @@ func init() {
 	messageBox = libuser32.NewProc("MessageBoxW")
 	monitorFromWindow = libuser32.NewProc("MonitorFromWindow")
 	moveWindow = libuser32.NewProc("MoveWindow")
+	notifyWinEvent = libuser32.NewProc("NotifyWinEvent")
 	unregisterClass = libuser32.NewProc("UnregisterClassW")
 	openClipboard = libuser32.NewProc("OpenClipboard")
 	peekMessage = libuser32.NewProc("PeekMessageW")
@@ -2900,6 +2902,16 @@ func MoveWindow(hWnd HWND, x, y, width, height int32, repaint bool) bool {
 		uintptr(BoolToBOOL(repaint)))
 
 	return ret != 0
+}
+
+func NotifyWinEvent(event uint32, hwnd HWND, idObject, idChild int32) {
+	syscall.Syscall6(notifyWinEvent.Addr(), 4,
+		uintptr(event),
+		uintptr(hwnd),
+		uintptr(idObject),
+		uintptr(idChild),
+		0,
+		0)
 }
 
 func UnregisterClass(name *uint16) bool {
