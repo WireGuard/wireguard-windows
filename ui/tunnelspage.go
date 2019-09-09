@@ -229,7 +229,6 @@ func (tp *TunnelsPage) CreateToolbar() error {
 	deleteAction2.Triggered().Attach(tp.onDelete)
 	contextMenu.Actions().Add(deleteAction2)
 	tp.listView.ShortcutActions().Add(deleteAction2)
-	tp.listView.SetContextMenu(contextMenu)
 	selectAllAction := walk.NewAction()
 	selectAllAction.SetText("Select &all")
 	selectAllAction.SetShortcut(walk.Shortcut{walk.ModControl, walk.KeyA})
