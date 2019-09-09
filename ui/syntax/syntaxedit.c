@@ -9,6 +9,7 @@
 #include <string.h>
 #include <assert.h>
 #include <windows.h>
+#include <windowsx.h>
 #include <richedit.h>
 #include <richole.h>
 #include <tom.h>
@@ -281,8 +282,8 @@ static void context_menu(HWND hWnd, INT x, INT y)
 	if (x == -1 && y == -1) {
 		RECT rect;
 		GetWindowRect(hWnd, &rect);
-		x = rect.left + (rect.right - rect.left) / 2;
-		y = rect.top + (rect.bottom - rect.top) / 2;
+		x = (rect.left + rect.right) / 2;
+		y = (rect.top + rect.bottom) / 2;
 	}
 
 	if (GetFocus() != hWnd)
@@ -356,7 +357,7 @@ static LRESULT CALLBACK child_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lP
 		break;
 	}
 	case WM_CONTEXTMENU:
-		context_menu(hWnd, LOWORD(lParam), HIWORD(lParam));
+		context_menu(hWnd, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		return 0;
 	case WM_THEMECHANGED:
 		highlight_text(hWnd);
