@@ -79,6 +79,7 @@ func runAboutDialog(owner walk.Form) error {
 	if logo, err := loadLogoIcon(128); err == nil {
 		iv.SetImage(logo)
 	}
+	iv.Accessibility().SetName("WireGuard logo image")
 
 	wgLbl, err := walk.NewTextLabel(showingAboutDialog)
 	if err != nil {
