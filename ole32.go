@@ -38,6 +38,13 @@ const (
 	CLSCTX_ALL                    = CLSCTX_INPROC_SERVER | CLSCTX_INPROC_HANDLER | CLSCTX_LOCAL_SERVER | CLSCTX_REMOTE_SERVER
 )
 
+const (
+	COINIT_APARTMENTTHREADED = 0x2 // Apartment model
+	COINIT_MULTITHREADED     = 0x0 // OLE calls objects on any thread.
+	COINIT_DISABLE_OLE1DDE   = 0x4 // Don't use DDE for Ole1 support.
+	COINIT_SPEED_OVER_MEMORY = 0x8 // Trade memory for speed.
+)
+
 // Verbs for IOleObject.DoVerb
 const (
 	OLEIVERB_PRIMARY          = 0
@@ -425,7 +432,9 @@ var (
 	// Functions
 	coCreateInstance      *windows.LazyProc
 	coGetClassObject      *windows.LazyProc
+	coInitializeEx        *windows.LazyProc
 	coTaskMemFree         *windows.LazyProc
+	coUninitialize        *windows.LazyProc
 	oleInitialize         *windows.LazyProc
 	oleSetContainedObject *windows.LazyProc
 	oleUninitialize       *windows.LazyProc
@@ -438,7 +447,9 @@ func init() {
 	// Functions
 	coCreateInstance = libole32.NewProc("CoCreateInstance")
 	coGetClassObject = libole32.NewProc("CoGetClassObject")
+	coInitializeEx = libole32.NewProc("CoInitializeEx")
 	coTaskMemFree = libole32.NewProc("CoTaskMemFree")
+	coUninitialize = libole32.NewProc("CoUninitialize")
 	oleInitialize = libole32.NewProc("OleInitialize")
 	oleSetContainedObject = libole32.NewProc("OleSetContainedObject")
 	oleUninitialize = libole32.NewProc("OleUninitialize")
@@ -466,6 +477,22 @@ func CoGetClassObject(rclsid REFCLSID, dwClsContext uint32, pServerInfo *COSERVE
 		0)
 
 	return HRESULT(ret)
+}
+
+func CoInitializeEx(reserved unsafe.Pointer, coInit uint32) HRESULT {
+	ret, _, _ := syscall.Syscall(coInitializeEx.Addr(), 2,
+		uintptr(reserved),
+		uintptr(coInit),
+		0)
+
+	return HRESULT(ret)
+}
+
+func CoUninitialize() {
+	syscall.Syscall(coUninitialize.Addr(), 0,
+		0,
+		0,
+		0)
 }
 
 func CoTaskMemFree(pv uintptr) {
