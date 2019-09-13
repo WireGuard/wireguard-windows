@@ -73,7 +73,9 @@ func RunUI() {
 			switch updateState {
 			case manager.UpdateStateFoundUpdate:
 				mtw.UpdateFound()
-				tray.UpdateFound()
+				if tray != nil {
+					tray.UpdateFound()
+				}
 			case manager.UpdateStateUpdatesDisabledUnofficialBuild:
 				mtw.SetTitle(mtw.Title() + " (unsigned build, no updates)")
 			}
@@ -87,12 +89,14 @@ func RunUI() {
 		}
 	}()
 
-	if noTrayAvailable {
+	if tray == nil {
 		win.ShowWindow(mtw.Handle(), win.SW_MINIMIZE)
 	}
 
 	mtw.Run()
-	tray.Dispose()
+	if tray != nil {
+		tray.Dispose()
+	}
 	mtw.Dispose()
 
 	if shouldQuitManagerWhenExiting {
