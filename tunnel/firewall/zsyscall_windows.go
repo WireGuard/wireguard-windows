@@ -50,9 +50,6 @@ var (
 	procFwpmTransactionCommit0    = modfwpuclnt.NewProc("FwpmTransactionCommit0")
 	procFwpmTransactionAbort0     = modfwpuclnt.NewProc("FwpmTransactionAbort0")
 	procFwpmProviderAdd0          = modfwpuclnt.NewProc("FwpmProviderAdd0")
-	procGetSidIdentifierAuthority = modadvapi32.NewProc("GetSidIdentifierAuthority")
-	procGetSidSubAuthorityCount   = modadvapi32.NewProc("GetSidSubAuthorityCount")
-	procGetSidSubAuthority        = modadvapi32.NewProc("GetSidSubAuthority")
 	procBuildSecurityDescriptorW  = modadvapi32.NewProc("BuildSecurityDescriptorW")
 )
 
@@ -166,24 +163,6 @@ func fwpmProviderAdd0(engineHandle uintptr, provider *wtFwpmProvider0, sd uintpt
 			err = syscall.EINVAL
 		}
 	}
-	return
-}
-
-func getSidIdentifierAuthority(sid *windows.SID) (authority *windows.SidIdentifierAuthority) {
-	r0, _, _ := syscall.Syscall(procGetSidIdentifierAuthority.Addr(), 1, uintptr(unsafe.Pointer(sid)), 0, 0)
-	authority = (*windows.SidIdentifierAuthority)(unsafe.Pointer(r0))
-	return
-}
-
-func getSidSubAuthorityCount(sid *windows.SID) (count *uint8) {
-	r0, _, _ := syscall.Syscall(procGetSidSubAuthorityCount.Addr(), 1, uintptr(unsafe.Pointer(sid)), 0, 0)
-	count = (*uint8)(unsafe.Pointer(r0))
-	return
-}
-
-func getSidSubAuthority(sid *windows.SID, index uint32) (subAuthority *uint32) {
-	r0, _, _ := syscall.Syscall(procGetSidSubAuthority.Addr(), 2, uintptr(unsafe.Pointer(sid)), uintptr(index), 0)
-	subAuthority = (*uint32)(unsafe.Pointer(r0))
 	return
 }
 
