@@ -7,7 +7,7 @@ OLD_GOROOT := $(GOROOT)
 export GOROOT := $(CURDIR)/.deps/goroot
 
 rwildcard=$(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subst *,%,$2),$d))
-SOURCE_FILES := $(call rwildcard,,*.go *.c *.h) .deps/prepared
+SOURCE_FILES := $(call rwildcard,,*.go *.c *.h) .deps/prepared go.mod go.sum
 RESOURCE_FILES := resources.rc version/version.h manifest.xml $(patsubst %.svg,%.ico,$(wildcard ui/icon/*.svg))
 
 REQUIRED_GO_VERSION := go1.13
