@@ -210,6 +210,13 @@ const (
 )
 
 const (
+	LVIR_BOUNDS       = 0
+	LVIR_ICON         = 1
+	LVIR_LABEL        = 2
+	LVIR_SELECTBOUNDS = 3
+)
+
+const (
 	LPSTR_TEXTCALLBACK = ^uintptr(0)
 	I_CHILDRENCALLBACK = -1
 	I_IMAGECALLBACK    = -1
