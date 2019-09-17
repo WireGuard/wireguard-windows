@@ -34,6 +34,3 @@ package firewall
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/fwpmu/nf-fwpmu-fwpmprovideradd0
 //sys	fwpmProviderAdd0(engineHandle uintptr, provider *wtFwpmProvider0, sd uintptr) (err error) [failretval!=0] = fwpuclnt.FwpmProviderAdd0
-
-// https://docs.microsoft.com/en-us/windows/desktop/api/aclapi/nf-aclapi-buildsecuritydescriptorw
-//sys	buildSecurityDescriptor(owner *wtTrustee, group *wtTrustee, countAccessEntries uint32, accessEntries *wtExplicitAccess, countAuditEntries uint32, auditEntries *wtExplicitAccess, oldSd **byte, sizeNewSd *uint32, newSd **byte) (ret error) = advapi32.BuildSecurityDescriptorW

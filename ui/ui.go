@@ -25,8 +25,7 @@ var startTime = time.Now()
 
 func RunUI() {
 	runtime.LockOSThread()
-	thisProcess, _ := windows.GetCurrentProcess()
-	windows.SetProcessPriorityBoost(thisProcess, false)
+	windows.SetProcessPriorityBoost(windows.GetCurrentProcess(), false)
 	defer func() {
 		if err := recover(); err != nil {
 			showErrorCustom(nil, "Panic", fmt.Sprint(err, "\n\n", string(debug.Stack())))

@@ -45,7 +45,8 @@ func ShellExecute(program string, arguments string, directory string, show int32
 		}
 	}()
 
-	processToken, err := windows.OpenCurrentProcessToken()
+	var processToken windows.Token
+	err = windows.OpenProcessToken(windows.GetCurrentProcess(), windows.TOKEN_QUERY|windows.TOKEN_DUPLICATE, &processToken)
 	if err != nil {
 		return
 	}

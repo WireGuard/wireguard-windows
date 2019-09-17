@@ -38,7 +38,6 @@ func errnoErr(e syscall.Errno) error {
 
 var (
 	modfwpuclnt = windows.NewLazySystemDLL("fwpuclnt.dll")
-	modadvapi32 = windows.NewLazySystemDLL("advapi32.dll")
 
 	procFwpmEngineOpen0           = modfwpuclnt.NewProc("FwpmEngineOpen0")
 	procFwpmEngineClose0          = modfwpuclnt.NewProc("FwpmEngineClose0")
@@ -50,7 +49,6 @@ var (
 	procFwpmTransactionCommit0    = modfwpuclnt.NewProc("FwpmTransactionCommit0")
 	procFwpmTransactionAbort0     = modfwpuclnt.NewProc("FwpmTransactionAbort0")
 	procFwpmProviderAdd0          = modfwpuclnt.NewProc("FwpmProviderAdd0")
-	procBuildSecurityDescriptorW  = modadvapi32.NewProc("BuildSecurityDescriptorW")
 )
 
 func fwpmEngineOpen0(serverName *uint16, authnService wtRpcCAuthN, authIdentity *uintptr, session *wtFwpmSession0, engineHandle unsafe.Pointer) (err error) {
@@ -162,14 +160,6 @@ func fwpmProviderAdd0(engineHandle uintptr, provider *wtFwpmProvider0, sd uintpt
 		} else {
 			err = syscall.EINVAL
 		}
-	}
-	return
-}
-
-func buildSecurityDescriptor(owner *wtTrustee, group *wtTrustee, countAccessEntries uint32, accessEntries *wtExplicitAccess, countAuditEntries uint32, auditEntries *wtExplicitAccess, oldSd **byte, sizeNewSd *uint32, newSd **byte) (ret error) {
-	r0, _, _ := syscall.Syscall9(procBuildSecurityDescriptorW.Addr(), 9, uintptr(unsafe.Pointer(owner)), uintptr(unsafe.Pointer(group)), uintptr(countAccessEntries), uintptr(unsafe.Pointer(accessEntries)), uintptr(countAuditEntries), uintptr(unsafe.Pointer(auditEntries)), uintptr(unsafe.Pointer(oldSd)), uintptr(unsafe.Pointer(sizeNewSd)), uintptr(unsafe.Pointer(newSd)))
-	if r0 != 0 {
-		ret = syscall.Errno(r0)
 	}
 	return
 }

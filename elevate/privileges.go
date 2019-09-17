@@ -14,19 +14,15 @@ import (
 )
 
 func DropAllPrivileges(retainDriverLoading bool) error {
-	processHandle, err := windows.GetCurrentProcess()
-	if err != nil {
-		return err
-	}
 	var luid windows.LUID
 	if retainDriverLoading {
-		err = windows.LookupPrivilegeValue(nil, windows.StringToUTF16Ptr("SeLoadDriverPrivilege"), &luid)
+		err := windows.LookupPrivilegeValue(nil, windows.StringToUTF16Ptr("SeLoadDriverPrivilege"), &luid)
 		if err != nil {
 			return err
 		}
 	}
 	var processToken windows.Token
-	err = windows.OpenProcessToken(processHandle, windows.TOKEN_READ|windows.TOKEN_WRITE, &processToken)
+	err := windows.OpenProcessToken(windows.GetCurrentProcess(), windows.TOKEN_READ|windows.TOKEN_WRITE, &processToken)
 	if err != nil {
 		return err
 	}
