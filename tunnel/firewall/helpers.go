@@ -71,8 +71,9 @@ func wrapErr(err error) error {
 	return fmt.Errorf("Firewall error at %s:%d: %v", file, line, err)
 }
 
-func getCurrentProcessSecurityDescriptor() (*wtFwpByteBlob, error) {
-	processToken, err := windows.OpenCurrentProcessToken()
+func getCurrentProcessSecurityDescriptor() (*windows.SECURITY_DESCRIPTOR, error) {
+	var processToken windows.Token
+	err := windows.OpenProcessToken(windows.GetCurrentProcess(), windows.TOKEN_QUERY, &processToken)
 	if err != nil {
 		return nil, wrapErr(err)
 	}
@@ -99,21 +100,32 @@ func getCurrentProcessSecurityDescriptor() (*wtFwpByteBlob, error) {
 		return nil, wrapErr(windows.ERROR_NO_SUCH_GROUP)
 	}
 
-	access := &wtExplicitAccess{
-		accessPermissions: cFWP_ACTRL_MATCH_FILTER,
-		accessMode:        cGRANT_ACCESS,
-		trustee: wtTrustee{
-			trusteeForm: cTRUSTEE_IS_SID,
-			trusteeType: cTRUSTEE_IS_GROUP,
-			sid:         sid,
+	access := []windows.EXPLICIT_ACCESS{{
+		AccessPermissions: cFWP_ACTRL_MATCH_FILTER,
+		AccessMode:        windows.GRANT_ACCESS,
+		Trustee: windows.TRUSTEE{
+			TrusteeForm:  windows.TRUSTEE_IS_SID,
+			TrusteeType:  windows.TRUSTEE_IS_GROUP,
+			TrusteeValue: windows.TrusteeValueFromSID(sid),
 		},
-	}
-	blob := &wtFwpByteBlob{}
-	err = buildSecurityDescriptor(nil, nil, 1, access, 0, nil, nil, &blob.size, &blob.data)
+	}}
+	dacl, err := windows.ACLFromEntries(access, nil)
 	if err != nil {
 		return nil, wrapErr(err)
 	}
-	return blob, nil
+	sd, err := windows.NewSecurityDescriptor()
+	if err != nil {
+		return nil, wrapErr(err)
+	}
+	err = sd.SetDACL(dacl, true, false)
+	if err != nil {
+		return nil, wrapErr(err)
+	}
+	sd, err = sd.ToSelfRelative()
+	if err != nil {
+		return nil, wrapErr(err)
+	}
+	return sd, nil
 }
 
 func getCurrentProcessAppID() (*wtFwpByteBlob, error) {

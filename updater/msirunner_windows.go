@@ -17,7 +17,6 @@ import (
 	"unsafe"
 
 	"golang.org/x/sys/windows"
-	"golang.zx2c4.com/wireguard/ipc/winpipe"
 )
 
 func runMsi(msiPath string, userToken uintptr) error {
@@ -61,13 +60,13 @@ func msiTempFile() (*os.File, error) {
 	if n != int(len(randBytes)) {
 		return nil, errors.New("Unable to generate random bytes")
 	}
-	sd, err := winpipe.SddlToSecurityDescriptor("O:SYD:PAI(A;;FA;;;SY)(A;;FR;;;BA)")
+	sd, err := windows.SecurityDescriptorFromString("O:SYD:PAI(A;;FA;;;SY)(A;;FR;;;BA)")
 	if err != nil {
 		return nil, err
 	}
 	sa := &windows.SecurityAttributes{
 		Length:             uint32(unsafe.Sizeof(windows.SecurityAttributes{})),
-		SecurityDescriptor: uintptr(unsafe.Pointer(&sd[0])),
+		SecurityDescriptor: sd,
 	}
 	// TODO: os.TempDir() returns C:\windows\temp when calling from this context. Supposedly this is mostly secure
 	// against TOCTOU, but who knows! Look into this!

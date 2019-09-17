@@ -15,11 +15,11 @@ import (
 	"os"
 	"sync"
 	"sync/atomic"
-	"syscall"
 	"time"
 
 	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/svc"
+
 	"golang.zx2c4.com/wireguard/ipc/winpipe"
 
 	"golang.zx2c4.com/wireguard/windows/conf"
@@ -59,7 +59,7 @@ func (s *ManagerService) RuntimeConfig(tunnelName string, config *conf.Config) e
 	if err != nil {
 		return err
 	}
-	pipe, err := winpipe.DialPipe(pipePath, nil, (*syscall.SID)(localSystem))
+	pipe, err := winpipe.DialPipe(pipePath, nil, localSystem)
 	if err != nil {
 		return err
 	}

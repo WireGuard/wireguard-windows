@@ -154,14 +154,13 @@ func permitWireGuardService(session uintptr, baseObjects *baseObjects, weight ui
 	if err != nil {
 		return wrapErr(err)
 	}
-	defer windows.LocalFree(windows.Handle(unsafe.Pointer(sd.data)))
 
 	conditions[1] = wtFwpmFilterCondition0{
 		fieldKey:  cFWPM_CONDITION_ALE_USER_ID,
 		matchType: cFWP_MATCH_EQUAL,
 		conditionValue: wtFwpConditionValue0{
 			_type: cFWP_SECURITY_DESCRIPTOR_TYPE,
-			value: uintptr(unsafe.Pointer(sd)),
+			value: uintptr(unsafe.Pointer(&wtFwpByteBlob{sd.Length(), (*byte)(unsafe.Pointer(sd))})),
 		},
 	}
 

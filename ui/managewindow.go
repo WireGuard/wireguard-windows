@@ -40,8 +40,8 @@ var initedManageTunnels sync.Once
 func NewManageTunnelsWindow() (*ManageTunnelsWindow, error) {
 	initedManageTunnels.Do(func() {
 		walk.AppendToWalkInit(func() {
-				walk.MustRegisterWindowClass(manageWindowWindowClass)
-				taskbarButtonCreatedMsg = win.RegisterWindowMessage(windows.StringToUTF16Ptr("TaskbarButtonCreated"))
+			walk.MustRegisterWindowClass(manageWindowWindowClass)
+			taskbarButtonCreatedMsg = win.RegisterWindowMessage(windows.StringToUTF16Ptr("TaskbarButtonCreated"))
 		})
 	})
 
