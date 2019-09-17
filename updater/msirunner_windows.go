@@ -66,7 +66,7 @@ func msiTempFile() (*os.File, error) {
 		return nil, err
 	}
 	sa := &windows.SecurityAttributes{
-		Length:             uint32(len(sd)),
+		Length:             uint32(unsafe.Sizeof(windows.SecurityAttributes{})),
 		SecurityDescriptor: uintptr(unsafe.Pointer(&sd[0])),
 	}
 	// TODO: os.TempDir() returns C:\windows\temp when calling from this context. Supposedly this is mostly secure
