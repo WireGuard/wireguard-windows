@@ -129,7 +129,9 @@ func LoadFromName(name string) (*Config, error) {
 }
 
 func LoadFromPath(path string) (*Config, error) {
-	tunnelConfigurationsDirectory() // Provoke migrations, if needed.
+	if !disableAutoMigration {
+		tunnelConfigurationsDirectory() // Provoke migrations, if needed.
+	}
 
 	name, err := NameFromPath(path)
 	if err != nil {
