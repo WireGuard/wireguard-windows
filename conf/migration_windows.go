@@ -14,6 +14,10 @@ import (
 )
 
 func maybeMigrate(c string) {
+	if disableAutoMigration {
+		return
+	}
+
 	vol := filepath.VolumeName(c)
 	withoutVol := strings.TrimPrefix(c, vol)
 	oldRoot := filepath.Join(vol, "\\windows.old")
