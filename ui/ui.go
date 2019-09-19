@@ -33,9 +33,8 @@ func RunUI() {
 		}
 	}()
 
-	var err error
-
 	var (
+		err  error
 		mtw  *ManageTunnelsWindow
 		tray *Tray
 	)
