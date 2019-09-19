@@ -10,7 +10,7 @@ Wintun is a kernel driver. It exposes:
 
   - A miniport driver to the ndis stack, meaning any process on the system that can access the network stack in a reasonable way can send and receive packets, hitting those related ndis handlers.
   - There are also various ndis OID calls, accessible to certain users, which hit further code.
-  - A virtual file in `\\Device\WINTUN%d`, whose permissions are set to `SDDL_DEVOBJ_SYS_ALL`. Presumably this means only the "Local System" user can open the file and do things, but it might be worth double checking that. It sends and receives layer 3 packets, and does minimal parsing of the IP header in order to determine packet family. It also does more complex struct alignment pointer arithmetic, as it can send and receive several packets at a time in a single bundle.
+  - IOCTLs are added to the NDIS device file, and those IOCTLs are restricted to `SDDL_DEVOBJ_SYS_ALL`. The IOCTL allows userspace to register a pair of rings and event objects, which Wintun then locks the pages of with a double mapping and takes a reference to the event object. It parses the contents of the ring to send and receive layer 3 packets, each of which it minimally parses to determine IP family.
 
 ### Tunnel Service
 
