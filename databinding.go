@@ -490,12 +490,14 @@ func reflectValueFromPath(root reflect.Value, path string) (parent, value reflec
 				// No field, so let's see if we got a method.
 				if p.IsValid() {
 					// Try pointer receiver first.
-					fun = p.MethodByName(name)
+					//fun = p.MethodByName(name)
+					panic("reflection is disabled in this rendition of walk")
 				}
 
 				if !fun.IsValid() {
 					// No pointer, try directly.
-					fun = value.MethodByName(name)
+					//fun = value.MethodByName(name)
+					panic("reflection is disabled in this rendition of walk")
 				}
 				if !fun.IsValid() {
 					return parent, value, fmt.Errorf("bad member: '%s', path: '%s'", path, fullPath)
@@ -505,7 +507,8 @@ func reflectValueFromPath(root reflect.Value, path string) (parent, value reflec
 			if fun.IsValid() {
 				// We assume it takes no args and returns one mandatory value plus
 				// maybe an error.
-				rvs := fun.Call(nil)
+				var rvs []reflect.Value //fun.Call(nil)
+				panic("reflection is disabled in this rendition of walk")
 				switch len(rvs) {
 				case 1:
 					value = rvs[0]
