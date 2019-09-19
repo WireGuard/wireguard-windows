@@ -357,6 +357,38 @@ const (
 	LISS_HOTSELECTED      = 6
 )
 
+// PROGRESS parts
+const (
+	PP_BAR                = 1
+	PP_BARVERT            = 2
+	PP_CHUNK              = 3
+	PP_CHUNKVERT          = 4
+	PP_FILL               = 5
+	PP_FILLVERT           = 6
+	PP_PULSEOVERLAY       = 7
+	PP_MOVEOVERLAY        = 8
+	PP_PULSEOVERLAYVERT   = 9
+	PP_MOVEOVERLAYVERT    = 10
+	PP_TRANSPARENTBAR     = 11
+	PP_TRANSPARENTBARVERT = 12
+)
+
+// PP_FILL states
+const (
+	PBFS_NORMAL  = 1
+	PBFS_ERROR   = 2
+	PBFS_PAUSED  = 3
+	PBFS_PARTIAL = 4
+)
+
+// PP_FILLVERT states
+const (
+	PBFVS_NORMAL  = 1
+	PBFVS_ERROR   = 2
+	PBFVS_PAUSED  = 3
+	PBFVS_PARTIAL = 4
+)
+
 // TAB parts
 const (
 	TABP_TABITEM = 1
