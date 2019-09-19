@@ -12,28 +12,6 @@ import (
 	"golang.org/x/sys/windows"
 )
 
-type pipeRWC struct {
-	reader *os.File
-	writer *os.File
-}
-
-func (p *pipeRWC) Read(b []byte) (int, error) {
-	return p.reader.Read(b)
-}
-
-func (p *pipeRWC) Write(b []byte) (int, error) {
-	return p.writer.Write(b)
-}
-
-func (p *pipeRWC) Close() error {
-	err1 := p.writer.Close()
-	err2 := p.reader.Close()
-	if err1 != nil {
-		return err1
-	}
-	return err2
-}
-
 func makeInheritableAndGetStr(f *os.File) (str string, err error) {
 	sc, err := f.SyscallConn()
 	if err != nil {

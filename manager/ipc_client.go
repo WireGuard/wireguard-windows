@@ -8,8 +8,8 @@ package manager
 import (
 	"encoding/gob"
 	"errors"
-	"net/rpc"
 	"os"
+	"sync"
 
 	"golang.zx2c4.com/wireguard/windows/conf"
 	"golang.zx2c4.com/wireguard/windows/updater"
@@ -39,7 +39,29 @@ const (
 	UpdateProgressNotificationType
 )
 
-var rpcClient *rpc.Client
+type MethodType int
+
+const (
+	StoredConfigMethodType MethodType = iota
+	RuntimeConfigMethodType
+	StartMethodType
+	StopMethodType
+	WaitForStopMethodType
+	DeleteMethodType
+	StateMethodType
+	GlobalStateMethodType
+	CreateMethodType
+	TunnelsMethodType
+	QuitMethodType
+	UpdateStateMethodType
+	UpdateMethodType
+)
+
+var (
+	rpcEncoder *gob.Encoder
+	rpcDecoder *gob.Decoder
+	rpcMutex   sync.Mutex
+)
 
 type TunnelChangeCallback struct {
 	cb func(tunnel *Tunnel, state TunnelState, globalState TunnelState, err error)
@@ -72,7 +94,8 @@ type UpdateProgressCallback struct {
 var updateProgressCallbacks = make(map[*UpdateProgressCallback]bool)
 
 func InitializeIPCClient(reader *os.File, writer *os.File, events *os.File) {
-	rpcClient = rpc.NewClient(&pipeRWC{reader, writer})
+	rpcDecoder = gob.NewDecoder(reader)
+	rpcEncoder = gob.NewEncoder(writer)
 	go func() {
 		decoder := gob.NewDecoder(events)
 		for {
@@ -165,22 +188,88 @@ func InitializeIPCClient(reader *os.File, writer *os.File, events *os.File) {
 	}()
 }
 
+func rpcDecodeError() error {
+	var str string
+	err := rpcDecoder.Decode(&str)
+	if err != nil {
+		return err
+	}
+	if len(str) == 0 {
+		return nil
+	}
+	return errors.New(str)
+}
+
 func (t *Tunnel) StoredConfig() (c conf.Config, err error) {
-	err = rpcClient.Call("ManagerService.StoredConfig", t.Name, &c)
+	rpcMutex.Lock()
+	defer rpcMutex.Unlock()
+
+	err = rpcEncoder.Encode(StoredConfigMethodType)
+	if err != nil {
+		return
+	}
+	err = rpcEncoder.Encode(t.Name)
+	if err != nil {
+		return
+	}
+	err = rpcDecoder.Decode(&c)
+	if err != nil {
+		return
+	}
+	err = rpcDecodeError()
 	return
 }
 
 func (t *Tunnel) RuntimeConfig() (c conf.Config, err error) {
-	err = rpcClient.Call("ManagerService.RuntimeConfig", t.Name, &c)
+	rpcMutex.Lock()
+	defer rpcMutex.Unlock()
+
+	err = rpcEncoder.Encode(RuntimeConfigMethodType)
+	if err != nil {
+		return
+	}
+	err = rpcEncoder.Encode(t.Name)
+	if err != nil {
+		return
+	}
+	err = rpcDecoder.Decode(&c)
+	if err != nil {
+		return
+	}
+	err = rpcDecodeError()
 	return
 }
 
-func (t *Tunnel) Start() error {
-	return rpcClient.Call("ManagerService.Start", t.Name, nil)
+func (t *Tunnel) Start() (err error) {
+	rpcMutex.Lock()
+	defer rpcMutex.Unlock()
+
+	err = rpcEncoder.Encode(StartMethodType)
+	if err != nil {
+		return
+	}
+	err = rpcEncoder.Encode(t.Name)
+	if err != nil {
+		return
+	}
+	err = rpcDecodeError()
+	return
 }
 
-func (t *Tunnel) Stop() error {
-	return rpcClient.Call("ManagerService.Stop", t.Name, nil)
+func (t *Tunnel) Stop() (err error) {
+	rpcMutex.Lock()
+	defer rpcMutex.Unlock()
+
+	err = rpcEncoder.Encode(StopMethodType)
+	if err != nil {
+		return
+	}
+	err = rpcEncoder.Encode(t.Name)
+	if err != nil {
+		return
+	}
+	err = rpcDecodeError()
+	return
 }
 
 func (t *Tunnel) Toggle() (oldState TunnelState, err error) {
@@ -197,46 +286,149 @@ func (t *Tunnel) Toggle() (oldState TunnelState, err error) {
 	return
 }
 
-func (t *Tunnel) WaitForStop() error {
-	return rpcClient.Call("ManagerService.WaitForStop", t.Name, nil)
+func (t *Tunnel) WaitForStop() (err error) {
+	rpcMutex.Lock()
+	defer rpcMutex.Unlock()
+
+	err = rpcEncoder.Encode(WaitForStopMethodType)
+	if err != nil {
+		return
+	}
+	err = rpcEncoder.Encode(t.Name)
+	if err != nil {
+		return
+	}
+	err = rpcDecodeError()
+	return
 }
 
-func (t *Tunnel) Delete() error {
-	return rpcClient.Call("ManagerService.Delete", t.Name, nil)
+func (t *Tunnel) Delete() (err error) {
+	rpcMutex.Lock()
+	defer rpcMutex.Unlock()
+
+	err = rpcEncoder.Encode(DeleteMethodType)
+	if err != nil {
+		return
+	}
+	err = rpcEncoder.Encode(t.Name)
+	if err != nil {
+		return
+	}
+	err = rpcDecodeError()
+	return
 }
 
-func (t *Tunnel) State() (TunnelState, error) {
-	var state TunnelState
-	return state, rpcClient.Call("ManagerService.State", t.Name, &state)
+func (t *Tunnel) State() (tunnelState TunnelState, err error) {
+	rpcMutex.Lock()
+	defer rpcMutex.Unlock()
+
+	err = rpcEncoder.Encode(StateMethodType)
+	if err != nil {
+		return
+	}
+	err = rpcEncoder.Encode(t.Name)
+	if err != nil {
+		return
+	}
+	err = rpcDecoder.Decode(&tunnelState)
+	if err != nil {
+		return
+	}
+	err = rpcDecodeError()
+	return
 }
 
-func IPCClientNewTunnel(conf *conf.Config) (Tunnel, error) {
-	var tunnel Tunnel
-	return tunnel, rpcClient.Call("ManagerService.Create", *conf, &tunnel)
+func IPCClientGlobalState() (tunnelState TunnelState, err error) {
+	rpcMutex.Lock()
+	defer rpcMutex.Unlock()
+
+	err = rpcEncoder.Encode(GlobalStateMethodType)
+	if err != nil {
+		return
+	}
+	err = rpcDecoder.Decode(&tunnelState)
+	if err != nil {
+		return
+	}
+	return
 }
 
-func IPCClientTunnels() ([]Tunnel, error) {
-	var tunnels []Tunnel
-	return tunnels, rpcClient.Call("ManagerService.Tunnels", uintptr(0), &tunnels)
+func IPCClientNewTunnel(conf *conf.Config) (tunnel Tunnel, err error) {
+	rpcMutex.Lock()
+	defer rpcMutex.Unlock()
+
+	err = rpcEncoder.Encode(CreateMethodType)
+	if err != nil {
+		return
+	}
+	err = rpcEncoder.Encode(*conf)
+	if err != nil {
+		return
+	}
+	err = rpcDecoder.Decode(&tunnel)
+	if err != nil {
+		return
+	}
+	err = rpcDecodeError()
+	return
 }
 
-func IPCClientGlobalState() (TunnelState, error) {
-	var state TunnelState
-	return state, rpcClient.Call("ManagerService.GlobalState", uintptr(0), &state)
+func IPCClientTunnels() (tunnels []Tunnel, err error) {
+	rpcMutex.Lock()
+	defer rpcMutex.Unlock()
+
+	err = rpcEncoder.Encode(TunnelsMethodType)
+	if err != nil {
+		return
+	}
+	err = rpcDecoder.Decode(&tunnels)
+	if err != nil {
+		return
+	}
+	err = rpcDecodeError()
+	return
 }
 
-func IPCClientQuit(stopTunnelsOnQuit bool) (bool, error) {
-	var alreadyQuit bool
-	return alreadyQuit, rpcClient.Call("ManagerService.Quit", stopTunnelsOnQuit, &alreadyQuit)
+func IPCClientQuit(stopTunnelsOnQuit bool) (alreadyQuit bool, err error) {
+	rpcMutex.Lock()
+	defer rpcMutex.Unlock()
+
+	err = rpcEncoder.Encode(QuitMethodType)
+	if err != nil {
+		return
+	}
+	err = rpcEncoder.Encode(stopTunnelsOnQuit)
+	if err != nil {
+		return
+	}
+	err = rpcDecoder.Decode(&alreadyQuit)
+	if err != nil {
+		return
+	}
+	err = rpcDecodeError()
+	return
 }
 
-func IPCClientUpdateState() (UpdateState, error) {
-	var state UpdateState
-	return state, rpcClient.Call("ManagerService.UpdateState", uintptr(0), &state)
+func IPCClientUpdateState() (updateState UpdateState, err error) {
+	rpcMutex.Lock()
+	defer rpcMutex.Unlock()
+
+	err = rpcEncoder.Encode(UpdateStateMethodType)
+	if err != nil {
+		return
+	}
+	err = rpcDecoder.Decode(&updateState)
+	if err != nil {
+		return
+	}
+	return
 }
 
 func IPCClientUpdate() error {
-	return rpcClient.Call("ManagerService.Update", uintptr(0), nil)
+	rpcMutex.Lock()
+	defer rpcMutex.Unlock()
+
+	return rpcEncoder.Encode(UpdateMethodType)
 }
 
 func IPCClientRegisterTunnelChange(cb func(tunnel *Tunnel, state TunnelState, globalState TunnelState, err error)) *TunnelChangeCallback {

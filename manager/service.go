@@ -167,15 +167,15 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 			runtime.LockOSThread()
 			ourReader, theirReader, theirReaderStr, ourWriter, theirWriter, theirWriterStr, err := inheritableSocketpairEmulation()
 			if err != nil {
-				log.Printf("Unable to create two inheritable pipes: %v", err)
+				log.Printf("Unable to create two inheritable RPC pipes: %v", err)
 				return
 			}
 			ourEvents, theirEvents, theirEventStr, err := inheritableEvents()
-			err = IPCServerListen(ourReader, ourWriter, ourEvents, elevatedToken)
 			if err != nil {
-				log.Printf("Unable to listen on IPC pipes: %v", err)
+				log.Printf("Unable to create one inheritable events pipe: %v", err)
 				return
 			}
+			IPCServerListen(ourReader, ourWriter, ourEvents, elevatedToken)
 			theirLogMapping, theirLogMappingHandle, err := ringlogger.Global.ExportInheritableMappingHandleStr()
 			if err != nil {
 				log.Printf("Unable to export inheritable mapping handle for logging: %v", err)
