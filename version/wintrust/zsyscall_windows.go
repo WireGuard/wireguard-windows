@@ -40,8 +40,9 @@ var (
 	modwintrust = windows.NewLazySystemDLL("wintrust.dll")
 	modcrypt32  = windows.NewLazySystemDLL("crypt32.dll")
 
-	procWinVerifyTrust   = modwintrust.NewProc("WinVerifyTrust")
-	procCryptQueryObject = modcrypt32.NewProc("CryptQueryObject")
+	procWinVerifyTrust     = modwintrust.NewProc("WinVerifyTrust")
+	procCryptQueryObject   = modcrypt32.NewProc("CryptQueryObject")
+	procCertGetNameStringW = modcrypt32.NewProc("CertGetNameStringW")
 )
 
 func WinVerifyTrust(hWnd windows.Handle, actionId *windows.GUID, data *WinTrustData) (err error) {
@@ -56,7 +57,7 @@ func WinVerifyTrust(hWnd windows.Handle, actionId *windows.GUID, data *WinTrustD
 	return
 }
 
-func CryptQueryObject(objectType uint32, object uintptr, expectedContentTypeFlags uint32, expectedFormatTypeFlags uint32, flags uint32, msgAndCertEncodingType *uint32, contentType *uint32, formatType *uint32, certStore *windows.Handle, msg *windows.Handle, context *uintptr) (err error) {
+func cryptQueryObject(objectType uint32, object uintptr, expectedContentTypeFlags uint32, expectedFormatTypeFlags uint32, flags uint32, msgAndCertEncodingType *uint32, contentType *uint32, formatType *uint32, certStore *windows.Handle, msg *windows.Handle, context *uintptr) (err error) {
 	r1, _, e1 := syscall.Syscall12(procCryptQueryObject.Addr(), 11, uintptr(objectType), uintptr(object), uintptr(expectedContentTypeFlags), uintptr(expectedFormatTypeFlags), uintptr(flags), uintptr(unsafe.Pointer(msgAndCertEncodingType)), uintptr(unsafe.Pointer(contentType)), uintptr(unsafe.Pointer(formatType)), uintptr(unsafe.Pointer(certStore)), uintptr(unsafe.Pointer(msg)), uintptr(unsafe.Pointer(context)), 0)
 	if r1 == 0 {
 		if e1 != 0 {
@@ -65,5 +66,11 @@ func CryptQueryObject(objectType uint32, object uintptr, expectedContentTypeFlag
 			err = syscall.EINVAL
 		}
 	}
+	return
+}
+
+func certGetNameString(certContext *windows.CertContext, nameType uint32, flags uint32, typePara uintptr, name *uint16, size uint32) (chars uint32) {
+	r0, _, _ := syscall.Syscall6(procCertGetNameStringW.Addr(), 6, uintptr(unsafe.Pointer(certContext)), uintptr(nameType), uintptr(flags), uintptr(typePara), uintptr(unsafe.Pointer(name)), uintptr(size))
+	chars = uint32(r0)
 	return
 }
