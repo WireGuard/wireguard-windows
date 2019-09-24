@@ -57,7 +57,7 @@ var (
 
 func runningElevated() bool {
 	var process windows.Token
-	err := windows.OpenProcessToken(windows.GetCurrentProcess(), windows.TOKEN_QUERY, &process)
+	err := windows.OpenProcessToken(windows.CurrentProcess(), windows.TOKEN_QUERY, &process)
 	if err != nil {
 		return false
 	}
