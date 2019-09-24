@@ -333,10 +333,8 @@ func (tray *Tray) UpdateFound() {
 }
 
 func (tray *Tray) onManageTunnels() {
-	if !tray.mtw.Visible() {
-		tray.mtw.tunnelsPage.listView.SelectFirstActiveTunnel()
-		tray.mtw.tabs.SetCurrentIndex(0)
-	}
+	tray.mtw.tunnelsPage.listView.SelectFirstActiveTunnel()
+	tray.mtw.tabs.SetCurrentIndex(0)
 	raise(tray.mtw.Handle())
 }
 
