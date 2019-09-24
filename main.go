@@ -57,7 +57,7 @@ func usage() {
 
 func checkForWow64() {
 	var b bool
-	err := windows.IsWow64Process(windows.GetCurrentProcess(), &b)
+	err := windows.IsWow64Process(windows.CurrentProcess(), &b)
 	if err != nil {
 		fatalf("Unable to determine whether the process is running under WOW64: %v", err)
 	}
@@ -69,7 +69,7 @@ func checkForWow64() {
 func checkForAdminGroup() {
 	// This is not a security check, but rather a user-confusion one.
 	var processToken windows.Token
-	err := windows.OpenProcessToken(windows.GetCurrentProcess(), windows.TOKEN_QUERY|windows.TOKEN_DUPLICATE, &processToken)
+	err := windows.OpenProcessToken(windows.CurrentProcess(), windows.TOKEN_QUERY|windows.TOKEN_DUPLICATE, &processToken)
 	if err != nil {
 		fatalf("Unable to open current process token: %v", err)
 	}

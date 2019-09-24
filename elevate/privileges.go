@@ -22,7 +22,7 @@ func DropAllPrivileges(retainDriverLoading bool) error {
 		}
 	}
 	var processToken windows.Token
-	err := windows.OpenProcessToken(windows.GetCurrentProcess(), windows.TOKEN_READ|windows.TOKEN_WRITE, &processToken)
+	err := windows.OpenProcessToken(windows.CurrentProcess(), windows.TOKEN_READ|windows.TOKEN_WRITE, &processToken)
 	if err != nil {
 		return err
 	}

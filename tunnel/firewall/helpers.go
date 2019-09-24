@@ -73,7 +73,7 @@ func wrapErr(err error) error {
 
 func getCurrentProcessSecurityDescriptor() (*windows.SECURITY_DESCRIPTOR, error) {
 	var processToken windows.Token
-	err := windows.OpenProcessToken(windows.GetCurrentProcess(), windows.TOKEN_QUERY, &processToken)
+	err := windows.OpenProcessToken(windows.CurrentProcess(), windows.TOKEN_QUERY, &processToken)
 	if err != nil {
 		return nil, wrapErr(err)
 	}
