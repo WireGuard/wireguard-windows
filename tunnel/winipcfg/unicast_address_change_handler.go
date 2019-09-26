@@ -13,46 +13,53 @@ import (
 
 // UnicastAddressChangeCallback structure allows unicast address change callback handling.
 type UnicastAddressChangeCallback struct {
-	cb func(notificationType MibNotificationType, addr *MibUnicastIPAddressRow)
+	cb func(notificationType MibNotificationType, unicastAddress *MibUnicastIPAddressRow)
 }
 
 var (
-	unicastAddressChangeMutex     = sync.Mutex{}
-	unicastAddressChangeCallbacks = make(map[*UnicastAddressChangeCallback]bool)
-	unicastAddressChangeHandle    = windows.Handle(0)
+	unicastAddressChangeAddRemoveMutex = sync.Mutex{}
+	unicastAddressChangeMutex          = sync.Mutex{}
+	unicastAddressChangeCallbacks      = make(map[*UnicastAddressChangeCallback]bool)
+	unicastAddressChangeHandle         = windows.Handle(0)
 )
 
 // RegisterUnicastAddressChangeCallback registers a new UnicastAddressChangeCallback. If this particular callback is already
 // registered, the function will silently return. Returned UnicastAddressChangeCallback.Unregister method should be used
 // to unregister.
-func RegisterUnicastAddressChangeCallback(callback func(notificationType MibNotificationType, addr *MibUnicastIPAddressRow)) (*UnicastAddressChangeCallback, error) {
-	cb := &UnicastAddressChangeCallback{callback}
+func RegisterUnicastAddressChangeCallback(callback func(notificationType MibNotificationType, unicastAddress *MibUnicastIPAddressRow)) (*UnicastAddressChangeCallback, error) {
+	s := &UnicastAddressChangeCallback{callback}
+
+	unicastAddressChangeAddRemoveMutex.Lock()
+	defer unicastAddressChangeAddRemoveMutex.Unlock()
 
 	unicastAddressChangeMutex.Lock()
 	defer unicastAddressChangeMutex.Unlock()
 
-	unicastAddressChangeCallbacks[cb] = true
+	unicastAddressChangeCallbacks[s] = true
 
 	if unicastAddressChangeHandle == 0 {
 		err := notifyUnicastIPAddressChange(windows.AF_UNSPEC, windows.NewCallback(unicastAddressChanged), 0, false, &unicastAddressChangeHandle)
 		if err != nil {
-			delete(unicastAddressChangeCallbacks, cb)
+			delete(unicastAddressChangeCallbacks, s)
 			unicastAddressChangeHandle = 0
 			return nil, err
 		}
 	}
 
-	return cb, nil
+	return s, nil
 }
 
 // Unregister unregisters the callback.
 func (callback *UnicastAddressChangeCallback) Unregister() error {
+	unicastAddressChangeAddRemoveMutex.Lock()
+	defer unicastAddressChangeAddRemoveMutex.Unlock()
+
 	unicastAddressChangeMutex.Lock()
-	defer unicastAddressChangeMutex.Unlock()
-
 	delete(unicastAddressChangeCallbacks, callback)
+	removeIt := len(unicastAddressChangeCallbacks) == 0 && unicastAddressChangeHandle != 0
+	unicastAddressChangeMutex.Unlock()
 
-	if len(unicastAddressChangeCallbacks) < 1 && unicastAddressChangeHandle != 0 {
+	if removeIt {
 		err := cancelMibChangeNotify2(unicastAddressChangeHandle)
 		if err != nil {
 			return err

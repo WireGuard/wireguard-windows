@@ -17,42 +17,49 @@ type InterfaceChangeCallback struct {
 }
 
 var (
-	interfaceChangeMutex     = sync.Mutex{}
-	interfaceChangeCallbacks = make(map[*InterfaceChangeCallback]bool)
-	interfaceChangeHandle    = windows.Handle(0)
+	interfaceChangeAddRemoveMutex = sync.Mutex{}
+	interfaceChangeMutex          = sync.Mutex{}
+	interfaceChangeCallbacks      = make(map[*InterfaceChangeCallback]bool)
+	interfaceChangeHandle         = windows.Handle(0)
 )
 
 // RegisterInterfaceChangeCallback registers a new InterfaceChangeCallback. If this particular callback is already
 // registered, the function will silently return. Returned InterfaceChangeCallback.Unregister method should be used
 // to unregister.
 func RegisterInterfaceChangeCallback(callback func(notificationType MibNotificationType, iface *MibIPInterfaceRow)) (*InterfaceChangeCallback, error) {
-	cb := &InterfaceChangeCallback{callback}
+	s := &InterfaceChangeCallback{callback}
+
+	interfaceChangeAddRemoveMutex.Lock()
+	defer interfaceChangeAddRemoveMutex.Unlock()
 
 	interfaceChangeMutex.Lock()
 	defer interfaceChangeMutex.Unlock()
 
-	interfaceChangeCallbacks[cb] = true
+	interfaceChangeCallbacks[s] = true
 
 	if interfaceChangeHandle == 0 {
 		err := notifyIPInterfaceChange(windows.AF_UNSPEC, windows.NewCallback(interfaceChanged), 0, false, &interfaceChangeHandle)
 		if err != nil {
-			delete(interfaceChangeCallbacks, cb)
+			delete(interfaceChangeCallbacks, s)
 			interfaceChangeHandle = 0
 			return nil, err
 		}
 	}
 
-	return cb, nil
+	return s, nil
 }
 
 // Unregister unregisters the callback.
 func (callback *InterfaceChangeCallback) Unregister() error {
+	interfaceChangeAddRemoveMutex.Lock()
+	defer interfaceChangeAddRemoveMutex.Unlock()
+
 	interfaceChangeMutex.Lock()
-	defer interfaceChangeMutex.Unlock()
-
 	delete(interfaceChangeCallbacks, callback)
+	removeIt := len(interfaceChangeCallbacks) == 0 && interfaceChangeHandle != 0
+	interfaceChangeMutex.Unlock()
 
-	if len(interfaceChangeCallbacks) < 1 && interfaceChangeHandle != 0 {
+	if removeIt {
 		err := cancelMibChangeNotify2(interfaceChangeHandle)
 		if err != nil {
 			return err
