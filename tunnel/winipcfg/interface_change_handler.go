@@ -64,9 +64,10 @@ func (callback *InterfaceChangeCallback) Unregister() error {
 }
 
 func interfaceChanged(callerContext uintptr, row *MibIPInterfaceRow, notificationType MibNotificationType) uintptr {
+	rowCopy := *row
 	interfaceChangeMutex.Lock()
 	for cb := range interfaceChangeCallbacks {
-		go cb.cb(notificationType, row)
+		go cb.cb(notificationType, &rowCopy)
 	}
 	interfaceChangeMutex.Unlock()
 	return 0
