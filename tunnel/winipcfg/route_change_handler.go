@@ -71,9 +71,10 @@ func (callback *RouteChangeCallback) Unregister() error {
 }
 
 func routeChanged(callerContext uintptr, row *MibIPforwardRow2, notificationType MibNotificationType) uintptr {
+	rowCopy := *row
 	routeChangeMutex.Lock()
 	for cb := range routeChangeCallbacks {
-		go cb.cb(notificationType, row)
+		go cb.cb(notificationType, &rowCopy)
 	}
 	routeChangeMutex.Unlock()
 	return 0
