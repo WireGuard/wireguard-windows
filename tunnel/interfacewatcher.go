@@ -116,33 +116,42 @@ func (iw *interfaceWatcher) Configure(device *device.Device, conf *conf.Config, 
 
 func (iw *interfaceWatcher) Destroy() {
 	iw.setupMutex.Lock()
-	defer iw.setupMutex.Unlock()
+	routeChangeCallback4 := iw.routeChangeCallback4
+	routeChangeCallback6 := iw.routeChangeCallback6
+	interfaceChangeCallback := iw.interfaceChangeCallback
+	tun := iw.tun
+	iw.setupMutex.Unlock()
 
-	if iw.tun == nil {
-		return
+	if interfaceChangeCallback != nil {
+		interfaceChangeCallback.Unregister()
+	}
+	if routeChangeCallback4 != nil {
+		routeChangeCallback4.Unregister()
+	}
+	if routeChangeCallback6 != nil {
+		routeChangeCallback6.Unregister()
 	}
 
-	if iw.routeChangeCallback4 != nil {
-		iw.routeChangeCallback4.Unregister()
-		iw.routeChangeCallback4 = nil
-	}
-	if iw.routeChangeCallback6 != nil {
-		iw.routeChangeCallback6.Unregister()
-		iw.routeChangeCallback6 = nil
-	}
-	if iw.interfaceChangeCallback != nil {
-		iw.interfaceChangeCallback.Unregister()
+	iw.setupMutex.Lock()
+	if interfaceChangeCallback == iw.interfaceChangeCallback {
 		iw.interfaceChangeCallback = nil
 	}
-
+	if routeChangeCallback4 == iw.routeChangeCallback4 {
+		iw.routeChangeCallback4 = nil
+	}
+	if routeChangeCallback6 == iw.routeChangeCallback6 {
+		iw.routeChangeCallback6 = nil
+	}
 	firewall.DisableFirewall()
-
-	// It seems that the Windows networking stack doesn't like it when we destroy interfaces that have active
-	// routes, so to be certain, just remove everything before destroying.
-	luid := winipcfg.LUID(iw.tun.LUID())
-	luid.FlushRoutes(windows.AF_INET)
-	luid.FlushIPAddresses(windows.AF_INET)
-	luid.FlushRoutes(windows.AF_INET6)
-	luid.FlushIPAddresses(windows.AF_INET6)
-	luid.FlushDNS()
+	if tun != nil && iw.tun == tun {
+		// It seems that the Windows networking stack doesn't like it when we destroy interfaces that have active
+		// routes, so to be certain, just remove everything before destroying.
+		luid := winipcfg.LUID(tun.LUID())
+		luid.FlushRoutes(windows.AF_INET)
+		luid.FlushIPAddresses(windows.AF_INET)
+		luid.FlushRoutes(windows.AF_INET6)
+		luid.FlushIPAddresses(windows.AF_INET6)
+		luid.FlushDNS()
+	}
+	iw.setupMutex.Unlock()
 }
