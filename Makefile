@@ -10,11 +10,6 @@ rwildcard=$(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subst 
 SOURCE_FILES := $(call rwildcard,,*.go *.c *.h) .deps/prepared go.mod go.sum
 RESOURCE_FILES := resources.rc version/version.h manifest.xml $(patsubst %.svg,%.ico,$(wildcard ui/icon/*.svg))
 
-REQUIRED_GO_VERSION := go1.13
-ifneq ($(shell go version 2>/dev/null | cut -d ' ' -f 3),$(REQUIRED_GO_VERSION))
-$(error $(REQUIRED_GO_VERSION) is required)
-endif
-
 DEPLOYMENT_HOST ?= winvm
 DEPLOYMENT_PATH ?= Desktop
 
