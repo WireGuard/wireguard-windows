@@ -13,7 +13,8 @@ import (
 
 // UnicastAddressChangeCallback structure allows unicast address change callback handling.
 type UnicastAddressChangeCallback struct {
-	cb func(notificationType MibNotificationType, unicastAddress *MibUnicastIPAddressRow)
+	cb   func(notificationType MibNotificationType, unicastAddress *MibUnicastIPAddressRow)
+	wait sync.WaitGroup
 }
 
 var (
@@ -27,7 +28,7 @@ var (
 // registered, the function will silently return. Returned UnicastAddressChangeCallback.Unregister method should be used
 // to unregister.
 func RegisterUnicastAddressChangeCallback(callback func(notificationType MibNotificationType, unicastAddress *MibUnicastIPAddressRow)) (*UnicastAddressChangeCallback, error) {
-	s := &UnicastAddressChangeCallback{callback}
+	s := &UnicastAddressChangeCallback{cb: callback}
 
 	unicastAddressChangeAddRemoveMutex.Lock()
 	defer unicastAddressChangeAddRemoveMutex.Unlock()
@@ -59,6 +60,8 @@ func (callback *UnicastAddressChangeCallback) Unregister() error {
 	removeIt := len(unicastAddressChangeCallbacks) == 0 && unicastAddressChangeHandle != 0
 	unicastAddressChangeMutex.Unlock()
 
+	callback.wait.Wait()
+
 	if removeIt {
 		err := cancelMibChangeNotify2(unicastAddressChangeHandle)
 		if err != nil {
@@ -74,7 +77,11 @@ func unicastAddressChanged(callerContext uintptr, row *MibUnicastIPAddressRow, n
 	rowCopy := *row
 	unicastAddressChangeMutex.Lock()
 	for cb := range unicastAddressChangeCallbacks {
-		go cb.cb(notificationType, &rowCopy)
+		cb.wait.Add(1)
+		go func(cb *UnicastAddressChangeCallback) {
+			cb.cb(notificationType, &rowCopy)
+			cb.wait.Done()
+		}(cb)
 	}
 	unicastAddressChangeMutex.Unlock()
 	return 0

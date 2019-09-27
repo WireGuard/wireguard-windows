@@ -13,7 +13,8 @@ import (
 
 // InterfaceChangeCallback structure allows interface change callback handling.
 type InterfaceChangeCallback struct {
-	cb func(notificationType MibNotificationType, iface *MibIPInterfaceRow)
+	cb   func(notificationType MibNotificationType, iface *MibIPInterfaceRow)
+	wait sync.WaitGroup
 }
 
 var (
@@ -27,7 +28,7 @@ var (
 // registered, the function will silently return. Returned InterfaceChangeCallback.Unregister method should be used
 // to unregister.
 func RegisterInterfaceChangeCallback(callback func(notificationType MibNotificationType, iface *MibIPInterfaceRow)) (*InterfaceChangeCallback, error) {
-	s := &InterfaceChangeCallback{callback}
+	s := &InterfaceChangeCallback{cb: callback}
 
 	interfaceChangeAddRemoveMutex.Lock()
 	defer interfaceChangeAddRemoveMutex.Unlock()
@@ -59,6 +60,8 @@ func (callback *InterfaceChangeCallback) Unregister() error {
 	removeIt := len(interfaceChangeCallbacks) == 0 && interfaceChangeHandle != 0
 	interfaceChangeMutex.Unlock()
 
+	callback.wait.Wait()
+
 	if removeIt {
 		err := cancelMibChangeNotify2(interfaceChangeHandle)
 		if err != nil {
@@ -74,7 +77,11 @@ func interfaceChanged(callerContext uintptr, row *MibIPInterfaceRow, notificatio
 	rowCopy := *row
 	interfaceChangeMutex.Lock()
 	for cb := range interfaceChangeCallbacks {
-		go cb.cb(notificationType, &rowCopy)
+		cb.wait.Add(1)
+		go func(cb *InterfaceChangeCallback) {
+			cb.cb(notificationType, &rowCopy)
+			cb.wait.Done()
+		}(cb)
 	}
 	interfaceChangeMutex.Unlock()
 	return 0
