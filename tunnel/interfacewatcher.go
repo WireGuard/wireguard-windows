@@ -35,32 +35,34 @@ type interfaceWatcher struct {
 	tun    *tun.NativeTun
 
 	setupMutex              sync.Mutex
-	routeChangeCallback4    *winipcfg.RouteChangeCallback
-	routeChangeCallback6    *winipcfg.RouteChangeCallback
-	interfaceChangeCallback *winipcfg.InterfaceChangeCallback
+	interfaceChangeCallback winipcfg.ChangeCallback
+	changeCallbacks4        []winipcfg.ChangeCallback
+	changeCallbacks6        []winipcfg.ChangeCallback
 	storedEvents            []interfaceWatcherEvent
 }
 
 func (iw *interfaceWatcher) setup(family winipcfg.AddressFamily) {
-	var routeChangeCallback **winipcfg.RouteChangeCallback
+	var changeCallbacks *[]winipcfg.ChangeCallback
 	var ipversion string
 	if family == windows.AF_INET {
-		routeChangeCallback = &iw.routeChangeCallback4
+		changeCallbacks = &iw.changeCallbacks4
 		ipversion = "v4"
 	} else if family == windows.AF_INET6 {
-		routeChangeCallback = &iw.routeChangeCallback6
+		changeCallbacks = &iw.changeCallbacks6
 		ipversion = "v6"
 	} else {
 		return
 	}
-	if *routeChangeCallback != nil {
-		(*routeChangeCallback).Unregister()
-		*routeChangeCallback = nil
+	if len(*changeCallbacks) != 0 {
+		for _, cb := range *changeCallbacks {
+			cb.Unregister()
+		}
+		*changeCallbacks = nil
 	}
 	var err error
 
 	log.Printf("Monitoring default %s routes", ipversion)
-	*routeChangeCallback, err = monitorDefaultRoutes(family, iw.device, iw.conf.Interface.MTU == 0, iw.tun)
+	*changeCallbacks, err = monitorDefaultRoutes(family, iw.device, iw.conf.Interface.MTU == 0, iw.tun)
 	if err != nil {
 		iw.errors <- interfaceWatcherError{services.ErrorBindSocketsToDefaultRoutes, err}
 		return
@@ -116,8 +118,8 @@ func (iw *interfaceWatcher) Configure(device *device.Device, conf *conf.Config, 
 
 func (iw *interfaceWatcher) Destroy() {
 	iw.setupMutex.Lock()
-	routeChangeCallback4 := iw.routeChangeCallback4
-	routeChangeCallback6 := iw.routeChangeCallback6
+	changeCallbacks4 := iw.changeCallbacks4
+	changeCallbacks6 := iw.changeCallbacks6
 	interfaceChangeCallback := iw.interfaceChangeCallback
 	tun := iw.tun
 	iw.setupMutex.Unlock()
@@ -125,22 +127,24 @@ func (iw *interfaceWatcher) Destroy() {
 	if interfaceChangeCallback != nil {
 		interfaceChangeCallback.Unregister()
 	}
-	if routeChangeCallback4 != nil {
-		routeChangeCallback4.Unregister()
+	for _, cb := range changeCallbacks4 {
+		cb.Unregister()
 	}
-	if routeChangeCallback6 != nil {
-		routeChangeCallback6.Unregister()
+	for _, cb := range changeCallbacks6 {
+		cb.Unregister()
 	}
 
 	iw.setupMutex.Lock()
 	if interfaceChangeCallback == iw.interfaceChangeCallback {
 		iw.interfaceChangeCallback = nil
 	}
-	if routeChangeCallback4 == iw.routeChangeCallback4 {
-		iw.routeChangeCallback4 = nil
+	for len(changeCallbacks4) > 0 && len(iw.changeCallbacks4) > 0 {
+		iw.changeCallbacks4 = iw.changeCallbacks4[1:]
+		changeCallbacks4 = changeCallbacks4[1:]
 	}
-	if routeChangeCallback6 == iw.routeChangeCallback6 {
-		iw.routeChangeCallback6 = nil
+	for len(changeCallbacks6) > 0 && len(iw.changeCallbacks6) > 0 {
+		iw.changeCallbacks6 = iw.changeCallbacks6[1:]
+		changeCallbacks6 = changeCallbacks6[1:]
 	}
 	firewall.DisableFirewall()
 	if tun != nil && iw.tun == tun {

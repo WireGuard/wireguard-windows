@@ -510,6 +510,10 @@ const (
 	MibInitialNotification                              // Initial notification
 )
 
+type ChangeCallback interface {
+	Unregister() error
+}
+
 // TunnelType enumeration type defines the encapsulation method used by a tunnel, as described by the Internet Assigned Names Authority (IANA).
 // https://docs.microsoft.com/en-us/windows/desktop/api/ifdef/ne-ifdef-tunnel_type
 type TunnelType uint32

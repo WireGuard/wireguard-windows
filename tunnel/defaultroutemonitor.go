@@ -7,6 +7,7 @@ package tunnel
 
 import (
 	"log"
+	"sync"
 
 	"golang.org/x/sys/windows"
 	"golang.zx2c4.com/wireguard/device"
@@ -29,7 +30,6 @@ func bindSocketRoute(family winipcfg.AddressFamily, device *device.Device, ourLU
 		}
 		ifrow, err := r[i].InterfaceLUID.Interface()
 		if err != nil || ifrow.OperStatus != winipcfg.IfOperStatusUp {
-			log.Printf("Found default route for interface %d, but not up, so skipping", r[i].InterfaceIndex)
 			continue
 		}
 		if r[i].Metric < lowestMetric {
@@ -53,7 +53,7 @@ func bindSocketRoute(family winipcfg.AddressFamily, device *device.Device, ourLU
 	return nil
 }
 
-func monitorDefaultRoutes(family winipcfg.AddressFamily, device *device.Device, autoMTU bool, tun *tun.NativeTun) (*winipcfg.RouteChangeCallback, error) {
+func monitorDefaultRoutes(family winipcfg.AddressFamily, device *device.Device, autoMTU bool, tun *tun.NativeTun) ([]winipcfg.ChangeCallback, error) {
 	var minMTU uint32
 	if family == windows.AF_INET {
 		minMTU = 576
@@ -64,7 +64,10 @@ func monitorDefaultRoutes(family winipcfg.AddressFamily, device *device.Device, 
 	lastLUID := winipcfg.LUID(0)
 	lastIndex := uint32(0)
 	lastMTU := uint32(0)
+	mutex := sync.Mutex{}
 	doIt := func() error {
+		mutex.Lock()
+		defer mutex.Unlock()
 		err := bindSocketRoute(family, device, ourLUID, &lastLUID, &lastIndex)
 		if err != nil {
 			return err
@@ -104,13 +107,22 @@ func monitorDefaultRoutes(family winipcfg.AddressFamily, device *device.Device, 
 	if err != nil {
 		return nil, err
 	}
-	cb, err := winipcfg.RegisterRouteChangeCallback(func(notificationType winipcfg.MibNotificationType, route *winipcfg.MibIPforwardRow2) {
+	cbr, err := winipcfg.RegisterRouteChangeCallback(func(notificationType winipcfg.MibNotificationType, route *winipcfg.MibIPforwardRow2) {
 		if route != nil && route.DestinationPrefix.PrefixLength == 0 {
-			_ = doIt()
+			doIt()
 		}
 	})
 	if err != nil {
 		return nil, err
 	}
-	return cb, nil
+	cbi, err := winipcfg.RegisterInterfaceChangeCallback(func(notificationType winipcfg.MibNotificationType, iface *winipcfg.MibIPInterfaceRow) {
+		if notificationType == winipcfg.MibParameterNotification {
+			doIt()
+		}
+	})
+	if err != nil {
+		cbr.Unregister()
+		return nil, err
+	}
+	return []winipcfg.ChangeCallback{cbr, cbi}, nil
 }
