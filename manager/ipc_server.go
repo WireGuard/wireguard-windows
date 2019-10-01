@@ -273,6 +273,9 @@ func (s *ManagerService) ServeConn(reader io.Reader, writer io.Writer) {
 				return
 			}
 			config, retErr := s.StoredConfig(tunnelName)
+			if config == nil {
+				config = &conf.Config{}
+			}
 			err = encoder.Encode(*config)
 			if err != nil {
 				return
@@ -288,6 +291,9 @@ func (s *ManagerService) ServeConn(reader io.Reader, writer io.Writer) {
 				return
 			}
 			config, retErr := s.RuntimeConfig(tunnelName)
+			if config == nil {
+				config = &conf.Config{}
+			}
 			err = encoder.Encode(*config)
 			if err != nil {
 				return
