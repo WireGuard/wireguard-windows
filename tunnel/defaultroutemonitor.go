@@ -8,6 +8,7 @@ package tunnel
 import (
 	"log"
 	"sync"
+	"time"
 
 	"golang.org/x/sys/windows"
 	"golang.zx2c4.com/wireguard/device"
@@ -64,10 +65,7 @@ func monitorDefaultRoutes(family winipcfg.AddressFamily, device *device.Device, 
 	lastLUID := winipcfg.LUID(0)
 	lastIndex := uint32(0)
 	lastMTU := uint32(0)
-	mutex := sync.Mutex{}
 	doIt := func() error {
-		mutex.Lock()
-		defer mutex.Unlock()
 		err := bindSocketRoute(family, device, ourLUID, &lastLUID, &lastIndex)
 		if err != nil {
 			return err
@@ -107,9 +105,31 @@ func monitorDefaultRoutes(family winipcfg.AddressFamily, device *device.Device, 
 	if err != nil {
 		return nil, err
 	}
+
+	firstBurst := time.Time{}
+	burstMutex := sync.Mutex{}
+	burstTimer := time.AfterFunc(time.Hour*200, func() {
+		burstMutex.Lock()
+		firstBurst = time.Time{}
+		doIt()
+		burstMutex.Unlock()
+	})
+	burstTimer.Stop()
+	bump := func() {
+		burstMutex.Lock()
+		burstTimer.Reset(time.Millisecond * 150)
+		if firstBurst.IsZero() {
+			firstBurst = time.Now()
+		} else if time.Since(firstBurst) > time.Second*2 {
+			firstBurst = time.Time{}
+			doIt()
+		}
+		burstMutex.Unlock()
+	}
+
 	cbr, err := winipcfg.RegisterRouteChangeCallback(func(notificationType winipcfg.MibNotificationType, route *winipcfg.MibIPforwardRow2) {
 		if route != nil && route.DestinationPrefix.PrefixLength == 0 {
-			doIt()
+			bump()
 		}
 	})
 	if err != nil {
@@ -117,7 +137,7 @@ func monitorDefaultRoutes(family winipcfg.AddressFamily, device *device.Device, 
 	}
 	cbi, err := winipcfg.RegisterInterfaceChangeCallback(func(notificationType winipcfg.MibNotificationType, iface *winipcfg.MibIPInterfaceRow) {
 		if notificationType == winipcfg.MibParameterNotification {
-			doIt()
+			bump()
 		}
 	})
 	if err != nil {
