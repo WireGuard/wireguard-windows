@@ -40,9 +40,8 @@ var (
 	modwintrust = windows.NewLazySystemDLL("wintrust.dll")
 	modcrypt32  = windows.NewLazySystemDLL("crypt32.dll")
 
-	procWinVerifyTrust     = modwintrust.NewProc("WinVerifyTrust")
-	procCryptQueryObject   = modcrypt32.NewProc("CryptQueryObject")
-	procCertGetNameStringW = modcrypt32.NewProc("CertGetNameStringW")
+	procWinVerifyTrust   = modwintrust.NewProc("WinVerifyTrust")
+	procCryptQueryObject = modcrypt32.NewProc("CryptQueryObject")
 )
 
 func WinVerifyTrust(hWnd windows.Handle, actionId *windows.GUID, data *WinTrustData) (err error) {
@@ -66,11 +65,5 @@ func cryptQueryObject(objectType uint32, object uintptr, expectedContentTypeFlag
 			err = syscall.EINVAL
 		}
 	}
-	return
-}
-
-func certGetNameString(certContext *windows.CertContext, nameType uint32, flags uint32, typePara uintptr, name *uint16, size uint32) (chars uint32) {
-	r0, _, _ := syscall.Syscall6(procCertGetNameStringW.Addr(), 6, uintptr(unsafe.Pointer(certContext)), uintptr(nameType), uintptr(flags), uintptr(typePara), uintptr(unsafe.Pointer(name)), uintptr(size))
-	chars = uint32(r0)
 	return
 }

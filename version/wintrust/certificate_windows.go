@@ -6,6 +6,7 @@
 package wintrust
 
 import (
+	"crypto/x509"
 	"syscall"
 	"unsafe"
 
@@ -16,13 +17,11 @@ const (
 	_CERT_QUERY_OBJECT_FILE                     = 1
 	_CERT_QUERY_CONTENT_FLAG_PKCS7_SIGNED_EMBED = 1024
 	_CERT_QUERY_FORMAT_FLAG_ALL                 = 14
-	_CERT_NAME_SIMPLE_DISPLAY_TYPE              = 4
 )
 
 //sys	cryptQueryObject(objectType uint32, object uintptr, expectedContentTypeFlags uint32, expectedFormatTypeFlags uint32, flags uint32, msgAndCertEncodingType *uint32, contentType *uint32, formatType *uint32, certStore *windows.Handle, msg *windows.Handle, context *uintptr) (err error) = crypt32.CryptQueryObject
-//sys	certGetNameString(certContext *windows.CertContext, nameType uint32, flags uint32, typePara uintptr, name *uint16, size uint32) (chars uint32) = crypt32.CertGetNameStringW
 
-func ExtractCertificateNames(path string) ([]string, error) {
+func ExtractCertificates(path string) ([]x509.Certificate, error) {
 	path16, err := windows.UTF16PtrFromString(path)
 	if err != nil {
 		return nil, err
@@ -33,8 +32,8 @@ func ExtractCertificateNames(path string) ([]string, error) {
 		return nil, err
 	}
 	defer windows.CertCloseStore(certStore, 0)
+	var certs []x509.Certificate
 	var cert *windows.CertContext
-	var names []string
 	for {
 		cert, err = windows.CertEnumCertificatesInStore(certStore, cert)
 		if err != nil {
@@ -48,21 +47,13 @@ func ExtractCertificateNames(path string) ([]string, error) {
 		if cert == nil {
 			break
 		}
-		nameLen := certGetNameString(cert, _CERT_NAME_SIMPLE_DISPLAY_TYPE, 0, 0, nil, 0)
-		if nameLen == 0 {
-			continue
+		buf := make([]byte, cert.Length)
+		copy(buf, (*[1 << 20]byte)(unsafe.Pointer(cert.EncodedCert))[:])
+		if c, err := x509.ParseCertificate(buf); err == nil {
+			certs = append(certs, *c)
+		} else {
+			return nil, err
 		}
-		name16 := make([]uint16, nameLen)
-		if certGetNameString(cert, _CERT_NAME_SIMPLE_DISPLAY_TYPE, 0, 0, &name16[0], nameLen) != nameLen {
-			continue
-		}
-		if name16[0] == 0 {
-			continue
-		}
-		names = append(names, windows.UTF16ToString(name16))
 	}
-	if names == nil {
-		return nil, syscall.Errno(windows.CRYPT_E_NOT_FOUND)
-	}
-	return names, nil
+	return certs, nil
 }

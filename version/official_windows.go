@@ -67,12 +67,12 @@ func IsRunningOfficialVersion() bool {
 
 	// This below tests is easily circumvented. False certificates can be appended, and just checking the
 	// common name is not very good. But that's okay, as this isn't security related.
-	names, err := wintrust.ExtractCertificateNames(path)
+	certs, err := wintrust.ExtractCertificates(path)
 	if err != nil {
 		return false
 	}
-	for _, name := range names {
-		if name == officialCommonName {
+	for _, cert := range certs {
+		if cert.Subject.CommonName == officialCommonName {
 			return true
 		}
 	}
