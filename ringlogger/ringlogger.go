@@ -144,15 +144,13 @@ func (rl *Ringlogger) WriteTo(out io.Writer) (n int64, err error) {
 	}
 	log := *rl.log
 	i := log.nextIndex
-	for l := 0; l < maxLines; l++ {
-		line := &log.lines[i%maxLines]
+	for l := uint32(0); l < maxLines; l++ {
+		line := &log.lines[(i+l)%maxLines]
 		if line.timeNs == 0 {
-			i++
 			continue
 		}
 		index := bytes.IndexByte(line.line[:], 0)
 		if index < 1 {
-			i++
 			continue
 		}
 		var bytes int
@@ -161,7 +159,6 @@ func (rl *Ringlogger) WriteTo(out io.Writer) (n int64, err error) {
 			return
 		}
 		n += int64(bytes)
-		i++
 	}
 	return
 }
