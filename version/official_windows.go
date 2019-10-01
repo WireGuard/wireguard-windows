@@ -6,6 +6,7 @@
 package version
 
 import (
+	"encoding/asn1"
 	"os"
 	"unsafe"
 
@@ -15,7 +16,19 @@ import (
 
 const (
 	officialCommonName = "WireGuard LLC"
+	evPolicyOid        = "2.23.140.1.3"
+	policyExtensionOid = "2.5.29.32"
 )
+
+type policyQualifierInfo struct {
+	PolicyQualifierId asn1.ObjectIdentifier
+	Qualifier         asn1.RawValue
+}
+
+type policyInformation struct {
+	Policy     asn1.ObjectIdentifier
+	Qualifiers []policyQualifierInfo `asn1:"optional"`
+}
 
 func VerifyAuthenticode(path string) bool {
 	path16, err := windows.UTF16PtrFromString(path)
@@ -65,7 +78,7 @@ func IsRunningOfficialVersion() bool {
 		return false
 	}
 
-	// This below tests is easily circumvented. False certificates can be appended, and just checking the
+	// This below test is easily circumvented. False certificates can be appended, and just checking the
 	// common name is not very good. But that's okay, as this isn't security related.
 	certs, err := wintrust.ExtractCertificates(path)
 	if err != nil {
@@ -74,6 +87,58 @@ func IsRunningOfficialVersion() bool {
 	for _, cert := range certs {
 		if cert.Subject.CommonName == officialCommonName {
 			return true
+		}
+	}
+	return false
+}
+
+// This is an easily by-passable check, which doesn't serve a security purpose but mostly just a low-grade
+// informational and semantic one.
+func IsRunningEVSigned() bool {
+	path, err := os.Executable()
+	if err != nil {
+		return false
+	}
+	path16, err := windows.UTF16PtrFromString(path)
+	if err != nil {
+		return false
+	}
+	file := &wintrust.WinTrustFileInfo{
+		CbStruct: uint32(unsafe.Sizeof(wintrust.WinTrustFileInfo{})),
+		FilePath: path16,
+	}
+	data := &wintrust.WinTrustData{
+		CbStruct:                        uint32(unsafe.Sizeof(wintrust.WinTrustData{})),
+		UIChoice:                        wintrust.WTD_UI_NONE,
+		RevocationChecks:                wintrust.WTD_REVOKE_NONE, // No revocation, as this isn't security related.
+		UnionChoice:                     wintrust.WTD_CHOICE_FILE,
+		StateAction:                     wintrust.WTD_STATEACTION_VERIFY,
+		FileOrCatalogOrBlobOrSgnrOrCert: uintptr(unsafe.Pointer(file)),
+	}
+	err = wintrust.WinVerifyTrust(0, &wintrust.WINTRUST_ACTION_GENERIC_VERIFY_V2, data)
+	if err != nil {
+		return false
+	}
+
+	// This below tests is easily circumvented. False certificates can be appended. But that's okay, as this isn't
+	// security related.
+	certs, err := wintrust.ExtractCertificates(path)
+	if err != nil {
+		return false
+	}
+	for _, cert := range certs {
+		for _, extension := range cert.Extensions {
+			if extension.Id.String() == policyExtensionOid {
+				var policies []policyInformation
+				if _, err = asn1.Unmarshal(extension.Value, &policies); err != nil {
+					continue
+				}
+				for _, policy := range policies {
+					if policy.Policy.String() == evPolicyOid {
+						return true
+					}
+				}
+			}
 		}
 	}
 	return false

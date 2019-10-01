@@ -13,6 +13,8 @@ import (
 
 	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/registry"
+
+	"golang.zx2c4.com/wireguard/windows/version"
 )
 
 const (
@@ -44,6 +46,11 @@ func ShellExecute(program string, arguments string, directory string, show int32
 			err = windows.ShellExecute(0, windows.StringToUTF16Ptr("runas"), program16, arguments16, directory16, show)
 		}
 	}()
+
+	if !version.IsRunningEVSigned() {
+		err = windows.ERROR_INSUFFICIENT_LOGON_INFO
+		return
+	}
 
 	var processToken windows.Token
 	err = windows.OpenProcessToken(windows.CurrentProcess(), windows.TOKEN_QUERY|windows.TOKEN_DUPLICATE, &processToken)
