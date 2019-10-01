@@ -422,6 +422,7 @@ func IPCServerListen(reader *os.File, writer *os.File, events *os.File, elevated
 	}
 
 	go func() {
+		defer printPanic()
 		managerServicesLock.Lock()
 		managerServices[service] = true
 		managerServicesLock.Unlock()
