@@ -26,12 +26,6 @@ type widgetsLinesView interface {
 	widgetsLines() []widgetsLine
 }
 
-type rectAndSizeAndState struct {
-	rect  walk.Rectangle
-	size  walk.Size
-	state manager.TunnelState
-}
-
 type labelStatusLine struct {
 	label           *walk.TextLabel
 	statusComposite *walk.Composite
