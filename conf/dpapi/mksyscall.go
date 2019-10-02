@@ -5,4 +5,4 @@
 
 package dpapi
 
-//go:generate go run $GOROOT/src/syscall/mksyscall_windows.go -output zdpapi_windows.go dpapi_windows.go
+//go:generate go run golang.org/x/sys/windows/mkwinsyscall -output zdpapi_windows.go dpapi_windows.go
