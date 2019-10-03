@@ -1,7 +1,8 @@
-From d85072ff86e61752fb89363d7c929c850e0a8a8d Mon Sep 17 00:00:00 2001
+From fea7966b0ee55548cc6e5b456c48ec61910b6f59 Mon Sep 17 00:00:00 2001
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 Date: Tue, 27 Aug 2019 06:46:16 -0600
-Subject: [PATCH] runtime: monitor for suspend/resume to kick timeouts
+Subject: [PATCH] [release-branch.go1.13] runtime: monitor for suspend/resume
+ to kick timeouts
 
 Starting in Windows 8, the wait functions don't take into account
 suspend time, even though the monotonic counters do. This results in
@@ -9,20 +10,18 @@ timer buckets stalling on resume. Therefore, this commit makes it so
 that on resume, we return from the wait functions and recalculate the
 amount of time left to wait.
 
-Fixes: #31528
+[release-branch.go1.13] runtime: iterate ms via allm linked list to avoid race
 
-Change-Id: I0db02cc72188cb620954e87a0180e0a3c83f4a56
-Reviewed-on: https://go-review.googlesource.com/c/go/+/191957
-Run-TryBot: Jason A. Donenfeld <Jason@zx2c4.com>
-TryBot-Result: Gobot Gobot <gobot@golang.org>
-Reviewed-by: Alex Brainman <alex.brainman@gmail.com>
+It's pointless to reach all ms via allgs, and doing so introduces a
+race, since the m member of a g can change underneath it. Instead
+iterate directly through the allm linked list.
 ---
- src/runtime/os_windows.go      | 83 ++++++++++++++++++++++++++++++----
+ src/runtime/os_windows.go      | 81 ++++++++++++++++++++++++++++++----
  src/runtime/syscall_windows.go | 12 +++--
- 2 files changed, 82 insertions(+), 13 deletions(-)
+ 2 files changed, 80 insertions(+), 13 deletions(-)
 
 diff --git a/src/runtime/os_windows.go b/src/runtime/os_windows.go
-index 60c55cf3254..2a2b5fa122c 100644
+index 074ae0f40d..1cd0932eae 100644
 --- a/src/runtime/os_windows.go
 +++ b/src/runtime/os_windows.go
 @@ -49,6 +49,7 @@ const (
@@ -33,7 +32,7 @@ index 60c55cf3254..2a2b5fa122c 100644
  //go:cgo_import_dynamic runtime._WriteConsoleW WriteConsoleW%5 "kernel32.dll"
  //go:cgo_import_dynamic runtime._WriteFile WriteFile%5 "kernel32.dll"
  
-@@ -94,6 +95,7 @@ var (
+@@ -96,6 +97,7 @@ var (
  	_VirtualFree,
  	_VirtualQuery,
  	_WaitForSingleObject,
@@ -41,7 +40,7 @@ index 60c55cf3254..2a2b5fa122c 100644
  	_WriteConsoleW,
  	_WriteFile,
  	_ stdFunction
-@@ -137,7 +139,8 @@ func tstart_stdcall(newm *m)
+@@ -139,7 +141,8 @@ func tstart_stdcall(newm *m)
  func ctrlhandler()
  
  type mOS struct {
@@ -51,7 +50,7 @@ index 60c55cf3254..2a2b5fa122c 100644
  }
  
  //go:linkname os_sigpipe os.sigpipe
-@@ -251,6 +254,42 @@ func loadOptionalSyscalls() {
+@@ -258,6 +261,40 @@ func loadOptionalSyscalls() {
  	}
  }
  
@@ -71,13 +70,11 @@ index 60c55cf3254..2a2b5fa122c 100644
 +		return // Running on Windows 7, where we don't need it anyway.
 +	}
 +	var fn interface{} = func(context uintptr, changeType uint32, setting uintptr) uintptr {
-+		lock(&allglock)
-+		for _, gp := range allgs {
-+			if gp.m != nil && gp.m.resumesema != 0 {
-+				stdcall1(_SetEvent, gp.m.resumesema)
++		for mp := (*m)(atomic.Loadp(unsafe.Pointer(&allm))); mp != nil; mp = mp.alllink {
++			if mp.resumesema != 0 {
++				stdcall1(_SetEvent, mp.resumesema)
 +			}
 +		}
-+		unlock(&allglock)
 +		return 0
 +	}
 +	params := _DEVICE_NOTIFY_SUBSCRIBE_PARAMETERS{
@@ -94,7 +91,7 @@ index 60c55cf3254..2a2b5fa122c 100644
  //go:nosplit
  func getLoadLibrary() uintptr {
  	return uintptr(unsafe.Pointer(_LoadLibraryW))
-@@ -410,6 +449,10 @@ func goenvs() {
+@@ -488,6 +525,10 @@ func goenvs() {
  	}
  
  	stdcall1(_FreeEnvironmentStringsW, uintptr(strings))
@@ -105,7 +102,7 @@ index 60c55cf3254..2a2b5fa122c 100644
  }
  
  // exiting is set to non-zero when the process is exiting.
-@@ -528,19 +571,32 @@ func semasleep(ns int64) int32 {
+@@ -606,19 +647,32 @@ func semasleep(ns int64) int32 {
  		_WAIT_FAILED    = 0xFFFFFFFF
  	)
  
@@ -146,7 +143,7 @@ index 60c55cf3254..2a2b5fa122c 100644
  		return 0
  
  	case _WAIT_TIMEOUT:
-@@ -589,6 +645,15 @@ func semacreate(mp *m) {
+@@ -667,6 +721,15 @@ func semacreate(mp *m) {
  			throw("runtime.semacreate")
  		})
  	}
@@ -163,7 +160,7 @@ index 60c55cf3254..2a2b5fa122c 100644
  
  // May run with m.p==nil, so write barriers are not allowed. This
 diff --git a/src/runtime/syscall_windows.go b/src/runtime/syscall_windows.go
-index 722a73d108e..0e2fcfb02da 100644
+index 722a73d108..0e2fcfb02d 100644
 --- a/src/runtime/syscall_windows.go
 +++ b/src/runtime/syscall_windows.go
 @@ -74,16 +74,18 @@ func compileCallback(fn eface, cleanstack bool) (code uintptr) {
@@ -199,3 +196,6 @@ index 722a73d108e..0e2fcfb02da 100644
  }
  
  const _LOAD_LIBRARY_SEARCH_SYSTEM32 = 0x00000800
+-- 
+2.23.0
+
