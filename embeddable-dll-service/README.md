@@ -38,3 +38,5 @@ is absolutely essential; do not forget it.
 ##### 3. Scoop up logs by implementing a ringlogger format reader.
 
 ##### 4. Talk to the service over its named pipe.
+
+There is a sample implementation of bits and pieces of this inside of the `csharp\` directory.
