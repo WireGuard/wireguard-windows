@@ -1,4 +1,4 @@
-From fea7966b0ee55548cc6e5b456c48ec61910b6f59 Mon Sep 17 00:00:00 2001
+From 84b070f6fab474f9e278d9e85b198e1382499b48 Mon Sep 17 00:00:00 2001
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 Date: Tue, 27 Aug 2019 06:46:16 -0600
 Subject: [PATCH] [release-branch.go1.13] runtime: monitor for suspend/resume
@@ -10,18 +10,23 @@ timer buckets stalling on resume. Therefore, this commit makes it so
 that on resume, we return from the wait functions and recalculate the
 amount of time left to wait.
 
-[release-branch.go1.13] runtime: iterate ms via allm linked list to avoid race
+This is a cherry pick of CL 191957 and its cleanup, CL 198417.
 
-It's pointless to reach all ms via allgs, and doing so introduces a
-race, since the m member of a g can change underneath it. Instead
-iterate directly through the allm linked list.
+Updates #31528
+Fixes #34130
+
+Change-Id: I0db02cc72188cb620954e87a0180e0a3c83f4a56
+Reviewed-on: https://go-review.googlesource.com/c/go/+/193607
+Run-TryBot: Jason A. Donenfeld <Jason@zx2c4.com>
+TryBot-Result: Gobot Gobot <gobot@golang.org>
+Reviewed-by: Austin Clements <austin@google.com>
 ---
  src/runtime/os_windows.go      | 81 ++++++++++++++++++++++++++++++----
  src/runtime/syscall_windows.go | 12 +++--
  2 files changed, 80 insertions(+), 13 deletions(-)
 
 diff --git a/src/runtime/os_windows.go b/src/runtime/os_windows.go
-index 074ae0f40d..1cd0932eae 100644
+index 074ae0f40de..1cd0932eaed 100644
 --- a/src/runtime/os_windows.go
 +++ b/src/runtime/os_windows.go
 @@ -49,6 +49,7 @@ const (
@@ -160,7 +165,7 @@ index 074ae0f40d..1cd0932eae 100644
  
  // May run with m.p==nil, so write barriers are not allowed. This
 diff --git a/src/runtime/syscall_windows.go b/src/runtime/syscall_windows.go
-index 722a73d108..0e2fcfb02d 100644
+index 722a73d108e..0e2fcfb02da 100644
 --- a/src/runtime/syscall_windows.go
 +++ b/src/runtime/syscall_windows.go
 @@ -74,16 +74,18 @@ func compileCallback(fn eface, cleanstack bool) (code uintptr) {
@@ -196,6 +201,3 @@ index 722a73d108..0e2fcfb02d 100644
  }
  
  const _LOAD_LIBRARY_SEARCH_SYSTEM32 = 0x00000800
--- 
-2.23.0
-
