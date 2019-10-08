@@ -7,40 +7,192 @@ using System;
 using System.IO;
 using System.IO.MemoryMappedFiles;
 using System.Text;
+using System.Collections.Generic;
+using System.Threading;
+using System.Runtime.CompilerServices;
 
 namespace Tunnel
 {
     public class Ringlogger
     {
-        private readonly MemoryMappedViewAccessor _viewAccessor;
-
-        public Ringlogger(string filename)
+        private struct UnixTimestamp
         {
-            var file = File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
-            var mmap = MemoryMappedFile.CreateFromFile(file, null, 0, MemoryMappedFileAccess.Read, HandleInheritability.None, false);
-            _viewAccessor = mmap.CreateViewAccessor(0, 8 + 2048 * (512 + 8), MemoryMappedFileAccess.Read);
-            if (_viewAccessor.ReadUInt32(0) != 0xbadbabe)
-                throw new InvalidDataException("The provided file is missing the magic number.");
+            private Int64 _ns;
+            public UnixTimestamp(Int64 ns) => _ns = ns;
+            public bool IsEmpty => _ns == 0;
+            public static UnixTimestamp Empty => new UnixTimestamp(0);
+            public static UnixTimestamp Now
+            {
+                get
+                {
+                    var now = DateTimeOffset.UtcNow;
+                    var ns = (now.Subtract(DateTimeOffset.FromUnixTimeSeconds(0)).Ticks * 100) % 1000000000;
+                    return new UnixTimestamp(now.ToUnixTimeSeconds() * 1000000000 + ns);
+                }
+            }
+            public Int64 Nanoseconds => _ns;
+            public override string ToString()
+            {
+                return DateTimeOffset.FromUnixTimeSeconds(_ns / 1000000000).LocalDateTime.ToString("yyyy'-'MM'-'dd HH':'mm':'ss'.'") + ((_ns % 1000000000).ToString() + "00000").Substring(0, 6);
+            }
+        }
+        private struct Line
+        {
+            private const int maxLineLength = 512;
+            private const int offsetTimeNs = 0;
+            private const int offsetLine = 8;
+
+            private readonly MemoryMappedViewAccessor _view;
+            private readonly int _start;
+            public Line(MemoryMappedViewAccessor view, UInt32 index) => (_view, _start) = (view, (int)(Log.HeaderBytes + index * Bytes));
+
+            public static int Bytes => maxLineLength + offsetLine;
+
+            public UnixTimestamp Timestamp
+            {
+                get => new UnixTimestamp(_view.ReadInt64(_start + offsetTimeNs));
+                set => _view.Write(_start + offsetTimeNs, value.Nanoseconds);
+            }
+
+            public string Text
+            {
+                get
+                {
+                    var textBytes = new byte[maxLineLength];
+                    _view.ReadArray(_start + offsetLine, textBytes, 0, textBytes.Length);
+                    var nullByte = Array.IndexOf<byte>(textBytes, 0);
+                    if (nullByte <= 0)
+                        return null;
+                    return Encoding.UTF8.GetString(textBytes, 0, nullByte);
+                }
+                set
+                {
+                    if (value == null)
+                    {
+                        _view.WriteArray(_start + offsetLine, new byte[maxLineLength], 0, maxLineLength);
+                        return;
+                    }
+                    var textBytes = Encoding.UTF8.GetBytes(value);
+                    var bytesToWrite = Math.Min(maxLineLength - 1, textBytes.Length);
+                    _view.Write(_start + offsetLine + bytesToWrite, (byte)0);
+                    _view.WriteArray(_start + offsetLine, textBytes, 0, bytesToWrite);
+                }
+            }
+
+            public override string ToString()
+            {
+                var time = Timestamp;
+                if (time.IsEmpty)
+                    return null;
+                var text = Text;
+                if (text == null)
+                    return null;
+                return string.Format("{0}: {1}", time, text);
+            }
+        }
+        private struct Log
+        {
+            private const UInt32 maxLines = 2048;
+            private const UInt32 magic = 0xbadbabe;
+            private const int offsetMagic = 0;
+            private const int offsetNextIndex = 4;
+            private const int offsetLines = 8;
+
+            private readonly MemoryMappedViewAccessor _view;
+            public Log(MemoryMappedViewAccessor view) => _view = view;
+
+            public static int HeaderBytes => offsetLines;
+            public static int Bytes => (int)(HeaderBytes + Line.Bytes * maxLines);
+
+            public UInt32 ExpectedMagic => magic;
+            public UInt32 Magic
+            {
+                get => _view.ReadUInt32(offsetMagic);
+                set => _view.Write(offsetMagic, value);
+            }
+
+            public UInt32 NextIndex
+            {
+                get => _view.ReadUInt32(offsetNextIndex);
+                set => _view.Write(offsetNextIndex, value);
+            }
+            public unsafe UInt32 InsertNextIndex() => (UInt32)Interlocked.Increment(ref Unsafe.AsRef<Int32>((_view.SafeMemoryMappedViewHandle.DangerousGetHandle() + offsetNextIndex).ToPointer()));
+
+            public UInt32 LineCount => maxLines;
+            public Line this[UInt32 i] => new Line(_view, i % maxLines);
+
+            public void Clear() => _view.WriteArray(0, new byte[Log.Bytes], 0, Log.Bytes);
+        }
+
+        private readonly Log _log;
+        private readonly string _tag;
+
+        public Ringlogger(string filename, string tag)
+        {
+            var file = File.Open(filename, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite | FileShare.Delete);
+            file.SetLength(Log.Bytes);
+            var mmap = MemoryMappedFile.CreateFromFile(file, null, 0, MemoryMappedFileAccess.ReadWrite, HandleInheritability.None, false);
+            var view = mmap.CreateViewAccessor(0, Log.Bytes, MemoryMappedFileAccess.ReadWrite);
+            _log = new Log(view);
+            if (_log.Magic != _log.ExpectedMagic)
+            {
+                _log.Clear();
+                _log.Magic = _log.ExpectedMagic;
+            }
+            _tag = tag;
+        }
+
+        public void Write(string line)
+        {
+            var time = UnixTimestamp.Now;
+            var entry = _log[_log.InsertNextIndex() - 1];
+            entry.Timestamp = UnixTimestamp.Empty;
+            entry.Text = null;
+            entry.Text = string.Format("[{0}] {1}", _tag, line.Trim());
+            entry.Timestamp = time;
         }
 
         public void WriteTo(TextWriter writer)
         {
-            var start = _viewAccessor.ReadUInt32(4);
-            for (var i = 0; i < 2048; ++i)
+            var start = _log.NextIndex;
+            for (UInt32 i = 0; i < _log.LineCount; ++i)
             {
-                var lineOffset = 8 + (8 + 512) * ((i + start) % 2048);
-                var timeNs = _viewAccessor.ReadInt64(lineOffset);
-                if (timeNs == 0)
+                var entry = _log[i + start];
+                if (entry.Timestamp.IsEmpty)
                     continue;
-                var textBytes = new byte[512];
-                _viewAccessor.ReadArray<byte>(lineOffset + 8, textBytes, 0, textBytes.Length);
-                var nullByte = Array.IndexOf<byte>(textBytes, 0);
-                if (nullByte <= 0)
+                var text = entry.ToString();
+                if (text == null)
                     continue;
-                var text = Encoding.UTF8.GetString(textBytes, 0, nullByte);
-                var time = DateTimeOffset.FromUnixTimeMilliseconds(timeNs / 1000000).ToString("yyyy'-'MM'-'dd HH':'mm':'ss'.'ffffff");
-                writer.WriteLine(String.Format("{0}: {1}", time, text));
+                writer.WriteLine(text);
             }
+        }
+
+        public static readonly UInt32 CursorAll = UInt32.MaxValue;
+        public List<string> FollowFromCursor(ref UInt32 cursor)
+        {
+            var lines = new List<string>((int)_log.LineCount);
+            var i = cursor;
+            var all = cursor == CursorAll;
+            if (all)
+                i = _log.NextIndex;
+            for (UInt32 l = 0; l < _log.LineCount; ++l, ++i)
+            {
+                if (!all && i % _log.LineCount == _log.NextIndex % _log.LineCount)
+                    break;
+                var entry = _log[i];
+                if (entry.Timestamp.IsEmpty)
+                {
+                    if (all)
+                        continue;
+                    break;
+                }
+                cursor = (i + 1) % _log.LineCount;
+                var text = entry.ToString();
+                if (text == null)
+                    continue;
+                lines.Add(text);
+            }
+            return lines;
         }
     }
 }
