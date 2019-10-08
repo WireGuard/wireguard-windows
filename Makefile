@@ -48,7 +48,7 @@ remaster: export GOPROXY := direct
 remaster:
 	rm -f go.sum go.mod
 	cp go.mod.master go.mod
-	go get
+	go get -d
 
 fmt: export CC := x86_64-w64-mingw32-gcc
 fmt: export GOARCH := amd64
