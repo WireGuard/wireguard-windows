@@ -19,20 +19,8 @@ namespace Tunnel
         private const string LongName = "Example WireGuard Tunnel Client";
         private const string Description = "A WireGuard tunnel created by example code.";
 
-        [StructLayout(LayoutKind.Sequential)]
-        private struct GoString
-        {
-            public string str;
-            public long len;
-        }
-
         [DllImport("tunnel.dll", EntryPoint = "WireGuardTunnelService", CallingConvention = CallingConvention.Cdecl)]
-        private static extern bool WireGuardTunnelService(GoString configFile);
-
-        public static bool Run(string configFile)
-        {
-            return WireGuardTunnelService(new GoString { str = configFile, len = configFile.Length });
-        }
+        public static extern bool Run([MarshalAs(UnmanagedType.LPWStr)] string configFile);
 
         public static NamedPipeClientStream GetPipe(string configFile)
         {
