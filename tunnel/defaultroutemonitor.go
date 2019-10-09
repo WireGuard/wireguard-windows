@@ -30,9 +30,7 @@ func bindSocketRoute(family winipcfg.AddressFamily, device *device.Device, ourLU
 			continue
 		}
 		ifrow, err := r[i].InterfaceLUID.Interface()
-		if err != nil || ifrow.OperStatus != winipcfg.IfOperStatusUp ||
-			ifrow.InterfaceAndOperStatusFlags & winipcfg.IAOSFNotMediaConnected != 0 ||
-			ifrow.InterfaceAndOperStatusFlags & winipcfg.IAOSFEndPointInterface != 0 {
+		if err != nil || ifrow.OperStatus != winipcfg.IfOperStatusUp {
 			continue
 		}
 		if r[i].Metric < lowestMetric {
