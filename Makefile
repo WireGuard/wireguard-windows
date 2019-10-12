@@ -18,7 +18,7 @@ all: amd64/wireguard.exe x86/wireguard.exe
 .deps/prepared: export GOROOT := $(OLD_GOROOT)
 .deps/prepared: $(wildcard golang-*.patch)
 	rm -rf .deps && mkdir -p .deps
-	if ! rsync --exclude=pkg/obj/go-build/trim.txt -aq $$(go env GOROOT)/ .deps/goroot; then chmod -R +w .deps/goroot; exit 1; fi
+	if ! rsync --exclude=pkg/obj/go-build/trim.txt -aqL $$(go env GOROOT)/ .deps/goroot; then chmod -R +w .deps/goroot; exit 1; fi
 	chmod -R +w .deps/goroot
 	cat $^ | patch -f -N -r- -p1 -d .deps/goroot
 	touch $@
