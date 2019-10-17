@@ -13,7 +13,7 @@ if exist .deps\prepared goto :render
 	rmdir /s /q .deps 2> NUL
 	mkdir .deps || goto :error
 	cd .deps || goto :error
-	call :download go.zip https://dl.google.com/go/go1.13.1.windows-amd64.zip 24cb08d369c1962cccacedc56fd79dc130f623b3b667a316554621ad6ac9b442 || goto :error
+	call :download go.zip https://dl.google.com/go/go1.13.2.windows-amd64.zip 003c99e778d6f73ba677fec4b66c3bdbbb144b318cfe6ffbe26ed8493b2db9a5 || goto :error
 	rem Mirror of https://musl.cc/i686-w64-mingw32-native.zip
 	call :download mingw-x86.zip https://download.wireguard.com/windows-toolchain/distfiles/i686-w64-mingw32-native-20190903.zip dfb297cc86c4a4c12eedaeb0a89dff2e1cfa9afacfb9c32690dd23ca7726560a || goto :error
 	rem Mirror of https://musl.cc/x86_64-w64-mingw32-native.zip
