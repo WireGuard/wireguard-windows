@@ -3,25 +3,15 @@ export CGO_ENABLED := 1
 export CGO_CFLAGS := -O3 -Wall -Wno-unused-function -Wno-switch -std=gnu11 -DWINVER=0x0601
 export CGO_LDFLAGS := -Wl,--major-os-version=6 -Wl,--minor-os-version=1 -Wl,--major-subsystem-version=6 -Wl,--minor-subsystem-version=1 -Wl,--tsaware
 export GOOS := windows
-OLD_GOROOT := $(GOROOT)
-export GOROOT := $(CURDIR)/.deps/goroot
 
 rwildcard=$(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subst *,%,$2),$d))
-SOURCE_FILES := $(call rwildcard,,*.go *.c *.h) .deps/prepared go.mod go.sum
+SOURCE_FILES := $(call rwildcard,,*.go *.c *.h) go.mod go.sum
 RESOURCE_FILES := resources.rc version/version.h manifest.xml $(patsubst %.svg,%.ico,$(wildcard ui/icon/*.svg))
 
 DEPLOYMENT_HOST ?= winvm
 DEPLOYMENT_PATH ?= Desktop
 
 all: amd64/wireguard.exe x86/wireguard.exe
-
-.deps/prepared: export GOROOT := $(OLD_GOROOT)
-.deps/prepared: $(wildcard golang-*.patch)
-	rm -rf .deps && mkdir -p .deps
-	if ! rsync --exclude=pkg/obj/go-build/trim.txt -aqL $$(go env GOROOT)/ .deps/goroot; then chmod -R +w .deps/goroot; exit 1; fi
-	chmod -R +w .deps/goroot
-	cat $^ | patch -f -N -r- -p1 -d .deps/goroot
-	touch $@
 
 %.ico: %.svg
 	convert -background none $< -define icon:auto-resize="256,128,96,64,48,32,16" $@
