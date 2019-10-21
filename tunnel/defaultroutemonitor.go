@@ -17,7 +17,7 @@ import (
 	"golang.zx2c4.com/wireguard/windows/tunnel/winipcfg"
 )
 
-func bindSocketRoute(family winipcfg.AddressFamily, device *device.Device, ourLUID winipcfg.LUID, lastLUID *winipcfg.LUID, lastIndex *uint32) error {
+func bindSocketRoute(family winipcfg.AddressFamily, device *device.Device, ourLUID winipcfg.LUID, lastLUID *winipcfg.LUID, lastIndex *uint32, blackholeWhenLoop bool) error {
 	r, err := winipcfg.GetIPForwardTable2(family)
 	if err != nil {
 		return err
@@ -44,17 +44,18 @@ func bindSocketRoute(family winipcfg.AddressFamily, device *device.Device, ourLU
 	}
 	*lastLUID = luid
 	*lastIndex = index
+	blackhole := blackholeWhenLoop && index == 0
 	if family == windows.AF_INET {
-		log.Printf("Binding v4 socket to interface %d", index)
-		return device.BindSocketToInterface4(index)
+		log.Printf("Binding v4 socket to interface %d (blackhole=%v)", index, blackhole)
+		return device.BindSocketToInterface4(index, blackhole)
 	} else if family == windows.AF_INET6 {
-		log.Printf("Binding v6 socket to interface %d", index)
-		return device.BindSocketToInterface6(index)
+		log.Printf("Binding v6 socket to interface %d (blackhole=%v)", index, blackhole)
+		return device.BindSocketToInterface6(index, blackhole)
 	}
 	return nil
 }
 
-func monitorDefaultRoutes(family winipcfg.AddressFamily, device *device.Device, autoMTU bool, tun *tun.NativeTun) ([]winipcfg.ChangeCallback, error) {
+func monitorDefaultRoutes(family winipcfg.AddressFamily, device *device.Device, autoMTU bool, blackholeWhenLoop bool, tun *tun.NativeTun) ([]winipcfg.ChangeCallback, error) {
 	var minMTU uint32
 	if family == windows.AF_INET {
 		minMTU = 576
@@ -63,10 +64,10 @@ func monitorDefaultRoutes(family winipcfg.AddressFamily, device *device.Device, 
 	}
 	ourLUID := winipcfg.LUID(tun.LUID())
 	lastLUID := winipcfg.LUID(0)
-	lastIndex := uint32(0)
+	lastIndex := ^uint32(0)
 	lastMTU := uint32(0)
 	doIt := func() error {
-		err := bindSocketRoute(family, device, ourLUID, &lastLUID, &lastIndex)
+		err := bindSocketRoute(family, device, ourLUID, &lastLUID, &lastIndex, blackholeWhenLoop)
 		if err != nil {
 			return err
 		}
