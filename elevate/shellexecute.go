@@ -42,7 +42,7 @@ func ShellExecute(program string, arguments string, directory string, show int32
 	}
 
 	defer func() {
-		if err != nil {
+		if err != nil && program16 != nil {
 			err = windows.ShellExecute(0, windows.StringToUTF16Ptr("runas"), program16, arguments16, directory16, show)
 		}
 	}()
@@ -131,6 +131,10 @@ func ShellExecute(program string, arguments string, directory string, show int32
 	}
 
 	defer syscall.Syscall((*interfacePointer)[releaseOffset], 1, uintptr(unsafe.Pointer(interfacePointer)), 0, 0)
+
+	if program16 == nil {
+		return
+	}
 
 	if ret, _, _ := syscall.Syscall6((*interfacePointer)[shellExecuteOffset], 6,
 		uintptr(unsafe.Pointer(interfacePointer)),
