@@ -47,15 +47,13 @@ func (obj *IAccPropServices) SetHwndPropStr(hwnd HWND, idObject int32, idChild u
 	if err != nil {
 		return -((E_INVALIDARG ^ 0xFFFFFFFF) + 1)
 	}
-	ret, _, _ := syscall.Syscall9(obj.LpVtbl.SetHwndPropStr, 7,
+	ret, _, _ := syscall.Syscall6(obj.LpVtbl.SetHwndPropStr, 6,
 		uintptr(unsafe.Pointer(obj)),
 		uintptr(hwnd),
 		uintptr(idObject),
 		uintptr(idChild),
 		uintptr(unsafe.Pointer(idProp)),
-		0,
-		uintptr(unsafe.Pointer(str16)),
-		0, 0)
+		uintptr(unsafe.Pointer(str16)))
 	return HRESULT(ret)
 }
 
