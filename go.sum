@@ -20,5 +20,5 @@ golang.zx2c4.com/wireguard v0.0.20191013-0.20191022095125-f7d0edd2ecf5 h1:tijV0Y
 golang.zx2c4.com/wireguard v0.0.20191013-0.20191022095125-f7d0edd2ecf5/go.mod h1:P2HsVp8SKwZEufsnezXZA4GRX/T49/HlU7DGuelXsU4=
 golang.zx2c4.com/wireguard/windows v0.0.0-20191023132229-8067c573594d h1:wE7dE4Cn96CFdWusrFrszUlPmSItGOU94Pz+Eg1a+So=
 golang.zx2c4.com/wireguard/windows v0.0.0-20191023132229-8067c573594d/go.mod h1:Y+FYqVFaQO6a+1uigm0N0GiuaZrLEaBxEiJ8tfH9sMQ=
-golang.zx2c4.com/wireguard/windows v0.0.0-20191024091655-c5100a61d29c h1:0ruz+iq+LqgoHg3w9nR9AJUcZ8RTQEZZfzhN61bqyX0=
-golang.zx2c4.com/wireguard/windows v0.0.0-20191024091655-c5100a61d29c/go.mod h1:ouWl4wViUNh8tPSIwxTVMuS014WakR1hqvBc2I0bMoA=
+golang.zx2c4.com/wireguard/windows v0.0.0-20191024105342-d61b1af716ca h1:bWZPSfyqkhAmckSAFJddB2/DPcGJPptnhEP1d3uvP3k=
+golang.zx2c4.com/wireguard/windows v0.0.0-20191024105342-d61b1af716ca/go.mod h1:ouWl4wViUNh8tPSIwxTVMuS014WakR1hqvBc2I0bMoA=
