@@ -19,17 +19,67 @@ import (
 type ListModel struct {
 	walk.TableModelBase
 	walk.SorterBase
+	walk.ImageProvider
 
 	tunnels           []manager.Tunnel
 	lastObservedState map[manager.Tunnel]manager.TunnelState
+	view              *ListView
 }
+
+var cachedListViewIconsForWidthAndState = make(map[widthAndState]*walk.Bitmap)
 
 func (t *ListModel) RowCount() int {
 	return len(t.tunnels)
 }
 
 func (t *ListModel) Value(row, col int) interface{} {
-	return ""
+	if col != 0 || row < 0 || row >= len(t.tunnels) {
+		return ""
+	}
+	return t.tunnels[row].Name
+}
+
+func (t *ListModel) Image(row int) interface{} {
+	if row < 0 || row >= len(t.tunnels) {
+		return nil
+	}
+	tunnel := &t.tunnels[row]
+
+	var state manager.TunnelState
+	var ok bool
+	state, ok = t.lastObservedState[t.tunnels[row]]
+	if !ok {
+		var err error
+		state, err = tunnel.State()
+		if err != nil {
+			return nil
+		}
+		t.lastObservedState[t.tunnels[row]] = state
+	}
+	cacheKey := widthAndState{t.view.IntFrom96DPI(16), state}
+	if cacheValue, ok := cachedListViewIconsForWidthAndState[cacheKey]; ok {
+		return cacheValue
+	}
+	icon, err := iconForState(cacheKey.state, cacheKey.width)
+	if err != nil {
+		return nil
+	}
+	bitmap, err := walk.NewBitmapWithTransparentPixelsForDPI(icon.Size(), 96)
+	if err != nil {
+		return nil
+	}
+	canvas, err := walk.NewCanvasFromImage(bitmap)
+	if err != nil {
+		return nil
+	}
+	margin := t.view.IntFrom96DPI(1)
+	bounds := walk.Rectangle{X: margin, Y: margin, Height: bitmap.Size().Height - margin*2, Width: bitmap.Size().Width - margin*2}
+	if err := canvas.DrawImageStretchedPixels(icon, bounds); err != nil {
+		return nil
+	}
+	canvas.Dispose()
+	cachedListViewIconsForWidthAndState[cacheKey] = bitmap
+	return bitmap
 }
 
 func (t *ListModel) Sort(col int, order walk.SortOrder) error {
@@ -74,8 +124,7 @@ func NewListView(parent walk.Container) (*ListView, error) {
 		TableView: tv,
 		model:     model,
 	}
-
-	tv.SetCellStyler(tunnelsView)
+	model.view = tunnelsView
 
 	disposables.Spare()
 
@@ -95,47 +144,6 @@ func (tv *ListView) Dispose() {
 		tv.tunnelsChangedCB = nil
 	}
 	tv.TableView.Dispose()
-}
-
-func (tv *ListView) StyleCell(style *walk.CellStyle) {
-	row := style.Row()
-	if row < 0 || row >= len(tv.model.tunnels) {
-		return
-	}
-	tunnel := &tv.model.tunnels[row]
-
-	canvas := style.Canvas()
-	if canvas == nil {
-		return
-	}
-
-	b := style.Bounds()
-
-	b.X = b.Height
-	b.Width -= b.Height
-	canvas.DrawText(tunnel.Name, tv.Font(), style.TextColor, b, walk.TextVCenter|walk.TextSingleLine)
-
-	var state manager.TunnelState
-	var ok bool
-	state, ok = tv.model.lastObservedState[tv.model.tunnels[row]]
-	if !ok {
-		var err error
-		state, err = tunnel.State()
-		if err != nil {
-			return
-		}
-		tv.model.lastObservedState[tv.model.tunnels[row]] = state
-	}
-	const margin = 2
-	b.X = margin
-	b.Y += margin
-	b.Height -= margin * 2
-	b.Width = b.Height
-	icon, err := iconForState(state, b.Size().Width)
-	if err != nil {
-		return
-	}
-	canvas.DrawImageStretched(icon, b)
 }
 
 func (tv *ListView) CurrentTunnel() *manager.Tunnel {
