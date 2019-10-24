@@ -9,6 +9,8 @@ import (
 	"sort"
 	"sync/atomic"
 
+	"github.com/lxn/win"
+
 	"golang.zx2c4.com/wireguard/windows/conf"
 	"golang.zx2c4.com/wireguard/windows/manager"
 
@@ -19,11 +21,9 @@ import (
 type ListModel struct {
 	walk.TableModelBase
 	walk.SorterBase
-	walk.ImageProvider
 
 	tunnels           []manager.Tunnel
 	lastObservedState map[manager.Tunnel]manager.TunnelState
-	view              *ListView
 }
 
 var cachedListViewIconsForWidthAndState = make(map[widthAndState]*walk.Bitmap)
@@ -37,49 +37,6 @@ func (t *ListModel) Value(row, col int) interface{} {
 		return ""
 	}
 	return t.tunnels[row].Name
-}
-
-func (t *ListModel) Image(row int) interface{} {
-	if row < 0 || row >= len(t.tunnels) {
-		return nil
-	}
-	tunnel := &t.tunnels[row]
-
-	var state manager.TunnelState
-	var ok bool
-	state, ok = t.lastObservedState[t.tunnels[row]]
-	if !ok {
-		var err error
-		state, err = tunnel.State()
-		if err != nil {
-			return nil
-		}
-		t.lastObservedState[t.tunnels[row]] = state
-	}
-	cacheKey := widthAndState{t.view.IntFrom96DPI(16), state}
-	if cacheValue, ok := cachedListViewIconsForWidthAndState[cacheKey]; ok {
-		return cacheValue
-	}
-	icon, err := iconForState(cacheKey.state, cacheKey.width)
-	if err != nil {
-		return nil
-	}
-	bitmap, err := walk.NewBitmapWithTransparentPixelsForDPI(icon.Size(), 96)
-	if err != nil {
-		return nil
-	}
-	canvas, err := walk.NewCanvasFromImage(bitmap)
-	if err != nil {
-		return nil
-	}
-	margin := t.view.IntFrom96DPI(1)
-	bounds := walk.Rectangle{X: margin, Y: margin, Height: bitmap.Size().Height - margin*2, Width: bitmap.Size().Width - margin*2}
-	if err := canvas.DrawImageStretchedPixels(icon, bounds); err != nil {
-		return nil
-	}
-	canvas.Dispose()
-	cachedListViewIconsForWidthAndState[cacheKey] = bitmap
-	return bitmap
 }
 
 func (t *ListModel) Sort(col int, order walk.SortOrder) error {
@@ -124,7 +81,7 @@ func NewListView(parent walk.Container) (*ListView, error) {
 		TableView: tv,
 		model:     model,
 	}
-	model.view = tunnelsView
+	tv.SetCellStyler(tunnelsView)
 
 	disposables.Spare()
 
@@ -153,6 +110,76 @@ func (tv *ListView) CurrentTunnel() *manager.Tunnel {
 	}
 
 	return &tv.model.tunnels[idx]
+}
+
+var dummyBitmap *walk.Bitmap
+
+func (tv *ListView) StyleCell(style *walk.CellStyle) {
+	row := style.Row()
+	if row < 0 || row >= len(tv.model.tunnels) {
+		return
+	}
+	tunnel := &tv.model.tunnels[row]
+
+	var state manager.TunnelState
+	var ok bool
+	state, ok = tv.model.lastObservedState[tv.model.tunnels[row]]
+	if !ok {
+		var err error
+		state, err = tunnel.State()
+		if err != nil {
+			return
+		}
+		tv.model.lastObservedState[tv.model.tunnels[row]] = state
+	}
+	if win.IsAppThemed() {
+		cacheKey := widthAndState{tv.IntFrom96DPI(16), state}
+		if cacheValue, ok := cachedListViewIconsForWidthAndState[cacheKey]; ok {
+			style.Image = cacheValue
+			return
+		}
+		icon, err := iconForState(cacheKey.state, cacheKey.width)
+		if err != nil {
+			return
+		}
+		bitmap, err := walk.NewBitmapWithTransparentPixelsForDPI(tv.SizeFrom96DPI(icon.Size()), tv.DPI())
+		if err != nil {
+			return
+		}
+		canvas, err := walk.NewCanvasFromImage(bitmap)
+		if err != nil {
+			return
+		}
+		margin := tv.IntFrom96DPI(1)
+		bounds := walk.Rectangle{X: margin, Y: margin, Height: bitmap.Size().Height - 2*margin, Width: bitmap.Size().Width - 2*margin}
+		err = canvas.DrawImageStretchedPixels(icon, bounds)
+		canvas.Dispose()
+		if err != nil {
+			return
+		}
+		cachedListViewIconsForWidthAndState[cacheKey] = bitmap
+		style.Image = bitmap
+	} else {
+		if dummyBitmap == nil {
+			dummyBitmap, _ = walk.NewBitmapForDPI(tv.SizeFrom96DPI(walk.Size{}), 96)
+		}
+		style.Image = dummyBitmap
+		canvas := style.Canvas()
+		if canvas == nil {
+			return
+		}
+		margin := tv.IntFrom96DPI(1)
+		bounds := style.Bounds()
+		bounds.X = margin
+		bounds.Y += margin
+		bounds.Width = bounds.Height - 2*margin
+		bounds.Height = bounds.Width
+		icon, err := iconForState(state, style.Bounds().Width)
+		if err != nil {
+			return
+		}
+		canvas.DrawImageStretched(icon, bounds)
+	}
 }
 
 func (tv *ListView) onTunnelChange(tunnel *manager.Tunnel, state manager.TunnelState, globalState manager.TunnelState, err error) {
