@@ -14,7 +14,7 @@ DEPLOYMENT_PATH ?= Desktop
 all: amd64/wireguard.exe x86/wireguard.exe
 
 %.ico: %.svg
-	convert -background none $< -define icon:auto-resize="256,128,96,64,48,32,16" $@
+	convert -background none $< -define icon:auto-resize="256,192,128,96,64,48,32,24,16" $@
 
 resources_amd64.syso: $(RESOURCE_FILES)
 	x86_64-w64-mingw32-windres -i $< -o $@ -O coff
