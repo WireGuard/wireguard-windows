@@ -1,7 +1,7 @@
 GOFLAGS := -ldflags="-H windowsgui -s -w" -v -tags walk_use_cgo -trimpath
 export CGO_ENABLED := 1
 export CGO_CFLAGS := -O3 -Wall -Wno-unused-function -Wno-switch -std=gnu11 -DWINVER=0x0601
-export CGO_LDFLAGS := -Wl,--major-os-version=6 -Wl,--minor-os-version=1 -Wl,--major-subsystem-version=6 -Wl,--minor-subsystem-version=1 -Wl,--tsaware
+export CGO_LDFLAGS := -Wl,--major-os-version=6 -Wl,--minor-os-version=1 -Wl,--major-subsystem-version=6 -Wl,--minor-subsystem-version=1 -Wl,--tsaware -Wl,--dynamicbase -Wl,--nxcompat -Wl,--export-all-symbols
 export GOOS := windows
 
 rwildcard=$(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subst *,%,$2),$d))
@@ -24,6 +24,7 @@ resources_386.syso: $(RESOURCE_FILES)
 
 amd64/wireguard.exe: export CC := x86_64-w64-mingw32-gcc
 amd64/wireguard.exe: export GOARCH := amd64
+amd64/wireguard.exe: CGO_LDFLAGS += -Wl,--high-entropy-va
 amd64/wireguard.exe: resources_amd64.syso $(SOURCE_FILES)
 	go build $(GOFLAGS) -o $@
 
@@ -50,6 +51,6 @@ deploy: amd64/wireguard.exe
 	scp $< $(DEPLOYMENT_HOST):$(DEPLOYMENT_PATH)
 
 clean:
-	rm -rf *.syso ui/icon/*.ico x86/ amd64/ .deps/
+	rm -rf *.syso ui/icon/*.ico x86/ amd64/
 
 .PHONY: deploy clean fmt remaster all
