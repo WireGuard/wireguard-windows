@@ -10,6 +10,8 @@ import (
 	"strings"
 
 	"github.com/lxn/walk"
+	"github.com/lxn/win"
+	"golang.org/x/sys/windows"
 
 	"golang.zx2c4.com/wireguard/windows/conf"
 	"golang.zx2c4.com/wireguard/windows/manager"
@@ -114,8 +116,6 @@ func newEditDialog(owner walk.Form, tunnel *manager.Tunnel) (*EditDialog, error)
 		return nil, err
 	}
 	layout.SetRange(dlg.syntaxEdit, walk.Rectangle{0, 2, 2, 1})
-	// TODO: This doesn't work - RTF control overrides us with "RichEdit Control".
-	dlg.syntaxEdit.Accessibility().SetName("Configuration")
 
 	buttonsContainer, err := walk.NewComposite(dlg)
 	if err != nil {
@@ -154,6 +154,20 @@ func newEditDialog(owner walk.Form, tunnel *manager.Tunnel) (*EditDialog, error)
 	dlg.syntaxEdit.PrivateKeyChanged().Attach(dlg.onSyntaxEditPrivateKeyChanged)
 	dlg.syntaxEdit.BlockUntunneledTrafficStateChanged().Attach(dlg.onBlockUntunneledTrafficStateChanged)
 	dlg.syntaxEdit.SetText(dlg.config.ToWgQuick())
+
+	// Insert a dummy label immediately preceding syntaxEdit to have screen readers read it.
+	// Otherwise they fallback to "RichEdit Control".
+	syntaxEditWnd := dlg.syntaxEdit.Handle()
+	parentWnd := win.GetParent(syntaxEditWnd)
+	labelWnd := win.CreateWindowEx(0,
+		windows.StringToUTF16Ptr("STATIC"), windows.StringToUTF16Ptr("&Configuration:"),
+		win.WS_CHILD|win.WS_GROUP|win.SS_LEFT, 0, 0, 0, 0,
+		parentWnd, win.HMENU(^uintptr(0)), win.HINSTANCE(win.GetWindowLongPtr(parentWnd, win.GWLP_HINSTANCE)), nil)
+	prevWnd := win.GetWindow(syntaxEditWnd, win.GW_HWNDPREV)
+	nextWnd := win.GetWindow(syntaxEditWnd, win.GW_HWNDNEXT)
+	win.SetWindowPos(labelWnd, prevWnd, 0, 0, 0, 0, win.SWP_NOSIZE|win.SWP_NOMOVE)
+	win.SetWindowPos(syntaxEditWnd, labelWnd, 0, 0, 0, 0, win.SWP_NOSIZE|win.SWP_NOMOVE)
+	win.SetWindowPos(nextWnd, syntaxEditWnd, 0, 0, 0, 0, win.SWP_NOSIZE|win.SWP_NOMOVE)
 
 	if tunnel != nil {
 		dlg.Starting().Attach(func() {
