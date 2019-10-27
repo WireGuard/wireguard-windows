@@ -202,6 +202,12 @@ func (mtw *ManageTunnelsWindow) WndProc(hwnd win.HWND, msg uint32, wParam, lPara
 			return 0
 		}
 	case raiseMsg:
+		if mtw.tunnelsPage == nil || mtw.tabs == nil {
+			mtw.Synchronize(func() {
+				mtw.SendMessage(msg, wParam, lParam)
+			})
+			return 0
+		}
 		if !mtw.Visible() {
 			mtw.tunnelsPage.listView.SelectFirstActiveTunnel()
 			if mtw.tabs.Pages().Len() != 3 {
