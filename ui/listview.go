@@ -133,17 +133,21 @@ func (tv *ListView) StyleCell(style *walk.CellStyle) {
 		}
 		tv.model.lastObservedState[tv.model.tunnels[row]] = state
 	}
+
+	icon, err := iconForState(state, 14)
+	if err != nil {
+		return
+	}
+	margin := tv.IntFrom96DPI(1)
+	bitmapWidth := tv.IntFrom96DPI(16)
+
 	if win.IsAppThemed() {
-		cacheKey := widthAndState{tv.IntFrom96DPI(16), state}
+		cacheKey := widthAndState{bitmapWidth, state}
 		if cacheValue, ok := cachedListViewIconsForWidthAndState[cacheKey]; ok {
 			style.Image = cacheValue
 			return
 		}
-		icon, err := iconForState(cacheKey.state, cacheKey.width)
-		if err != nil {
-			return
-		}
-		bitmap, err := walk.NewBitmapWithTransparentPixelsForDPI(tv.SizeFrom96DPI(icon.Size()), tv.DPI())
+		bitmap, err := walk.NewBitmapWithTransparentPixelsForDPI(walk.Size{bitmapWidth, bitmapWidth}, tv.DPI())
 		if err != nil {
 			return
 		}
@@ -151,8 +155,7 @@ func (tv *ListView) StyleCell(style *walk.CellStyle) {
 		if err != nil {
 			return
 		}
-		margin := tv.IntFrom96DPI(1)
-		bounds := walk.Rectangle{X: margin, Y: margin, Height: bitmap.Size().Height - 2*margin, Width: bitmap.Size().Width - 2*margin}
+		bounds := walk.Rectangle{X: margin, Y: margin, Height: bitmapWidth - 2*margin, Width: bitmapWidth - 2*margin}
 		err = canvas.DrawImageStretchedPixels(icon, bounds)
 		canvas.Dispose()
 		if err != nil {
@@ -169,17 +172,12 @@ func (tv *ListView) StyleCell(style *walk.CellStyle) {
 		if canvas == nil {
 			return
 		}
-		margin := tv.IntFrom96DPI(1)
-		bounds := style.Bounds()
-		bounds.X = margin
-		bounds.Y += margin
-		bounds.Width = bounds.Height - 2*margin
+		bounds := style.BoundsPixels()
+		bounds.Width = bitmapWidth - 2*margin
+		bounds.X = (bounds.Height - bounds.Width) / 2
 		bounds.Height = bounds.Width
-		icon, err := iconForState(state, style.Bounds().Width)
-		if err != nil {
-			return
-		}
-		canvas.DrawImageStretched(icon, bounds)
+		bounds.Y += bounds.X
+		canvas.DrawImageStretchedPixels(icon, bounds)
 	}
 }
 
