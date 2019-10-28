@@ -142,7 +142,7 @@ func (tp *TunnelsPage) CreateToolbar() error {
 	}
 	tp.AddDisposable(addMenu)
 	importAction := walk.NewAction()
-	importAction.SetText("&Import tunnel(s) from file...")
+	importAction.SetText("&Import tunnel(s) from file…")
 	importActionIcon, _ := loadSystemIcon("imageres", 3, 16)
 	importAction.SetImage(importActionIcon)
 	importAction.SetShortcut(walk.Shortcut{walk.ModControl, walk.KeyO})
@@ -150,7 +150,7 @@ func (tp *TunnelsPage) CreateToolbar() error {
 	importAction.Triggered().Attach(tp.onImport)
 	addMenu.Actions().Add(importAction)
 	addAction := walk.NewAction()
-	addAction.SetText("Add &empty tunnel...")
+	addAction.SetText("Add &empty tunnel…")
 	addActionIcon, _ := loadSystemIcon("imageres", 2, 16)
 	addAction.SetImage(addActionIcon)
 	addAction.SetShortcut(walk.Shortcut{walk.ModControl, walk.KeyN})
@@ -178,7 +178,7 @@ func (tp *TunnelsPage) CreateToolbar() error {
 	exportAction := walk.NewAction()
 	exportActionIcon, _ := loadSystemIcon("imageres", 165, 16) // Or "shell32", 45?
 	exportAction.SetImage(exportActionIcon)
-	exportAction.SetToolTip("Export all tunnels to zip...")
+	exportAction.SetToolTip("Export all tunnels to zip…")
 	exportAction.Triggered().Attach(tp.onExportTunnels)
 	tp.listToolbar.Actions().Add(exportAction)
 
@@ -201,24 +201,24 @@ func (tp *TunnelsPage) CreateToolbar() error {
 	contextMenu.Actions().Add(toggleAction)
 	contextMenu.Actions().Add(walk.NewSeparatorAction())
 	importAction2 := walk.NewAction()
-	importAction2.SetText("&Import tunnel(s) from file...")
+	importAction2.SetText("&Import tunnel(s) from file…")
 	importAction2.SetShortcut(walk.Shortcut{walk.ModControl, walk.KeyO})
 	importAction2.Triggered().Attach(tp.onImport)
 	contextMenu.Actions().Add(importAction2)
 	tp.ShortcutActions().Add(importAction2)
 	addAction2 := walk.NewAction()
-	addAction2.SetText("Add &empty tunnel...")
+	addAction2.SetText("Add &empty tunnel…")
 	addAction2.SetShortcut(walk.Shortcut{walk.ModControl, walk.KeyN})
 	addAction2.Triggered().Attach(tp.onAddTunnel)
 	contextMenu.Actions().Add(addAction2)
 	tp.ShortcutActions().Add(addAction2)
 	exportAction2 := walk.NewAction()
-	exportAction2.SetText("Export all tunnels to &zip...")
+	exportAction2.SetText("Export all tunnels to &zip…")
 	exportAction2.Triggered().Attach(tp.onExportTunnels)
 	contextMenu.Actions().Add(exportAction2)
 	contextMenu.Actions().Add(walk.NewSeparatorAction())
 	editAction := walk.NewAction()
-	editAction.SetText("Edit &selected tunnel...")
+	editAction.SetText("Edit &selected tunnel…")
 	editAction.SetShortcut(walk.Shortcut{walk.ModControl, walk.KeyE})
 	editAction.Triggered().Attach(tp.onEditTunnel)
 	contextMenu.Actions().Add(editAction)
@@ -531,7 +531,7 @@ func (tp *TunnelsPage) onSelectAll() {
 func (tp *TunnelsPage) onImport() {
 	dlg := walk.FileDialog{
 		Filter: "Configuration Files (*.zip, *.conf)|*.zip;*.conf|All Files (*.*)|*.*",
-		Title:  "Import tunnel(s) from file...",
+		Title:  "Import tunnel(s) from file…",
 	}
 
 	if ok, _ := dlg.ShowOpenMultiple(tp.Form()); !ok {
@@ -544,7 +544,7 @@ func (tp *TunnelsPage) onImport() {
 func (tp *TunnelsPage) onExportTunnels() {
 	dlg := walk.FileDialog{
 		Filter: "Configuration ZIP Files (*.zip)|*.zip",
-		Title:  "Export tunnels to zip...",
+		Title:  "Export tunnels to zip…",
 	}
 
 	if ok, _ := dlg.ShowSave(tp.Form()); !ok {
