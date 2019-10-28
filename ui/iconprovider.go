@@ -100,7 +100,7 @@ func textForState(state manager.TunnelState, withEllipsis bool) (text string) {
 	if withEllipsis {
 		switch state {
 		case manager.TunnelStarting, manager.TunnelStopping:
-			text += "..."
+			text += "…"
 		}
 	}
 	return

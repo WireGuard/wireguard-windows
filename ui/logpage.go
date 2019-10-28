@@ -69,7 +69,7 @@ func NewLogPage() (*LogPage, error) {
 	contextMenu.Actions().Add(selectAllAction)
 	lp.ShortcutActions().Add(selectAllAction)
 	saveAction := walk.NewAction()
-	saveAction.SetText("&Save to file")
+	saveAction.SetText("&Save to file…")
 	saveAction.SetShortcut(walk.Shortcut{walk.ModControl, walk.KeyS})
 	saveAction.Triggered().Attach(lp.onSave)
 	contextMenu.Actions().Add(saveAction)
@@ -148,7 +148,7 @@ func (lp *LogPage) onSave() {
 	fd := walk.FileDialog{
 		Filter:   "Text Files (*.txt)|*.txt|All Files (*.*)|*.*",
 		FilePath: fmt.Sprintf("wireguard-log-%s.txt", time.Now().Format("2006-01-02T150405")),
-		Title:    "Export log to file",
+		Title:    "Export log to file…",
 	}
 
 	form := lp.Form()
