@@ -123,6 +123,7 @@ func monitorDefaultRoutes(family winipcfg.AddressFamily, device *device.Device, 
 			firstBurst = time.Now()
 		} else if time.Since(firstBurst) > time.Second*2 {
 			firstBurst = time.Time{}
+			burstTimer.Stop()
 			doIt()
 		}
 		burstMutex.Unlock()
