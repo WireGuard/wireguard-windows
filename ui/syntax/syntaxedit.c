@@ -172,6 +172,7 @@ static void highlight_text(HWND hWnd)
 	evaluate_untunneled_blocking(this, hWnd, msg, spans);
 
 	this->idoc->lpVtbl->Undo(this->idoc, tomSuspend, NULL);
+	SendMessage(hWnd, EM_SETEVENTMASK, 0, 0);
 	SendMessage(hWnd, WM_SETREDRAW, FALSE, 0);
 	SendMessage(hWnd, EM_EXGETSEL, 0, (LPARAM)&orig_selection);
 	SendMessage(hWnd, EM_GETSCROLLPOS, 0, (LPARAM)&original_scroll);
@@ -198,6 +199,7 @@ static void highlight_text(HWND hWnd)
 	SendMessage(hWnd, EM_HIDESELECTION, FALSE, 0);
 	SendMessage(hWnd, WM_SETREDRAW, TRUE, 0);
 	RedrawWindow(hWnd, NULL, NULL, RDW_ERASE | RDW_FRAME | RDW_INVALIDATE | RDW_ALLCHILDREN);
+	SendMessage(hWnd, EM_SETEVENTMASK, 0, ENM_CHANGE);
 	this->idoc->lpVtbl->Undo(this->idoc, tomResume, NULL);
 	if (!found_private_key)
 		SendMessage(hWnd, SE_PRIVATE_KEY, 0, 0);
