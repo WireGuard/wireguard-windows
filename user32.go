@@ -7,6 +7,7 @@
 package win
 
 import (
+	"math"
 	"syscall"
 	"unsafe"
 
@@ -2735,7 +2736,7 @@ func GetSystemMetrics(nIndex int32) int32 {
 
 func GetSystemMetricsForDpi(nIndex int32, dpi uint32) int32 {
 	if getSystemMetricsForDpi.Find() != nil {
-		return GetSystemMetrics(nIndex)
+		return int32(math.Round(float64(GetSystemMetrics(nIndex)) * float64(dpi) / float64(GetDpiForWindow(0))))
 	}
 
 	ret, _, _ := syscall.Syscall(getSystemMetricsForDpi.Addr(), 2,
