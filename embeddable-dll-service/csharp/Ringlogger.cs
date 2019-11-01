@@ -116,12 +116,19 @@ namespace Tunnel
                 get => _view.ReadUInt32(offsetNextIndex);
                 set => _view.Write(offsetNextIndex, value);
             }
-            public unsafe UInt32 InsertNextIndex() => (UInt32)Interlocked.Increment(ref Unsafe.AsRef<Int32>((_view.SafeMemoryMappedViewHandle.DangerousGetHandle() + offsetNextIndex).ToPointer()));
+            public unsafe UInt32 InsertNextIndex()
+            {
+                byte* pointer = null;
+                _view.SafeMemoryMappedViewHandle.AcquirePointer(ref pointer);
+                var ret = (UInt32)Interlocked.Increment(ref Unsafe.AsRef<Int32>(pointer + offsetNextIndex));
+                _view.SafeMemoryMappedViewHandle.ReleasePointer();
+                return ret;
+            }
 
             public UInt32 LineCount => maxLines;
             public Line this[UInt32 i] => new Line(_view, i % maxLines);
 
-            public void Clear() => _view.WriteArray(0, new byte[Log.Bytes], 0, Log.Bytes);
+            public void Clear() => _view.WriteArray(0, new byte[Bytes], 0, Bytes);
         }
 
         private readonly Log _log;
