@@ -24,7 +24,7 @@ if exist .deps\prepared goto :build
 	cd .deps || goto :error
 	call :download wintun-x86.msm https://www.wintun.net/builds/wintun-x86-0.7.msm bdc40a2314964759653cd0717983dd3fedfeb53e7e15f4ed8370e12964c04b43 || goto :error
 	call :download wintun-amd64.msm https://www.wintun.net/builds/wintun-amd64-0.7.msm c87f9e0df51ac5c4fc8551f38c58b6fe6c43c06344451e3ed8939f05f4979c7d || goto :error
-	call :download wix-binaries.zip http://wixtoolset.org/downloads/v3.14.0.2812/wix314-binaries.zip 923892298f37514622c58cbbd9c2cadf2822d9bb53df8ee83aaeb05280777611 || goto :error
+	call :download wix-binaries.zip https://github.com/wixtoolset/wix3/releases/download/wix3112rtm/wix311-binaries.zip 2c1888d5d1dba377fc7fa14444cf556963747ff9a0a289a3599cf09da03b9e2e || goto :error
 	echo [+] Extracting wix-binaries.zip
 	mkdir wix\bin || goto :error
 	tar -xf wix-binaries.zip -C wix\bin || goto :error
