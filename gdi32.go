@@ -692,7 +692,11 @@ const (
 
 const CBM_INIT = 4
 
-const CLR_INVALID = 0xFFFFFFFF
+const (
+	CLR_INVALID = 0xFFFFFFFF
+	CLR_NONE    = CLR_INVALID
+	CLR_DEFAULT = 0xFF000000
+)
 
 const (
 	/* pixel types */

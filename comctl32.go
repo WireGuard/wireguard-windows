@@ -162,6 +162,19 @@ const (
 	ILC_PERITEMMIRROR = 0x00008000
 )
 
+// ImageList_Draw[Ex] flags
+const (
+	ILD_NORMAL      = 0x00000000
+	ILD_TRANSPARENT = 0x00000001
+	ILD_BLEND25     = 0x00000002
+	ILD_BLEND50     = 0x00000004
+	ILD_MASK        = 0x00000010
+	ILD_IMAGE       = 0x00000020
+	ILD_SELECTED    = ILD_BLEND50
+	ILD_FOCUS       = ILD_BLEND25
+	ILD_BLEND       = ILD_BLEND50
+)
+
 // LoadIconMetric flags
 const (
 	LIM_SMALL = 0
@@ -248,6 +261,7 @@ var (
 	imageList_AddMasked   *windows.LazyProc
 	imageList_Create      *windows.LazyProc
 	imageList_Destroy     *windows.LazyProc
+	imageList_DrawEx      *windows.LazyProc
 	imageList_ReplaceIcon *windows.LazyProc
 	initCommonControlsEx  *windows.LazyProc
 	loadIconMetric        *windows.LazyProc
@@ -263,6 +277,7 @@ func init() {
 	imageList_AddMasked = libcomctl32.NewProc("ImageList_AddMasked")
 	imageList_Create = libcomctl32.NewProc("ImageList_Create")
 	imageList_Destroy = libcomctl32.NewProc("ImageList_Destroy")
+	imageList_DrawEx = libcomctl32.NewProc("ImageList_DrawEx")
 	imageList_ReplaceIcon = libcomctl32.NewProc("ImageList_ReplaceIcon")
 	initCommonControlsEx = libcomctl32.NewProc("InitCommonControlsEx")
 	loadIconMetric = libcomctl32.NewProc("LoadIconMetric")
@@ -302,6 +317,24 @@ func ImageList_Create(cx, cy int32, flags uint32, cInitial, cGrow int32) HIMAGEL
 func ImageList_Destroy(hIml HIMAGELIST) bool {
 	ret, _, _ := syscall.Syscall(imageList_Destroy.Addr(), 1,
 		uintptr(hIml),
+		0,
+		0)
+
+	return ret != 0
+}
+
+func ImageList_DrawEx(himl HIMAGELIST, i int32, hdcDst HDC, x, y, dx, dy int32, rgbBk COLORREF, rgbFg COLORREF, fStyle uint32) bool {
+	ret, _, _ := syscall.Syscall12(imageList_DrawEx.Addr(), 10,
+		uintptr(himl),
+		uintptr(i),
+		uintptr(hdcDst),
+		uintptr(x),
+		uintptr(y),
+		uintptr(dx),
+		uintptr(dy),
+		uintptr(rgbBk),
+		uintptr(rgbFg),
+		uintptr(fStyle),
 		0,
 		0)
 
