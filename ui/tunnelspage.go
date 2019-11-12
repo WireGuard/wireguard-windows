@@ -531,7 +531,7 @@ func (tp *TunnelsPage) onSelectAll() {
 func (tp *TunnelsPage) onImport() {
 	dlg := walk.FileDialog{
 		Filter: "Configuration Files (*.zip, *.conf)|*.zip;*.conf|All Files (*.*)|*.*",
-		Title:  "Import tunnel(s) from file…",
+		Title:  "Import tunnel(s) from file",
 	}
 
 	if ok, _ := dlg.ShowOpenMultiple(tp.Form()); !ok {
@@ -544,7 +544,7 @@ func (tp *TunnelsPage) onImport() {
 func (tp *TunnelsPage) onExportTunnels() {
 	dlg := walk.FileDialog{
 		Filter: "Configuration ZIP Files (*.zip)|*.zip",
-		Title:  "Export tunnels to zip…",
+		Title:  "Export tunnels to zip",
 	}
 
 	if ok, _ := dlg.ShowSave(tp.Form()); !ok {

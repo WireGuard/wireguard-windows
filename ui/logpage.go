@@ -148,7 +148,7 @@ func (lp *LogPage) onSave() {
 	fd := walk.FileDialog{
 		Filter:   "Text Files (*.txt)|*.txt|All Files (*.*)|*.*",
 		FilePath: fmt.Sprintf("wireguard-log-%s.txt", time.Now().Format("2006-01-02T150405")),
-		Title:    "Export log to file…",
+		Title:    "Export log to file",
 	}
 
 	form := lp.Form()
