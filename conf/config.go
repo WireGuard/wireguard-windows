@@ -16,6 +16,8 @@ import (
 	"time"
 
 	"golang.org/x/crypto/curve25519"
+
+	"golang.zx2c4.com/wireguard/windows/l18n"
 )
 
 const KeyLength = 32
@@ -131,18 +133,6 @@ func NewPrivateKeyFromString(b64 string) (*Key, error) {
 	return parseKeyBase64(b64)
 }
 
-func formatInterval(i int64, n string, l int) string {
-	r := ""
-	if l > 0 {
-		r += ", "
-	}
-	r += fmt.Sprintf("%d %s", i, n)
-	if i != 1 {
-		r += "s"
-	}
-	return r
-}
-
 func (t HandshakeTime) IsEmpty() bool {
 	return t == HandshakeTime(0)
 }
@@ -151,9 +141,9 @@ func (t HandshakeTime) String() string {
 	u := time.Unix(0, 0).Add(time.Duration(t)).Unix()
 	n := time.Now().Unix()
 	if u == n {
-		return "Now"
+		return l18n.Sprintf("Now")
 	} else if u > n {
-		return "System clock wound backward!"
+		return l18n.Sprintf("System clock wound backward!")
 	}
 	left := n - u
 	years := left / (365 * 24 * 60 * 60)
@@ -164,37 +154,37 @@ func (t HandshakeTime) String() string {
 	left = left % (60 * 60)
 	minutes := left / 60
 	seconds := left % 60
-	s := ""
+	s := make([]string, 0, 5)
 	if years > 0 {
-		s += formatInterval(years, "year", len(s))
+		s = append(s, l18n.Sprintf("%d year(s)", years))
 	}
 	if days > 0 {
-		s += formatInterval(days, "day", len(s))
+		s = append(s, l18n.Sprintf("%d day(s)", days))
 	}
 	if hours > 0 {
-		s += formatInterval(hours, "hour", len(s))
+		s = append(s, l18n.Sprintf("%d hour(s)", hours))
 	}
 	if minutes > 0 {
-		s += formatInterval(minutes, "minute", len(s))
+		s = append(s, l18n.Sprintf("%d minute(s)", minutes))
 	}
 	if seconds > 0 {
-		s += formatInterval(seconds, "second", len(s))
+		s = append(s, l18n.Sprintf("%d second(s)", seconds))
 	}
-	s += " ago"
-	return s
+	timestamp := strings.Join(s, l18n.EnumerationSeparator())
+	return l18n.Sprintf("%s ago", timestamp)
 }
 
 func (b Bytes) String() string {
 	if b < 1024 {
-		return fmt.Sprintf("%d B", b)
+		return l18n.Sprintf("%d\u00a0B", b)
 	} else if b < 1024*1024 {
-		return fmt.Sprintf("%.2f KiB", float64(b)/1024)
+		return l18n.Sprintf("%.2f\u00a0KiB", float64(b)/1024)
 	} else if b < 1024*1024*1024 {
-		return fmt.Sprintf("%.2f MiB", float64(b)/(1024*1024))
+		return l18n.Sprintf("%.2f\u00a0MiB", float64(b)/(1024*1024))
 	} else if b < 1024*1024*1024*1024 {
-		return fmt.Sprintf("%.2f GiB", float64(b)/(1024*1024*1024))
+		return l18n.Sprintf("%.2f\u00a0GiB", float64(b)/(1024*1024*1024))
 	}
-	return fmt.Sprintf("%.2f TiB", float64(b)/(1024*1024*1024)/1024)
+	return l18n.Sprintf("%.2f\u00a0TiB", float64(b)/(1024*1024*1024)/1024)
 }
 
 func (conf *Config) DeduplicateNetworkEntries() {

@@ -46,6 +46,11 @@ fmt: export GOARCH := amd64
 fmt:
 	go fmt ./...
 
+generate: export CC := i686-w64-mingw32-gcc
+generate: export GOARCH := 386
+generate:
+	go generate
+
 deploy: amd64/wireguard.exe
 	-ssh $(DEPLOYMENT_HOST) -- 'taskkill /im wireguard.exe /f'
 	scp $< $(DEPLOYMENT_HOST):$(DEPLOYMENT_PATH)

@@ -6,7 +6,6 @@
 package ui
 
 import (
-	"fmt"
 	"runtime"
 	"strings"
 
@@ -14,6 +13,7 @@ import (
 	"github.com/lxn/win"
 	"golang.org/x/sys/windows"
 	"golang.zx2c4.com/wireguard/device"
+	"golang.zx2c4.com/wireguard/windows/l18n"
 	"golang.zx2c4.com/wireguard/windows/version"
 )
 
@@ -47,7 +47,7 @@ func runAboutDialog(owner walk.Form) error {
 		showingAboutDialog = nil
 	}()
 	disposables.Add(showingAboutDialog)
-	showingAboutDialog.SetTitle("About WireGuard")
+	showingAboutDialog.SetTitle(l18n.Sprintf("About WireGuard"))
 	showingAboutDialog.SetLayout(vbl)
 	if icon, err := loadLogoIcon(32); err == nil {
 		showingAboutDialog.SetIcon(icon)
@@ -79,7 +79,7 @@ func runAboutDialog(owner walk.Form) error {
 	if logo, err := loadLogoIcon(128); err == nil {
 		iv.SetImage(logo)
 	}
-	iv.Accessibility().SetName("WireGuard logo image")
+	iv.Accessibility().SetName(l18n.Sprintf("WireGuard logo image"))
 
 	wgLbl, err := walk.NewTextLabel(showingAboutDialog)
 	if err != nil {
@@ -95,7 +95,7 @@ func runAboutDialog(owner walk.Form) error {
 		return err
 	}
 	detailsLbl.SetTextAlignment(walk.AlignHCenterVNear)
-	detailsLbl.SetText(fmt.Sprintf("App version: %s\nGo backend version: %s\nGo version: %s\nOperating system: %s\nArchitecture: %s", version.Number, device.WireGuardGoVersion, strings.TrimPrefix(runtime.Version(), "go"), version.OsName(), runtime.GOARCH))
+	detailsLbl.SetText(l18n.Sprintf("App version: %s\nGo backend version: %s\nGo version: %s\nOperating system: %s\nArchitecture: %s", version.Number, device.WireGuardGoVersion, strings.TrimPrefix(runtime.Version(), "go"), version.OsName(), runtime.GOARCH))
 
 	copyrightLbl, err := walk.NewTextLabel(showingAboutDialog)
 	if err != nil {
@@ -119,14 +119,14 @@ func runAboutDialog(owner walk.Form) error {
 		return err
 	}
 	closePB.SetAlignment(walk.AlignHCenterVNear)
-	closePB.SetText("Close")
+	closePB.SetText(l18n.Sprintf("Close"))
 	closePB.Clicked().Attach(showingAboutDialog.Accept)
 	donatePB, err := walk.NewPushButton(buttonCP)
 	if err != nil {
 		return err
 	}
 	donatePB.SetAlignment(walk.AlignHCenterVNear)
-	donatePB.SetText("♥ &Donate!")
+	donatePB.SetText(l18n.Sprintf("♥ &Donate!"))
 	donatePB.Clicked().Attach(func() {
 		if easterEggIndex == -1 {
 			easterEggIndex = 0

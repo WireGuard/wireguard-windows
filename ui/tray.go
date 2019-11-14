@@ -6,12 +6,12 @@
 package ui
 
 import (
-	"fmt"
 	"sort"
 	"strings"
 	"time"
 
 	"golang.zx2c4.com/wireguard/windows/conf"
+	"golang.zx2c4.com/wireguard/windows/l18n"
 	"golang.zx2c4.com/wireguard/windows/manager"
 
 	"github.com/lxn/walk"
@@ -53,7 +53,7 @@ func NewTray(mtw *ManageTunnelsWindow) (*Tray, error) {
 func (tray *Tray) setup() error {
 	tray.clicked = tray.onManageTunnels
 
-	tray.SetToolTip("WireGuard: Deactivated")
+	tray.SetToolTip(l18n.Sprintf("WireGuard: Deactivated"))
 	tray.SetVisible(true)
 	if icon, err := loadLogoIcon(16); err == nil {
 		tray.SetIcon(icon)
@@ -76,15 +76,15 @@ func (tray *Tray) setup() error {
 		separator bool
 		defawlt   bool
 	}{
-		{label: "Status: Unknown"},
-		{label: "Addresses: None", hidden: true},
+		{label: l18n.Sprintf("Status: Unknown")},
+		{label: l18n.Sprintf("Addresses: None"), hidden: true},
 		{separator: true},
 		{separator: true},
-		{label: "&Manage tunnels…", handler: tray.onManageTunnels, enabled: true, defawlt: true},
-		{label: "&Import tunnel(s) from file…", handler: tray.onImport, enabled: true},
+		{label: l18n.Sprintf("&Manage tunnels…"), handler: tray.onManageTunnels, enabled: true, defawlt: true},
+		{label: l18n.Sprintf("&Import tunnel(s) from file…"), handler: tray.onImport, enabled: true},
 		{separator: true},
-		{label: "&About WireGuard…", handler: tray.onAbout, enabled: true},
-		{label: "E&xit", handler: onQuit, enabled: true},
+		{label: l18n.Sprintf("&About WireGuard…"), handler: tray.onAbout, enabled: true},
+		{label: l18n.Sprintf("E&xit"), handler: onQuit, enabled: true},
 	} {
 		var action *walk.Action
 		if item.separator {
@@ -160,11 +160,11 @@ func (tray *Tray) addTunnelAction(tunnel *manager.Tunnel) {
 					tray.mtw.tunnelsPage.listView.selectTunnel(tclosure.Name)
 					tray.mtw.tabs.SetCurrentIndex(0)
 					if oldState == manager.TunnelUnknown {
-						showErrorCustom(tray.mtw, "Failed to determine tunnel state", err.Error())
+						showErrorCustom(tray.mtw, l18n.Sprintf("Failed to determine tunnel state"), err.Error())
 					} else if oldState == manager.TunnelStopped {
-						showErrorCustom(tray.mtw, "Failed to activate tunnel", err.Error())
+						showErrorCustom(tray.mtw, l18n.Sprintf("Failed to activate tunnel"), err.Error())
 					} else if oldState == manager.TunnelStarted {
-						showErrorCustom(tray.mtw, "Failed to deactivate tunnel", err.Error())
+						showErrorCustom(tray.mtw, l18n.Sprintf("Failed to deactivate tunnel"), err.Error())
 					}
 				})
 			}
@@ -213,7 +213,7 @@ func (tray *Tray) onTunnelChange(tunnel *manager.Tunnel, state manager.TunnelSta
 		tray.updateGlobalState(globalState)
 		tray.SetTunnelState(tunnel, state, err == nil)
 		if !tray.mtw.Visible() && err != nil {
-			tray.ShowError("WireGuard Tunnel Error", err.Error())
+			tray.ShowError(l18n.Sprintf("WireGuard Tunnel Error"), err.Error())
 		}
 	})
 }
@@ -234,8 +234,9 @@ func (tray *Tray) updateGlobalState(globalState manager.TunnelState) {
 		}
 	}
 
-	tray.SetToolTip(fmt.Sprintf("WireGuard: %s", textForState(globalState, true)))
-	statusAction.SetText(fmt.Sprintf("Status: %s", textForState(globalState, false)))
+	tray.SetToolTip(l18n.Sprintf("WireGuard: %s", textForState(globalState, true)))
+	stateText := textForState(globalState, false)
+	statusAction.SetText(l18n.Sprintf("Status: %s", stateText))
 
 	switch globalState {
 	case manager.TunnelStarting:
@@ -274,13 +275,13 @@ func (tray *Tray) SetTunnelState(tunnel *manager.Tunnel, state manager.TunnelSta
 				var sb strings.Builder
 				for i, addr := range config.Interface.Addresses {
 					if i > 0 {
-						sb.WriteString(", ")
+						sb.WriteString(l18n.EnumerationSeparator())
 					}
 
 					sb.WriteString(addr.String())
 				}
 				tray.mtw.Synchronize(func() {
-					activeCIDRsAction.SetText(fmt.Sprintf("Addresses: %s", sb.String()))
+					activeCIDRsAction.SetText(l18n.Sprintf("Addresses: %s", sb.String()))
 				})
 			}
 		}()
@@ -288,21 +289,21 @@ func (tray *Tray) SetTunnelState(tunnel *manager.Tunnel, state manager.TunnelSta
 		tunnelAction.SetChecked(true)
 		if !wasChecked && showNotifications {
 			icon, _ := iconWithOverlayForState(state, 128)
-			tray.ShowCustom("WireGuard Activated", fmt.Sprintf("The %s tunnel has been activated.", tunnel.Name), icon)
+			tray.ShowCustom(l18n.Sprintf("WireGuard Activated"), l18n.Sprintf("The %s tunnel has been activated.", tunnel.Name), icon)
 		}
 
 	case manager.TunnelStopped:
 		tunnelAction.SetChecked(false)
 		if wasChecked && showNotifications {
 			icon, _ := loadSystemIcon("imageres", 26, 128) // TODO: this icon isn't very good...
-			tray.ShowCustom("WireGuard Deactivated", fmt.Sprintf("The %s tunnel has been deactivated.", tunnel.Name), icon)
+			tray.ShowCustom(l18n.Sprintf("WireGuard Deactivated"), l18n.Sprintf("The %s tunnel has been deactivated.", tunnel.Name), icon)
 		}
 	}
 }
 
 func (tray *Tray) UpdateFound() {
 	action := walk.NewAction()
-	action.SetText("An Update is Available!")
+	action.SetText(l18n.Sprintf("An Update is Available!"))
 	menuIcon, _ := loadSystemIcon("imageres", 1, 16)
 	action.SetImage(menuIcon)
 	action.SetDefault(true)
@@ -319,7 +320,7 @@ func (tray *Tray) UpdateFound() {
 
 	showUpdateBalloon := func() {
 		icon, _ := loadSystemIcon("imageres", 1, 128)
-		tray.ShowCustom("WireGuard Update Available", "An update to WireGuard is now available. You are advised to update as soon as possible.", icon)
+		tray.ShowCustom(l18n.Sprintf("WireGuard Update Available"), l18n.Sprintf("An update to WireGuard is now available. You are advised to update as soon as possible."), icon)
 	}
 
 	timeSinceStart := time.Now().Sub(startTime)

@@ -15,6 +15,7 @@ import (
 	"github.com/lxn/win"
 	"golang.org/x/sys/windows"
 
+	"golang.zx2c4.com/wireguard/windows/l18n"
 	"golang.zx2c4.com/wireguard/windows/manager"
 	"golang.zx2c4.com/wireguard/windows/version"
 )
@@ -75,7 +76,7 @@ func RunUI() {
 					tray.UpdateFound()
 				}
 			case manager.UpdateStateUpdatesDisabledUnofficialBuild:
-				mtw.SetTitle(mtw.Title() + " (unsigned build, no updates)")
+				mtw.SetTitle(l18n.Sprintf("%s (unsigned build, no updates)", mtw.Title()))
 			}
 		})
 	}
@@ -100,7 +101,7 @@ func RunUI() {
 	if shouldQuitManagerWhenExiting {
 		_, err := manager.IPCClientQuit(true)
 		if err != nil {
-			showErrorCustom(nil, "Error Exiting WireGuard", fmt.Sprintf("Unable to exit service due to: %v. You may want to stop WireGuard from the service manager.", err))
+			showErrorCustom(nil, l18n.Sprintf("Error Exiting WireGuard"), l18n.Sprintf("Unable to exit service due to: %v. You may want to stop WireGuard from the service manager.", err))
 		}
 	}
 }
@@ -115,7 +116,7 @@ func showError(err error, owner walk.Form) bool {
 		return false
 	}
 
-	showErrorCustom(owner, "Error", err.Error())
+	showErrorCustom(owner, l18n.Sprintf("Error"), err.Error())
 
 	return true
 }

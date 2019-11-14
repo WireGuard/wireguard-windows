@@ -6,10 +6,9 @@
 package ui
 
 import (
-	"fmt"
-
 	"github.com/lxn/walk"
 
+	"golang.zx2c4.com/wireguard/windows/l18n"
 	"golang.zx2c4.com/wireguard/windows/manager"
 	"golang.zx2c4.com/wireguard/windows/updater"
 )
@@ -30,7 +29,7 @@ func NewUpdatePage() (*UpdatePage, error) {
 	}
 	disposables.Add(up)
 
-	up.SetTitle("An Update is Available!")
+	up.SetTitle(l18n.Sprintf("An Update is Available!"))
 
 	tabIcon, _ := loadSystemIcon("imageres", 1, 16)
 	up.SetImage(tabIcon)
@@ -41,14 +40,14 @@ func NewUpdatePage() (*UpdatePage, error) {
 	if err != nil {
 		return nil, err
 	}
-	instructions.SetText("An update to WireGuard is available. It is highly advisable to update without delay.")
+	instructions.SetText(l18n.Sprintf("An update to WireGuard is available. It is highly advisable to update without delay."))
 	instructions.SetMinMaxSize(walk.Size{1, 0}, walk.Size{0, 0})
 
 	status, err := walk.NewTextLabel(up)
 	if err != nil {
 		return nil, err
 	}
-	status.SetText("Status: Waiting for user")
+	status.SetText(l18n.Sprintf("Status: Waiting for user"))
 	status.SetMinMaxSize(walk.Size{1, 0}, walk.Size{0, 0})
 
 	bar, err := walk.NewProgressBar(up)
@@ -63,7 +62,7 @@ func NewUpdatePage() (*UpdatePage, error) {
 	}
 	updateIcon, _ := loadSystemIcon("shell32", 46, 32)
 	button.SetImage(updateIcon)
-	button.SetText("Update Now")
+	button.SetText(l18n.Sprintf("Update Now"))
 
 	walk.NewVSpacer(up)
 
@@ -75,7 +74,7 @@ func NewUpdatePage() (*UpdatePage, error) {
 			bar.SetVisible(true)
 			bar.SetMarqueeMode(true)
 			up.SetSuspended(false)
-			status.SetText("Status: Waiting for updater service")
+			status.SetText(l18n.Sprintf("Status: Waiting for updater service"))
 		}
 	}
 
@@ -97,7 +96,7 @@ func NewUpdatePage() (*UpdatePage, error) {
 		err := manager.IPCClientUpdate()
 		if err != nil {
 			switchToReadyState()
-			status.SetText(fmt.Sprintf("Error: %v. Please try again.", err))
+			status.SetText(l18n.Sprintf("Error: %v. Please try again.", err))
 		}
 	})
 
@@ -106,11 +105,13 @@ func NewUpdatePage() (*UpdatePage, error) {
 			switchToUpdatingState()
 			if dp.Error != nil {
 				switchToReadyState()
-				status.SetText(fmt.Sprintf("Error: %v. Please try again.", dp.Error))
+				err := dp.Error
+				status.SetText(l18n.Sprintf("Error: %v. Please try again.", err))
 				return
 			}
 			if len(dp.Activity) > 0 {
-				status.SetText(fmt.Sprintf("Status: %s", dp.Activity))
+				stateText := dp.Activity
+				status.SetText(l18n.Sprintf("Status: %s", stateText))
 			}
 			if dp.BytesTotal > 0 {
 				bar.SetMarqueeMode(false)
@@ -123,7 +124,7 @@ func NewUpdatePage() (*UpdatePage, error) {
 			}
 			if dp.Complete {
 				switchToReadyState()
-				status.SetText("Status: Complete!")
+				status.SetText(l18n.Sprintf("Status: Complete!"))
 				return
 			}
 		})

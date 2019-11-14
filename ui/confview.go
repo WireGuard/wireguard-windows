@@ -6,7 +6,6 @@
 package ui
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -15,6 +14,7 @@ import (
 	"github.com/lxn/win"
 
 	"golang.zx2c4.com/wireguard/windows/conf"
+	"golang.zx2c4.com/wireguard/windows/l18n"
 	"golang.zx2c4.com/wireguard/windows/manager"
 )
 
@@ -108,7 +108,7 @@ func newLabelStatusLine(parent walk.Container) (*labelStatusLine, error) {
 		return nil, err
 	}
 	disposables.Add(lsl.label)
-	lsl.label.SetText("Status:")
+	lsl.label.SetText(l18n.Sprintf("Status:"))
 	lsl.label.SetTextAlignment(walk.AlignHFarVNear)
 
 	if lsl.statusComposite, err = walk.NewComposite(parent); err != nil {
@@ -180,7 +180,7 @@ func newLabelTextLine(fieldName string, parent walk.Container) (*labelTextLine, 
 		return nil, err
 	}
 	disposables.Add(lt.label)
-	lt.label.SetText(fieldName + ":")
+	lt.label.SetText(fieldName)
 	lt.label.SetTextAlignment(walk.AlignHFarVNear)
 	lt.label.SetVisible(false)
 
@@ -216,9 +216,9 @@ func (tal *toggleActiveLine) update(state manager.TunnelState) {
 
 	switch state {
 	case manager.TunnelStarted:
-		text = "&Deactivate"
+		text = l18n.Sprintf("&Deactivate")
 	case manager.TunnelStopped:
-		text = "&Activate"
+		text = l18n.Sprintf("&Activate")
 	case manager.TunnelStarting, manager.TunnelStopping:
 		text = textForState(state, true)
 	default:
@@ -300,11 +300,11 @@ func newInterfaceView(parent walk.Container) (*interfaceView, error) {
 	disposables.Add(iv.status)
 
 	items := []labelTextLineItem{
-		{"Public key", &iv.publicKey},
-		{"Listen port", &iv.listenPort},
-		{"MTU", &iv.mtu},
-		{"Addresses", &iv.addresses},
-		{"DNS servers", &iv.dns},
+		{l18n.Sprintf("Public key:"), &iv.publicKey},
+		{l18n.Sprintf("Listen port:"), &iv.listenPort},
+		{l18n.Sprintf("MTU:"), &iv.mtu},
+		{l18n.Sprintf("Addresses:"), &iv.addresses},
+		{l18n.Sprintf("DNS servers:"), &iv.dns},
 	}
 	if iv.lines, err = createLabelTextLines(items, parent, &disposables); err != nil {
 		return nil, err
@@ -328,13 +328,13 @@ func newPeerView(parent walk.Container) (*peerView, error) {
 	pv := new(peerView)
 
 	items := []labelTextLineItem{
-		{"Public key", &pv.publicKey},
-		{"Preshared key", &pv.presharedKey},
-		{"Allowed IPs", &pv.allowedIPs},
-		{"Endpoint", &pv.endpoint},
-		{"Persistent keepalive", &pv.persistentKeepalive},
-		{"Latest handshake", &pv.latestHandshake},
-		{"Transfer", &pv.transfer},
+		{l18n.Sprintf("Public key:"), &pv.publicKey},
+		{l18n.Sprintf("Preshared key:"), &pv.presharedKey},
+		{l18n.Sprintf("Allowed IPs:"), &pv.allowedIPs},
+		{l18n.Sprintf("Endpoint:"), &pv.endpoint},
+		{l18n.Sprintf("Persistent keepalive:"), &pv.persistentKeepalive},
+		{l18n.Sprintf("Latest handshake:"), &pv.latestHandshake},
+		{l18n.Sprintf("Transfer:"), &pv.transfer},
 	}
 	var err error
 	if pv.lines, err = createLabelTextLines(items, parent, nil); err != nil {
@@ -383,7 +383,7 @@ func (iv *interfaceView) apply(c *conf.Interface) {
 		for i, address := range c.Addresses {
 			addrStrings[i] = address.String()
 		}
-		iv.addresses.show(strings.Join(addrStrings[:], ", "))
+		iv.addresses.show(strings.Join(addrStrings[:], l18n.EnumerationSeparator()))
 	} else {
 		iv.addresses.hide()
 	}
@@ -393,7 +393,7 @@ func (iv *interfaceView) apply(c *conf.Interface) {
 		for i, address := range c.DNS {
 			addrStrings[i] = address.String()
 		}
-		iv.dns.show(strings.Join(addrStrings[:], ", "))
+		iv.dns.show(strings.Join(addrStrings[:], l18n.EnumerationSeparator()))
 	} else {
 		iv.dns.hide()
 	}
@@ -407,7 +407,7 @@ func (pv *peerView) apply(c *conf.Peer) {
 	pv.publicKey.show(c.PublicKey.String())
 
 	if !c.PresharedKey.IsZero() {
-		pv.presharedKey.show("enabled")
+		pv.presharedKey.show(l18n.Sprintf("enabled"))
 	} else {
 		pv.presharedKey.hide()
 	}
@@ -417,7 +417,7 @@ func (pv *peerView) apply(c *conf.Peer) {
 		for i, address := range c.AllowedIPs {
 			addrStrings[i] = address.String()
 		}
-		pv.allowedIPs.show(strings.Join(addrStrings[:], ", "))
+		pv.allowedIPs.show(strings.Join(addrStrings[:], l18n.EnumerationSeparator()))
 	} else {
 		pv.allowedIPs.hide()
 	}
@@ -441,7 +441,7 @@ func (pv *peerView) apply(c *conf.Peer) {
 	}
 
 	if c.RxBytes > 0 || c.TxBytes > 0 {
-		pv.transfer.show(fmt.Sprintf("%s received, %s sent", c.RxBytes.String(), c.TxBytes.String()))
+		pv.transfer.show(l18n.Sprintf("%s received, %s sent", c.RxBytes.String(), c.TxBytes.String()))
 	} else {
 		pv.transfer.hide()
 	}
@@ -552,11 +552,11 @@ func (cv *ConfView) onToggleActiveClicked() {
 		if err != nil {
 			cv.Synchronize(func() {
 				if oldState == manager.TunnelUnknown {
-					showErrorCustom(cv.Form(), "Failed to determine tunnel state", err.Error())
+					showErrorCustom(cv.Form(), l18n.Sprintf("Failed to determine tunnel state"), err.Error())
 				} else if oldState == manager.TunnelStopped {
-					showErrorCustom(cv.Form(), "Failed to activate tunnel", err.Error())
+					showErrorCustom(cv.Form(), l18n.Sprintf("Failed to activate tunnel"), err.Error())
 				} else if oldState == manager.TunnelStarted {
-					showErrorCustom(cv.Form(), "Failed to deactivate tunnel", err.Error())
+					showErrorCustom(cv.Form(), l18n.Sprintf("Failed to deactivate tunnel"), err.Error())
 				}
 			})
 		}
@@ -612,7 +612,7 @@ func (cv *ConfView) setTunnel(tunnel *manager.Tunnel, config *conf.Config, state
 		return
 	}
 
-	title := "Interface: " + config.Name
+	title := l18n.Sprintf("Interface: %s", config.Name)
 	if cv.name.Title() != title {
 		cv.SetSuspended(true)
 		defer cv.SetSuspended(false)
@@ -656,7 +656,7 @@ func (cv *ConfView) setTunnel(tunnel *manager.Tunnel, config *conf.Config, state
 			if err != nil {
 				continue
 			}
-			group.SetTitle("Peer")
+			group.SetTitle(l18n.Sprintf("Peer"))
 			pv, err := newPeerView(group)
 			if err != nil {
 				group.Dispose()

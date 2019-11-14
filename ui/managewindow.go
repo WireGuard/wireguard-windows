@@ -13,6 +13,7 @@ import (
 	"github.com/lxn/win"
 	"golang.org/x/sys/windows"
 
+	"golang.zx2c4.com/wireguard/windows/l18n"
 	"golang.zx2c4.com/wireguard/windows/manager"
 )
 
@@ -118,7 +119,7 @@ func NewManageTunnelsWindow() (*ManageTunnelsWindow, error) {
 			CbSize:     uint32(unsafe.Sizeof(win.MENUITEMINFO{})),
 			FMask:      win.MIIM_ID | win.MIIM_STRING | win.MIIM_FTYPE,
 			FType:      win.MIIM_STRING,
-			DwTypeData: windows.StringToUTF16Ptr("&About WireGuard…"),
+			DwTypeData: windows.StringToUTF16Ptr(l18n.Sprintf("&About WireGuard…")),
 			WID:        uint32(aboutWireGuardCmd),
 		})
 		win.InsertMenuItem(systemMenu, 1, true, &win.MENUITEMINFO{
@@ -169,7 +170,7 @@ func (mtw *ManageTunnelsWindow) onTunnelChange(tunnel *manager.Tunnel, state man
 			if len(errMsg) > 0 && errMsg[len(errMsg)-1] != '.' {
 				errMsg += "."
 			}
-			showWarningCustom(mtw, "Tunnel Error", errMsg+"\n\nPlease consult the log for more information.")
+			showWarningCustom(mtw, l18n.Sprintf("Tunnel Error"), l18n.Sprintf("%s\n\nPlease consult the log for more information.", errMsg))
 		}
 	})
 }
@@ -178,7 +179,7 @@ func (mtw *ManageTunnelsWindow) UpdateFound() {
 	if mtw.updatePage != nil {
 		return
 	}
-	mtw.SetTitle(mtw.Title() + " (out of date)")
+	mtw.SetTitle(l18n.Sprintf("%s (out of date)", mtw.Title()))
 	updatePage, err := NewUpdatePage()
 	if err == nil {
 		mtw.updatePage = updatePage

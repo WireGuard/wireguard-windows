@@ -8,13 +8,14 @@ package conf
 import (
 	"encoding/base64"
 	"encoding/hex"
-	"fmt"
 	"net"
 	"strconv"
 	"strings"
 	"time"
 
 	"golang.org/x/text/encoding/unicode"
+
+	"golang.zx2c4.com/wireguard/windows/l18n"
 )
 
 type ParseError struct {
@@ -23,7 +24,7 @@ type ParseError struct {
 }
 
 func (e *ParseError) Error() string {
-	return fmt.Sprintf("%s: %q", e.why, e.offender)
+	return l18n.Sprintf("%s: %q", e.why, e.offender)
 }
 
 func parseIPCidr(s string) (ipcidr *IPCidr, err error) {
@@ -37,7 +38,7 @@ func parseIPCidr(s string) (ipcidr *IPCidr, err error) {
 		addrStr, cidrStr = s[:i], s[i+1:]
 	}
 
-	err = &ParseError{"Invalid IP address", s}
+	err = &ParseError{l18n.Sprintf("Invalid IP address"), s}
 	addr := net.ParseIP(addrStr)
 	if addr == nil {
 		return
@@ -47,7 +48,7 @@ func parseIPCidr(s string) (ipcidr *IPCidr, err error) {
 		addr = maybeV4
 	}
 	if len(cidrStr) > 0 {
-		err = &ParseError{"Invalid network prefix length", s}
+		err = &ParseError{l18n.Sprintf("Invalid network prefix length"), s}
 		cidr, err = strconv.Atoi(cidrStr)
 		if err != nil || cidr < 0 || cidr > 128 {
 			return
@@ -68,11 +69,11 @@ func parseIPCidr(s string) (ipcidr *IPCidr, err error) {
 func parseEndpoint(s string) (*Endpoint, error) {
 	i := strings.LastIndexByte(s, ':')
 	if i < 0 {
-		return nil, &ParseError{"Missing port from endpoint", s}
+		return nil, &ParseError{l18n.Sprintf("Missing port from endpoint"), s}
 	}
 	host, portStr := s[:i], s[i+1:]
 	if len(host) < 1 {
-		return nil, &ParseError{"Invalid endpoint host", host}
+		return nil, &ParseError{l18n.Sprintf("Invalid endpoint host"), host}
 	}
 	port, err := parsePort(portStr)
 	if err != nil {
@@ -80,7 +81,7 @@ func parseEndpoint(s string) (*Endpoint, error) {
 	}
 	hostColon := strings.IndexByte(host, ':')
 	if host[0] == '[' || host[len(host)-1] == ']' || hostColon > 0 {
-		err := &ParseError{"Brackets must contain an IPv6 address", host}
+		err := &ParseError{l18n.Sprintf("Brackets must contain an IPv6 address"), host}
 		if len(host) > 3 && host[0] == '[' && host[len(host)-1] == ']' && hostColon > 0 {
 			end := len(host) - 1
 			if i := strings.LastIndexByte(host, '%'); i > 1 {
@@ -104,7 +105,7 @@ func parseMTU(s string) (uint16, error) {
 		return 0, err
 	}
 	if m < 576 || m > 65535 {
-		return 0, &ParseError{"Invalid MTU", s}
+		return 0, &ParseError{l18n.Sprintf("Invalid MTU"), s}
 	}
 	return uint16(m), nil
 }
@@ -115,7 +116,7 @@ func parsePort(s string) (uint16, error) {
 		return 0, err
 	}
 	if m < 0 || m > 65535 {
-		return 0, &ParseError{"Invalid port", s}
+		return 0, &ParseError{l18n.Sprintf("Invalid port"), s}
 	}
 	return uint16(m), nil
 }
@@ -129,7 +130,7 @@ func parsePersistentKeepalive(s string) (uint16, error) {
 		return 0, err
 	}
 	if m < 0 || m > 65535 {
-		return 0, &ParseError{"Invalid persistent keepalive", s}
+		return 0, &ParseError{l18n.Sprintf("Invalid persistent keepalive"), s}
 	}
 	return uint16(m), nil
 }
@@ -137,10 +138,10 @@ func parsePersistentKeepalive(s string) (uint16, error) {
 func parseKeyBase64(s string) (*Key, error) {
 	k, err := base64.StdEncoding.DecodeString(s)
 	if err != nil {
-		return nil, &ParseError{"Invalid key: " + err.Error(), s}
+		return nil, &ParseError{l18n.Sprintf("Invalid key: %v", err), s}
 	}
 	if len(k) != KeyLength {
-		return nil, &ParseError{"Keys must decode to exactly 32 bytes", s}
+		return nil, &ParseError{l18n.Sprintf("Keys must decode to exactly 32 bytes"), s}
 	}
 	var key Key
 	copy(key[:], k)
@@ -150,10 +151,10 @@ func parseKeyBase64(s string) (*Key, error) {
 func parseKeyHex(s string) (*Key, error) {
 	k, err := hex.DecodeString(s)
 	if err != nil {
-		return nil, &ParseError{"Invalid key: " + err.Error(), s}
+		return nil, &ParseError{l18n.Sprintf("Invalid key: %v", err), s}
 	}
 	if len(k) != KeyLength {
-		return nil, &ParseError{"Keys must decode to exactly 32 bytes", s}
+		return nil, &ParseError{l18n.Sprintf("Keys must decode to exactly 32 bytes"), s}
 	}
 	var key Key
 	copy(key[:], k)
@@ -163,7 +164,7 @@ func parseKeyHex(s string) (*Key, error) {
 func parseBytesOrStamp(s string) (uint64, error) {
 	b, err := strconv.ParseUint(s, 10, 64)
 	if err != nil {
-		return 0, &ParseError{"Number must be a number between 0 and 2^64-1: " + err.Error(), s}
+		return 0, &ParseError{l18n.Sprintf("Number must be a number between 0 and 2^64-1: %v", err), s}
 	}
 	return b, nil
 }
@@ -173,7 +174,7 @@ func splitList(s string) ([]string, error) {
 	for _, split := range strings.Split(s, ",") {
 		trim := strings.TrimSpace(split)
 		if len(trim) == 0 {
-			return nil, &ParseError{"Two commas in a row", s}
+			return nil, &ParseError{l18n.Sprintf("Two commas in a row"), s}
 		}
 		out = append(out, trim)
 	}
@@ -196,7 +197,7 @@ func (c *Config) maybeAddPeer(p *Peer) {
 
 func FromWgQuick(s string, name string) (*Config, error) {
 	if !TunnelNameIsValid(name) {
-		return nil, &ParseError{"Tunnel name is not valid", name}
+		return nil, &ParseError{l18n.Sprintf("Tunnel name is not valid"), name}
 	}
 	lines := strings.Split(s, "\n")
 	parserState := notInASection
@@ -225,15 +226,15 @@ func FromWgQuick(s string, name string) (*Config, error) {
 			continue
 		}
 		if parserState == notInASection {
-			return nil, &ParseError{"Line must occur in a section", line}
+			return nil, &ParseError{l18n.Sprintf("Line must occur in a section"), line}
 		}
 		equals := strings.IndexByte(line, '=')
 		if equals < 0 {
-			return nil, &ParseError{"Invalid config key is missing an equals separator", line}
+			return nil, &ParseError{l18n.Sprintf("Invalid config key is missing an equals separator"), line}
 		}
 		key, val := strings.TrimSpace(lineLower[:equals]), strings.TrimSpace(line[equals+1:])
 		if len(val) == 0 {
-			return nil, &ParseError{"Key must have a value", line}
+			return nil, &ParseError{l18n.Sprintf("Key must have a value"), line}
 		}
 		if parserState == inInterfaceSection {
 			switch key {
@@ -276,12 +277,12 @@ func FromWgQuick(s string, name string) (*Config, error) {
 				for _, address := range addresses {
 					a := net.ParseIP(address)
 					if a == nil {
-						return nil, &ParseError{"Invalid IP address", address}
+						return nil, &ParseError{l18n.Sprintf("Invalid IP address"), address}
 					}
 					conf.Interface.DNS = append(conf.Interface.DNS, a)
 				}
 			default:
-				return nil, &ParseError{"Invalid key for [Interface] section", key}
+				return nil, &ParseError{l18n.Sprintf("Invalid key for [Interface] section"), key}
 			}
 		} else if parserState == inPeerSection {
 			switch key {
@@ -322,18 +323,18 @@ func FromWgQuick(s string, name string) (*Config, error) {
 				}
 				peer.Endpoint = *e
 			default:
-				return nil, &ParseError{"Invalid key for [Peer] section", key}
+				return nil, &ParseError{l18n.Sprintf("Invalid key for [Peer] section"), key}
 			}
 		}
 	}
 	conf.maybeAddPeer(peer)
 
 	if !sawPrivateKey {
-		return nil, &ParseError{"An interface must have a private key", "[none specified]"}
+		return nil, &ParseError{l18n.Sprintf("An interface must have a private key"), l18n.Sprintf("[none specified]")}
 	}
 	for _, p := range conf.Peers {
 		if p.PublicKey.IsZero() {
-			return nil, &ParseError{"All peers must have public keys", "[none specified]"}
+			return nil, &ParseError{l18n.Sprintf("All peers must have public keys"), l18n.Sprintf("[none specified]")}
 		}
 	}
 
@@ -375,11 +376,11 @@ func FromUAPI(s string, existingConfig *Config) (*Config, error) {
 		}
 		equals := strings.IndexByte(line, '=')
 		if equals < 0 {
-			return nil, &ParseError{"Invalid config key is missing an equals separator", line}
+			return nil, &ParseError{l18n.Sprintf("Invalid config key is missing an equals separator"), line}
 		}
 		key, val := line[:equals], line[equals+1:]
 		if len(val) == 0 {
-			return nil, &ParseError{"Key must have a value", line}
+			return nil, &ParseError{l18n.Sprintf("Key must have a value"), line}
 		}
 		switch key {
 		case "public_key":
@@ -390,7 +391,7 @@ func FromUAPI(s string, existingConfig *Config) (*Config, error) {
 			if val == "0" {
 				continue
 			} else {
-				return nil, &ParseError{"Error in getting configuration", val}
+				return nil, &ParseError{l18n.Sprintf("Error in getting configuration"), val}
 			}
 		}
 		if parserState == inInterfaceSection {
@@ -411,7 +412,7 @@ func FromUAPI(s string, existingConfig *Config) (*Config, error) {
 				// Ignored for now.
 
 			default:
-				return nil, &ParseError{"Invalid key for interface section", key}
+				return nil, &ParseError{l18n.Sprintf("Invalid key for interface section"), key}
 			}
 		} else if parserState == inPeerSection {
 			switch key {
@@ -429,7 +430,7 @@ func FromUAPI(s string, existingConfig *Config) (*Config, error) {
 				peer.PresharedKey = *k
 			case "protocol_version":
 				if val != "1" {
-					return nil, &ParseError{"Protocol version must be 1", val}
+					return nil, &ParseError{l18n.Sprintf("Protocol version must be 1"), val}
 				}
 			case "allowed_ip":
 				a, err := parseIPCidr(val)
@@ -474,7 +475,7 @@ func FromUAPI(s string, existingConfig *Config) (*Config, error) {
 				}
 				peer.LastHandshakeTime += HandshakeTime(time.Duration(t) * time.Nanosecond)
 			default:
-				return nil, &ParseError{"Invalid key for peer section", key}
+				return nil, &ParseError{l18n.Sprintf("Invalid key for peer section"), key}
 			}
 		}
 	}

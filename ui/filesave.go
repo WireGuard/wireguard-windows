@@ -6,10 +6,11 @@
 package ui
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/lxn/walk"
+
+	"golang.zx2c4.com/wireguard/windows/l18n"
 )
 
 func writeFileWithOverwriteHandling(owner walk.Form, filePath string, write func(file *os.File) error) bool {
@@ -18,7 +19,7 @@ func writeFileWithOverwriteHandling(owner walk.Form, filePath string, write func
 			return false
 		}
 
-		showErrorCustom(owner, "Writing file failed", err.Error())
+		showErrorCustom(owner, l18n.Sprintf("Writing file failed"), err.Error())
 
 		return true
 	}
@@ -26,7 +27,7 @@ func writeFileWithOverwriteHandling(owner walk.Form, filePath string, write func
 	file, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY|os.O_EXCL, 0600)
 	if err != nil {
 		if os.IsExist(err) {
-			if walk.DlgCmdNo == walk.MsgBox(owner, "Writing file failed", fmt.Sprintf(`File ‘%s’ already exists.
+			if walk.DlgCmdNo == walk.MsgBox(owner, l18n.Sprintf("Writing file failed"), l18n.Sprintf(`File ‘%s’ already exists.
 
 Do you want to overwrite it?`, filePath), walk.MsgBoxYesNo|walk.MsgBoxDefButton2|walk.MsgBoxIconWarning) {
 				return false

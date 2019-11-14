@@ -6,12 +6,13 @@
 package ui
 
 import (
-	"fmt"
 	"os"
 	"runtime"
 
 	"github.com/lxn/win"
 	"golang.org/x/sys/windows"
+
+	"golang.zx2c4.com/wireguard/windows/l18n"
 )
 
 func raise(hwnd win.HWND) {
@@ -66,7 +67,7 @@ func WaitForRaiseUIThenQuit() {
 		return 0
 	}, 0, 0, win.WINEVENT_SKIPOWNPROCESS|win.WINEVENT_OUTOFCONTEXT)
 	if err != nil {
-		showErrorCustom(nil, "WireGuard Detection Error", fmt.Sprintf("Unable to wait for WireGuard window to appear: %v", err))
+		showErrorCustom(nil, l18n.Sprintf("WireGuard Detection Error"), l18n.Sprintf("Unable to wait for WireGuard window to appear: %v", err))
 	}
 	for {
 		var msg win.MSG
