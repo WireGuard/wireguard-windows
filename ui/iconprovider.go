@@ -8,6 +8,7 @@ package ui
 import (
 	"github.com/lxn/walk"
 
+	"golang.zx2c4.com/wireguard/windows/l18n"
 	"golang.zx2c4.com/wireguard/windows/manager"
 )
 
@@ -87,15 +88,15 @@ func iconForState(state manager.TunnelState, size int) (icon *walk.Icon, err err
 func textForState(state manager.TunnelState, withEllipsis bool) (text string) {
 	switch state {
 	case manager.TunnelStarted:
-		text = "Active"
+		text = l18n.Sprintf("Active")
 	case manager.TunnelStarting:
-		text = "Activating"
+		text = l18n.Sprintf("Activating")
 	case manager.TunnelStopped:
-		text = "Inactive"
+		text = l18n.Sprintf("Inactive")
 	case manager.TunnelStopping:
-		text = "Deactivating"
+		text = l18n.Sprintf("Deactivating")
 	case manager.TunnelUnknown:
-		text = "Unknown state"
+		text = l18n.Sprintf("Unknown state")
 	}
 	if withEllipsis {
 		switch state {

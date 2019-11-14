@@ -5,6 +5,8 @@
 
 package main
 
+//go:generate go run golang.org/x/text/cmd/gotext -srclang=en update -out=zgotext.go -lang=en
+
 import (
 	"fmt"
 	"os"
@@ -15,43 +17,43 @@ import (
 	"golang.org/x/sys/windows"
 
 	"golang.zx2c4.com/wireguard/windows/elevate"
+	"golang.zx2c4.com/wireguard/windows/l18n"
 	"golang.zx2c4.com/wireguard/windows/manager"
 	"golang.zx2c4.com/wireguard/windows/ringlogger"
 	"golang.zx2c4.com/wireguard/windows/tunnel"
 	"golang.zx2c4.com/wireguard/windows/ui"
 )
 
-var flags = [...]string{
-	"(no argument): elevate and install manager service for current user",
-	"/installmanagerservice",
-	"/installtunnelservice CONFIG_PATH",
-	"/uninstallmanagerservice",
-	"/uninstalltunnelservice TUNNEL_NAME",
-	"/managerservice",
-	"/tunnelservice CONFIG_PATH",
-	"/ui CMD_READ_HANDLE CMD_WRITE_HANDLE CMD_EVENT_HANDLE LOG_MAPPING_HANDLE",
-	"/dumplog OUTPUT_PATH",
-}
-
 func fatal(v ...interface{}) {
-	windows.MessageBox(0, windows.StringToUTF16Ptr(fmt.Sprint(v...)), windows.StringToUTF16Ptr("Error"), windows.MB_ICONERROR)
+	windows.MessageBox(0, windows.StringToUTF16Ptr(fmt.Sprint(v...)), windows.StringToUTF16Ptr(l18n.Sprintf("Error")), windows.MB_ICONERROR)
 	os.Exit(1)
 }
 
 func fatalf(format string, v ...interface{}) {
-	fatal(fmt.Sprintf(format, v...))
+	fatal(l18n.Sprintf(format, v...))
 }
 
 func info(title string, format string, v ...interface{}) {
-	windows.MessageBox(0, windows.StringToUTF16Ptr(fmt.Sprintf(format, v...)), windows.StringToUTF16Ptr(title), windows.MB_ICONINFORMATION)
+	windows.MessageBox(0, windows.StringToUTF16Ptr(l18n.Sprintf(format, v...)), windows.StringToUTF16Ptr(title), windows.MB_ICONINFORMATION)
 }
 
 func usage() {
+	var flags = [...]string{
+		l18n.Sprintf("(no argument): elevate and install manager service"),
+		"/installmanagerservice",
+		"/installtunnelservice CONFIG_PATH",
+		"/uninstallmanagerservice",
+		"/uninstalltunnelservice TUNNEL_NAME",
+		"/managerservice",
+		"/tunnelservice CONFIG_PATH",
+		"/ui CMD_READ_HANDLE CMD_WRITE_HANDLE CMD_EVENT_HANDLE LOG_MAPPING_HANDLE",
+		"/dumplog OUTPUT_PATH",
+	}
 	builder := strings.Builder{}
 	for _, flag := range flags {
 		builder.WriteString(fmt.Sprintf("    %s\n", flag))
 	}
-	info("Command Line Options", "Usage: %s [\n%s]", os.Args[0], builder.String())
+	info(l18n.Sprintf("Command Line Options"), "Usage: %s [\n%s]", os.Args[0], builder.String())
 	os.Exit(1)
 }
 
@@ -62,7 +64,7 @@ func checkForWow64() {
 		fatalf("Unable to determine whether the process is running under WOW64: %v", err)
 	}
 	if b {
-		fatal("You must use the 64-bit version of WireGuard on this computer.")
+		fatalf("You must use the 64-bit version of WireGuard on this computer.")
 	}
 }
 
@@ -136,7 +138,7 @@ func main() {
 		}
 		checkForAdminDesktop()
 		time.Sleep(30 * time.Second)
-		fatal("WireGuard system tray icon did not appear after 30 seconds.")
+		fatalf("WireGuard system tray icon did not appear after 30 seconds.")
 		return
 	case "/uninstallmanagerservice":
 		if len(os.Args) != 2 {

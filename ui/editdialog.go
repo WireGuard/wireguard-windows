@@ -6,7 +6,6 @@
 package ui
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/lxn/walk"
@@ -14,6 +13,7 @@ import (
 	"golang.org/x/sys/windows"
 
 	"golang.zx2c4.com/wireguard/windows/conf"
+	"golang.zx2c4.com/wireguard/windows/l18n"
 	"golang.zx2c4.com/wireguard/windows/manager"
 	"golang.zx2c4.com/wireguard/windows/ui/syntax"
 )
@@ -52,9 +52,9 @@ func newEditDialog(owner walk.Form, tunnel *manager.Tunnel) (*EditDialog, error)
 
 	var title string
 	if tunnel == nil {
-		title = "Create new tunnel"
+		title = l18n.Sprintf("Create new tunnel")
 	} else {
-		title = "Edit tunnel"
+		title = l18n.Sprintf("Edit tunnel")
 	}
 
 	if tunnel == nil {
@@ -88,7 +88,7 @@ func newEditDialog(owner walk.Form, tunnel *manager.Tunnel) (*EditDialog, error)
 	}
 	layout.SetRange(nameLabel, walk.Rectangle{0, 0, 1, 1})
 	nameLabel.SetTextAlignment(walk.AlignHFarVCenter)
-	nameLabel.SetText("&Name:")
+	nameLabel.SetText(l18n.Sprintf("&Name:"))
 
 	if dlg.nameEdit, err = walk.NewLineEdit(dlg); err != nil {
 		return nil, err
@@ -102,14 +102,14 @@ func newEditDialog(owner walk.Form, tunnel *manager.Tunnel) (*EditDialog, error)
 	}
 	layout.SetRange(pubkeyLabel, walk.Rectangle{0, 1, 1, 1})
 	pubkeyLabel.SetTextAlignment(walk.AlignHFarVCenter)
-	pubkeyLabel.SetText("&Public key:")
+	pubkeyLabel.SetText(l18n.Sprintf("&Public key:"))
 
 	if dlg.pubkeyEdit, err = walk.NewLineEdit(dlg); err != nil {
 		return nil, err
 	}
 	layout.SetRange(dlg.pubkeyEdit, walk.Rectangle{1, 1, 1, 1})
 	dlg.pubkeyEdit.SetReadOnly(true)
-	dlg.pubkeyEdit.SetText("(unknown)")
+	dlg.pubkeyEdit.SetText(l18n.Sprintf("(unknown)"))
 	dlg.pubkeyEdit.Accessibility().SetRole(walk.AccRoleStatictext)
 
 	if dlg.syntaxEdit, err = syntax.NewSyntaxEdit(dlg); err != nil {
@@ -128,8 +128,8 @@ func newEditDialog(owner walk.Form, tunnel *manager.Tunnel) (*EditDialog, error)
 	if dlg.blockUntunneledTrafficCB, err = walk.NewCheckBox(buttonsContainer); err != nil {
 		return nil, err
 	}
-	dlg.blockUntunneledTrafficCB.SetText("&Block untunneled traffic (kill-switch)")
-	dlg.blockUntunneledTrafficCB.SetToolTipText("When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface, with special exceptions for DHCP and NDP.")
+	dlg.blockUntunneledTrafficCB.SetText(l18n.Sprintf("&Block untunneled traffic (kill-switch)"))
+	dlg.blockUntunneledTrafficCB.SetToolTipText(l18n.Sprintf("When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface, with special exceptions for DHCP and NDP."))
 	dlg.blockUntunneledTrafficCB.SetVisible(false)
 	dlg.blockUntunneledTrafficCB.CheckedChanged().Attach(dlg.onBlockUntunneledTrafficCBCheckedChanged)
 
@@ -138,14 +138,14 @@ func newEditDialog(owner walk.Form, tunnel *manager.Tunnel) (*EditDialog, error)
 	if dlg.saveButton, err = walk.NewPushButton(buttonsContainer); err != nil {
 		return nil, err
 	}
-	dlg.saveButton.SetText("&Save")
+	dlg.saveButton.SetText(l18n.Sprintf("&Save"))
 	dlg.saveButton.Clicked().Attach(dlg.onSaveButtonClicked)
 
 	cancelButton, err := walk.NewPushButton(buttonsContainer)
 	if err != nil {
 		return nil, err
 	}
-	cancelButton.SetText("Cancel")
+	cancelButton.SetText(l18n.Sprintf("Cancel"))
 	cancelButton.Clicked().Attach(dlg.Cancel)
 
 	dlg.SetCancelButton(cancelButton)
@@ -160,7 +160,7 @@ func newEditDialog(owner walk.Form, tunnel *manager.Tunnel) (*EditDialog, error)
 	syntaxEditWnd := dlg.syntaxEdit.Handle()
 	parentWnd := win.GetParent(syntaxEditWnd)
 	labelWnd := win.CreateWindowEx(0,
-		windows.StringToUTF16Ptr("STATIC"), windows.StringToUTF16Ptr("&Configuration:"),
+		windows.StringToUTF16Ptr("STATIC"), windows.StringToUTF16Ptr(l18n.Sprintf("&Configuration:")),
 		win.WS_CHILD|win.WS_GROUP|win.SS_LEFT, 0, 0, 0, 0,
 		parentWnd, win.HMENU(^uintptr(0)), win.HINSTANCE(win.GetWindowLongPtr(parentWnd, win.GWLP_HINSTANCE)), nil)
 	prevWnd := win.GetWindow(syntaxEditWnd, win.GW_HWNDPREV)
@@ -301,18 +301,18 @@ func (dlg *EditDialog) onSyntaxEditPrivateKeyChanged(privateKey string) {
 	if key != nil {
 		dlg.pubkeyEdit.SetText(key.Public().String())
 	} else {
-		dlg.pubkeyEdit.SetText("(unknown)")
+		dlg.pubkeyEdit.SetText(l18n.Sprintf("(unknown)"))
 	}
 }
 
 func (dlg *EditDialog) onSaveButtonClicked() {
 	newName := dlg.nameEdit.Text()
 	if newName == "" {
-		showWarningCustom(dlg, "Invalid name", "A name is required.")
+		showWarningCustom(dlg, l18n.Sprintf("Invalid name"), l18n.Sprintf("A name is required."))
 		return
 	}
 	if !conf.TunnelNameIsValid(newName) {
-		showWarningCustom(dlg, "Invalid name", fmt.Sprintf("Tunnel name ‘%s’ is invalid.", newName))
+		showWarningCustom(dlg, l18n.Sprintf("Invalid name"), l18n.Sprintf("Tunnel name ‘%s’ is invalid.", newName))
 		return
 	}
 	newNameLower := strings.ToLower(newName)
@@ -320,12 +320,12 @@ func (dlg *EditDialog) onSaveButtonClicked() {
 	if newNameLower != strings.ToLower(dlg.config.Name) {
 		existingTunnelList, err := manager.IPCClientTunnels()
 		if err != nil {
-			showWarningCustom(dlg, "Unable to list existing tunnels", err.Error())
+			showWarningCustom(dlg, l18n.Sprintf("Unable to list existing tunnels"), err.Error())
 			return
 		}
 		for _, tunnel := range existingTunnelList {
 			if strings.ToLower(tunnel.Name) == newNameLower {
-				showWarningCustom(dlg, "Tunnel already exists", fmt.Sprintf("Another tunnel already exists with the name ‘%s’.", newName))
+				showWarningCustom(dlg, l18n.Sprintf("Tunnel already exists"), l18n.Sprintf("Another tunnel already exists with the name ‘%s’.", newName))
 				return
 			}
 		}
@@ -333,7 +333,7 @@ func (dlg *EditDialog) onSaveButtonClicked() {
 
 	cfg, err := conf.FromWgQuick(dlg.syntaxEdit.Text(), newName)
 	if err != nil {
-		showErrorCustom(dlg, "Unable to create new configuration", err.Error())
+		showErrorCustom(dlg, l18n.Sprintf("Unable to create new configuration"), err.Error())
 		return
 	}
 

@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/lxn/walk"
+	"golang.zx2c4.com/wireguard/windows/l18n"
 	"golang.zx2c4.com/wireguard/windows/ringlogger"
 )
 
@@ -41,7 +42,7 @@ func NewLogPage() (*LogPage, error) {
 		lp.model.quit <- true
 	})
 
-	lp.SetTitle("Log")
+	lp.SetTitle(l18n.Sprintf("Log"))
 	lp.SetLayout(walk.NewVBoxLayout())
 
 	if lp.logView, err = walk.NewTableView(lp); err != nil {
@@ -57,19 +58,19 @@ func NewLogPage() (*LogPage, error) {
 	}
 	lp.logView.AddDisposable(contextMenu)
 	copyAction := walk.NewAction()
-	copyAction.SetText("&Copy")
+	copyAction.SetText(l18n.Sprintf("&Copy"))
 	copyAction.SetShortcut(walk.Shortcut{walk.ModControl, walk.KeyC})
 	copyAction.Triggered().Attach(lp.onCopy)
 	contextMenu.Actions().Add(copyAction)
 	lp.ShortcutActions().Add(copyAction)
 	selectAllAction := walk.NewAction()
-	selectAllAction.SetText("Select &all")
+	selectAllAction.SetText(l18n.Sprintf("Select &all"))
 	selectAllAction.SetShortcut(walk.Shortcut{walk.ModControl, walk.KeyA})
 	selectAllAction.Triggered().Attach(lp.onSelectAll)
 	contextMenu.Actions().Add(selectAllAction)
 	lp.ShortcutActions().Add(selectAllAction)
 	saveAction := walk.NewAction()
-	saveAction.SetText("&Save to file…")
+	saveAction.SetText(l18n.Sprintf("&Save to file…"))
 	saveAction.SetShortcut(walk.Shortcut{walk.ModControl, walk.KeyS})
 	saveAction.Triggered().Attach(lp.onSave)
 	contextMenu.Actions().Add(saveAction)
@@ -83,14 +84,14 @@ func NewLogPage() (*LogPage, error) {
 
 	stampCol := walk.NewTableViewColumn()
 	stampCol.SetName("Stamp")
-	stampCol.SetTitle("Time")
+	stampCol.SetTitle(l18n.Sprintf("Time"))
 	stampCol.SetFormat("2006-01-02 15:04:05.000")
 	stampCol.SetWidth(140)
 	lp.logView.Columns().Add(stampCol)
 
 	msgCol := walk.NewTableViewColumn()
 	msgCol.SetName("Line")
-	msgCol.SetTitle("Log message")
+	msgCol.SetTitle(l18n.Sprintf("Log message"))
 	lp.logView.Columns().Add(msgCol)
 
 	lp.model = newLogModel(lp)
@@ -111,7 +112,7 @@ func NewLogPage() (*LogPage, error) {
 	if err != nil {
 		return nil, err
 	}
-	saveButton.SetText("&Save")
+	saveButton.SetText(l18n.Sprintf("&Save"))
 	saveButton.Clicked().Attach(lp.onSave)
 
 	disposables.Spare()
@@ -146,9 +147,9 @@ func (lp *LogPage) onSelectAll() {
 
 func (lp *LogPage) onSave() {
 	fd := walk.FileDialog{
-		Filter:   "Text Files (*.txt)|*.txt|All Files (*.*)|*.*",
+		Filter:   l18n.Sprintf("Text Files (*.txt)|*.txt|All Files (*.*)|*.*"),
 		FilePath: fmt.Sprintf("wireguard-log-%s.txt", time.Now().Format("2006-01-02T150405")),
-		Title:    "Export log to file",
+		Title:    l18n.Sprintf("Export log to file"),
 	}
 
 	form := lp.Form()

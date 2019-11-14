@@ -6,6 +6,7 @@
 /amd64
 
 # Misc
+/locales/*/out.gotext.json
 /sign.bat
 *.swp
 *.bak

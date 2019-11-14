@@ -7,6 +7,7 @@ package ui
 
 import (
 	"archive/zip"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -17,6 +18,7 @@ import (
 	"github.com/lxn/walk"
 
 	"golang.zx2c4.com/wireguard/windows/conf"
+	"golang.zx2c4.com/wireguard/windows/l18n"
 	"golang.zx2c4.com/wireguard/windows/manager"
 )
 
@@ -45,7 +47,7 @@ func NewTunnelsPage() (*TunnelsPage, error) {
 	}
 	disposables.Add(tp)
 
-	tp.SetTitle("Tunnels")
+	tp.SetTitle(l18n.Sprintf("Tunnels"))
 	tp.SetLayout(walk.NewHBoxLayout())
 
 	tp.listContainer, _ = walk.NewComposite(tp)
@@ -101,7 +103,7 @@ func NewTunnelsPage() (*TunnelsPage, error) {
 	tp.listView.CurrentIndexChanged().Attach(func() {
 		editTunnel.SetEnabled(tp.listView.CurrentIndex() > -1)
 	})
-	editTunnel.SetText("&Edit")
+	editTunnel.SetText(l18n.Sprintf("&Edit"))
 	editTunnel.Clicked().Attach(tp.onEditTunnel)
 
 	disposables.Spare()
@@ -142,7 +144,7 @@ func (tp *TunnelsPage) CreateToolbar() error {
 	}
 	tp.AddDisposable(addMenu)
 	importAction := walk.NewAction()
-	importAction.SetText("&Import tunnel(s) from file…")
+	importAction.SetText(l18n.Sprintf("&Import tunnel(s) from file…"))
 	importActionIcon, _ := loadSystemIcon("imageres", 3, 16)
 	importAction.SetImage(importActionIcon)
 	importAction.SetShortcut(walk.Shortcut{walk.ModControl, walk.KeyO})
@@ -150,7 +152,7 @@ func (tp *TunnelsPage) CreateToolbar() error {
 	importAction.Triggered().Attach(tp.onImport)
 	addMenu.Actions().Add(importAction)
 	addAction := walk.NewAction()
-	addAction.SetText("Add &empty tunnel…")
+	addAction.SetText(l18n.Sprintf("Add &empty tunnel…"))
 	addActionIcon, _ := loadSystemIcon("imageres", 2, 16)
 	addAction.SetImage(addActionIcon)
 	addAction.SetShortcut(walk.Shortcut{walk.ModControl, walk.KeyN})
@@ -159,7 +161,7 @@ func (tp *TunnelsPage) CreateToolbar() error {
 	addMenuAction := walk.NewMenuAction(addMenu)
 	addMenuActionIcon, _ := loadSystemIcon("shell32", 149, 16)
 	addMenuAction.SetImage(addMenuActionIcon)
-	addMenuAction.SetText("Add Tunnel")
+	addMenuAction.SetText(l18n.Sprintf("Add Tunnel"))
 	addMenuAction.SetToolTip(importAction.Text())
 	addMenuAction.Triggered().Attach(tp.onImport)
 	tp.listToolbar.Actions().Add(addMenuAction)
@@ -170,7 +172,7 @@ func (tp *TunnelsPage) CreateToolbar() error {
 	deleteActionIcon, _ := loadSystemIcon("shell32", 131, 16)
 	deleteAction.SetImage(deleteActionIcon)
 	deleteAction.SetShortcut(walk.Shortcut{0, walk.KeyDelete})
-	deleteAction.SetToolTip("Remove selected tunnel(s)")
+	deleteAction.SetToolTip(l18n.Sprintf("Remove selected tunnel(s)"))
 	deleteAction.Triggered().Attach(tp.onDelete)
 	tp.listToolbar.Actions().Add(deleteAction)
 	tp.listToolbar.Actions().Add(walk.NewSeparatorAction())
@@ -178,7 +180,7 @@ func (tp *TunnelsPage) CreateToolbar() error {
 	exportAction := walk.NewAction()
 	exportActionIcon, _ := loadSystemIcon("imageres", 165, 16) // Or "shell32", 45?
 	exportAction.SetImage(exportActionIcon)
-	exportAction.SetToolTip("Export all tunnels to zip…")
+	exportAction.SetToolTip(l18n.Sprintf("Export all tunnels to zip"))
 	exportAction.Triggered().Attach(tp.onExportTunnels)
 	tp.listToolbar.Actions().Add(exportAction)
 
@@ -195,42 +197,42 @@ func (tp *TunnelsPage) CreateToolbar() error {
 	}
 	tp.listView.AddDisposable(contextMenu)
 	toggleAction := walk.NewAction()
-	toggleAction.SetText("&Toggle")
+	toggleAction.SetText(l18n.Sprintf("&Toggle"))
 	toggleAction.SetDefault(true)
 	toggleAction.Triggered().Attach(tp.onTunnelsViewItemActivated)
 	contextMenu.Actions().Add(toggleAction)
 	contextMenu.Actions().Add(walk.NewSeparatorAction())
 	importAction2 := walk.NewAction()
-	importAction2.SetText("&Import tunnel(s) from file…")
+	importAction2.SetText(l18n.Sprintf("&Import tunnel(s) from file…"))
 	importAction2.SetShortcut(walk.Shortcut{walk.ModControl, walk.KeyO})
 	importAction2.Triggered().Attach(tp.onImport)
 	contextMenu.Actions().Add(importAction2)
 	tp.ShortcutActions().Add(importAction2)
 	addAction2 := walk.NewAction()
-	addAction2.SetText("Add &empty tunnel…")
+	addAction2.SetText(l18n.Sprintf("Add &empty tunnel…"))
 	addAction2.SetShortcut(walk.Shortcut{walk.ModControl, walk.KeyN})
 	addAction2.Triggered().Attach(tp.onAddTunnel)
 	contextMenu.Actions().Add(addAction2)
 	tp.ShortcutActions().Add(addAction2)
 	exportAction2 := walk.NewAction()
-	exportAction2.SetText("Export all tunnels to &zip…")
+	exportAction2.SetText(l18n.Sprintf("Export all tunnels to &zip…"))
 	exportAction2.Triggered().Attach(tp.onExportTunnels)
 	contextMenu.Actions().Add(exportAction2)
 	contextMenu.Actions().Add(walk.NewSeparatorAction())
 	editAction := walk.NewAction()
-	editAction.SetText("Edit &selected tunnel…")
+	editAction.SetText(l18n.Sprintf("Edit &selected tunnel…"))
 	editAction.SetShortcut(walk.Shortcut{walk.ModControl, walk.KeyE})
 	editAction.Triggered().Attach(tp.onEditTunnel)
 	contextMenu.Actions().Add(editAction)
 	tp.ShortcutActions().Add(editAction)
 	deleteAction2 := walk.NewAction()
-	deleteAction2.SetText("&Remove selected tunnel(s)")
+	deleteAction2.SetText(l18n.Sprintf("&Remove selected tunnel(s)"))
 	deleteAction2.SetShortcut(walk.Shortcut{0, walk.KeyDelete})
 	deleteAction2.Triggered().Attach(tp.onDelete)
 	contextMenu.Actions().Add(deleteAction2)
 	tp.listView.ShortcutActions().Add(deleteAction2)
 	selectAllAction := walk.NewAction()
-	selectAllAction.SetText("Select &all")
+	selectAllAction.SetText(l18n.Sprintf("Select &all"))
 	selectAllAction.SetShortcut(walk.Shortcut{walk.ModControl, walk.KeyA})
 	selectAllAction.Triggered().Attach(tp.onSelectAll)
 	contextMenu.Actions().Add(selectAllAction)
@@ -324,7 +326,7 @@ func (tp *TunnelsPage) importFiles(paths []string) {
 		}
 
 		if lastErr != nil || unparsedConfigs == nil {
-			syncedMsgBox("Error", fmt.Sprintf("Could not import selected configuration: %v", lastErr), walk.MsgBoxIconWarning)
+			syncedMsgBox(l18n.Sprintf("Error"), l18n.Sprintf("Could not import selected configuration: %v", lastErr), walk.MsgBoxIconWarning)
 			return
 		}
 
@@ -335,7 +337,7 @@ func (tp *TunnelsPage) importFiles(paths []string) {
 
 		existingTunnelList, err := manager.IPCClientTunnels()
 		if err != nil {
-			syncedMsgBox("Error", fmt.Sprintf("Could not enumerate existing tunnels: %v", lastErr), walk.MsgBoxIconWarning)
+			syncedMsgBox(l18n.Sprintf("Error"), l18n.Sprintf("Could not enumerate existing tunnels: %v", lastErr), walk.MsgBoxIconWarning)
 			return
 		}
 		existingLowerTunnels := make(map[string]bool, len(existingTunnelList))
@@ -347,7 +349,7 @@ func (tp *TunnelsPage) importFiles(paths []string) {
 		tp.listView.SetSuspendTunnelsUpdate(true)
 		for _, unparsedConfig := range unparsedConfigs {
 			if existingLowerTunnels[strings.ToLower(unparsedConfig.Name)] {
-				lastErr = fmt.Errorf("Another tunnel already exists with the name ‘%s’", unparsedConfig.Name)
+				lastErr = errors.New(l18n.Sprintf("Another tunnel already exists with the name ‘%s’", unparsedConfig.Name))
 				continue
 			}
 			config, err := conf.FromWgQuickWithUnknownEncoding(unparsedConfig.Config, unparsedConfig.Name)
@@ -367,13 +369,13 @@ func (tp *TunnelsPage) importFiles(paths []string) {
 		m, n := configCount, len(unparsedConfigs)
 		switch {
 		case n == 1 && m != n:
-			syncedMsgBox("Error", fmt.Sprintf("Unable to import configuration: %v", lastErr), walk.MsgBoxIconWarning)
+			syncedMsgBox(l18n.Sprintf("Error"), l18n.Sprintf("Unable to import configuration: %v", lastErr), walk.MsgBoxIconWarning)
 		case n == 1 && m == n:
 			// nothing
 		case m == n:
-			syncedMsgBox("Imported tunnels", fmt.Sprintf("Imported %d tunnels", m), walk.MsgBoxIconInformation)
+			syncedMsgBox(l18n.Sprintf("Imported tunnels"), l18n.Sprintf("Imported %d tunnels", m), walk.MsgBoxIconInformation)
 		case m != n:
-			syncedMsgBox("Imported tunnels", fmt.Sprintf("Imported %d of %d tunnels", m, n), walk.MsgBoxIconWarning)
+			syncedMsgBox(l18n.Sprintf("Imported tunnels"), l18n.Sprintf("Imported %d of %d tunnels", m, n), walk.MsgBoxIconWarning)
 		}
 	}()
 }
@@ -405,7 +407,7 @@ func (tp *TunnelsPage) exportTunnels(filePath string) {
 func (tp *TunnelsPage) addTunnel(config *conf.Config) {
 	_, err := manager.IPCClientNewTunnel(config)
 	if err != nil {
-		showErrorCustom(tp.Form(), "Unable to create tunnel", err.Error())
+		showErrorCustom(tp.Form(), l18n.Sprintf("Unable to create tunnel"), err.Error())
 	}
 
 }
@@ -422,11 +424,11 @@ func (tp *TunnelsPage) onTunnelsViewItemActivated() {
 		if err != nil {
 			tp.Synchronize(func() {
 				if oldState == manager.TunnelUnknown {
-					showErrorCustom(tp.Form(), "Failed to determine tunnel state", err.Error())
+					showErrorCustom(tp.Form(), l18n.Sprintf("Failed to determine tunnel state"), err.Error())
 				} else if oldState == manager.TunnelStopped {
-					showErrorCustom(tp.Form(), "Failed to activate tunnel", err.Error())
+					showErrorCustom(tp.Form(), l18n.Sprintf("Failed to activate tunnel"), err.Error())
 				} else if oldState == manager.TunnelStarted {
-					showErrorCustom(tp.Form(), "Failed to deactivate tunnel", err.Error())
+					showErrorCustom(tp.Form(), l18n.Sprintf("Failed to deactivate tunnel"), err.Error())
 				}
 			})
 			return
@@ -466,16 +468,20 @@ func (tp *TunnelsPage) onDelete() {
 		return
 	}
 
-	var topic string
+	var title, question string
 	if len(indices) > 1 {
-		topic = fmt.Sprintf("%d tunnels", len(indices))
+		tunnelCount := len(indices)
+		title = l18n.Sprintf("Delete %d tunnels", tunnelCount)
+		question = l18n.Sprintf("Are you sure you would like to delete %d tunnels?", tunnelCount)
 	} else {
-		topic = fmt.Sprintf("‘%s’", tp.listView.model.tunnels[indices[0]].Name)
+		tunnelName := tp.listView.model.tunnels[indices[0]].Name
+		title = l18n.Sprintf("Delete tunnel ‘%s’", tunnelName)
+		question = l18n.Sprintf("Are you sure you would like to delete tunnel ‘%s’?", tunnelName)
 	}
 	if walk.DlgCmdNo == walk.MsgBox(
 		tp.Form(),
-		fmt.Sprintf("Delete %s", topic),
-		fmt.Sprintf("Are you sure you would like to delete %s? You cannot undo this action.", topic),
+		title,
+		l18n.Sprintf("%s You cannot undo this action.", question),
 		walk.MsgBoxYesNo|walk.MsgBoxIconWarning) {
 		return
 	}
@@ -515,9 +521,9 @@ func (tp *TunnelsPage) onDelete() {
 		if len(errors) > 0 {
 			tp.listView.Synchronize(func() {
 				if len(errors) == 1 {
-					showErrorCustom(tp.Form(), "Unable to delete tunnel", fmt.Sprintf("A tunnel was unable to be removed: %s", errors[0].Error()))
+					showErrorCustom(tp.Form(), l18n.Sprintf("Unable to delete tunnel"), l18n.Sprintf("A tunnel was unable to be removed: %s", errors[0].Error()))
 				} else {
-					showErrorCustom(tp.Form(), "Unable to delete tunnels", fmt.Sprintf("%d tunnels were unable to be removed.", len(errors)))
+					showErrorCustom(tp.Form(), l18n.Sprintf("Unable to delete tunnels"), l18n.Sprintf("%d tunnels were unable to be removed.", len(errors)))
 				}
 			})
 		}
@@ -530,8 +536,8 @@ func (tp *TunnelsPage) onSelectAll() {
 
 func (tp *TunnelsPage) onImport() {
 	dlg := walk.FileDialog{
-		Filter: "Configuration Files (*.zip, *.conf)|*.zip;*.conf|All Files (*.*)|*.*",
-		Title:  "Import tunnel(s) from file",
+		Filter: l18n.Sprintf("Configuration Files (*.zip, *.conf)|*.zip;*.conf|All Files (*.*)|*.*"),
+		Title:  l18n.Sprintf("Import tunnel(s) from file"),
 	}
 
 	if ok, _ := dlg.ShowOpenMultiple(tp.Form()); !ok {
@@ -543,8 +549,8 @@ func (tp *TunnelsPage) onImport() {
 
 func (tp *TunnelsPage) onExportTunnels() {
 	dlg := walk.FileDialog{
-		Filter: "Configuration ZIP Files (*.zip)|*.zip",
-		Title:  "Export tunnels to zip",
+		Filter: l18n.Sprintf("Configuration ZIP Files (*.zip)|*.zip"),
+		Title:  l18n.Sprintf("Export tunnels to zip"),
 	}
 
 	if ok, _ := dlg.ShowSave(tp.Form()); !ok {
@@ -571,7 +577,7 @@ func (tp *TunnelsPage) swapFiller(enabled bool) bool {
 
 func (tp *TunnelsPage) onTunnelsChanged() {
 	if tp.swapFiller(tp.listView.model.RowCount() == 0) {
-		tp.fillerButton.SetText("Import tunnel(s) from file")
+		tp.fillerButton.SetText(l18n.Sprintf("Import tunnel(s) from file"))
 		tp.fillerHandler = tp.onImport
 	}
 }
@@ -581,8 +587,9 @@ func (tp *TunnelsPage) onSelectedTunnelsChanged() {
 		return
 	}
 	indices := tp.listView.SelectedIndexes()
-	if tp.swapFiller(len(indices) > 1) {
-		tp.fillerButton.SetText(fmt.Sprintf("Delete %d tunnels", len(indices)))
+	tunnelCount := len(indices)
+	if tp.swapFiller(tunnelCount > 1) {
+		tp.fillerButton.SetText(l18n.Sprintf("Delete %d tunnels", tunnelCount))
 		tp.fillerHandler = tp.onDelete
 	}
 }
