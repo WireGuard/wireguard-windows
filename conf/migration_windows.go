@@ -36,8 +36,8 @@ func maybeMigrate(c string) {
 		log.Printf("Not migrating configuration from ‘%s’ due to GetSecurityDescriptorOwner error: %v", oldRoot, err)
 		return
 	}
-	if defaulted || !owner.IsWellKnown(windows.WinLocalSystemSid) {
-		log.Printf("Not migrating configuration from ‘%s’, as it is not explicitly owned by SYSTEM, but rather ‘%v’", oldRoot, owner)
+	if defaulted || (!owner.IsWellKnown(windows.WinLocalSystemSid) && !owner.IsWellKnown(windows.WinBuiltinAdministratorsSid)) {
+		log.Printf("Not migrating configuration from ‘%s’, as it is not explicitly owned by SYSTEM or Built-in Administrators, but rather ‘%v’", oldRoot, owner)
 		return
 	}
 	err = windows.MoveFileEx(windows.StringToUTF16Ptr(oldC), windows.StringToUTF16Ptr(c), windows.MOVEFILE_COPY_ALLOWED)
