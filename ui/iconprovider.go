@@ -84,6 +84,45 @@ func iconForState(state manager.TunnelState, size int) (icon *walk.Icon, err err
 	return
 }
 
+var cachedBitmapsForWidthAndState = make(map[widthAndState]*walk.Bitmap)
+
+func bitmapForState(state manager.TunnelState, iconSize, margin, dpi int) (bitmap *walk.Bitmap, err error) {
+	icon, err := iconForState(state, iconSize)
+	if err != nil {
+		return
+	}
+
+	bitmapSize := walk.IntFrom96DPI(iconSize+margin*2, dpi)
+
+	cacheKey := widthAndState{bitmapSize, state}
+	if cacheValue, ok := cachedBitmapsForWidthAndState[cacheKey]; ok {
+		bitmap = cacheValue
+		return
+	}
+
+	bitmap, err = walk.NewBitmapWithTransparentPixelsForDPI(walk.Size{bitmapSize, bitmapSize}, dpi)
+	if err != nil {
+		return
+	}
+
+	var canvas *walk.Canvas
+	canvas, err = walk.NewCanvasFromImage(bitmap)
+	if err != nil {
+		return
+	}
+
+	bounds := walk.Rectangle{X: margin, Y: margin, Height: iconSize, Width: iconSize}
+	err = canvas.DrawImageStretchedPixels(icon, bounds)
+	canvas.Dispose()
+	if err != nil {
+		return
+	}
+
+	cachedBitmapsForWidthAndState[cacheKey] = bitmap
+
+	return
+}
+
 func textForState(state manager.TunnelState, withEllipsis bool) (text string) {
 	switch state {
 	case manager.TunnelStarted:

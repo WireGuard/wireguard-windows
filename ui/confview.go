@@ -79,17 +79,63 @@ func (lsl *labelStatusLine) widgets() (walk.Widget, walk.Widget) {
 	return lsl.label, lsl.statusComposite
 }
 
-func (lsl *labelStatusLine) update(state manager.TunnelState) {
-	icon, err := iconForState(state, 14)
-	if err == nil {
-		lsl.statusImage.SetImage(icon)
-	} else {
-		lsl.statusImage.SetImage(nil)
-	}
+var cachedStatusBitmapsForWidthAndState = make(map[widthAndState]*walk.Bitmap)
 
+func (lsl *labelStatusLine) update(state manager.TunnelState) {
 	s, e := lsl.statusLabel.TextSelection()
 	lsl.statusLabel.SetText(textForState(state, false))
 	lsl.statusLabel.SetTextSelection(s, e)
+
+	const size96dpi = 14
+
+	image := walk.NewPaintFuncImagePixels(walk.Size{size96dpi, size96dpi}, func(canvas *walk.Canvas, bounds walk.Rectangle) error {
+		dpi := lsl.statusImage.DPI()
+		size := walk.IntFrom96DPI(size96dpi, dpi)
+
+		var bmp *walk.Bitmap
+		cacheKey := widthAndState{size, state}
+
+		var ok bool
+		if bmp, ok = cachedStatusBitmapsForWidthAndState[cacheKey]; !ok {
+			bitmap, err := bitmapForState(state, size, 0, dpi)
+			if err != nil {
+				return err
+			}
+
+			iml, err := walk.NewImageListForDPI(walk.Size{size, size}, 0, dpi)
+			if err != nil {
+				return err
+			}
+			defer iml.Dispose()
+
+			index, err := iml.AddMasked(bitmap)
+			if err != nil {
+				return err
+			}
+
+			if bmp, err = walk.NewBitmapWithTransparentPixelsForDPI(walk.Size{size, size}, dpi); err != nil {
+				return err
+			}
+
+			canvas, err := walk.NewCanvasFromImage(bmp)
+			if err != nil {
+				return err
+			}
+			defer canvas.Dispose()
+
+			if err := iml.DrawPixels(canvas, int(index), walk.Rectangle{0, 0, size, size}); err != nil {
+				return err
+			}
+
+			canvas.Dispose()
+
+			cachedStatusBitmapsForWidthAndState[cacheKey] = bmp
+		}
+
+		return canvas.DrawImagePixels(bmp, bounds.Location())
+	})
+
+	lsl.statusImage.SetImage(image)
 }
 
 func (lsl *labelStatusLine) Dispose() {
