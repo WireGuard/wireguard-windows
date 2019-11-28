@@ -89,6 +89,7 @@ const (
 	TB_MAPACCELERATOR        = WM_USER + 90
 	TB_GETSTRING             = WM_USER + 91
 	TB_GETIDEALSIZE          = WM_USER + 99
+	TB_GETMETRICS            = WM_USER + 101
 	TB_SETCOLORSCHEME        = CCM_SETCOLORSCHEME
 	TB_GETCOLORSCHEME        = CCM_GETCOLORSCHEME
 	TB_SETUNICODEFORMAT      = CCM_SETUNICODEFORMAT
@@ -174,6 +175,13 @@ const (
 	TBIF_BYINDEX = 0x80000000
 )
 
+// TBMETRICS mask flags
+const (
+	TBMF_PAD           = 0x00000001
+	TBMF_BARPAD        = 0x00000002
+	TBMF_BUTTONSPACING = 0x00000004
+)
+
 type NMMOUSE struct {
 	Hdr        NMHDR
 	DwItemSpec uintptr
@@ -216,4 +224,15 @@ type TBBUTTONINFO struct {
 	LParam    uintptr
 	PszText   uintptr
 	CchText   int32
+}
+
+type TBMETRICS struct {
+	CbSize          uint32
+	DwMask          uint32
+	CxPad           int32
+	CyPad           int32
+	CxBarPad        int32
+	CyBarPad        int32
+	CxButtonSpacing int32
+	CyButtonSpacing int32
 }
