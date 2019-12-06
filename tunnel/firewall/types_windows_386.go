@@ -66,7 +66,7 @@ const (
 )
 
 // FWPM_FILTER0 defined in fwpmtypes.h
-// (https://docs.microsoft.com/en-us/windows/desktop/api/fwpmtypes/ns-fwpmtypes-fwpm_filter0_).
+// (https://docs.microsoft.com/en-us/windows/desktop/api/fwpmtypes/ns-fwpmtypes-fwpm_filter0).
 type wtFwpmFilter0 struct {
 	filterKey           windows.GUID // Windows type: GUID
 	displayData         wtFwpmDisplayData0
