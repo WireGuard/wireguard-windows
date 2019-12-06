@@ -259,7 +259,7 @@ type wtFwpByteArray16 struct {
 }
 
 // FWP_CONDITION_VALUE0 defined in fwptypes.h
-// (https://docs.microsoft.com/en-us/windows/desktop/api/fwptypes/ns-fwptypes-fwp_condition_value0_).
+// (https://docs.microsoft.com/en-us/windows/desktop/api/fwptypes/ns-fwptypes-fwp_condition_value0).
 type wtFwpConditionValue0 wtFwpValue0
 
 // FWP_DATA_TYPE defined in fwptypes.h
@@ -296,14 +296,14 @@ const (
 )
 
 // FWP_V4_ADDR_AND_MASK defined in fwptypes.h
-// (https://docs.microsoft.com/en-us/windows/desktop/api/fwptypes/ns-fwptypes-fwp_v4_addr_and_mask_).
+// (https://docs.microsoft.com/en-us/windows/desktop/api/fwptypes/ns-fwptypes-fwp_v4_addr_and_mask).
 type wtFwpV4AddrAndMask struct {
 	addr uint32
 	mask uint32
 }
 
 // FWP_V6_ADDR_AND_MASK defined in fwptypes.h
-// (https://docs.microsoft.com/en-us/windows/desktop/api/fwptypes/ns-fwptypes-fwp_v6_addr_and_mask_).
+// (https://docs.microsoft.com/en-us/windows/desktop/api/fwptypes/ns-fwptypes-fwp_v6_addr_and_mask).
 type wtFwpV6AddrAndMask struct {
 	addr         [16]uint8
 	prefixLength uint8
@@ -317,14 +317,14 @@ type wtFwpValue0 struct {
 }
 
 // FWPM_DISPLAY_DATA0 defined in fwptypes.h
-// (https://docs.microsoft.com/en-us/windows/desktop/api/fwptypes/ns-fwptypes-fwpm_display_data0_).
+// (https://docs.microsoft.com/en-us/windows/desktop/api/fwptypes/ns-fwptypes-fwpm_display_data0).
 type wtFwpmDisplayData0 struct {
 	name        *uint16 // Windows type: *wchar_t
 	description *uint16 // Windows type: *wchar_t
 }
 
 // FWPM_FILTER_CONDITION0 defined in fwpmtypes.h
-// (https://docs.microsoft.com/en-us/windows/desktop/api/fwpmtypes/ns-fwpmtypes-fwpm_filter_condition0_).
+// (https://docs.microsoft.com/en-us/windows/desktop/api/fwpmtypes/ns-fwpmtypes-fwpm_filter_condition0).
 type wtFwpmFilterCondition0 struct {
 	fieldKey       windows.GUID // Windows type: GUID
 	matchType      wtFwpMatchType
@@ -348,7 +348,7 @@ const (
 )
 
 // FWPM_SESSION0 defined in fwpmtypes.h
-// (https://docs.microsoft.com/en-us/windows/desktop/api/fwpmtypes/ns-fwpmtypes-fwpm_session0_).
+// (https://docs.microsoft.com/en-us/windows/desktop/api/fwpmtypes/ns-fwpmtypes-fwpm_session0).
 type wtFwpmSession0 struct {
 	sessionKey           windows.GUID // Windows type: GUID
 	displayData          wtFwpmDisplayData0
@@ -387,7 +387,7 @@ const (
 )
 
 // FWPM_PROVIDER0 defined in fwpmtypes.h
-// (https://docs.microsoft.com/sv-se/windows/desktop/api/fwpmtypes/ns-fwpmtypes-fwpm_provider0_).
+// (https://docs.microsoft.com/sv-se/windows/desktop/api/fwpmtypes/ns-fwpmtypes-fwpm_provider0).
 type wtFwpmProvider0 struct {
 	providerKey  windows.GUID
 	displayData  wtFwpmDisplayData0
