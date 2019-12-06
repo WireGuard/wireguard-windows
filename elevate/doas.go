@@ -12,6 +12,7 @@ import (
 	"unsafe"
 
 	"golang.org/x/sys/windows"
+	"golang.org/x/sys/windows/svc/mgr"
 )
 
 func DoAsSystem(f func() error) error {
@@ -41,12 +42,13 @@ func DoAsSystem(f func() error) error {
 	if err != nil {
 		return err
 	}
-	defer threadToken.Close()
 	tokenUser, err := threadToken.GetTokenUser()
 	if err == nil && tokenUser.User.Sid.IsWellKnown(windows.WinLocalSystemSid) {
+		threadToken.Close()
 		return f()
 	}
 	err = windows.AdjustTokenPrivileges(threadToken, false, &privileges, uint32(unsafe.Sizeof(privileges)), nil, nil)
+	threadToken.Close()
 	if err != nil {
 		return err
 	}
@@ -55,9 +57,6 @@ func DoAsSystem(f func() error) error {
 	if err != nil {
 		return err
 	}
-	defer windows.CloseHandle(processes)
-
-	var winlogonToken windows.Token
 	processEntry := windows.ProcessEntry32{Size: uint32(unsafe.Sizeof(windows.ProcessEntry32{}))}
 	for err = windows.Process32First(processes, &processEntry); err == nil; err = windows.Process32Next(processes, &processEntry) {
 		if strings.ToLower(windows.UTF16ToString(processEntry.ExeFile[:])) != "winlogon.exe" {
@@ -67,34 +66,76 @@ func DoAsSystem(f func() error) error {
 		if err != nil {
 			continue
 		}
+		var winlogonToken windows.Token
 		err = windows.OpenProcessToken(winlogonProcess, windows.TOKEN_QUERY|windows.TOKEN_IMPERSONATE|windows.TOKEN_DUPLICATE, &winlogonToken)
+		windows.CloseHandle(winlogonProcess)
 		if err != nil {
-			windows.CloseHandle(winlogonProcess)
 			continue
 		}
 		tokenUser, err := winlogonToken.GetTokenUser()
 		if err != nil || !tokenUser.User.Sid.IsWellKnown(windows.WinLocalSystemSid) {
-			windows.CloseHandle(winlogonProcess)
 			winlogonToken.Close()
-			winlogonToken = 0
 			continue
 		}
-		defer windows.CloseHandle(winlogonProcess)
-		defer winlogonToken.Close()
-		break
+		windows.CloseHandle(processes)
+
+		var duplicatedToken windows.Token
+		err = windows.DuplicateTokenEx(winlogonToken, 0, nil, windows.SecurityImpersonation, windows.TokenImpersonation, &duplicatedToken)
+		windows.CloseHandle(winlogonProcess)
+		if err != nil {
+			return err
+		}
+		err = windows.SetThreadToken(nil, duplicatedToken)
+		duplicatedToken.Close()
+		if err != nil {
+			return err
+		}
+		return f()
 	}
-	if winlogonToken == 0 {
-		return errors.New("unable to find winlogon.exe process")
-	}
-	var duplicatedToken windows.Token
-	err = windows.DuplicateTokenEx(winlogonToken, 0, nil, windows.SecurityImpersonation, windows.TokenImpersonation, &duplicatedToken)
+	windows.CloseHandle(processes)
+	return errors.New("unable to find winlogon.exe process")
+}
+
+func DoAsService(serviceName string, f func() error) error {
+	scm, err := mgr.Connect()
 	if err != nil {
 		return err
 	}
-	defer duplicatedToken.Close()
-	err = windows.SetThreadToken(nil, duplicatedToken)
+	service, err := scm.OpenService(serviceName)
+	scm.Disconnect()
 	if err != nil {
 		return err
 	}
-	return f()
+	status, err := service.Query()
+	service.Close()
+	if err != nil {
+		return err
+	}
+	if status.ProcessId == 0 {
+		return errors.New("service is not running")
+	}
+	return DoAsSystem(func() error {
+		serviceProcess, err := windows.OpenProcess(windows.PROCESS_QUERY_INFORMATION, false, status.ProcessId)
+		if err != nil {
+			return err
+		}
+		var serviceToken windows.Token
+		err = windows.OpenProcessToken(serviceProcess, windows.TOKEN_IMPERSONATE|windows.TOKEN_DUPLICATE, &serviceToken)
+		windows.CloseHandle(serviceProcess)
+		if err != nil {
+			return err
+		}
+		var duplicatedToken windows.Token
+		err = windows.DuplicateTokenEx(serviceToken, 0, nil, windows.SecurityImpersonation, windows.TokenImpersonation, &duplicatedToken)
+		serviceToken.Close()
+		if err != nil {
+			return err
+		}
+		err = windows.SetThreadToken(nil, duplicatedToken)
+		duplicatedToken.Close()
+		if err != nil {
+			return err
+		}
+		return f()
+	})
 }
