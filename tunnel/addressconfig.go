@@ -60,38 +60,27 @@ func cleanupAddressesOnDisconnectedInterfaces(family winipcfg.AddressFamily, add
 func configureInterface(family winipcfg.AddressFamily, conf *conf.Config, tun *tun.NativeTun) error {
 	luid := winipcfg.LUID(tun.LUID())
 
-	estimatedRouteCount := len(conf.Interface.Addresses)
+	estimatedRouteCount := 0
 	for _, peer := range conf.Peers {
 		estimatedRouteCount += len(peer.AllowedIPs)
 	}
 	routes := make([]winipcfg.RouteData, 0, estimatedRouteCount)
-	var firstGateway4 *net.IP
-	var firstGateway6 *net.IP
 	addresses := make([]net.IPNet, len(conf.Interface.Addresses))
+	var haveV4Address, haveV6Address bool
 	for i, addr := range conf.Interface.Addresses {
-		ipnet := addr.IPNet()
-		addresses[i] = ipnet
-		gateway := ipnet.IP.Mask(ipnet.Mask)
-		if addr.Bits() == 32 && firstGateway4 == nil {
-			firstGateway4 = &gateway
-		} else if addr.Bits() == 128 && firstGateway6 == nil {
-			firstGateway6 = &gateway
+		addresses[i] = addr.IPNet()
+		if addr.Bits() == 32 {
+			haveV4Address = true
+		} else if addr.Bits() == 128 {
+			haveV6Address = true
 		}
-		routes = append(routes, winipcfg.RouteData{
-			Destination: net.IPNet{
-				IP:   gateway,
-				Mask: ipnet.Mask,
-			},
-			NextHop: gateway,
-			Metric:  0,
-		})
 	}
 
 	foundDefault4 := false
 	foundDefault6 := false
 	for _, peer := range conf.Peers {
 		for _, allowedip := range peer.AllowedIPs {
-			if (allowedip.Bits() == 32 && firstGateway4 == nil) || (allowedip.Bits() == 128 && firstGateway6 == nil) {
+			if (allowedip.Bits() == 32 && !haveV4Address) || (allowedip.Bits() == 128 && !haveV6Address) {
 				continue
 			}
 			route := winipcfg.RouteData{
@@ -102,12 +91,12 @@ func configureInterface(family winipcfg.AddressFamily, conf *conf.Config, tun *t
 				if allowedip.Cidr == 0 {
 					foundDefault4 = true
 				}
-				route.NextHop = *firstGateway4
+				route.NextHop = net.IPv4zero
 			} else if allowedip.Bits() == 128 {
 				if allowedip.Cidr == 0 {
 					foundDefault6 = true
 				}
-				route.NextHop = *firstGateway6
+				route.NextHop = net.IPv6zero
 			}
 			routes = append(routes, route)
 		}
