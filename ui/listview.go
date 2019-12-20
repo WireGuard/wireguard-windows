@@ -225,21 +225,14 @@ func (tv *ListView) Load(asyncUI bool) {
 		for _, tunnel := range tunnels {
 			newTunnels[tunnel] = true
 		}
-		for _, tunnel := range tv.model.tunnels {
+		for i := len(tv.model.tunnels); i > 0; {
+			i--
+			tunnel := tv.model.tunnels[i]
 			oldTunnels[tunnel] = true
-		}
-
-		for tunnel := range oldTunnels {
 			if !newTunnels[tunnel] {
-				for i, t := range tv.model.tunnels {
-					// TODO: this is inefficient. Use a map here instead.
-					if t.Name == tunnel.Name {
-						tv.model.tunnels = append(tv.model.tunnels[:i], tv.model.tunnels[i+1:]...)
-						tv.model.PublishRowsRemoved(i, i) // TODO: Do we have to call that everytime or can we pass a range?
-						delete(tv.model.lastObservedState, t)
-						break
-					}
-				}
+				tv.model.tunnels = append(tv.model.tunnels[:i], tv.model.tunnels[i+1:]...)
+				tv.model.PublishRowsRemoved(i, i) // TODO: Do we have to call that everytime or can we pass a range?
+				delete(tv.model.lastObservedState, tunnel)
 			}
 		}
 		didAdd := false
