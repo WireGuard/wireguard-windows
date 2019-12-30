@@ -61,15 +61,14 @@ You can deploy the 64-bit build to an SSH host specified by the `DEPLOYMENT_HOST
 $ make deploy
 ```
 
-### [`wg(8)`](https://git.zx2c4.com/WireGuard/about/src/tools/man/wg.8) Support for Windows
+### [`wg(8)`](https://git.zx2c4.com/wireguard-tools/about/src/man/wg.8) Support for Windows
 
-The command line utility [`wg(8)`](https://git.zx2c4.com/WireGuard/about/src/tools/man/wg.8) works well on Windows. Being a Unix-centric project, it compiles with a Makefile and MingW:
+The command line utility [`wg(8)`](https://git.zx2c4.com/wireguard-tools/about/src/man/wg.8) works well on Windows. Being a Unix-centric project, it compiles with a Makefile and MingW:
 
 ```
-$ git clone https://git.zx2c4.com/WireGuard
-$ cd WireGuard/src/tools
-$ PLATFORM=windows make
-$ stat wg.exe
+$ git clone https://git.zx2c4.com/wireguard-tools
+$ PLATFORM=windows make -C wireguard-tools/src
+$ stat wireguard-tools/src/wg.exe
 ```
 
 It interacts with WireGuard instances run by the main WireGuard for Windows program.
