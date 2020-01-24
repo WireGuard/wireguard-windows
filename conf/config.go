@@ -196,3 +196,46 @@ func (b Bytes) String() string {
 	}
 	return fmt.Sprintf("%.2f TiB", float64(b)/(1024*1024*1024)/1024)
 }
+
+func (conf *Config) DeduplicateNetworkEntries() {
+	m := make(map[string]bool, len(conf.Interface.Addresses))
+	i := 0
+	for _, addr := range conf.Interface.Addresses {
+		s := addr.String()
+		if m[s] {
+			continue
+		}
+		m[s] = true
+		conf.Interface.Addresses[i] = addr
+		i++
+	}
+	conf.Interface.Addresses = conf.Interface.Addresses[:i]
+
+	m = make(map[string]bool, len(conf.Interface.DNS))
+	i = 0
+	for _, addr := range conf.Interface.DNS {
+		s := addr.String()
+		if m[s] {
+			continue
+		}
+		m[s] = true
+		conf.Interface.DNS[i] = addr
+		i++
+	}
+	conf.Interface.DNS = conf.Interface.DNS[:i]
+
+	for _, peer := range conf.Peers {
+		m = make(map[string]bool, len(peer.AllowedIPs))
+		i = 0
+		for _, addr := range peer.AllowedIPs {
+			s := addr.String()
+			if m[s] {
+				continue
+			}
+			m[s] = true
+			peer.AllowedIPs[i] = addr
+			i++
+		}
+		peer.AllowedIPs = peer.AllowedIPs[:i]
+	}
+}
