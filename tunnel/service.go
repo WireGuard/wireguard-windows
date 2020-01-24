@@ -118,6 +118,7 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 		serviceError = services.ErrorLoadConfiguration
 		return
 	}
+	conf.DeduplicateNetworkEntries()
 	err = CopyConfigOwnerToIPCSecurityDescriptor(service.Path)
 	if err != nil {
 		serviceError = services.ErrorLoadConfiguration
