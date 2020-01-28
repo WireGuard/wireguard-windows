@@ -9,6 +9,7 @@ import (
 	"log"
 	"time"
 
+	"golang.zx2c4.com/wireguard/windows/conf"
 	"golang.zx2c4.com/wireguard/windows/updater"
 	"golang.zx2c4.com/wireguard/windows/version"
 )
@@ -35,12 +36,23 @@ func checkForUpdates() {
 
 	first := true
 	for {
-		update, err := updater.CheckForUpdate()
-		if err == nil && update != nil {
-			log.Println("An update is available")
-			updateState = UpdateStateFoundUpdate
-			IPCServerNotifyUpdateFound(updateState)
-			return
+		var err error
+		if conf.AdminBool("SilentUpdate") {
+			progress := updater.DownloadVerifyAndExecute(0)
+			for {
+				dp := <-progress
+				if dp.Complete || dp.Error != nil {
+					break
+				}
+			}
+		} else {
+			update, err := updater.CheckForUpdate()
+			if err == nil && update != nil {
+				log.Println("An update is available")
+				updateState = UpdateStateFoundUpdate
+				IPCServerNotifyUpdateFound(updateState)
+				return
+			}
 		}
 		if err != nil {
 			log.Printf("Update checker: %v", err)
