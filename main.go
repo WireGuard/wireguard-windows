@@ -5,7 +5,7 @@
 
 package main
 
-//go:generate go run golang.org/x/text/cmd/gotext -srclang=en update -out=zgotext.go -lang=en,ja,sl
+//go:generate go run golang.org/x/text/cmd/gotext -srclang=en update -out=zgotext.go -lang=en,fr,ja,sl
 
 import (
 	"fmt"
