@@ -49,6 +49,13 @@ VERSIONINFO_TEMPLATE(
   "https://www.wireguard.com/"
 )
 
+LANGUAGE LANG_FRENCH, SUBLANG_DEFAULT
+VERSIONINFO_TEMPLATE(
+  "040c04b0", 0x40c, 0x4b0,
+  "WireGuard: tunnel VPN rapide, moderne, sécurisé",
+  "https://www.wireguard.com/"
+)
+
 LANGUAGE LANG_JAPANESE, SUBLANG_DEFAULT
 VERSIONINFO_TEMPLATE(
   "041104b0", 0x411, 0x4b0,
