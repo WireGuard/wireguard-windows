@@ -45,7 +45,8 @@
 		<Property Id="DISABLEROLLBACK" Value="yes" />
 		<Property Id="MSIDISABLERMRESTART" Value="1" />
 		<Property Id="MSIRMSHUTDOWN" Value="1" />
-
+		<Property Id="DO_NOT_LAUNCH" Value="0" Secure="yes" />
+		
 		<!--
 			Upgrading
 		-->
@@ -135,7 +136,7 @@
 		-->
 		<CustomAction Id="LaunchApplication" HideTarget="yes" Impersonate="no" Execute="deferred" FileKey="wireguard.exe" ExeCommand="" Return="asyncNoWait" />
 		<InstallExecuteSequence>
-			<Custom Action="LaunchApplication" Before="InstallFinalize">(&amp;WireGuardFeature = 3) AND NOT DO_NOT_LAUNCH</Custom>
+			<Custom Action="LaunchApplication" Before="InstallFinalize"><![CDATA[(&WireGuardFeature = 3) AND (DO_NOT_LAUNCH = "0")]]></Custom>
 		</InstallExecuteSequence>
 
 		<!--
@@ -143,7 +144,7 @@
 		-->
 		<CustomAction Id="LaunchApplicationAsOrdinaryUser" HideTarget="yes" FileKey="wireguard.exe" ExeCommand="" Return="asyncNoWait" />
 		<InstallExecuteSequence>
-			<Custom Action="LaunchApplicationAsOrdinaryUser" After="InstallFinalize">(&amp;WireGuardFeature = -1) AND (!WireGuardFeature = 3) AND NOT DO_NOT_LAUNCH</Custom>
+			<Custom Action="LaunchApplicationAsOrdinaryUser" After="InstallFinalize"><![CDATA[(&WireGuardFeature = -1) AND (!WireGuardFeature = 3) AND (DO_NOT_LAUNCH = "0")]]></Custom>
 		</InstallExecuteSequence>
 	</Product>
 </Wix>
