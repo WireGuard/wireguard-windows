@@ -49,6 +49,13 @@ VERSIONINFO_TEMPLATE(
   "https://www.wireguard.com/"
 )
 
+LANGUAGE LANG_JAPANESE, SUBLANG_DEFAULT
+VERSIONINFO_TEMPLATE(
+  "041104b0", 0x411, 0x4b0,
+  "WireGuard: 高速で、現代的で、セキュアな VPN トンネル",
+  "https://www.wireguard.com/"
+)
+
 LANGUAGE LANG_SLOVENIAN, SUBLANG_DEFAULT
 VERSIONINFO_TEMPLATE(
   "042404b0", 0x424, 0x4b0,
