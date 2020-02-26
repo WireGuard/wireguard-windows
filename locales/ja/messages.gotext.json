@@ -471,7 +471,7 @@
         {
             "id": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}\nOperating system: {OsName}\nArchitecture: {GOARCH}",
             "message": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}\nOperating system: {OsName}\nArchitecture: {GOARCH}",
-            "translation": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_     go}\nOperating system: {OsName}\nArchitecture: {GOARCH}",
+            "translation": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}\nOperating system: {OsName}\nArchitecture: {GOARCH}",
             "placeholders": [
                 {
                     "id": "Number",
@@ -523,12 +523,12 @@
         {
             "id": "♥ \u0026Donate!",
             "message": "♥ \u0026Donate!",
-            "translation": "♥ 寄付のお願い!(\0026D)"
+            "translation": "♥ 寄付のお願い!(\u0026D)"
         },
         {
             "id": "Status:",
             "message": "Status:",
-            "translation": "状態"
+            "translation": "状態:"
         },
         {
             "id": "\u0026Deactivate",
@@ -816,7 +816,7 @@
         {
             "id": "\u0026Copy",
             "message": "\u0026Copy",
-            "translation": "コピー(\u0026)"
+            "translation": "コピー(\u0026C)"
         },
         {
             "id": "Select \u0026all",
@@ -841,7 +841,7 @@
         {
             "id": "Text Files (*.txt)|*.txt|All Files (*.*)|*.*",
             "message": "Text Files (*.txt)|*.txt|All Files (*.*)|*.*",
-            "translation": "テキストファイル (*.txt)|*.txt|All Files (*.*)|*.*"
+            "translation": "テキストファイル (*.txt)|*.txt|すべてのファイル (*.*)|*.*"
         },
         {
             "id": "Export log to file",
@@ -936,7 +936,7 @@
         {
             "id": "E\u0026xit",
             "message": "E\u0026xit",
-            "translation": "終了(\u0026x)"
+            "translation": "終了(\u0026X)"
         },
         {
             "id": "WireGuard Tunnel Error",
@@ -1319,7 +1319,7 @@
         {
             "id": "Configuration Files (*.zip, *.conf)|*.zip;*.conf|All Files (*.*)|*.*",
             "message": "Configuration Files (*.zip, *.conf)|*.zip;*.conf|All Files (*.*)|*.*",
-            "translation": "設定ファイル (*.zip, *.conf)|*.zip;*.conf|All Files (*.*)|*.*"
+            "translation": "設定ファイル (*.zip, *.conf)|*.zip;*.conf|すべてのファイル (*.*)|*.*"
         },
         {
             "id": "Import tunnel(s) from file",
