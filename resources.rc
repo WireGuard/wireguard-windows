@@ -48,3 +48,10 @@ VERSIONINFO_TEMPLATE(
   "WireGuard: Fast, Modern, Secure VPN Tunnel",
   "https://www.wireguard.com/"
 )
+
+LANGUAGE LANG_SLOVENIAN, SUBLANG_DEFAULT
+VERSIONINFO_TEMPLATE(
+  "042404b0", 0x424, 0x4b0,
+  "WireGuard: hiter, sodoben, varen tunel VPN",
+  "https://www.wireguard.com/"
+)

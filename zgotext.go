@@ -28,6 +28,7 @@ func (d *dictionary) Lookup(key string) (data string, ok bool) {
 func init() {
 	dict := map[string]catalog.Dictionary{
 		"en": &dictionary{index: enIndex, data: enData},
+		"sl": &dictionary{index: slIndex, data: slData},
 	}
 	fallback := language.MustParse("en")
 	cat, err := catalog.NewFromMap(dict, catalog.Fallback(fallback))
@@ -354,4 +355,156 @@ const enData string = "" + // Size: 5179 bytes
 	"itten frame\x02http2: Framer %[1]p: wrote %[2]v\x02http2: Framer %[1]p: " +
 	"read %[2]v\x02http2: decoded hpack field %+[1]v"
 
-	// Total table size 5895 bytes (5KiB); checksum: ED8BBF53
+var slIndex = []uint32{ // 176 elements
+	// Entry 0 - 1F
+	0x00000000, 0x00000007, 0x00000058, 0x00000070,
+	0x00000089, 0x000000c1, 0x00000107, 0x0000013e,
+	0x00000190, 0x000001f6, 0x0000023a, 0x0000023f,
+	0x0000025e, 0x00000296, 0x000002cd, 0x00000301,
+	0x00000341, 0x00000385, 0x00000391, 0x0000039a,
+	0x000003a7, 0x000003b4, 0x000003c1, 0x000003ce,
+	0x000003db, 0x000003ee, 0x00000412, 0x00000434,
+	0x0000045d, 0x00000483, 0x00000490, 0x0000049f,
+	// Entry 20 - 3F
+	0x000004c3, 0x000004da, 0x0000050b, 0x0000053f,
+	0x00000554, 0x0000056b, 0x00000586, 0x000005be,
+	0x000005d9, 0x000005fe, 0x0000061e, 0x00000640,
+	0x0000064e, 0x00000675, 0x00000695, 0x000006b7,
+	0x000006d5, 0x000006f7, 0x000006fa, 0x00000707,
+	0x00000725, 0x0000079a, 0x000007a0, 0x000007ae,
+	0x000007b6, 0x000007c3, 0x000007ce, 0x000007dc,
+	0x000007ef, 0x000007f4, 0x000007fd, 0x0000080d,
+	// Entry 40 - 5F
+	0x00000823, 0x00000834, 0x00000844, 0x00000860,
+	0x00000872, 0x0000087a, 0x00000885, 0x000008a2,
+	0x000008c6, 0x000008e4, 0x00000904, 0x00000913,
+	0x0000091b, 0x0000092d, 0x00000939, 0x0000093f,
+	0x0000094e, 0x00000958, 0x00000982, 0x00000aa3,
+	0x00000aab, 0x00000ab5, 0x00000ac5, 0x00000ad2,
+	0x00000ae2, 0x00000b04, 0x00000b34, 0x00000b46,
+	0x00000b71, 0x00000b98, 0x00000bb6, 0x00000bf1,
+	// Entry 60 - 7F
+	0x00000bf9, 0x00000c05, 0x00000c0f, 0x00000c1d,
+	0x00000c2c, 0x00000c34, 0x00000c3d, 0x00000c49,
+	0x00000c61, 0x00000c66, 0x00000c7c, 0x00000cb4,
+	0x00000cce, 0x00000ce1, 0x00000cef, 0x00000d1e,
+	0x00000d34, 0x00000d51, 0x00000d8c, 0x00000da3,
+	0x00000db2, 0x00000dc0, 0x00000dd7, 0x00000df6,
+	0x00000dfd, 0x00000e15, 0x00000e26, 0x00000e34,
+	0x00000e43, 0x00000e57, 0x00000e75, 0x00000e8b,
+	// Entry 80 - 9F
+	0x00000eab, 0x00000ec4, 0x00000ee4, 0x00000f29,
+	0x00000f30, 0x00000f37, 0x00000f50, 0x00000f5c,
+	0x00000f74, 0x00000f8c, 0x00000f96, 0x00000fb4,
+	0x00000fcd, 0x00000fe6, 0x00001014, 0x00001047,
+	0x0000106c, 0x00001092, 0x000010a2, 0x00001106,
+	0x00001192, 0x000011ae, 0x00001213, 0x00001300,
+	0x0000131b, 0x00001356, 0x00001381, 0x0000139b,
+	0x000013c3, 0x000013de, 0x00001492, 0x000014df,
+	// Entry A0 - BF
+	0x000014f8, 0x00001523, 0x00001537, 0x00001566,
+	0x00001586, 0x000015f3, 0x00001646, 0x00001662,
+	0x00001670, 0x00001697, 0x000016b9, 0x000016cb,
+	0x00001713, 0x00001737, 0x0000175b, 0x00001780,
+} // Size: 716 bytes
+
+const slData string = "" + // Size: 6016 bytes
+	"\x02Napaka\x02(brez argumenta): povzdigni na skrbniške pravice in namest" +
+	"i skrbniško storitev\x02Uporaba: %[1]s [\x0a%[2]s]\x02Možnosti ukazne vr" +
+	"stice\x02Napaka pri določanju ali proces teče kot WOW64: %[1]v\x02Na tem" +
+	"u računalniku morate uporabiti 64-bitno različico WireGuarda.\x02Napaka " +
+	"pri odpiranju žetona trenutnega procesa: %[1]v\x02WireGuard lahko uporab" +
+	"ljajo samo uporabniki, ki so člani vgrajene skupine %[1]s.\x02WireGuard " +
+	"je zagnan, vendar je up. vmesnik dostopen samo z namizij uporabnikov čla" +
+	"nov skupine %[1]s.\x02Ikona WireGuarda se po 30 sekundah ni pojavila v s" +
+	"istemski vrstici.\x02Zdaj\x02Sistemska ura prevrtena nazaj!\x14\x01\x81" +
+	"\x01\x00\x04\x0b\x02%[1]d leta\x02\x0b\x02%[1]d leto\x03\x0b\x02%[1]d le" +
+	"ti\x00\x0a\x02%[1]d let\x14\x01\x81\x01\x00\x04\x0a\x02%[1]d dni\x02\x0a" +
+	"\x02%[1]d dan\x03\x0c\x02%[1]d dneva\x00\x0a\x02%[1]d dni\x14\x01\x81" +
+	"\x01\x00\x04\x0a\x02%[1]d ure\x02\x0a\x02%[1]d uro\x03\x0a\x02%[1]d uri" +
+	"\x00\x09\x02%[1]d ur\x14\x01\x81\x01\x00\x04\x0d\x02%[1]d minute\x02\x0d" +
+	"\x02%[1]d minuto\x03\x0d\x02%[1]d minuti\x00\x0c\x02%[1]d minut\x14\x01" +
+	"\x81\x01\x00\x04\x0e\x02%[1]d sekunde\x02\x0e\x02%[1]d sekundo\x03\x0e" +
+	"\x02%[1]d sekundi\x00\x0d\x02%[1]d sekund\x02%[1]s nazaj\x02%[1]d\u00a0B" +
+	"\x02%.2[1]f\u00a0KiB\x02%.2[1]f\u00a0MiB\x02%.2[1]f\u00a0GiB\x02%.2[1]f" +
+	"\u00a0TiB\x02%[1]s: %[2]q\x02Napačen naslov IP\x02Napačna dolžina predpo" +
+	"ne omrežja\x02Pri končni točki manjkajo vrata\x02Pri končni točki je gos" +
+	"titelj napačen\x02Oklepaji morajo vsebovati naslov IPv6\x02Napačen MTU" +
+	"\x02Napačna vrata\x02Napačno trajno ohranjanje povezave\x02Napačen ključ" +
+	": %[1]v\x02Dekodirani ključi morajo biti natanko 32 bajtov\x02Številka m" +
+	"ora biti število med 0 in 2^64-1: %[1]v\x02Dve zaporedni vejici\x02Ime t" +
+	"unela ni veljavno\x02Vrstica mora biti v odseku\x02Napačnemu ključu konf" +
+	"iguracije manjka ločilo-enačaj\x02Ključ mora imeti vrednost\x02Napačen k" +
+	"ljuč za odsek [Interface]\x02Napačen ključ za odsek [Peer]\x02Vmesnik mo" +
+	"ra imeti zasebni ključ\x02[ni navedeno]\x02Vsi vrstniki morajo imeti jav" +
+	"ni ključ\x02Napaka pri branju konfiguracije\x02Napačen ključ za odsek vm" +
+	"esnika\x02Verzija protokola mora biti 1\x02Napačen ključ za odsek vrstni" +
+	"ka\x02, \x02O WireGuardu\x02Slika WireGuardovega logotipa\x02Verzija apl" +
+	"ikacije: %[1]s\x0aVerzija wireguard-go: %[2]s\x0aVerzija Go: %[3]s\x0aOp" +
+	"eracijski sistem: %[4]s\x0aArhitektura: %[5]s\x02Zapri\x02♥ &Doniraj!" +
+	"\x02Status:\x02&Deaktiviraj\x02&Aktiviraj\x02Javni ključ:\x02Vrata poslu" +
+	"šanja:\x02MTU:\x02Naslovi:\x02Strežniki DNS:\x02Ključ v skupni rabi:" +
+	"\x02Dovoljeni IP-ji:\x02Končna točka:\x02Trajno ohranjanje povezave:\x02" +
+	"Zadnje rokovanje:\x02Prenos:\x02omogočeno\x02%[1]s prejeto, %[2]s poslan" +
+	"o\x02Napaka pri določanju stanja tunela\x02Napaka pri aktiviranju tunela" +
+	"\x02Napaka pri deaktiviranju tunela\x02Vmesnik: %[1]s\x02Vrstnik\x02Ustv" +
+	"ari nov tunel\x02Uredi tunel\x02&Ime:\x02&Javni ključ:\x02(neznano)\x02&" +
+	"Blokiraj promet izven tunela (varovalka)\x02Kadar ima konfiguracija nata" +
+	"nko enega vrstnika in njegov spisek dovoljenih IP-jev vsebuje vsaj enega" +
+	" izmed 0.0.0.0/0 ali ::/0, bo storitev tunela vzpostavila pravila požarn" +
+	"ega zidu, ki bodo blokirala ves promet, ki ni niti za niti iz vmesnika t" +
+	"unela s posebnimi izjemami za DHCP and NDP.\x02&Shrani\x02Prekliči\x02&K" +
+	"onfiguracija:\x02Napačno ime\x02Ime je obvezno.\x02Ime tunela »%[1]s« ni" +
+	" veljavno.\x02Napaka pri pripravi seznama obstoječih tunelov\x02Tunel že" +
+	" obstaja\x02Drug tunel z imenom »%[1]s« že obstaja.\x02Napaka pri izdela" +
+	"vi nove konfiguracije\x02Napaka pri pisanju v datoteko\x02Datoteka »%[1]" +
+	"s« že obstaja.\x0a\x0aAli jo želite prepisati?\x02Aktivno\x02Se aktivira" +
+	"\x02Neaktivno\x02Se deaktivira\x02Neznano stanje\x02Dnevnik\x02&Kopiraj" +
+	"\x02&Izberi vse\x02&Shrani v datoteko\u00a0…\x02Čas\x02Sporočilo v dnevn" +
+	"iku\x02Tekstovne datoteke (*.txt)|*.txt|Vse datoteke (*.*)|*.*\x02Izvozi" +
+	" dnevnik v datoteko\x02O WireGu&ardu\u00a0…\x02Napaka tunela\x02%[1]s" +
+	"\x0a\x0aDodatne informacije najdete v dnevniku.\x02%[1]s (neposodobljen)" +
+	"\x02Napaka zaznavanja WireGuarda\x02Čakanje, da se pojavi WireGuardovo o" +
+	"kno, ni možno: %[1]v\x02WireGuard: Deaktiviran\x02Status: Neznan\x02Nasl" +
+	"ovi: Brez\x02&Upravljaj tunele\u00a0…\x02Uvoz&i tunele iz datoteke\u00a0" +
+	"…\x02I&zhod\x02Napaka tunela WireGuard\x02WireGuard: %[1]s\x02Status: " +
+	"%[1]s\x02Naslovi: %[1]s\x02WireGuard aktiviran\x02Tunel %[1]s je bil akt" +
+	"iviran.\x02WireGuard deaktiviran\x02Tunel %[1]s je bil deaktiviran.\x02N" +
+	"a voljo je posodobitev!\x02Posodobitev WireGuarda na voljo\x02Posodobite" +
+	"v WireGuarda je na voljo. Svetujemo posodobitev čim prej.\x02Tuneli\x02U" +
+	"r&edi\x02Dodaj praz&en tunel\u00a0…\x02Dodaj tunel\x02Odstrani izbrane t" +
+	"unele\x02Izvozi vse tunele v zip\x02&Preklopi\x02Izvozi vse tunele v &zi" +
+	"p\u00a0…\x02Uredi i&zbran tunel\u00a0…\x02Odst&rani izbrane tunele\x02Na" +
+	"paka pri uvozu izbrane konfiguracije: %[1]v\x02Napaka pri preštevanju ob" +
+	"stoječih tunelov: %[1]v\x02Tunel z imenom »%[1]s« že obstaja\x02Napaka p" +
+	"ri uvozu konfiguracije: %[1]v\x02Uvoženi tuneli\x14\x01\x81\x01\x00\x04" +
+	"\x16\x02Uvoženi %[1]d tuneli\x02\x14\x02Uvožen %[1]d tunel\x03\x16\x02Uv" +
+	"ožena %[1]d tunela\x00\x17\x02Uvoženo %[1]d tunelov\x14\x01\x81\x01\x00" +
+	"\x04 \x02Uvoženi %[1]d od %[2]d tunelov\x02\x1f\x02Uvožen %[1]d od %[2]d" +
+	" tunelov\x03 \x02Uvožena %[1]d od %[2]d tunelov\x00 \x02Uvoženo %[1]d od" +
+	" %[2]d tunelov\x02Napaka pri stvaritvi tunela\x14\x01\x81\x01\x00\x04" +
+	"\x16\x02Izbriši %[1]d tunele\x02\x15\x02Izbriši %[1]d tunel\x03\x16\x02I" +
+	"zbriši %[1]d tunela\x00\x17\x02Izbriši %[1]d tunelov\x14\x01\x81\x01\x00" +
+	"\x048\x02Ali ste prepričani, da želite izbrisati %[1]d tunele?\x027\x02A" +
+	"li ste prepričani, da želite izbrisati %[1]d tunel?\x038\x02Ali ste prep" +
+	"ričani, da želite izbrisati %[1]d tunela?\x009\x02Ali ste prepričani, da" +
+	" želite izbrisati %[1]d tunelov?\x02Izbriši tunel ‘%[1]s’\x02Ali ste pre" +
+	"pričani, da želite izbrisati tunel »%[1]s«?\x02%[1]s Tega dejanja ne mor" +
+	"ete razveljaviti.\x02Napaka pri izbrisu tunela\x02Napaka pri odstranjeva" +
+	"nju tunela: %[1]s\x02Napaka pri izbrisu tunelov\x14\x01\x81\x01\x00\x04*" +
+	"\x02%[1]d tunelov ni bilo mogoče odstraniti.\x02)\x02%[1]d tunela ni bil" +
+	"o mogoče odstraniti.\x03*\x02%[1]d tunelov ni bilo mogoče odstraniti." +
+	"\x00*\x02%[1]d tunelov ni bilo mogoče odstraniti.\x02Konfiguracijske dat" +
+	"oteke (*.zip, *.conf)|*.zip;*.conf|Vse datoteke (*.*)|*.*\x02Uvozi tunel" +
+	"e iz datoteke\x02Konfiguracijske datoteke ZIP (*.zip)|*.zip\x02Izvozi tu" +
+	"nele v zip\x02%[1]s (nepodpisane izdelave, brez posodobitev)\x02Napaka p" +
+	"ri izhodu iz WireGuarda\x02Storitve ni bilo mogoče zaustaviti, ker: %[1]" +
+	"v. Poskusite zaustaviti WireGuard z uporabo programa Storitve.\x02Posodo" +
+	"bitev WireGuarda je na voljo. Zelo priporočamo posodobitev brez odlašanj" +
+	"a.\x02Status: Čaka na uporabnika\x02Posodobi zdaj\x02Status: Čaka na ser" +
+	"vis za posodobitev\x02Napaka: %[1]v. Poskusite ponovno.\x02Status: Konča" +
+	"no!\x02http2: Framer %[1]p: napaka pri dekodiranju ravnokar zapisanega o" +
+	"kvirja\x02http2: Framer %[1]p: zapisano %[2]v\x02http2: Framer %[1]p: pr" +
+	"ebrano %[2]v\x02http2: dekodirano polje hpack %+[1]v"
+
+	// Total table size 12627 bytes (12KiB); checksum: F9DAA9A7
