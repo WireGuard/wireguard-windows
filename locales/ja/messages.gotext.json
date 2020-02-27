@@ -455,7 +455,7 @@
         {
             "id": "[EnumerationSeparator]",
             "message": "[EnumerationSeparator]",
-            "translation": "、",
+            "translation": ", ",
             "comment": "Text to insert between items when listing - most western languages will translate ‘[EnumerationSeparator]’ into ‘, ’ to produce lists like ‘apple, orange, strawberry’. Eastern languages might translate into ‘、’ to produce lists like ‘リンゴ、オレンジ、イチゴ’."
         },
         {
