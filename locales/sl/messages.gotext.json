@@ -554,6 +554,12 @@
             "comment": "Text to insert between items when listing - most western languages will translate ‘[EnumerationSeparator]’ into ‘, ’ to produce lists like ‘apple, orange, strawberry’. Eastern languages might translate into ‘、’ to produce lists like ‘リンゴ、オレンジ、イチゴ’."
         },
         {
+            "id": "[UnitSeparator]",
+            "message": "[UnitSeparator]",
+            "translation": " ",
+            "comment": "Text to insert when combining units of a measure - most languages will translate ‘[UnitSeparator]’ into ‘ ’ (space) to produce lists like ‘2 minuti 30 sekund’, or empty string ‘’ to produce ‘2分30秒’."
+        },
+        {
             "id": "About WireGuard",
             "message": "About WireGuard",
             "translation": "O WireGuardu"

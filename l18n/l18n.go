@@ -63,3 +63,14 @@ func EnumerationSeparator() string {
 	// be nice to translators and skips all strings without letters when updating catalogs.
 	return Sprintf("[EnumerationSeparator]" /* Text to insert between items when listing - most western languages will translate ‘[EnumerationSeparator]’ into ‘, ’ to produce lists like ‘apple, orange, strawberry’. Eastern languages might translate into ‘、’ to produce lists like ‘リンゴ、オレンジ、イチゴ’. */)
 }
+
+// UnitSeparator returns the separator to use when concatenating multiple units of the same metric
+// (e.g. "1 minute, 32 seconds", "6 feet, 1 inch"). For English and western languages, unit
+// separator is a comma followed by a space (i.e. ", "). For Slovenian and Japanese, it returns
+// just space.
+func UnitSeparator() string {
+	// BUG: We could just use `Sprintf(", " /* ...translator instructions... */)` and let the
+	// individual locale catalog handle its translation. Unfortunately, the gotext utility tries to
+	// be nice to translators and skips all strings without letters when updating catalogs.
+	return Sprintf("[UnitSeparator]" /* Text to insert when combining units of a measure - most languages will translate ‘[UnitSeparator]’ into ‘ ’ (space) to produce lists like ‘2 minuti 30 sekund’, or empty string ‘’ to produce ‘2分30秒’. */)
+}
