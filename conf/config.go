@@ -170,7 +170,7 @@ func (t HandshakeTime) String() string {
 	if seconds > 0 {
 		s = append(s, l18n.Sprintf("%d second(s)", seconds))
 	}
-	timestamp := strings.Join(s, l18n.EnumerationSeparator())
+	timestamp := strings.Join(s, l18n.UnitSeparator())
 	return l18n.Sprintf("%s ago", timestamp)
 }
 
