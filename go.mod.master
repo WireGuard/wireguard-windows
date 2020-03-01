@@ -6,7 +6,7 @@ require (
 	golang.org/x/crypto latest
 	golang.org/x/net latest
 	golang.org/x/sys latest
-	golang.org/x/text latest
+	golang.org/x/text master
 	golang.zx2c4.com/wireguard master
 )
 
