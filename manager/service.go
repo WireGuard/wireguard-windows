@@ -124,6 +124,7 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 			userToken.Close()
 			return
 		}
+		userProfileDirectory, _ := userToken.GetUserProfileDirectory()
 		var elevatedToken windows.Token
 		if userToken.IsElevated() {
 			elevatedToken = userToken
@@ -188,6 +189,7 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 					Token: syscall.Token(elevatedToken),
 				},
 				Files: []*os.File{devNull, devNull, devNull},
+				Dir: userProfileDirectory,
 			}
 			procsLock.Lock()
 			var proc *os.Process
