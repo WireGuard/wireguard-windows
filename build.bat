@@ -70,9 +70,9 @@ if exist .deps\prepared goto :render
 	mkdir %1 >NUL 2>&1
 	echo [+] Assembling resources %1
 	windres -i resources.rc -o resources.syso -O coff || exit /b %errorlevel%
-	if "%GenerateLocalizations%|%1"=="yes|x86" (
-		echo [+] Generating localizations %1
-		go generate || exit /b 1
+	if "%GoGenerate%|%1"=="yes|x86" (
+		echo [+] Regenerating files
+		go generate ./... || exit /b 1
 	)
 	echo [+] Building program %1
 	go build -ldflags="-H windowsgui -s -w" -tags walk_use_cgo -trimpath -v -o "%~1\wireguard.exe" || exit /b 1
