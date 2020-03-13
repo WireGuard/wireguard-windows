@@ -35,7 +35,7 @@ To translate WireGuard UI to your language:
 3. Configure and run `build` to prepare initial `locales\<langID>\messages.gotext.json` file:
 
    ```
-   C:\Projects\wireguard-windows> set GenerateLocalizations=yes
+   C:\Projects\wireguard-windows> set GoGenerate=yes
    C:\Projects\wireguard-windows> build
    C:\Projects\wireguard-windows> copy locales\<langID>\out.gotext.json locales\<langID>\messages.gotext.json
    ```
