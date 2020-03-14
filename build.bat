@@ -2,7 +2,7 @@
 rem SPDX-License-Identifier: MIT
 rem Copyright (C) 2019 WireGuard LLC. All Rights Reserved.
 
-setlocal
+setlocal enabledelayedexpansion
 set BUILDDIR=%~dp0
 set PATH=%BUILDDIR%.deps\go\bin;%BUILDDIR%.deps;%PATH%
 set PATHEXT=.exe
@@ -34,6 +34,11 @@ if exist .deps\prepared goto :render
 	set GOOS=windows
 	set GOPATH=%BUILDDIR%.deps\gopath
 	set GOROOT=%BUILDDIR%.deps\go
+	if "%GoGenerate%"=="yes" (
+		echo [+] Regenerating files
+		set PATH=!BUILDDIR!.deps\x86_64-w64-mingw32-native\bin;!PATH!
+		go generate ./... || exit /b 1
+	)
 	set CGO_ENABLED=1
 	set CGO_CFLAGS=-O3 -Wall -Wno-unused-function -Wno-switch -std=gnu11 -DWINVER=0x0601
 	set CGO_LDFLAGS=-Wl,--dynamicbase -Wl,--nxcompat -Wl,--export-all-symbols
@@ -70,10 +75,6 @@ if exist .deps\prepared goto :render
 	mkdir %1 >NUL 2>&1
 	echo [+] Assembling resources %1
 	windres -i resources.rc -o resources.syso -O coff || exit /b %errorlevel%
-	if "%GoGenerate%|%1"=="yes|x86" (
-		echo [+] Regenerating files
-		go generate ./... || exit /b 1
-	)
 	echo [+] Building program %1
 	go build -ldflags="-H windowsgui -s -w" -tags walk_use_cgo -trimpath -v -o "%~1\wireguard.exe" || exit /b 1
 	if not exist "%~1\wg.exe" (
