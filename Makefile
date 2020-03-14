@@ -46,8 +46,8 @@ fmt: export GOARCH := amd64
 fmt:
 	go fmt ./...
 
-generate: export CC := x86_64-w64-mingw32-gcc
-generate: export GOARCH := amd64
+generate: export GOOS :=
+generate: export CGO_ENABLED := 0
 generate:
 	go generate ./...
 
@@ -58,4 +58,4 @@ deploy: amd64/wireguard.exe
 clean:
 	rm -rf *.syso ui/icon/*.ico x86/ amd64/
 
-.PHONY: deploy clean fmt remaster all
+.PHONY: deploy clean fmt remaster generate all
