@@ -271,7 +271,7 @@ var enIndex = []uint32{ // 177 elements
 	0x00001341, 0x0000134c, 0x00001370, 0x00001390,
 	0x000013a2, 0x000013db, 0x000013fc, 0x0000141c,
 	0x0000143e,
-} // Size: 720 bytes
+} // Size: 732 bytes
 
 const enData string = "" + // Size: 5182 bytes
 	"\x02Error\x02(no argument): elevate and install manager service\x02Usage" +
@@ -411,7 +411,7 @@ var frIndex = []uint32{ // 177 elements
 	0x00001817, 0x00001831, 0x00001860, 0x00001885,
 	0x00001896, 0x000018db, 0x00001900, 0x00001922,
 	0x00001946,
-} // Size: 720 bytes
+} // Size: 732 bytes
 
 const frData string = "" + // Size: 6470 bytes
 	"\x02Erreur\x02(sans argument) : élever et installer service du gestionna" +
@@ -567,7 +567,7 @@ var jaIndex = []uint32{ // 177 elements
 	0x00001917, 0x00001927, 0x0000195a, 0x0000198f,
 	0x000019a1, 0x000019e7, 0x00001a1b, 0x00001a4f,
 	0x00001a8f,
-} // Size: 720 bytes
+} // Size: 732 bytes
 
 const jaData string = "" + // Size: 6799 bytes
 	"\x02エラー\x02(引数なし): 管理者権限でmanagerサービスをインストールしてください\x02使い方: %[1]s [\x0a%[2" +
@@ -676,7 +676,7 @@ var slIndex = []uint32{ // 177 elements
 	0x00001664, 0x00001672, 0x00001699, 0x000016bb,
 	0x000016cd, 0x00001715, 0x00001739, 0x0000175d,
 	0x00001782,
-} // Size: 720 bytes
+} // Size: 732 bytes
 
 const slData string = "" + // Size: 6018 bytes
 	"\x02Napaka\x02(brez argumenta): povzdigni na skrbniške pravice in namest" +
@@ -777,4 +777,4 @@ const slData string = "" + // Size: 6018 bytes
 	"kvirja\x02http2: Framer %[1]p: zapisano %[2]v\x02http2: Framer %[1]p: pr" +
 	"ebrano %[2]v\x02http2: dekodirano polje hpack %+[1]v"
 
-	// Total table size 27349 bytes (26KiB); checksum: 32D19D64
+	// Total table size 27397 bytes (26KiB); checksum: 32D19D64
