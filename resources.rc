@@ -29,7 +29,7 @@ BEGIN \
       VALUE "FileDescription", file_desc \
       VALUE "FileVersion", WIREGUARD_WINDOWS_VERSION_STRING \
       VALUE "InternalName", "wireguard-windows" \
-      VALUE "LegalCopyright", "Copyright © 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved." \
+      VALUE "LegalCopyright", "Copyright © 2015-2020 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved." \
       VALUE "OriginalFilename", "wireguard.exe" \
       VALUE "ProductName", "WireGuard" \
       VALUE "ProductVersion", WIREGUARD_WINDOWS_VERSION_STRING \

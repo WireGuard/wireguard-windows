@@ -104,7 +104,7 @@ func runAboutDialog(owner walk.Form) error {
 	copyrightFont, _ := walk.NewFont("Segoe UI", 7, 0)
 	copyrightLbl.SetFont(copyrightFont)
 	copyrightLbl.SetTextAlignment(walk.AlignHCenterVNear)
-	copyrightLbl.SetText("Copyright © 2015-2019 Jason A. Donenfeld. All Rights Reserved.")
+	copyrightLbl.SetText("Copyright © 2015-2020 Jason A. Donenfeld. All Rights Reserved.")
 
 	buttonCP, err := walk.NewComposite(showingAboutDialog)
 	if err != nil {
