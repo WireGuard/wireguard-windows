@@ -338,6 +338,11 @@
             "translation": "不正な MTU 指定"
         },
         {
+            "id": "Invalid Metric",
+            "message": "Invalid Metric",
+            "translation": "不正な Metric 指定"
+        },
+        {
             "id": "Invalid port",
             "message": "Invalid port",
             "translation": "不正なポート番号"
@@ -560,6 +565,11 @@
             "id": "MTU:",
             "message": "MTU:",
             "translation": "MTU:"
+        },
+        {
+            "id": "Metric:",
+            "message": "Metric:",
+            "translation": "Metric:"
         },
         {
             "id": "Addresses:",

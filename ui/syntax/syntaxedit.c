@@ -45,6 +45,7 @@ static const struct span_style stylemap[] = {
 	[HighlightHost] = { .color = RGB(0x0E, 0x0E, 0xFF) },
 	[HighlightPort] = { .color = RGB(0x81, 0x5F, 0x03) },
 	[HighlightMTU] = { .color = RGB(0x1C, 0x00, 0xCF) },
+	[HighlightMetric] = { .color = RGB(0x1C, 0x00, 0xCF) },
 	[HighlightKeepalive] = { .color = RGB(0x1C, 0x00, 0xCF) },
 	[HighlightComment] = { .color = RGB(0x53, 0x65, 0x79), .effects = CFE_ITALIC },
 	[HighlightDelimiter] = { .color = RGB(0x00, 0x00, 0x00) },

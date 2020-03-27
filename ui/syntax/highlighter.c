@@ -193,6 +193,11 @@ static bool is_valid_mtu(string_span_t s)
 	return is_valid_uint(s, false, 576, 65535);
 }
 
+static bool is_valid_metric(string_span_t s)
+{
+	return is_valid_uint(s, true, 0, 4294967295);
+}
+
 static bool is_valid_persistentkeepalive(string_span_t s)
 {
 	if (is_same(s, "off"))
@@ -328,6 +333,7 @@ enum field {
 	Address,
 	DNS,
 	MTU,
+	Metric,
 #ifndef MOBILE_WGQUICK_SUBSET
 	FwMark,
 	Table,
@@ -362,6 +368,7 @@ static enum field get_field(string_span_t s)
 	check_enum(Address);
 	check_enum(DNS);
 	check_enum(MTU);
+	check_enum(Metric);
 	check_enum(PublicKey);
 	check_enum(PresharedKey);
 	check_enum(AllowedIPs);
@@ -500,6 +507,9 @@ static void highlight_value(struct highlight_span_array *ret, const string_span_
 		break;
 	case MTU:
 		append_highlight_span(ret, parent.s, s, is_valid_mtu(s) ? HighlightMTU : HighlightError);
+		break;
+	case Metric:
+		append_highlight_span(ret, parent.s, s, is_valid_metric(s) ? HighlightMetric : HighlightError);
 		break;
 #ifndef MOBILE_WGQUICK_SUBSET
 	case SaveConfig:

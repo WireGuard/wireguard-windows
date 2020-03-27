@@ -135,6 +135,17 @@ func parsePersistentKeepalive(s string) (uint16, error) {
 	return uint16(m), nil
 }
 
+func parseMetric(s string) (uint32, error) {
+	m, err := strconv.ParseInt(s, 10, 64)
+	if err != nil {
+		return 0, err
+	}
+	if m < 0 || m > 4294967295 {
+		return 0, &ParseError{l18n.Sprintf("Invalid Metric"), s}
+	}
+	return uint32(m), nil
+}
+
 func parseKeyBase64(s string) (*Key, error) {
 	k, err := base64.StdEncoding.DecodeString(s)
 	if err != nil {
@@ -257,6 +268,12 @@ func FromWgQuick(s string, name string) (*Config, error) {
 					return nil, err
 				}
 				conf.Interface.MTU = m
+			case "metric":
+				m, err := parseMetric(val)
+				if err != nil {
+					return nil, err
+				}
+				conf.Interface.Metric = m
 			case "address":
 				addresses, err := splitList(val)
 				if err != nil {

@@ -403,6 +403,11 @@
             "translation": "MTU non valide"
         },
         {
+            "id": "Invalid Metric",
+            "message": "Invalid Metric",
+            "translation": "Metric non valide"
+        },
+        {
             "id": "Invalid port",
             "message": "Invalid port",
             "translation": "Port non valide"
@@ -625,6 +630,11 @@
             "id": "MTU:",
             "message": "MTU:",
             "translation": "MTU :"
+        },
+        {
+            "id": "Metric:",
+            "message": "Metric:",
+            "translation": "Metric:"
         },
         {
             "id": "Addresses:",

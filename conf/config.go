@@ -47,6 +47,7 @@ type Interface struct {
 	Addresses  []IPCidr
 	ListenPort uint16
 	MTU        uint16
+	Metric     uint32
 	DNS        []net.IP
 }
 

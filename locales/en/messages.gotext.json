@@ -737,6 +737,13 @@
             "fuzzy": true
         },
         {
+            "id": "Metric:",
+            "message": "Metric:",
+            "translation": "Metric:",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        },
+        {
             "id": "Addresses:",
             "message": "Addresses:",
             "translation": "Addresses:",

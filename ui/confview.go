@@ -48,6 +48,7 @@ type interfaceView struct {
 	publicKey    *labelTextLine
 	listenPort   *labelTextLine
 	mtu          *labelTextLine
+	metric       *labelTextLine
 	addresses    *labelTextLine
 	dns          *labelTextLine
 	toggleActive *toggleActiveLine
@@ -303,6 +304,7 @@ func newInterfaceView(parent walk.Container) (*interfaceView, error) {
 		{l18n.Sprintf("Public key:"), &iv.publicKey},
 		{l18n.Sprintf("Listen port:"), &iv.listenPort},
 		{l18n.Sprintf("MTU:"), &iv.mtu},
+		{l18n.Sprintf("Metric:"), &iv.metric},
 		{l18n.Sprintf("Addresses:"), &iv.addresses},
 		{l18n.Sprintf("DNS servers:"), &iv.dns},
 	}
@@ -376,6 +378,12 @@ func (iv *interfaceView) apply(c *conf.Interface) {
 		iv.mtu.show(strconv.Itoa(int(c.MTU)))
 	} else {
 		iv.mtu.hide()
+	}
+
+	if c.Metric > 0 {
+		iv.metric.show(strconv.FormatInt(int64(c.Metric), 10))
+	} else {
+		iv.metric.hide()
 	}
 
 	if len(c.Addresses) > 0 {

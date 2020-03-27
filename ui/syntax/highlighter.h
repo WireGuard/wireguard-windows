@@ -18,6 +18,7 @@ enum highlight_type {
 	HighlightHost,
 	HighlightPort,
 	HighlightMTU,
+	HighlightMetric,
 	HighlightKeepalive,
 	HighlightComment,
 	HighlightDelimiter,

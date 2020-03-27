@@ -40,6 +40,10 @@ func (conf *Config) ToWgQuick() string {
 		output.WriteString(fmt.Sprintf("MTU = %d\n", conf.Interface.MTU))
 	}
 
+	if conf.Interface.Metric > 0 {
+		output.WriteString(fmt.Sprintf("Metric = %d\n", conf.Interface.Metric))
+	}
+
 	for _, peer := range conf.Peers {
 		output.WriteString("\n[Peer]\n")
 

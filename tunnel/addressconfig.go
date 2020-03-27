@@ -85,7 +85,7 @@ func configureInterface(family winipcfg.AddressFamily, conf *conf.Config, tun *t
 			}
 			route := winipcfg.RouteData{
 				Destination: allowedip.IPNet(),
-				Metric:      0,
+				Metric:      conf.Interface.Metric,
 			}
 			if allowedip.Bits() == 32 {
 				if allowedip.Cidr == 0 {
@@ -142,12 +142,18 @@ func configureInterface(family winipcfg.AddressFamily, conf *conf.Config, tun *t
 		tun.ForceMTU(int(ipif.NLMTU))
 	}
 	if family == windows.AF_INET {
-		if foundDefault4 {
+		if conf.Interface.Metric > 0 {
+			ipif.UseAutomaticMetric = false
+			ipif.Metric = conf.Interface.Metric
+		} else if foundDefault4 {
 			ipif.UseAutomaticMetric = false
 			ipif.Metric = 0
 		}
 	} else if family == windows.AF_INET6 {
-		if foundDefault6 {
+		if conf.Interface.Metric > 0 {
+			ipif.UseAutomaticMetric = false
+			ipif.Metric = conf.Interface.Metric
+		} else if foundDefault6 {
 			ipif.UseAutomaticMetric = false
 			ipif.Metric = 0
 		}

@@ -433,6 +433,11 @@
             "translation": "Napačen MTU"
         },
         {
+            "id": "Invalid Metric",
+            "message": "Invalid Metric",
+            "translation": "Napačen Metric"
+        },
+        {
             "id": "Invalid port",
             "message": "Invalid port",
             "translation": "Napačna vrata"
@@ -655,6 +660,11 @@
             "id": "MTU:",
             "message": "MTU:",
             "translation": "MTU:"
+        },
+        {
+            "id": "Metric:",
+            "message": "Metric:",
+            "translation": "Metric:"
         },
         {
             "id": "Addresses:",
