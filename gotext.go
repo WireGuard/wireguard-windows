@@ -1,5 +1,5 @@
 // +build generate
-//go:generate go run gotext.go -srclang=en update -out=zgotext.go -lang=en,fr,ja,sl
+//go:generate go run gotext.go -srclang=en update -out=zgotext.go -lang=en,fr,it,ja,sl
 
 /* SPDX-License-Identifier: MIT
  *

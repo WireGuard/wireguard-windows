@@ -29,6 +29,7 @@ func init() {
 	dict := map[string]catalog.Dictionary{
 		"en": &dictionary{index: enIndex, data: enData},
 		"fr": &dictionary{index: frIndex, data: frData},
+		"it": &dictionary{index: itIndex, data: itData},
 		"ja": &dictionary{index: jaIndex, data: jaData},
 		"sl": &dictionary{index: slIndex, data: slData},
 	}
@@ -515,6 +516,155 @@ const frData string = "" + // Size: 6470 bytes
 	".\x02http2: Trameur %[1]p: a écrit %[2]v\x02http2: Trameur %[1]p : a lu " +
 	"%[2]v\x02http2 : champ hpack %+[1]v décodé"
 
+var itIndex = []uint32{ // 177 elements
+	// Entry 0 - 1F
+	0x00000000, 0x00000007, 0x00000044, 0x0000005d,
+	0x00000075, 0x000000bd, 0x00000103, 0x0000013c,
+	0x00000193, 0x00000204, 0x00000258, 0x0000025c,
+	0x00000283, 0x000002a2, 0x000002c5, 0x000002e2,
+	0x00000305, 0x0000032a, 0x00000333, 0x00000333,
+	0x00000333, 0x00000333, 0x00000333, 0x00000333,
+	0x00000340, 0x00000358, 0x00000382, 0x0000039f,
+	0x000003bd, 0x000003ed, 0x000003fc, 0x0000040d,
+	// Entry 20 - 3F
+	0x0000042d, 0x00000446, 0x00000478, 0x000004b7,
+	0x000004cf, 0x000004f0, 0x0000051d, 0x00000562,
+	0x00000581, 0x000005ae, 0x000005d6, 0x00000603,
+	0x00000615, 0x00000643, 0x00000673, 0x000006a5,
+	0x000006ce, 0x000006f4, 0x000006f7, 0x000006f9,
+	0x00000713, 0x00000732, 0x000007aa, 0x000007b1,
+	0x000007c9, 0x000007cf, 0x000007da, 0x000007e2,
+	0x000007f2, 0x00000803, 0x00000807, 0x00000811,
+	// Entry 40 - 5F
+	0x0000081c, 0x00000831, 0x0000083f, 0x00000848,
+	0x0000085d, 0x00000871, 0x0000087f, 0x00000889,
+	0x000008a7, 0x000008da, 0x000008fe, 0x00000925,
+	0x00000938, 0x0000093d, 0x00000949, 0x00000959,
+	0x00000960, 0x00000971, 0x0000097f, 0x000009af,
+	0x00000ad8, 0x00000adf, 0x00000ae7, 0x00000af7,
+	0x00000b07, 0x00000b1d, 0x00000b4a, 0x00000b72,
+	0x00000b88, 0x00000bbd, 0x00000be8, 0x00000c08,
+	// Entry 60 - 7F
+	0x00000c3f, 0x00000c46, 0x00000c52, 0x00000c5b,
+	0x00000c6a, 0x00000c7c, 0x00000c80, 0x00000c87,
+	0x00000c98, 0x00000caa, 0x00000cb0, 0x00000cc1,
+	0x00000cf5, 0x00000d09, 0x00000d24, 0x00000d36,
+	0x00000d69, 0x00000d7a, 0x00000d9d, 0x00000ddb,
+	0x00000df2, 0x00000e05, 0x00000e18, 0x00000e2e,
+	0x00000e49, 0x00000e4f, 0x00000e6a, 0x00000e7b,
+	0x00000e88, 0x00000e99, 0x00000eac, 0x00000ecf,
+	// Entry 80 - 9F
+	0x00000ee5, 0x00000f0b, 0x00000f2c, 0x00000f53,
+	0x00000fb2, 0x00000fb9, 0x00000fc3, 0x00000fda,
+	0x00000fea, 0x00001005, 0x00001023, 0x0000102c,
+	0x0000104b, 0x0000106e, 0x0000108c, 0x000010c7,
+	0x000010f7, 0x0000112b, 0x0000115a, 0x0000116b,
+	0x000011a2, 0x000011ea, 0x00001207, 0x0000123b,
+	0x0000129c, 0x000012b7, 0x000012ec, 0x0000131c,
+	0x0000133c, 0x0000136e, 0x0000138d, 0x000013f4,
+	// Entry A0 - BF
+	0x0000143f, 0x00001456, 0x0000147f, 0x00001495,
+	0x000014c8, 0x000014f0, 0x00001562, 0x000015c6,
+	0x000015e3, 0x000015f0, 0x0000161f, 0x0000163c,
+	0x0000164d, 0x00001693, 0x000016b9, 0x000016dd,
+	0x00001704,
+} // Size: 732 bytes
+
+const itData string = "" + // Size: 5892 bytes
+	"\x02Errore\x02(nessun argomento): eleva e installa il servizio di gestio" +
+	"ne\x02Utilizzo: %[1]s [\x0a%[2]s]\x02Opzioni riga di comando\x02Impossib" +
+	"ile determinare se il processo è in esecuzione in WOW64: %[1]v\x02Devi u" +
+	"tilizzare la versione a 64 bit di WireGuard su questo computer.\x02Impos" +
+	"sibile aprire il token del processo corrente: %[1]v\x02WireGuard può ess" +
+	"ere utilizzato solo dagli utenti membri del gruppo %[1]s di sistema.\x02" +
+	"WireGuard è in esecuzione, ma l'interfaccia utente è accessibile solo da" +
+	"i desktop del gruppo %[1]s di sistema.\x02L'icona della barra delle appl" +
+	"icazioni di WireGuard non è apparsa dopo 30 secondi.\x02Ora\x02L'orologi" +
+	"o di sistema va all'indietro!\x14\x01\x81\x01\x00\x02\x0b\x02%[1]d anno" +
+	"\x00\x0b\x02%[1]d anni\x14\x01\x81\x01\x00\x02\x0d\x02%[1]d giorno\x00" +
+	"\x0d\x02%[1]d giorni\x14\x01\x81\x01\x00\x02\x0a\x02%[1]d ora\x00\x0a" +
+	"\x02%[1]d ore\x14\x01\x81\x01\x00\x02\x0d\x02%[1]d minuto\x00\x0d\x02%[1" +
+	"]d minuti\x14\x01\x81\x01\x00\x02\x0e\x02%[1]d secondo\x00\x0e\x02%[1]d " +
+	"secondi\x02%[1]s fa\x02%[1]s: %[2]q\x02Indirizzo IP non valido\x02Lunghe" +
+	"zza del prefisso di rete non valida\x02Manca la porta dall'endpoint\x02H" +
+	"ost dell'endpoint non valido\x02Le parentesi devono contenere un indiriz" +
+	"zo IPv6\x02MTU non valido\x02Porta non valida\x02Keepalive permanente no" +
+	"n valido\x02Chiave non valida: %[1]v\x02Le chiavi devono decodificare es" +
+	"attamente 32 byte\x02Il numero deve essere un numero compreso tra 0 e 2^" +
+	"64-1: %[1]v\x02Due virgole in una riga\x02Il nome del tunnel non è valid" +
+	"o\x02Una riga deve essere presente in una sezione\x02Chiave di configura" +
+	"zione non valida manca di un separatore di uguale\x02La chiave deve aver" +
+	"e un valore\x02Chiave non valida per la sezione [Interface]\x02Chiave no" +
+	"n valida per la sezione [Peer]\x02Un'interfaccia deve avere una chiave p" +
+	"rivata\x02[non specificato]\x02Tutti i peer devono avere una chiave pubb" +
+	"lica\x02Errore durante il recupero della configurazione\x02Chiave non va" +
+	"lida per la sezione dell'interfaccia\x02La versione del protocollo deve " +
+	"essere 1\x02Chiave non valida per la sezione peer\x02, \x02 \x02Informaz" +
+	"ioni su WireGuard\x02Immagine del logo di WireGuard\x02Versione applicaz" +
+	"ione: %[1]s\x0aVersione backend Go: %[2]s\x0aVersione Go: %[3]s\x0aSiste" +
+	"ma operativo: %[4]s\x0aArchitettura: %[5]s\x02Chiudi\x02♥ Fai una &donaz" +
+	"ione!\x02Stato\x02&Disattiva\x02&Attiva\x02Chiave pubblica\x02Porta in a" +
+	"scolto\x02MTU\x02Indirizzi\x02Server DNS\x02Chiave pre-condivisa\x02IP c" +
+	"onsentiti\x02Endpoint\x02Keepalive permanente\x02Ultima negoziazione\x02" +
+	"Trasferimento\x02abilitato\x02%[1]s ricevuti, %[2]s inviati\x02Determina" +
+	"zione dello stato del tunnel non riuscita\x02Attivazione del tunnel non " +
+	"riuscita\x02Disattivazione del tunnel non riuscita\x02Interfaccia: %[1]s" +
+	"\x02Peer\x02Crea tunnel\x02Modifica tunnel\x02&Nome:\x02Chiave &pubblica" +
+	"\x02(sconosciuto)\x02&Blocca traffico fuori dal tunnel (kill-switch)\x02" +
+	"Quando una configurazione ha esattamente un peer e quel peer ha un IP co" +
+	"nsentito contenente almeno uno di 0.0.0.0/0 o ::/0, il servizio tunnel i" +
+	"mpegna un insieme di regole del firewall per bloccare tutto il traffico " +
+	"che non proviene dall'interfaccia tunnel, con speciali eccezioni per DHC" +
+	"P e NDP.\x02&Salva\x02Annulla\x02&Configurazione\x02Nome non valido\x02U" +
+	"n nome è richiesto.\x02Il nome del tunnel ‘%[1]s’ non è valido\x02Imposs" +
+	"ibile elencare i tunnel esistenti\x02Il tunnel esiste già\x02Un altro tu" +
+	"nnel con il nome ‘%[1]s’ esiste già.\x02Impossibile creare la nuova conf" +
+	"igurazione\x02Scrittura del file non riuscita\x02Il file ‘%[1]s’ esiste " +
+	"già.\x0a\x0aVuoi sovrascriverlo?\x02Attivo\x02Attivazione\x02Inattivo" +
+	"\x02Disattivazione\x02Stato sconosciuto\x02Log\x02&Copia\x02Selezion&a t" +
+	"utto\x02&Salva su file…\x02Tempo\x02Messaggio di log\x02File  di testo (" +
+	"*.txt)|*.txt|Tutti i file (*.*)|*.*\x02Esporta log su file\x02Inform&azi" +
+	"oni su WireGuard\x02Errore del tunnel\x02%[1]s\x0a\x0aConsulta il log pe" +
+	"r ulteriori Informazioni.\x02%[1]s (obsoleto)\x02Errore di rilevamento d" +
+	"i WireGuard\x02Impossibile attendere la comparsa della finestra di WireG" +
+	"uard\x02WireGuard: disattivato\x02Stato: sconosciuto\x02Indirizzi: nessu" +
+	"no\x02&Gestisci i tunnel…\x02&Importa tunnel da file…\x02E&sci\x02Errore" +
+	" tunnel di WireGuard\x02WireGuard: %[1]s\x02Stato: %[1]s\x02Indirizzi: %" +
+	"[1]s\x02WireGuard attivato\x02Il tunnel %[1]s è stato attivato.\x02WireG" +
+	"uard disattivato\x02Il tunnel %[1]s è stato disattivato.\x02Un aggiornam" +
+	"ento è disponibile!\x02Aggiornamento di WireGuard disponibile\x02Un aggi" +
+	"ornamento di WireGuard è disponibile. Ti consigliamo di aggiornare il pr" +
+	"ima possibile.\x02Tunnel\x02&Modifica\x02Aggiungi tunn&el vuoto\x02Aggiu" +
+	"ngi tunnel\x02Rimuovi tunnel selezionati\x02Esporta tutti i tunnel in zi" +
+	"p\x02Commu&ta\x02Esporta tutti i tunnel in &zip\x02Modifica il tunnel &s" +
+	"elezionato…\x02&Rimuovi i tunnel selezionati\x02Impossibile importare la" +
+	" configurazione selezionata: %[1]v\x02Impossibile enumerare i tunnel esi" +
+	"stenti: %[1]v\x02Un altro tunnel esiste già con il nome ‘%[1]s‘\x02Impos" +
+	"sibile importare la configurazione: %[1]v\x02Tunnel importati\x14\x01" +
+	"\x81\x01\x00\x02\x17\x02%[1]d tunnel importato\x00\x17\x02%[1]d tunnel i" +
+	"mportati\x14\x02\x80\x01\x02 \x02%[1]d de %[2]d tunnel importato\x00 " +
+	"\x02%[1]d de %[2]d tunnel importati\x02Impossibile creare il tunnel\x14" +
+	"\x01\x81\x01\x00\x02\x15\x02Elimina %[1]d tunnel\x00\x16\x02Elimina %[1]" +
+	"d tunnels\x14\x01\x81\x01\x00\x02,\x02Sei sicuro di voler eliminare %[1]" +
+	"d tunnel?\x00,\x02Sei sicuro di voler eliminare %[1]d tunnel?\x02Elimina" +
+	" tunnel ‘%[1]s‘\x02Sei sicuro di voler eliminare il tunnel ‘%[1]s‘?\x02%" +
+	"[1]s Non è possibile annullare questa azione.\x02Impossibile eliminare i" +
+	"l tunnel\x02Non è stato possibile rimuovere un tunnel: %[1]s\x02Impossib" +
+	"ile eliminare i tunnel\x14\x01\x81\x01\x00\x02/\x02Non è stato possibile" +
+	" eliminare %[1]d tunnel.\x00/\x02Non è stato possibile eliminare %[1]d t" +
+	"unnel.\x02File di configurazione (*.zip, *.conf)|*.zip;*.conf|Tutti i fi" +
+	"le (*.*)|*.*\x02Importa tunnel da file\x02File di configurazione ZIP (*." +
+	"zip)|*.zip\x02Esporta tunnel in zip\x02%[1]s (versione non firmata, ness" +
+	"un aggiornamento)\x02Errore durante la chiusura di WireGuard\x02Impossib" +
+	"ile uscire dal servizio a causa di: %[1]v. Potresti voler interrompere W" +
+	"ireGuard dal gestore dei servizi.\x02Un aggiornamento di WireGuard è dis" +
+	"ponibile. Ti consigliamo vivamente di aggiornare senza indugio.\x02Stato" +
+	": in attesa dell'utente\x02Aggiorna ora\x02Stato: in attesa del servizio" +
+	" di aggiornamento\x02Errore: %[1]v. Prova ancora.\x02Stato: Completo!" +
+	"\x02http2: Framer %[1]p: decodifica del frame appena scritto non riuscit" +
+	"a\x02http2: Framer %[1]p: ha scritto %[2]v\x02http2: Framer %[1]p: ha le" +
+	"tto %[2]v\x02http2: campo hpack %+[1]v decodificato"
+
 var jaIndex = []uint32{ // 177 elements
 	// Entry 0 - 1F
 	0x00000000, 0x0000000a, 0x00000067, 0x00000081,
@@ -777,4 +927,4 @@ const slData string = "" + // Size: 6018 bytes
 	"kvirja\x02http2: Framer %[1]p: zapisano %[2]v\x02http2: Framer %[1]p: pr" +
 	"ebrano %[2]v\x02http2: dekodirano polje hpack %+[1]v"
 
-	// Total table size 27397 bytes (26KiB); checksum: 32D19D64
+	// Total table size 34021 bytes (33KiB); checksum: 78A0B7E3
