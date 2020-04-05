@@ -39,7 +39,7 @@ func bindSocketRoute(family winipcfg.AddressFamily, device *device.Device, ourLU
 			continue
 		}
 
-		if r[i].Metric + iface.Metric < lowestMetric {
+		if r[i].Metric+iface.Metric < lowestMetric {
 			lowestMetric = r[i].Metric + iface.Metric
 			index = r[i].InterfaceIndex
 			luid = r[i].InterfaceLUID

@@ -16,6 +16,8 @@ import (
 	"sync/atomic"
 
 	"golang.org/x/crypto/blake2b"
+
+	"golang.zx2c4.com/wireguard/windows/elevate"
 	"golang.zx2c4.com/wireguard/windows/version"
 )
 
@@ -47,6 +49,9 @@ type UpdateFound struct {
 }
 
 func CheckForUpdate() (*UpdateFound, error) {
+	if !version.IsRunningOfficialVersion() {
+		return nil, errors.New("Build is not official, so updates are disabled")
+	}
 	request, err := http.NewRequest(http.MethodGet, latestVersionURL, nil)
 	if err != nil {
 		return nil, err
@@ -80,17 +85,17 @@ func DownloadVerifyAndExecute(userToken uintptr) (progress chan DownloadProgress
 		return
 	}
 
-	go func() {
+	doIt := func() {
 		defer atomic.StoreUint32(&updateInProgress, 0)
 
-		progress <- DownloadProgress{Activity: "Rechecking for update"}
+		progress <- DownloadProgress{Activity: "Checking for update"}
 		update, err := CheckForUpdate()
 		if err != nil {
 			progress <- DownloadProgress{Error: err}
 			return
 		}
 		if update == nil {
-			progress <- DownloadProgress{Error: errors.New("No update was found when re-checking for updates")}
+			progress <- DownloadProgress{Error: errors.New("No update was found")}
 			return
 		}
 
@@ -100,6 +105,7 @@ func DownloadVerifyAndExecute(userToken uintptr) (progress chan DownloadProgress
 			progress <- DownloadProgress{Error: err}
 			return
 		}
+		progress <- DownloadProgress{Activity: fmt.Sprintf("Msi destination is %#q", file.Name())}
 		defer func() {
 			if file != nil {
 				name := file.Name()
@@ -167,7 +173,20 @@ func DownloadVerifyAndExecute(userToken uintptr) (progress chan DownloadProgress
 		}
 
 		progress <- DownloadProgress{Complete: true}
-	}()
+	}
+	if userToken == 0 {
+		go func() {
+			err := elevate.DoAsSystem(func() error {
+				doIt()
+				return nil
+			})
+			if err != nil {
+				progress <- DownloadProgress{Error: err}
+			}
+		}()
+	} else {
+		go doIt()
+	}
 
 	return progress
 }

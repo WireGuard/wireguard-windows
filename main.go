@@ -7,6 +7,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -20,6 +21,7 @@ import (
 	"golang.zx2c4.com/wireguard/windows/ringlogger"
 	"golang.zx2c4.com/wireguard/windows/tunnel"
 	"golang.zx2c4.com/wireguard/windows/ui"
+	"golang.zx2c4.com/wireguard/windows/updater"
 )
 
 func fatal(v ...interface{}) {
@@ -46,6 +48,7 @@ func usage() {
 		"/tunnelservice CONFIG_PATH",
 		"/ui CMD_READ_HANDLE CMD_WRITE_HANDLE CMD_EVENT_HANDLE LOG_MAPPING_HANDLE",
 		"/dumplog OUTPUT_PATH",
+		"/update [LOG_FILE]",
 	}
 	builder := strings.Builder{}
 	for _, flag := range flags {
@@ -222,6 +225,42 @@ func main() {
 		err = ringlogger.DumpTo(file, true)
 		if err != nil {
 			fatal(err)
+		}
+		return
+	case "/update":
+		if len(os.Args) != 2 && len(os.Args) != 3 {
+			usage()
+		}
+		var f *os.File
+		var err error
+		if len(os.Args) == 2 {
+			f = os.Stdout
+		} else {
+			f, err = os.Create(os.Args[2])
+			if err != nil {
+				fatal(err)
+			}
+			defer f.Close()
+		}
+		l := log.New(f, "", log.LstdFlags)
+		for progress := range updater.DownloadVerifyAndExecute(0) {
+			if len(progress.Activity) > 0 {
+				if progress.BytesTotal > 0 || progress.BytesDownloaded > 0 {
+					var percent float64
+					if progress.BytesTotal > 0 {
+						percent = float64(progress.BytesDownloaded) / float64(progress.BytesTotal) * 100.0
+					}
+					l.Printf("%s: %d/%d (%.2f%%)\n", progress.Activity, progress.BytesDownloaded, progress.BytesTotal, percent)
+				} else {
+					l.Println(progress.Activity)
+				}
+			}
+			if progress.Error != nil {
+				l.Printf("Error: %v\n", progress.Error)
+			}
+			if progress.Complete || progress.Error != nil {
+				return
+			}
 		}
 		return
 	}

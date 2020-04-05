@@ -189,7 +189,7 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 					Token: syscall.Token(elevatedToken),
 				},
 				Files: []*os.File{devNull, devNull, devNull},
-				Dir: userProfileDirectory,
+				Dir:   userProfileDirectory,
 			}
 			procsLock.Lock()
 			var proc *os.Process

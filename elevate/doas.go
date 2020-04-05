@@ -7,6 +7,7 @@ package elevate
 
 import (
 	"errors"
+	"os"
 	"runtime"
 	"strings"
 	"unsafe"
@@ -14,6 +15,17 @@ import (
 	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/svc/mgr"
 )
+
+func setAllEnv(env []string) {
+	windows.Clearenv()
+	for _, e := range env {
+		kv := strings.SplitN(e, "=", 2)
+		if len(kv) != 2 {
+			continue
+		}
+		windows.Setenv(kv[0], kv[1])
+	}
+}
 
 func DoAsSystem(f func() error) error {
 	runtime.LockOSThread()
@@ -58,12 +70,14 @@ func DoAsSystem(f func() error) error {
 		return err
 	}
 	processEntry := windows.ProcessEntry32{Size: uint32(unsafe.Sizeof(windows.ProcessEntry32{}))}
+	var impersonationError error
 	for err = windows.Process32First(processes, &processEntry); err == nil; err = windows.Process32Next(processes, &processEntry) {
 		if strings.ToLower(windows.UTF16ToString(processEntry.ExeFile[:])) != "winlogon.exe" {
 			continue
 		}
 		winlogonProcess, err := windows.OpenProcess(windows.PROCESS_QUERY_INFORMATION, false, processEntry.ProcessID)
 		if err != nil {
+			impersonationError = err
 			continue
 		}
 		var winlogonToken windows.Token
@@ -85,14 +99,26 @@ func DoAsSystem(f func() error) error {
 		if err != nil {
 			return err
 		}
+		newEnv, err := duplicatedToken.Environ(false)
+		if err != nil {
+			duplicatedToken.Close()
+			return err
+		}
+		currentEnv := os.Environ()
 		err = windows.SetThreadToken(nil, duplicatedToken)
 		duplicatedToken.Close()
 		if err != nil {
 			return err
 		}
-		return f()
+		setAllEnv(newEnv)
+		err = f()
+		setAllEnv(currentEnv)
+		return err
 	}
 	windows.CloseHandle(processes)
+	if impersonationError != nil {
+		return impersonationError
+	}
 	return errors.New("unable to find winlogon.exe process")
 }
 
@@ -131,11 +157,20 @@ func DoAsService(serviceName string, f func() error) error {
 		if err != nil {
 			return err
 		}
+		newEnv, err := duplicatedToken.Environ(false)
+		if err != nil {
+			duplicatedToken.Close()
+			return err
+		}
+		currentEnv := os.Environ()
 		err = windows.SetThreadToken(nil, duplicatedToken)
 		duplicatedToken.Close()
 		if err != nil {
 			return err
 		}
-		return f()
+		setAllEnv(newEnv)
+		err = f()
+		setAllEnv(currentEnv)
+		return err
 	})
 }
