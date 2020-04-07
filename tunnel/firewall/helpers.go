@@ -71,8 +71,6 @@ func wrapErr(err error) error {
 	return fmt.Errorf("Firewall error at %s:%d: %v", file, line, err)
 }
 
-var ExemptBuiltinAdministrators = false
-
 func getCurrentProcessSecurityDescriptor() (*windows.SECURITY_DESCRIPTOR, error) {
 	var processToken windows.Token
 	err := windows.OpenProcessToken(windows.CurrentProcess(), windows.TOKEN_QUERY, &processToken)
@@ -111,21 +109,6 @@ func getCurrentProcessSecurityDescriptor() (*windows.SECURITY_DESCRIPTOR, error)
 			TrusteeValue: windows.TrusteeValueFromSID(sid),
 		},
 	}}
-	if ExemptBuiltinAdministrators {
-		builtinAdmins, err := windows.CreateWellKnownSid(windows.WinBuiltinAdministratorsSid)
-		if err != nil {
-			return nil, err
-		}
-		access = append(access, windows.EXPLICIT_ACCESS{
-			AccessPermissions: cFWP_ACTRL_MATCH_FILTER,
-			AccessMode:        windows.GRANT_ACCESS,
-			Trustee: windows.TRUSTEE{
-				TrusteeForm:  windows.TRUSTEE_IS_SID,
-				TrusteeType:  windows.TRUSTEE_IS_GROUP,
-				TrusteeValue: windows.TrusteeValueFromSID(builtinAdmins),
-			},
-		})
-	}
 	dacl, err := windows.ACLFromEntries(access, nil)
 	if err != nil {
 		return nil, wrapErr(err)
