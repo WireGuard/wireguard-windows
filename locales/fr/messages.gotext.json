@@ -463,9 +463,9 @@
             "translation": "Une ligne doit apparaître dans une section"
         },
         {
-            "id": "Invalid config key is missing an equals separator",
-            "message": "Invalid config key is missing an equals separator",
-            "translation": "Clé de configuration non valide, il manque le séparateur est égal à"
+            "id": "Config key is missing an equals separator",
+            "message": "Config key is missing an equals separator",
+            "translation": ""
         },
         {
             "id": "Key must have a value",

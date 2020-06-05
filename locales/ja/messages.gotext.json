@@ -398,9 +398,9 @@
             "translation": "行がセクション内にありません"
         },
         {
-            "id": "Invalid config key is missing an equals separator",
-            "message": "Invalid config key is missing an equals separator",
-            "translation": "イコール（=）が無いためキー項目として不正です"
+            "id": "Config key is missing an equals separator",
+            "message": "Config key is missing an equals separator",
+            "translation": ""
         },
         {
             "id": "Key must have a value",

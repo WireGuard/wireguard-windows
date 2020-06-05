@@ -493,9 +493,9 @@
             "translation": "Vrstica mora biti v odseku"
         },
         {
-            "id": "Invalid config key is missing an equals separator",
-            "message": "Invalid config key is missing an equals separator",
-            "translation": "Napačnemu ključu konfiguracije manjka ločilo-enačaj"
+            "id": "Config key is missing an equals separator",
+            "message": "Config key is missing an equals separator",
+            "translation": ""
         },
         {
             "id": "Key must have a value",

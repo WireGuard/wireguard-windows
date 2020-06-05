@@ -275,9 +275,9 @@
             ]
         },
         {
-            "id": "{Bytes} B",
-            "message": "{Bytes} B",
-            "translation": "{Bytes} B",
+            "id": "{Bytes} B",
+            "message": "{Bytes} B",
+            "translation": "",
             "placeholders": [
                 {
                     "id": "Bytes",
@@ -290,9 +290,9 @@
             ]
         },
         {
-            "id": "{Float64b__1024} KiB",
-            "message": "{Float64b__1024} KiB",
-            "translation": "{Float64b__1024} KiB",
+            "id": "{Float64b__1024} KiB",
+            "message": "{Float64b__1024} KiB",
+            "translation": "",
             "placeholders": [
                 {
                     "id": "Float64b__1024",
@@ -305,9 +305,9 @@
             ]
         },
         {
-            "id": "{Float64b__1024__1024} MiB",
-            "message": "{Float64b__1024__1024} MiB",
-            "translation": "{Float64b__1024__1024} Mi",
+            "id": "{Float64b__1024__1024} MiB",
+            "message": "{Float64b__1024__1024} MiB",
+            "translation": "",
             "placeholders": [
                 {
                     "id": "Float64b__1024__1024",
@@ -320,9 +320,9 @@
             ]
         },
         {
-            "id": "{Float64b__1024__1024__1024} GiB",
-            "message": "{Float64b__1024__1024__1024} GiB",
-            "translation": "{Float64b__1024__1024__1024} GiB",
+            "id": "{Float64b__1024__1024__1024} GiB",
+            "message": "{Float64b__1024__1024__1024} GiB",
+            "translation": "",
             "placeholders": [
                 {
                     "id": "Float64b__1024__1024__1024",
@@ -335,9 +335,9 @@
             ]
         },
         {
-            "id": "{Float64b__1024__1024__1024__1024} TiB",
-            "message": "{Float64b__1024__1024__1024__1024} TiB",
-            "translation": "{Float64b__1024__1024__1024__1024} TiB",
+            "id": "{Float64b__1024__1024__1024__1024} TiB",
+            "message": "{Float64b__1024__1024__1024__1024} TiB",
+            "translation": "",
             "placeholders": [
                 {
                     "id": "Float64b__1024__1024__1024__1024",
@@ -463,9 +463,9 @@
             "translation": "Una riga deve essere presente in una sezione"
         },
         {
-            "id": "Invalid config key is missing an equals separator",
-            "message": "Invalid config key is missing an equals separator",
-            "translation": "Chiave di configurazione non valida manca di un separatore di uguale"
+            "id": "Config key is missing an equals separator",
+            "message": "Config key is missing an equals separator",
+            "translation": ""
         },
         {
             "id": "Key must have a value",

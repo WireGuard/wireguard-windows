@@ -529,9 +529,9 @@
             "fuzzy": true
         },
         {
-            "id": "Invalid config key is missing an equals separator",
-            "message": "Invalid config key is missing an equals separator",
-            "translation": "Invalid config key is missing an equals separator",
+            "id": "Config key is missing an equals separator",
+            "message": "Config key is missing an equals separator",
+            "translation": "Config key is missing an equals separator",
             "translatorComment": "Copied from source.",
             "fuzzy": true
         },
