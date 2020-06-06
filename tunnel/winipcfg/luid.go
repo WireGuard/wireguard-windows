@@ -6,10 +6,12 @@
 package winipcfg
 
 import (
+	"errors"
 	"fmt"
 	"net"
 
 	"golang.org/x/sys/windows"
+	"golang.org/x/sys/windows/registry"
 )
 
 // LUID represents a network interface.
@@ -425,4 +427,29 @@ func (luid LUID) SetDNSForFamily(family AddressFamily, dnses []net.IP) error {
 		}
 	}
 	return runNetsh(cmds)
+}
+
+// SetDNSDomain method sets the interface-specific DNS domain.
+func (luid LUID) SetDNSDomain(domain string) error {
+	guid, err := luid.GUID()
+
+	key, err := registry.OpenKey(registry.LOCAL_MACHINE, fmt.Sprintf("SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Adapters\\%v", guid), registry.QUERY_VALUE)
+	if err != nil {
+		return fmt.Errorf("Error opening adapter-specific TCP/IP network registry key: %v", err)
+	}
+	paths, _, err := key.GetStringsValue("IpConfig")
+	key.Close()
+	if err != nil {
+		return fmt.Errorf("Error reading IpConfig registry key: %v", err)
+	}
+	if len(paths) == 0 {
+		return errors.New("No TCP/IP interfaces found on adapter")
+	}
+	key, err = registry.OpenKey(registry.LOCAL_MACHINE, fmt.Sprintf("SYSTEM\\CurrentControlSet\\Services\\%s", paths[0]), registry.SET_VALUE)
+	if err != nil {
+		return fmt.Errorf("Unable to open TCP/IP network registry key: %v", err)
+	}
+	err = key.SetStringValue("Domain", domain)
+	key.Close()
+	return err
 }

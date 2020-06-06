@@ -159,6 +159,15 @@ func configureInterface(family winipcfg.AddressFamily, conf *conf.Config, tun *t
 		return err
 	}
 
+	if len(conf.Interface.DNSSearch) > 0 {
+		err = luid.SetDNSDomain(conf.Interface.DNSSearch[0])
+		if err != nil {
+			return nil
+		}
+		if len(conf.Interface.DNSSearch) > 1 {
+			log.Printf("Warning: %d DNS search domains were specified, but only one is supported, so the first one (%s) was used.", len(conf.Interface.DNSSearch), conf.Interface.DNSSearch[0])
+		}
+	}
 	err = luid.SetDNSForFamily(family, conf.Interface.DNS)
 	if err != nil {
 		return err
