@@ -337,11 +337,6 @@ static bool is_valid_network(string_span_t s)
 	return is_valid_ipv4(s) || is_valid_ipv6(s);
 }
 
-static bool is_valid_dns(string_span_t s)
-{
-	return is_valid_ipv4(s) || is_valid_ipv6(s);
-}
-
 enum field {
 	InterfaceSection,
 	PrivateKey,
@@ -451,7 +446,12 @@ static void highlight_multivalue_value(struct highlight_span_array *ret, const s
 {
 	switch (section) {
 	case DNS:
-		append_highlight_span(ret, parent.s, s, is_valid_dns(s) ? HighlightIP : HighlightError);
+		if (is_valid_ipv4(s) || is_valid_ipv6(s))
+			append_highlight_span(ret, parent.s, s, HighlightIP);
+		else if (is_valid_hostname(s))
+			append_highlight_span(ret, parent.s, s, HighlightHost);
+		else
+			append_highlight_span(ret, parent.s, s, HighlightError);
 		break;
 	case Address:
 	case AllowedIPs: {

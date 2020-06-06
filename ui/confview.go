@@ -388,11 +388,12 @@ func (iv *interfaceView) apply(c *conf.Interface) {
 		iv.addresses.hide()
 	}
 
-	if len(c.DNS) > 0 {
-		addrStrings := make([]string, len(c.DNS))
-		for i, address := range c.DNS {
-			addrStrings[i] = address.String()
+	if len(c.DNS) + len(c.DNSSearch) > 0 {
+		addrStrings := make([]string, 0, len(c.DNS) + len(c.DNSSearch))
+		for _, address := range c.DNS {
+			addrStrings = append(addrStrings, address.String())
 		}
+		addrStrings = append(addrStrings, c.DNSSearch...)
 		iv.dns.show(strings.Join(addrStrings[:], l18n.EnumerationSeparator()))
 	} else {
 		iv.dns.hide()
