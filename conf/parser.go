@@ -277,9 +277,10 @@ func FromWgQuick(s string, name string) (*Config, error) {
 				for _, address := range addresses {
 					a := net.ParseIP(address)
 					if a == nil {
-						return nil, &ParseError{l18n.Sprintf("Invalid IP address"), address}
+						conf.Interface.DNSSearch = append(conf.Interface.DNSSearch, address)
+					} else {
+						conf.Interface.DNS = append(conf.Interface.DNS, a)
 					}
-					conf.Interface.DNS = append(conf.Interface.DNS, a)
 				}
 			default:
 				return nil, &ParseError{l18n.Sprintf("Invalid key for [Interface] section"), key}
@@ -366,6 +367,7 @@ func FromUAPI(s string, existingConfig *Config) (*Config, error) {
 		Interface: Interface{
 			Addresses: existingConfig.Interface.Addresses,
 			DNS:       existingConfig.Interface.DNS,
+			DNSSearch: existingConfig.Interface.DNSSearch,
 			MTU:       existingConfig.Interface.MTU,
 		},
 	}

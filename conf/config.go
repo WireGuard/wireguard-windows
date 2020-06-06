@@ -48,6 +48,7 @@ type Interface struct {
 	ListenPort uint16
 	MTU        uint16
 	DNS        []net.IP
+	DNSSearch  []string
 }
 
 type Peer struct {

@@ -28,11 +28,12 @@ func (conf *Config) ToWgQuick() string {
 		output.WriteString(fmt.Sprintf("Address = %s\n", strings.Join(addrStrings[:], ", ")))
 	}
 
-	if len(conf.Interface.DNS) > 0 {
-		addrStrings := make([]string, len(conf.Interface.DNS))
-		for i, address := range conf.Interface.DNS {
-			addrStrings[i] = address.String()
+	if len(conf.Interface.DNS) + len(conf.Interface.DNSSearch) > 0 {
+		addrStrings := make([]string, 0, len(conf.Interface.DNS) + len(conf.Interface.DNSSearch))
+		for _, address := range conf.Interface.DNS {
+			addrStrings = append(addrStrings, address.String())
 		}
+		addrStrings = append(addrStrings, conf.Interface.DNSSearch...)
 		output.WriteString(fmt.Sprintf("DNS = %s\n", strings.Join(addrStrings[:], ", ")))
 	}
 
