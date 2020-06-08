@@ -4,17 +4,20 @@
         {
             "id": "Error",
             "message": "Error",
-            "translation": "Errore"
+            "translation": "Errore",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "(no argument): elevate and install manager service",
             "message": "(no argument): elevate and install manager service",
-            "translation": "(nessun argomento): eleva e installa il servizio di gestione"
+            "translation": "(nessun argomento): eleva e installa il servizio di gestione",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Usage: {Args0} [\n{String}]",
             "message": "Usage: {Args0} [\n{String}]",
             "translation": "Utilizzo: {Args0} [\n{String}]",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "Args0",
@@ -37,12 +40,14 @@
         {
             "id": "Command Line Options",
             "message": "Command Line Options",
-            "translation": "Opzioni riga di comando"
+            "translation": "Opzioni riga di comando",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Unable to determine whether the process is running under WOW64: {Err}",
             "message": "Unable to determine whether the process is running under WOW64: {Err}",
             "translation": "Impossibile determinare se il processo è in esecuzione in WOW64: {Err}",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "Err",
@@ -57,12 +62,14 @@
         {
             "id": "You must use the 64-bit version of WireGuard on this computer.",
             "message": "You must use the 64-bit version of WireGuard on this computer.",
-            "translation": "Devi utilizzare la versione a 64 bit di WireGuard su questo computer."
+            "translation": "Devi utilizzare la versione a 64 bit di WireGuard su questo computer.",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Unable to open current process token: {Err}",
             "message": "Unable to open current process token: {Err}",
             "translation": "Impossibile aprire il token del processo corrente: {Err}",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "Err",
@@ -78,6 +85,7 @@
             "id": "WireGuard may only be used by users who are a member of the Builtin {AdminGroupName} group.",
             "message": "WireGuard may only be used by users who are a member of the Builtin {AdminGroupName} group.",
             "translation": "WireGuard può essere utilizzato solo dagli utenti membri del gruppo {AdminGroupName} di sistema.",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "AdminGroupName",
@@ -93,6 +101,7 @@
             "id": "WireGuard is running, but the UI is only accessible from desktops of the Builtin {AdminGroupName} group.",
             "message": "WireGuard is running, but the UI is only accessible from desktops of the Builtin {AdminGroupName} group.",
             "translation": "WireGuard è in esecuzione, ma l'interfaccia utente è accessibile solo dai desktop del gruppo {AdminGroupName} di sistema.",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "AdminGroupName",
@@ -107,17 +116,20 @@
         {
             "id": "WireGuard system tray icon did not appear after 30 seconds.",
             "message": "WireGuard system tray icon did not appear after 30 seconds.",
-            "translation": "L'icona della barra delle applicazioni di WireGuard non è apparsa dopo 30 secondi."
+            "translation": "L'icona della barra delle applicazioni di WireGuard non è apparsa dopo 30 secondi.",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Now",
             "message": "Now",
-            "translation": "Ora"
+            "translation": "Ora",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "System clock wound backward!",
             "message": "System clock wound backward!",
-            "translation": "L'orologio di sistema va all'indietro!"
+            "translation": "L'orologio di sistema va all'indietro!",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "{Years} year(s)",
@@ -263,6 +275,7 @@
             "id": "{Timestamp} ago",
             "message": "{Timestamp} ago",
             "translation": "{Timestamp} fa",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "Timestamp",
@@ -277,7 +290,8 @@
         {
             "id": "{Bytes} B",
             "message": "{Bytes} B",
-            "translation": "",
+            "translation": "{Bytes} B",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "Bytes",
@@ -292,7 +306,8 @@
         {
             "id": "{Float64b__1024} KiB",
             "message": "{Float64b__1024} KiB",
-            "translation": "",
+            "translation": "{Float64b__1024} KiB",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "Float64b__1024",
@@ -307,7 +322,8 @@
         {
             "id": "{Float64b__1024__1024} MiB",
             "message": "{Float64b__1024__1024} MiB",
-            "translation": "",
+            "translation": "{Float64b__1024__1024} MiB",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "Float64b__1024__1024",
@@ -322,7 +338,8 @@
         {
             "id": "{Float64b__1024__1024__1024} GiB",
             "message": "{Float64b__1024__1024__1024} GiB",
-            "translation": "",
+            "translation": "{Float64b__1024__1024__1024} GiB",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "Float64b__1024__1024__1024",
@@ -337,7 +354,8 @@
         {
             "id": "{Float64b__1024__1024__1024__1024} TiB",
             "message": "{Float64b__1024__1024__1024__1024} TiB",
-            "translation": "",
+            "translation": "{Float64b__1024__1024__1024__1024} TiB",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "Float64b__1024__1024__1024__1024",
@@ -353,6 +371,7 @@
             "id": "{Why}: {Offender}",
             "message": "{Why}: {Offender}",
             "translation": "{Why}: {Offender}",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "Why",
@@ -375,47 +394,56 @@
         {
             "id": "Invalid IP address",
             "message": "Invalid IP address",
-            "translation": "Indirizzo IP non valido"
+            "translation": "Indirizzo IP non valido",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid network prefix length",
             "message": "Invalid network prefix length",
-            "translation": "Lunghezza del prefisso di rete non valida"
+            "translation": "Lunghezza del prefisso di rete non valida",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Missing port from endpoint",
             "message": "Missing port from endpoint",
-            "translation": "Manca la porta dall'endpoint"
+            "translation": "Manca la porta dall'endpoint",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid endpoint host",
             "message": "Invalid endpoint host",
-            "translation": "Host dell'endpoint non valido"
+            "translation": "Host dell'endpoint non valido",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Brackets must contain an IPv6 address",
             "message": "Brackets must contain an IPv6 address",
-            "translation": "Le parentesi devono contenere un indirizzo IPv6"
+            "translation": "Le parentesi devono contenere un indirizzo IPv6",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid MTU",
             "message": "Invalid MTU",
-            "translation": "MTU non valido"
+            "translation": "MTU non valido",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid port",
             "message": "Invalid port",
-            "translation": "Porta non valida"
+            "translation": "Porta non valida",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid persistent keepalive",
             "message": "Invalid persistent keepalive",
-            "translation": "Keepalive permanente non valido"
+            "translation": "Keepalive permanente non valido",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid key: {Err}",
             "message": "Invalid key: {Err}",
             "translation": "Chiave non valida: {Err}",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "Err",
@@ -430,12 +458,14 @@
         {
             "id": "Keys must decode to exactly 32 bytes",
             "message": "Keys must decode to exactly 32 bytes",
-            "translation": "Le chiavi devono decodificare esattamente 32 byte"
+            "translation": "Le chiavi devono decodificare esattamente 32 byte",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Number must be a number between 0 and 2^64-1: {Err}",
             "message": "Number must be a number between 0 and 2^64-1: {Err}",
             "translation": "Il numero deve essere un numero compreso tra 0 e 2^64-1: {Err}",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "Err",
@@ -450,72 +480,86 @@
         {
             "id": "Two commas in a row",
             "message": "Two commas in a row",
-            "translation": "Due virgole in una riga"
+            "translation": "Due virgole in una riga",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Tunnel name is not valid",
             "message": "Tunnel name is not valid",
-            "translation": "Il nome del tunnel non è valido"
+            "translation": "Il nome del tunnel non è valido",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Line must occur in a section",
             "message": "Line must occur in a section",
-            "translation": "Una riga deve essere presente in una sezione"
+            "translation": "Una riga deve essere presente in una sezione",
+            "translatorComment": "Copied from source."
         },
         {
-            "id": "Config key is missing an equals separator",
-            "message": "Config key is missing an equals separator",
-            "translation": ""
+            "id": "Invalid config key is missing an equals separator",
+            "message": "Invalid config key is missing an equals separator",
+            "translation": "Chiave di configurazione non valida manca di un separatore di uguale",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Key must have a value",
             "message": "Key must have a value",
-            "translation": "La chiave deve avere un valore"
+            "translation": "La chiave deve avere un valore",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid key for [Interface] section",
             "message": "Invalid key for [Interface] section",
-            "translation": "Chiave non valida per la sezione [Interface]"
+            "translation": "Chiave non valida per la sezione [Interface]",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid key for [Peer] section",
             "message": "Invalid key for [Peer] section",
-            "translation": "Chiave non valida per la sezione [Peer]"
+            "translation": "Chiave non valida per la sezione [Peer]",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "An interface must have a private key",
             "message": "An interface must have a private key",
-            "translation": "Un'interfaccia deve avere una chiave privata"
+            "translation": "Un'interfaccia deve avere una chiave privata",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "[none specified]",
             "message": "[none specified]",
-            "translation": "[non specificato]"
+            "translation": "[non specificato]",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "All peers must have public keys",
             "message": "All peers must have public keys",
-            "translation": "Tutti i peer devono avere una chiave pubblica"
+            "translation": "Tutti i peer devono avere una chiave pubblica",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Error in getting configuration",
             "message": "Error in getting configuration",
-            "translation": "Errore durante il recupero della configurazione"
+            "translation": "Errore durante il recupero della configurazione",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid key for interface section",
             "message": "Invalid key for interface section",
-            "translation": "Chiave non valida per la sezione dell'interfaccia"
+            "translation": "Chiave non valida per la sezione dell'interfaccia",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Protocol version must be 1",
             "message": "Protocol version must be 1",
-            "translation": "La versione del protocollo deve essere 1"
+            "translation": "La versione del protocollo deve essere 1",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid key for peer section",
             "message": "Invalid key for peer section",
-            "translation": "Chiave non valida per la sezione peer"
+            "translation": "Chiave non valida per la sezione peer",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "[EnumerationSeparator]",
@@ -532,17 +576,20 @@
         {
             "id": "About WireGuard",
             "message": "About WireGuard",
-            "translation": "Informazioni su WireGuard"
+            "translation": "Informazioni su WireGuard",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "WireGuard logo image",
             "message": "WireGuard logo image",
-            "translation": "Immagine del logo di WireGuard"
+            "translation": "Immagine del logo di WireGuard",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}\nOperating system: {OsName}\nArchitecture: {GOARCH}",
             "message": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}\nOperating system: {OsName}\nArchitecture: {GOARCH}",
             "translation": "Versione applicazione: {Number}\nVersione backend Go: {WireGuardGoVersion}\nVersione Go: {Version_go}\nSistema operativo: {OsName}\nArchitettura: {GOARCH}",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "Number",
@@ -589,92 +636,110 @@
         {
             "id": "Close",
             "message": "Close",
-            "translation": "Chiudi"
+            "translation": "Chiudi",
+            "translatorComment": "Copied from source."
         },
         {
-            "id": "♥ \u0026Donate!",
-            "message": "♥ \u0026Donate!",
-            "translation": "♥ Fai una \u0026donazione!"
+            "id": "♥ &Donate!",
+            "message": "♥ &Donate!",
+            "translation": "♥ Fai una &donazione!",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Status:",
             "message": "Status:",
-            "translation": "Stato"
+            "translation": "Stato:",
+            "translatorComment": "Copied from source."
         },
         {
-            "id": "\u0026Deactivate",
-            "message": "\u0026Deactivate",
-            "translation": "\u0026Disattiva"
+            "id": "&Deactivate",
+            "message": "&Deactivate",
+            "translation": "&Disattiva",
+            "translatorComment": "Copied from source."
         },
         {
-            "id": "\u0026Activate",
-            "message": "\u0026Activate",
-            "translation": "\u0026Attiva"
+            "id": "&Activate",
+            "message": "&Activate",
+            "translation": "&Attiva",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Public key:",
             "message": "Public key:",
-            "translation": "Chiave pubblica"
+            "translation": "Chiave pubblica:",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Listen port:",
             "message": "Listen port:",
-            "translation": "Porta in ascolto"
+            "translation": "Porta in ascolto:",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "MTU:",
             "message": "MTU:",
-            "translation": "MTU"
+            "translation": "MTU:",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Addresses:",
             "message": "Addresses:",
-            "translation": "Indirizzi"
+            "translation": "Indirizzi:",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "DNS servers:",
             "message": "DNS servers:",
-            "translation": "Server DNS"
+            "translation": "Server DNS:",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Preshared key:",
             "message": "Preshared key:",
-            "translation": "Chiave pre-condivisa"
+            "translation": "Chiave pre-condivisa:",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Allowed IPs:",
             "message": "Allowed IPs:",
-            "translation": "IP consentiti"
+            "translation": "IP consentiti:",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Endpoint:",
             "message": "Endpoint:",
-            "translation": "Endpoint"
+            "translation": "Endpoint:",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Persistent keepalive:",
             "message": "Persistent keepalive:",
-            "translation": "Keepalive permanente"
+            "translation": "Keepalive permanente:",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Latest handshake:",
             "message": "Latest handshake:",
-            "translation": "Ultima negoziazione"
+            "translation": "Ultima negoziazione:",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Transfer:",
             "message": "Transfer:",
-            "translation": "Trasferimento"
+            "translation": "Trasferimento:",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "enabled",
             "message": "enabled",
-            "translation": "abilitato"
+            "translation": "abilitato",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "{String} received, {String_1} sent",
             "message": "{String} received, {String_1} sent",
             "translation": "{String} ricevuti, {String_1} inviati",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "String",
@@ -697,22 +762,26 @@
         {
             "id": "Failed to determine tunnel state",
             "message": "Failed to determine tunnel state",
-            "translation": "Determinazione dello stato del tunnel non riuscita"
+            "translation": "Determinazione dello stato del tunnel non riuscita",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Failed to activate tunnel",
             "message": "Failed to activate tunnel",
-            "translation": "Attivazione del tunnel non riuscita"
+            "translation": "Attivazione del tunnel non riuscita",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Failed to deactivate tunnel",
             "message": "Failed to deactivate tunnel",
-            "translation": "Disattivazione del tunnel non riuscita"
+            "translation": "Disattivazione del tunnel non riuscita",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Interface: {Name}",
             "message": "Interface: {Name}",
             "translation": "Interfaccia: {Name}",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "Name",
@@ -727,72 +796,86 @@
         {
             "id": "Peer",
             "message": "Peer",
-            "translation": "Peer"
+            "translation": "Peer",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Create new tunnel",
             "message": "Create new tunnel",
-            "translation": "Crea tunnel"
+            "translation": "Crea tunnel",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Edit tunnel",
             "message": "Edit tunnel",
-            "translation": "Modifica tunnel"
+            "translation": "Modifica tunnel",
+            "translatorComment": "Copied from source."
         },
         {
-            "id": "\u0026Name:",
-            "message": "\u0026Name:",
-            "translation": "\u0026Nome:"
+            "id": "&Name:",
+            "message": "&Name:",
+            "translation": "&Nome:",
+            "translatorComment": "Copied from source."
         },
         {
-            "id": "\u0026Public key:",
-            "message": "\u0026Public key:",
-            "translation": "Chiave \u0026pubblica"
+            "id": "&Public key:",
+            "message": "&Public key:",
+            "translation": "Chiave &pubblica:",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "(unknown)",
             "message": "(unknown)",
-            "translation": "(sconosciuto)"
+            "translation": "(sconosciuto)",
+            "translatorComment": "Copied from source."
         },
         {
-            "id": "\u0026Block untunneled traffic (kill-switch)",
-            "message": "\u0026Block untunneled traffic (kill-switch)",
-            "translation": "\u0026Blocca traffico fuori dal tunnel (kill-switch)"
+            "id": "&Block untunneled traffic (kill-switch)",
+            "message": "&Block untunneled traffic (kill-switch)",
+            "translation": "&Blocca traffico fuori dal tunnel (kill-switch)",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface, with special exceptions for DHCP and NDP.",
             "message": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface, with special exceptions for DHCP and NDP.",
-            "translation": "Quando una configurazione ha esattamente un peer e quel peer ha un IP consentito contenente almeno uno di 0.0.0.0/0 o ::/0, il servizio tunnel impegna un insieme di regole del firewall per bloccare tutto il traffico che non proviene dall'interfaccia tunnel, con speciali eccezioni per DHCP e NDP."
+            "translation": "Quando una configurazione ha esattamente un peer e quel peer ha un IP consentito contenente almeno uno di 0.0.0.0/0 o ::/0, il servizio tunnel impegna un insieme di regole del firewall per bloccare tutto il traffico che non proviene dall'interfaccia tunnel, con speciali eccezioni per DHCP e NDP.",
+            "translatorComment": "Copied from source."
         },
         {
-            "id": "\u0026Save",
-            "message": "\u0026Save",
-            "translation": "\u0026Salva"
+            "id": "&Save",
+            "message": "&Save",
+            "translation": "&Salva",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Cancel",
             "message": "Cancel",
-            "translation": "Annulla"
+            "translation": "Annulla",
+            "translatorComment": "Copied from source."
         },
         {
-            "id": "\u0026Configuration:",
-            "message": "\u0026Configuration:",
-            "translation": "\u0026Configurazione"
+            "id": "&Configuration:",
+            "message": "&Configuration:",
+            "translation": "&Configurazione:",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid name",
             "message": "Invalid name",
-            "translation": "Nome non valido"
+            "translation": "Nome non valido",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "A name is required.",
             "message": "A name is required.",
-            "translation": "Un nome è richiesto."
+            "translation": "Un nome è richiesto.",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Tunnel name ‘{NewName}’ is invalid.",
             "message": "Tunnel name ‘{NewName}’ is invalid.",
-            "translation": "Il nome del tunnel ‘{NewName}’ non è valido",
+            "translation": "Il nome del tunnel ‘{NewName}’ non è valido.",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "NewName",
@@ -807,17 +890,20 @@
         {
             "id": "Unable to list existing tunnels",
             "message": "Unable to list existing tunnels",
-            "translation": "Impossibile elencare i tunnel esistenti"
+            "translation": "Impossibile elencare i tunnel esistenti",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Tunnel already exists",
             "message": "Tunnel already exists",
-            "translation": "Il tunnel esiste già"
+            "translation": "Il tunnel esiste già",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Another tunnel already exists with the name ‘{NewName}’.",
             "message": "Another tunnel already exists with the name ‘{NewName}’.",
             "translation": "Un altro tunnel con il nome ‘{NewName}’ esiste già.",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "NewName",
@@ -832,17 +918,20 @@
         {
             "id": "Unable to create new configuration",
             "message": "Unable to create new configuration",
-            "translation": "Impossibile creare la nuova configurazione"
+            "translation": "Impossibile creare la nuova configurazione",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Writing file failed",
             "message": "Writing file failed",
-            "translation": "Scrittura del file non riuscita"
+            "translation": "Scrittura del file non riuscita",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "File ‘{FilePath}’ already exists.\n\nDo you want to overwrite it?",
             "message": "File ‘{FilePath}’ already exists.\n\nDo you want to overwrite it?",
             "translation": "Il file ‘{FilePath}’ esiste già.\n\nVuoi sovrascriverlo?",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "FilePath",
@@ -857,82 +946,98 @@
         {
             "id": "Active",
             "message": "Active",
-            "translation": "Attivo"
+            "translation": "Attivo",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Activating",
             "message": "Activating",
-            "translation": "Attivazione"
+            "translation": "Attivazione",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Inactive",
             "message": "Inactive",
-            "translation": "Inattivo"
+            "translation": "Inattivo",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Deactivating",
             "message": "Deactivating",
-            "translation": "Disattivazione"
+            "translation": "Disattivazione",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Unknown state",
             "message": "Unknown state",
-            "translation": "Stato sconosciuto"
+            "translation": "Stato sconosciuto",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Log",
             "message": "Log",
-            "translation": "Log"
+            "translation": "Log",
+            "translatorComment": "Copied from source."
         },
         {
-            "id": "\u0026Copy",
-            "message": "\u0026Copy",
-            "translation": "\u0026Copia"
+            "id": "&Copy",
+            "message": "&Copy",
+            "translation": "&Copia",
+            "translatorComment": "Copied from source."
         },
         {
-            "id": "Select \u0026all",
-            "message": "Select \u0026all",
-            "translation": "Selezion\u0026a tutto"
+            "id": "Select &all",
+            "message": "Select &all",
+            "translation": "Selezion&a tutto",
+            "translatorComment": "Copied from source."
         },
         {
-            "id": "\u0026Save to file…",
-            "message": "\u0026Save to file…",
-            "translation": "\u0026Salva su file…"
+            "id": "&Save to file…",
+            "message": "&Save to file…",
+            "translation": "&Salva su file…",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Time",
             "message": "Time",
-            "translation": "Tempo"
+            "translation": "Tempo",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Log message",
             "message": "Log message",
-            "translation": "Messaggio di log"
+            "translation": "Messaggio di log",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Text Files (*.txt)|*.txt|All Files (*.*)|*.*",
             "message": "Text Files (*.txt)|*.txt|All Files (*.*)|*.*",
-            "translation": "File  di testo (*.txt)|*.txt|Tutti i file (*.*)|*.*"
+            "translation": "File di testo (*.txt)|*.txt|Tutti i file (*.*)|*.*",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Export log to file",
             "message": "Export log to file",
-            "translation": "Esporta log su file"
+            "translation": "Esporta log su file",
+            "translatorComment": "Copied from source."
         },
         {
-            "id": "\u0026About WireGuard…",
-            "message": "\u0026About WireGuard…",
-            "translation": "Inform\u0026azioni su WireGuard"
+            "id": "&About WireGuard…",
+            "message": "&About WireGuard…",
+            "translation": "Inform&azioni su WireGuard…",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Tunnel Error",
             "message": "Tunnel Error",
-            "translation": "Errore del tunnel"
+            "translation": "Errore del tunnel",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "{ErrMsg}\n\nPlease consult the log for more information.",
             "message": "{ErrMsg}\n\nPlease consult the log for more information.",
             "translation": "{ErrMsg}\n\nConsulta il log per ulteriori Informazioni.",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "ErrMsg",
@@ -948,6 +1053,7 @@
             "id": "{Title} (out of date)",
             "message": "{Title} (out of date)",
             "translation": "{Title} (obsoleto)",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "Title",
@@ -962,12 +1068,14 @@
         {
             "id": "WireGuard Detection Error",
             "message": "WireGuard Detection Error",
-            "translation": "Errore di rilevamento di WireGuard"
+            "translation": "Errore di rilevamento di WireGuard",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Unable to wait for WireGuard window to appear: {Err}",
             "message": "Unable to wait for WireGuard window to appear: {Err}",
-            "translation": "Impossibile attendere la comparsa della finestra di WireGuard",
+            "translation": "Impossibile attendere la comparsa della finestra di WireGuard: {Err}",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "Err",
@@ -982,42 +1090,50 @@
         {
             "id": "WireGuard: Deactivated",
             "message": "WireGuard: Deactivated",
-            "translation": "WireGuard: disattivato"
+            "translation": "WireGuard: disattivato",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Status: Unknown",
             "message": "Status: Unknown",
-            "translation": "Stato: sconosciuto"
+            "translation": "Stato: sconosciuto",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Addresses: None",
             "message": "Addresses: None",
-            "translation": "Indirizzi: nessuno"
+            "translation": "Indirizzi: nessuno",
+            "translatorComment": "Copied from source."
         },
         {
-            "id": "\u0026Manage tunnels…",
-            "message": "\u0026Manage tunnels…",
-            "translation": "\u0026Gestisci i tunnel…"
+            "id": "&Manage tunnels…",
+            "message": "&Manage tunnels…",
+            "translation": "&Gestisci i tunnel…",
+            "translatorComment": "Copied from source."
         },
         {
-            "id": "\u0026Import tunnel(s) from file…",
-            "message": "\u0026Import tunnel(s) from file…",
-            "translation": "\u0026Importa tunnel da file…"
+            "id": "&Import tunnel(s) from file…",
+            "message": "&Import tunnel(s) from file…",
+            "translation": "&Importa tunnel da file…",
+            "translatorComment": "Copied from source."
         },
         {
-            "id": "E\u0026xit",
-            "message": "E\u0026xit",
-            "translation": "E\u0026sci"
+            "id": "E&xit",
+            "message": "E&xit",
+            "translation": "E&sci",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "WireGuard Tunnel Error",
             "message": "WireGuard Tunnel Error",
-            "translation": "Errore tunnel di WireGuard"
+            "translation": "Errore tunnel di WireGuard",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "WireGuard: {TextForStateglobalState_true}",
             "message": "WireGuard: {TextForStateglobalState_true}",
             "translation": "WireGuard: {TextForStateglobalState_true}",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "TextForStateglobalState_true",
@@ -1033,6 +1149,7 @@
             "id": "Status: {StateText}",
             "message": "Status: {StateText}",
             "translation": "Stato: {StateText}",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "StateText",
@@ -1048,6 +1165,7 @@
             "id": "Addresses: {String}",
             "message": "Addresses: {String}",
             "translation": "Indirizzi: {String}",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "String",
@@ -1062,12 +1180,14 @@
         {
             "id": "WireGuard Activated",
             "message": "WireGuard Activated",
-            "translation": "WireGuard attivato"
+            "translation": "WireGuard attivato",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "The {Name} tunnel has been activated.",
             "message": "The {Name} tunnel has been activated.",
             "translation": "Il tunnel {Name} è stato attivato.",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "Name",
@@ -1082,12 +1202,14 @@
         {
             "id": "WireGuard Deactivated",
             "message": "WireGuard Deactivated",
-            "translation": "WireGuard disattivato"
+            "translation": "WireGuard disattivato",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "The {Name} tunnel has been deactivated.",
             "message": "The {Name} tunnel has been deactivated.",
             "translation": "Il tunnel {Name} è stato disattivato.",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "Name",
@@ -1102,72 +1224,86 @@
         {
             "id": "An Update is Available!",
             "message": "An Update is Available!",
-            "translation": "Un aggiornamento è disponibile!"
+            "translation": "Un aggiornamento è disponibile!",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "WireGuard Update Available",
             "message": "WireGuard Update Available",
-            "translation": "Aggiornamento di WireGuard disponibile"
+            "translation": "Aggiornamento di WireGuard disponibile",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "An update to WireGuard is now available. You are advised to update as soon as possible.",
             "message": "An update to WireGuard is now available. You are advised to update as soon as possible.",
-            "translation": "Un aggiornamento di WireGuard è disponibile. Ti consigliamo di aggiornare il prima possibile."
+            "translation": "Un aggiornamento di WireGuard è disponibile. Ti consigliamo di aggiornare il prima possibile.",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Tunnels",
             "message": "Tunnels",
-            "translation": "Tunnel"
+            "translation": "Tunnel",
+            "translatorComment": "Copied from source."
         },
         {
-            "id": "\u0026Edit",
-            "message": "\u0026Edit",
-            "translation": "\u0026Modifica"
+            "id": "&Edit",
+            "message": "&Edit",
+            "translation": "&Modifica",
+            "translatorComment": "Copied from source."
         },
         {
-            "id": "Add \u0026empty tunnel…",
-            "message": "Add \u0026empty tunnel…",
-            "translation": "Aggiungi tunn\u0026el vuoto"
+            "id": "Add &empty tunnel…",
+            "message": "Add &empty tunnel…",
+            "translation": "Aggiungi tunn&el vuoto",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Add Tunnel",
             "message": "Add Tunnel",
-            "translation": "Aggiungi tunnel"
+            "translation": "Aggiungi tunnel",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Remove selected tunnel(s)",
             "message": "Remove selected tunnel(s)",
-            "translation": "Rimuovi tunnel selezionati"
+            "translation": "Rimuovi tunnel selezionati",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Export all tunnels to zip",
             "message": "Export all tunnels to zip",
-            "translation": "Esporta tutti i tunnel in zip"
+            "translation": "Esporta tutti i tunnel in zip",
+            "translatorComment": "Copied from source."
         },
         {
-            "id": "\u0026Toggle",
-            "message": "\u0026Toggle",
-            "translation": "Commu\u0026ta"
+            "id": "&Toggle",
+            "message": "&Toggle",
+            "translation": "Commu&ta",
+            "translatorComment": "Copied from source."
         },
         {
-            "id": "Export all tunnels to \u0026zip…",
-            "message": "Export all tunnels to \u0026zip…",
-            "translation": "Esporta tutti i tunnel in \u0026zip"
+            "id": "Export all tunnels to &zip…",
+            "message": "Export all tunnels to &zip…",
+            "translation": "Esporta tutti i tunnel in &zip",
+            "translatorComment": "Copied from source."
         },
         {
-            "id": "Edit \u0026selected tunnel…",
-            "message": "Edit \u0026selected tunnel…",
-            "translation": "Modifica il tunnel \u0026selezionato…"
+            "id": "Edit &selected tunnel…",
+            "message": "Edit &selected tunnel…",
+            "translation": "Modifica il tunnel &selezionato…",
+            "translatorComment": "Copied from source."
         },
         {
-            "id": "\u0026Remove selected tunnel(s)",
-            "message": "\u0026Remove selected tunnel(s)",
-            "translation": "\u0026Rimuovi i tunnel selezionati"
+            "id": "&Remove selected tunnel(s)",
+            "message": "&Remove selected tunnel(s)",
+            "translation": "&Rimuovi i tunnel selezionati",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Could not import selected configuration: {LastErr}",
             "message": "Could not import selected configuration: {LastErr}",
             "translation": "Impossibile importare la configurazione selezionata: {LastErr}",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "LastErr",
@@ -1183,6 +1319,7 @@
             "id": "Could not enumerate existing tunnels: {LastErr}",
             "message": "Could not enumerate existing tunnels: {LastErr}",
             "translation": "Impossibile enumerare i tunnel esistenti: {LastErr}",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "LastErr",
@@ -1198,6 +1335,7 @@
             "id": "Another tunnel already exists with the name ‘{Name}’",
             "message": "Another tunnel already exists with the name ‘{Name}’",
             "translation": "Un altro tunnel esiste già con il nome ‘{Name}‘",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "Name",
@@ -1213,6 +1351,7 @@
             "id": "Unable to import configuration: {LastErr}",
             "message": "Unable to import configuration: {LastErr}",
             "translation": "Impossibile importare la configurazione: {LastErr}",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "LastErr",
@@ -1227,7 +1366,8 @@
         {
             "id": "Imported tunnels",
             "message": "Imported tunnels",
-            "translation": "Tunnel importati"
+            "translation": "Tunnel importati",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Imported {M} tunnels",
@@ -1269,7 +1409,7 @@
                             "msg": "{M} de {N} tunnel importato"
                         },
                         "other": {
-                            "msg": "{M} de {N} tunnel importati"
+                            "msg": "{M} di {N} tunnel importati"
                         }
                     }
                 }
@@ -1296,7 +1436,8 @@
         {
             "id": "Unable to create tunnel",
             "message": "Unable to create tunnel",
-            "translation": "Impossibile creare il tunnel"
+            "translation": "Impossibile creare il tunnel",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Delete {TunnelCount} tunnels",
@@ -1310,7 +1451,7 @@
                             "msg": "Elimina {TunnelCount} tunnel"
                         },
                         "other": {
-                            "msg": "Elimina {TunnelCount} tunnels"
+                            "msg": "Elimina {TunnelCount} tunnel"
                         }
                     }
                 }
@@ -1358,6 +1499,7 @@
             "id": "Delete tunnel ‘{TunnelName}’",
             "message": "Delete tunnel ‘{TunnelName}’",
             "translation": "Elimina tunnel ‘{TunnelName}‘",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "TunnelName",
@@ -1373,6 +1515,7 @@
             "id": "Are you sure you would like to delete tunnel ‘{TunnelName}’?",
             "message": "Are you sure you would like to delete tunnel ‘{TunnelName}’?",
             "translation": "Sei sicuro di voler eliminare il tunnel ‘{TunnelName}‘?",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "TunnelName",
@@ -1388,6 +1531,7 @@
             "id": "{Question} You cannot undo this action.",
             "message": "{Question} You cannot undo this action.",
             "translation": "{Question} Non è possibile annullare questa azione.",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "Question",
@@ -1402,12 +1546,14 @@
         {
             "id": "Unable to delete tunnel",
             "message": "Unable to delete tunnel",
-            "translation": "Impossibile eliminare il tunnel"
+            "translation": "Impossibile eliminare il tunnel",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "A tunnel was unable to be removed: {Error}",
             "message": "A tunnel was unable to be removed: {Error}",
             "translation": "Non è stato possibile rimuovere un tunnel: {Error}",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "Error",
@@ -1422,7 +1568,8 @@
         {
             "id": "Unable to delete tunnels",
             "message": "Unable to delete tunnels",
-            "translation": "Impossibile eliminare i tunnel"
+            "translation": "Impossibile eliminare i tunnel",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "{Lenerrors} tunnels were unable to be removed.",
@@ -1455,27 +1602,32 @@
         {
             "id": "Configuration Files (*.zip, *.conf)|*.zip;*.conf|All Files (*.*)|*.*",
             "message": "Configuration Files (*.zip, *.conf)|*.zip;*.conf|All Files (*.*)|*.*",
-            "translation": "File di configurazione (*.zip, *.conf)|*.zip;*.conf|Tutti i file (*.*)|*.*"
+            "translation": "File di configurazione (*.zip, *.conf)|*.zip;*.conf|Tutti i file (*.*)|*.*",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Import tunnel(s) from file",
             "message": "Import tunnel(s) from file",
-            "translation": "Importa tunnel da file"
+            "translation": "Importa tunnel da file",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Configuration ZIP Files (*.zip)|*.zip",
             "message": "Configuration ZIP Files (*.zip)|*.zip",
-            "translation": "File di configurazione ZIP (*.zip)|*.zip"
+            "translation": "File di configurazione ZIP (*.zip)|*.zip",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Export tunnels to zip",
             "message": "Export tunnels to zip",
-            "translation": "Esporta tunnel in zip"
+            "translation": "Esporta tunnel in zip",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "{Title} (unsigned build, no updates)",
             "message": "{Title} (unsigned build, no updates)",
             "translation": "{Title} (versione non firmata, nessun aggiornamento)",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "Title",
@@ -1490,12 +1642,14 @@
         {
             "id": "Error Exiting WireGuard",
             "message": "Error Exiting WireGuard",
-            "translation": "Errore durante la chiusura di WireGuard"
+            "translation": "Errore durante la chiusura di WireGuard",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Unable to exit service due to: {Err}. You may want to stop WireGuard from the service manager.",
             "message": "Unable to exit service due to: {Err}. You may want to stop WireGuard from the service manager.",
             "translation": "Impossibile uscire dal servizio a causa di: {Err}. Potresti voler interrompere WireGuard dal gestore dei servizi.",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "Err",
@@ -1510,27 +1664,32 @@
         {
             "id": "An update to WireGuard is available. It is highly advisable to update without delay.",
             "message": "An update to WireGuard is available. It is highly advisable to update without delay.",
-            "translation": "Un aggiornamento di WireGuard è disponibile. Ti consigliamo vivamente di aggiornare senza indugio."
+            "translation": "Un aggiornamento di WireGuard è disponibile. Ti consigliamo vivamente di aggiornare immediatamente.",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Status: Waiting for user",
             "message": "Status: Waiting for user",
-            "translation": "Stato: in attesa dell'utente"
+            "translation": "Stato: in attesa dell'utente",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Update Now",
             "message": "Update Now",
-            "translation": "Aggiorna ora"
+            "translation": "Aggiorna ora",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Status: Waiting for updater service",
             "message": "Status: Waiting for updater service",
-            "translation": "Stato: in attesa del servizio di aggiornamento"
+            "translation": "Stato: in attesa del servizio di aggiornamento",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Error: {Err}. Please try again.",
             "message": "Error: {Err}. Please try again.",
             "translation": "Errore: {Err}. Prova ancora.",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "Err",
@@ -1545,12 +1704,14 @@
         {
             "id": "Status: Complete!",
             "message": "Status: Complete!",
-            "translation": "Stato: Completo!"
+            "translation": "Stato: Completo!",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "http2: Framer {F}: failed to decode just-written frame",
             "message": "http2: Framer {F}: failed to decode just-written frame",
             "translation": "http2: Framer {F}: decodifica del frame appena scritto non riuscita",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "F",
@@ -1566,6 +1727,7 @@
             "id": "http2: Framer {F}: wrote {Http2summarizeFramefr}",
             "message": "http2: Framer {F}: wrote {Http2summarizeFramefr}",
             "translation": "http2: Framer {F}: ha scritto {Http2summarizeFramefr}",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "F",
@@ -1589,6 +1751,7 @@
             "id": "http2: Framer {Fr}: read {Http2summarizeFramef}",
             "message": "http2: Framer {Fr}: read {Http2summarizeFramef}",
             "translation": "http2: Framer {Fr}: ha letto {Http2summarizeFramef}",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "Fr",
@@ -1612,6 +1775,7 @@
             "id": "http2: decoded hpack field {HeaderField}",
             "message": "http2: decoded hpack field {HeaderField}",
             "translation": "http2: campo hpack {HeaderField} decodificato",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "HeaderField",

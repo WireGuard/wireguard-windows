@@ -4,17 +4,20 @@
         {
             "id": "Error",
             "message": "Error",
-            "translation": "エラー"
+            "translation": "エラー",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "(no argument): elevate and install manager service",
             "message": "(no argument): elevate and install manager service",
-            "translation": "(引数なし): 管理者権限でmanagerサービスをインストールしてください"
+            "translation": "(引数なし): 管理者権限でmanagerサービスをインストールする",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Usage: {Args0} [\n{String}]",
             "message": "Usage: {Args0} [\n{String}]",
             "translation": "使い方: {Args0} [\n{String}]",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "Args0",
@@ -37,12 +40,14 @@
         {
             "id": "Command Line Options",
             "message": "Command Line Options",
-            "translation": "コマンドラインオプション"
+            "translation": "コマンドラインオプション",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Unable to determine whether the process is running under WOW64: {Err}",
             "message": "Unable to determine whether the process is running under WOW64: {Err}",
-            "translation": "プロセスがWOW64で動作しているか確認できません: {Err}",
+            "translation": "プロセスがWOW64下で動作しているか確認できません: {Err}",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "Err",
@@ -57,12 +62,14 @@
         {
             "id": "You must use the 64-bit version of WireGuard on this computer.",
             "message": "You must use the 64-bit version of WireGuard on this computer.",
-            "translation": "このコンピュータでは64ビット版の WireGuard を使ってください。"
+            "translation": "このコンピュータでは64ビット版の WireGuard を使ってください。",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Unable to open current process token: {Err}",
             "message": "Unable to open current process token: {Err}",
-            "translation": "現在のプロセストークンを開けません: {Err}",
+            "translation": "現在のプロセスのトークンを開けません: {Err}",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "Err",
@@ -78,6 +85,7 @@
             "id": "WireGuard may only be used by users who are a member of the Builtin {AdminGroupName} group.",
             "message": "WireGuard may only be used by users who are a member of the Builtin {AdminGroupName} group.",
             "translation": "WireGuard は組み込みの {AdminGroupName} グループのメンバーだけが使えます。",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "AdminGroupName",
@@ -93,6 +101,7 @@
             "id": "WireGuard is running, but the UI is only accessible from desktops of the Builtin {AdminGroupName} group.",
             "message": "WireGuard is running, but the UI is only accessible from desktops of the Builtin {AdminGroupName} group.",
             "translation": "WireGuard は実行中ですが、UI画面は組み込みの {AdminGroupName} グループのデスクトップからしか開けません。",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "AdminGroupName",
@@ -107,22 +116,35 @@
         {
             "id": "WireGuard system tray icon did not appear after 30 seconds.",
             "message": "WireGuard system tray icon did not appear after 30 seconds.",
-            "translation": "WireGuard システムトレイアイコンは30秒後に非表示になります。"
+            "translation": "WireGuard システムトレイアイコンは30秒後に非表示になります。",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Now",
             "message": "Now",
-            "translation": "現在"
+            "translation": "今",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "System clock wound backward!",
             "message": "System clock wound backward!",
-            "translation": "システム時刻が遅れています"
+            "translation": "システム時刻が巻き戻った！",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "{Years} year(s)",
             "message": "{Years} year(s)",
-            "translation": "{Years} 年",
+            "translation": {
+                "select": {
+                    "feature": "plural",
+                    "arg": "Years",
+                    "cases": {
+                        "other": {
+                            "msg": "{Years} 年"
+                        }
+                    }
+                }
+            },
             "placeholders": [
                 {
                     "id": "Years",
@@ -137,7 +159,17 @@
         {
             "id": "{Days} day(s)",
             "message": "{Days} day(s)",
-            "translation": "{Days} 日",
+            "translation": {
+                "select": {
+                    "feature": "plural",
+                    "arg": "Days",
+                    "cases": {
+                        "other": {
+                            "msg": "{Days} 日"
+                        }
+                    }
+                }
+            },
             "placeholders": [
                 {
                     "id": "Days",
@@ -152,7 +184,17 @@
         {
             "id": "{Hours} hour(s)",
             "message": "{Hours} hour(s)",
-            "translation": "{Hours} 時間",
+            "translation": {
+                "select": {
+                    "feature": "plural",
+                    "arg": "Hours",
+                    "cases": {
+                        "other": {
+                            "msg": "{Hours} 時間"
+                        }
+                    }
+                }
+            },
             "placeholders": [
                 {
                     "id": "Hours",
@@ -167,7 +209,17 @@
         {
             "id": "{Minutes} minute(s)",
             "message": "{Minutes} minute(s)",
-            "translation": "{Minutes} 分",
+            "translation": {
+                "select": {
+                    "feature": "plural",
+                    "arg": "Minutes",
+                    "cases": {
+                        "other": {
+                            "msg": "{Minutes} 分"
+                        }
+                    }
+                }
+            },
             "placeholders": [
                 {
                     "id": "Minutes",
@@ -182,7 +234,17 @@
         {
             "id": "{Seconds} second(s)",
             "message": "{Seconds} second(s)",
-            "translation": "{Seconds} 秒",
+            "translation": {
+                "select": {
+                    "feature": "plural",
+                    "arg": "Seconds",
+                    "cases": {
+                        "other": {
+                            "msg": "{Seconds} 秒"
+                        }
+                    }
+                }
+            },
             "placeholders": [
                 {
                     "id": "Seconds",
@@ -198,6 +260,7 @@
             "id": "{Timestamp} ago",
             "message": "{Timestamp} ago",
             "translation": "{Timestamp} 前",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "Timestamp",
@@ -213,6 +276,7 @@
             "id": "{Bytes} B",
             "message": "{Bytes} B",
             "translation": "{Bytes} B",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "Bytes",
@@ -228,6 +292,7 @@
             "id": "{Float64b__1024} KiB",
             "message": "{Float64b__1024} KiB",
             "translation": "{Float64b__1024} KiB",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "Float64b__1024",
@@ -243,6 +308,7 @@
             "id": "{Float64b__1024__1024} MiB",
             "message": "{Float64b__1024__1024} MiB",
             "translation": "{Float64b__1024__1024} MiB",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "Float64b__1024__1024",
@@ -258,6 +324,7 @@
             "id": "{Float64b__1024__1024__1024} GiB",
             "message": "{Float64b__1024__1024__1024} GiB",
             "translation": "{Float64b__1024__1024__1024} GiB",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "Float64b__1024__1024__1024",
@@ -273,6 +340,7 @@
             "id": "{Float64b__1024__1024__1024__1024} TiB",
             "message": "{Float64b__1024__1024__1024__1024} TiB",
             "translation": "{Float64b__1024__1024__1024__1024} TiB",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "Float64b__1024__1024__1024__1024",
@@ -288,6 +356,7 @@
             "id": "{Why}: {Offender}",
             "message": "{Why}: {Offender}",
             "translation": "{Why}: {Offender}",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "Why",
@@ -310,47 +379,56 @@
         {
             "id": "Invalid IP address",
             "message": "Invalid IP address",
-            "translation": "不正な IP アドレス"
+            "translation": "無効な IP アドレス",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid network prefix length",
             "message": "Invalid network prefix length",
-            "translation": "不正なネットワークプレフィックス長指定"
+            "translation": "無効なネットワークプレフィックス長",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Missing port from endpoint",
             "message": "Missing port from endpoint",
-            "translation": "エンドポイントのポート指定なし"
+            "translation": "エンドポイントのポート指定なし",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid endpoint host",
             "message": "Invalid endpoint host",
-            "translation": "不正なエンドポイントホスト"
+            "translation": "無効なエンドポイントホスト",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Brackets must contain an IPv6 address",
             "message": "Brackets must contain an IPv6 address",
-            "translation": "カッコ内は IPv6 アドレスでなければなりません"
+            "translation": "カッコ内は IPv6 アドレスが入ります",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid MTU",
             "message": "Invalid MTU",
-            "translation": "不正な MTU 指定"
+            "translation": "無効な MTU",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid port",
             "message": "Invalid port",
-            "translation": "不正なポート番号"
+            "translation": "無効なポート番号",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid persistent keepalive",
             "message": "Invalid persistent keepalive",
-            "translation": "不正な持続的キープアライブ値"
+            "translation": "無効な持続的キープアライブ値",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid key: {Err}",
             "message": "Invalid key: {Err}",
             "translation": "不正な鍵: {Err}",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "Err",
@@ -365,12 +443,14 @@
         {
             "id": "Keys must decode to exactly 32 bytes",
             "message": "Keys must decode to exactly 32 bytes",
-            "translation": "鍵は 32 バイトでなければなりません"
+            "translation": "鍵は 32 バイトでなければなりません",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Number must be a number between 0 and 2^64-1: {Err}",
             "message": "Number must be a number between 0 and 2^64-1: {Err}",
             "translation": "数値は0から2の64乗-1の範囲内の値でなければなりません: {Err}",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "Err",
@@ -385,72 +465,86 @@
         {
             "id": "Two commas in a row",
             "message": "Two commas in a row",
-            "translation": "1行にカンマが2つあります"
+            "translation": "1行にカンマが2つあります",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Tunnel name is not valid",
             "message": "Tunnel name is not valid",
-            "translation": "トンネル名が不正です"
+            "translation": "トンネル名が不正です",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Line must occur in a section",
             "message": "Line must occur in a section",
-            "translation": "行がセクション内にありません"
+            "translation": "行がセクション内にありません",
+            "translatorComment": "Copied from source."
         },
         {
-            "id": "Config key is missing an equals separator",
-            "message": "Config key is missing an equals separator",
-            "translation": ""
+            "id": "Invalid config key is missing an equals separator",
+            "message": "Invalid config key is missing an equals separator",
+            "translation": "イコール（=）が無いためキー項目として不正です",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Key must have a value",
             "message": "Key must have a value",
-            "translation": "キー項目に対応する値がありません"
+            "translation": "キー項目に対応する値がありません",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid key for [Interface] section",
             "message": "Invalid key for [Interface] section",
-            "translation": "[Interface] セクションのキー項目として不正です"
+            "translation": "無効な [Interface] セクションのキー項目",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid key for [Peer] section",
             "message": "Invalid key for [Peer] section",
-            "translation": "[Peer] セクションのキー項目として不正です"
+            "translation": "無効な [Peer] セクションのキー項目",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "An interface must have a private key",
             "message": "An interface must have a private key",
-            "translation": "インターフェースには秘密鍵が必須です"
+            "translation": "インターフェースには秘密鍵が必須です",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "[none specified]",
             "message": "[none specified]",
-            "translation": "[指定なし]"
+            "translation": "[指定なし]",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "All peers must have public keys",
             "message": "All peers must have public keys",
-            "translation": "すべてのピアには公開鍵が必須です"
+            "translation": "すべてのピアには公開鍵が必須です",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Error in getting configuration",
             "message": "Error in getting configuration",
-            "translation": "設定の取得時にエラー"
+            "translation": "設定の読込中にエラーが発生しました",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid key for interface section",
             "message": "Invalid key for interface section",
-            "translation": "インターフェースセクションのキー項目が不正です"
+            "translation": "無効な Interface セクションのキー項目",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Protocol version must be 1",
             "message": "Protocol version must be 1",
-            "translation": "プロトコルバージョンは 1 でなければなりません"
+            "translation": "プロトコルバージョンは 1 でなければなりません",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid key for peer section",
             "message": "Invalid key for peer section",
-            "translation": "ピアセクションのキー項目が不正です"
+            "translation": "無効な Peer セクションのキー項目",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "[EnumerationSeparator]",
@@ -467,17 +561,20 @@
         {
             "id": "About WireGuard",
             "message": "About WireGuard",
-            "translation": "WireGuard について"
+            "translation": "WireGuard について",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "WireGuard logo image",
             "message": "WireGuard logo image",
-            "translation": "WireGuard ロゴ画像"
+            "translation": "WireGuard ロゴ画像",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}\nOperating system: {OsName}\nArchitecture: {GOARCH}",
             "message": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}\nOperating system: {OsName}\nArchitecture: {GOARCH}",
             "translation": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}\nOperating system: {OsName}\nArchitecture: {GOARCH}",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "Number",
@@ -524,92 +621,110 @@
         {
             "id": "Close",
             "message": "Close",
-            "translation": "閉じる"
+            "translation": "閉じる",
+            "translatorComment": "Copied from source."
         },
         {
-            "id": "♥ \u0026Donate!",
-            "message": "♥ \u0026Donate!",
-            "translation": "♥ 寄付のお願い!(\u0026D)"
+            "id": "♥ &Donate!",
+            "message": "♥ &Donate!",
+            "translation": "♥ 寄付のお願い!(&D)",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Status:",
             "message": "Status:",
-            "translation": "状態:"
+            "translation": "状態:",
+            "translatorComment": "Copied from source."
         },
         {
-            "id": "\u0026Deactivate",
-            "message": "\u0026Deactivate",
-            "translation": "無効化(\u0026D)"
+            "id": "&Deactivate",
+            "message": "&Deactivate",
+            "translation": "無効化(&D)",
+            "translatorComment": "Copied from source."
         },
         {
-            "id": "\u0026Activate",
-            "message": "\u0026Activate",
-            "translation": "有効化(\u0026A)"
+            "id": "&Activate",
+            "message": "&Activate",
+            "translation": "有効化(&A)",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Public key:",
             "message": "Public key:",
-            "translation": "公開鍵:"
+            "translation": "公開鍵:",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Listen port:",
             "message": "Listen port:",
-            "translation": "待受ポート番号:"
+            "translation": "待受ポート番号:",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "MTU:",
             "message": "MTU:",
-            "translation": "MTU:"
+            "translation": "MTU:",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Addresses:",
             "message": "Addresses:",
-            "translation": "アドレス:"
+            "translation": "アドレス:",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "DNS servers:",
             "message": "DNS servers:",
-            "translation": "DNS サーバ:"
+            "translation": "DNS サーバ:",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Preshared key:",
             "message": "Preshared key:",
-            "translation": "事前共有鍵:"
+            "translation": "事前共有鍵:",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Allowed IPs:",
             "message": "Allowed IPs:",
-            "translation": "Allowed IPs:"
+            "translation": "Allowed IPs:",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Endpoint:",
             "message": "Endpoint:",
-            "translation": "エンドポイント:"
+            "translation": "エンドポイント:",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Persistent keepalive:",
             "message": "Persistent keepalive:",
-            "translation": "持続的キープアライブ:"
+            "translation": "持続的キープアライブ:",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Latest handshake:",
             "message": "Latest handshake:",
-            "translation": "直近のハンドシェイク:"
+            "translation": "直近のハンドシェイク:",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Transfer:",
             "message": "Transfer:",
-            "translation": "転送:"
+            "translation": "転送:",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "enabled",
             "message": "enabled",
-            "translation": "有効"
+            "translation": "有効",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "{String} received, {String_1} sent",
             "message": "{String} received, {String_1} sent",
-            "translation": "{String} 受信済み、{String} 送信済み",
+            "translation": "{String} 受信済み、{String_1} 送信済み",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "String",
@@ -632,22 +747,26 @@
         {
             "id": "Failed to determine tunnel state",
             "message": "Failed to determine tunnel state",
-            "translation": "トンネルの状態取得に失敗しました"
+            "translation": "トンネルの状態取得に失敗しました",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Failed to activate tunnel",
             "message": "Failed to activate tunnel",
-            "translation": "トンネルの有効化に失敗しました"
+            "translation": "トンネルの有効化に失敗しました",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Failed to deactivate tunnel",
             "message": "Failed to deactivate tunnel",
-            "translation": "トンネルの無効化に失敗しました"
+            "translation": "トンネルの無効化に失敗しました",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Interface: {Name}",
             "message": "Interface: {Name}",
             "translation": "インターフェース: {Name}",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "Name",
@@ -662,72 +781,86 @@
         {
             "id": "Peer",
             "message": "Peer",
-            "translation": "ピア"
+            "translation": "ピア",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Create new tunnel",
             "message": "Create new tunnel",
-            "translation": "トンネルの新規作成"
+            "translation": "トンネルの新規作成",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Edit tunnel",
             "message": "Edit tunnel",
-            "translation": "トンネルの編集"
+            "translation": "トンネルの編集",
+            "translatorComment": "Copied from source."
         },
         {
-            "id": "\u0026Name:",
-            "message": "\u0026Name:",
-            "translation": "名前(\u0026N):"
+            "id": "&Name:",
+            "message": "&Name:",
+            "translation": "名前(&N):",
+            "translatorComment": "Copied from source."
         },
         {
-            "id": "\u0026Public key:",
-            "message": "\u0026Public key:",
-            "translation": "公開鍵(\u0026P):"
+            "id": "&Public key:",
+            "message": "&Public key:",
+            "translation": "公開鍵(&P):",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "(unknown)",
             "message": "(unknown)",
-            "translation": "(不明)"
+            "translation": "(不明)",
+            "translatorComment": "Copied from source."
         },
         {
-            "id": "\u0026Block untunneled traffic (kill-switch)",
-            "message": "\u0026Block untunneled traffic (kill-switch)",
-            "translation": "トンネルを通らないトラフィックのブロック（キルスイッチ）(\u0026B)"
+            "id": "&Block untunneled traffic (kill-switch)",
+            "message": "&Block untunneled traffic (kill-switch)",
+            "translation": "トンネルを通らないトラフィックのブロック（キルスイッチ）(&B)",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface, with special exceptions for DHCP and NDP.",
             "message": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface, with special exceptions for DHCP and NDP.",
-            "translation": "ピアが1つだけ設定されていて、さらに Allowed IPs に 0.0.0.0/0 または ::/0 が含まれている場合、トンネルサービスはトンネルインターフェースを通らないすべてのトラフィックをブロックするファイアウォールルールを追加します。"
+            "translation": "ピアが1つだけ設定されていて、さらに Allowed IPs に 0.0.0.0/0 または ::/0 が含まれている場合、トンネルサービスはトンネルインターフェースを通らないすべてのトラフィックをブロックするファイアウォールルールを追加します。",
+            "translatorComment": "Copied from source."
         },
         {
-            "id": "\u0026Save",
-            "message": "\u0026Save",
-            "translation": "保存(\u0026S)"
+            "id": "&Save",
+            "message": "&Save",
+            "translation": "保存(&S)",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Cancel",
             "message": "Cancel",
-            "translation": "キャンセル"
+            "translation": "キャンセル",
+            "translatorComment": "Copied from source."
         },
         {
-            "id": "\u0026Configuration:",
-            "message": "\u0026Configuration:",
-            "translation": "設定(\u0026C):"
+            "id": "&Configuration:",
+            "message": "&Configuration:",
+            "translation": "設定(&C):",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid name",
             "message": "Invalid name",
-            "translation": "不正な名前"
+            "translation": "無効な名前",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "A name is required.",
             "message": "A name is required.",
-            "translation": "名前は必須です。"
+            "translation": "名前は必須です。",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Tunnel name ‘{NewName}’ is invalid.",
             "message": "Tunnel name ‘{NewName}’ is invalid.",
             "translation": "トンネル名 ‘{NewName}’ は不正です。",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "NewName",
@@ -742,17 +875,20 @@
         {
             "id": "Unable to list existing tunnels",
             "message": "Unable to list existing tunnels",
-            "translation": "既存のトンネルを表示できません"
+            "translation": "既存のトンネルを表示できません",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Tunnel already exists",
             "message": "Tunnel already exists",
-            "translation": "トンネルはすでに存在します"
+            "translation": "トンネルはすでに存在します",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Another tunnel already exists with the name ‘{NewName}’.",
             "message": "Another tunnel already exists with the name ‘{NewName}’.",
             "translation": "‘{NewName}’ という名前の別のトンネルがすでに存在します。",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "NewName",
@@ -767,17 +903,20 @@
         {
             "id": "Unable to create new configuration",
             "message": "Unable to create new configuration",
-            "translation": "新しい設定が作成できません"
+            "translation": "新しい設定を作成できませんでした",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Writing file failed",
             "message": "Writing file failed",
-            "translation": "ファイルの書き込みに失敗"
+            "translation": "ファイルの書き込みに失敗",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "File ‘{FilePath}’ already exists.\n\nDo you want to overwrite it?",
             "message": "File ‘{FilePath}’ already exists.\n\nDo you want to overwrite it?",
             "translation": "ファイル ‘{FilePath}’ はすでに存在します。\n\n上書きしますか？",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "FilePath",
@@ -792,82 +931,98 @@
         {
             "id": "Active",
             "message": "Active",
-            "translation": "有効"
+            "translation": "有効",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Activating",
             "message": "Activating",
-            "translation": "有効化中"
+            "translation": "有効化中",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Inactive",
             "message": "Inactive",
-            "translation": "無効"
+            "translation": "無効",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Deactivating",
             "message": "Deactivating",
-            "translation": "無効化中"
+            "translation": "無効化中",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Unknown state",
             "message": "Unknown state",
-            "translation": "不明な状態"
+            "translation": "不明な状態",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Log",
             "message": "Log",
-            "translation": "ログ"
+            "translation": "ログ",
+            "translatorComment": "Copied from source."
         },
         {
-            "id": "\u0026Copy",
-            "message": "\u0026Copy",
-            "translation": "コピー(\u0026C)"
+            "id": "&Copy",
+            "message": "&Copy",
+            "translation": "コピー(&C)",
+            "translatorComment": "Copied from source."
         },
         {
-            "id": "Select \u0026all",
-            "message": "Select \u0026all",
-            "translation": "すべて選択(\u0026a)"
+            "id": "Select &all",
+            "message": "Select &all",
+            "translation": "すべて選択(&A)",
+            "translatorComment": "Copied from source."
         },
         {
-            "id": "\u0026Save to file…",
-            "message": "\u0026Save to file…",
-            "translation": "ファイルに保存…(\u0026S)"
+            "id": "&Save to file…",
+            "message": "&Save to file…",
+            "translation": "ファイルに保存…(&S)",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Time",
             "message": "Time",
-            "translation": "時刻"
+            "translation": "時刻",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Log message",
             "message": "Log message",
-            "translation": "ログメッセージ"
+            "translation": "ログ メッセージ",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Text Files (*.txt)|*.txt|All Files (*.*)|*.*",
             "message": "Text Files (*.txt)|*.txt|All Files (*.*)|*.*",
-            "translation": "テキストファイル (*.txt)|*.txt|すべてのファイル (*.*)|*.*"
+            "translation": "テキストファイル (*.txt)|*.txt|すべてのファイル (*.*)|*.*",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Export log to file",
             "message": "Export log to file",
-            "translation": "ログをファイルにエクスポート"
+            "translation": "ログをファイルにエクスポート",
+            "translatorComment": "Copied from source."
         },
         {
-            "id": "\u0026About WireGuard…",
-            "message": "\u0026About WireGuard…",
-            "translation": "WireGuardについて…(\u0026A)"
+            "id": "&About WireGuard…",
+            "message": "&About WireGuard…",
+            "translation": "WireGuardについて…(&A)",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Tunnel Error",
             "message": "Tunnel Error",
-            "translation": "トンネルエラー"
+            "translation": "トンネルエラー",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "{ErrMsg}\n\nPlease consult the log for more information.",
             "message": "{ErrMsg}\n\nPlease consult the log for more information.",
             "translation": "{ErrMsg}\n\n詳細はログを参照してください。",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "ErrMsg",
@@ -882,7 +1037,8 @@
         {
             "id": "{Title} (out of date)",
             "message": "{Title} (out of date)",
-            "translation": "{Title} 期限切れ",
+            "translation": "{Title} (更新あり)",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "Title",
@@ -897,12 +1053,14 @@
         {
             "id": "WireGuard Detection Error",
             "message": "WireGuard Detection Error",
-            "translation": "WireGuard 検出エラー"
+            "translation": "WireGuard 検出エラー",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Unable to wait for WireGuard window to appear: {Err}",
             "message": "Unable to wait for WireGuard window to appear: {Err}",
             "translation": "WireGuard ウィンドウが表示できませんでした: {Err}",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "Err",
@@ -917,42 +1075,50 @@
         {
             "id": "WireGuard: Deactivated",
             "message": "WireGuard: Deactivated",
-            "translation": "WireGuard: 無効化済み"
+            "translation": "WireGuard: 無効化済み",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Status: Unknown",
             "message": "Status: Unknown",
-            "translation": "状態: 不明"
+            "translation": "状態: 不明",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Addresses: None",
             "message": "Addresses: None",
-            "translation": "アドレス: なし"
+            "translation": "アドレス: なし",
+            "translatorComment": "Copied from source."
         },
         {
-            "id": "\u0026Manage tunnels…",
-            "message": "\u0026Manage tunnels…",
-            "translation": "トンネルの管理…(\u0026M)"
+            "id": "&Manage tunnels…",
+            "message": "&Manage tunnels…",
+            "translation": "トンネルの管理…(&M)",
+            "translatorComment": "Copied from source."
         },
         {
-            "id": "\u0026Import tunnel(s) from file…",
-            "message": "\u0026Import tunnel(s) from file…",
-            "translation": "トンネルをファイルからインポート(\u0026I)"
+            "id": "&Import tunnel(s) from file…",
+            "message": "&Import tunnel(s) from file…",
+            "translation": "トンネルをファイルからインポート…(&I)",
+            "translatorComment": "Copied from source."
         },
         {
-            "id": "E\u0026xit",
-            "message": "E\u0026xit",
-            "translation": "終了(\u0026X)"
+            "id": "E&xit",
+            "message": "E&xit",
+            "translation": "終了(&X)",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "WireGuard Tunnel Error",
             "message": "WireGuard Tunnel Error",
-            "translation": "WireGuard トンネルエラー"
+            "translation": "WireGuard トンネルエラー",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "WireGuard: {TextForStateglobalState_true}",
             "message": "WireGuard: {TextForStateglobalState_true}",
             "translation": "WireGuard: {TextForStateglobalState_true}",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "TextForStateglobalState_true",
@@ -968,6 +1134,7 @@
             "id": "Status: {StateText}",
             "message": "Status: {StateText}",
             "translation": "状態: {StateText}",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "StateText",
@@ -983,6 +1150,7 @@
             "id": "Addresses: {String}",
             "message": "Addresses: {String}",
             "translation": "アドレス: {String}",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "String",
@@ -997,12 +1165,14 @@
         {
             "id": "WireGuard Activated",
             "message": "WireGuard Activated",
-            "translation": "WireGuard 有効化済み"
+            "translation": "WireGuard 有効化済み",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "The {Name} tunnel has been activated.",
             "message": "The {Name} tunnel has been activated.",
-            "translation": "トンネル {Name} は有効化されました。",
+            "translation": "トンネル {Name} は有効になりました。",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "Name",
@@ -1017,12 +1187,14 @@
         {
             "id": "WireGuard Deactivated",
             "message": "WireGuard Deactivated",
-            "translation": "WireGuard 無効化済み"
+            "translation": "WireGuard 無効化済み",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "The {Name} tunnel has been deactivated.",
             "message": "The {Name} tunnel has been deactivated.",
-            "translation": "トンネル {Name} は無効化されました。",
+            "translation": "トンネル {Name} は無効になりました。",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "Name",
@@ -1037,72 +1209,86 @@
         {
             "id": "An Update is Available!",
             "message": "An Update is Available!",
-            "translation": "更新が利用できます！"
+            "translation": "更新が利用できます！",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "WireGuard Update Available",
             "message": "WireGuard Update Available",
-            "translation": "WireGuard の更新が利用可能です"
+            "translation": "WireGuard の更新が利用可能です",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "An update to WireGuard is now available. You are advised to update as soon as possible.",
             "message": "An update to WireGuard is now available. You are advised to update as soon as possible.",
-            "translation": "WireGuard の更新が利用可能になりました。できるだけ早く更新してください。"
+            "translation": "WireGuard の更新が利用可能になりました。できるだけ早く更新してください。",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Tunnels",
             "message": "Tunnels",
-            "translation": "トンネル"
+            "translation": "トンネル",
+            "translatorComment": "Copied from source."
         },
         {
-            "id": "\u0026Edit",
-            "message": "\u0026Edit",
-            "translation": "編集(\u0026E)"
+            "id": "&Edit",
+            "message": "&Edit",
+            "translation": "編集(&E)",
+            "translatorComment": "Copied from source."
         },
         {
-            "id": "Add \u0026empty tunnel…",
-            "message": "Add \u0026empty tunnel…",
-            "translation": "空のトンネルを追加…(\u0026e)"
+            "id": "Add &empty tunnel…",
+            "message": "Add &empty tunnel…",
+            "translation": "空のトンネルを追加…(&E)",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Add Tunnel",
             "message": "Add Tunnel",
-            "translation": "トンネルの追加"
+            "translation": "トンネルの追加",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Remove selected tunnel(s)",
             "message": "Remove selected tunnel(s)",
-            "translation": "選択したトンネルの削除"
+            "translation": "選択したトンネルの削除",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Export all tunnels to zip",
             "message": "Export all tunnels to zip",
-            "translation": "すべてのトンネルをzipにエクスポート"
+            "translation": "すべてのトンネルをzipにエクスポート",
+            "translatorComment": "Copied from source."
         },
         {
-            "id": "\u0026Toggle",
-            "message": "\u0026Toggle",
-            "translation": "切り替え(\u0026T)"
+            "id": "&Toggle",
+            "message": "&Toggle",
+            "translation": "切り替え(&T)",
+            "translatorComment": "Copied from source."
         },
         {
-            "id": "Export all tunnels to \u0026zip…",
-            "message": "Export all tunnels to \u0026zip…",
-            "translation": "すべてのトンネルをzipにエクスポート…(\u0026z)"
+            "id": "Export all tunnels to &zip…",
+            "message": "Export all tunnels to &zip…",
+            "translation": "すべてのトンネルをzipにエクスポート…(&Z)",
+            "translatorComment": "Copied from source."
         },
         {
-            "id": "Edit \u0026selected tunnel…",
-            "message": "Edit \u0026selected tunnel…",
-            "translation": "選択したトンネルの編集…(\u0026s)"
+            "id": "Edit &selected tunnel…",
+            "message": "Edit &selected tunnel…",
+            "translation": "選択したトンネルの編集…(&S)",
+            "translatorComment": "Copied from source."
         },
         {
-            "id": "\u0026Remove selected tunnel(s)",
-            "message": "\u0026Remove selected tunnel(s)",
-            "translation": "選択したトンネルの削除(\u0026R)"
+            "id": "&Remove selected tunnel(s)",
+            "message": "&Remove selected tunnel(s)",
+            "translation": "選択したトンネルの削除(&R)",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Could not import selected configuration: {LastErr}",
             "message": "Could not import selected configuration: {LastErr}",
-            "translation": "選択した設定をインポートできませんでした: {LastErr}",
+            "translation": "選択したファイルからインポートできませんでした: {LastErr}",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "LastErr",
@@ -1118,6 +1304,7 @@
             "id": "Could not enumerate existing tunnels: {LastErr}",
             "message": "Could not enumerate existing tunnels: {LastErr}",
             "translation": "既存のトンネルを表示できませんでした: {LastErr}",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "LastErr",
@@ -1133,6 +1320,7 @@
             "id": "Another tunnel already exists with the name ‘{Name}’",
             "message": "Another tunnel already exists with the name ‘{Name}’",
             "translation": "‘{Name}’ という名前の別のトンネルがすでに存在します",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "Name",
@@ -1147,7 +1335,8 @@
         {
             "id": "Unable to import configuration: {LastErr}",
             "message": "Unable to import configuration: {LastErr}",
-            "translation": "設定をインポートできません: {LastErr}",
+            "translation": "設定をインポートできませんでした: {LastErr}",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "LastErr",
@@ -1162,12 +1351,23 @@
         {
             "id": "Imported tunnels",
             "message": "Imported tunnels",
-            "translation": "トンネルをインポート"
+            "translation": "トンネルのインポート結果",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Imported {M} tunnels",
             "message": "Imported {M} tunnels",
-            "translation": "{M} トンネルをインポートしました",
+            "translation": {
+                "select": {
+                    "feature": "plural",
+                    "arg": "M",
+                    "cases": {
+                        "other": {
+                            "msg": "{M} トンネルをインポートしました"
+                        }
+                    }
+                }
+            },
             "placeholders": [
                 {
                     "id": "M",
@@ -1182,7 +1382,17 @@
         {
             "id": "Imported {M} of {N} tunnels",
             "message": "Imported {M} of {N} tunnels",
-            "translation": "{N} つ中の {M} トンネルをインポートしました",
+            "translation": {
+                "select": {
+                    "feature": "plural",
+                    "arg": "N",
+                    "cases": {
+                        "other": {
+                            "msg": "{N} 中の {M} トンネルをインポートしました"
+                        }
+                    }
+                }
+            },
             "placeholders": [
                 {
                     "id": "M",
@@ -1205,12 +1415,23 @@
         {
             "id": "Unable to create tunnel",
             "message": "Unable to create tunnel",
-            "translation": "トンネルを作成できません"
+            "translation": "トンネルを作成できません",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Delete {TunnelCount} tunnels",
             "message": "Delete {TunnelCount} tunnels",
-            "translation": "{TunnelCount} トンネルを削除",
+            "translation": {
+                "select": {
+                    "feature": "plural",
+                    "arg": "TunnelCount",
+                    "cases": {
+                        "other": {
+                            "msg": "{TunnelCount} トンネルを削除"
+                        }
+                    }
+                }
+            },
             "placeholders": [
                 {
                     "id": "TunnelCount",
@@ -1225,7 +1446,17 @@
         {
             "id": "Are you sure you would like to delete {TunnelCount} tunnels?",
             "message": "Are you sure you would like to delete {TunnelCount} tunnels?",
-            "translation": "本当に {TunnelCount} つのトンネルを削除しますか？",
+            "translation": {
+                "select": {
+                    "feature": "plural",
+                    "arg": "TunnelCount",
+                    "cases": {
+                        "other": {
+                            "msg": "本当に {TunnelCount} トンネルを削除しますか？"
+                        }
+                    }
+                }
+            },
             "placeholders": [
                 {
                     "id": "TunnelCount",
@@ -1241,6 +1472,7 @@
             "id": "Delete tunnel ‘{TunnelName}’",
             "message": "Delete tunnel ‘{TunnelName}’",
             "translation": "トンネル ‘{TunnelName}’ を削除",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "TunnelName",
@@ -1256,6 +1488,7 @@
             "id": "Are you sure you would like to delete tunnel ‘{TunnelName}’?",
             "message": "Are you sure you would like to delete tunnel ‘{TunnelName}’?",
             "translation": "本当にトンネル ‘{TunnelName}’ を削除しますか？",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "TunnelName",
@@ -1271,6 +1504,7 @@
             "id": "{Question} You cannot undo this action.",
             "message": "{Question} You cannot undo this action.",
             "translation": "{Question} この操作はもとに戻せません。",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "Question",
@@ -1285,12 +1519,14 @@
         {
             "id": "Unable to delete tunnel",
             "message": "Unable to delete tunnel",
-            "translation": "トンネルを削除できません"
+            "translation": "トンネルを削除できません",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "A tunnel was unable to be removed: {Error}",
             "message": "A tunnel was unable to be removed: {Error}",
             "translation": "トンネルを削除できませんでした: {Error}",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "Error",
@@ -1305,12 +1541,23 @@
         {
             "id": "Unable to delete tunnels",
             "message": "Unable to delete tunnels",
-            "translation": "トンネルを削除できません"
+            "translation": "トンネルを削除できません",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "{Lenerrors} tunnels were unable to be removed.",
             "message": "{Lenerrors} tunnels were unable to be removed.",
-            "translation": "{Lenerrors} トンネルは削除できませんでした",
+            "translation": {
+                "select": {
+                    "feature": "plural",
+                    "arg": "Lenerrors",
+                    "cases": {
+                        "other": {
+                            "msg": "{Lenerrors} トンネルを削除できませんでした"
+                        }
+                    }
+                }
+            },
             "placeholders": [
                 {
                     "id": "Lenerrors",
@@ -1325,27 +1572,32 @@
         {
             "id": "Configuration Files (*.zip, *.conf)|*.zip;*.conf|All Files (*.*)|*.*",
             "message": "Configuration Files (*.zip, *.conf)|*.zip;*.conf|All Files (*.*)|*.*",
-            "translation": "設定ファイル (*.zip, *.conf)|*.zip;*.conf|すべてのファイル (*.*)|*.*"
+            "translation": "設定ファイル (*.zip, *.conf)|*.zip;*.conf|すべてのファイル (*.*)|*.*",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Import tunnel(s) from file",
             "message": "Import tunnel(s) from file",
-            "translation": "ファイルからトンネルをインポート"
+            "translation": "ファイルからトンネルをインポート",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Configuration ZIP Files (*.zip)|*.zip",
             "message": "Configuration ZIP Files (*.zip)|*.zip",
-            "translation": "ZIP形式設定ファイル (*.zip)|*.zip"
+            "translation": "ZIP形式設定ファイル (*.zip)|*.zip",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Export tunnels to zip",
             "message": "Export tunnels to zip",
-            "translation": "トンネルをZIPにエクスポート"
+            "translation": "トンネルをZIPにエクスポート",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "{Title} (unsigned build, no updates)",
             "message": "{Title} (unsigned build, no updates)",
             "translation": "{Title} (未署名のビルド、更新の提供なし)",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "Title",
@@ -1360,12 +1612,14 @@
         {
             "id": "Error Exiting WireGuard",
             "message": "Error Exiting WireGuard",
-            "translation": "エラーのため WireGuard を終了します"
+            "translation": "WireGuard 終了エラー",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Unable to exit service due to: {Err}. You may want to stop WireGuard from the service manager.",
             "message": "Unable to exit service due to: {Err}. You may want to stop WireGuard from the service manager.",
-            "translation": "{Err} のためサービスを終了できません。サービスマネージャから WireGuard を停止できます。",
+            "translation": "{Err} のためサービスを終了できませんでした。サービスマネージャから WireGuard を停止できます。",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "Err",
@@ -1380,27 +1634,32 @@
         {
             "id": "An update to WireGuard is available. It is highly advisable to update without delay.",
             "message": "An update to WireGuard is available. It is highly advisable to update without delay.",
-            "translation": "WireGuard の更新が利用可能です。速やかに更新することを強く推奨します。"
+            "translation": "WireGuard の更新が利用可能です。速やかに更新することを強く推奨します。",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Status: Waiting for user",
             "message": "Status: Waiting for user",
-            "translation": "状態: ユーザーからの応答待ち"
+            "translation": "状態: ユーザーからの応答待ち",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Update Now",
             "message": "Update Now",
-            "translation": "今すぐ更新"
+            "translation": "今すぐ更新",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Status: Waiting for updater service",
             "message": "Status: Waiting for updater service",
-            "translation": "状態: アップデータサービスを待機中"
+            "translation": "状態: アップデータサービスを待機中",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "Error: {Err}. Please try again.",
             "message": "Error: {Err}. Please try again.",
             "translation": "エラー: {Err}。再度実行してください。",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "Err",
@@ -1415,12 +1674,14 @@
         {
             "id": "Status: Complete!",
             "message": "Status: Complete!",
-            "translation": "状態: 完了！"
+            "translation": "状態: 完了！",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "http2: Framer {F}: failed to decode just-written frame",
             "message": "http2: Framer {F}: failed to decode just-written frame",
             "translation": "http2: Framer {F}: just-writtenフレームのデコードに失敗",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "F",
@@ -1436,6 +1697,7 @@
             "id": "http2: Framer {F}: wrote {Http2summarizeFramefr}",
             "message": "http2: Framer {F}: wrote {Http2summarizeFramefr}",
             "translation": "http2: Framer {F}: {Http2summarizeFramefr} を書き込みました",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "F",
@@ -1459,6 +1721,7 @@
             "id": "http2: Framer {Fr}: read {Http2summarizeFramef}",
             "message": "http2: Framer {Fr}: read {Http2summarizeFramef}",
             "translation": "http2: Framer {Fr}: {Http2summarizeFramef} を読み込みました",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "Fr",
@@ -1482,6 +1745,7 @@
             "id": "http2: decoded hpack field {HeaderField}",
             "message": "http2: decoded hpack field {HeaderField}",
             "translation": "http2: hpack フィールド {HeaderField} をデコードしました",
+            "translatorComment": "Copied from source.",
             "placeholders": [
                 {
                     "id": "HeaderField",

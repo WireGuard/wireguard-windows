@@ -1,22 +1,22 @@
 {
-    "language": "sl",
+    "language": "ru",
     "messages": [
         {
             "id": "Error",
             "message": "Error",
-            "translation": "Napaka",
+            "translation": "Ошибка",
             "translatorComment": "Copied from source."
         },
         {
             "id": "(no argument): elevate and install manager service",
             "message": "(no argument): elevate and install manager service",
-            "translation": "(brez argumenta): povzdigni na skrbniške pravice in namesti skrbniško storitev",
+            "translation": "(нет аргумента): получить права администратора и установить административную службу",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Usage: {Args0} [\n{String}]",
             "message": "Usage: {Args0} [\n{String}]",
-            "translation": "Uporaba: {Args0} [\n{String}]",
+            "translation": "Использование: {Args0} [\n{String}]",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -40,13 +40,13 @@
         {
             "id": "Command Line Options",
             "message": "Command Line Options",
-            "translation": "Možnosti ukazne vrstice",
+            "translation": "Параметры командной строки",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Unable to determine whether the process is running under WOW64: {Err}",
             "message": "Unable to determine whether the process is running under WOW64: {Err}",
-            "translation": "Napaka pri določanju ali proces teče kot WOW64: {Err}",
+            "translation": "Ошибка определения или процесс работает как WOW64: {Err}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -62,13 +62,13 @@
         {
             "id": "You must use the 64-bit version of WireGuard on this computer.",
             "message": "You must use the 64-bit version of WireGuard on this computer.",
-            "translation": "Na temu računalniku morate uporabiti 64-bitno različico WireGuarda.",
+            "translation": "Используйте 64-битную версию WireGuard на этом компьютере.",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Unable to open current process token: {Err}",
             "message": "Unable to open current process token: {Err}",
-            "translation": "Napaka pri odpiranju žetona trenutnega procesa: {Err}",
+            "translation": "Не удается открыть токен текущего процесса: {Err}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -84,7 +84,7 @@
         {
             "id": "WireGuard may only be used by users who are a member of the Builtin {AdminGroupName} group.",
             "message": "WireGuard may only be used by users who are a member of the Builtin {AdminGroupName} group.",
-            "translation": "WireGuard lahko uporabljajo samo uporabniki, ki so člani vgrajene skupine {AdminGroupName}.",
+            "translation": "WireGuard может использоваться только пользователями, входящими в группу {AdminGroupName}.",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -100,7 +100,7 @@
         {
             "id": "WireGuard is running, but the UI is only accessible from desktops of the Builtin {AdminGroupName} group.",
             "message": "WireGuard is running, but the UI is only accessible from desktops of the Builtin {AdminGroupName} group.",
-            "translation": "WireGuard je zagnan, vendar je up. vmesnik dostopen samo z namizij uporabnikov članov skupine {AdminGroupName}.",
+            "translation": "WireGuard запущен, но пользовательский интерфейс доступен только с рабочих столов группы {AdminGroupName}.",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -116,19 +116,19 @@
         {
             "id": "WireGuard system tray icon did not appear after 30 seconds.",
             "message": "WireGuard system tray icon did not appear after 30 seconds.",
-            "translation": "Ikona WireGuarda se po 30 sekundah ni pojavila v sistemski vrstici.",
+            "translation": "Значок в системном трее WireGuard не появился после 30 секунд.",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Now",
             "message": "Now",
-            "translation": "Zdaj",
+            "translation": "Сейчас",
             "translatorComment": "Copied from source."
         },
         {
             "id": "System clock wound backward!",
             "message": "System clock wound backward!",
-            "translation": "Sistemska ura prevrtena nazaj!",
+            "translation": "Системные часы переведены назад!",
             "translatorComment": "Copied from source."
         },
         {
@@ -140,16 +140,16 @@
                     "arg": "Years",
                     "cases": {
                         "one": {
-                            "msg": "{Years} leto"
-                        },
-                        "two": {
-                            "msg": "{Years} leti"
+                            "msg": "{Years}г"
                         },
                         "few": {
-                            "msg": "{Years} leta"
+                            "msg": "{Years}г"
+                        },
+                        "many": {
+                            "msg": "{Years}г"
                         },
                         "other": {
-                            "msg": "{Years} let"
+                            "msg": "{Years}г"
                         }
                     }
                 }
@@ -174,16 +174,16 @@
                     "arg": "Days",
                     "cases": {
                         "one": {
-                            "msg": "{Days} dan"
-                        },
-                        "two": {
-                            "msg": "{Days} dneva"
+                            "msg": "{Days}д"
                         },
                         "few": {
-                            "msg": "{Days} dni"
+                            "msg": "{Days}д"
+                        },
+                        "many": {
+                            "msg": "{Days}д"
                         },
                         "other": {
-                            "msg": "{Days} dni"
+                            "msg": "{Days}д"
                         }
                     }
                 }
@@ -208,16 +208,16 @@
                     "arg": "Hours",
                     "cases": {
                         "one": {
-                            "msg": "{Hours} uro"
-                        },
-                        "two": {
-                            "msg": "{Hours} uri"
+                            "msg": "{Hours}ч"
                         },
                         "few": {
-                            "msg": "{Hours} ure"
+                            "msg": "{Hours}ч"
+                        },
+                        "many": {
+                            "msg": "{Hours}ч"
                         },
                         "other": {
-                            "msg": "{Hours} ur"
+                            "msg": "{Hours}ч"
                         }
                     }
                 }
@@ -242,16 +242,16 @@
                     "arg": "Minutes",
                     "cases": {
                         "one": {
-                            "msg": "{Minutes} minuto"
-                        },
-                        "two": {
-                            "msg": "{Minutes} minuti"
+                            "msg": "{Minutes}мин"
                         },
                         "few": {
-                            "msg": "{Minutes} minute"
+                            "msg": "{Minutes}мин"
+                        },
+                        "many": {
+                            "msg": "{Minutes}мин"
                         },
                         "other": {
-                            "msg": "{Minutes} minut"
+                            "msg": "{Minutes}мин"
                         }
                     }
                 }
@@ -276,16 +276,16 @@
                     "arg": "Seconds",
                     "cases": {
                         "one": {
-                            "msg": "{Seconds} sekundo"
-                        },
-                        "two": {
-                            "msg": "{Seconds} sekundi"
+                            "msg": "{Seconds}сек"
                         },
                         "few": {
-                            "msg": "{Seconds} sekunde"
+                            "msg": "{Seconds}сек"
+                        },
+                        "many": {
+                            "msg": "{Seconds}сек"
                         },
                         "other": {
-                            "msg": "{Seconds} sekund"
+                            "msg": "{Seconds}сек"
                         }
                     }
                 }
@@ -304,7 +304,7 @@
         {
             "id": "{Timestamp} ago",
             "message": "{Timestamp} ago",
-            "translation": "{Timestamp} nazaj",
+            "translation": "{Timestamp} назад",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -320,7 +320,7 @@
         {
             "id": "{Bytes} B",
             "message": "{Bytes} B",
-            "translation": "{Bytes} B",
+            "translation": "{Bytes} Б",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -336,7 +336,7 @@
         {
             "id": "{Float64b__1024} KiB",
             "message": "{Float64b__1024} KiB",
-            "translation": "{Float64b__1024} KiB",
+            "translation": "{Float64b__1024} Кб",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -352,7 +352,7 @@
         {
             "id": "{Float64b__1024__1024} MiB",
             "message": "{Float64b__1024__1024} MiB",
-            "translation": "{Float64b__1024__1024} MiB",
+            "translation": "{Float64b__1024__1024} Мб",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -368,7 +368,7 @@
         {
             "id": "{Float64b__1024__1024__1024} GiB",
             "message": "{Float64b__1024__1024__1024} GiB",
-            "translation": "{Float64b__1024__1024__1024} GiB",
+            "translation": "{Float64b__1024__1024__1024} Гб",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -384,7 +384,7 @@
         {
             "id": "{Float64b__1024__1024__1024__1024} TiB",
             "message": "{Float64b__1024__1024__1024__1024} TiB",
-            "translation": "{Float64b__1024__1024__1024__1024} TiB",
+            "translation": "{Float64b__1024__1024__1024__1024} Тб",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -424,55 +424,55 @@
         {
             "id": "Invalid IP address",
             "message": "Invalid IP address",
-            "translation": "Napačen naslov IP",
+            "translation": "Недопустимый IP-адрес",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid network prefix length",
             "message": "Invalid network prefix length",
-            "translation": "Napačna dolžina predpone omrežja",
+            "translation": "Недопустимая длина префикса сети",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Missing port from endpoint",
             "message": "Missing port from endpoint",
-            "translation": "Pri končni točki manjkajo vrata",
+            "translation": "Отсутствует порт IP-адреса сервера",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid endpoint host",
             "message": "Invalid endpoint host",
-            "translation": "Pri končni točki je gostitelj napačen",
+            "translation": "Неверный IP-адрес сервера",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Brackets must contain an IPv6 address",
             "message": "Brackets must contain an IPv6 address",
-            "translation": "Oklepaji morajo vsebovati naslov IPv6",
+            "translation": "В скобках должен быть IPv6 адрес",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid MTU",
             "message": "Invalid MTU",
-            "translation": "Napačen MTU",
+            "translation": "Недопустимый MTU",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid port",
             "message": "Invalid port",
-            "translation": "Napačna vrata",
+            "translation": "Недопустимый порт",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid persistent keepalive",
             "message": "Invalid persistent keepalive",
-            "translation": "Napačno trajno ohranjanje povezave",
+            "translation": "Недопустимое значение поддержания соединения",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid key: {Err}",
             "message": "Invalid key: {Err}",
-            "translation": "Napačen ključ: {Err}",
+            "translation": "Недопустимый ключ: {Err}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -488,13 +488,13 @@
         {
             "id": "Keys must decode to exactly 32 bytes",
             "message": "Keys must decode to exactly 32 bytes",
-            "translation": "Dekodirani ključi morajo biti natanko 32 bajtov",
+            "translation": "Ключи должны декодироваться ровно с 32 байтами",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Number must be a number between 0 and 2^64-1: {Err}",
             "message": "Number must be a number between 0 and 2^64-1: {Err}",
-            "translation": "Številka mora biti število med 0 in 2^64-1: {Err}",
+            "translation": "Число должно быть между 0 и 2^64-1: {Err}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -510,85 +510,85 @@
         {
             "id": "Two commas in a row",
             "message": "Two commas in a row",
-            "translation": "Dve zaporedni vejici",
+            "translation": "Две запятые подряд",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Tunnel name is not valid",
             "message": "Tunnel name is not valid",
-            "translation": "Ime tunela ni veljavno",
+            "translation": "Неправильное имя туннеля",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Line must occur in a section",
             "message": "Line must occur in a section",
-            "translation": "Vrstica mora biti v odseku",
+            "translation": "Строка должна быть в секции",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid config key is missing an equals separator",
             "message": "Invalid config key is missing an equals separator",
-            "translation": "Napačnemu ključu konfiguracije manjka ločilo-enačaj",
+            "translation": "В ключе конфигурации отсутствует разделитель",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Key must have a value",
             "message": "Key must have a value",
-            "translation": "Ključ mora imeti vrednost",
+            "translation": "Ключ должен иметь значение",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid key for [Interface] section",
             "message": "Invalid key for [Interface] section",
-            "translation": "Napačen ključ za odsek [Interface]",
+            "translation": "Неверный ключ для секции [Interface]",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid key for [Peer] section",
             "message": "Invalid key for [Peer] section",
-            "translation": "Napačen ključ za odsek [Peer]",
+            "translation": "Неверный ключ для секции [Peer]",
             "translatorComment": "Copied from source."
         },
         {
             "id": "An interface must have a private key",
             "message": "An interface must have a private key",
-            "translation": "Vmesnik mora imeti zasebni ključ",
+            "translation": "В Интерфейсе должен быть приватный ключ",
             "translatorComment": "Copied from source."
         },
         {
             "id": "[none specified]",
             "message": "[none specified]",
-            "translation": "[ni navedeno]",
+            "translation": "[не указано]",
             "translatorComment": "Copied from source."
         },
         {
             "id": "All peers must have public keys",
             "message": "All peers must have public keys",
-            "translation": "Vsi vrstniki morajo imeti javni ključ",
+            "translation": "Все пиры должны иметь открытые ключи",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Error in getting configuration",
             "message": "Error in getting configuration",
-            "translation": "Napaka pri branju konfiguracije",
+            "translation": "Ошибка при получении конфигурации",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid key for interface section",
             "message": "Invalid key for interface section",
-            "translation": "Napačen ključ za odsek vmesnika",
+            "translation": "Неверный ключ для секции Интерфейса",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Protocol version must be 1",
             "message": "Protocol version must be 1",
-            "translation": "Verzija protokola mora biti 1",
+            "translation": "Версия протокола должна быть 1",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid key for peer section",
             "message": "Invalid key for peer section",
-            "translation": "Napačen ključ za odsek vrstnika",
+            "translation": "Неверный ключ для секции Пира",
             "translatorComment": "Copied from source."
         },
         {
@@ -600,25 +600,25 @@
         {
             "id": "[UnitSeparator]",
             "message": "[UnitSeparator]",
-            "translation": " ",
+            "translation": ", ",
             "comment": "Text to insert when combining units of a measure - most languages will translate ‘[UnitSeparator]’ into ‘ ’ (space) to produce lists like ‘2 minuti 30 sekund’, or empty string ‘’ to produce ‘2分30秒’."
         },
         {
             "id": "About WireGuard",
             "message": "About WireGuard",
-            "translation": "O WireGuardu",
+            "translation": "О WireGuard",
             "translatorComment": "Copied from source."
         },
         {
             "id": "WireGuard logo image",
             "message": "WireGuard logo image",
-            "translation": "Slika WireGuardovega logotipa",
+            "translation": "Логотип WireGuard",
             "translatorComment": "Copied from source."
         },
         {
             "id": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}\nOperating system: {OsName}\nArchitecture: {GOARCH}",
             "message": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}\nOperating system: {OsName}\nArchitecture: {GOARCH}",
-            "translation": "Verzija aplikacije: {Number}\nVerzija wireguard-go: {WireGuardGoVersion}\nVerzija Go: {Version_go}\nOperacijski sistem: {OsName}\nArhitektura: {GOARCH}",
+            "translation": "Версия приложения: {Number}\nВерсия бэкэнда: {WireGuardGoVersion}\nВерсия перехода: {Version_go}\nОперационная система: {OsName}\nАрхитектура: {GOARCH}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -666,43 +666,43 @@
         {
             "id": "Close",
             "message": "Close",
-            "translation": "Zapri",
+            "translation": "Закрыть",
             "translatorComment": "Copied from source."
         },
         {
             "id": "♥ &Donate!",
             "message": "♥ &Donate!",
-            "translation": "♥ &Doniraj!",
+            "translation": "♥ &Пожертвовать!",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Status:",
             "message": "Status:",
-            "translation": "Status:",
+            "translation": "Статус:",
             "translatorComment": "Copied from source."
         },
         {
             "id": "&Deactivate",
             "message": "&Deactivate",
-            "translation": "&Deaktiviraj",
+            "translation": "&Отключен",
             "translatorComment": "Copied from source."
         },
         {
             "id": "&Activate",
             "message": "&Activate",
-            "translation": "&Aktiviraj",
+            "translation": "&Подключен",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Public key:",
             "message": "Public key:",
-            "translation": "Javni ključ:",
+            "translation": "Публичный ключ:",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Listen port:",
             "message": "Listen port:",
-            "translation": "Vrata poslušanja:",
+            "translation": "Порт:",
             "translatorComment": "Copied from source."
         },
         {
@@ -714,61 +714,61 @@
         {
             "id": "Addresses:",
             "message": "Addresses:",
-            "translation": "Naslovi:",
+            "translation": "IP-адреса:",
             "translatorComment": "Copied from source."
         },
         {
             "id": "DNS servers:",
             "message": "DNS servers:",
-            "translation": "Strežniki DNS:",
+            "translation": "DNS-серверы:",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Preshared key:",
             "message": "Preshared key:",
-            "translation": "Ključ v skupni rabi:",
+            "translation": "Общий ключ:",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Allowed IPs:",
             "message": "Allowed IPs:",
-            "translation": "Dovoljeni IP-ji:",
+            "translation": "Разрешенные IP-адреса:",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Endpoint:",
             "message": "Endpoint:",
-            "translation": "Končna točka:",
+            "translation": "IP-адрес сервера:",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Persistent keepalive:",
             "message": "Persistent keepalive:",
-            "translation": "Trajno ohranjanje povezave:",
+            "translation": "Поддерживание соединения:",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Latest handshake:",
             "message": "Latest handshake:",
-            "translation": "Zadnje rokovanje:",
+            "translation": "Последнее рукопожатие:",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Transfer:",
             "message": "Transfer:",
-            "translation": "Prenos:",
+            "translation": "Передача:",
             "translatorComment": "Copied from source."
         },
         {
             "id": "enabled",
             "message": "enabled",
-            "translation": "omogočeno",
+            "translation": "включено",
             "translatorComment": "Copied from source."
         },
         {
             "id": "{String} received, {String_1} sent",
             "message": "{String} received, {String_1} sent",
-            "translation": "{String} prejeto, {String_1} poslano",
+            "translation": "Получено {String}, отправлено {String_1}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -792,25 +792,25 @@
         {
             "id": "Failed to determine tunnel state",
             "message": "Failed to determine tunnel state",
-            "translation": "Napaka pri določanju stanja tunela",
+            "translation": "Не удалось определить состояние туннеля",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Failed to activate tunnel",
             "message": "Failed to activate tunnel",
-            "translation": "Napaka pri aktiviranju tunela",
+            "translation": "Не удалось подключить туннель",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Failed to deactivate tunnel",
             "message": "Failed to deactivate tunnel",
-            "translation": "Napaka pri deaktiviranju tunela",
+            "translation": "Не удалось отключить туннель",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Interface: {Name}",
             "message": "Interface: {Name}",
-            "translation": "Vmesnik: {Name}",
+            "translation": "Интерфейс: {Name}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -826,85 +826,85 @@
         {
             "id": "Peer",
             "message": "Peer",
-            "translation": "Vrstnik",
+            "translation": "Пир",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Create new tunnel",
             "message": "Create new tunnel",
-            "translation": "Ustvari nov tunel",
+            "translation": "Создать туннель",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Edit tunnel",
             "message": "Edit tunnel",
-            "translation": "Uredi tunel",
+            "translation": "Редактировать туннель",
             "translatorComment": "Copied from source."
         },
         {
             "id": "&Name:",
             "message": "&Name:",
-            "translation": "&Ime:",
+            "translation": "&Имя:",
             "translatorComment": "Copied from source."
         },
         {
             "id": "&Public key:",
             "message": "&Public key:",
-            "translation": "&Javni ključ:",
+            "translation": "&Публичный ключ:",
             "translatorComment": "Copied from source."
         },
         {
             "id": "(unknown)",
             "message": "(unknown)",
-            "translation": "(neznano)",
+            "translation": "(неизвестно)",
             "translatorComment": "Copied from source."
         },
         {
             "id": "&Block untunneled traffic (kill-switch)",
             "message": "&Block untunneled traffic (kill-switch)",
-            "translation": "&Blokiraj promet izven tunela (varovalka)",
+            "translation": "&Блокировать нетуннельный трафик",
             "translatorComment": "Copied from source."
         },
         {
             "id": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface, with special exceptions for DHCP and NDP.",
             "message": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface, with special exceptions for DHCP and NDP.",
-            "translation": "Kadar ima konfiguracija natanko enega vrstnika in njegov spisek dovoljenih IP-jev vsebuje vsaj enega izmed 0.0.0.0/0 ali ::/0, bo storitev tunela vzpostavila pravila požarnega zidu, ki bodo blokirala ves promet, ki ni niti za niti iz vmesnika tunela s posebnimi izjemami za DHCP and NDP.",
+            "translation": "Когда конфигурация имеет ровно одного пира, и у этого пира есть разрешенные IP, содержащие хотя бы один из 0.0.0.0/0 или ::/0, то служба туннеля обязывает брандмауэр блокировать весь входящий и исходящий трафик, который не проходит через туннель, за исключением DHCP и NDP.",
             "translatorComment": "Copied from source."
         },
         {
             "id": "&Save",
             "message": "&Save",
-            "translation": "&Shrani",
+            "translation": "&Сохранить",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Cancel",
             "message": "Cancel",
-            "translation": "Prekliči",
+            "translation": "Отмена",
             "translatorComment": "Copied from source."
         },
         {
             "id": "&Configuration:",
             "message": "&Configuration:",
-            "translation": "&Konfiguracija:",
+            "translation": "&Конфигурация:",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid name",
             "message": "Invalid name",
-            "translation": "Napačno ime",
+            "translation": "Недопустимое имя",
             "translatorComment": "Copied from source."
         },
         {
             "id": "A name is required.",
             "message": "A name is required.",
-            "translation": "Ime je obvezno.",
+            "translation": "Требуется имя.",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Tunnel name ‘{NewName}’ is invalid.",
             "message": "Tunnel name ‘{NewName}’ is invalid.",
-            "translation": "Ime tunela »{NewName}« ni veljavno.",
+            "translation": "Имя туннеля ‘{NewName}’ недопустимо.",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -920,19 +920,19 @@
         {
             "id": "Unable to list existing tunnels",
             "message": "Unable to list existing tunnels",
-            "translation": "Napaka pri pripravi seznama obstoječih tunelov",
+            "translation": "Не удалось отобразить туннели",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Tunnel already exists",
             "message": "Tunnel already exists",
-            "translation": "Tunel že obstaja",
+            "translation": "Туннель уже существует",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Another tunnel already exists with the name ‘{NewName}’.",
             "message": "Another tunnel already exists with the name ‘{NewName}’.",
-            "translation": "Drug tunel z imenom »{NewName}« že obstaja.",
+            "translation": "Туннель с именем ’{NewName}’ уже существует.",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -948,19 +948,19 @@
         {
             "id": "Unable to create new configuration",
             "message": "Unable to create new configuration",
-            "translation": "Napaka pri izdelavi nove konfiguracije",
+            "translation": "Не удалось создать новую конфигурацию",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Writing file failed",
             "message": "Writing file failed",
-            "translation": "Napaka pri pisanju v datoteko",
+            "translation": "Ошибка записи файла",
             "translatorComment": "Copied from source."
         },
         {
             "id": "File ‘{FilePath}’ already exists.\n\nDo you want to overwrite it?",
             "message": "File ‘{FilePath}’ already exists.\n\nDo you want to overwrite it?",
-            "translation": "Datoteka »{FilePath}« že obstaja.\n\nAli jo želite prepisati?",
+            "translation": "Файл '{FilePath}' уже существует!\n\nВы хотите перезаписать его?",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -976,97 +976,97 @@
         {
             "id": "Active",
             "message": "Active",
-            "translation": "Aktivno",
+            "translation": "Подключен",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Activating",
             "message": "Activating",
-            "translation": "Se aktivira",
+            "translation": "Подключение",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Inactive",
             "message": "Inactive",
-            "translation": "Neaktivno",
+            "translation": "Отключен",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Deactivating",
             "message": "Deactivating",
-            "translation": "Se deaktivira",
+            "translation": "Отключение",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Unknown state",
             "message": "Unknown state",
-            "translation": "Neznano stanje",
+            "translation": "Неизвестное состояние",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Log",
             "message": "Log",
-            "translation": "Dnevnik",
+            "translation": "Журнал",
             "translatorComment": "Copied from source."
         },
         {
             "id": "&Copy",
             "message": "&Copy",
-            "translation": "&Kopiraj",
+            "translation": "&Копировать",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Select &all",
             "message": "Select &all",
-            "translation": "&Izberi vse",
+            "translation": "Выбрать &всё",
             "translatorComment": "Copied from source."
         },
         {
             "id": "&Save to file…",
             "message": "&Save to file…",
-            "translation": "&Shrani v datoteko …",
+            "translation": "&Сохранить в файл…",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Time",
             "message": "Time",
-            "translation": "Čas",
+            "translation": "Время",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Log message",
             "message": "Log message",
-            "translation": "Sporočilo v dnevniku",
+            "translation": "Сообщение Журнала",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Text Files (*.txt)|*.txt|All Files (*.*)|*.*",
             "message": "Text Files (*.txt)|*.txt|All Files (*.*)|*.*",
-            "translation": "Tekstovne datoteke (*.txt)|*.txt|Vse datoteke (*.*)|*.*",
+            "translation": "Текстовые файлы (*.txt)|*.txt|Все файлы (*.*)|*.*",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Export log to file",
             "message": "Export log to file",
-            "translation": "Izvozi dnevnik v datoteko",
+            "translation": "Экспорт Журнала в файл",
             "translatorComment": "Copied from source."
         },
         {
             "id": "&About WireGuard…",
             "message": "&About WireGuard…",
-            "translation": "O WireGu&ardu …",
+            "translation": "&О WireGuard…",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Tunnel Error",
             "message": "Tunnel Error",
-            "translation": "Napaka tunela",
+            "translation": "Ошибка туннеля",
             "translatorComment": "Copied from source."
         },
         {
             "id": "{ErrMsg}\n\nPlease consult the log for more information.",
             "message": "{ErrMsg}\n\nPlease consult the log for more information.",
-            "translation": "{ErrMsg}\n\nDodatne informacije najdete v dnevniku.",
+            "translation": "{ErrMsg}\n\nОбратитесь к журналу для получения дополнительной информации.",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1082,7 +1082,7 @@
         {
             "id": "{Title} (out of date)",
             "message": "{Title} (out of date)",
-            "translation": "{Title} (neposodobljen)",
+            "translation": "{Title} (устарел)",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1098,13 +1098,13 @@
         {
             "id": "WireGuard Detection Error",
             "message": "WireGuard Detection Error",
-            "translation": "Napaka zaznavanja WireGuarda",
+            "translation": "Ошибка обнаружения WireGuard",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Unable to wait for WireGuard window to appear: {Err}",
             "message": "Unable to wait for WireGuard window to appear: {Err}",
-            "translation": "Čakanje, da se pojavi WireGuardovo okno, ni možno: {Err}",
+            "translation": "Не удалось дождаться появления окна WireGuard: {Err}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1120,43 +1120,43 @@
         {
             "id": "WireGuard: Deactivated",
             "message": "WireGuard: Deactivated",
-            "translation": "WireGuard: Deaktiviran",
+            "translation": "WireGuard: Деактивирован",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Status: Unknown",
             "message": "Status: Unknown",
-            "translation": "Status: Neznan",
+            "translation": "Статус: Неизвестен",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Addresses: None",
             "message": "Addresses: None",
-            "translation": "Naslovi: Brez",
+            "translation": "Адреса: нет",
             "translatorComment": "Copied from source."
         },
         {
             "id": "&Manage tunnels…",
             "message": "&Manage tunnels…",
-            "translation": "&Upravljaj tunele …",
+            "translation": "&Управление туннелями…",
             "translatorComment": "Copied from source."
         },
         {
             "id": "&Import tunnel(s) from file…",
             "message": "&Import tunnel(s) from file…",
-            "translation": "&Uvozi tunel(e) iz datoteke…",
+            "translation": "&Импорт туннелей из файла…",
             "translatorComment": "Copied from source."
         },
         {
             "id": "E&xit",
             "message": "E&xit",
-            "translation": "I&zhod",
+            "translation": "Вы&ход",
             "translatorComment": "Copied from source."
         },
         {
             "id": "WireGuard Tunnel Error",
             "message": "WireGuard Tunnel Error",
-            "translation": "Napaka tunela WireGuard",
+            "translation": "Ошибка туннеля WireGuard",
             "translatorComment": "Copied from source."
         },
         {
@@ -1178,7 +1178,7 @@
         {
             "id": "Status: {StateText}",
             "message": "Status: {StateText}",
-            "translation": "Status: {StateText}",
+            "translation": "Статус: {StateText}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1194,7 +1194,7 @@
         {
             "id": "Addresses: {String}",
             "message": "Addresses: {String}",
-            "translation": "Naslovi: {String}",
+            "translation": "Адреса: {String}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1210,13 +1210,13 @@
         {
             "id": "WireGuard Activated",
             "message": "WireGuard Activated",
-            "translation": "WireGuard aktiviran",
+            "translation": "WireGuard Включен",
             "translatorComment": "Copied from source."
         },
         {
             "id": "The {Name} tunnel has been activated.",
             "message": "The {Name} tunnel has been activated.",
-            "translation": "Tunel {Name} je bil aktiviran.",
+            "translation": "Туннель {Name} подключен.",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1232,13 +1232,13 @@
         {
             "id": "WireGuard Deactivated",
             "message": "WireGuard Deactivated",
-            "translation": "WireGuard deaktiviran",
+            "translation": "WireGuard Выключен",
             "translatorComment": "Copied from source."
         },
         {
             "id": "The {Name} tunnel has been deactivated.",
             "message": "The {Name} tunnel has been deactivated.",
-            "translation": "Tunel {Name} je bil deaktiviran.",
+            "translation": "Туннель {Name} отключен.",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1254,85 +1254,85 @@
         {
             "id": "An Update is Available!",
             "message": "An Update is Available!",
-            "translation": "Na voljo je posodobitev!",
+            "translation": "Доступно обновление!",
             "translatorComment": "Copied from source."
         },
         {
             "id": "WireGuard Update Available",
             "message": "WireGuard Update Available",
-            "translation": "Posodobitev WireGuarda je na voljo",
+            "translation": "Доступно обновление WireGuard",
             "translatorComment": "Copied from source."
         },
         {
             "id": "An update to WireGuard is now available. You are advised to update as soon as possible.",
             "message": "An update to WireGuard is now available. You are advised to update as soon as possible.",
-            "translation": "Posodobitev WireGuarda je na voljo. Svetujemo posodobitev čim prej.",
+            "translation": "Доступно обновление для WireGuard. Рекомендуется обновить его как можно скорее.",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Tunnels",
             "message": "Tunnels",
-            "translation": "Tuneli",
+            "translation": "Туннели",
             "translatorComment": "Copied from source."
         },
         {
             "id": "&Edit",
             "message": "&Edit",
-            "translation": "&Uredi",
+            "translation": "&Редактировать",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Add &empty tunnel…",
             "message": "Add &empty tunnel…",
-            "translation": "Dodaj &prazen tunel …",
+            "translation": "Добавить &пустой туннель…",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Add Tunnel",
             "message": "Add Tunnel",
-            "translation": "Dodaj tunel",
+            "translation": "Добавить туннель",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Remove selected tunnel(s)",
             "message": "Remove selected tunnel(s)",
-            "translation": "Odstrani izbrane tunele",
+            "translation": "Удалить выбранные туннели",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Export all tunnels to zip",
             "message": "Export all tunnels to zip",
-            "translation": "Izvozi vse tunele v zip",
+            "translation": "Экспорт всех туннелей в zip-архив",
             "translatorComment": "Copied from source."
         },
         {
             "id": "&Toggle",
             "message": "&Toggle",
-            "translation": "&Preklopi",
+            "translation": "&Переключить",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Export all tunnels to &zip…",
             "message": "Export all tunnels to &zip…",
-            "translation": "Izvozi vse tunele v &zip …",
+            "translation": "Экспорт всех туннелей в &zip-архив…",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Edit &selected tunnel…",
             "message": "Edit &selected tunnel…",
-            "translation": "Uredi &izbran tunel …",
+            "translation": "Редактировать &выбранный туннель…",
             "translatorComment": "Copied from source."
         },
         {
             "id": "&Remove selected tunnel(s)",
             "message": "&Remove selected tunnel(s)",
-            "translation": "Odst&rani izbrane tunele",
+            "translation": "&Удалить выбранные туннели",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Could not import selected configuration: {LastErr}",
             "message": "Could not import selected configuration: {LastErr}",
-            "translation": "Napaka pri uvozu izbrane konfiguracije: {LastErr}",
+            "translation": "Невозможно импортировать конфигурацию: {LastErr}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1348,7 +1348,7 @@
         {
             "id": "Could not enumerate existing tunnels: {LastErr}",
             "message": "Could not enumerate existing tunnels: {LastErr}",
-            "translation": "Napaka pri preštevanju obstoječih tunelov: {LastErr}",
+            "translation": "Не удалось перечислить существующие туннели: {LastErr}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1364,7 +1364,7 @@
         {
             "id": "Another tunnel already exists with the name ‘{Name}’",
             "message": "Another tunnel already exists with the name ‘{Name}’",
-            "translation": "Tunel z imenom »{Name}« že obstaja",
+            "translation": "Туннель с именем ’{Name}’ уже существует",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1380,7 +1380,7 @@
         {
             "id": "Unable to import configuration: {LastErr}",
             "message": "Unable to import configuration: {LastErr}",
-            "translation": "Napaka pri uvozu konfiguracije: {LastErr}",
+            "translation": "Невозможно импортировать конфигурацию: {LastErr}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1396,7 +1396,7 @@
         {
             "id": "Imported tunnels",
             "message": "Imported tunnels",
-            "translation": "Uvoženi tuneli",
+            "translation": "Импортированные туннели",
             "translatorComment": "Copied from source."
         },
         {
@@ -1408,16 +1408,16 @@
                     "arg": "M",
                     "cases": {
                         "one": {
-                            "msg": "Uvožen {M} tunel"
-                        },
-                        "two": {
-                            "msg": "Uvožena {M} tunela"
+                            "msg": "Импортированный {M} туннель"
                         },
                         "few": {
-                            "msg": "Uvoženi {M} tuneli"
+                            "msg": "Импортированы туннели: {M}"
+                        },
+                        "many": {
+                            "msg": "Импортированы туннели: {M}"
                         },
                         "other": {
-                            "msg": "Uvoženo {M} tunelov"
+                            "msg": "Импортированы туннели: {M}"
                         }
                     }
                 }
@@ -1442,16 +1442,16 @@
                     "arg": "N",
                     "cases": {
                         "one": {
-                            "msg": "Uvožen {M} od {N} tunelov"
-                        },
-                        "two": {
-                            "msg": "Uvožena {M} od {N} tunelov"
+                            "msg": "Импортированы туннели: {M} из {N}"
                         },
                         "few": {
-                            "msg": "Uvoženi {M} od {N} tunelov"
+                            "msg": "Импортированы туннели: {M} из {N}"
+                        },
+                        "many": {
+                            "msg": "Импортированы туннели: {M} из {N}"
                         },
                         "other": {
-                            "msg": "Uvoženo {M} od {N} tunelov"
+                            "msg": "Импортированы туннели: {M} из {N}"
                         }
                     }
                 }
@@ -1478,7 +1478,7 @@
         {
             "id": "Unable to create tunnel",
             "message": "Unable to create tunnel",
-            "translation": "Tunela ni bilo mogoče ustvariti",
+            "translation": "Не удалось создать туннель",
             "translatorComment": "Copied from source."
         },
         {
@@ -1490,16 +1490,16 @@
                     "arg": "TunnelCount",
                     "cases": {
                         "one": {
-                            "msg": "Izbriši {TunnelCount} tunel"
-                        },
-                        "two": {
-                            "msg": "Izbriši {TunnelCount} tunela"
+                            "msg": "Удалить {TunnelCount} туннель"
                         },
                         "few": {
-                            "msg": "Izbriši {TunnelCount} tunele"
+                            "msg": "Удалить туннели: {TunnelCount}"
+                        },
+                        "many": {
+                            "msg": "Удалить туннели: {TunnelCount}"
                         },
                         "other": {
-                            "msg": "Izbriši {TunnelCount} tunelov"
+                            "msg": "Удалить туннели: {TunnelCount}"
                         }
                     }
                 }
@@ -1524,16 +1524,16 @@
                     "arg": "TunnelCount",
                     "cases": {
                         "one": {
-                            "msg": "Ali ste prepričani, da želite izbrisati {TunnelCount} tunel?"
-                        },
-                        "two": {
-                            "msg": "Ali ste prepričani, da želite izbrisati {TunnelCount} tunela?"
+                            "msg": "Вы уверены, что хотите удалить {TunnelCount} туннель?"
                         },
                         "few": {
-                            "msg": "Ali ste prepričani, da želite izbrisati {TunnelCount} tunele?"
+                            "msg": "Вы уверены, что хотите удалить туннели: {TunnelCount}?"
+                        },
+                        "many": {
+                            "msg": "Вы уверены, что хотите удалить туннели: {TunnelCount}?"
                         },
                         "other": {
-                            "msg": "Ali ste prepričani, da želite izbrisati {TunnelCount} tunelov?"
+                            "msg": "Вы уверены, что хотите удалить туннели: {TunnelCount}?"
                         }
                     }
                 }
@@ -1552,7 +1552,7 @@
         {
             "id": "Delete tunnel ‘{TunnelName}’",
             "message": "Delete tunnel ‘{TunnelName}’",
-            "translation": "Izbriši tunel ‘{TunnelName}’",
+            "translation": "Удалить туннель ‘{TunnelName}’",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1568,7 +1568,7 @@
         {
             "id": "Are you sure you would like to delete tunnel ‘{TunnelName}’?",
             "message": "Are you sure you would like to delete tunnel ‘{TunnelName}’?",
-            "translation": "Ali ste prepričani, da želite izbrisati tunel »{TunnelName}«?",
+            "translation": "Вы уверены, что хотите удалить '{TunnelName}' туннель?",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1584,7 +1584,7 @@
         {
             "id": "{Question} You cannot undo this action.",
             "message": "{Question} You cannot undo this action.",
-            "translation": "{Question} Tega dejanja ne morete razveljaviti.",
+            "translation": "{Question} Данное действие невозможно отменить.",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1600,13 +1600,13 @@
         {
             "id": "Unable to delete tunnel",
             "message": "Unable to delete tunnel",
-            "translation": "Napaka pri izbrisu tunela",
+            "translation": "Не удалось удалить туннель",
             "translatorComment": "Copied from source."
         },
         {
             "id": "A tunnel was unable to be removed: {Error}",
             "message": "A tunnel was unable to be removed: {Error}",
-            "translation": "Napaka pri odstranjevanju tunela: {Error}",
+            "translation": "Невозможно удалить туннель: {Error}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1622,7 +1622,7 @@
         {
             "id": "Unable to delete tunnels",
             "message": "Unable to delete tunnels",
-            "translation": "Napaka pri izbrisu tunelov",
+            "translation": "Не удалось удалить туннели",
             "translatorComment": "Copied from source."
         },
         {
@@ -1634,16 +1634,16 @@
                     "arg": "Lenerrors",
                     "cases": {
                         "one": {
-                            "msg": "{Lenerrors} tunela ni bilo mogoče odstraniti."
-                        },
-                        "two": {
-                            "msg": "{Lenerrors} tunelov ni bilo mogoče odstraniti."
+                            "msg": "{Lenerrors} туннель не удалось удалить."
                         },
                         "few": {
-                            "msg": "{Lenerrors} tunelov ni bilo mogoče odstraniti."
+                            "msg": "туннелей не удалось удалить: {Lenerrors}"
+                        },
+                        "many": {
+                            "msg": "туннелей не удалось удалить: {Lenerrors}"
                         },
                         "other": {
-                            "msg": "{Lenerrors} tunelov ni bilo mogoče odstraniti."
+                            "msg": "туннелей не удалось удалить: {Lenerrors}"
                         }
                     }
                 }
@@ -1662,31 +1662,31 @@
         {
             "id": "Configuration Files (*.zip, *.conf)|*.zip;*.conf|All Files (*.*)|*.*",
             "message": "Configuration Files (*.zip, *.conf)|*.zip;*.conf|All Files (*.*)|*.*",
-            "translation": "Konfiguracijske datoteke (*.zip, *.conf)|*.zip;*.conf|Vse datoteke (*.*)|*.*",
+            "translation": "Файлы конфигурации (*.zip, *.conf)|*.zip;*.conf|Все файлы (*.*)|*.*",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Import tunnel(s) from file",
             "message": "Import tunnel(s) from file",
-            "translation": "Uvozi tunele iz datoteke",
+            "translation": "Импорт туннелей из файла",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Configuration ZIP Files (*.zip)|*.zip",
             "message": "Configuration ZIP Files (*.zip)|*.zip",
-            "translation": "Konfiguracijske datoteke ZIP (*.zip)|*.zip",
+            "translation": "Конфигурация ZIP файлов (*.zip)|*.zip",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Export tunnels to zip",
             "message": "Export tunnels to zip",
-            "translation": "Izvozi tunele v datoteko zip",
+            "translation": "Экспорт туннелей в zip-архив",
             "translatorComment": "Copied from source."
         },
         {
             "id": "{Title} (unsigned build, no updates)",
             "message": "{Title} (unsigned build, no updates)",
-            "translation": "{Title} (nepodpisane različice, brez posodobitev)",
+            "translation": "{Title} (неподписанная сборка, нет обновлений)",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1702,13 +1702,13 @@
         {
             "id": "Error Exiting WireGuard",
             "message": "Error Exiting WireGuard",
-            "translation": "Napaka pri izhodu iz WireGuarda",
+            "translation": "Ошибка выхода из WireGuard",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Unable to exit service due to: {Err}. You may want to stop WireGuard from the service manager.",
             "message": "Unable to exit service due to: {Err}. You may want to stop WireGuard from the service manager.",
-            "translation": "Storitve ni bilo mogoče zaustaviti, ker: {Err}. Poskusite zaustaviti WireGuard z uporabo programa Storitve.",
+            "translation": "Не удается выйти из сервиса из-за: {Err}. Вы можете остановить WireGuard из менеджера служб.",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1724,31 +1724,31 @@
         {
             "id": "An update to WireGuard is available. It is highly advisable to update without delay.",
             "message": "An update to WireGuard is available. It is highly advisable to update without delay.",
-            "translation": "Posodobitev WireGuarda je na voljo. Zelo priporočamo posodobitev brez odlašanja.",
+            "translation": "Доступно обновление WireGuard. Настоятельно рекомендуем обновить приложение.",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Status: Waiting for user",
             "message": "Status: Waiting for user",
-            "translation": "Status: Čaka na uporabnika",
+            "translation": "Статус: Ожидание пользователя",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Update Now",
             "message": "Update Now",
-            "translation": "Posodobi zdaj",
+            "translation": "Обновить Сейчас",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Status: Waiting for updater service",
             "message": "Status: Waiting for updater service",
-            "translation": "Status: Čaka na servis za posodobitev",
+            "translation": "Статус: Обновление",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Error: {Err}. Please try again.",
             "message": "Error: {Err}. Please try again.",
-            "translation": "Napaka: {Err}. Poskusite ponovno.",
+            "translation": "Ошибка: {Err}. Попробуйте еще раз.",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1764,13 +1764,13 @@
         {
             "id": "Status: Complete!",
             "message": "Status: Complete!",
-            "translation": "Status: Končano!",
+            "translation": "Статус: Завершено!",
             "translatorComment": "Copied from source."
         },
         {
             "id": "http2: Framer {F}: failed to decode just-written frame",
             "message": "http2: Framer {F}: failed to decode just-written frame",
-            "translation": "http2: Framer {F}: napaka pri dekodiranju ravnokar zapisanega okvirja",
+            "translation": "http2: Framer {F}: не удалось декодировать только что записанный кадр",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1786,7 +1786,7 @@
         {
             "id": "http2: Framer {F}: wrote {Http2summarizeFramefr}",
             "message": "http2: Framer {F}: wrote {Http2summarizeFramefr}",
-            "translation": "http2: Framer {F}: zapisano {Http2summarizeFramefr}",
+            "translation": "http2: Framer {F}: написал {Http2summarizeFramefr}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1810,7 +1810,7 @@
         {
             "id": "http2: Framer {Fr}: read {Http2summarizeFramef}",
             "message": "http2: Framer {Fr}: read {Http2summarizeFramef}",
-            "translation": "http2: Framer {Fr}: prebrano {Http2summarizeFramef}",
+            "translation": "http2: Framer {Fr}: прочитать {Http2summarizeFramef}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1834,7 +1834,7 @@
         {
             "id": "http2: decoded hpack field {HeaderField}",
             "message": "http2: decoded hpack field {HeaderField}",
-            "translation": "http2: dekodirano polje hpack {HeaderField}",
+            "translation": "http2: декодирован hpack поле {HeaderField}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
