@@ -163,6 +163,55 @@ type wtFwpmL2Flags uint32
 
 const cFWP_CONDITION_L2_IS_VM2VM wtFwpmL2Flags = 0x00000010
 
+// 11d48b4b-e77a-40b4-9155-392c906c2608
+var cFWPM_CONDITION_VSWITCH_NETWORK_TYPE = windows.GUID{
+	Data1: 0x11d48b4b,
+	Data2: 0xe77a,
+	Data3: 0x40b4,
+	Data4: [8]byte{0x91, 0x55, 0x39, 0x2c, 0x90, 0x6c, 0x26, 0x08},
+}
+
+// b2696ff6-774f-4554-9f7d-3da3945f8e85
+var cFWPM_LAYER_INGRESS_VSWITCH_TRANSPORT_V4 = windows.GUID{
+	Data1: 0xb2696ff6,
+	Data2: 0x774f,
+	Data3: 0x4554,
+	Data4: [8]byte{0x9f, 0x7d, 0x3d, 0xa3, 0x94, 0x5f, 0x8e, 0x85},
+}
+
+// 5ee314fc-7d8a-47f4-b7e3-291a36da4e12
+var cFWPM_LAYER_INGRESS_VSWITCH_TRANSPORT_V6 = windows.GUID{
+	Data1: 0x5ee314fc,
+	Data2: 0x7d8a,
+	Data3: 0x47f4,
+	Data4: [8]byte{0xb7, 0xe3, 0x29, 0x1a, 0x36, 0xda, 0x4e, 0x12},
+}
+
+// b92350b6-91f0-46b6-bdc4-871dfd4a7c98
+var cFWPM_LAYER_EGRESS_VSWITCH_TRANSPORT_V4 = windows.GUID{
+	Data1: 0xb92350b6,
+	Data2: 0x91f0,
+	Data3: 0x46b6,
+	Data4: [8]byte{0xbd, 0xc4, 0x87, 0x1d, 0xfd, 0x4a, 0x7c, 0x98},
+}
+
+// 1b2def23-1881-40bd-82f4-4254e63141cb
+var cFWPM_LAYER_EGRESS_VSWITCH_TRANSPORT_V6 = windows.GUID{
+	Data1: 0x1b2def23,
+	Data2: 0x1881,
+	Data3: 0x40bd,
+	Data4: [8]byte{0x82, 0xf4, 0x42, 0x54, 0xe6, 0x31, 0x41, 0xcb},
+}
+
+type wtFwpVSwitchNetworkType uint32
+
+const (
+	cFWP_VSWITCH_NETWORK_TYPE_UNKNOWN  wtFwpVSwitchNetworkType = 0
+	cFWP_VSWITCH_NETWORK_TYPE_PRIVATE  wtFwpVSwitchNetworkType = 1
+	cFWP_VSWITCH_NETWORK_TYPE_INTERNAL wtFwpVSwitchNetworkType = 2
+	cFWP_VSWITCH_NETWORK_TYPE_EXTERNAL wtFwpVSwitchNetworkType = 3
+)
+
 var cFWPM_CONDITION_FLAGS = windows.GUID{
 	Data1: 0x632ce23b,
 	Data2: 0x5167,

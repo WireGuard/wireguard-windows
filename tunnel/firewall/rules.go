@@ -822,6 +822,126 @@ func permitNdp(session uintptr, baseObjects *baseObjects, weight uint8) error {
 	return nil
 }
 
+func permitNonExternalVSwitch(session uintptr, baseObjects *baseObjects, weight uint8) error {
+	//
+	// Only applicable on Win8+.
+	//
+	{
+		major, minor, _ := windows.RtlGetNtVersionNumbers()
+		win8plus := major > 6 || (major == 6 && minor >= 3)
+
+		if !win8plus {
+			return nil
+		}
+	}
+
+	conditions := []wtFwpmFilterCondition0{
+		{
+			fieldKey:  cFWPM_CONDITION_VSWITCH_NETWORK_TYPE,
+			matchType: cFWP_MATCH_EQUAL,
+			conditionValue: wtFwpConditionValue0{
+				_type: cFWP_UINT8,
+				value: uintptr(cFWP_VSWITCH_NETWORK_TYPE_PRIVATE),
+			},
+		},
+		{
+			fieldKey:  cFWPM_CONDITION_VSWITCH_NETWORK_TYPE,
+			matchType: cFWP_MATCH_EQUAL,
+			conditionValue: wtFwpConditionValue0{
+				_type: cFWP_UINT8,
+				value: uintptr(cFWP_VSWITCH_NETWORK_TYPE_INTERNAL),
+			},
+		},
+	}
+
+	filter := wtFwpmFilter0{
+		providerKey:         &baseObjects.provider,
+		subLayerKey:         baseObjects.filters,
+		weight:              filterWeight(weight),
+		numFilterConditions: uint32(len(conditions)),
+		filterCondition:     (*wtFwpmFilterCondition0)(unsafe.Pointer(&conditions[0])),
+		action: wtFwpmAction0{
+			_type: cFWP_ACTION_PERMIT,
+		},
+	}
+
+	filterID := uint64(0)
+
+	//
+	// #1 Outbound IPv4.
+	//
+	{
+		displayData, err := createWtFwpmDisplayData0("Permit vSwitch private/internal outbound (IPv4)", "")
+		if err != nil {
+			return wrapErr(err)
+		}
+
+		filter.displayData = *displayData
+		filter.layerKey = cFWPM_LAYER_EGRESS_VSWITCH_TRANSPORT_V4
+
+		err = fwpmFilterAdd0(session, &filter, 0, &filterID)
+		if err != nil {
+			return wrapErr(err)
+		}
+	}
+
+	//
+	// #2 Inbound IPv4.
+	//
+	{
+		displayData, err := createWtFwpmDisplayData0("Permit vSwitch private/internal inbound (IPv4)", "")
+		if err != nil {
+			return wrapErr(err)
+		}
+
+		filter.displayData = *displayData
+		filter.layerKey = cFWPM_LAYER_INGRESS_VSWITCH_TRANSPORT_V4
+
+		err = fwpmFilterAdd0(session, &filter, 0, &filterID)
+		if err != nil {
+			return wrapErr(err)
+		}
+	}
+
+	//
+	// #3 Outbound IPv6.
+	//
+	{
+		displayData, err := createWtFwpmDisplayData0("Permit vSwitch private/internal outbound (IPv6)", "")
+		if err != nil {
+			return wrapErr(err)
+		}
+
+		filter.displayData = *displayData
+		filter.layerKey = cFWPM_LAYER_EGRESS_VSWITCH_TRANSPORT_V6
+
+		err = fwpmFilterAdd0(session, &filter, 0, &filterID)
+		if err != nil {
+			return wrapErr(err)
+		}
+	}
+
+	//
+	// #4 Inbound IPv6.
+	//
+	{
+		displayData, err := createWtFwpmDisplayData0("Permit vSwitch private/internal inbound (IPv6)", "")
+		if err != nil {
+			return wrapErr(err)
+		}
+
+		filter.displayData = *displayData
+		filter.layerKey = cFWPM_LAYER_INGRESS_VSWITCH_TRANSPORT_V6
+
+		err = fwpmFilterAdd0(session, &filter, 0, &filterID)
+		if err != nil {
+			return wrapErr(err)
+		}
+	}
+
+	return nil
+}
+
 func permitHyperV(session uintptr, baseObjects *baseObjects, weight uint8) error {
 	//
 	// Only applicable on Win8+.
