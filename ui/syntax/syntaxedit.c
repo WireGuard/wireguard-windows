@@ -143,6 +143,7 @@ static void highlight_text(HWND hWnd)
 	POINT original_scroll;
 	bool found_private_key = false;
 	COLORREF bg_color, bg_inversion;
+	size_t num_spans;
 
 	if (this->highlight_guard)
 		return;
@@ -181,12 +182,15 @@ static void highlight_text(HWND hWnd)
 	bg_color = GetSysColor(COLOR_WINDOW);
 	bg_inversion = (bg_color & RGB(0xFF, 0xFF, 0xFF)) ^ RGB(0xFF, 0xFF, 0xFF);
 	SendMessage(hWnd, EM_SETBKGNDCOLOR, 0, bg_color);
+	num_spans = _msize(spans) / sizeof(spans[0]);
 	for (struct highlight_span *span = spans; span->type != HighlightEnd; ++span) {
-		CHARRANGE selection = { span->start, span->len + span->start };
-		SendMessage(hWnd, EM_EXSETSEL, 0, (LPARAM)&selection);
-		format.crTextColor = stylemap[span->type].color ^ bg_inversion;
-		format.dwEffects = stylemap[span->type].effects;
-		SendMessage(hWnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&format);
+		if (num_spans <= 2048) {
+			CHARRANGE selection = { span->start, span->len + span->start };
+			SendMessage(hWnd, EM_EXSETSEL, 0, (LPARAM)&selection);
+			format.crTextColor = stylemap[span->type].color ^ bg_inversion;
+			format.dwEffects = stylemap[span->type].effects;
+			SendMessage(hWnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&format);
+		}
 		if (span->type == HighlightPrivateKey && !found_private_key) {
 			/* Rather than allocating a new string, we mangle this one, since (for now) we don't use msg again. */
 			msg[span->start + span->len] = '\0';
