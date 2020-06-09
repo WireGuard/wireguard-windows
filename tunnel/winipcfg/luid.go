@@ -432,7 +432,9 @@ func (luid LUID) SetDNSForFamily(family AddressFamily, dnses []net.IP) error {
 // SetDNSDomain method sets the interface-specific DNS domain.
 func (luid LUID) SetDNSDomain(domain string) error {
 	guid, err := luid.GUID()
-
+	if err != nil {
+		return fmt.Errorf("Error converting luid to guid: %v", err)
+	}
 	key, err := registry.OpenKey(registry.LOCAL_MACHINE, fmt.Sprintf("SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Adapters\\%v", guid), registry.QUERY_VALUE)
 	if err != nil {
 		return fmt.Errorf("Error opening adapter-specific TCP/IP network registry key: %v", err)
