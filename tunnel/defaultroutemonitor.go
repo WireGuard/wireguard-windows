@@ -6,14 +6,16 @@
 package tunnel
 
 import (
+	"errors"
+	"fmt"
 	"log"
 	"sync"
 	"time"
 
 	"golang.org/x/sys/windows"
+	"golang.zx2c4.com/wireguard/conn"
 	"golang.zx2c4.com/wireguard/device"
 	"golang.zx2c4.com/wireguard/tun"
-
 	"golang.zx2c4.com/wireguard/windows/tunnel/winipcfg"
 )
 
@@ -51,12 +53,18 @@ func bindSocketRoute(family winipcfg.AddressFamily, device *device.Device, ourLU
 	*lastLUID = luid
 	*lastIndex = index
 	blackhole := blackholeWhenLoop && index == 0
+	bind, _ := device.Bind().(conn.BindSocketToInterface)
+	if bind == nil {
+		return errors.New("conn.Bind does not implement BindSocketToInterface")
+	}
 	if family == windows.AF_INET {
 		log.Printf("Binding v4 socket to interface %d (blackhole=%v)", index, blackhole)
-		return device.BindSocketToInterface4(index, blackhole)
+		return bind.BindSocketToInterface4(index, blackhole)
 	} else if family == windows.AF_INET6 {
 		log.Printf("Binding v6 socket to interface %d (blackhole=%v)", index, blackhole)
-		return device.BindSocketToInterface6(index, blackhole)
+		return bind.BindSocketToInterface6(index, blackhole)
+	} else {
+		return fmt.Errorf("unexpected address family: %v", family)
 	}
 	return nil
 }
