@@ -76,3 +76,10 @@ VERSIONINFO_TEMPLATE(
   "WireGuard: hiter, sodoben, varen tunel VPN",
   "https://www.wireguard.com/"
 )
+
+LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_TRADITIONAL
+VERSIONINFO_TEMPLATE(
+  "040404b0", 0x404, 0x4b0,
+  "WireGuard：快速、現代、安全的 VPN 隧道",
+  "https://www.wireguard.com/"
+)
