@@ -164,11 +164,11 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 		return
 	}
 	nativeTun = wintun.(*tun.NativeTun)
-	wintunVersion, ndisVersion, err := nativeTun.Version()
+	wintunVersion, err := nativeTun.RunningVersion()
 	if err != nil {
 		log.Printf("Warning: unable to determine Wintun version: %v", err)
 	} else {
-		log.Printf("Using Wintun/%s (NDIS %s)", wintunVersion, ndisVersion)
+		log.Printf("Using Wintun/%d.%d", (wintunVersion>>16)&0xffff, wintunVersion&0xffff)
 	}
 
 	log.Println("Enabling firewall rules")
