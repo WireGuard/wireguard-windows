@@ -26,10 +26,10 @@ func cleanupStaleWintunInterfaces() {
 	}
 	defer m.Disconnect()
 
-	tun.WintunPool.DeleteMatchingInterfaces(func(wintun *wintun.Interface) bool {
+	tun.WintunPool.DeleteMatchingAdapters(func(wintun *wintun.Adapter) bool {
 		interfaceName, err := wintun.Name()
 		if err != nil {
-			log.Printf("Removing Wintun interface %s because determining interface name failed: %v", wintun.GUID().String(), err)
+			log.Printf("Removing Wintun interface because determining interface name failed: %v", err)
 			return true
 		}
 		serviceName, err := services.ServiceNameOfTunnel(interfaceName)
@@ -54,5 +54,5 @@ func cleanupStaleWintunInterfaces() {
 			return true
 		}
 		return false
-	})
+	}, false)
 }
