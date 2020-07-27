@@ -526,12 +526,6 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Invalid config key is missing an equals separator",
-            "message": "Invalid config key is missing an equals separator",
-            "translation": "В ключе конфигурации отсутствует разделитель",
-            "translatorComment": "Copied from source."
-        },
-        {
             "id": "Key must have a value",
             "message": "Key must have a value",
             "translation": "Ключ должен иметь значение",
@@ -684,13 +678,13 @@
         {
             "id": "&Deactivate",
             "message": "&Deactivate",
-            "translation": "&Отключен",
+            "translation": "&Отключить",
             "translatorComment": "Copied from source."
         },
         {
             "id": "&Activate",
             "message": "&Activate",
-            "translation": "&Подключен",
+            "translation": "&Подключить",
             "translatorComment": "Copied from source."
         },
         {

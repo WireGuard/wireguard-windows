@@ -51,6 +51,13 @@ generate: export CGO_ENABLED := 0
 generate:
 	go generate ./...
 
+crowdin:
+	find locales -maxdepth 1 -mindepth 1 -type d \! -name en -exec rm -rf {} +
+	@[[ -n $$CROWDIN_API_KEY ]] || read -r -p "Enter Crowdin API key: " CROWDIN_API_KEY && \
+	curl -Lo - https://api.crowdin.com/api/project/WireGuard/download/all.zip?key=$$CROWDIN_API_KEY | bsdtar -C locales -x -f - --strip-components 2 wireguard-windows
+	find locales -name messages.gotext.json -exec bash -c '[[ $$(jq ".messages | length" {}) -ne 0 ]] || rm -rf "$$(dirname {})"' \;
+	@$(MAKE) --no-print-directory generate
+
 deploy: amd64/wireguard.exe
 	-ssh $(DEPLOYMENT_HOST) -- 'taskkill /im wireguard.exe /f'
 	scp $< $(DEPLOYMENT_HOST):$(DEPLOYMENT_PATH)

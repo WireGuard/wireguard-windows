@@ -1,0 +1,863 @@
+{
+    "language": "fa",
+    "messages": [
+        {
+            "id": "Error",
+            "message": "Error",
+            "translation": "خطا",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Command Line Options",
+            "message": "Command Line Options",
+            "translation": "گزینه‌های خط فرمان",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "You must use the 64-bit version of WireGuard on this computer.",
+            "message": "You must use the 64-bit version of WireGuard on this computer.",
+            "translation": "شما باید نگارش ۶۴-بیت WireGuard را در این رایانه استفاده کنید.",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Now",
+            "message": "Now",
+            "translation": "هم اکنون",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "{Years} year(s)",
+            "message": "{Years} year(s)",
+            "translation": {
+                "select": {
+                    "feature": "plural",
+                    "arg": "Years",
+                    "cases": {
+                        "one": {
+                            "msg": "{Years} سال"
+                        },
+                        "other": {
+                            "msg": "{Years} سال"
+                        }
+                    }
+                }
+            },
+            "placeholders": [
+                {
+                    "id": "Years",
+                    "string": "%[1]d",
+                    "type": "int64",
+                    "underlyingType": "int64",
+                    "argNum": 1,
+                    "expr": "years"
+                }
+            ]
+        },
+        {
+            "id": "{Days} day(s)",
+            "message": "{Days} day(s)",
+            "translation": {
+                "select": {
+                    "feature": "plural",
+                    "arg": "Days",
+                    "cases": {
+                        "one": {
+                            "msg": "{Days} روز"
+                        },
+                        "other": {
+                            "msg": "{Days} روز"
+                        }
+                    }
+                }
+            },
+            "placeholders": [
+                {
+                    "id": "Days",
+                    "string": "%[1]d",
+                    "type": "int64",
+                    "underlyingType": "int64",
+                    "argNum": 1,
+                    "expr": "days"
+                }
+            ]
+        },
+        {
+            "id": "{Hours} hour(s)",
+            "message": "{Hours} hour(s)",
+            "translation": {
+                "select": {
+                    "feature": "plural",
+                    "arg": "Hours",
+                    "cases": {
+                        "one": {
+                            "msg": "{Hours} ساعت"
+                        },
+                        "other": {
+                            "msg": "{Hours} ساعت"
+                        }
+                    }
+                }
+            },
+            "placeholders": [
+                {
+                    "id": "Hours",
+                    "string": "%[1]d",
+                    "type": "int64",
+                    "underlyingType": "int64",
+                    "argNum": 1,
+                    "expr": "hours"
+                }
+            ]
+        },
+        {
+            "id": "{Minutes} minute(s)",
+            "message": "{Minutes} minute(s)",
+            "translation": {
+                "select": {
+                    "feature": "plural",
+                    "arg": "Minutes",
+                    "cases": {
+                        "one": {
+                            "msg": "{Minutes} دقیقه"
+                        },
+                        "other": {
+                            "msg": "{Minutes} دقیقه"
+                        }
+                    }
+                }
+            },
+            "placeholders": [
+                {
+                    "id": "Minutes",
+                    "string": "%[1]d",
+                    "type": "int64",
+                    "underlyingType": "int64",
+                    "argNum": 1,
+                    "expr": "minutes"
+                }
+            ]
+        },
+        {
+            "id": "{Seconds} second(s)",
+            "message": "{Seconds} second(s)",
+            "translation": {
+                "select": {
+                    "feature": "plural",
+                    "arg": "Seconds",
+                    "cases": {
+                        "one": {
+                            "msg": "{Seconds} ثانیه"
+                        },
+                        "other": {
+                            "msg": "{Seconds} ثانیه"
+                        }
+                    }
+                }
+            },
+            "placeholders": [
+                {
+                    "id": "Seconds",
+                    "string": "%[1]d",
+                    "type": "int64",
+                    "underlyingType": "int64",
+                    "argNum": 1,
+                    "expr": "seconds"
+                }
+            ]
+        },
+        {
+            "id": "{Timestamp} ago",
+            "message": "{Timestamp} ago",
+            "translation": "{Timestamp} پیش",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Timestamp",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "timestamp"
+                }
+            ]
+        },
+        {
+            "id": "{Bytes} B",
+            "message": "{Bytes} B",
+            "translation": "{Bytes} بایت",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Bytes",
+                    "string": "%[1]d",
+                    "type": "golang.zx2c4.com/wireguard/windows/conf.Bytes",
+                    "underlyingType": "uint64",
+                    "argNum": 1,
+                    "expr": "b"
+                }
+            ]
+        },
+        {
+            "id": "Invalid IP address",
+            "message": "Invalid IP address",
+            "translation": "نشانی آی‌پی نامعتبر است",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Invalid MTU",
+            "message": "Invalid MTU",
+            "translation": "MTU نامعتبر است",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Invalid port",
+            "message": "Invalid port",
+            "translation": "پورت نامعتبر",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Key must have a value",
+            "message": "Key must have a value",
+            "translation": "کلید باید یک مقدار داشته باشد",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "[none specified]",
+            "message": "[none specified]",
+            "translation": "[مشخص نشده]",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "All peers must have public keys",
+            "message": "All peers must have public keys",
+            "translation": "همه همتاها باید کلید‌های عمومی داشته باشند",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Error in getting configuration",
+            "message": "Error in getting configuration",
+            "translation": "خطا در دریافت پیکربندی",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "[EnumerationSeparator]",
+            "message": "[EnumerationSeparator]",
+            "translation": "، ",
+            "comment": "Text to insert between items when listing - most western languages will translate ‘[EnumerationSeparator]’ into ‘, ’ to produce lists like ‘apple, orange, strawberry’. Eastern languages might translate into ‘、’ to produce lists like ‘リンゴ、オレンジ、イチゴ’."
+        },
+        {
+            "id": "[UnitSeparator]",
+            "message": "[UnitSeparator]",
+            "translation": "، ",
+            "comment": "Text to insert when combining units of a measure - most languages will translate ‘[UnitSeparator]’ into ‘ ’ (space) to produce lists like ‘2 minuti 30 sekund’, or empty string ‘’ to produce ‘2分30秒’."
+        },
+        {
+            "id": "About WireGuard",
+            "message": "About WireGuard",
+            "translation": "درباره WireGuard",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Close",
+            "message": "Close",
+            "translation": "بستن",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "♥ &Donate!",
+            "message": "♥ &Donate!",
+            "translation": "♥&کمک‌مالی!",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Status:",
+            "message": "Status:",
+            "translation": "وضعیت:",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "&Deactivate",
+            "message": "&Deactivate",
+            "translation": "&غیرفعال‌سازی",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "&Activate",
+            "message": "&Activate",
+            "translation": "&فعال‌سازی",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Public key:",
+            "message": "Public key:",
+            "translation": "کلید عمومی:",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Listen port:",
+            "message": "Listen port:",
+            "translation": "پورت شنود:",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "MTU:",
+            "message": "MTU:",
+            "translation": "MTU:",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Addresses:",
+            "message": "Addresses:",
+            "translation": "نشانی‌ها:",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "DNS servers:",
+            "message": "DNS servers:",
+            "translation": "سرورهای DNS:",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Preshared key:",
+            "message": "Preshared key:",
+            "translation": "کلید از پیش تقسیم شده:",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Allowed IPs:",
+            "message": "Allowed IPs:",
+            "translation": "IPهای مجاز:",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Endpoint:",
+            "message": "Endpoint:",
+            "translation": "نقطه پایان:",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Persistent keepalive:",
+            "message": "Persistent keepalive:",
+            "translation": "زنده نگه‌داشتن پیوسته:",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Transfer:",
+            "message": "Transfer:",
+            "translation": "انتقال:",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "enabled",
+            "message": "enabled",
+            "translation": "فعال شده",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Interface: {Name}",
+            "message": "Interface: {Name}",
+            "translation": "رابط: {Name}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Name",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "config.Name"
+                }
+            ]
+        },
+        {
+            "id": "Peer",
+            "message": "Peer",
+            "translation": "همتا",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Create new tunnel",
+            "message": "Create new tunnel",
+            "translation": "ایجاد تونل جدید",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Edit tunnel",
+            "message": "Edit tunnel",
+            "translation": "ویرایش تونل",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "&Name:",
+            "message": "&Name:",
+            "translation": "&نام:",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "&Public key:",
+            "message": "&Public key:",
+            "translation": "&کلید عمومی:",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "(unknown)",
+            "message": "(unknown)",
+            "translation": "(ناشناخته)",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "&Save",
+            "message": "&Save",
+            "translation": "&ذخیره",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Cancel",
+            "message": "Cancel",
+            "translation": "لغو",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "&Configuration:",
+            "message": "&Configuration:",
+            "translation": "&پیکربندی:",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Invalid name",
+            "message": "Invalid name",
+            "translation": "نام نامعتبر",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "A name is required.",
+            "message": "A name is required.",
+            "translation": "یک نام الزامی است.",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Unable to list existing tunnels",
+            "message": "Unable to list existing tunnels",
+            "translation": "نمی‌توان تونل‌های موجود را فهرست کرد",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Tunnel already exists",
+            "message": "Tunnel already exists",
+            "translation": "تونل هم‌اکنون موجود است",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Active",
+            "message": "Active",
+            "translation": "فعال",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Activating",
+            "message": "Activating",
+            "translation": "در حال فعال‌سازی",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Inactive",
+            "message": "Inactive",
+            "translation": "غیرفعال",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Deactivating",
+            "message": "Deactivating",
+            "translation": "در حال غیرفعال‌سازی",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Unknown state",
+            "message": "Unknown state",
+            "translation": "وضعیت ناشناخته",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Log",
+            "message": "Log",
+            "translation": "گزارش وقایع",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "&Copy",
+            "message": "&Copy",
+            "translation": "&روگرفت",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "&Save to file…",
+            "message": "&Save to file…",
+            "translation": "&ذخیره در پرونده…",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Time",
+            "message": "Time",
+            "translation": "زمان",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Log message",
+            "message": "Log message",
+            "translation": "پیام گزارش رویداد",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Export log to file",
+            "message": "Export log to file",
+            "translation": "برون‌برد گزارش رویداد به پرونده",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "&About WireGuard…",
+            "message": "&About WireGuard…",
+            "translation": "&درباره WireGuard…",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Tunnel Error",
+            "message": "Tunnel Error",
+            "translation": "خطالی تونل",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Status: Unknown",
+            "message": "Status: Unknown",
+            "translation": "وضعیت: ناشناخته",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Addresses: None",
+            "message": "Addresses: None",
+            "translation": "نشانی‌ها: هیچ",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "&Manage tunnels…",
+            "message": "&Manage tunnels…",
+            "translation": "&مدیریت تونل‌ها…",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "WireGuard Tunnel Error",
+            "message": "WireGuard Tunnel Error",
+            "translation": "خطای تونل WireGuard",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Status: {StateText}",
+            "message": "Status: {StateText}",
+            "translation": "وضعیت: {StateText}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "StateText",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "stateText"
+                }
+            ]
+        },
+        {
+            "id": "Addresses: {String}",
+            "message": "Addresses: {String}",
+            "translation": "نشانی‌ها: {String}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "String",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "sb.String()"
+                }
+            ]
+        },
+        {
+            "id": "WireGuard Activated",
+            "message": "WireGuard Activated",
+            "translation": "WireGuard فعال‌شد",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "The {Name} tunnel has been activated.",
+            "message": "The {Name} tunnel has been activated.",
+            "translation": "تونل {Name} فعال‌شده.",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Name",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "tunnel.Name"
+                }
+            ]
+        },
+        {
+            "id": "WireGuard Deactivated",
+            "message": "WireGuard Deactivated",
+            "translation": "WireGuard غیرفعال شد",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "An Update is Available!",
+            "message": "An Update is Available!",
+            "translation": "یک به‌روزرسانی در دسترس است!",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "WireGuard Update Available",
+            "message": "WireGuard Update Available",
+            "translation": "به‌روزرسانی WireGuard در دسترس است",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Tunnels",
+            "message": "Tunnels",
+            "translation": "تونل‌ها",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "&Edit",
+            "message": "&Edit",
+            "translation": "&ویرایش",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Add &empty tunnel…",
+            "message": "Add &empty tunnel…",
+            "translation": "افزودن &خالی‌کردن تونل…",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Add Tunnel",
+            "message": "Add Tunnel",
+            "translation": "افزودن تونل",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Remove selected tunnel(s)",
+            "message": "Remove selected tunnel(s)",
+            "translation": "حذف تونل(ها) انتخابی",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Export all tunnels to zip",
+            "message": "Export all tunnels to zip",
+            "translation": "برون‌بری همه تونل‌ها به زیپ",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Export all tunnels to &zip…",
+            "message": "Export all tunnels to &zip…",
+            "translation": "برون‌بری همه تونل‌ها به &زیپ…",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Imported tunnels",
+            "message": "Imported tunnels",
+            "translation": "تونل‌های وارد شده",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Imported {M} tunnels",
+            "message": "Imported {M} tunnels",
+            "translation": {
+                "select": {
+                    "feature": "plural",
+                    "arg": "M",
+                    "cases": {
+                        "one": {
+                            "msg": "{M} تونل وارد شد"
+                        },
+                        "other": {
+                            "msg": "{M} تونل وارد شد"
+                        }
+                    }
+                }
+            },
+            "placeholders": [
+                {
+                    "id": "M",
+                    "string": "%[1]d",
+                    "type": "int",
+                    "underlyingType": "int",
+                    "argNum": 1,
+                    "expr": "m"
+                }
+            ]
+        },
+        {
+            "id": "Imported {M} of {N} tunnels",
+            "message": "Imported {M} of {N} tunnels",
+            "translation": {
+                "select": {
+                    "feature": "plural",
+                    "arg": "N",
+                    "cases": {
+                        "one": {
+                            "msg": "{M} از {N} تونل وارد شد"
+                        },
+                        "other": {
+                            "msg": "{M} از {N} تونل وارد شد"
+                        }
+                    }
+                }
+            },
+            "placeholders": [
+                {
+                    "id": "M",
+                    "string": "%[1]d",
+                    "type": "int",
+                    "underlyingType": "int",
+                    "argNum": 1,
+                    "expr": "m"
+                },
+                {
+                    "id": "N",
+                    "string": "%[2]d",
+                    "type": "int",
+                    "underlyingType": "int",
+                    "argNum": 2,
+                    "expr": "n"
+                }
+            ]
+        },
+        {
+            "id": "Unable to create tunnel",
+            "message": "Unable to create tunnel",
+            "translation": "نمی‌توان تونل ایجاد کرد",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Delete {TunnelCount} tunnels",
+            "message": "Delete {TunnelCount} tunnels",
+            "translation": {
+                "select": {
+                    "feature": "plural",
+                    "arg": "TunnelCount",
+                    "cases": {
+                        "one": {
+                            "msg": "حذف {TunnelCount} تونل"
+                        },
+                        "other": {
+                            "msg": "حذف {TunnelCount} تونل"
+                        }
+                    }
+                }
+            },
+            "placeholders": [
+                {
+                    "id": "TunnelCount",
+                    "string": "%[1]d",
+                    "type": "int",
+                    "underlyingType": "int",
+                    "argNum": 1,
+                    "expr": "tunnelCount"
+                }
+            ]
+        },
+        {
+            "id": "Delete tunnel ‘{TunnelName}’",
+            "message": "Delete tunnel ‘{TunnelName}’",
+            "translation": "حذف تونل ‘{TunnelName}’",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "TunnelName",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "tunnelName"
+                }
+            ]
+        },
+        {
+            "id": "Unable to delete tunnel",
+            "message": "Unable to delete tunnel",
+            "translation": "حذف تونل‌ امکان‌پذیر نیست",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Unable to delete tunnels",
+            "message": "Unable to delete tunnels",
+            "translation": "نمی‌توان تونل‌ها را حذف کرد",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Import tunnel(s) from file",
+            "message": "Import tunnel(s) from file",
+            "translation": "وارد کردن تونل(ها) از پرونده",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Configuration ZIP Files (*.zip)|*.zip",
+            "message": "Configuration ZIP Files (*.zip)|*.zip",
+            "translation": "پرونده‌های پیکربندی زیپ (*.zip)|*.zip",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Export tunnels to zip",
+            "message": "Export tunnels to zip",
+            "translation": "برون‌بری تونل‌ها به زیپ",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Error Exiting WireGuard",
+            "message": "Error Exiting WireGuard",
+            "translation": "خطا در هنگام خارج شدن از WireGuard",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Status: Waiting for user",
+            "message": "Status: Waiting for user",
+            "translation": "وضعیت: درانتظار برای کاربر",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Update Now",
+            "message": "Update Now",
+            "translation": "اکنون به‌روز رسانی کن",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Status: Waiting for updater service",
+            "message": "Status: Waiting for updater service",
+            "translation": "وضعیت: درانتظار برای سرویس به‌روزرسانی",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Error: {Err}. Please try again.",
+            "message": "Error: {Err}. Please try again.",
+            "translation": "خطا: {Err}. لطفا دوباره تلاش کنید.",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Err",
+                    "string": "%[1]v",
+                    "type": "error",
+                    "underlyingType": "interface{Error() string}",
+                    "argNum": 1,
+                    "expr": "err"
+                }
+            ]
+        },
+        {
+            "id": "Status: Complete!",
+            "message": "Status: Complete!",
+            "translation": "وضعیت: کامل شد!",
+            "translatorComment": "Copied from source."
+        }
+    ]
+}

@@ -496,9 +496,9 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Invalid config key is missing an equals separator",
-            "message": "Invalid config key is missing an equals separator",
-            "translation": "Ungültiger Konfigurationseintrag, es fehlt ein = Trennzeichen",
+            "id": "Config key is missing an equals separator",
+            "message": "Config key is missing an equals separator",
+            "translation": "Konfigurationsschlüssel fehlt ein Gleichheitstrennzeichen",
             "translatorComment": "Copied from source."
         },
         {

@@ -1,0 +1,23 @@
+{
+    "language": "pl",
+    "messages": [
+        {
+            "id": "Error",
+            "message": "Error",
+            "translation": "Błąd",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Command Line Options",
+            "message": "Command Line Options",
+            "translation": "Opcje wiersza poleceń",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "You must use the 64-bit version of WireGuard on this computer.",
+            "message": "You must use the 64-bit version of WireGuard on this computer.",
+            "translation": "Musisz użyć 64-bitowej wersji WireGuard na tym komputerze.",
+            "translatorComment": "Copied from source."
+        }
+    ]
+}

@@ -29,12 +29,17 @@ func init() {
 	dict := map[string]catalog.Dictionary{
 		"de":    &dictionary{index: deIndex, data: deData},
 		"en":    &dictionary{index: enIndex, data: enData},
+		"fa":    &dictionary{index: faIndex, data: faData},
 		"fr":    &dictionary{index: frIndex, data: frData},
+		"id":    &dictionary{index: idIndex, data: idData},
 		"it":    &dictionary{index: itIndex, data: itData},
 		"ja":    &dictionary{index: jaIndex, data: jaData},
+		"pl":    &dictionary{index: plIndex, data: plData},
 		"ru":    &dictionary{index: ruIndex, data: ruData},
 		"sl":    &dictionary{index: slIndex, data: slData},
+		"vi":    &dictionary{index: viIndex, data: viData},
 		"zh_CN": &dictionary{index: zh_CNIndex, data: zh_CNData},
+		"zh_TW": &dictionary{index: zh_TWIndex, data: zh_TWData},
 	}
 	fallback := language.MustParse("en")
 	cat, err := catalog.NewFromMap(dict, catalog.Fallback(fallback))
@@ -53,174 +58,174 @@ var messageKeyToIndex = map[string]int{
 	"%d hour(s)":                            14,
 	"%d minute(s)":                          15,
 	"%d second(s)":                          16,
-	"%d tunnels were unable to be removed.": 157,
+	"%d tunnels were unable to be removed.": 158,
 	"%d year(s)":                            12,
 	"%d\u00a0B":                             18,
-	"%s\n\nPlease consult the log for more information.": 110,
-	"%s (out of date)":                        111,
-	"%s (unsigned build, no updates)":         162,
-	"%s You cannot undo this action.":         153,
+	"%s\n\nPlease consult the log for more information.": 111,
+	"%s (out of date)":                        112,
+	"%s (unsigned build, no updates)":         163,
+	"%s You cannot undo this action.":         154,
 	"%s ago":                                  17,
-	"%s received, %s sent":                    70,
+	"%s received, %s sent":                    71,
 	"%s: %q":                                  23,
-	"&About WireGuard…":                       108,
-	"&Activate":                               57,
-	"&Block untunneled traffic (kill-switch)": 81,
-	"&Configuration:":                         85,
-	"&Copy":                                   101,
-	"&Deactivate":                             56,
-	"&Edit":                                   132,
-	"&Import tunnel(s) from file…":            118,
-	"&Manage tunnels…":                        117,
-	"&Name:":                                  78,
-	"&Public key:":                            79,
-	"&Remove selected tunnel(s)":              140,
-	"&Save":                                   83,
-	"&Save to file…":                          103,
-	"&Toggle":                                 137,
+	"&About WireGuard…":                       109,
+	"&Activate":                               58,
+	"&Block untunneled traffic (kill-switch)": 82,
+	"&Configuration:":                         86,
+	"&Copy":                                   102,
+	"&Deactivate":                             57,
+	"&Edit":                                   133,
+	"&Import tunnel(s) from file…":            119,
+	"&Manage tunnels…":                        118,
+	"&Name:":                                  79,
+	"&Public key:":                            80,
+	"&Remove selected tunnel(s)":              141,
+	"&Save":                                   84,
+	"&Save to file…":                          104,
+	"&Toggle":                                 138,
 	"(no argument): elevate and install manager service": 1,
-	"(unknown)":                             80,
-	"A name is required.":                   87,
-	"A tunnel was unable to be removed: %s": 155,
-	"About WireGuard":                       50,
-	"Activating":                            96,
-	"Active":                                95,
-	"Add &empty tunnel…":                    133,
-	"Add Tunnel":                            134,
-	"Addresses:":                            61,
-	"Addresses: %s":                         123,
-	"Addresses: None":                       116,
-	"All peers must have public keys":       43,
-	"Allowed IPs:":                          64,
-	"An Update is Available!":               128,
-	"An interface must have a private key":  41,
-	"An update to WireGuard is available. It is highly advisable to update without delay.":            165,
-	"An update to WireGuard is now available. You are advised to update as soon as possible.":         130,
-	"Another tunnel already exists with the name ‘%s’":                                                143,
-	"Another tunnel already exists with the name ‘%s’.":                                               91,
-	"App version: %s\nGo backend version: %s\nGo version: %s\nOperating system: %s\nArchitecture: %s": 52,
-	"Are you sure you would like to delete %d tunnels?":                                               150,
-	"Are you sure you would like to delete tunnel ‘%s’?":                                              152,
+	"(unknown)":                             81,
+	"A name is required.":                   88,
+	"A tunnel was unable to be removed: %s": 156,
+	"About WireGuard":                       51,
+	"Activating":                            97,
+	"Active":                                96,
+	"Add &empty tunnel…":                    134,
+	"Add Tunnel":                            135,
+	"Addresses:":                            62,
+	"Addresses: %s":                         124,
+	"Addresses: None":                       117,
+	"All peers must have public keys":       44,
+	"Allowed IPs:":                          65,
+	"An Update is Available!":               129,
+	"An interface must have a private key":  42,
+	"An update to WireGuard is available. It is highly advisable to update without delay.":            166,
+	"An update to WireGuard is now available. You are advised to update as soon as possible.":         131,
+	"Another tunnel already exists with the name ‘%s’":                                                144,
+	"Another tunnel already exists with the name ‘%s’.":                                               92,
+	"App version: %s\nGo backend version: %s\nGo version: %s\nOperating system: %s\nArchitecture: %s": 53,
+	"Are you sure you would like to delete %d tunnels?":                                               151,
+	"Are you sure you would like to delete tunnel ‘%s’?":                                              153,
 	"Brackets must contain an IPv6 address":                                                           28,
-	"Cancel":                                                                                          84,
-	"Close":                                                                                           53,
+	"Cancel":                                                                                          85,
+	"Close":                                                                                           54,
 	"Command Line Options":                                                                            3,
-	"Config key is missing an equals separator":                                                       175,
-	"Configuration Files (*.zip, *.conf)|*.zip;*.conf|All Files (*.*)|*.*":                            158,
-	"Configuration ZIP Files (*.zip)|*.zip":                                                           160,
-	"Could not enumerate existing tunnels: %v":                                                        142,
-	"Could not import selected configuration: %v":                                                     141,
-	"Create new tunnel":                                                                               76,
-	"DNS servers:":                                                                                    62,
-	"Deactivating":                                                                                    98,
-	"Delete %d tunnels":                                                                               149,
-	"Delete tunnel ‘%s’":                                                                              151,
-	"E&xit":                                                                                           119,
-	"Edit &selected tunnel…":                                                                          139,
-	"Edit tunnel":                                                                                     77,
-	"Endpoint:":                                                                                       65,
+	"Config key is missing an equals separator":                                                       38,
+	"Configuration Files (*.zip, *.conf)|*.zip;*.conf|All Files (*.*)|*.*":                            159,
+	"Configuration ZIP Files (*.zip)|*.zip":                                                           161,
+	"Could not enumerate existing tunnels: %v":                                                        143,
+	"Could not import selected configuration: %v":                                                     142,
+	"Create new tunnel":                                                                               77,
+	"DNS servers:":                                                                                    63,
+	"Deactivating":                                                                                    99,
+	"Delete %d tunnels":                                                                               150,
+	"Delete tunnel ‘%s’":                                                                              152,
+	"E&xit":                                                                                           120,
+	"Edit &selected tunnel…":                                                                          140,
+	"Edit tunnel":                                                                                     78,
+	"Endpoint:":                                                                                       66,
 	"Error":                                                                                           0,
-	"Error Exiting WireGuard":                                                                         163,
-	"Error in getting configuration":                                                                  44,
-	"Error: %v. Please try again.":                                                                    169,
-	"Export all tunnels to &zip…":                                                                     138,
-	"Export all tunnels to zip":                                                                       136,
-	"Export log to file":                                                                              107,
-	"Export tunnels to zip":                                                                           161,
-	"Failed to activate tunnel":                                                                       72,
-	"Failed to deactivate tunnel":                                                                     73,
-	"Failed to determine tunnel state":                                                                71,
-	"File ‘%s’ already exists.\n\nDo you want to overwrite it?":                                       94,
-	"Import tunnel(s) from file":                                                                      159,
-	"Imported %d of %d tunnels":                                                                       147,
-	"Imported %d tunnels":                                                                             146,
-	"Imported tunnels":                                                                                145,
-	"Inactive":                                                                                        97,
-	"Interface: %s":                                                                                   74,
+	"Error Exiting WireGuard":                                                                         164,
+	"Error in getting configuration":                                                                  45,
+	"Error: %v. Please try again.":                                                                    170,
+	"Export all tunnels to &zip…":                                                                     139,
+	"Export all tunnels to zip":                                                                       137,
+	"Export log to file":                                                                              108,
+	"Export tunnels to zip":                                                                           162,
+	"Failed to activate tunnel":                                                                       73,
+	"Failed to deactivate tunnel":                                                                     74,
+	"Failed to determine tunnel state":                                                                72,
+	"File ‘%s’ already exists.\n\nDo you want to overwrite it?":                                       95,
+	"Import tunnel(s) from file":                                                                      160,
+	"Imported %d of %d tunnels":                                                                       148,
+	"Imported %d tunnels":                                                                             147,
+	"Imported tunnels":                                                                                146,
+	"Inactive":                                                                                        98,
+	"Interface: %s":                                                                                   75,
 	"Invalid IP address":                                                                              24,
 	"Invalid MTU":                                                                                     29,
 	"Invalid endpoint host":                                                                           27,
-	"Invalid key for [Interface] section":                                                             39,
-	"Invalid key for [Peer] section":                                                                  40,
-	"Invalid key for interface section":                                                               45,
-	"Invalid key for peer section":                                                                    47,
+	"Invalid key for [Interface] section":                                                             40,
+	"Invalid key for [Peer] section":                                                                  41,
+	"Invalid key for interface section":                                                               46,
+	"Invalid key for peer section":                                                                    48,
 	"Invalid key: %v":                                                                                 32,
-	"Invalid name":                                                                                    86,
+	"Invalid name":                                                                                    87,
 	"Invalid network prefix length":                                                                   25,
 	"Invalid persistent keepalive":                                                                    31,
 	"Invalid port":                                                                                    30,
-	"Key must have a value":                                                                           38,
+	"Key must have a value":                                                                           39,
 	"Keys must decode to exactly 32 bytes":                                                            33,
-	"Latest handshake:":                                                                               67,
+	"Latest handshake:":                                                                               68,
 	"Line must occur in a section":                                                                    37,
-	"Listen port:":                                                                                    59,
-	"Log":                                                                                             100,
-	"Log message":                                                                                     105,
-	"MTU:":                                                                                            60,
+	"Listen port:":                                                                                    60,
+	"Log":                                                                                             101,
+	"Log message":                                                                                     106,
+	"MTU:":                                                                                            61,
 	"Missing port from endpoint":                                                                      26,
 	"Now":                                                                                             10,
 	"Number must be a number between 0 and 2^64-1: %v":                                                34,
-	"Peer":                                75,
-	"Persistent keepalive:":               66,
-	"Preshared key:":                      63,
-	"Protocol version must be 1":          46,
-	"Public key:":                         58,
-	"Remove selected tunnel(s)":           135,
-	"Select &all":                         102,
-	"Status:":                             55,
-	"Status: %s":                          122,
-	"Status: Complete!":                   170,
-	"Status: Unknown":                     115,
-	"Status: Waiting for updater service": 168,
-	"Status: Waiting for user":            166,
+	"Peer":                                76,
+	"Persistent keepalive:":               67,
+	"Preshared key:":                      64,
+	"Protocol version must be 1":          47,
+	"Public key:":                         59,
+	"Remove selected tunnel(s)":           136,
+	"Select &all":                         103,
+	"Status:":                             56,
+	"Status: %s":                          123,
+	"Status: Complete!":                   171,
+	"Status: Unknown":                     116,
+	"Status: Waiting for updater service": 169,
+	"Status: Waiting for user":            167,
 	"System clock wound backward!":        11,
-	"Text Files (*.txt)|*.txt|All Files (*.*)|*.*": 106,
-	"The %s tunnel has been activated.":            125,
-	"The %s tunnel has been deactivated.":          127,
-	"Time":                                         104,
-	"Transfer:":                                    68,
-	"Tunnel Error":                                 109,
-	"Tunnel already exists":                        90,
+	"Text Files (*.txt)|*.txt|All Files (*.*)|*.*": 107,
+	"The %s tunnel has been activated.":            126,
+	"The %s tunnel has been deactivated.":          128,
+	"Time":                                         105,
+	"Transfer:":                                    69,
+	"Tunnel Error":                                 110,
+	"Tunnel already exists":                        91,
 	"Tunnel name is not valid":                     36,
-	"Tunnel name ‘%s’ is invalid.":                 88,
-	"Tunnels":                                      131,
+	"Tunnel name ‘%s’ is invalid.":                 89,
+	"Tunnels":                                      132,
 	"Two commas in a row":                          35,
-	"Unable to create new configuration":           92,
-	"Unable to create tunnel":                      148,
-	"Unable to delete tunnel":                      154,
-	"Unable to delete tunnels":                     156,
+	"Unable to create new configuration":           93,
+	"Unable to create tunnel":                      149,
+	"Unable to delete tunnel":                      155,
+	"Unable to delete tunnels":                     157,
 	"Unable to determine whether the process is running under WOW64: %v":                          4,
-	"Unable to exit service due to: %v. You may want to stop WireGuard from the service manager.": 164,
-	"Unable to import configuration: %v":                                                          144,
-	"Unable to list existing tunnels":                                                             89,
+	"Unable to exit service due to: %v. You may want to stop WireGuard from the service manager.": 165,
+	"Unable to import configuration: %v":                                                          145,
+	"Unable to list existing tunnels":                                                             90,
 	"Unable to open current process token: %v":                                                    6,
-	"Unable to wait for WireGuard window to appear: %v":                                           113,
-	"Unknown state":    99,
-	"Update Now":       167,
+	"Unable to wait for WireGuard window to appear: %v":                                           114,
+	"Unknown state":    100,
+	"Update Now":       168,
 	"Usage: %s [\n%s]": 2,
-	"When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface, with special exceptions for DHCP and NDP.": 82,
-	"WireGuard Activated":        124,
-	"WireGuard Deactivated":      126,
-	"WireGuard Detection Error":  112,
-	"WireGuard Tunnel Error":     120,
-	"WireGuard Update Available": 129,
+	"When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface, with special exceptions for DHCP and NDP.": 83,
+	"WireGuard Activated":        125,
+	"WireGuard Deactivated":      127,
+	"WireGuard Detection Error":  113,
+	"WireGuard Tunnel Error":     121,
+	"WireGuard Update Available": 130,
 	"WireGuard is running, but the UI is only accessible from desktops of the Builtin %s group.": 8,
-	"WireGuard logo image": 51,
+	"WireGuard logo image": 52,
 	"WireGuard may only be used by users who are a member of the Builtin %s group.": 7,
 	"WireGuard system tray icon did not appear after 30 seconds.":                   9,
-	"WireGuard: %s":          121,
-	"WireGuard: Deactivated": 114,
-	"Writing file failed":    93,
+	"WireGuard: %s":          122,
+	"WireGuard: Deactivated": 115,
+	"Writing file failed":    94,
 	"You must use the 64-bit version of WireGuard on this computer.": 5,
-	"[EnumerationSeparator]": 48,
-	"[UnitSeparator]":        49,
-	"[none specified]":       42,
-	"enabled":                69,
-	"http2: Framer %p: failed to decode just-written frame": 171,
-	"http2: Framer %p: read %v":                             173,
-	"http2: Framer %p: wrote %v":                            172,
-	"http2: decoded hpack field %+v":                        174,
-	"♥ &Donate!":                                            54,
+	"[EnumerationSeparator]": 49,
+	"[UnitSeparator]":        50,
+	"[none specified]":       43,
+	"enabled":                70,
+	"http2: Framer %p: failed to decode just-written frame": 172,
+	"http2: Framer %p: read %v":                             174,
+	"http2: Framer %p: wrote %v":                            173,
+	"http2: decoded hpack field %+v":                        175,
+	"♥ &Donate!":                                            55,
 }
 
 var deIndex = []uint32{ // 177 elements
@@ -235,49 +240,49 @@ var deIndex = []uint32{ // 177 elements
 	0x00000422, 0x00000456, 0x00000465, 0x00000476,
 	// Entry 20 - 3F
 	0x00000496, 0x000004b4, 0x000004eb, 0x00000517,
-	0x00000533, 0x00000550, 0x00000581, 0x0000059f,
-	0x000005cd, 0x000005f5, 0x0000062f, 0x00000644,
-	0x00000682, 0x000006a8, 0x000006d5, 0x000006f6,
-	0x0000071e, 0x00000721, 0x00000724, 0x00000734,
-	0x00000743, 0x000007ab, 0x000007b6, 0x000007c4,
-	0x000007cc, 0x000007da, 0x000007e6, 0x00000800,
-	0x0000080e, 0x00000813, 0x0000081d, 0x00000829,
+	0x00000533, 0x00000550, 0x00000581, 0x000005bc,
+	0x000005da, 0x00000608, 0x00000630, 0x0000066a,
+	0x0000067f, 0x000006bd, 0x000006e3, 0x00000710,
+	0x00000731, 0x00000759, 0x0000075c, 0x0000075f,
+	0x0000076f, 0x0000077e, 0x000007e6, 0x000007f1,
+	0x000007ff, 0x00000807, 0x00000815, 0x00000821,
+	0x0000083b, 0x00000849, 0x0000084e, 0x00000858,
 	// Entry 40 - 5F
-	0x0000083f, 0x0000084d, 0x00000857, 0x0000086c,
-	0x00000886, 0x00000893, 0x0000089d, 0x000008bd,
-	0x000008e8, 0x0000090d, 0x00000934, 0x00000949,
-	0x00000954, 0x00000971, 0x00000983, 0x0000098a,
-	0x000009a5, 0x000009b1, 0x000009e5, 0x00000b13,
-	0x00000b1e, 0x00000b28, 0x00000b38, 0x00000b49,
-	0x00000b61, 0x00000b85, 0x00000bb8, 0x00000bd1,
-	0x00000c09, 0x00000c37, 0x00000c57, 0x00000c9c,
+	0x00000864, 0x0000087a, 0x00000888, 0x00000892,
+	0x000008a7, 0x000008c1, 0x000008ce, 0x000008d8,
+	0x000008f8, 0x00000923, 0x00000948, 0x0000096f,
+	0x00000984, 0x0000098f, 0x000009ac, 0x000009be,
+	0x000009c5, 0x000009e0, 0x000009ec, 0x00000a20,
+	0x00000b4e, 0x00000b59, 0x00000b63, 0x00000b73,
+	0x00000b84, 0x00000b9c, 0x00000bc0, 0x00000bf3,
+	0x00000c0c, 0x00000c44, 0x00000c72, 0x00000c92,
 	// Entry 60 - 7F
-	0x00000ca2, 0x00000cac, 0x00000cb4, 0x00000cc0,
-	0x00000cd4, 0x00000cde, 0x00000ce8, 0x00000cf9,
-	0x00000d10, 0x00000d15, 0x00000d26, 0x00000d57,
-	0x00000d75, 0x00000d89, 0x00000d97, 0x00000dd8,
-	0x00000de9, 0x00000e04, 0x00000e4c, 0x00000e63,
-	0x00000e75, 0x00000e85, 0x00000e9a, 0x00000ebb,
-	0x00000ec4, 0x00000edc, 0x00000eed, 0x00000efb,
-	0x00000f0b, 0x00000f1f, 0x00000f41, 0x00000f57,
+	0x00000cd7, 0x00000cdd, 0x00000ce7, 0x00000cef,
+	0x00000cfb, 0x00000d0f, 0x00000d19, 0x00000d23,
+	0x00000d34, 0x00000d4b, 0x00000d50, 0x00000d61,
+	0x00000d92, 0x00000db0, 0x00000dc4, 0x00000dd2,
+	0x00000e13, 0x00000e24, 0x00000e3f, 0x00000e87,
+	0x00000e9e, 0x00000eb0, 0x00000ec0, 0x00000ed5,
+	0x00000ef6, 0x00000eff, 0x00000f17, 0x00000f28,
+	0x00000f36, 0x00000f46, 0x00000f5a, 0x00000f7c,
 	// Entry 80 - 9F
-	0x00000f7b, 0x00000f9f, 0x00000fc3, 0x00001036,
-	0x0000103d, 0x00001049, 0x0000106d, 0x00001080,
-	0x0000109e, 0x000010c8, 0x000010d4, 0x000010f9,
-	0x0000111d, 0x0000113e, 0x0000117f, 0x000011b1,
-	0x000011eb, 0x0000121f, 0x00001231, 0x0000126a,
-	0x000012b6, 0x000012d6, 0x0000130b, 0x0000137b,
-	0x00001397, 0x000013ce, 0x0000140b, 0x0000142a,
-	0x0000145a, 0x00001480, 0x000014e1, 0x0000152b,
+	0x00000f92, 0x00000fb6, 0x00000fda, 0x00000ffe,
+	0x00001071, 0x00001078, 0x00001084, 0x000010a8,
+	0x000010bb, 0x000010d9, 0x00001103, 0x0000110f,
+	0x00001134, 0x00001158, 0x00001179, 0x000011ba,
+	0x000011ec, 0x00001226, 0x0000125a, 0x0000126c,
+	0x000012a5, 0x000012f1, 0x00001311, 0x00001346,
+	0x000013b6, 0x000013d2, 0x00001409, 0x00001446,
+	0x00001465, 0x00001495, 0x000014bb, 0x0000151c,
 	// Entry A0 - BF
-	0x00001547, 0x00001570, 0x0000158f, 0x000015ba,
-	0x000015dc, 0x00001648, 0x000016b6, 0x000016d0,
-	0x000016e4, 0x0000170d, 0x0000173b, 0x0000174b,
-	0x00001797, 0x000017be, 0x000017e1, 0x00001804,
-	0x00001804,
+	0x00001566, 0x00001582, 0x000015ab, 0x000015ca,
+	0x000015f5, 0x00001617, 0x00001683, 0x000016f1,
+	0x0000170b, 0x0000171f, 0x00001748, 0x00001776,
+	0x00001786, 0x000017d2, 0x000017f9, 0x0000181c,
+	0x0000183f,
 } // Size: 732 bytes
 
-const deData string = "" + // Size: 6148 bytes
+const deData string = "" + // Size: 6207 bytes
 	"\x02Fehler\x02(kein Argument): Als Administrator ausführen und den Manag" +
 	"er-Dienst installieren\x02Verwendung: %[1]s [\x0a%[2]s]\x02Kommandozeile" +
 	"noptionen\x02Es kann nicht festgestellt werden, ob der Prozess unter WOW" +
@@ -301,80 +306,80 @@ const deData string = "" + // Size: 6148 bytes
 	"intervall\x02Ungültiger Schlüssel: %[1]v\x02Schlüssel müssen auf exakt 3" +
 	"2 Bytes dekodiert werden\x02Zahl muss zwischen 0 und 2^64-1 sein: %[1]v" +
 	"\x02Zwei Kommata in einer Zeile\x02Der Tunnelname ist ungültig\x02Die Ze" +
-	"ile muss innerhalb eines Abschnitts stehen\x02Eintrag muss einen Wert ha" +
-	"ben\x02Ungültiger Eintrage im [Interface] Abschnitt\x02Ungültiger Eintra" +
-	"g im [Peer] Abschnitt\x02Eine Schnittstelle muss einen privaten Schlssel" +
-	" enthalten\x02[nicht spezifiziert]\x02Alle Teilnehmer (peers) müssen öff" +
-	"entliche Schlüssel haben\x02Fehler beim Abrufen der Konfiguration\x02Ung" +
-	"ültiger Eintrag im Abschnitt [interface]\x02Die Protokollversion muss 1" +
-	" sein\x02Ungültiger Eintrag im Abschnitt [peer]\x02, \x02, \x02Über Wire" +
-	"Guard\x02WireGuard Logo\x02App Version: %[1]s\x0aGo Backend Version: %[2" +
-	"]s\x0aGo Version: %[3]s\x0aBetriebssystem: %[4]s\x0aArchitektur: %[5]s" +
-	"\x02Schließen\x02♥ &Spenden!\x02Status:\x02&Deaktivieren\x02&Aktivieren" +
-	"\x02Öffentlicher Schlüssel:\x02Eingangsport:\x02MTU:\x02Adressen:\x02DNS" +
-	"-Server:\x02Geteilter Schlüssel:\x02Erlaubte IPs:\x02Endpunkt:\x02Erhalt" +
-	"ungsintervall:\x02Letzter Schlüsseltausch:\x02Übertragen:\x02aktiviert" +
-	"\x02%[1]s empfangen, %[1]s gesendet\x02Tunnelstatus konnte nicht ermitte" +
-	"lt werden\x02Tunnel aktivieren ist fehlgeschlagen\x02Tunnel deaktivieren" +
-	" ist fehlgeschlagen\x02Schnittstelle: %[1]s\x02Teilnehmer\x02Einen neuen" +
-	" Tunnel erstellen\x02Tunnel bearbeiten\x02&Name:\x02&Öffentlicher Schlüs" +
-	"sel:\x02(unbekannt)\x02&Blockiere Verkehr außerhalb des Tunnels (Not-Aus" +
-	")\x02Wenn die Konfiguration genau einen Teilnehmer enthält und dieser ei" +
-	"nen der Einträge 0.0.0.0/0 oder ::/0 in den Erlaubten IPs enthält, so wi" +
-	"rd ein Firewall-Regelsatz erstellt, der allen Verkehr blockiert, der wed" +
-	"er aus dem Tunnel stammt noch in diesen geht, mit Ausnahmen für DHCP- un" +
-	"d NDP-Verkehr.\x02&Speichern\x02Abbrechen\x02&Konfiguration:\x02Ungültig" +
-	"er Name\x02Ein Name ist notwendig.\x02Der Name „%[1]s“ ist ungültig.\x02" +
-	"Vorhandene Tunnel können nicht aufgelistet werden\x02Tunnel existiert be" +
-	"reits\x02Ein Tunnel mit dem Namen „%[1]s“ existiert bereits.\x02Neue Kon" +
-	"figuration kann nicht erstellt werden\x02Schreiben der Datei schlug fehl" +
-	"\x02Die Datei „%[1]s“ existiert bereits.\x0a\x0aMöchten Sie sie ersetzen" +
-	"?\x02Aktiv\x02Aktiviere\x02Inaktiv\x02Deaktiviere\x02Unbekannter Zustand" +
-	"\x02Protokoll\x02&Kopieren\x02&Alles markieren\x02&In Datei Speichern…" +
-	"\x02Zeit\x02Protokolleintrag\x02Textdateien (*.txt)|*.txt|Alle Dateien (" +
-	"*.*)|*.*\x02Exportiere Protokoll in Datei\x02&Über WireGuard…\x02Tunnel " +
-	"Fehler\x02%[1]s\x0a\x0aBitte lesen Sie das Protokoll für weitere Informa" +
-	"tionen.\x02%[1]s (veraltet)\x02WireGuard Erkennungsfehler\x02Warten auf " +
-	"das Erscheinen des WireGuard Fensters nicht möglich: %[1]v \x02WireGuard" +
-	": Deaktiviert\x02Status: Unbekannt\x02Adressen: Keine\x02Tunnel &verwalt" +
-	"en…\x02Tunnel aus Datei &importieren…\x02&Beenden\x02WireGuard Tunnel Fe" +
-	"hler\x02WireGuard: %[1]s\x02Status: %[1]s\x02Adressen: %[1]s\x02WireGuar" +
-	"d aktiviert\x02Der Tunnel %[1]s wurde aktiviert.\x02WireGuard deaktivier" +
-	"t\x02Der Tunnel %[1]s wurde deaktiviert.\x02Eine Aktualisierung ist verf" +
-	"ügbar!\x02WireGuard Aktualisierung verfügbar\x02Eine Aktualisierung für" +
-	" WireGuard ist jetzt verfügbar. Es wird empfohlen diese schnellstmöglich" +
-	" durchzuführen.\x02Tunnel\x02&Bearbeiten\x02Einen &leeren Tunnel hinzufü" +
-	"gen…\x02Tunnel hinzufügen\x02Markierte(n) Tunnel entfernen\x02Alle Tunne" +
-	"l in eine Zip-Datei exportieren\x02&Umschalten\x02Exportiere alle Tunnel" +
-	" in &Zip-Datei\x02Ausgewählten Tunnel &bearbeiten…\x02Ausgewählte(n) Tun" +
-	"nel &löschen\x02Ausgewählte Konfiguration konnte nicht importiert werden" +
-	": %[1]v\x02Konnte existierende Tunnel nicht auflisten: %[1]v\x02Es exist" +
-	"iert bereits ein Tunnel mit dem Namen „%[1]s“\x02Importieren der Konfigu" +
-	"ration nicht möglich: %[1]v\x02Tunnel importiert\x14\x01\x81\x01\x00\x02" +
-	"\x18\x02%[1]d Tunnel importiert\x00\x18\x02%[1]d Tunnel importiert\x14" +
-	"\x02\x80\x01\x02\x22\x02%[1]d von %[2]d Tunnel importiert\x00\x22\x02%[1" +
-	"]d von %[2]d Tunnel importiert\x02Tunnel erstellen nicht möglich\x14\x01" +
-	"\x81\x01\x00\x02\x16\x02%[1]d Tunnel löschen\x00\x16\x02%[1]d Tunnel lös" +
-	"chen\x14\x01\x81\x01\x00\x024\x02Möchten Sie diesen %[1]d Tunnel wirklic" +
-	"h löschen?\x003\x02Möchten Sie diese %[1]d Tunnel wirklich löschen?\x02T" +
-	"unnel „%[1]s“ löschen\x02Möchten Sie den Tunnel „%[1]s“ wirklich löschen" +
-	"?\x02%[1]s Dieser Schritt kann nicht rückgängig gemacht werden.\x02Tunne" +
-	"l löschen nicht möglich\x02Ein Tunnel konnte nicht gelöscht werden: %[1]" +
-	"s\x02Tunnel konnten nicht gelöscht werden\x14\x01\x81\x01\x00\x02+\x02%[" +
-	"1]d Tunnel konnte nicht entfernt werden.\x00-\x02%[1]d Tunnel konnten ni" +
-	"cht gelöscht werden.\x02Konfigurationsdateien (*.zip, *.conf)|*.zip;*.co" +
-	"nf|Alle Dateien (*.*)|*.*\x02Importiere Tunnel aus Datei\x02Konfiguratio" +
-	"ns-ZIP-Dateien (*.zip)|*.zip\x02Exportiere Tunnel in Zip-Datei\x02%[1]s " +
-	"(unsigniert, keine Aktualisierungen)\x02Fehler beim Beenden von WireGuar" +
-	"d\x02Der Dienst konnte nicht gestoppt werden: %[1]v. Versuchen Sie WireG" +
-	"uard in der Dienstverwaltung zu beenden.\x02Eine Aktualisierung für Wire" +
-	"Guard ist verfügbar. Es ist höchst empfehlenswert diese sofort durchzufü" +
-	"hren.\x02Status: Auf Nutzer warten\x02Jetzt aktualisieren\x02Status: Auf" +
-	" Aktualisierungsdienst warten\x02Fehler: %[1]v. Bitte versuchen Sie es e" +
-	"rneut.\x02Status: Fertig!\x02http2: Framer %[1]p: Fehler beim dekodieren" +
-	" des gerade geschriebenen Frames\x02http2: Framer %[1]p: %[2]v geschrieb" +
-	"en\x02http2: Framer %[1]p: %[2]v gelesen\x02http2: hpack Feld %+[1]v dek" +
-	"odiert"
+	"ile muss innerhalb eines Abschnitts stehen\x02Konfigurationsschlüssel fe" +
+	"hlt ein Gleichheitstrennzeichen\x02Eintrag muss einen Wert haben\x02Ungü" +
+	"ltiger Eintrage im [Interface] Abschnitt\x02Ungültiger Eintrag im [Peer]" +
+	" Abschnitt\x02Eine Schnittstelle muss einen privaten Schlssel enthalten" +
+	"\x02[nicht spezifiziert]\x02Alle Teilnehmer (peers) müssen öffentliche S" +
+	"chlüssel haben\x02Fehler beim Abrufen der Konfiguration\x02Ungültiger Ei" +
+	"ntrag im Abschnitt [interface]\x02Die Protokollversion muss 1 sein\x02Un" +
+	"gültiger Eintrag im Abschnitt [peer]\x02, \x02, \x02Über WireGuard\x02Wi" +
+	"reGuard Logo\x02App Version: %[1]s\x0aGo Backend Version: %[2]s\x0aGo Ve" +
+	"rsion: %[3]s\x0aBetriebssystem: %[4]s\x0aArchitektur: %[5]s\x02Schließen" +
+	"\x02♥ &Spenden!\x02Status:\x02&Deaktivieren\x02&Aktivieren\x02Öffentlich" +
+	"er Schlüssel:\x02Eingangsport:\x02MTU:\x02Adressen:\x02DNS-Server:\x02Ge" +
+	"teilter Schlüssel:\x02Erlaubte IPs:\x02Endpunkt:\x02Erhaltungsintervall:" +
+	"\x02Letzter Schlüsseltausch:\x02Übertragen:\x02aktiviert\x02%[1]s empfan" +
+	"gen, %[1]s gesendet\x02Tunnelstatus konnte nicht ermittelt werden\x02Tun" +
+	"nel aktivieren ist fehlgeschlagen\x02Tunnel deaktivieren ist fehlgeschla" +
+	"gen\x02Schnittstelle: %[1]s\x02Teilnehmer\x02Einen neuen Tunnel erstelle" +
+	"n\x02Tunnel bearbeiten\x02&Name:\x02&Öffentlicher Schlüssel:\x02(unbekan" +
+	"nt)\x02&Blockiere Verkehr außerhalb des Tunnels (Not-Aus)\x02Wenn die Ko" +
+	"nfiguration genau einen Teilnehmer enthält und dieser einen der Einträge" +
+	" 0.0.0.0/0 oder ::/0 in den Erlaubten IPs enthält, so wird ein Firewall-" +
+	"Regelsatz erstellt, der allen Verkehr blockiert, der weder aus dem Tunne" +
+	"l stammt noch in diesen geht, mit Ausnahmen für DHCP- und NDP-Verkehr." +
+	"\x02&Speichern\x02Abbrechen\x02&Konfiguration:\x02Ungültiger Name\x02Ein" +
+	" Name ist notwendig.\x02Der Name „%[1]s“ ist ungültig.\x02Vorhandene Tun" +
+	"nel können nicht aufgelistet werden\x02Tunnel existiert bereits\x02Ein T" +
+	"unnel mit dem Namen „%[1]s“ existiert bereits.\x02Neue Konfiguration kan" +
+	"n nicht erstellt werden\x02Schreiben der Datei schlug fehl\x02Die Datei " +
+	"„%[1]s“ existiert bereits.\x0a\x0aMöchten Sie sie ersetzen?\x02Aktiv" +
+	"\x02Aktiviere\x02Inaktiv\x02Deaktiviere\x02Unbekannter Zustand\x02Protok" +
+	"oll\x02&Kopieren\x02&Alles markieren\x02&In Datei Speichern…\x02Zeit\x02" +
+	"Protokolleintrag\x02Textdateien (*.txt)|*.txt|Alle Dateien (*.*)|*.*\x02" +
+	"Exportiere Protokoll in Datei\x02&Über WireGuard…\x02Tunnel Fehler\x02%[" +
+	"1]s\x0a\x0aBitte lesen Sie das Protokoll für weitere Informationen.\x02%" +
+	"[1]s (veraltet)\x02WireGuard Erkennungsfehler\x02Warten auf das Erschein" +
+	"en des WireGuard Fensters nicht möglich: %[1]v \x02WireGuard: Deaktivier" +
+	"t\x02Status: Unbekannt\x02Adressen: Keine\x02Tunnel &verwalten…\x02Tunne" +
+	"l aus Datei &importieren…\x02&Beenden\x02WireGuard Tunnel Fehler\x02Wire" +
+	"Guard: %[1]s\x02Status: %[1]s\x02Adressen: %[1]s\x02WireGuard aktiviert" +
+	"\x02Der Tunnel %[1]s wurde aktiviert.\x02WireGuard deaktiviert\x02Der Tu" +
+	"nnel %[1]s wurde deaktiviert.\x02Eine Aktualisierung ist verfügbar!\x02W" +
+	"ireGuard Aktualisierung verfügbar\x02Eine Aktualisierung für WireGuard i" +
+	"st jetzt verfügbar. Es wird empfohlen diese schnellstmöglich durchzuführ" +
+	"en.\x02Tunnel\x02&Bearbeiten\x02Einen &leeren Tunnel hinzufügen…\x02Tunn" +
+	"el hinzufügen\x02Markierte(n) Tunnel entfernen\x02Alle Tunnel in eine Zi" +
+	"p-Datei exportieren\x02&Umschalten\x02Exportiere alle Tunnel in &Zip-Dat" +
+	"ei\x02Ausgewählten Tunnel &bearbeiten…\x02Ausgewählte(n) Tunnel &löschen" +
+	"\x02Ausgewählte Konfiguration konnte nicht importiert werden: %[1]v\x02K" +
+	"onnte existierende Tunnel nicht auflisten: %[1]v\x02Es existiert bereits" +
+	" ein Tunnel mit dem Namen „%[1]s“\x02Importieren der Konfiguration nicht" +
+	" möglich: %[1]v\x02Tunnel importiert\x14\x01\x81\x01\x00\x02\x18\x02%[1]" +
+	"d Tunnel importiert\x00\x18\x02%[1]d Tunnel importiert\x14\x02\x80\x01" +
+	"\x02\x22\x02%[1]d von %[2]d Tunnel importiert\x00\x22\x02%[1]d von %[2]d" +
+	" Tunnel importiert\x02Tunnel erstellen nicht möglich\x14\x01\x81\x01\x00" +
+	"\x02\x16\x02%[1]d Tunnel löschen\x00\x16\x02%[1]d Tunnel löschen\x14\x01" +
+	"\x81\x01\x00\x024\x02Möchten Sie diesen %[1]d Tunnel wirklich löschen?" +
+	"\x003\x02Möchten Sie diese %[1]d Tunnel wirklich löschen?\x02Tunnel „%[1" +
+	"]s“ löschen\x02Möchten Sie den Tunnel „%[1]s“ wirklich löschen?\x02%[1]s" +
+	" Dieser Schritt kann nicht rückgängig gemacht werden.\x02Tunnel löschen " +
+	"nicht möglich\x02Ein Tunnel konnte nicht gelöscht werden: %[1]s\x02Tunne" +
+	"l konnten nicht gelöscht werden\x14\x01\x81\x01\x00\x02+\x02%[1]d Tunnel" +
+	" konnte nicht entfernt werden.\x00-\x02%[1]d Tunnel konnten nicht gelösc" +
+	"ht werden.\x02Konfigurationsdateien (*.zip, *.conf)|*.zip;*.conf|Alle Da" +
+	"teien (*.*)|*.*\x02Importiere Tunnel aus Datei\x02Konfigurations-ZIP-Dat" +
+	"eien (*.zip)|*.zip\x02Exportiere Tunnel in Zip-Datei\x02%[1]s (unsignier" +
+	"t, keine Aktualisierungen)\x02Fehler beim Beenden von WireGuard\x02Der D" +
+	"ienst konnte nicht gestoppt werden: %[1]v. Versuchen Sie WireGuard in de" +
+	"r Dienstverwaltung zu beenden.\x02Eine Aktualisierung für WireGuard ist " +
+	"verfügbar. Es ist höchst empfehlenswert diese sofort durchzuführen.\x02S" +
+	"tatus: Auf Nutzer warten\x02Jetzt aktualisieren\x02Status: Auf Aktualisi" +
+	"erungsdienst warten\x02Fehler: %[1]v. Bitte versuchen Sie es erneut.\x02" +
+	"Status: Fertig!\x02http2: Framer %[1]p: Fehler beim dekodieren des gerad" +
+	"e geschriebenen Frames\x02http2: Framer %[1]p: %[2]v geschrieben\x02http" +
+	"2: Framer %[1]p: %[2]v gelesen\x02http2: hpack Feld %+[1]v dekodiert"
 
 var enIndex = []uint32{ // 177 elements
 	// Entry 0 - 1F
@@ -388,45 +393,45 @@ var enIndex = []uint32{ // 177 elements
 	0x0000037d, 0x000003a3, 0x000003af, 0x000003bc,
 	// Entry 20 - 3F
 	0x000003d9, 0x000003ec, 0x00000411, 0x00000445,
-	0x00000459, 0x00000472, 0x0000048f, 0x000004a5,
-	0x000004c9, 0x000004e8, 0x0000050d, 0x0000051e,
-	0x0000053e, 0x0000055d, 0x0000057f, 0x0000059a,
-	0x000005b7, 0x000005ba, 0x000005bd, 0x000005cd,
-	0x000005e2, 0x0000064d, 0x00000653, 0x00000660,
-	0x00000668, 0x00000674, 0x0000067e, 0x0000068a,
-	0x00000697, 0x0000069c, 0x000006a7, 0x000006b4,
+	0x00000459, 0x00000472, 0x0000048f, 0x000004b9,
+	0x000004cf, 0x000004f3, 0x00000512, 0x00000537,
+	0x00000548, 0x00000568, 0x00000587, 0x000005a9,
+	0x000005c4, 0x000005e1, 0x000005e4, 0x000005e7,
+	0x000005f7, 0x0000060c, 0x00000677, 0x0000067d,
+	0x0000068a, 0x00000692, 0x0000069e, 0x000006a8,
+	0x000006b4, 0x000006c1, 0x000006c6, 0x000006d1,
 	// Entry 40 - 5F
-	0x000006c3, 0x000006d0, 0x000006da, 0x000006f0,
-	0x00000702, 0x0000070c, 0x00000714, 0x0000072f,
-	0x00000750, 0x0000076a, 0x00000786, 0x00000797,
-	0x0000079c, 0x000007ae, 0x000007ba, 0x000007c1,
-	0x000007ce, 0x000007d8, 0x00000800, 0x0000091e,
-	0x00000924, 0x0000092b, 0x0000093b, 0x00000948,
-	0x0000095c, 0x00000980, 0x000009a0, 0x000009b6,
-	0x000009ef, 0x00000a12, 0x00000a26, 0x00000a65,
+	0x000006de, 0x000006ed, 0x000006fa, 0x00000704,
+	0x0000071a, 0x0000072c, 0x00000736, 0x0000073e,
+	0x00000759, 0x0000077a, 0x00000794, 0x000007b0,
+	0x000007c1, 0x000007c6, 0x000007d8, 0x000007e4,
+	0x000007eb, 0x000007f8, 0x00000802, 0x0000082a,
+	0x00000948, 0x0000094e, 0x00000955, 0x00000965,
+	0x00000972, 0x00000986, 0x000009aa, 0x000009ca,
+	0x000009e0, 0x00000a19, 0x00000a3c, 0x00000a50,
 	// Entry 60 - 7F
-	0x00000a6c, 0x00000a77, 0x00000a80, 0x00000a8d,
-	0x00000a9b, 0x00000a9f, 0x00000aa5, 0x00000ab1,
-	0x00000ac2, 0x00000ac7, 0x00000ad3, 0x00000b00,
-	0x00000b13, 0x00000b27, 0x00000b34, 0x00000b68,
-	0x00000b7c, 0x00000b96, 0x00000bcb, 0x00000be2,
-	0x00000bf2, 0x00000c02, 0x00000c15, 0x00000c34,
-	0x00000c3a, 0x00000c51, 0x00000c62, 0x00000c70,
-	0x00000c81, 0x00000c95, 0x00000cba, 0x00000cd0,
+	0x00000a8f, 0x00000a96, 0x00000aa1, 0x00000aaa,
+	0x00000ab7, 0x00000ac5, 0x00000ac9, 0x00000acf,
+	0x00000adb, 0x00000aec, 0x00000af1, 0x00000afd,
+	0x00000b2a, 0x00000b3d, 0x00000b51, 0x00000b5e,
+	0x00000b92, 0x00000ba6, 0x00000bc0, 0x00000bf5,
+	0x00000c0c, 0x00000c1c, 0x00000c2c, 0x00000c3f,
+	0x00000c5e, 0x00000c64, 0x00000c7b, 0x00000c8c,
+	0x00000c9a, 0x00000cab, 0x00000cbf, 0x00000ce4,
 	// Entry 80 - 9F
-	0x00000cf7, 0x00000d0f, 0x00000d2a, 0x00000d82,
-	0x00000d8a, 0x00000d90, 0x00000da5, 0x00000db0,
-	0x00000dca, 0x00000de4, 0x00000dec, 0x00000e0a,
-	0x00000e23, 0x00000e3e, 0x00000e6d, 0x00000e99,
-	0x00000ed1, 0x00000ef7, 0x00000f08, 0x00000f3e,
-	0x00000f85, 0x00000f9d, 0x00000fcf, 0x00001041,
-	0x0000105b, 0x00001095, 0x000010b8, 0x000010d0,
-	0x000010f9, 0x00001112, 0x0000116b, 0x000011b0,
+	0x00000cfa, 0x00000d21, 0x00000d39, 0x00000d54,
+	0x00000dac, 0x00000db4, 0x00000dba, 0x00000dcf,
+	0x00000dda, 0x00000df4, 0x00000e0e, 0x00000e16,
+	0x00000e34, 0x00000e4d, 0x00000e68, 0x00000e97,
+	0x00000ec3, 0x00000efb, 0x00000f21, 0x00000f32,
+	0x00000f68, 0x00000faf, 0x00000fc7, 0x00000ff9,
+	0x0000106b, 0x00001085, 0x000010bf, 0x000010e2,
+	0x000010fa, 0x00001123, 0x0000113c, 0x00001195,
 	// Entry A0 - BF
-	0x000011cb, 0x000011f1, 0x00001207, 0x0000122a,
-	0x00001242, 0x000012a1, 0x000012f6, 0x0000130f,
-	0x0000131a, 0x0000133e, 0x0000135e, 0x00001370,
-	0x000013a9, 0x000013ca, 0x000013ea, 0x0000140c,
+	0x000011da, 0x000011f5, 0x0000121b, 0x00001231,
+	0x00001254, 0x0000126c, 0x000012cb, 0x00001320,
+	0x00001339, 0x00001344, 0x00001368, 0x00001388,
+	0x0000139a, 0x000013d3, 0x000013f4, 0x00001414,
 	0x00001436,
 } // Size: 732 bytes
 
@@ -451,70 +456,163 @@ const enData string = "" + // Size: 5174 bytes
 	"nvalid port\x02Invalid persistent keepalive\x02Invalid key: %[1]v\x02Key" +
 	"s must decode to exactly 32 bytes\x02Number must be a number between 0 a" +
 	"nd 2^64-1: %[1]v\x02Two commas in a row\x02Tunnel name is not valid\x02L" +
-	"ine must occur in a section\x02Key must have a value\x02Invalid key for " +
-	"[Interface] section\x02Invalid key for [Peer] section\x02An interface mu" +
-	"st have a private key\x02[none specified]\x02All peers must have public " +
-	"keys\x02Error in getting configuration\x02Invalid key for interface sect" +
-	"ion\x02Protocol version must be 1\x02Invalid key for peer section\x02, " +
-	"\x02, \x02About WireGuard\x02WireGuard logo image\x02App version: %[1]s" +
-	"\x0aGo backend version: %[2]s\x0aGo version: %[3]s\x0aOperating system: " +
-	"%[4]s\x0aArchitecture: %[5]s\x02Close\x02♥ &Donate!\x02Status:\x02&Deact" +
-	"ivate\x02&Activate\x02Public key:\x02Listen port:\x02MTU:\x02Addresses:" +
-	"\x02DNS servers:\x02Preshared key:\x02Allowed IPs:\x02Endpoint:\x02Persi" +
-	"stent keepalive:\x02Latest handshake:\x02Transfer:\x02enabled\x02%[1]s r" +
-	"eceived, %[2]s sent\x02Failed to determine tunnel state\x02Failed to act" +
-	"ivate tunnel\x02Failed to deactivate tunnel\x02Interface: %[1]s\x02Peer" +
-	"\x02Create new tunnel\x02Edit tunnel\x02&Name:\x02&Public key:\x02(unkno" +
-	"wn)\x02&Block untunneled traffic (kill-switch)\x02When a configuration h" +
-	"as exactly one peer, and that peer has an allowed IPs containing at leas" +
-	"t one of 0.0.0.0/0 or ::/0, then the tunnel service engages a firewall r" +
-	"uleset to block all traffic that is neither to nor from the tunnel inter" +
-	"face, with special exceptions for DHCP and NDP.\x02&Save\x02Cancel\x02&C" +
-	"onfiguration:\x02Invalid name\x02A name is required.\x02Tunnel name ‘%[1" +
-	"]s’ is invalid.\x02Unable to list existing tunnels\x02Tunnel already exi" +
-	"sts\x02Another tunnel already exists with the name ‘%[1]s’.\x02Unable to" +
-	" create new configuration\x02Writing file failed\x02File ‘%[1]s’ already" +
-	" exists.\x0a\x0aDo you want to overwrite it?\x02Active\x02Activating\x02" +
-	"Inactive\x02Deactivating\x02Unknown state\x02Log\x02&Copy\x02Select &all" +
-	"\x02&Save to file…\x02Time\x02Log message\x02Text Files (*.txt)|*.txt|Al" +
-	"l Files (*.*)|*.*\x02Export log to file\x02&About WireGuard…\x02Tunnel E" +
-	"rror\x02%[1]s\x0a\x0aPlease consult the log for more information.\x02%[1" +
-	"]s (out of date)\x02WireGuard Detection Error\x02Unable to wait for Wire" +
-	"Guard window to appear: %[1]v\x02WireGuard: Deactivated\x02Status: Unkno" +
-	"wn\x02Addresses: None\x02&Manage tunnels…\x02&Import tunnel(s) from file" +
-	"…\x02E&xit\x02WireGuard Tunnel Error\x02WireGuard: %[1]s\x02Status: %[" +
-	"1]s\x02Addresses: %[1]s\x02WireGuard Activated\x02The %[1]s tunnel has b" +
-	"een activated.\x02WireGuard Deactivated\x02The %[1]s tunnel has been dea" +
-	"ctivated.\x02An Update is Available!\x02WireGuard Update Available\x02An" +
-	" update to WireGuard is now available. You are advised to update as soon" +
-	" as possible.\x02Tunnels\x02&Edit\x02Add &empty tunnel…\x02Add Tunnel" +
-	"\x02Remove selected tunnel(s)\x02Export all tunnels to zip\x02&Toggle" +
-	"\x02Export all tunnels to &zip…\x02Edit &selected tunnel…\x02&Remove sel" +
-	"ected tunnel(s)\x02Could not import selected configuration: %[1]v\x02Cou" +
-	"ld not enumerate existing tunnels: %[1]v\x02Another tunnel already exist" +
-	"s with the name ‘%[1]s’\x02Unable to import configuration: %[1]v\x02Impo" +
-	"rted tunnels\x14\x01\x81\x01\x00\x02\x16\x02Imported %[1]d tunnel\x00" +
-	"\x17\x02Imported %[1]d tunnels\x14\x02\x80\x01\x02\x1f\x02Imported %[1]d" +
-	" of %[2]d tunnel\x00 \x02Imported %[1]d of %[2]d tunnels\x02Unable to cr" +
-	"eate tunnel\x14\x01\x81\x01\x00\x02\x14\x02Delete %[1]d tunnel\x00\x15" +
-	"\x02Delete %[1]d tunnels\x14\x01\x81\x01\x00\x024\x02Are you sure you wo" +
-	"uld like to delete %[1]d tunnel?\x005\x02Are you sure you would like to " +
-	"delete %[1]d tunnels?\x02Delete tunnel ‘%[1]s’\x02Are you sure you would" +
-	" like to delete tunnel ‘%[1]s’?\x02%[1]s You cannot undo this action." +
-	"\x02Unable to delete tunnel\x02A tunnel was unable to be removed: %[1]s" +
-	"\x02Unable to delete tunnels\x14\x01\x81\x01\x00\x02'\x02%[1]d tunnel wa" +
-	"s unable to be removed.\x00)\x02%[1]d tunnels were unable to be removed." +
-	"\x02Configuration Files (*.zip, *.conf)|*.zip;*.conf|All Files (*.*)|*.*" +
-	"\x02Import tunnel(s) from file\x02Configuration ZIP Files (*.zip)|*.zip" +
-	"\x02Export tunnels to zip\x02%[1]s (unsigned build, no updates)\x02Error" +
-	" Exiting WireGuard\x02Unable to exit service due to: %[1]v. You may want" +
-	" to stop WireGuard from the service manager.\x02An update to WireGuard i" +
-	"s available. It is highly advisable to update without delay.\x02Status: " +
-	"Waiting for user\x02Update Now\x02Status: Waiting for updater service" +
-	"\x02Error: %[1]v. Please try again.\x02Status: Complete!\x02http2: Frame" +
-	"r %[1]p: failed to decode just-written frame\x02http2: Framer %[1]p: wro" +
-	"te %[2]v\x02http2: Framer %[1]p: read %[2]v\x02http2: decoded hpack fiel" +
-	"d %+[1]v\x02Config key is missing an equals separator"
+	"ine must occur in a section\x02Config key is missing an equals separator" +
+	"\x02Key must have a value\x02Invalid key for [Interface] section\x02Inva" +
+	"lid key for [Peer] section\x02An interface must have a private key\x02[n" +
+	"one specified]\x02All peers must have public keys\x02Error in getting co" +
+	"nfiguration\x02Invalid key for interface section\x02Protocol version mus" +
+	"t be 1\x02Invalid key for peer section\x02, \x02, \x02About WireGuard" +
+	"\x02WireGuard logo image\x02App version: %[1]s\x0aGo backend version: %[" +
+	"2]s\x0aGo version: %[3]s\x0aOperating system: %[4]s\x0aArchitecture: %[5" +
+	"]s\x02Close\x02♥ &Donate!\x02Status:\x02&Deactivate\x02&Activate\x02Publ" +
+	"ic key:\x02Listen port:\x02MTU:\x02Addresses:\x02DNS servers:\x02Preshar" +
+	"ed key:\x02Allowed IPs:\x02Endpoint:\x02Persistent keepalive:\x02Latest " +
+	"handshake:\x02Transfer:\x02enabled\x02%[1]s received, %[2]s sent\x02Fail" +
+	"ed to determine tunnel state\x02Failed to activate tunnel\x02Failed to d" +
+	"eactivate tunnel\x02Interface: %[1]s\x02Peer\x02Create new tunnel\x02Edi" +
+	"t tunnel\x02&Name:\x02&Public key:\x02(unknown)\x02&Block untunneled tra" +
+	"ffic (kill-switch)\x02When a configuration has exactly one peer, and tha" +
+	"t peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, " +
+	"then the tunnel service engages a firewall ruleset to block all traffic " +
+	"that is neither to nor from the tunnel interface, with special exception" +
+	"s for DHCP and NDP.\x02&Save\x02Cancel\x02&Configuration:\x02Invalid nam" +
+	"e\x02A name is required.\x02Tunnel name ‘%[1]s’ is invalid.\x02Unable to" +
+	" list existing tunnels\x02Tunnel already exists\x02Another tunnel alread" +
+	"y exists with the name ‘%[1]s’.\x02Unable to create new configuration" +
+	"\x02Writing file failed\x02File ‘%[1]s’ already exists.\x0a\x0aDo you wa" +
+	"nt to overwrite it?\x02Active\x02Activating\x02Inactive\x02Deactivating" +
+	"\x02Unknown state\x02Log\x02&Copy\x02Select &all\x02&Save to file…\x02Ti" +
+	"me\x02Log message\x02Text Files (*.txt)|*.txt|All Files (*.*)|*.*\x02Exp" +
+	"ort log to file\x02&About WireGuard…\x02Tunnel Error\x02%[1]s\x0a\x0aPle" +
+	"ase consult the log for more information.\x02%[1]s (out of date)\x02Wire" +
+	"Guard Detection Error\x02Unable to wait for WireGuard window to appear: " +
+	"%[1]v\x02WireGuard: Deactivated\x02Status: Unknown\x02Addresses: None" +
+	"\x02&Manage tunnels…\x02&Import tunnel(s) from file…\x02E&xit\x02WireGua" +
+	"rd Tunnel Error\x02WireGuard: %[1]s\x02Status: %[1]s\x02Addresses: %[1]s" +
+	"\x02WireGuard Activated\x02The %[1]s tunnel has been activated.\x02WireG" +
+	"uard Deactivated\x02The %[1]s tunnel has been deactivated.\x02An Update " +
+	"is Available!\x02WireGuard Update Available\x02An update to WireGuard is" +
+	" now available. You are advised to update as soon as possible.\x02Tunnel" +
+	"s\x02&Edit\x02Add &empty tunnel…\x02Add Tunnel\x02Remove selected tunnel" +
+	"(s)\x02Export all tunnels to zip\x02&Toggle\x02Export all tunnels to &zi" +
+	"p…\x02Edit &selected tunnel…\x02&Remove selected tunnel(s)\x02Could not " +
+	"import selected configuration: %[1]v\x02Could not enumerate existing tun" +
+	"nels: %[1]v\x02Another tunnel already exists with the name ‘%[1]s’\x02Un" +
+	"able to import configuration: %[1]v\x02Imported tunnels\x14\x01\x81\x01" +
+	"\x00\x02\x16\x02Imported %[1]d tunnel\x00\x17\x02Imported %[1]d tunnels" +
+	"\x14\x02\x80\x01\x02\x1f\x02Imported %[1]d of %[2]d tunnel\x00 \x02Impor" +
+	"ted %[1]d of %[2]d tunnels\x02Unable to create tunnel\x14\x01\x81\x01" +
+	"\x00\x02\x14\x02Delete %[1]d tunnel\x00\x15\x02Delete %[1]d tunnels\x14" +
+	"\x01\x81\x01\x00\x024\x02Are you sure you would like to delete %[1]d tun" +
+	"nel?\x005\x02Are you sure you would like to delete %[1]d tunnels?\x02Del" +
+	"ete tunnel ‘%[1]s’\x02Are you sure you would like to delete tunnel ‘%[1]" +
+	"s’?\x02%[1]s You cannot undo this action.\x02Unable to delete tunnel\x02" +
+	"A tunnel was unable to be removed: %[1]s\x02Unable to delete tunnels\x14" +
+	"\x01\x81\x01\x00\x02'\x02%[1]d tunnel was unable to be removed.\x00)\x02" +
+	"%[1]d tunnels were unable to be removed.\x02Configuration Files (*.zip, " +
+	"*.conf)|*.zip;*.conf|All Files (*.*)|*.*\x02Import tunnel(s) from file" +
+	"\x02Configuration ZIP Files (*.zip)|*.zip\x02Export tunnels to zip\x02%[" +
+	"1]s (unsigned build, no updates)\x02Error Exiting WireGuard\x02Unable to" +
+	" exit service due to: %[1]v. You may want to stop WireGuard from the ser" +
+	"vice manager.\x02An update to WireGuard is available. It is highly advis" +
+	"able to update without delay.\x02Status: Waiting for user\x02Update Now" +
+	"\x02Status: Waiting for updater service\x02Error: %[1]v. Please try agai" +
+	"n.\x02Status: Complete!\x02http2: Framer %[1]p: failed to decode just-wr" +
+	"itten frame\x02http2: Framer %[1]p: wrote %[2]v\x02http2: Framer %[1]p: " +
+	"read %[2]v\x02http2: decoded hpack field %+[1]v"
+
+var faIndex = []uint32{ // 177 elements
+	// Entry 0 - 1F
+	0x00000000, 0x00000007, 0x00000007, 0x00000007,
+	0x0000002b, 0x0000002b, 0x00000093, 0x00000093,
+	0x00000093, 0x00000093, 0x00000093, 0x000000a3,
+	0x000000a3, 0x000000c6, 0x000000e9, 0x00000110,
+	0x0000013b, 0x00000166, 0x00000173, 0x00000183,
+	0x00000183, 0x00000183, 0x00000183, 0x00000183,
+	0x00000183, 0x000001b0, 0x000001b0, 0x000001b0,
+	0x000001b0, 0x000001b0, 0x000001ca, 0x000001e2,
+	// Entry 20 - 3F
+	0x000001e2, 0x000001e2, 0x000001e2, 0x000001e2,
+	0x000001e2, 0x000001e2, 0x000001e2, 0x000001e2,
+	0x00000218, 0x00000218, 0x00000218, 0x00000218,
+	0x0000022c, 0x0000027c, 0x000002a6, 0x000002a6,
+	0x000002a6, 0x000002a6, 0x000002aa, 0x000002ae,
+	0x000002c5, 0x000002c5, 0x000002c5, 0x000002ce,
+	0x000002e5, 0x000002f1, 0x0000030c, 0x00000321,
+	0x00000336, 0x00000349, 0x0000034e, 0x00000361,
+	// Entry 40 - 5F
+	0x00000375, 0x0000039d, 0x000003b0, 0x000003c5,
+	0x000003f0, 0x000003f0, 0x000003fe, 0x0000040e,
+	0x0000040e, 0x0000040e, 0x0000040e, 0x0000040e,
+	0x0000041e, 0x00000427, 0x00000444, 0x0000045a,
+	0x00000463, 0x00000479, 0x0000048c, 0x0000048c,
+	0x0000048c, 0x00000498, 0x0000049f, 0x000004b2,
+	0x000004c8, 0x000004e9, 0x000004e9, 0x0000052f,
+	0x0000055c, 0x0000055c, 0x0000055c, 0x0000055c,
+	// Entry 60 - 7F
+	0x0000055c, 0x00000565, 0x00000585, 0x00000594,
+	0x000005ba, 0x000005d6, 0x000005ec, 0x000005fa,
+	0x000005fa, 0x0000061b, 0x00000624, 0x00000645,
+	0x00000645, 0x00000681, 0x0000069c, 0x000006b0,
+	0x000006b0, 0x000006b0, 0x000006b0, 0x000006b0,
+	0x000006b0, 0x000006cd, 0x000006e7, 0x00000708,
+	0x00000708, 0x00000708, 0x00000724, 0x00000724,
+	0x00000736, 0x0000074f, 0x00000769, 0x0000078b,
+	// Entry 80 - 9F
+	0x000007a9, 0x000007a9, 0x000007de, 0x00000817,
+	0x00000817, 0x00000827, 0x00000835, 0x00000863,
+	0x00000879, 0x0000089e, 0x000008d3, 0x000008d3,
+	0x0000090c, 0x0000090c, 0x0000090c, 0x0000090c,
+	0x0000090c, 0x0000090c, 0x0000090c, 0x0000092e,
+	0x00000971, 0x000009c9, 0x000009f6, 0x00000a2b,
+	0x00000a2b, 0x00000a47, 0x00000a47, 0x00000a47,
+	0x00000a79, 0x00000a79, 0x00000aae, 0x00000aae,
+	// Entry A0 - BF
+	0x00000aae, 0x00000ae1, 0x00000b1d, 0x00000b4b,
+	0x00000b4b, 0x00000b81, 0x00000b81, 0x00000b81,
+	0x00000bb2, 0x00000bdb, 0x00000c24, 0x00000c5c,
+	0x00000c77, 0x00000c77, 0x00000c77, 0x00000c77,
+	0x00000c77,
+} // Size: 732 bytes
+
+const faData string = "" + // Size: 3191 bytes
+	"\x02خطا\x02گزینه\u200cهای خط فرمان\x02شما باید نگارش ۶۴-بیت WireGuard را" +
+	" در این رایانه استفاده کنید.\x02هم اکنون\x14\x01\x81\x01\x00\x02\x0d\x02" +
+	"%[1]d سال\x00\x0d\x02%[1]d سال\x14\x01\x81\x01\x00\x02\x0d\x02%[1]d روز" +
+	"\x00\x0d\x02%[1]d روز\x14\x01\x81\x01\x00\x02\x0f\x02%[1]d ساعت\x00\x0f" +
+	"\x02%[1]d ساعت\x14\x01\x81\x01\x00\x02\x11\x02%[1]d دقیقه\x00\x11\x02%[1" +
+	"]d دقیقه\x14\x01\x81\x01\x00\x02\x11\x02%[1]d ثانیه\x00\x11\x02%[1]d ثان" +
+	"یه\x02%[1]s پیش\x02%[1]d\u00a0بایت\x02نشانی آی\u200cپی نامعتبر است\x02M" +
+	"TU نامعتبر است\x02پورت نامعتبر\x02کلید باید یک مقدار داشته باشد\x02[مشخص" +
+	" نشده]\x02همه همتاها باید کلید\u200cهای عمومی داشته باشند\x02خطا در دریا" +
+	"فت پیکربندی\x02، \x02، \x02درباره WireGuard\x02بستن\x02♥&کمک\u200cمالی!" +
+	"\x02وضعیت:\x02&غیرفعال\u200cسازی\x02&فعال\u200cسازی\x02کلید عمومی:\x02پو" +
+	"رت شنود:\x02MTU:\x02نشانی\u200cها:\x02سرورهای DNS:\x02کلید از پیش تقسیم" +
+	" شده:\x02IPهای مجاز:\x02نقطه پایان:\x02زنده نگه\u200cداشتن پیوسته:\x02ان" +
+	"تقال:\x02فعال شده\x02رابط: %[1]s\x02همتا\x02ایجاد تونل جدید\x02ویرایش ت" +
+	"ونل\x02&نام:\x02&کلید عمومی:\x02(ناشناخته)\x02&ذخیره\x02لغو\x02&پیکربند" +
+	"ی:\x02نام نامعتبر\x02یک نام الزامی است.\x02نمی\u200cتوان تونل\u200cهای " +
+	"موجود را فهرست کرد\x02تونل هم\u200cاکنون موجود است\x02فعال\x02در حال فع" +
+	"ال\u200cسازی\x02غیرفعال\x02در حال غیرفعال\u200cسازی\x02وضعیت ناشناخته" +
+	"\x02گزارش وقایع\x02&روگرفت\x02&ذخیره در پرونده…\x02زمان\x02پیام گزارش رو" +
+	"یداد\x02برون\u200cبرد گزارش رویداد به پرونده\x02&درباره WireGuard…\x02خ" +
+	"طالی تونل\x02وضعیت: ناشناخته\x02نشانی\u200cها: هیچ\x02&مدیریت تونل" +
+	"\u200cها…\x02خطای تونل WireGuard\x02وضعیت: %[1]s\x02نشانی\u200cها: %[1]s" +
+	"\x02WireGuard فعال\u200cشد\x02تونل %[1]s فعال\u200cشده.\x02WireGuard غیر" +
+	"فعال شد\x02یک به\u200cروزرسانی در دسترس است!\x02به\u200cروزرسانی WireGu" +
+	"ard در دسترس است\x02تونل\u200cها\x02&ویرایش\x02افزودن &خالی\u200cکردن تو" +
+	"نل…\x02افزودن تونل\x02حذف تونل(ها) انتخابی\x02برون\u200cبری همه تونل" +
+	"\u200cها به زیپ\x02برون\u200cبری همه تونل\u200cها به &زیپ…\x02تونل\u200c" +
+	"های وارد شده\x14\x01\x81\x01\x00\x02\x1d\x02%[1]d تونل وارد شد\x00\x1d" +
+	"\x02%[1]d تونل وارد شد\x14\x02\x80\x01\x02(\x02%[1]d از %[2]d تونل وارد " +
+	"شد\x00(\x02%[1]d از %[2]d تونل وارد شد\x02نمی\u200cتوان تونل ایجاد کرد" +
+	"\x14\x01\x81\x01\x00\x02\x16\x02حذف %[1]d تونل\x00\x16\x02حذف %[1]d تونل" +
+	"\x02حذف تونل ‘%[1]s’\x02حذف تونل\u200c امکان\u200cپذیر نیست\x02نمی\u200c" +
+	"توان تونل\u200cها را حذف کرد\x02وارد کردن تونل(ها) از پرونده\x02پرونده" +
+	"\u200cهای پیکربندی زیپ (*.zip)|*.zip\x02برون\u200cبری تونل\u200cها به زی" +
+	"پ\x02خطا در هنگام خارج شدن از WireGuard\x02وضعیت: درانتظار برای کاربر" +
+	"\x02اکنون به\u200cروز رسانی کن\x02وضعیت: درانتظار برای سرویس به\u200cروز" +
+	"رسانی\x02خطا: %[1]v. لطفا دوباره تلاش کنید.\x02وضعیت: کامل شد!"
 
 var frIndex = []uint32{ // 177 elements
 	// Entry 0 - 1F
@@ -528,45 +626,45 @@ var frIndex = []uint32{ // 177 elements
 	0x00000433, 0x00000465, 0x00000474, 0x00000484,
 	// Entry 20 - 3F
 	0x000004bb, 0x000004d3, 0x00000500, 0x0000053b,
-	0x00000557, 0x00000570, 0x0000059c, 0x000005b7,
-	0x000005e3, 0x0000060a, 0x00000632, 0x0000064a,
-	0x00000682, 0x000006a9, 0x000006d5, 0x000006f7,
-	0x00000723, 0x00000726, 0x00000728, 0x0000073f,
-	0x0000075a, 0x000007e0, 0x000007e7, 0x000007fb,
-	0x00000803, 0x00000810, 0x00000819, 0x00000829,
-	0x0000083a, 0x00000840, 0x0000084b, 0x0000085a,
+	0x00000557, 0x00000570, 0x0000059c, 0x0000059c,
+	0x000005b7, 0x000005e3, 0x0000060a, 0x00000632,
+	0x0000064a, 0x00000682, 0x000006a9, 0x000006d5,
+	0x000006f7, 0x00000723, 0x00000726, 0x00000728,
+	0x0000073f, 0x0000075a, 0x000007e0, 0x000007e7,
+	0x000007fb, 0x00000803, 0x00000810, 0x00000819,
+	0x00000829, 0x0000083a, 0x00000840, 0x0000084b,
 	// Entry 40 - 5F
-	0x00000870, 0x0000088a, 0x000008a1, 0x000008cf,
-	0x000008f6, 0x00000902, 0x0000090d, 0x0000092e,
-	0x0000095a, 0x00000979, 0x0000099d, 0x000009af,
-	0x000009b9, 0x000009d2, 0x000009e5, 0x000009ec,
-	0x000009fd, 0x00000a0a, 0x00000a3d, 0x00000b98,
-	0x00000ba5, 0x00000bad, 0x00000bbe, 0x00000bcd,
-	0x00000be5, 0x00000c0f, 0x00000c44, 0x00000c5a,
-	0x00000c8e, 0x00000cbe, 0x00000cdc, 0x00000d1b,
+	0x0000085a, 0x00000870, 0x0000088a, 0x000008a1,
+	0x000008cf, 0x000008f6, 0x00000902, 0x0000090d,
+	0x0000092e, 0x0000095a, 0x00000979, 0x0000099d,
+	0x000009af, 0x000009b9, 0x000009d2, 0x000009e5,
+	0x000009ec, 0x000009fd, 0x00000a0a, 0x00000a3d,
+	0x00000b98, 0x00000ba5, 0x00000bad, 0x00000bbe,
+	0x00000bcd, 0x00000be5, 0x00000c0f, 0x00000c44,
+	0x00000c5a, 0x00000c8e, 0x00000cbe, 0x00000cdc,
 	// Entry 60 - 7F
-	0x00000d26, 0x00000d3a, 0x00000d47, 0x00000d5f,
-	0x00000d6d, 0x00000d75, 0x00000d7d, 0x00000d91,
-	0x00000db1, 0x00000db7, 0x00000dca, 0x00000e03,
-	0x00000e27, 0x00000e3f, 0x00000e50, 0x00000e9a,
-	0x00000eac, 0x00000ece, 0x00000f10, 0x00000f27,
-	0x00000f37, 0x00000f49, 0x00000f61, 0x00000f93,
-	0x00000f9c, 0x00000fb7, 0x00000fc9, 0x00000fd7,
-	0x00000fe8, 0x00000ffa, 0x00001018, 0x0000102e,
+	0x00000d1b, 0x00000d26, 0x00000d3a, 0x00000d47,
+	0x00000d5f, 0x00000d6d, 0x00000d75, 0x00000d7d,
+	0x00000d91, 0x00000db1, 0x00000db7, 0x00000dca,
+	0x00000e03, 0x00000e27, 0x00000e3f, 0x00000e50,
+	0x00000e9a, 0x00000eac, 0x00000ece, 0x00000f10,
+	0x00000f27, 0x00000f37, 0x00000f49, 0x00000f61,
+	0x00000f93, 0x00000f9c, 0x00000fb7, 0x00000fc9,
+	0x00000fd7, 0x00000fe8, 0x00000ffa, 0x00001018,
 	// Entry 80 - 9F
-	0x00001050, 0x00001069, 0x0000108f, 0x00001104,
-	0x0000110c, 0x00001116, 0x00001131, 0x00001143,
-	0x0000116e, 0x00001191, 0x0000119b, 0x000011c2,
-	0x000011e7, 0x00001213, 0x00001251, 0x00001288,
-	0x000012b4, 0x000012e3, 0x000012f5, 0x0000132c,
-	0x00001375, 0x00001394, 0x000013cc, 0x00001430,
-	0x00001450, 0x00001486, 0x000014b5, 0x000014d7,
-	0x0000150c, 0x00001530, 0x0000159c, 0x000015ef,
+	0x0000102e, 0x00001050, 0x00001069, 0x0000108f,
+	0x00001104, 0x0000110c, 0x00001116, 0x00001131,
+	0x00001143, 0x0000116e, 0x00001191, 0x0000119b,
+	0x000011c2, 0x000011e7, 0x00001213, 0x00001251,
+	0x00001288, 0x000012b4, 0x000012e3, 0x000012f5,
+	0x0000132c, 0x00001375, 0x00001394, 0x000013cc,
+	0x00001430, 0x00001450, 0x00001486, 0x000014b5,
+	0x000014d7, 0x0000150c, 0x00001530, 0x0000159c,
 	// Entry A0 - BF
-	0x0000161d, 0x00001649, 0x00001667, 0x00001698,
-	0x000016b6, 0x00001731, 0x000017aa, 0x000017cf,
-	0x000017e9, 0x00001818, 0x0000183d, 0x0000184e,
-	0x00001893, 0x000018b8, 0x000018da, 0x000018fe,
+	0x000015ef, 0x0000161d, 0x00001649, 0x00001667,
+	0x00001698, 0x000016b6, 0x00001731, 0x000017aa,
+	0x000017cf, 0x000017e9, 0x00001818, 0x0000183d,
+	0x0000184e, 0x00001893, 0x000018b8, 0x000018da,
 	0x000018fe,
 } // Size: 732 bytes
 
@@ -671,6 +769,100 @@ const frData string = "" + // Size: 6398 bytes
 	".\x02http2: Trameur %[1]p: a écrit %[2]v\x02http2: Trameur %[1]p : a lu " +
 	"%[2]v\x02http2 : champ hpack %+[1]v décodé"
 
+var idIndex = []uint32{ // 177 elements
+	// Entry 0 - 1F
+	0x00000000, 0x0000000a, 0x00000047, 0x00000062,
+	0x00000074, 0x000000bf, 0x000000fe, 0x0000012f,
+	0x00000187, 0x000001e0, 0x00000215, 0x0000021e,
+	0x00000231, 0x00000250, 0x00000262, 0x00000273,
+	0x00000286, 0x00000299, 0x000002a9, 0x000002b1,
+	0x000002bd, 0x000002c9, 0x000002d5, 0x000002e1,
+	0x000002ee, 0x00000304, 0x0000031f, 0x0000033f,
+	0x00000359, 0x0000037f, 0x0000038f, 0x000003a0,
+	// Entry 20 - 3F
+	0x000003c1, 0x000003d7, 0x000003ff, 0x00000431,
+	0x0000044b, 0x00000463, 0x00000480, 0x00000480,
+	0x0000049b, 0x000004c5, 0x000004ea, 0x0000050f,
+	0x00000520, 0x00000548, 0x0000056c, 0x00000596,
+	0x000005ad, 0x000005d2, 0x000005d5, 0x000005d5,
+	0x000005e7, 0x000005e7, 0x0000064e, 0x00000654,
+	0x00000661, 0x00000669, 0x00000669, 0x00000669,
+	0x00000669, 0x00000669, 0x00000669, 0x00000669,
+	// Entry 40 - 5F
+	0x00000669, 0x00000669, 0x00000669, 0x00000669,
+	0x00000669, 0x00000669, 0x00000669, 0x00000669,
+	0x00000669, 0x00000669, 0x00000669, 0x00000669,
+	0x00000669, 0x00000669, 0x00000669, 0x00000669,
+	0x00000669, 0x00000669, 0x00000669, 0x00000669,
+	0x00000669, 0x00000669, 0x00000669, 0x00000669,
+	0x00000669, 0x00000669, 0x00000669, 0x00000669,
+	0x00000669, 0x00000669, 0x00000669, 0x00000669,
+	// Entry 60 - 7F
+	0x00000669, 0x0000066f, 0x0000067c, 0x00000685,
+	0x00000693, 0x000006aa, 0x000006b2, 0x000006b8,
+	0x000006c4, 0x000006e1, 0x000006e7, 0x000006f1,
+	0x00000721, 0x00000739, 0x0000074f, 0x0000075b,
+	0x00000791, 0x000007a4, 0x000007bb, 0x000007f0,
+	0x00000809, 0x00000821, 0x00000830, 0x00000843,
+	0x0000085e, 0x00000866, 0x0000087c, 0x0000088d,
+	0x0000089b, 0x0000089b, 0x0000089b, 0x0000089b,
+	// Entry 80 - 9F
+	0x0000089b, 0x0000089b, 0x0000089b, 0x0000089b,
+	0x0000089b, 0x0000089b, 0x0000089b, 0x0000089b,
+	0x0000089b, 0x0000089b, 0x0000089b, 0x0000089b,
+	0x000008ba, 0x000008d3, 0x000008ea, 0x00000920,
+	0x00000920, 0x00000920, 0x00000920, 0x00000920,
+	0x00000920, 0x00000920, 0x00000920, 0x00000920,
+	0x00000920, 0x00000920, 0x00000920, 0x00000920,
+	0x00000920, 0x00000920, 0x00000920, 0x00000920,
+	// Entry A0 - BF
+	0x00000920, 0x00000920, 0x00000920, 0x00000920,
+	0x00000920, 0x00000920, 0x00000920, 0x00000920,
+	0x00000920, 0x00000920, 0x00000920, 0x00000920,
+	0x00000920, 0x00000920, 0x00000920, 0x00000920,
+	0x00000920,
+} // Size: 732 bytes
+
+const idData string = "" + // Size: 2336 bytes
+	"\x02Kesalahan\x02(tidak ada argumen): naikkan akses dan instal servis ma" +
+	"najer\x02Penggunaan: %[1]s [\x0a%[2]s]\x02Opsi Command Line\x02Tidak dap" +
+	"at menentukan apakah proses sedang berjalan di bawah WOW64: %[1]v\x02And" +
+	"a harus menggunakan WireGuard versi 64-bit di komputer ini.\x02Tidak dap" +
+	"at membuka token proses saat ini: %[1]v\x02WireGuard hanya dapat digunak" +
+	"an oleh pengguna yang merupakan anggota grup Bawaan %[1]s.\x02WireGuard " +
+	"sedang berjalan, tetapi UI hanya dapat diakses dari desktop grup Bawaan " +
+	"%[1]s.\x02Ikon sistem WireGuard tidak muncul setelah 30 detik.\x02Sekara" +
+	"ng\x02Jam sistem mundur!\x14\x01\x81\x01\x00\x00\x18\x02%[1]d tahun\x0a%" +
+	"[1]d tahun\x14\x01\x81\x01\x00\x00\x0b\x02%[1]d Hari\x14\x01\x81\x01\x00" +
+	"\x00\x0a\x02%[1]d jam\x14\x01\x81\x01\x00\x00\x0c\x02%[1]d menit\x14\x01" +
+	"\x81\x01\x00\x00\x0c\x02%[1]d detik\x02%[1]s yang lalu\x02%[1]d B\x02%.2" +
+	"[1]f KiB\x02%.2[1]f MiB\x02%.2[1]f GiB\x02%.2[1]f TiB\x02%[1]s: %[2]q" +
+	"\x02Alamat IP tidak valid\x02Network prefix tidak valid\x02Port belum te" +
+	"risi dari endpoint\x02Host endpoint tidak valid\x02Dalam Kurung harus be" +
+	"risi alamat IPv6\x02MTU tidak valid\x02Port tidak valid\x02Persistent ke" +
+	"epalive tidak valid\x02Kunci tidak sah:%[1]v\x02Kunci harus diterjemahka" +
+	"n tepat 32 byte\x02Nomor harus diantara 0 sampai dengan 2^64-1:%[1]v\x02" +
+	"Dua koma dalam satu baris\x02Nama Tunnel tidak valid\x02Garis harus munc" +
+	"ul perbagian\x02Kunci harus memiliki value\x02Kunci tidak valid pada bag" +
+	"ian [Interface]\x02Kunci tidak valid pada bagian [Peer]\x02Interface har" +
+	"us memiliki Private Key\x02Tidak Ditetapkan\x02Semua peers harus memilik" +
+	"i kunci publik\x02Eror ketika mendapatkan konfigurasi\x02Kunci tidak val" +
+	"id pada bagian [Interface]\x02Versi protokol harus 1\x02Kunci tidak vali" +
+	"d pada bagian [Peer]\x02, \x02Tentang WireGuard\x02Versi Aplikasi: %[1]s" +
+	"\x0aVersi back-end Go: %[2]s\x0aVersi Go: %[3]s\x0aSistem Operasi: %[4]s" +
+	"\x0aArsitektur: %[5]s\x02Tutup\x02♥ &Donasi!\x02Status:\x02Aktif\x02Meng" +
+	"aktifkan\x02Nonaktif\x02Menonaktifkan\x02Status tidak diketahui\x02Catat" +
+	"an\x02Salin\x02Pilih semua\x02Menyimpan ke dalam berkas…\x02Waktu\x02Pes" +
+	"an log\x02Berkas Txt (*.Txt)|*.Txt|Semua berkas (*.*)|*.*\x02Ekspor log " +
+	"kedalam file\x02&Tentang WireGuard…\x02Tunnel eror\x02%[1]s\x0a\x0aSilak" +
+	"an baca log untuk informasi lebih lanjut.\x02%[1]s (kadaluarsa)\x02Detek" +
+	"si eror WireGuard\x02Tidak dapat menunggu jendela WireGuard muncul: %[1]" +
+	"v\x02WireGuard: Dinonaktifkan\x02Status: Tidak diketahui\x02Alamat: Koso" +
+	"ng\x02&Manajer Tunnel…\x02&Impor tunnel dari file…\x02&Keluar\x02Wiregua" +
+	"rd Tunnel Eror\x02WireGuard: %[1]s\x02Status: %[1]s\x02Ekspor semua tunn" +
+	"el ke &zip…\x02Ubah tunnel &terpilih…\x02&Hapus tunnel terpilih\x02Tidak" +
+	" dapat mengimpor konfigurasi yang dipilih: %[1]v"
+
 var itIndex = []uint32{ // 177 elements
 	// Entry 0 - 1F
 	0x00000000, 0x00000007, 0x00000044, 0x0000005d,
@@ -683,45 +875,45 @@ var itIndex = []uint32{ // 177 elements
 	0x000003fa, 0x0000042a, 0x00000439, 0x0000044a,
 	// Entry 20 - 3F
 	0x0000046a, 0x00000483, 0x000004b5, 0x000004f4,
-	0x0000050c, 0x0000052d, 0x0000055a, 0x00000579,
-	0x000005a6, 0x000005ce, 0x000005fb, 0x0000060d,
-	0x0000063b, 0x0000066b, 0x0000069d, 0x000006c6,
-	0x000006ec, 0x000006ef, 0x000006f1, 0x0000070b,
-	0x0000072a, 0x000007a2, 0x000007a9, 0x000007c1,
-	0x000007c8, 0x000007d3, 0x000007db, 0x000007ec,
-	0x000007fe, 0x00000803, 0x0000080e, 0x0000081a,
+	0x0000050c, 0x0000052d, 0x0000055a, 0x0000055a,
+	0x00000579, 0x000005a6, 0x000005ce, 0x000005fb,
+	0x0000060d, 0x0000063b, 0x0000066b, 0x0000069d,
+	0x000006c6, 0x000006ec, 0x000006ef, 0x000006f1,
+	0x0000070b, 0x0000072a, 0x000007a2, 0x000007a9,
+	0x000007c1, 0x000007c8, 0x000007d3, 0x000007db,
+	0x000007ec, 0x000007fe, 0x00000803, 0x0000080e,
 	// Entry 40 - 5F
-	0x00000830, 0x0000083f, 0x00000849, 0x0000085f,
-	0x00000874, 0x00000883, 0x0000088d, 0x000008ab,
-	0x000008de, 0x00000902, 0x00000929, 0x0000093c,
-	0x00000941, 0x0000094d, 0x0000095d, 0x00000964,
-	0x00000976, 0x00000984, 0x000009b4, 0x00000add,
-	0x00000ae4, 0x00000aec, 0x00000afd, 0x00000b0d,
-	0x00000b23, 0x00000b51, 0x00000b79, 0x00000b8f,
-	0x00000bc4, 0x00000bef, 0x00000c0f, 0x00000c46,
+	0x0000081a, 0x00000830, 0x0000083f, 0x00000849,
+	0x0000085f, 0x00000874, 0x00000883, 0x0000088d,
+	0x000008ab, 0x000008de, 0x00000902, 0x00000929,
+	0x0000093c, 0x00000941, 0x0000094d, 0x0000095d,
+	0x00000964, 0x00000976, 0x00000984, 0x000009b4,
+	0x00000add, 0x00000ae4, 0x00000aec, 0x00000afd,
+	0x00000b0d, 0x00000b23, 0x00000b51, 0x00000b79,
+	0x00000b8f, 0x00000bc4, 0x00000bef, 0x00000c0f,
 	// Entry 60 - 7F
-	0x00000c4d, 0x00000c59, 0x00000c62, 0x00000c71,
-	0x00000c83, 0x00000c87, 0x00000c8e, 0x00000c9f,
-	0x00000cb1, 0x00000cb7, 0x00000cc8, 0x00000cfb,
-	0x00000d0f, 0x00000d2d, 0x00000d3f, 0x00000d72,
-	0x00000d83, 0x00000da6, 0x00000deb, 0x00000e02,
-	0x00000e15, 0x00000e28, 0x00000e3e, 0x00000e59,
-	0x00000e5f, 0x00000e7a, 0x00000e8b, 0x00000e98,
-	0x00000ea9, 0x00000ebc, 0x00000edf, 0x00000ef5,
+	0x00000c46, 0x00000c4d, 0x00000c59, 0x00000c62,
+	0x00000c71, 0x00000c83, 0x00000c87, 0x00000c8e,
+	0x00000c9f, 0x00000cb1, 0x00000cb7, 0x00000cc8,
+	0x00000cfb, 0x00000d0f, 0x00000d2d, 0x00000d3f,
+	0x00000d72, 0x00000d83, 0x00000da6, 0x00000deb,
+	0x00000e02, 0x00000e15, 0x00000e28, 0x00000e3e,
+	0x00000e59, 0x00000e5f, 0x00000e7a, 0x00000e8b,
+	0x00000e98, 0x00000ea9, 0x00000ebc, 0x00000edf,
 	// Entry 80 - 9F
-	0x00000f1b, 0x00000f3c, 0x00000f63, 0x00000fc2,
-	0x00000fc9, 0x00000fd3, 0x00000fea, 0x00000ffa,
-	0x00001015, 0x00001033, 0x0000103c, 0x0000105b,
-	0x0000107e, 0x0000109c, 0x000010d7, 0x00001107,
-	0x0000113b, 0x0000116a, 0x0000117b, 0x000011b2,
-	0x000011fa, 0x00001217, 0x0000124a, 0x000012ab,
-	0x000012c6, 0x000012fb, 0x0000132b, 0x0000134b,
-	0x0000137d, 0x0000139c, 0x00001403, 0x0000144e,
+	0x00000ef5, 0x00000f1b, 0x00000f3c, 0x00000f63,
+	0x00000fc2, 0x00000fc9, 0x00000fd3, 0x00000fea,
+	0x00000ffa, 0x00001015, 0x00001033, 0x0000103c,
+	0x0000105b, 0x0000107e, 0x0000109c, 0x000010d7,
+	0x00001107, 0x0000113b, 0x0000116a, 0x0000117b,
+	0x000011b2, 0x000011fa, 0x00001217, 0x0000124a,
+	0x000012ab, 0x000012c6, 0x000012fb, 0x0000132b,
+	0x0000134b, 0x0000137d, 0x0000139c, 0x00001403,
 	// Entry A0 - BF
-	0x00001465, 0x0000148e, 0x000014a4, 0x000014d7,
-	0x000014ff, 0x00001571, 0x000015d6, 0x000015f3,
-	0x00001600, 0x0000162f, 0x0000164c, 0x0000165d,
-	0x000016a3, 0x000016c9, 0x000016ed, 0x00001714,
+	0x0000144e, 0x00001465, 0x0000148e, 0x000014a4,
+	0x000014d7, 0x000014ff, 0x00001571, 0x000015d6,
+	0x000015f3, 0x00001600, 0x0000162f, 0x0000164c,
+	0x0000165d, 0x000016a3, 0x000016c9, 0x000016ed,
 	0x00001714,
 } // Size: 732 bytes
 
@@ -833,45 +1025,45 @@ var jaIndex = []uint32{ // 177 elements
 	0x00000424, 0x00000455, 0x00000463, 0x0000047c,
 	// Entry 20 - 3F
 	0x000004a7, 0x000004bb, 0x000004ed, 0x00000540,
-	0x00000564, 0x00000583, 0x000005ae, 0x000005df,
-	0x00000614, 0x00000644, 0x0000067b, 0x0000068a,
-	0x000006bb, 0x000006ef, 0x00000722, 0x00000765,
-	0x00000793, 0x00000796, 0x00000798, 0x000007af,
-	0x000007c6, 0x00000831, 0x0000083b, 0x00000857,
-	0x0000085f, 0x0000086d, 0x0000087b, 0x00000886,
-	0x0000089d, 0x000008a2, 0x000008b0, 0x000008bf,
+	0x00000564, 0x00000583, 0x000005ae, 0x000005ae,
+	0x000005df, 0x00000614, 0x00000644, 0x0000067b,
+	0x0000068a, 0x000006bb, 0x000006ef, 0x00000722,
+	0x00000765, 0x00000793, 0x00000796, 0x00000798,
+	0x000007af, 0x000007c6, 0x00000831, 0x0000083b,
+	0x00000857, 0x0000085f, 0x0000086d, 0x0000087b,
+	0x00000886, 0x0000089d, 0x000008a2, 0x000008b0,
 	// Entry 40 - 5F
-	0x000008d0, 0x000008dd, 0x000008f4, 0x00000914,
-	0x00000934, 0x0000093c, 0x00000943, 0x0000096b,
-	0x0000099c, 0x000009ca, 0x000009f8, 0x00000a18,
-	0x00000a1f, 0x00000a3b, 0x00000a51, 0x00000a5d,
-	0x00000a6c, 0x00000a75, 0x00000ace, 0x00000c02,
-	0x00000c0d, 0x00000c1d, 0x00000c29, 0x00000c39,
-	0x00000c52, 0x00000c81, 0x00000caf, 0x00000cd7,
-	0x00000d26, 0x00000d57, 0x00000d7c, 0x00000dce,
+	0x000008bf, 0x000008d0, 0x000008dd, 0x000008f4,
+	0x00000914, 0x00000934, 0x0000093c, 0x00000943,
+	0x0000096b, 0x0000099c, 0x000009ca, 0x000009f8,
+	0x00000a18, 0x00000a1f, 0x00000a3b, 0x00000a51,
+	0x00000a5d, 0x00000a6c, 0x00000a75, 0x00000ace,
+	0x00000c02, 0x00000c0d, 0x00000c1d, 0x00000c29,
+	0x00000c39, 0x00000c52, 0x00000c81, 0x00000caf,
+	0x00000cd7, 0x00000d26, 0x00000d57, 0x00000d7c,
 	// Entry 60 - 7F
-	0x00000dd5, 0x00000de2, 0x00000de9, 0x00000df6,
-	0x00000e06, 0x00000e0d, 0x00000e1b, 0x00000e2f,
-	0x00000e4c, 0x00000e53, 0x00000e6a, 0x00000eb4,
-	0x00000edf, 0x00000efc, 0x00000f12, 0x00000f47,
-	0x00000f5c, 0x00000f76, 0x00000fb8, 0x00000fd3,
-	0x00000fe2, 0x00000ff7, 0x00001014, 0x0000104c,
-	0x00001057, 0x00001077, 0x00001088, 0x00001096,
-	0x000010aa, 0x000010c4, 0x000010f6, 0x00001110,
+	0x00000dce, 0x00000dd5, 0x00000de2, 0x00000de9,
+	0x00000df6, 0x00000e06, 0x00000e0d, 0x00000e1b,
+	0x00000e2f, 0x00000e4c, 0x00000e53, 0x00000e6a,
+	0x00000eb4, 0x00000edf, 0x00000efc, 0x00000f12,
+	0x00000f47, 0x00000f5c, 0x00000f76, 0x00000fb8,
+	0x00000fd3, 0x00000fe2, 0x00000ff7, 0x00001014,
+	0x0000104c, 0x00001057, 0x00001077, 0x00001088,
+	0x00001096, 0x000010aa, 0x000010c4, 0x000010f6,
 	// Entry 80 - 9F
-	0x00001142, 0x00001161, 0x0000118a, 0x000011f2,
-	0x000011ff, 0x0000120a, 0x0000122d, 0x00001243,
-	0x00001265, 0x00001299, 0x000012aa, 0x000012e5,
-	0x0000130e, 0x00001334, 0x00001381, 0x000013bf,
-	0x0000140b, 0x00001443, 0x00001468, 0x000014a0,
-	0x000014e4, 0x00001509, 0x0000152c, 0x00001568,
-	0x0000158b, 0x000015c6, 0x000015f7, 0x0000161c,
-	0x00001651, 0x00001676, 0x000016b1, 0x00001704,
+	0x00001110, 0x00001142, 0x00001161, 0x0000118a,
+	0x000011f2, 0x000011ff, 0x0000120a, 0x0000122d,
+	0x00001243, 0x00001265, 0x00001299, 0x000012aa,
+	0x000012e5, 0x0000130e, 0x00001334, 0x00001381,
+	0x000013bf, 0x0000140b, 0x00001443, 0x00001468,
+	0x000014a0, 0x000014e4, 0x00001509, 0x0000152c,
+	0x00001568, 0x0000158b, 0x000015c6, 0x000015f7,
+	0x0000161c, 0x00001651, 0x00001676, 0x000016b1,
 	// Entry A0 - BF
-	0x00001735, 0x0000175f, 0x00001787, 0x000017bd,
-	0x000017d7, 0x0000185b, 0x000018c0, 0x000018ea,
-	0x000018fa, 0x0000192d, 0x00001962, 0x00001974,
-	0x000019ba, 0x000019ee, 0x00001a22, 0x00001a62,
+	0x00001704, 0x00001735, 0x0000175f, 0x00001787,
+	0x000017bd, 0x000017d7, 0x0000185b, 0x000018c0,
+	0x000018ea, 0x000018fa, 0x0000192d, 0x00001962,
+	0x00001974, 0x000019ba, 0x000019ee, 0x00001a22,
 	0x00001a62,
 } // Size: 732 bytes
 
@@ -933,6 +1125,64 @@ const jaData string = "" + // Size: 6754 bytes
 	"tp2: Framer %[1]p: %[2]v を書き込みました\x02http2: Framer %[1]p: %[2]v を読み込みました" +
 	"\x02http2: hpack フィールド %+[1]v をデコードしました"
 
+var plIndex = []uint32{ // 177 elements
+	// Entry 0 - 1F
+	0x00000000, 0x00000007, 0x00000007, 0x00000007,
+	0x0000001e, 0x0000001e, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	// Entry 20 - 3F
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	// Entry 40 - 5F
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	// Entry 60 - 7F
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	// Entry 80 - 9F
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	// Entry A0 - BF
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b,
+} // Size: 732 bytes
+
+const plData string = "" + // Size: 91 bytes
+	"\x02Błąd\x02Opcje wiersza poleceń\x02Musisz użyć 64-bitowej wersji WireG" +
+	"uard na tym komputerze."
+
 var ruIndex = []uint32{ // 177 elements
 	// Entry 0 - 1F
 	0x00000000, 0x0000000d, 0x000000a9, 0x000000d4,
@@ -945,49 +1195,49 @@ var ruIndex = []uint32{ // 177 elements
 	0x0000062a, 0x00000662, 0x0000067f, 0x000006a1,
 	// Entry 20 - 3F
 	0x000006f7, 0x00000720, 0x00000775, 0x000007b4,
-	0x000007d7, 0x00000806, 0x00000839, 0x0000086b,
-	0x000008a5, 0x000008da, 0x00000924, 0x0000093a,
-	0x0000097e, 0x000009be, 0x00000a01, 0x00000a39,
-	0x00000a70, 0x00000a73, 0x00000a76, 0x00000a83,
-	0x00000a9c, 0x00000b5a, 0x00000b69, 0x00000b88,
-	0x00000b96, 0x00000ba8, 0x00000bbc, 0x00000bd9,
-	0x00000be3, 0x00000be8, 0x00000bf9, 0x00000c0d,
+	0x000007d7, 0x00000806, 0x00000839, 0x00000839,
+	0x0000086b, 0x000008a5, 0x000008da, 0x00000924,
+	0x0000093a, 0x0000097e, 0x000009be, 0x00000a01,
+	0x00000a39, 0x00000a70, 0x00000a73, 0x00000a76,
+	0x00000a83, 0x00000a9c, 0x00000b5a, 0x00000b69,
+	0x00000b88, 0x00000b96, 0x00000baa, 0x00000bc0,
+	0x00000bdd, 0x00000be7, 0x00000bec, 0x00000bfd,
 	// Entry 40 - 5F
-	0x00000c22, 0x00000c4a, 0x00000c68, 0x00000c99,
-	0x00000cc4, 0x00000cd6, 0x00000ce7, 0x00000d1a,
-	0x00000d65, 0x00000d9d, 0x00000dd3, 0x00000ded,
-	0x00000df4, 0x00000e12, 0x00000e3c, 0x00000e45,
-	0x00000e63, 0x00000e7a, 0x00000eb8, 0x00001096,
-	0x000010aa, 0x000010b7, 0x000010d2, 0x000010f2,
-	0x0000110d, 0x00001147, 0x0000117f, 0x000011aa,
-	0x000011f2, 0x00001239, 0x0000125e, 0x000012c0,
+	0x00000c11, 0x00000c26, 0x00000c4e, 0x00000c6c,
+	0x00000c9d, 0x00000cc8, 0x00000cda, 0x00000ceb,
+	0x00000d1e, 0x00000d69, 0x00000da1, 0x00000dd7,
+	0x00000df1, 0x00000df8, 0x00000e16, 0x00000e40,
+	0x00000e49, 0x00000e67, 0x00000e7e, 0x00000ebc,
+	0x0000109a, 0x000010ae, 0x000010bb, 0x000010d6,
+	0x000010f6, 0x00001111, 0x0000114b, 0x00001183,
+	0x000011ae, 0x000011f6, 0x0000123d, 0x00001262,
 	// Entry 60 - 7F
-	0x000012d3, 0x000012ea, 0x000012fb, 0x00001310,
-	0x0000133a, 0x00001347, 0x0000135d, 0x00001374,
-	0x00001397, 0x000013a2, 0x000013c4, 0x0000140c,
-	0x00001436, 0x00001447, 0x00001463, 0x000014de,
-	0x000014f5, 0x00001523, 0x00001577, 0x0000159d,
-	0x000015c0, 0x000015d5, 0x00001601, 0x00001633,
-	0x0000163f, 0x00001665, 0x00001676, 0x0000168a,
-	0x0000169e, 0x000016b7, 0x000016e0, 0x000016fb,
+	0x000012c4, 0x000012d7, 0x000012ee, 0x000012ff,
+	0x00001314, 0x0000133e, 0x0000134b, 0x00001361,
+	0x00001378, 0x0000139b, 0x000013a6, 0x000013c8,
+	0x00001410, 0x0000143a, 0x0000144b, 0x00001467,
+	0x000014e2, 0x000014f9, 0x00001527, 0x0000157b,
+	0x000015a1, 0x000015c4, 0x000015d9, 0x00001605,
+	0x00001637, 0x00001643, 0x00001669, 0x0000167a,
+	0x0000168e, 0x000016a2, 0x000016bb, 0x000016e4,
 	// Entry 80 - 9F
-	0x00001722, 0x00001749, 0x00001779, 0x00001804,
-	0x00001813, 0x0000182f, 0x00001860, 0x00001880,
-	0x000018b1, 0x000018ec, 0x00001904, 0x00001943,
-	0x00001984, 0x000019b6, 0x00001a06, 0x00001a60,
-	0x00001aa7, 0x00001af7, 0x00001b25, 0x00001bf9,
-	0x00001cf5, 0x00001d27, 0x00001dc7, 0x00001f0f,
-	0x00001f39, 0x00001f89, 0x00001fd4, 0x00002006,
-	0x00002040, 0x00002072, 0x00002169, 0x000021c6,
+	0x000016ff, 0x00001726, 0x0000174d, 0x0000177d,
+	0x00001808, 0x00001817, 0x00001833, 0x00001864,
+	0x00001884, 0x000018b5, 0x000018f0, 0x00001908,
+	0x00001947, 0x00001988, 0x000019ba, 0x00001a0a,
+	0x00001a64, 0x00001aab, 0x00001afb, 0x00001b29,
+	0x00001bfd, 0x00001cf9, 0x00001d2b, 0x00001dcb,
+	0x00001f13, 0x00001f3d, 0x00001f8d, 0x00001fd8,
+	0x0000200a, 0x00002044, 0x00002076, 0x0000216d,
 	// Entry A0 - BF
-	0x000021f4, 0x0000222c, 0x0000225e, 0x000022ab,
-	0x000022d4, 0x0000236e, 0x000023f6, 0x0000242e,
-	0x0000244c, 0x0000246f, 0x000024a8, 0x000024ca,
-	0x0000253e, 0x00002568, 0x00002596, 0x000025ca,
-	0x000025ca,
+	0x000021ca, 0x000021f8, 0x00002230, 0x00002262,
+	0x000022af, 0x000022d8, 0x00002372, 0x000023fa,
+	0x00002432, 0x00002450, 0x00002473, 0x000024ac,
+	0x000024ce, 0x00002542, 0x0000256c, 0x0000259a,
+	0x000025ce,
 } // Size: 732 bytes
 
-const ruData string = "" + // Size: 9674 bytes
+const ruData string = "" + // Size: 9678 bytes
 	"\x02Ошибка\x02(нет аргумента): получить права администратора и установит" +
 	"ь административную службу\x02Использование: %[1]s [\x0a%[2]s]\x02Параме" +
 	"тры командной строки\x02Ошибка определения или процесс работает как WOW" +
@@ -1019,7 +1269,7 @@ const ruData string = "" + // Size: 9674 bytes
 	"для секции Пира\x02, \x02, \x02О WireGuard\x02Логотип WireGuard\x02Верс" +
 	"ия приложения: %[1]s\x0aВерсия бэкэнда: %[2]s\x0aВерсия перехода: %[3]s" +
 	"\x0aОперационная система: %[4]s\x0aАрхитектура: %[5]s\x02Закрыть\x02♥ &П" +
-	"ожертвовать!\x02Статус:\x02&Отключен\x02&Подключен\x02Публичный ключ:" +
+	"ожертвовать!\x02Статус:\x02&Отключить\x02&Подключить\x02Публичный ключ:" +
 	"\x02Порт:\x02MTU:\x02IP-адреса:\x02DNS-серверы:\x02Общий ключ:\x02Разреш" +
 	"енные IP-адреса:\x02IP-адрес сервера:\x02Поддерживание соединения:\x02П" +
 	"оследнее рукопожатие:\x02Передача:\x02включено\x02Получено %[1]s, отпра" +
@@ -1096,45 +1346,45 @@ var slIndex = []uint32{ // 177 elements
 	0x0000045d, 0x00000483, 0x00000490, 0x0000049f,
 	// Entry 20 - 3F
 	0x000004c3, 0x000004da, 0x0000050b, 0x0000053f,
-	0x00000554, 0x0000056b, 0x00000586, 0x000005a1,
-	0x000005c6, 0x000005e6, 0x00000608, 0x00000616,
-	0x0000063d, 0x0000065d, 0x0000067f, 0x0000069d,
-	0x000006bf, 0x000006c2, 0x000006c4, 0x000006d1,
-	0x000006ef, 0x00000764, 0x0000076a, 0x00000778,
-	0x00000780, 0x0000078d, 0x00000798, 0x000007a6,
-	0x000007b9, 0x000007be, 0x000007c7, 0x000007d7,
+	0x00000554, 0x0000056b, 0x00000586, 0x00000586,
+	0x000005a1, 0x000005c6, 0x000005e6, 0x00000608,
+	0x00000616, 0x0000063d, 0x0000065d, 0x0000067f,
+	0x0000069d, 0x000006bf, 0x000006c2, 0x000006c4,
+	0x000006d1, 0x000006ef, 0x00000764, 0x0000076a,
+	0x00000778, 0x00000780, 0x0000078d, 0x00000798,
+	0x000007a6, 0x000007b9, 0x000007be, 0x000007c7,
 	// Entry 40 - 5F
-	0x000007ed, 0x000007fe, 0x0000080e, 0x0000082a,
-	0x0000083c, 0x00000844, 0x0000084f, 0x0000086c,
-	0x00000890, 0x000008ae, 0x000008ce, 0x000008dd,
-	0x000008e5, 0x000008f7, 0x00000903, 0x00000909,
-	0x00000918, 0x00000922, 0x0000094c, 0x00000a6d,
-	0x00000a75, 0x00000a7f, 0x00000a8f, 0x00000a9c,
-	0x00000aac, 0x00000ace, 0x00000afe, 0x00000b10,
-	0x00000b3b, 0x00000b62, 0x00000b80, 0x00000bbb,
+	0x000007d7, 0x000007ed, 0x000007fe, 0x0000080e,
+	0x0000082a, 0x0000083c, 0x00000844, 0x0000084f,
+	0x0000086c, 0x00000890, 0x000008ae, 0x000008ce,
+	0x000008dd, 0x000008e5, 0x000008f7, 0x00000903,
+	0x00000909, 0x00000918, 0x00000922, 0x0000094c,
+	0x00000a6d, 0x00000a75, 0x00000a7f, 0x00000a8f,
+	0x00000a9c, 0x00000aac, 0x00000ace, 0x00000afe,
+	0x00000b10, 0x00000b3b, 0x00000b62, 0x00000b80,
 	// Entry 60 - 7F
-	0x00000bc3, 0x00000bcf, 0x00000bd9, 0x00000be7,
-	0x00000bf6, 0x00000bfe, 0x00000c07, 0x00000c13,
-	0x00000c2b, 0x00000c30, 0x00000c46, 0x00000c7e,
-	0x00000c98, 0x00000cab, 0x00000cb9, 0x00000ce8,
-	0x00000cfe, 0x00000d1b, 0x00000d56, 0x00000d6d,
-	0x00000d7c, 0x00000d8a, 0x00000da1, 0x00000dc0,
-	0x00000dc7, 0x00000ddf, 0x00000df0, 0x00000dfe,
-	0x00000e0d, 0x00000e21, 0x00000e3f, 0x00000e55,
+	0x00000bbb, 0x00000bc3, 0x00000bcf, 0x00000bd9,
+	0x00000be7, 0x00000bf6, 0x00000bfe, 0x00000c07,
+	0x00000c13, 0x00000c2b, 0x00000c30, 0x00000c46,
+	0x00000c7e, 0x00000c98, 0x00000cab, 0x00000cb9,
+	0x00000ce8, 0x00000cfe, 0x00000d1b, 0x00000d56,
+	0x00000d6d, 0x00000d7c, 0x00000d8a, 0x00000da1,
+	0x00000dc0, 0x00000dc7, 0x00000ddf, 0x00000df0,
+	0x00000dfe, 0x00000e0d, 0x00000e21, 0x00000e3f,
 	// Entry 80 - 9F
-	0x00000e75, 0x00000e8e, 0x00000eb1, 0x00000ef6,
-	0x00000efd, 0x00000f04, 0x00000f1d, 0x00000f29,
-	0x00000f41, 0x00000f59, 0x00000f63, 0x00000f81,
-	0x00000f9a, 0x00000fb3, 0x00000fe1, 0x00001014,
-	0x00001039, 0x0000105f, 0x0000106f, 0x000010d3,
-	0x0000115e, 0x0000117f, 0x000011e4, 0x000012d1,
-	0x000012ec, 0x00001327, 0x00001352, 0x0000136c,
-	0x00001394, 0x000013af, 0x00001463, 0x000014b0,
+	0x00000e55, 0x00000e75, 0x00000e8e, 0x00000eb1,
+	0x00000ef6, 0x00000efd, 0x00000f04, 0x00000f1d,
+	0x00000f29, 0x00000f41, 0x00000f59, 0x00000f63,
+	0x00000f81, 0x00000f9a, 0x00000fb3, 0x00000fe1,
+	0x00001014, 0x00001039, 0x0000105f, 0x0000106f,
+	0x000010d3, 0x0000115e, 0x0000117f, 0x000011e4,
+	0x000012d1, 0x000012ec, 0x00001327, 0x00001352,
+	0x0000136c, 0x00001394, 0x000013af, 0x00001463,
 	// Entry A0 - BF
-	0x000014c9, 0x000014f4, 0x00001511, 0x00001542,
-	0x00001562, 0x000015cf, 0x00001622, 0x0000163e,
-	0x0000164c, 0x00001673, 0x00001695, 0x000016a7,
-	0x000016ef, 0x00001713, 0x00001737, 0x0000175c,
+	0x000014b0, 0x000014c9, 0x000014f4, 0x00001511,
+	0x00001542, 0x00001562, 0x000015cf, 0x00001622,
+	0x0000163e, 0x0000164c, 0x00001673, 0x00001695,
+	0x000016a7, 0x000016ef, 0x00001713, 0x00001737,
 	0x0000175c,
 } // Size: 732 bytes
 
@@ -1237,104 +1487,277 @@ const slData string = "" + // Size: 5980 bytes
 	" %[2]v\x02http2: Framer %[1]p: prebrano %[2]v\x02http2: dekodirano polje" +
 	" hpack %+[1]v"
 
-var zh_CNIndex = []uint32{ // 177 elements
+var viIndex = []uint32{ // 177 elements
 	// Entry 0 - 1F
-	0x00000000, 0x00000007, 0x00000031, 0x00000048,
-	0x00000058, 0x0000008e, 0x000000cc, 0x000000f2,
-	0x00000137, 0x00000191, 0x000001c8, 0x000001cf,
-	0x000001e5, 0x000001f6, 0x00000207, 0x0000021b,
-	0x0000022f, 0x00000240, 0x0000024a, 0x00000252,
-	0x0000025f, 0x0000026c, 0x00000279, 0x00000286,
-	0x00000293, 0x000002a2, 0x000002bb, 0x000002d1,
-	0x000002e4, 0x00000306, 0x00000311, 0x0000031e,
+	0x00000000, 0x00000006, 0x00000006, 0x00000006,
+	0x00000006, 0x00000006, 0x00000006, 0x00000006,
+	0x00000006, 0x00000006, 0x00000006, 0x00000011,
+	0x00000011, 0x00000023, 0x00000036, 0x00000049,
+	0x0000005c, 0x0000006f, 0x0000007e, 0x0000007e,
+	0x0000007e, 0x0000007e, 0x0000007e, 0x0000007e,
+	0x0000007e, 0x000000a0, 0x000000a0, 0x000000a0,
+	0x000000a0, 0x000000a0, 0x000000a0, 0x000000c0,
 	// Entry 20 - 3F
-	0x00000337, 0x0000034f, 0x00000373, 0x000003b1,
-	0x000003ca, 0x000003dd, 0x000003f9, 0x0000040f,
-	0x0000042e, 0x00000448, 0x00000464, 0x00000474,
-	0x00000496, 0x000004ac, 0x000004c5, 0x000004dd,
-	0x000004f6, 0x000004f9, 0x000004fc, 0x0000050d,
-	0x00000524, 0x0000058c, 0x00000593, 0x000005a0,
-	0x000005aa, 0x000005b2, 0x000005ba, 0x000005c2,
-	0x000005d0, 0x000005d5, 0x000005df, 0x000005ee,
+	0x000000c0, 0x000000c0, 0x000000c0, 0x000000c0,
+	0x000000c0, 0x000000db, 0x000000db, 0x000000db,
+	0x000000db, 0x000000db, 0x000000db, 0x000000db,
+	0x000000db, 0x000000db, 0x000000db, 0x000000db,
+	0x000000db, 0x000000db, 0x000000db, 0x000000db,
+	0x000000f5, 0x00000104, 0x0000019b, 0x000001a2,
+	0x000001a2, 0x000001b1, 0x000001b1, 0x000001b1,
+	0x000001b1, 0x000001b1, 0x000001b1, 0x000001b1,
 	// Entry 40 - 5F
-	0x00000601, 0x00000611, 0x0000061b, 0x0000062f,
-	0x00000640, 0x00000648, 0x00000652, 0x00000673,
-	0x0000068c, 0x0000069f, 0x000006b2, 0x000006c1,
-	0x000006c8, 0x000006d8, 0x000006e5, 0x000006ee,
-	0x000006f7, 0x00000704, 0x0000072f, 0x00000814,
-	0x0000081c, 0x00000823, 0x0000082e, 0x0000083b,
-	0x00000851, 0x00000871, 0x0000088a, 0x0000089a,
-	0x000008c8, 0x000008e1, 0x000008f4, 0x00000930,
+	0x000001b1, 0x000001b1, 0x000001b1, 0x000001c0,
+	0x000001c0, 0x000001c0, 0x000001c0, 0x000001d2,
+	0x000001ec, 0x00000218, 0x00000236, 0x00000257,
+	0x00000257, 0x0000026a, 0x00000274, 0x00000286,
+	0x00000286, 0x00000286, 0x00000286, 0x00000286,
+	0x00000286, 0x00000286, 0x0000028c, 0x0000028c,
+	0x000002a3, 0x000002bb, 0x000002e1, 0x00000302,
+	0x00000317, 0x00000344, 0x00000344, 0x00000344,
 	// Entry 60 - 7F
-	0x00000937, 0x00000941, 0x0000094b, 0x00000955,
-	0x00000962, 0x00000969, 0x00000971, 0x00000980,
-	0x00000994, 0x0000099b, 0x000009a8, 0x000009d7,
-	0x000009ed, 0x00000a02, 0x00000a0f, 0x00000a32,
-	0x00000a48, 0x00000a5f, 0x00000a8a, 0x00000aa1,
-	0x00000ab1, 0x00000abe, 0x00000acf, 0x00000ae9,
-	0x00000af1, 0x00000b08, 0x00000b19, 0x00000b29,
-	0x00000b39, 0x00000b50, 0x00000b73, 0x00000b8a,
+	0x00000344, 0x00000344, 0x00000344, 0x00000344,
+	0x00000344, 0x00000344, 0x00000344, 0x00000344,
+	0x00000344, 0x00000344, 0x00000344, 0x00000344,
+	0x00000344, 0x00000344, 0x00000344, 0x00000344,
+	0x00000344, 0x00000344, 0x00000344, 0x00000344,
+	0x00000344, 0x00000344, 0x00000344, 0x00000344,
+	0x00000344, 0x00000344, 0x00000344, 0x00000344,
+	0x00000344, 0x00000344, 0x00000344, 0x00000344,
 	// Entry 80 - 9F
-	0x00000ba4, 0x00000bbd, 0x00000bda, 0x00000c1f,
-	0x00000c26, 0x00000c2e, 0x00000c42, 0x00000c4f,
-	0x00000c65, 0x00000c7e, 0x00000c86, 0x00000ca3,
-	0x00000cbe, 0x00000cd5, 0x00000cf9, 0x00000d1c,
-	0x00000d47, 0x00000d62, 0x00000d6f, 0x00000d8d,
-	0x00000dc3, 0x00000dd6, 0x00000df4, 0x00000e24,
-	0x00000e3d, 0x00000e65, 0x00000e87, 0x00000e9a,
-	0x00000eb6, 0x00000ec9, 0x00000eef, 0x00000f2d,
+	0x00000344, 0x00000344, 0x00000344, 0x00000344,
+	0x00000344, 0x00000344, 0x00000344, 0x00000344,
+	0x00000344, 0x00000344, 0x00000344, 0x00000344,
+	0x00000344, 0x00000344, 0x00000344, 0x00000344,
+	0x00000344, 0x00000344, 0x00000344, 0x00000344,
+	0x00000344, 0x00000344, 0x00000344, 0x00000344,
+	0x00000344, 0x00000344, 0x00000344, 0x00000344,
+	0x00000344, 0x00000344, 0x00000344, 0x00000344,
 	// Entry A0 - BF
-	0x00000f43, 0x00000f63, 0x00000f76, 0x00000f9a,
-	0x00000fb5, 0x00001011, 0x00001056, 0x0000106c,
-	0x00001079, 0x00001095, 0x000010b3, 0x000010c6,
-	0x000010fa, 0x00001122, 0x0000114a, 0x0000116f,
-	0x0000116f,
+	0x00000344, 0x00000344, 0x00000344, 0x00000344,
+	0x00000344, 0x00000344, 0x00000344, 0x00000344,
+	0x00000344, 0x00000344, 0x00000344, 0x00000344,
+	0x00000344, 0x00000344, 0x00000344, 0x00000344,
+	0x00000344,
 } // Size: 732 bytes
 
-const zh_CNData string = "" + // Size: 4463 bytes
-	"\x02错误\x02(无参数)：提升并安装管理服务\x02用法: %[1]s [\x0a%[2]s]\x02命令行选项\x02无法确定该进程是否" +
-	"在WOW64下运行： %[1]v\x02您必须在此计算机上使用64位版本的 WireGuard 。\x02无法打开当前进程令牌: %[1]v" +
+const viData string = "" + // Size: 836 bytes
+	"\x02Lỗi\x02Vừa xong\x14\x01\x81\x01\x00\x00\x0b\x02%[1]d năm\x14\x01\x81" +
+	"\x01\x00\x00\x0c\x02%[1]d ngày\x14\x01\x81\x01\x00\x00\x0c\x02%[1]d giờ" +
+	"\x14\x01\x81\x01\x00\x00\x0c\x02%[1]d phút\x14\x01\x81\x01\x00\x00\x0c" +
+	"\x02%[1]d giây\x02%[1]s trước\x02Địa chỉ IP không hợp lệ\x02Cổng (port) " +
+	"không hợp lệ\x02Tên VPN không hợp lệ\x02Thông tin về WireGuard\x02Logo W" +
+	"ireGuard\x02Phiên bản ứng dụng: %[1]s\x0aPhiên bản Golang của WG: %[2]s" +
+	"\x0aPhiên bản Golang: %[3]s\x0aHệ điều hành: %[4]s\x0aKiến trúc xử lý: %" +
+	"[5]s\x02Đóng\x02Trạng thái:\x02Đầu cuối:\x02đã kích hoạt\x02Nhận %[1]s, " +
+	"gứi %[2]s\x02Không thể xác định tình trạng VPN\x02Không thể kích hoạt VP" +
+	"N\x02Không thể vô hiệu hóa VPN\x02Mạng ngang hàng\x02Tạo VPN\x02Chỉnh sử" +
+	"a VPN\x02Huỷ\x02Tên không hợp lệ\x02Yêu cầu nhập tên.\x02Tên VPN ‘%[1]s'" +
+	" không hợp lệ.\x02Không thể liệt kê các VPN\x02VPN đã tồn tại\x02Đã tồn " +
+	"tại VPN với tên ‘%[1]s’."
+
+var zh_CNIndex = []uint32{ // 177 elements
+	// Entry 0 - 1F
+	0x00000000, 0x00000007, 0x00000030, 0x00000047,
+	0x00000057, 0x0000008b, 0x000000c8, 0x000000ee,
+	0x00000133, 0x0000018d, 0x000001c4, 0x000001cb,
+	0x000001e4, 0x000001f5, 0x00000206, 0x0000021a,
+	0x0000022e, 0x0000023f, 0x00000249, 0x00000251,
+	0x0000025e, 0x0000026b, 0x00000278, 0x00000285,
+	0x00000292, 0x000002a1, 0x000002ba, 0x000002dc,
+	0x00000303, 0x0000032b, 0x00000336, 0x00000343,
+	// Entry 20 - 3F
+	0x0000035c, 0x00000374, 0x0000039e, 0x000003cc,
+	0x000003e5, 0x000003f8, 0x00000414, 0x00000439,
+	0x0000044c, 0x0000046b, 0x00000485, 0x000004a1,
+	0x000004ad, 0x000004cf, 0x000004e5, 0x000004fe,
+	0x00000516, 0x0000052f, 0x00000533, 0x00000535,
+	0x00000546, 0x0000055c, 0x000005c4, 0x000005cb,
+	0x000005dc, 0x000005e4, 0x000005f0, 0x000005fc,
+	0x00000604, 0x00000612, 0x00000617, 0x0000061f,
+	// Entry 40 - 5F
+	0x0000062e, 0x0000063f, 0x0000064d, 0x00000655,
+	0x00000669, 0x0000067d, 0x00000685, 0x0000068f,
+	0x000006aa, 0x000006c3, 0x000006d6, 0x000006ef,
+	0x000006fd, 0x00000704, 0x00000714, 0x00000721,
+	0x0000072e, 0x0000073b, 0x00000744, 0x00000773,
+	0x0000081d, 0x00000829, 0x00000830, 0x0000083d,
+	0x0000084a, 0x00000860, 0x0000087e, 0x00000897,
+	0x000008a7, 0x000008c8, 0x000008e1, 0x000008f4,
+	// Entry 60 - 7F
+	0x0000092f, 0x00000939, 0x00000946, 0x00000950,
+	0x0000095d, 0x00000964, 0x0000096b, 0x00000977,
+	0x00000983, 0x00000992, 0x00000999, 0x000009a6,
+	0x000009d8, 0x000009e5, 0x000009fe, 0x00000a0b,
+	0x00000a31, 0x00000a43, 0x00000a5a, 0x00000a85,
+	0x00000a9a, 0x00000aa9, 0x00000ab5, 0x00000aca,
+	0x00000ae8, 0x00000af4, 0x00000b0b, 0x00000b1c,
+	0x00000b2a, 0x00000b38, 0x00000b4c, 0x00000b6a,
+	// Entry 80 - 9F
+	0x00000b7e, 0x00000ba2, 0x00000bb2, 0x00000bc3,
+	0x00000c05, 0x00000c0c, 0x00000c18, 0x00000c30,
+	0x00000c3d, 0x00000c50, 0x00000c73, 0x00000c8b,
+	0x00000cb6, 0x00000cd1, 0x00000ce9, 0x00000d03,
+	0x00000d23, 0x00000d50, 0x00000d6a, 0x00000d77,
+	0x00000d98, 0x00000dce, 0x00000de1, 0x00000dff,
+	0x00000e32, 0x00000e4a, 0x00000e74, 0x00000e92,
+	0x00000ea5, 0x00000ebf, 0x00000ed2, 0x00000ef9,
+	// Entry A0 - BF
+	0x00000f3a, 0x00000f50, 0x00000f6b, 0x00000f8e,
+	0x00000fbb, 0x00000fd6, 0x00001037, 0x0000106f,
+	0x00001084, 0x00001091, 0x000010ac, 0x000010c9,
+	0x000010db, 0x0000110f, 0x00001137, 0x0000115f,
+	0x00001184,
+} // Size: 732 bytes
+
+const zh_CNData string = "" + // Size: 4484 bytes
+	"\x02错误\x02(无参数): 提升并安装管理服务\x02用法: %[1]s [\x0a%[2]s]\x02命令行选项\x02无法确定该进程是" +
+	"否在WOW64下运行: %[1]v\x02您必须在此计算机上使用64位版本的 WireGuard。\x02无法打开当前进程令牌: %[1]v" +
 	"\x02WireGuard 可能只能被内建的 %[1]s 小组中的成员使用。\x02WireGuard 正在运行，但用户界面只能从内建的 %[1" +
-	"]s 小组的桌面访问。\x02WireGuard 系统托盘图标在30秒后没有出现。\x02刚刚\x02系统时钟倒转！\x14\x01\x81" +
+	"]s 小组的桌面访问。\x02WireGuard 系统托盘图标在30秒后没有出现。\x02刚刚\x02系统时间倒退了！\x14\x01\x81" +
 	"\x01\x00\x00\x0a\x02%[1]d 年\x14\x01\x81\x01\x00\x00\x0a\x02%[1]d 天\x14" +
 	"\x01\x81\x01\x00\x00\x0d\x02%[1]d 小时\x14\x01\x81\x01\x00\x00\x0d\x02%[1]" +
 	"d 分钟\x14\x01\x81\x01\x00\x00\x0a\x02%[1]d 秒\x02%[1]s 前\x02%[1]d B\x02%.2" +
 	"[1]f\u00a0KiB\x02%.2[1]f\u00a0MiB\x02%.2[1]f\u00a0GiB\x02%.2[1]f\u00a0Ti" +
-	"B\x02%[1]s: %[2]q\x02IP地址无效\x02网络前缀长度无效\x02端点中缺少端口\x02端点主机无效\x02括号应包含一个 " +
-	"IPv6 地址\x02MTU 无效\x02端口无效\x02连接保活间隔无效\x02无效的密钥：%[1]v\x02密钥必须解码为正好32字节" +
-	"\x02数必须是一个介于 0 至 2^64-1 之间的数字：%[1]v\x02一行中有两个逗号\x02隧道名称无效\x02行必须出现在段落中" +
-	"\x02键必须有一个值\x02[Interface] 段落的键无效\x02[Peer] 段落的键无效\x02接口必须有一个私钥\x02【未指定】" +
-	"\x02所有节点必须拥有公钥。\x02获取配置时出错\x02接口段落的键无效\x02协议版本必须为 1\x02节点段落的键无效\x02, " +
-	"\x02, \x02关于 WireGuard\x02WireGuard 标志图片\x02应用版本： %[1]s\x0aGo 后端版本： %[2]" +
-	"s\x0aGo 版本： %[3]s\x0a操作系统： %[4]s\x0a架构： %[5]s\x02关闭\x02♥ &捐助!\x02状态：\x02" +
-	"&停用\x02&启动\x02公钥:\x02监听端口:\x02MTU:\x02地址：\x02DNS 服务器:\x02预分享密钥：\x02允许的 I" +
-	"P：\x02端点：\x02连接保活间隔:\x02最新的握手:\x02流量:\x02已启用\x02%[1]s 已收到, %[2]s 已发送\x02" +
-	"判断隧道状态失败\x02启动隧道失败\x02停用隧道失败\x02接口：%[1]s\x02节点\x02创建新隧道\x02编辑隧道\x02&名称" +
-	":\x02&公钥:\x02（未知）\x02&拦截未经隧道的流量(禁用交换)\x02当配置只有一个节点，且该节点的允许 IP 列表至少包含 0.0" +
-	".0.0/0 或 ::/0 的其中一个 IP 时，隧道服务会使用防火墙规则集来拦截所有进出隧道接口的流量，但 DHCP 和 NDP 除外。" +
-	"\x02&保存\x02取消\x02&配置：\x02名称无效\x02名称是必需的。\x02隧道名称 ”%[1]s“ 无效\x02无法列出现有隧道" +
-	"\x02隧道已存在\x02另一个同名的隧道 \x22%[1]s\x22 已存在。\x02无法创建新的配置\x02写入文件失败\x02文件”%[1" +
-	"]s“ 已存在。\x0a\x0a您确定要覆盖它吗？\x02激活\x02启动中\x02未激活\x02停用中\x02未知状态\x02日志\x02&复" +
-	"制\x02选择 &所有\x02&保存到文件…\x02时间\x02记录消息\x02文本文件 (*.txt)|*.txt|All Files (" +
-	"*.*)|*.*\x02导出日志到文件\x02&关于 WireGuard…\x02隧道错误\x02%[1]s\x0a\x0a更多信息请查看日志" +
-	"\x02%[1]s （已过时）\x02WireGuard 检测错误\x02无法等待 WireGuard 窗口出现: %[1]v\x02WireG" +
-	"uard ：已停用\x02状态：未知\x02地址：无\x02&管理隧道…\x02&从文件导入隧道…\x02退&出\x02WireGuard 隧道" +
-	"错误\x02WireGuard: %[1]s\x02状态： %[1]s\x02地址： %[1]s\x02WireGuard ：已启动\x02" +
-	"隧道 ”%[1]s“ 已被启动。\x02WireGuard ：未启动\x02隧道 %[1]s 已停用。\x02有一项可用更新！\x02Wir" +
-	"eGuard 有可用的更新\x02发现一个可用的 WireGuard 更新。强烈建议尽快安装。\x02隧道\x02&编辑\x02添加&空隧道…" +
-	"\x02添加隧道\x02移除选择的隧道\x02导出所有隧道到zip\x02&切换\x02导出所有隧道到&zip…\x02编辑 &选择的隧道…" +
-	"\x02&移除选择的隧道\x02无法导入选择的配置：%[1]v\x02无法列出现有的隧道: %[1]v\x02另一个同名的隧道 \x22%[1]" +
-	"s\x22 已存在\x02无法导入配置：%[1]v\x02导入隧道\x14\x01\x81\x01\x00\x00\x17\x02导入了 %[1" +
-	"]d 隧道\x14\x02\x80\x01\x000\x02导入了 %[2]d 个隧道中的 %[1]d 个隧道\x02无法创建隧道\x14" +
-	"\x01\x81\x01\x00\x00\x17\x02删除 %[1]d 个隧道\x14\x01\x81\x01\x00\x00)\x02您确定" +
-	"要删除 %[1]d 个隧道吗？\x02删除隧道 ”%[1]s“\x02您确定要删除隧道 \x22%[1]s\x22 吗？\x02%[1]s " +
-	"您无法撤销此操作。\x02无法删除隧道\x02无法移除隧道： %[1]s\x02无法删除隧道\x14\x01\x81\x01\x00\x00" +
-	"\x1f\x02%[1]d 隧道无法被移除。\x02配置文件 (*.zip, *.conf)|*.zip;*.conf|All Files (*" +
-	".*)|*.*\x02从文件导入隧道\x02配置 ZIP 文件 (*.zip)|*.zip\x02导出隧道为Zip\x02%[1]s (未签名构" +
-	"建，无更新)\x02退出 WireGuard 时出错\x02因为: %[1]v 无法退出服务。您可能想要从服务管理器中停止 WireGuar" +
-	"d 。\x02发现一个可用的 WireGuard 更新。强烈建议尽快安装。\x02状态：等待用户\x02立即更新\x02状态：等待更新服务" +
-	"\x02错误：%[1]v。请重试。\x02状态：完成！\x02http2: 成帧器 %[1]p: 解码刚写入的帧失败\x02http2: 成帧器" +
-	" %[1]p: 写入了 %[2]v\x02http2: 成帧器 %[1]p: 读取了 %[2]v\x02http2: 解码的 hpack 字段 " +
-	"%+[1]v"
+	"B\x02%[1]s: %[2]q\x02IP地址无效\x02网络前缀长度无效\x02对端 (endpoint) 中缺少端口\x02对端主机名 " +
+	"(endpoint host) 无效\x02方括号中应包含一个 IPv6 地址\x02MTU 无效\x02端口无效\x02连接保活间隔无效" +
+	"\x02无效的密钥：%[1]v\x02解码后的密钥长度必须为32字节\x02数值必须介于 0 至 2^64-1 之间: %[1]v\x02一行中" +
+	"有两个逗号\x02隧道名称无效\x02行必须出现在段落中\x02配置项必须要有一个等于号\x02必须有一个值\x02[Interface] " +
+	"段落的键无效\x02[Peer] 段落的键无效\x02接口必须有一个私钥\x02[未指定]\x02所有节点必须拥有公钥。\x02获取配置时出" +
+	"错\x02接口段落的键无效\x02协议版本必须为 1\x02节点段落的键无效\x02、\x02 \x02关于 WireGuard\x02Wi" +
+	"reGuard logo 图片\x02应用版本： %[1]s\x0aGo 后端版本： %[2]s\x0aGo 版本： %[3]s\x0a操作系统" +
+	"： %[4]s\x0a架构： %[5]s\x02关闭\x02♥ 捐助! (&D)\x02状态:\x02断开 (&D)\x02连接 (&A)" +
+	"\x02公钥:\x02监听端口:\x02MTU:\x02地址:\x02DNS 服务器:\x02预共享密钥:\x02允许的 IP:\x02对端:" +
+	"\x02连接保活间隔:\x02上次握手时间:\x02流量:\x02已启用\x02接收 %[1]s, 发送 %[2]s\x02无法确认隧道状态" +
+	"\x02无法连接隧道\x02无法断开隧道连接\x02接口: %[1]s\x02节点\x02创建新隧道\x02编辑隧道\x02名称 (&N):" +
+	"\x02公钥 (&P):\x02(未知)\x02拦截未经隧道的流量 (kill-switch) (&B)\x02只有一个节点，且该节点允许的 I" +
+	"P 中包含 0.0.0.0/0 或 ::/0 时，使用防火墙规则拦截所有未通过隧道的流量 (DHCP 和 NDP 流量除外)。\x02保存 (&" +
+	"S)\x02取消\x02配置 (&C):\x02名称无效\x02必须输入名称。\x02隧道名「%[1]s」无效。\x02无法列出现有隧道\x02" +
+	"隧道已存在\x02隧道名「%[1]s」已存在。\x02无法创建新的配置\x02写入文件失败\x02文件「%[1]s」已存在。\x0a\x0a" +
+	"您确定要覆盖它吗？\x02已连接\x02正在连接\x02已断开\x02正在断开\x02未知\x02日志\x02复制 (&C)\x02全选 (" +
+	"&A)\x02导出… (&S)\x02时间\x02日志消息\x02文本文件 (*.txt)|*.txt|所有文件 (*.*)|*.*\x02导出" +
+	"日志\x02关于 WireGuard… (&A)\x02隧道错误\x02%[1]s\x0a\x0a更多信息请查看日志。\x02%[1]s (" +
+	"已过时)\x02WireGuard 检测错误\x02无法等待 WireGuard 窗口出现: %[1]v\x02WireGuard: 已断开" +
+	"\x02状态: 未知\x02地址: 无\x02管理隧道… (&M)\x02从文件导入隧道… (&I)\x02退出 (&E)\x02WireGua" +
+	"rd 隧道错误\x02WireGuard: %[1]s\x02状态: %[1]s\x02地址: %[1]s\x02WireGuard 已连接" +
+	"\x02隧道「%[1]s」已连接。\x02WireGuard 已断开\x02隧道「%[1]s」已断开连接。\x02发现更新！\x02WireGu" +
+	"ard 更新\x02新的 WireGuard 版本发布了。强烈建议您现在安装。\x02隧道\x02编辑 (&E)\x02新建空隧道… (&E)" +
+	"\x02新建隧道\x02删除所选隧道\x02导出所有隧道 (ZIP 压缩包)\x02切换连接状态 (&T)\x02导出所有隧道 (ZIP 压缩包" +
+	")… (&Z)\x02编辑所选隧道… (&E)\x02删除所选隧道 (&R)\x02无法导入配置: %[1]v\x02无法列出现有隧道: %[1" +
+	"]v\x02另一个同名的隧道「%[1]s」已存在\x02无法导入配置: %[1]v\x02导入隧道\x14\x01\x81\x01\x00" +
+	"\x00\x1a\x02导入了 %[1]d 个隧道\x14\x02\x80\x01\x000\x02导入了 %[2]d 个隧道中的 %[1]d " +
+	"个隧道\x02无法创建隧道\x14\x01\x81\x01\x00\x00\x17\x02删除 %[1]d 个隧道\x14\x01\x81" +
+	"\x01\x00\x00,\x02您确定要删除这 %[1]d 个隧道吗？\x02删除隧道「%[1]s」\x02您确定要删除隧道「%[1]s」吗？" +
+	"\x02%[1]s此操作无法撤销。\x02无法删除隧道\x02无法删除隧道: %[1]s\x02无法删除隧道\x14\x01\x81\x01" +
+	"\x00\x00 \x02无法删除 %[1]d 个隧道。\x02配置文件 (*.zip, *.conf)|*.zip;*.conf|所有文件 (" +
+	"*.*)|*.*\x02从文件导入隧道\x02配置文件 (*.zip)|*.zip\x02导出配置文件 (ZIP 压缩包)\x02%[1]s (" +
+	"未签名版本，禁用自动更新)\x02退出 WireGuard 时出错\x02无法停止服务: %[1]v。您可能需要在服务管理器中手动停止 Wi" +
+	"reGuard 服务。\x02发现新版 WireGuard。强烈建议您现在安装。\x02状态: 等待用户\x02立即更新\x02状态: 等待更新" +
+	"服务\x02错误: %[1]v。请重试。\x02状态: 完成！\x02http2: 成帧器 %[1]p: 解码刚写入的帧失败\x02http" +
+	"2: 成帧器 %[1]p: 写入了 %[2]v\x02http2: 成帧器 %[1]p: 读取了 %[2]v\x02http2: 解码的 hpa" +
+	"ck 字段 %+[1]v"
 
-	// Total table size 56355 bytes (55KiB); checksum: 712539F7
+var zh_TWIndex = []uint32{ // 177 elements
+	// Entry 0 - 1F
+	0x00000000, 0x00000007, 0x00000037, 0x00000056,
+	0x00000066, 0x000000a4, 0x000000e3, 0x00000114,
+	0x00000157, 0x000001bc, 0x000001f8, 0x00000205,
+	0x0000021e, 0x0000022f, 0x00000240, 0x00000254,
+	0x00000268, 0x00000279, 0x00000283, 0x0000028c,
+	0x00000299, 0x000002a6, 0x000002b3, 0x000002c0,
+	0x000002cf, 0x000002e3, 0x00000305, 0x00000324,
+	0x0000033e, 0x00000366, 0x00000374, 0x00000384,
+	// Entry 20 - 3F
+	0x000003aa, 0x000003c3, 0x000003e2, 0x0000040b,
+	0x00000424, 0x00000437, 0x00000453, 0x0000047b,
+	0x00000491, 0x000004b0, 0x000004ca, 0x000004f0,
+	0x000004fc, 0x0000051e, 0x0000053a, 0x00000557,
+	0x0000056f, 0x00000587, 0x0000058b, 0x0000058d,
+	0x0000059e, 0x000005b4, 0x00000634, 0x0000063b,
+	0x0000064e, 0x00000655, 0x00000667, 0x00000673,
+	0x0000067a, 0x00000684, 0x00000688, 0x0000068f,
+	// Entry 40 - 5F
+	0x0000069d, 0x000006ad, 0x000006bd, 0x000006c7,
+	0x000006d8, 0x000006eb, 0x000006f2, 0x000006fc,
+	0x0000071e, 0x00000737, 0x0000074a, 0x00000763,
+	0x00000772, 0x00000779, 0x00000789, 0x0000079c,
+	0x000007a8, 0x000007b4, 0x000007bd, 0x000007f2,
+	0x00000893, 0x0000089f, 0x000008a6, 0x000008b2,
+	0x000008c2, 0x000008d8, 0x000008fc, 0x00000915,
+	0x00000925, 0x00000946, 0x00000965, 0x00000978,
+	// Entry 60 - 7F
+	0x000009ab, 0x000009b5, 0x000009c5, 0x000009d5,
+	0x000009e5, 0x000009ec, 0x000009f3, 0x000009ff,
+	0x00000a0b, 0x00000a1a, 0x00000a21, 0x00000a2e,
+	0x00000a5d, 0x00000a6d, 0x00000a83, 0x00000a90,
+	0x00000abf, 0x00000ad4, 0x00000aec, 0x00000b19,
+	0x00000b2f, 0x00000b3f, 0x00000b4c, 0x00000b5e,
+	0x00000b76, 0x00000b82, 0x00000b99, 0x00000bab,
+	0x00000bba, 0x00000bc9, 0x00000bdd, 0x00000bf8,
+	// Entry 80 - 9F
+	0x00000c12, 0x00000c36, 0x00000c3d, 0x00000c4e,
+	0x00000ca7, 0x00000cae, 0x00000cba, 0x00000cd2,
+	0x00000cdf, 0x00000cf2, 0x00000d15, 0x00000d2d,
+	0x00000d52, 0x00000d6a, 0x00000d85, 0x00000da1,
+	0x00000dbd, 0x00000de7, 0x00000e03, 0x00000e13,
+	0x00000e34, 0x00000e67, 0x00000e7a, 0x00000e98,
+	0x00000ec8, 0x00000edd, 0x00000f07, 0x00000f2d,
+	0x00000f40, 0x00000f5c, 0x00000f6f, 0x00000f93,
+	// Entry A0 - BF
+	0x00000fd7, 0x00000ff3, 0x00001011, 0x0000102a,
+	0x00001060, 0x00001078, 0x000010d9, 0x0000112e,
+	0x00001147, 0x00001154, 0x00001170, 0x00001195,
+	0x000011ab, 0x000011e4, 0x00001205, 0x00001225,
+	0x00001247,
+} // Size: 732 bytes
+
+const zh_TWData string = "" + // Size: 4679 bytes
+	"\x02錯誤\x02(無參數)：提升權限並安裝管理服務\x02使用方法： %[1]s [\x0a%[2]s]\x02命令列選項\x02無法確定該" +
+	"處理程序是否在 WOW64 下執行： %[1]v\x02您必須在此電腦上執行 64 位元版本的 WireGuard。\x02無法開啓目前處理" +
+	"程序的權杖： %[1]v\x02WireGuard 可能只能被內建的「%[1]s」群組成員使用。\x02WireGuard 正在執行，但 U" +
+	"I 只能從內建的內建的「%[1]s」群組成員的桌面存取。\x02WireGuard 的工作列圖示在 30 秒後並沒有顯示。\x02就是現在" +
+	"\x02系統時鐘倒退了！\x14\x01\x81\x01\x00\x00\x0a\x02%[1]d 年\x14\x01\x81\x01\x00" +
+	"\x00\x0a\x02%[1]d 天\x14\x01\x81\x01\x00\x00\x0d\x02%[1]d 小時\x14\x01\x81" +
+	"\x01\x00\x00\x0d\x02%[1]d 分鐘\x14\x01\x81\x01\x00\x00\x0a\x02%[1]d 秒\x02%" +
+	"[1]s 前\x02%[1]d\u00a0B\x02%.2[1]f\u00a0KiB\x02%.2[1]f\u00a0MiB\x02%.2[1]" +
+	"f\u00a0GiB\x02%.2[1]f\u00a0TiB\x02%[1]s： %[2]q\x02無效的 IP 位址\x02無效的網路位址首碼" +
+	"長度\x02Endpoint 中沒有指定埠號\x02無效的 Endpoint 位址\x02括號中必須包含一個 IPv6 位址\x02無效的 " +
+	"MTU\x02無效的埠號\x02無效的 Persistent Keepalive 設定\x02無效的金鑰： %[1]v\x02金鑰必須剛好長 3" +
+	"2 bytes\x02數值必須介於 0 到 2^64-1： %[1]v\x02一行中有兩個逗號\x02隧道名稱無效\x02行必須出現在段落中" +
+	"\x02設定的項目必須要有一個等號\x02必須要有一個值\x02[Interface] 中有無效選項\x02[Peer] 中有無效選項\x02I" +
+	"nterface 中必須要有一把私鑰\x02[未指定]\x02每個 Peer 都必須要有公鑰\x02讀取設定時發生錯誤\x02Interface" +
+	" 中的金鑰無效\x02協定版本必須為 1\x02Peer 中的金鑰無效\x02、\x02 \x02關於 WireGuard\x02WireGua" +
+	"rd logo 圖片\x02應用程式版本： %[1]s\x0a後端程式（Go 實作）版本： %[2]s\x0aGo 版本： %[3]s\x0a作" +
+	"業系統： %[4]s\x0a架構： %[5]s\x02關閉\x02♥ 捐贈！ (&D)\x02狀態\x02中斷連線 (&D)\x02連線 (" +
+	"&A)\x02公鑰\x02監聽埠\x02MTU\x02位址\x02DNS 伺服器\x02預交換金鑰\x02允許的位址\x02連接點\x02Kee" +
+	"palive 間隔\x02最後交握時間\x02流量\x02已啓用\x02已收到 %[1]s；已傳送 %[2]s\x02無法確認隧道狀態\x02無" +
+	"法連接隧道\x02無法斷開隧道連線\x02[隧道] %[1]s\x02節點\x02建立新隧道\x02編輯隧道設定\x02名稱 (&N)" +
+	"\x02公鑰 (&P)\x02(未知)\x02阻斷未經過隧道的流量（kill-switch） (&B)\x02只有一個節點且該節點允許位址包含 " +
+	"0.0.0.0/0 或 ::/0 時，使用防火牆攔截所有非通過隧道的流量。\x0a（DHCP 及 NDP 流量除外）\x02儲存 (&S)" +
+	"\x02取消\x02設定 (&C)\x02無效的名稱\x02必須填寫名稱。\x02無效的隧道名稱「%[1]s」。\x02無法列出現有隧道\x02" +
+	"隧道已存在\x02已有同名隧道「%[1]s」。\x02無法建立新的隧道設定\x02檔案寫入失敗\x02檔案已存在： %[1]s\x0a" +
+	"\x0a您確定要覆蓋嗎？\x02已連線\x02正在連線…\x02已中斷連線\x02正在中斷…\x02未知\x02日誌\x02複製 (&C)" +
+	"\x02全選 (&A)\x02匯出… (&S)\x02時間\x02日誌訊息\x02純文字 (*.txt)|*.txt|所有檔案 (*.*)|*." +
+	"*\x02匯出日誌…\x02關於 WireGuard (&A)\x02隧道錯誤\x02%[1]s\x0a\x0a如需更多資訊，請查看日誌。" +
+	"\x02%[1]s（已過時）\x02偵測 WireGuard 錯誤\x02無法等待 WireGuard 視窗開啓： %[1]v\x02WireG" +
+	"uard - 未連線\x02[狀態] 未知\x02[位址] 無\x02管理隧道 (&M)\x02從檔案匯入… (&I)\x02離開 (&X)" +
+	"\x02WireGuard 隧道錯誤\x02WireGuard - %[1]s\x02[狀態] %[1]s\x02[位址] %[1]s\x02W" +
+	"ireGuard 已連線\x02已連線至隧道 - %[1]s\x02WireGuard 已中斷連線\x02已中斷與隧道的連線 - %[1]s" +
+	"\x02更新\x02WireGuard 更新\x02更新的 WireGuard 已經為您準備好了。\x0a強烈建議您立即更新 WireGuard" +
+	"。\x02隧道\x02編輯 (&E)\x02新增隧道精靈 (&E)\x02新增隧道\x02刪除選取隧道\x02匯出所有隧道（ZIP 格式）" +
+	"\x02切換連線狀態 (&T)\x02匯出所有隧道至 &ZIP 壓縮檔\x02編輯選取隧道 (&S)\x02刪除已選取隧道 (&R)\x02無法" +
+	"匯入設定： %[1]v\x02無法列出隧道： %[1]v\x02已有另一個同名的隧道「%[1]s」\x02無法匯入設定： %[1]v\x02" +
+	"已匯入隧道\x14\x01\x81\x01\x00\x00\x1a\x02已匯入 %[1]d 個隧道\x14\x02\x80\x01\x00" +
+	"-\x02已匯入 %[1]d 個隧道（共 %[2]d 個）\x02無法建立隧道\x14\x01\x81\x01\x00\x00\x17\x02刪" +
+	"除 %[1]d 個隧道\x14\x01\x81\x01\x00\x00)\x02您確定要刪除 %[1]d 個隧道嗎？\x02刪除隧道 - %" +
+	"[1]s\x02您確定要刪除隧道「%[1]s」嗎？\x02%[1]s\x0a\x0a您將無法復原此操作。\x02無法刪除隧道\x02無法刪除隧道" +
+	"： %[1]s\x02無法刪除隧道\x14\x01\x81\x01\x00\x00\x1d\x02無法刪除 %[1]d 個隧道\x02隧道設" +
+	"定檔 (*.zip, *.conf)|*.zip;*.conf|所有檔案 (*.*)|*.*\x02從檔案中匯入隧道…\x02隧道設定檔 (" +
+	"*.zip)|*.zip\x02匯出隧道設定至…\x02%[1]s（未簽署發行版本，無法自動更新）\x02離開 WireGuard 失敗\x02" +
+	"無法結束服務： %[1]v。\x0a您可能需要手動從服務管理中結束 WireGuard 服務。\x02更新的 WireGuard 已經為您準" +
+	"備好了。\x0a強烈建議您立即進行更新。\x02狀態：等待使用者\x02立即更新\x02狀態：等待更新服務\x02錯誤： %[1]v。請稍後" +
+	"再試。\x02狀態：已完成！\x02http2: Framer %[1]p: failed to decode just-written f" +
+	"rame\x02http2: Framer %[1]p: wrote %[2]v\x02http2: Framer %[1]p: read %[" +
+	"2]v\x02http2: decoded hpack field %+[1]v"
+
+	// Total table size 71232 bytes (69KiB); checksum: E54E1611
