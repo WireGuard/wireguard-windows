@@ -29,12 +29,17 @@ func init() {
 	dict := map[string]catalog.Dictionary{
 		"de":    &dictionary{index: deIndex, data: deData},
 		"en":    &dictionary{index: enIndex, data: enData},
+		"fa":    &dictionary{index: faIndex, data: faData},
 		"fr":    &dictionary{index: frIndex, data: frData},
+		"id":    &dictionary{index: idIndex, data: idData},
 		"it":    &dictionary{index: itIndex, data: itData},
 		"ja":    &dictionary{index: jaIndex, data: jaData},
+		"pl":    &dictionary{index: plIndex, data: plData},
 		"ru":    &dictionary{index: ruIndex, data: ruData},
 		"sl":    &dictionary{index: slIndex, data: slData},
+		"vi":    &dictionary{index: viIndex, data: viData},
 		"zh_CN": &dictionary{index: zh_CNIndex, data: zh_CNData},
+		"zh_TW": &dictionary{index: zh_TWIndex, data: zh_TWData},
 	}
 	fallback := language.MustParse("en")
 	cat, err := catalog.NewFromMap(dict, catalog.Fallback(fallback))
@@ -516,6 +521,99 @@ const enData string = "" + // Size: 5174 bytes
 	"te %[2]v\x02http2: Framer %[1]p: read %[2]v\x02http2: decoded hpack fiel" +
 	"d %+[1]v\x02Config key is missing an equals separator"
 
+var faIndex = []uint32{ // 177 elements
+	// Entry 0 - 1F
+	0x00000000, 0x00000007, 0x00000007, 0x00000007,
+	0x0000002b, 0x0000002b, 0x00000093, 0x00000093,
+	0x00000093, 0x00000093, 0x00000093, 0x000000a3,
+	0x000000a3, 0x000000c6, 0x000000e9, 0x00000110,
+	0x0000013b, 0x00000166, 0x00000173, 0x00000183,
+	0x00000183, 0x00000183, 0x00000183, 0x00000183,
+	0x00000183, 0x000001b0, 0x000001b0, 0x000001b0,
+	0x000001b0, 0x000001b0, 0x000001ca, 0x000001e2,
+	// Entry 20 - 3F
+	0x000001e2, 0x000001e2, 0x000001e2, 0x000001e2,
+	0x000001e2, 0x000001e2, 0x000001e2, 0x00000218,
+	0x00000218, 0x00000218, 0x00000218, 0x0000022c,
+	0x0000027c, 0x000002a6, 0x000002a6, 0x000002a6,
+	0x000002a6, 0x000002aa, 0x000002ae, 0x000002c5,
+	0x000002c5, 0x000002c5, 0x000002ce, 0x000002e5,
+	0x000002f1, 0x0000030c, 0x00000321, 0x00000336,
+	0x00000349, 0x0000034e, 0x00000361, 0x00000375,
+	// Entry 40 - 5F
+	0x0000039d, 0x000003b0, 0x000003c5, 0x000003f0,
+	0x000003f0, 0x000003fe, 0x0000040e, 0x0000040e,
+	0x0000040e, 0x0000040e, 0x0000040e, 0x0000041e,
+	0x00000427, 0x00000444, 0x0000045a, 0x00000463,
+	0x00000479, 0x0000048c, 0x0000048c, 0x0000048c,
+	0x00000498, 0x0000049f, 0x000004b2, 0x000004c8,
+	0x000004e9, 0x000004e9, 0x0000052f, 0x0000055c,
+	0x0000055c, 0x0000055c, 0x0000055c, 0x0000055c,
+	// Entry 60 - 7F
+	0x00000565, 0x00000585, 0x00000594, 0x000005ba,
+	0x000005d6, 0x000005ec, 0x000005fa, 0x000005fa,
+	0x0000061b, 0x00000624, 0x00000645, 0x00000645,
+	0x00000681, 0x0000069c, 0x000006b0, 0x000006b0,
+	0x000006b0, 0x000006b0, 0x000006b0, 0x000006b0,
+	0x000006cd, 0x000006e7, 0x00000708, 0x00000708,
+	0x00000708, 0x00000724, 0x00000724, 0x00000736,
+	0x0000074f, 0x00000769, 0x0000078b, 0x000007a9,
+	// Entry 80 - 9F
+	0x000007a9, 0x000007de, 0x00000817, 0x00000817,
+	0x00000827, 0x00000835, 0x00000863, 0x00000879,
+	0x0000089e, 0x000008d3, 0x000008d3, 0x0000090c,
+	0x0000090c, 0x0000090c, 0x0000090c, 0x0000090c,
+	0x0000090c, 0x0000090c, 0x0000092e, 0x00000971,
+	0x000009c9, 0x000009f6, 0x00000a2b, 0x00000a2b,
+	0x00000a47, 0x00000a47, 0x00000a47, 0x00000a79,
+	0x00000a79, 0x00000aae, 0x00000aae, 0x00000aae,
+	// Entry A0 - BF
+	0x00000ae1, 0x00000b1d, 0x00000b4b, 0x00000b4b,
+	0x00000b81, 0x00000b81, 0x00000b81, 0x00000bb2,
+	0x00000bdb, 0x00000c24, 0x00000c5c, 0x00000c77,
+	0x00000c77, 0x00000c77, 0x00000c77, 0x00000c77,
+	0x00000c77,
+} // Size: 732 bytes
+
+const faData string = "" + // Size: 3191 bytes
+	"\x02خطا\x02گزینه\u200cهای خط فرمان\x02شما باید نگارش ۶۴-بیت WireGuard را" +
+	" در این رایانه استفاده کنید.\x02هم اکنون\x14\x01\x81\x01\x00\x02\x0d\x02" +
+	"%[1]d سال\x00\x0d\x02%[1]d سال\x14\x01\x81\x01\x00\x02\x0d\x02%[1]d روز" +
+	"\x00\x0d\x02%[1]d روز\x14\x01\x81\x01\x00\x02\x0f\x02%[1]d ساعت\x00\x0f" +
+	"\x02%[1]d ساعت\x14\x01\x81\x01\x00\x02\x11\x02%[1]d دقیقه\x00\x11\x02%[1" +
+	"]d دقیقه\x14\x01\x81\x01\x00\x02\x11\x02%[1]d ثانیه\x00\x11\x02%[1]d ثان" +
+	"یه\x02%[1]s پیش\x02%[1]d\u00a0بایت\x02نشانی آی\u200cپی نامعتبر است\x02M" +
+	"TU نامعتبر است\x02پورت نامعتبر\x02کلید باید یک مقدار داشته باشد\x02[مشخص" +
+	" نشده]\x02همه همتاها باید کلید\u200cهای عمومی داشته باشند\x02خطا در دریا" +
+	"فت پیکربندی\x02، \x02، \x02درباره WireGuard\x02بستن\x02♥&کمک\u200cمالی!" +
+	"\x02وضعیت:\x02&غیرفعال\u200cسازی\x02&فعال\u200cسازی\x02کلید عمومی:\x02پو" +
+	"رت شنود:\x02MTU:\x02نشانی\u200cها:\x02سرورهای DNS:\x02کلید از پیش تقسیم" +
+	" شده:\x02IPهای مجاز:\x02نقطه پایان:\x02زنده نگه\u200cداشتن پیوسته:\x02ان" +
+	"تقال:\x02فعال شده\x02رابط: %[1]s\x02همتا\x02ایجاد تونل جدید\x02ویرایش ت" +
+	"ونل\x02&نام:\x02&کلید عمومی:\x02(ناشناخته)\x02&ذخیره\x02لغو\x02&پیکربند" +
+	"ی:\x02نام نامعتبر\x02یک نام الزامی است.\x02نمی\u200cتوان تونل\u200cهای " +
+	"موجود را فهرست کرد\x02تونل هم\u200cاکنون موجود است\x02فعال\x02در حال فع" +
+	"ال\u200cسازی\x02غیرفعال\x02در حال غیرفعال\u200cسازی\x02وضعیت ناشناخته" +
+	"\x02گزارش وقایع\x02&روگرفت\x02&ذخیره در پرونده…\x02زمان\x02پیام گزارش رو" +
+	"یداد\x02برون\u200cبرد گزارش رویداد به پرونده\x02&درباره WireGuard…\x02خ" +
+	"طالی تونل\x02وضعیت: ناشناخته\x02نشانی\u200cها: هیچ\x02&مدیریت تونل" +
+	"\u200cها…\x02خطای تونل WireGuard\x02وضعیت: %[1]s\x02نشانی\u200cها: %[1]s" +
+	"\x02WireGuard فعال\u200cشد\x02تونل %[1]s فعال\u200cشده.\x02WireGuard غیر" +
+	"فعال شد\x02یک به\u200cروزرسانی در دسترس است!\x02به\u200cروزرسانی WireGu" +
+	"ard در دسترس است\x02تونل\u200cها\x02&ویرایش\x02افزودن &خالی\u200cکردن تو" +
+	"نل…\x02افزودن تونل\x02حذف تونل(ها) انتخابی\x02برون\u200cبری همه تونل" +
+	"\u200cها به زیپ\x02برون\u200cبری همه تونل\u200cها به &زیپ…\x02تونل\u200c" +
+	"های وارد شده\x14\x01\x81\x01\x00\x02\x1d\x02%[1]d تونل وارد شد\x00\x1d" +
+	"\x02%[1]d تونل وارد شد\x14\x02\x80\x01\x02(\x02%[1]d از %[2]d تونل وارد " +
+	"شد\x00(\x02%[1]d از %[2]d تونل وارد شد\x02نمی\u200cتوان تونل ایجاد کرد" +
+	"\x14\x01\x81\x01\x00\x02\x16\x02حذف %[1]d تونل\x00\x16\x02حذف %[1]d تونل" +
+	"\x02حذف تونل ‘%[1]s’\x02حذف تونل\u200c امکان\u200cپذیر نیست\x02نمی\u200c" +
+	"توان تونل\u200cها را حذف کرد\x02وارد کردن تونل(ها) از پرونده\x02پرونده" +
+	"\u200cهای پیکربندی زیپ (*.zip)|*.zip\x02برون\u200cبری تونل\u200cها به زی" +
+	"پ\x02خطا در هنگام خارج شدن از WireGuard\x02وضعیت: درانتظار برای کاربر" +
+	"\x02اکنون به\u200cروز رسانی کن\x02وضعیت: درانتظار برای سرویس به\u200cروز" +
+	"رسانی\x02خطا: %[1]v. لطفا دوباره تلاش کنید.\x02وضعیت: کامل شد!"
+
 var frIndex = []uint32{ // 177 elements
 	// Entry 0 - 1F
 	0x00000000, 0x00000007, 0x00000046, 0x00000063,
@@ -670,6 +768,100 @@ const frData string = "" + // Size: 6398 bytes
 	"é!\x02http2: Trameur %[1]p : impossible de décoder la trame just écrite" +
 	".\x02http2: Trameur %[1]p: a écrit %[2]v\x02http2: Trameur %[1]p : a lu " +
 	"%[2]v\x02http2 : champ hpack %+[1]v décodé"
+
+var idIndex = []uint32{ // 177 elements
+	// Entry 0 - 1F
+	0x00000000, 0x0000000a, 0x00000047, 0x00000062,
+	0x00000074, 0x000000bf, 0x000000fe, 0x0000012f,
+	0x00000187, 0x000001e0, 0x00000215, 0x0000021e,
+	0x00000231, 0x00000250, 0x00000262, 0x00000273,
+	0x00000286, 0x00000299, 0x000002a9, 0x000002b1,
+	0x000002bd, 0x000002c9, 0x000002d5, 0x000002e1,
+	0x000002ee, 0x00000304, 0x0000031f, 0x0000033f,
+	0x00000359, 0x0000037f, 0x0000038f, 0x000003a0,
+	// Entry 20 - 3F
+	0x000003c1, 0x000003d7, 0x000003ff, 0x00000431,
+	0x0000044b, 0x00000463, 0x00000480, 0x0000049b,
+	0x000004c5, 0x000004ea, 0x0000050f, 0x00000520,
+	0x00000548, 0x0000056c, 0x00000596, 0x000005ad,
+	0x000005d2, 0x000005d5, 0x000005d5, 0x000005e7,
+	0x000005e7, 0x0000064e, 0x00000654, 0x00000661,
+	0x00000669, 0x00000669, 0x00000669, 0x00000669,
+	0x00000669, 0x00000669, 0x00000669, 0x00000669,
+	// Entry 40 - 5F
+	0x00000669, 0x00000669, 0x00000669, 0x00000669,
+	0x00000669, 0x00000669, 0x00000669, 0x00000669,
+	0x00000669, 0x00000669, 0x00000669, 0x00000669,
+	0x00000669, 0x00000669, 0x00000669, 0x00000669,
+	0x00000669, 0x00000669, 0x00000669, 0x00000669,
+	0x00000669, 0x00000669, 0x00000669, 0x00000669,
+	0x00000669, 0x00000669, 0x00000669, 0x00000669,
+	0x00000669, 0x00000669, 0x00000669, 0x00000669,
+	// Entry 60 - 7F
+	0x0000066f, 0x0000067c, 0x00000685, 0x00000693,
+	0x000006aa, 0x000006b2, 0x000006b8, 0x000006c4,
+	0x000006e1, 0x000006e7, 0x000006f1, 0x00000721,
+	0x00000739, 0x0000074f, 0x0000075b, 0x00000791,
+	0x000007a4, 0x000007bb, 0x000007f0, 0x00000809,
+	0x00000821, 0x00000830, 0x00000843, 0x0000085e,
+	0x00000866, 0x0000087c, 0x0000088d, 0x0000089b,
+	0x0000089b, 0x0000089b, 0x0000089b, 0x0000089b,
+	// Entry 80 - 9F
+	0x0000089b, 0x0000089b, 0x0000089b, 0x0000089b,
+	0x0000089b, 0x0000089b, 0x0000089b, 0x0000089b,
+	0x0000089b, 0x0000089b, 0x0000089b, 0x000008ba,
+	0x000008d3, 0x000008ea, 0x00000920, 0x00000920,
+	0x00000920, 0x00000920, 0x00000920, 0x00000920,
+	0x00000920, 0x00000920, 0x00000920, 0x00000920,
+	0x00000920, 0x00000920, 0x00000920, 0x00000920,
+	0x00000920, 0x00000920, 0x00000920, 0x00000920,
+	// Entry A0 - BF
+	0x00000920, 0x00000920, 0x00000920, 0x00000920,
+	0x00000920, 0x00000920, 0x00000920, 0x00000920,
+	0x00000920, 0x00000920, 0x00000920, 0x00000920,
+	0x00000920, 0x00000920, 0x00000920, 0x00000920,
+	0x00000920,
+} // Size: 732 bytes
+
+const idData string = "" + // Size: 2336 bytes
+	"\x02Kesalahan\x02(tidak ada argumen): naikkan akses dan instal servis ma" +
+	"najer\x02Penggunaan: %[1]s [\x0a%[2]s]\x02Opsi Command Line\x02Tidak dap" +
+	"at menentukan apakah proses sedang berjalan di bawah WOW64: %[1]v\x02And" +
+	"a harus menggunakan WireGuard versi 64-bit di komputer ini.\x02Tidak dap" +
+	"at membuka token proses saat ini: %[1]v\x02WireGuard hanya dapat digunak" +
+	"an oleh pengguna yang merupakan anggota grup Bawaan %[1]s.\x02WireGuard " +
+	"sedang berjalan, tetapi UI hanya dapat diakses dari desktop grup Bawaan " +
+	"%[1]s.\x02Ikon sistem WireGuard tidak muncul setelah 30 detik.\x02Sekara" +
+	"ng\x02Jam sistem mundur!\x14\x01\x81\x01\x00\x00\x18\x02%[1]d tahun\x0a%" +
+	"[1]d tahun\x14\x01\x81\x01\x00\x00\x0b\x02%[1]d Hari\x14\x01\x81\x01\x00" +
+	"\x00\x0a\x02%[1]d jam\x14\x01\x81\x01\x00\x00\x0c\x02%[1]d menit\x14\x01" +
+	"\x81\x01\x00\x00\x0c\x02%[1]d detik\x02%[1]s yang lalu\x02%[1]d B\x02%.2" +
+	"[1]f KiB\x02%.2[1]f MiB\x02%.2[1]f GiB\x02%.2[1]f TiB\x02%[1]s: %[2]q" +
+	"\x02Alamat IP tidak valid\x02Network prefix tidak valid\x02Port belum te" +
+	"risi dari endpoint\x02Host endpoint tidak valid\x02Dalam Kurung harus be" +
+	"risi alamat IPv6\x02MTU tidak valid\x02Port tidak valid\x02Persistent ke" +
+	"epalive tidak valid\x02Kunci tidak sah:%[1]v\x02Kunci harus diterjemahka" +
+	"n tepat 32 byte\x02Nomor harus diantara 0 sampai dengan 2^64-1:%[1]v\x02" +
+	"Dua koma dalam satu baris\x02Nama Tunnel tidak valid\x02Garis harus munc" +
+	"ul perbagian\x02Kunci harus memiliki value\x02Kunci tidak valid pada bag" +
+	"ian [Interface]\x02Kunci tidak valid pada bagian [Peer]\x02Interface har" +
+	"us memiliki Private Key\x02Tidak Ditetapkan\x02Semua peers harus memilik" +
+	"i kunci publik\x02Eror ketika mendapatkan konfigurasi\x02Kunci tidak val" +
+	"id pada bagian [Interface]\x02Versi protokol harus 1\x02Kunci tidak vali" +
+	"d pada bagian [Peer]\x02, \x02Tentang WireGuard\x02Versi Aplikasi: %[1]s" +
+	"\x0aVersi back-end Go: %[2]s\x0aVersi Go: %[3]s\x0aSistem Operasi: %[4]s" +
+	"\x0aArsitektur: %[5]s\x02Tutup\x02♥ &Donasi!\x02Status:\x02Aktif\x02Meng" +
+	"aktifkan\x02Nonaktif\x02Menonaktifkan\x02Status tidak diketahui\x02Catat" +
+	"an\x02Salin\x02Pilih semua\x02Menyimpan ke dalam berkas…\x02Waktu\x02Pes" +
+	"an log\x02Berkas Txt (*.Txt)|*.Txt|Semua berkas (*.*)|*.*\x02Ekspor log " +
+	"kedalam file\x02&Tentang WireGuard…\x02Tunnel eror\x02%[1]s\x0a\x0aSilak" +
+	"an baca log untuk informasi lebih lanjut.\x02%[1]s (kadaluarsa)\x02Detek" +
+	"si eror WireGuard\x02Tidak dapat menunggu jendela WireGuard muncul: %[1]" +
+	"v\x02WireGuard: Dinonaktifkan\x02Status: Tidak diketahui\x02Alamat: Koso" +
+	"ng\x02&Manajer Tunnel…\x02&Impor tunnel dari file…\x02&Keluar\x02Wiregua" +
+	"rd Tunnel Eror\x02WireGuard: %[1]s\x02Status: %[1]s\x02Ekspor semua tunn" +
+	"el ke &zip…\x02Ubah tunnel &terpilih…\x02&Hapus tunnel terpilih\x02Tidak" +
+	" dapat mengimpor konfigurasi yang dipilih: %[1]v"
 
 var itIndex = []uint32{ // 177 elements
 	// Entry 0 - 1F
@@ -932,6 +1124,64 @@ const jaData string = "" + // Size: 6754 bytes
 	"ださい。\x02状態: 完了！\x02http2: Framer %[1]p: just-writtenフレームのデコードに失敗\x02ht" +
 	"tp2: Framer %[1]p: %[2]v を書き込みました\x02http2: Framer %[1]p: %[2]v を読み込みました" +
 	"\x02http2: hpack フィールド %+[1]v をデコードしました"
+
+var plIndex = []uint32{ // 177 elements
+	// Entry 0 - 1F
+	0x00000000, 0x00000007, 0x00000007, 0x00000007,
+	0x0000001e, 0x0000001e, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	// Entry 20 - 3F
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	// Entry 40 - 5F
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	// Entry 60 - 7F
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	// Entry 80 - 9F
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	// Entry A0 - BF
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b, 0x0000005b, 0x0000005b, 0x0000005b,
+	0x0000005b,
+} // Size: 732 bytes
+
+const plData string = "" + // Size: 91 bytes
+	"\x02Błąd\x02Opcje wiersza poleceń\x02Musisz użyć 64-bitowej wersji WireG" +
+	"uard na tym komputerze."
 
 var ruIndex = []uint32{ // 177 elements
 	// Entry 0 - 1F
@@ -1237,6 +1487,75 @@ const slData string = "" + // Size: 5980 bytes
 	" %[2]v\x02http2: Framer %[1]p: prebrano %[2]v\x02http2: dekodirano polje" +
 	" hpack %+[1]v"
 
+var viIndex = []uint32{ // 177 elements
+	// Entry 0 - 1F
+	0x00000000, 0x00000006, 0x00000006, 0x00000006,
+	0x00000006, 0x00000006, 0x00000006, 0x00000006,
+	0x00000006, 0x00000006, 0x00000006, 0x00000011,
+	0x00000011, 0x00000023, 0x00000036, 0x00000049,
+	0x0000005c, 0x0000006f, 0x0000007e, 0x0000007e,
+	0x0000007e, 0x0000007e, 0x0000007e, 0x0000007e,
+	0x0000007e, 0x000000a0, 0x000000a0, 0x000000a0,
+	0x000000a0, 0x000000a0, 0x000000a0, 0x000000c0,
+	// Entry 20 - 3F
+	0x000000c0, 0x000000c0, 0x000000c0, 0x000000c0,
+	0x000000c0, 0x000000db, 0x000000db, 0x000000db,
+	0x000000db, 0x000000db, 0x000000db, 0x000000db,
+	0x000000db, 0x000000db, 0x000000db, 0x000000db,
+	0x000000db, 0x000000db, 0x000000db, 0x000000f5,
+	0x00000104, 0x0000019b, 0x000001a2, 0x000001a2,
+	0x000001b1, 0x000001b1, 0x000001b1, 0x000001b1,
+	0x000001b1, 0x000001b1, 0x000001b1, 0x000001b1,
+	// Entry 40 - 5F
+	0x000001b1, 0x000001b1, 0x000001c0, 0x000001c0,
+	0x000001c0, 0x000001c0, 0x000001d2, 0x000001ec,
+	0x00000218, 0x00000236, 0x00000257, 0x00000257,
+	0x0000026a, 0x00000274, 0x00000286, 0x00000286,
+	0x00000286, 0x00000286, 0x00000286, 0x00000286,
+	0x00000286, 0x0000028c, 0x0000028c, 0x000002a3,
+	0x000002bb, 0x000002e1, 0x00000302, 0x00000317,
+	0x00000344, 0x00000344, 0x00000344, 0x00000344,
+	// Entry 60 - 7F
+	0x00000344, 0x00000344, 0x00000344, 0x00000344,
+	0x00000344, 0x00000344, 0x00000344, 0x00000344,
+	0x00000344, 0x00000344, 0x00000344, 0x00000344,
+	0x00000344, 0x00000344, 0x00000344, 0x00000344,
+	0x00000344, 0x00000344, 0x00000344, 0x00000344,
+	0x00000344, 0x00000344, 0x00000344, 0x00000344,
+	0x00000344, 0x00000344, 0x00000344, 0x00000344,
+	0x00000344, 0x00000344, 0x00000344, 0x00000344,
+	// Entry 80 - 9F
+	0x00000344, 0x00000344, 0x00000344, 0x00000344,
+	0x00000344, 0x00000344, 0x00000344, 0x00000344,
+	0x00000344, 0x00000344, 0x00000344, 0x00000344,
+	0x00000344, 0x00000344, 0x00000344, 0x00000344,
+	0x00000344, 0x00000344, 0x00000344, 0x00000344,
+	0x00000344, 0x00000344, 0x00000344, 0x00000344,
+	0x00000344, 0x00000344, 0x00000344, 0x00000344,
+	0x00000344, 0x00000344, 0x00000344, 0x00000344,
+	// Entry A0 - BF
+	0x00000344, 0x00000344, 0x00000344, 0x00000344,
+	0x00000344, 0x00000344, 0x00000344, 0x00000344,
+	0x00000344, 0x00000344, 0x00000344, 0x00000344,
+	0x00000344, 0x00000344, 0x00000344, 0x00000344,
+	0x00000344,
+} // Size: 732 bytes
+
+const viData string = "" + // Size: 836 bytes
+	"\x02Lỗi\x02Vừa xong\x14\x01\x81\x01\x00\x00\x0b\x02%[1]d năm\x14\x01\x81" +
+	"\x01\x00\x00\x0c\x02%[1]d ngày\x14\x01\x81\x01\x00\x00\x0c\x02%[1]d giờ" +
+	"\x14\x01\x81\x01\x00\x00\x0c\x02%[1]d phút\x14\x01\x81\x01\x00\x00\x0c" +
+	"\x02%[1]d giây\x02%[1]s trước\x02Địa chỉ IP không hợp lệ\x02Cổng (port) " +
+	"không hợp lệ\x02Tên VPN không hợp lệ\x02Thông tin về WireGuard\x02Logo W" +
+	"ireGuard\x02Phiên bản ứng dụng: %[1]s\x0aPhiên bản Golang của WG: %[2]s" +
+	"\x0aPhiên bản Golang: %[3]s\x0aHệ điều hành: %[4]s\x0aKiến trúc xử lý: %" +
+	"[5]s\x02Đóng\x02Trạng thái:\x02Đầu cuối:\x02đã kích hoạt\x02Nhận %[1]s, " +
+	"gứi %[2]s\x02Không thể xác định tình trạng VPN\x02Không thể kích hoạt VP" +
+	"N\x02Không thể vô hiệu hóa VPN\x02Mạng ngang hàng\x02Tạo VPN\x02Chỉnh sử" +
+	"a VPN\x02Huỷ\x02Tên không hợp lệ\x02Yêu cầu nhập tên.\x02Tên VPN ‘%[1]s'" +
+	" không hợp lệ.\x02Không thể liệt kê các VPN\x02VPN đã tồn tại\x02Đã tồn " +
+	"tại VPN với tên ‘%[1]s’."
+
 var zh_CNIndex = []uint32{ // 177 elements
 	// Entry 0 - 1F
 	0x00000000, 0x00000007, 0x00000031, 0x00000048,
@@ -1337,4 +1656,107 @@ const zh_CNData string = "" + // Size: 4463 bytes
 	" %[1]p: 写入了 %[2]v\x02http2: 成帧器 %[1]p: 读取了 %[2]v\x02http2: 解码的 hpack 字段 " +
 	"%+[1]v"
 
-	// Total table size 56355 bytes (55KiB); checksum: 712539F7
+var zh_TWIndex = []uint32{ // 177 elements
+	// Entry 0 - 1F
+	0x00000000, 0x00000007, 0x00000037, 0x00000056,
+	0x00000066, 0x000000a4, 0x000000e3, 0x00000114,
+	0x00000157, 0x000001bc, 0x000001f8, 0x00000205,
+	0x0000021e, 0x0000022f, 0x00000240, 0x00000254,
+	0x00000268, 0x00000279, 0x00000283, 0x0000028c,
+	0x00000299, 0x000002a6, 0x000002b3, 0x000002c0,
+	0x000002cf, 0x000002e3, 0x00000305, 0x00000324,
+	0x0000033e, 0x00000366, 0x00000374, 0x00000384,
+	// Entry 20 - 3F
+	0x000003aa, 0x000003c3, 0x000003e2, 0x0000040b,
+	0x00000424, 0x00000437, 0x00000453, 0x00000469,
+	0x00000488, 0x000004a2, 0x000004c8, 0x000004d4,
+	0x000004f6, 0x00000512, 0x0000052f, 0x00000547,
+	0x0000055f, 0x00000563, 0x00000565, 0x00000576,
+	0x0000058c, 0x0000060c, 0x00000613, 0x00000626,
+	0x0000062d, 0x0000063f, 0x0000064b, 0x00000652,
+	0x0000065c, 0x00000660, 0x00000667, 0x00000675,
+	// Entry 40 - 5F
+	0x00000685, 0x00000695, 0x0000069f, 0x000006b0,
+	0x000006c3, 0x000006ca, 0x000006d4, 0x000006f6,
+	0x0000070f, 0x00000722, 0x0000073b, 0x0000074a,
+	0x00000751, 0x00000761, 0x00000774, 0x00000780,
+	0x0000078c, 0x00000795, 0x000007ca, 0x0000086b,
+	0x00000877, 0x0000087e, 0x0000088a, 0x0000089a,
+	0x000008b0, 0x000008d4, 0x000008ed, 0x000008fd,
+	0x0000091e, 0x0000093d, 0x00000950, 0x00000983,
+	// Entry 60 - 7F
+	0x0000098d, 0x0000099d, 0x000009ad, 0x000009bd,
+	0x000009c4, 0x000009cb, 0x000009d7, 0x000009e3,
+	0x000009f2, 0x000009f9, 0x00000a06, 0x00000a35,
+	0x00000a45, 0x00000a5b, 0x00000a68, 0x00000a97,
+	0x00000aac, 0x00000ac4, 0x00000af1, 0x00000b07,
+	0x00000b17, 0x00000b24, 0x00000b36, 0x00000b4e,
+	0x00000b5a, 0x00000b71, 0x00000b83, 0x00000b92,
+	0x00000ba1, 0x00000bb5, 0x00000bd0, 0x00000bea,
+	// Entry 80 - 9F
+	0x00000c0e, 0x00000c15, 0x00000c26, 0x00000c7f,
+	0x00000c86, 0x00000c92, 0x00000caa, 0x00000cb7,
+	0x00000cca, 0x00000ced, 0x00000d05, 0x00000d2a,
+	0x00000d42, 0x00000d5d, 0x00000d79, 0x00000d95,
+	0x00000dbf, 0x00000ddb, 0x00000deb, 0x00000e0c,
+	0x00000e3f, 0x00000e52, 0x00000e70, 0x00000ea0,
+	0x00000eb5, 0x00000edf, 0x00000f05, 0x00000f18,
+	0x00000f34, 0x00000f47, 0x00000f6b, 0x00000faf,
+	// Entry A0 - BF
+	0x00000fcb, 0x00000fe9, 0x00001002, 0x00001038,
+	0x00001050, 0x000010b1, 0x00001106, 0x0000111f,
+	0x0000112c, 0x00001148, 0x0000116d, 0x00001183,
+	0x000011bc, 0x000011dd, 0x000011fd, 0x0000121f,
+	0x00001247,
+} // Size: 732 bytes
+
+const zh_TWData string = "" + // Size: 4679 bytes
+	"\x02錯誤\x02(無參數)：提升權限並安裝管理服務\x02使用方法： %[1]s [\x0a%[2]s]\x02命令列選項\x02無法確定該" +
+	"處理程序是否在 WOW64 下執行： %[1]v\x02您必須在此電腦上執行 64 位元版本的 WireGuard。\x02無法開啓目前處理" +
+	"程序的權杖： %[1]v\x02WireGuard 可能只能被內建的「%[1]s」群組成員使用。\x02WireGuard 正在執行，但 U" +
+	"I 只能從內建的內建的「%[1]s」群組成員的桌面存取。\x02WireGuard 的工作列圖示在 30 秒後並沒有顯示。\x02就是現在" +
+	"\x02系統時鐘倒退了！\x14\x01\x81\x01\x00\x00\x0a\x02%[1]d 年\x14\x01\x81\x01\x00" +
+	"\x00\x0a\x02%[1]d 天\x14\x01\x81\x01\x00\x00\x0d\x02%[1]d 小時\x14\x01\x81" +
+	"\x01\x00\x00\x0d\x02%[1]d 分鐘\x14\x01\x81\x01\x00\x00\x0a\x02%[1]d 秒\x02%" +
+	"[1]s 前\x02%[1]d\u00a0B\x02%.2[1]f\u00a0KiB\x02%.2[1]f\u00a0MiB\x02%.2[1]" +
+	"f\u00a0GiB\x02%.2[1]f\u00a0TiB\x02%[1]s： %[2]q\x02無效的 IP 位址\x02無效的網路位址首碼" +
+	"長度\x02Endpoint 中沒有指定埠號\x02無效的 Endpoint 位址\x02括號中必須包含一個 IPv6 位址\x02無效的 " +
+	"MTU\x02無效的埠號\x02無效的 Persistent Keepalive 設定\x02無效的金鑰： %[1]v\x02金鑰必須剛好長 3" +
+	"2 bytes\x02數值必須介於 0 到 2^64-1： %[1]v\x02一行中有兩個逗號\x02隧道名稱無效\x02行必須出現在段落中" +
+	"\x02必須要有一個值\x02[Interface] 中有無效選項\x02[Peer] 中有無效選項\x02Interface 中必須要有一把私" +
+	"鑰\x02[未指定]\x02每個 Peer 都必須要有公鑰\x02讀取設定時發生錯誤\x02Interface 中的金鑰無效\x02協定版本" +
+	"必須為 1\x02Peer 中的金鑰無效\x02、\x02 \x02關於 WireGuard\x02WireGuard logo 圖片" +
+	"\x02應用程式版本： %[1]s\x0a後端程式（Go 實作）版本： %[2]s\x0aGo 版本： %[3]s\x0a作業系統： %[4]s" +
+	"\x0a架構： %[5]s\x02關閉\x02♥ 捐贈！ (&D)\x02狀態\x02中斷連線 (&D)\x02連線 (&A)\x02公鑰" +
+	"\x02監聽埠\x02MTU\x02位址\x02DNS 伺服器\x02預交換金鑰\x02允許的位址\x02連接點\x02Keepalive 間隔" +
+	"\x02最後交握時間\x02流量\x02已啓用\x02已收到 %[1]s；已傳送 %[2]s\x02無法確認隧道狀態\x02無法連接隧道\x02" +
+	"無法斷開隧道連線\x02[隧道] %[1]s\x02節點\x02建立新隧道\x02編輯隧道設定\x02名稱 (&N)\x02公鑰 (&P)" +
+	"\x02(未知)\x02阻斷未經過隧道的流量（kill-switch） (&B)\x02只有一個節點且該節點允許位址包含 0.0.0.0/0 或" +
+	" ::/0 時，使用防火牆攔截所有非通過隧道的流量。\x0a（DHCP 及 NDP 流量除外）\x02儲存 (&S)\x02取消\x02設定 (" +
+	"&C)\x02無效的名稱\x02必須填寫名稱。\x02無效的隧道名稱「%[1]s」。\x02無法列出現有隧道\x02隧道已存在\x02已有同名隧" +
+	"道「%[1]s」。\x02無法建立新的隧道設定\x02檔案寫入失敗\x02檔案已存在： %[1]s\x0a\x0a您確定要覆蓋嗎？\x02已" +
+	"連線\x02正在連線…\x02已中斷連線\x02正在中斷…\x02未知\x02日誌\x02複製 (&C)\x02全選 (&A)\x02匯出…" +
+	" (&S)\x02時間\x02日誌訊息\x02純文字 (*.txt)|*.txt|所有檔案 (*.*)|*.*\x02匯出日誌…\x02關於 W" +
+	"ireGuard (&A)\x02隧道錯誤\x02%[1]s\x0a\x0a如需更多資訊，請查看日誌。\x02%[1]s（已過時）\x02偵測 " +
+	"WireGuard 錯誤\x02無法等待 WireGuard 視窗開啓： %[1]v\x02WireGuard - 未連線\x02[狀態] 未知" +
+	"\x02[位址] 無\x02管理隧道 (&M)\x02從檔案匯入… (&I)\x02離開 (&X)\x02WireGuard 隧道錯誤\x02W" +
+	"ireGuard - %[1]s\x02[狀態] %[1]s\x02[位址] %[1]s\x02WireGuard 已連線\x02已連線至隧道 " +
+	"- %[1]s\x02WireGuard 已中斷連線\x02已中斷與隧道的連線 - %[1]s\x02更新\x02WireGuard 更新" +
+	"\x02更新的 WireGuard 已經為您準備好了。\x0a強烈建議您立即更新 WireGuard。\x02隧道\x02編輯 (&E)\x02" +
+	"新增隧道精靈 (&E)\x02新增隧道\x02刪除選取隧道\x02匯出所有隧道（ZIP 格式）\x02切換連線狀態 (&T)\x02匯出所有" +
+	"隧道至 &ZIP 壓縮檔\x02編輯選取隧道 (&S)\x02刪除已選取隧道 (&R)\x02無法匯入設定： %[1]v\x02無法列出隧道" +
+	"： %[1]v\x02已有另一個同名的隧道「%[1]s」\x02無法匯入設定： %[1]v\x02已匯入隧道\x14\x01\x81\x01" +
+	"\x00\x00\x1a\x02已匯入 %[1]d 個隧道\x14\x02\x80\x01\x00-\x02已匯入 %[1]d 個隧道（共 %[" +
+	"2]d 個）\x02無法建立隧道\x14\x01\x81\x01\x00\x00\x17\x02刪除 %[1]d 個隧道\x14\x01\x81" +
+	"\x01\x00\x00)\x02您確定要刪除 %[1]d 個隧道嗎？\x02刪除隧道 - %[1]s\x02您確定要刪除隧道「%[1]s」嗎？" +
+	"\x02%[1]s\x0a\x0a您將無法復原此操作。\x02無法刪除隧道\x02無法刪除隧道： %[1]s\x02無法刪除隧道\x14\x01" +
+	"\x81\x01\x00\x00\x1d\x02無法刪除 %[1]d 個隧道\x02隧道設定檔 (*.zip, *.conf)|*.zip;*." +
+	"conf|所有檔案 (*.*)|*.*\x02從檔案中匯入隧道…\x02隧道設定檔 (*.zip)|*.zip\x02匯出隧道設定至…\x02%" +
+	"[1]s（未簽署發行版本，無法自動更新）\x02離開 WireGuard 失敗\x02無法結束服務： %[1]v。\x0a您可能需要手動從服務管" +
+	"理中結束 WireGuard 服務。\x02更新的 WireGuard 已經為您準備好了。\x0a強烈建議您立即進行更新。\x02狀態：等待" +
+	"使用者\x02立即更新\x02狀態：等待更新服務\x02錯誤： %[1]v。請稍後再試。\x02狀態：已完成！\x02http2: Fram" +
+	"er %[1]p: failed to decode just-written frame\x02http2: Framer %[1]p: wr" +
+	"ote %[2]v\x02http2: Framer %[1]p: read %[2]v\x02http2: decoded hpack fie" +
+	"ld %+[1]v\x02設定的項目必須要有一個等號"
+
+	// Total table size 71148 bytes (69KiB); checksum: 16378E4E

@@ -481,12 +481,6 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Invalid config key is missing an equals separator",
-            "message": "Invalid config key is missing an equals separator",
-            "translation": "イコール（=）が無いためキー項目として不正です",
-            "translatorComment": "Copied from source."
-        },
-        {
             "id": "Key must have a value",
             "message": "Key must have a value",
             "translation": "キー項目に対応する値がありません",

@@ -481,12 +481,6 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Invalid config key is missing an equals separator",
-            "message": "Invalid config key is missing an equals separator",
-            "translation": "无效的配置键缺少一个等于分隔符",
-            "translatorComment": "Copied from source."
-        },
-        {
             "id": "Key must have a value",
             "message": "Key must have a value",
             "translation": "键必须有一个值",
