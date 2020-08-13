@@ -678,13 +678,13 @@
         {
             "id": "&Deactivate",
             "message": "&Deactivate",
-            "translation": "&Отключен",
+            "translation": "&Отключить",
             "translatorComment": "Copied from source."
         },
         {
             "id": "&Activate",
             "message": "&Activate",
-            "translation": "&Подключен",
+            "translation": "&Подключить",
             "translatorComment": "Copied from source."
         },
         {
