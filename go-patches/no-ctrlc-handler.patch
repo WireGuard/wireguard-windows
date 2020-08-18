@@ -1,0 +1,44 @@
+From c0dded04f7ded5048b44200078a1f723f5e1bcc1 Mon Sep 17 00:00:00 2001
+From: Jason A. Donenfeld <Jason@zx2c4.com>
+Date: Tue, 14 Jul 2020 01:41:03 -0600
+Subject: [PATCH] runtime: do not explicitly exit on ctrl handler
+
+The default ctrl+c handler should process exits in situations where it
+makes sense, like console apps, but not in situations where it doesn't,
+like libraries or services. Therefore, we should remove the exit(2) so
+that the default handler is used for this. This also uses the more
+proper windows exit code of STATUS_CONTROL_C_EXIT, with the base case
+handler installed by KernelBase.dll. In particular, this helps in the
+case of services, which previously would terminate when receiving
+shutdown signals, instead of passing them onward to the service program.
+In this CL, contrary to CL 244959, we do not need to special case
+services with expensive detection algorithms, or rely on hard-coded
+library/archive flags.
+
+Fixes #40167.
+Fixes #40074.
+
+Change-Id: I9bf6ed6f65cefeff754d270aa33fa4df8d0b451f
+Reviewed-on: https://go-review.googlesource.com/c/go/+/243597
+Run-TryBot: Jason A. Donenfeld <Jason@zx2c4.com>
+TryBot-Result: Gobot Gobot <gobot@golang.org>
+Reviewed-by: Alex Brainman <alex.brainman@gmail.com>
+Reviewed-by: Jason A. Donenfeld <Jason@zx2c4.com>
+---
+
+diff --git a/src/runtime/os_windows.go b/src/runtime/os_windows.go
+index a584ada..a62e941 100644
+--- a/src/runtime/os_windows.go
++++ b/src/runtime/os_windows.go
+@@ -1010,11 +1010,6 @@
+ 	if sigsend(s) {
+ 		return 1
+ 	}
+-	if !islibrary && !isarchive {
+-		// Only exit the program if we don't have a DLL.
+-		// See https://golang.org/issues/35965.
+-		exit(2) // SIGINT, SIGTERM, etc
+-	}
+ 	return 0
+ }
+ 
