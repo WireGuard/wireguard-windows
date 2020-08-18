@@ -44,7 +44,7 @@ To translate WireGuard UI to your language:
    C:\Projects\wireguard-windows> copy locales\<langID>\out.gotext.json locales\<langID>\messages.gotext.json
    ```
 
-4. Translate `locales\<langID>\messages.gotext.json`. See other language message files how to translate messages and how to tackle plural.
+4. Translate `locales\<langID>\messages.gotext.json`. See other language message files how to translate messages and how to tackle plural. For this step, the project is currently using [CrowdIn](https://crowdin.com/translate/WireGuard); please make sure your translations make it there in order to be added here.
 
 5. Run `build` from the step 3 again, and test.
 
