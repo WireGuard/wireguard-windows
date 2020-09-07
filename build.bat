@@ -15,9 +15,9 @@ if exist .deps\prepared goto :render
 	cd .deps || goto :error
 	call :download go.zip https://dl.google.com/go/go1.15.windows-amd64.zip dc491314dff5b87ad50bf1cf56715de8f8c54489be30f3e19239bc2ad1af25e3 || goto :error
 	rem Mirror of https://musl.cc/i686-w64-mingw32-native.zip
-	call :download mingw-x86.zip https://download.wireguard.com/windows-toolchain/distfiles/i686-w64-mingw32-native-20190903.zip dfb297cc86c4a4c12eedaeb0a89dff2e1cfa9afacfb9c32690dd23ca7726560a || goto :error
+	call :download mingw-x86.zip https://download.wireguard.com/windows-toolchain/distfiles/i686-w64-mingw32-native-20200907.zip c972c00993727ac9bff83c799f4df65662adb95bc871fa30cfa8857e744a7fbd || goto :error
 	rem Mirror of https://musl.cc/x86_64-w64-mingw32-native.zip
-	call :download mingw-amd64.zip https://download.wireguard.com/windows-toolchain/distfiles/x86_64-w64-mingw32-native-20190903.zip 15cf5596ece5394be0d71c22f586ef252e0390689ef6526f990a262f772aecf8 || goto :error
+	call :download mingw-amd64.zip https://download.wireguard.com/windows-toolchain/distfiles/x86_64-w64-mingw32-native-20200907.zip e34fbacbd25b007a8074fc96f7e08f886241e0473a055987ee57483c37567aa5 || goto :error
 	rem Mirror of https://imagemagick.org/download/binaries/ImageMagick-7.0.8-42-portable-Q16-x64.zip
 	call :download imagemagick.zip https://download.wireguard.com/windows-toolchain/distfiles/ImageMagick-7.0.8-42-portable-Q16-x64.zip 584e069f56456ce7dde40220948ff9568ac810688c892c5dfb7f6db902aa05aa "convert.exe colors.xml delegates.xml" || goto :error
 	rem Mirror of https://sourceforge.net/projects/ezwinports/files/make-4.2.1-without-guile-w32-bin.zip
