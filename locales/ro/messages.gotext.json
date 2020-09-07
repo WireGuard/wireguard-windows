@@ -1,22 +1,22 @@
 {
-    "language": "ja",
+    "language": "ro",
     "messages": [
         {
             "id": "Error",
             "message": "Error",
-            "translation": "エラー",
+            "translation": "Eroare",
             "translatorComment": "Copied from source."
         },
         {
             "id": "(no argument): elevate and install manager service",
             "message": "(no argument): elevate and install manager service",
-            "translation": "(引数なし): 管理者権限でmanagerサービスをインストールする",
+            "translation": "(fără argument): obținere drept administrativ și instalare serviciu de gestionare",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Usage: {Args0} [\n{String}]",
             "message": "Usage: {Args0} [\n{String}]",
-            "translation": "使い方: {Args0} [\n{String}]",
+            "translation": "Utilizare: {Args0} [\n{String}]",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -40,13 +40,13 @@
         {
             "id": "Command Line Options",
             "message": "Command Line Options",
-            "translation": "コマンドラインオプション",
+            "translation": "Opțiuni linie de comandă",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Unable to determine whether the process is running under WOW64: {Err}",
             "message": "Unable to determine whether the process is running under WOW64: {Err}",
-            "translation": "プロセスがWOW64下で動作しているか確認できません: {Err}",
+            "translation": "Nu se poate determina dacă procesul rulează sub WOW64: {Err}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -62,13 +62,13 @@
         {
             "id": "You must use the 64-bit version of WireGuard on this computer.",
             "message": "You must use the 64-bit version of WireGuard on this computer.",
-            "translation": "このコンピュータでは64ビット版の WireGuard を使ってください。",
+            "translation": "Trebuie să utilizezi versiunea de 64 biți a WireGuard pe acest calculator.",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Unable to open current process token: {Err}",
             "message": "Unable to open current process token: {Err}",
-            "translation": "現在のプロセスのトークンを開けません: {Err}",
+            "translation": "Nu poate fi deschis tokenul actual de proces: {Err}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -84,7 +84,7 @@
         {
             "id": "WireGuard may only be used by users who are a member of the Builtin {AdminGroupName} group.",
             "message": "WireGuard may only be used by users who are a member of the Builtin {AdminGroupName} group.",
-            "translation": "WireGuard は組み込みの {AdminGroupName} グループのメンバーだけが使えます。",
+            "translation": "WireGuard poate fi utilizat doar de către utilizatorii care sunt membri ai grupului Builtin {AdminGroupName}.",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -100,7 +100,7 @@
         {
             "id": "WireGuard is running, but the UI is only accessible from desktops of the Builtin {AdminGroupName} group.",
             "message": "WireGuard is running, but the UI is only accessible from desktops of the Builtin {AdminGroupName} group.",
-            "translation": "WireGuard は実行中ですが、UI画面は組み込みの {AdminGroupName} グループのデスクトップからしか開けません。",
+            "translation": "WireGuard rulează, dar interfața cu utilizatorul este accesibilă doar din spațiile de lucru ale grupului Builtin {AdminGroupName}.",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -116,19 +116,19 @@
         {
             "id": "WireGuard system tray icon did not appear after 30 seconds.",
             "message": "WireGuard system tray icon did not appear after 30 seconds.",
-            "translation": "WireGuard システムトレイアイコンは30秒後に非表示になります。",
+            "translation": "Pictograma WireGuard din bara de sistem nu a apărut după 30 de secunde.",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Now",
             "message": "Now",
-            "translation": "今",
+            "translation": "Acum",
             "translatorComment": "Copied from source."
         },
         {
             "id": "System clock wound backward!",
             "message": "System clock wound backward!",
-            "translation": "システム時刻が巻き戻った！",
+            "translation": "Ceasul de sistem a fost dat în spate!",
             "translatorComment": "Copied from source."
         },
         {
@@ -139,8 +139,14 @@
                     "feature": "plural",
                     "arg": "Years",
                     "cases": {
+                        "one": {
+                            "msg": "{Years} an"
+                        },
+                        "few": {
+                            "msg": "{Years} ani"
+                        },
                         "other": {
-                            "msg": "{Years} 年"
+                            "msg": "{Years} de ani"
                         }
                     }
                 }
@@ -164,8 +170,14 @@
                     "feature": "plural",
                     "arg": "Days",
                     "cases": {
+                        "one": {
+                            "msg": "{Days} zi"
+                        },
+                        "few": {
+                            "msg": "{Days} zile"
+                        },
                         "other": {
-                            "msg": "{Days} 日"
+                            "msg": "{Days} de zile"
                         }
                     }
                 }
@@ -189,8 +201,14 @@
                     "feature": "plural",
                     "arg": "Hours",
                     "cases": {
+                        "one": {
+                            "msg": "{Hours} oră"
+                        },
+                        "few": {
+                            "msg": "{Hours} ore"
+                        },
                         "other": {
-                            "msg": "{Hours} 時間"
+                            "msg": "{Hours} de ore"
                         }
                     }
                 }
@@ -214,8 +232,14 @@
                     "feature": "plural",
                     "arg": "Minutes",
                     "cases": {
+                        "one": {
+                            "msg": "{Minutes} minut"
+                        },
+                        "few": {
+                            "msg": "{Minutes} minute"
+                        },
                         "other": {
-                            "msg": "{Minutes} 分"
+                            "msg": "{Minutes} de minute"
                         }
                     }
                 }
@@ -239,8 +263,14 @@
                     "feature": "plural",
                     "arg": "Seconds",
                     "cases": {
+                        "one": {
+                            "msg": "{Seconds} secundă"
+                        },
+                        "few": {
+                            "msg": "{Seconds} secunde"
+                        },
                         "other": {
-                            "msg": "{Seconds} 秒"
+                            "msg": "{Seconds} de secunde"
                         }
                     }
                 }
@@ -259,7 +289,7 @@
         {
             "id": "{Timestamp} ago",
             "message": "{Timestamp} ago",
-            "translation": "{Timestamp} 前",
+            "translation": "acum {Timestamp}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -275,7 +305,7 @@
         {
             "id": "{Bytes} B",
             "message": "{Bytes} B",
-            "translation": "{Bytes} B",
+            "translation": "{Bytes} B",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -379,55 +409,55 @@
         {
             "id": "Invalid IP address",
             "message": "Invalid IP address",
-            "translation": "無効な IP アドレス",
+            "translation": "Adresă IP invalidă",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid network prefix length",
             "message": "Invalid network prefix length",
-            "translation": "無効なネットワークプレフィックス長",
+            "translation": "Lungimea prefixului de rețea este invalidă",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Missing port from endpoint",
             "message": "Missing port from endpoint",
-            "translation": "エンドポイントのポート指定なし",
+            "translation": "Lipsește portul de la punctul final",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid endpoint host",
             "message": "Invalid endpoint host",
-            "translation": "無効なエンドポイントホスト",
+            "translation": "Gazdă invalidă a punctului final",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Brackets must contain an IPv6 address",
             "message": "Brackets must contain an IPv6 address",
-            "translation": "カッコ内は IPv6 アドレスが入ります",
+            "translation": "Parantezele trebuie să conțină o adresă IPv6",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid MTU",
             "message": "Invalid MTU",
-            "translation": "無効な MTU",
+            "translation": "MTU invalidă",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid port",
             "message": "Invalid port",
-            "translation": "無効なポート番号",
+            "translation": "Port invalid",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid persistent keepalive",
             "message": "Invalid persistent keepalive",
-            "translation": "無効な持続的キープアライブ値",
+            "translation": "Mesaj keepalive persistent invalid",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid key: {Err}",
             "message": "Invalid key: {Err}",
-            "translation": "不正な鍵: {Err}",
+            "translation": "Cheie invalidă: {Err}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -443,13 +473,13 @@
         {
             "id": "Keys must decode to exactly 32 bytes",
             "message": "Keys must decode to exactly 32 bytes",
-            "translation": "鍵は 32 バイトでなければなりません",
+            "translation": "Rezultatul decodificat de chei trebuie să aibă exact 32 de octeți",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Number must be a number between 0 and 2^64-1: {Err}",
             "message": "Number must be a number between 0 and 2^64-1: {Err}",
-            "translation": "数値は0から2の64乗-1の範囲内の値でなければなりません: {Err}",
+            "translation": "Numărul trebuie să fie cuprins între 0 și 2^64-1: {Err}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -465,85 +495,85 @@
         {
             "id": "Two commas in a row",
             "message": "Two commas in a row",
-            "translation": "1行にカンマが2つあります",
+            "translation": "Două virgule una după cealaltă",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Tunnel name is not valid",
             "message": "Tunnel name is not valid",
-            "translation": "トンネル名が不正です",
+            "translation": "Numele tunelului nu este valid",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Line must occur in a section",
             "message": "Line must occur in a section",
-            "translation": "行がセクション内にありません",
+            "translation": "Linia trebuie să apară într-o secțiune",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Config key is missing an equals separator",
             "message": "Config key is missing an equals separator",
-            "translation": "設定項目にイコール(=)セパレータがない",
+            "translation": "Cheii de configurare îi lipsește un separator de forma semnului egal",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Key must have a value",
             "message": "Key must have a value",
-            "translation": "キー項目に対応する値がありません",
+            "translation": "Cheia trebuie să conțină o valoare",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid key for [Interface] section",
             "message": "Invalid key for [Interface] section",
-            "translation": "無効な [Interface] セクションのキー項目",
+            "translation": "Cheie invalidă pentru secțiunea [Interface]",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid key for [Peer] section",
             "message": "Invalid key for [Peer] section",
-            "translation": "無効な [Peer] セクションのキー項目",
+            "translation": "Cheie invalidă pentru secțiunea [Peer]",
             "translatorComment": "Copied from source."
         },
         {
             "id": "An interface must have a private key",
             "message": "An interface must have a private key",
-            "translation": "インターフェースには秘密鍵が必須です",
+            "translation": "O interfață trebuie să aibă o cheie privată",
             "translatorComment": "Copied from source."
         },
         {
             "id": "[none specified]",
             "message": "[none specified]",
-            "translation": "[指定なし]",
+            "translation": "[niciuna specificată]",
             "translatorComment": "Copied from source."
         },
         {
             "id": "All peers must have public keys",
             "message": "All peers must have public keys",
-            "translation": "すべてのピアには公開鍵が必須です",
+            "translation": "Toate perechile trebuie să aibă chei publice",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Error in getting configuration",
             "message": "Error in getting configuration",
-            "translation": "設定の読込中にエラーが発生しました",
+            "translation": "Eroare la obținerea configurației",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid key for interface section",
             "message": "Invalid key for interface section",
-            "translation": "無効な Interface セクションのキー項目",
+            "translation": "Cheie invalidă pentru secțiunea interfeței",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Protocol version must be 1",
             "message": "Protocol version must be 1",
-            "translation": "プロトコルバージョンは 1 でなければなりません",
+            "translation": "Versiunea de protocol trebuie să fie 1",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid key for peer section",
             "message": "Invalid key for peer section",
-            "translation": "無効な Peer セクションのキー項目",
+            "translation": "Cheie invalidă pentru secțiunea perechii",
             "translatorComment": "Copied from source."
         },
         {
@@ -555,25 +585,25 @@
         {
             "id": "[UnitSeparator]",
             "message": "[UnitSeparator]",
-            "translation": " ",
+            "translation": ", ",
             "comment": "Text to insert when combining units of a measure - most languages will translate ‘[UnitSeparator]’ into ‘ ’ (space) to produce lists like ‘2 minuti 30 sekund’, or empty string ‘’ to produce ‘2分30秒’."
         },
         {
             "id": "About WireGuard",
             "message": "About WireGuard",
-            "translation": "WireGuard について",
+            "translation": "Despre WireGuard",
             "translatorComment": "Copied from source."
         },
         {
             "id": "WireGuard logo image",
             "message": "WireGuard logo image",
-            "translation": "WireGuard ロゴ画像",
+            "translation": "Imagine siglă WireGuard",
             "translatorComment": "Copied from source."
         },
         {
             "id": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}\nOperating system: {OsName}\nArchitecture: {GOARCH}",
             "message": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}\nOperating system: {OsName}\nArchitecture: {GOARCH}",
-            "translation": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}\nOperating system: {OsName}\nArchitecture: {GOARCH}",
+            "translation": "Versiunea aplicației: {Number}\nVersiunea bibliotecii subiacente Go: {WireGuardGoVersion}\nVersiunea Go: {Version_go}\nSistem de operare: {OsName}\nArhitectură: {GOARCH}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -621,43 +651,43 @@
         {
             "id": "Close",
             "message": "Close",
-            "translation": "閉じる",
+            "translation": "Închidere",
             "translatorComment": "Copied from source."
         },
         {
             "id": "♥ &Donate!",
             "message": "♥ &Donate!",
-            "translation": "♥ 寄付のお願い!(&D)",
+            "translation": "♥ &Donează!",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Status:",
             "message": "Status:",
-            "translation": "状態:",
+            "translation": "Stare:",
             "translatorComment": "Copied from source."
         },
         {
             "id": "&Deactivate",
             "message": "&Deactivate",
-            "translation": "無効化(&D)",
+            "translation": "&Dezactivare",
             "translatorComment": "Copied from source."
         },
         {
             "id": "&Activate",
             "message": "&Activate",
-            "translation": "有効化(&A)",
+            "translation": "&Activare",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Public key:",
             "message": "Public key:",
-            "translation": "公開鍵:",
+            "translation": "Cheie publică:",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Listen port:",
             "message": "Listen port:",
-            "translation": "待受ポート番号:",
+            "translation": "Port de ascultare:",
             "translatorComment": "Copied from source."
         },
         {
@@ -669,61 +699,61 @@
         {
             "id": "Addresses:",
             "message": "Addresses:",
-            "translation": "アドレス:",
+            "translation": "Adrese:",
             "translatorComment": "Copied from source."
         },
         {
             "id": "DNS servers:",
             "message": "DNS servers:",
-            "translation": "DNS サーバ:",
+            "translation": "Servere DNS:",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Preshared key:",
             "message": "Preshared key:",
-            "translation": "事前共有鍵:",
+            "translation": "Cheie predistribuită:",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Allowed IPs:",
             "message": "Allowed IPs:",
-            "translation": "Allowed IPs:",
+            "translation": "IP-uri permise:",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Endpoint:",
             "message": "Endpoint:",
-            "translation": "エンドポイント:",
+            "translation": "Punct final:",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Persistent keepalive:",
             "message": "Persistent keepalive:",
-            "translation": "持続的キープアライブ:",
+            "translation": "Mesaj keepalive persistent:",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Latest handshake:",
             "message": "Latest handshake:",
-            "translation": "直近のハンドシェイク:",
+            "translation": "Ultimul acord de interogare:",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Transfer:",
             "message": "Transfer:",
-            "translation": "転送:",
+            "translation": "Transferare:",
             "translatorComment": "Copied from source."
         },
         {
             "id": "enabled",
             "message": "enabled",
-            "translation": "有効",
+            "translation": "activată",
             "translatorComment": "Copied from source."
         },
         {
             "id": "{String} received, {String_1} sent",
             "message": "{String} received, {String_1} sent",
-            "translation": "{String} 受信済み、{String_1} 送信済み",
+            "translation": "{String} primit, {String_1} trimis",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -747,25 +777,25 @@
         {
             "id": "Failed to determine tunnel state",
             "message": "Failed to determine tunnel state",
-            "translation": "トンネルの状態取得に失敗しました",
+            "translation": "Nu a putut fi determinată starea tunelului",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Failed to activate tunnel",
             "message": "Failed to activate tunnel",
-            "translation": "トンネルの有効化に失敗しました",
+            "translation": "Tunelul nu a putut fi activat",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Failed to deactivate tunnel",
             "message": "Failed to deactivate tunnel",
-            "translation": "トンネルの無効化に失敗しました",
+            "translation": "Tunelul nu a putut fi dezactivat",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Interface: {Name}",
             "message": "Interface: {Name}",
-            "translation": "インターフェース: {Name}",
+            "translation": "Interfață: {Name}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -781,85 +811,85 @@
         {
             "id": "Peer",
             "message": "Peer",
-            "translation": "ピア",
+            "translation": "Pereche",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Create new tunnel",
             "message": "Create new tunnel",
-            "translation": "トンネルの新規作成",
+            "translation": "Creare tunel nou",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Edit tunnel",
             "message": "Edit tunnel",
-            "translation": "トンネルの編集",
+            "translation": "Editare tunel",
             "translatorComment": "Copied from source."
         },
         {
             "id": "&Name:",
             "message": "&Name:",
-            "translation": "名前(&N):",
+            "translation": "&Nume:",
             "translatorComment": "Copied from source."
         },
         {
             "id": "&Public key:",
             "message": "&Public key:",
-            "translation": "公開鍵(&P):",
+            "translation": "Cheie &publică:",
             "translatorComment": "Copied from source."
         },
         {
             "id": "(unknown)",
             "message": "(unknown)",
-            "translation": "(不明)",
+            "translation": "(necunoscută)",
             "translatorComment": "Copied from source."
         },
         {
             "id": "&Block untunneled traffic (kill-switch)",
             "message": "&Block untunneled traffic (kill-switch)",
-            "translation": "トンネルを通らないトラフィックのブロック（キルスイッチ）(&B)",
+            "translation": "&Blochează traficul care nu trece prin tunel (întrerupător de activitate)",
             "translatorComment": "Copied from source."
         },
         {
             "id": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface, with special exceptions for DHCP and NDP.",
             "message": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface, with special exceptions for DHCP and NDP.",
-            "translation": "ピアが1つだけ設定されていて、さらに Allowed IPs に 0.0.0.0/0 または ::/0 が含まれている場合、トンネルサービスはトンネルインターフェースを通らないすべてのトラフィックをブロックするファイアウォールルールを追加します。",
+            "translation": "Când o configurație conține exact o pereche, iar acea pereche are IP-uri permise care conțin cel puțin o variantă dintre 0.0.0.0/0 sau ::/0, atunci serviciul tunelului activează un set de reguli al paravanului de protecție pentru a bloca întregul trafic care nu provine de la interfața tunelului, precum și întregul trafic direcționat spre aceasta, existând excepții speciale pentru DHCP și NDP.",
             "translatorComment": "Copied from source."
         },
         {
             "id": "&Save",
             "message": "&Save",
-            "translation": "保存(&S)",
+            "translation": "&Salvare",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Cancel",
             "message": "Cancel",
-            "translation": "キャンセル",
+            "translation": "Anulare",
             "translatorComment": "Copied from source."
         },
         {
             "id": "&Configuration:",
             "message": "&Configuration:",
-            "translation": "設定(&C):",
+            "translation": "&Configurație:",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid name",
             "message": "Invalid name",
-            "translation": "無効な名前",
+            "translation": "Nume invalid",
             "translatorComment": "Copied from source."
         },
         {
             "id": "A name is required.",
             "message": "A name is required.",
-            "translation": "名前は必須です。",
+            "translation": "Este necesar un nume.",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Tunnel name ‘{NewName}’ is invalid.",
             "message": "Tunnel name ‘{NewName}’ is invalid.",
-            "translation": "トンネル名 ‘{NewName}’ は不正です。",
+            "translation": "Numele tunelului „{NewName}” este invalid.",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -875,19 +905,19 @@
         {
             "id": "Unable to list existing tunnels",
             "message": "Unable to list existing tunnels",
-            "translation": "既存のトンネルを表示できません",
+            "translation": "Tunelurile existente nu pot fi listate",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Tunnel already exists",
             "message": "Tunnel already exists",
-            "translation": "トンネルはすでに存在します",
+            "translation": "Tunelul există deja",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Another tunnel already exists with the name ‘{NewName}’.",
             "message": "Another tunnel already exists with the name ‘{NewName}’.",
-            "translation": "‘{NewName}’ という名前の別のトンネルがすでに存在します。",
+            "translation": "Există deja un alt tunel cu numele „{NewName}”.",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -903,19 +933,19 @@
         {
             "id": "Unable to create new configuration",
             "message": "Unable to create new configuration",
-            "translation": "新しい設定を作成できませんでした",
+            "translation": "Nu se poate crea configurația nouă",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Writing file failed",
             "message": "Writing file failed",
-            "translation": "ファイルの書き込みに失敗",
+            "translation": "Scrierea fișierului a eșuat",
             "translatorComment": "Copied from source."
         },
         {
             "id": "File ‘{FilePath}’ already exists.\n\nDo you want to overwrite it?",
             "message": "File ‘{FilePath}’ already exists.\n\nDo you want to overwrite it?",
-            "translation": "ファイル ‘{FilePath}’ はすでに存在します。\n\n上書きしますか？",
+            "translation": "Fișierul „{FilePath}” există deja.\n\nDorești suprascrierea acestuia?",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -931,97 +961,97 @@
         {
             "id": "Active",
             "message": "Active",
-            "translation": "有効",
+            "translation": "Activ",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Activating",
             "message": "Activating",
-            "translation": "有効化中",
+            "translation": "Se activează",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Inactive",
             "message": "Inactive",
-            "translation": "無効",
+            "translation": "Inactiv",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Deactivating",
             "message": "Deactivating",
-            "translation": "無効化中",
+            "translation": "Se dezactivează",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Unknown state",
             "message": "Unknown state",
-            "translation": "不明な状態",
+            "translation": "Stare necunoscută",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Log",
             "message": "Log",
-            "translation": "ログ",
+            "translation": "Jurnal",
             "translatorComment": "Copied from source."
         },
         {
             "id": "&Copy",
             "message": "&Copy",
-            "translation": "コピー(&C)",
+            "translation": "&Copiere",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Select &all",
             "message": "Select &all",
-            "translation": "すべて選択(&A)",
+            "translation": "Selectare &totală",
             "translatorComment": "Copied from source."
         },
         {
             "id": "&Save to file…",
             "message": "&Save to file…",
-            "translation": "ファイルに保存…(&S)",
+            "translation": "&Salvare în fișier…",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Time",
             "message": "Time",
-            "translation": "時刻",
+            "translation": "Timp",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Log message",
             "message": "Log message",
-            "translation": "ログ メッセージ",
+            "translation": "Mesaj de jurnal",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Text Files (*.txt)|*.txt|All Files (*.*)|*.*",
             "message": "Text Files (*.txt)|*.txt|All Files (*.*)|*.*",
-            "translation": "テキストファイル (*.txt)|*.txt|すべてのファイル (*.*)|*.*",
+            "translation": "Fișiere text (*.txt)|*.txt|Toate fișierele (*.*)|*.*",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Export log to file",
             "message": "Export log to file",
-            "translation": "ログをファイルにエクスポート",
+            "translation": "Exportare jurnal în fișier",
             "translatorComment": "Copied from source."
         },
         {
             "id": "&About WireGuard…",
             "message": "&About WireGuard…",
-            "translation": "WireGuardについて…(&A)",
+            "translation": "&Despre WireGuard…",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Tunnel Error",
             "message": "Tunnel Error",
-            "translation": "トンネルエラー",
+            "translation": "Eroare de tunel",
             "translatorComment": "Copied from source."
         },
         {
             "id": "{ErrMsg}\n\nPlease consult the log for more information.",
             "message": "{ErrMsg}\n\nPlease consult the log for more information.",
-            "translation": "{ErrMsg}\n\n詳細はログを参照してください。",
+            "translation": "{ErrMsg}\n\nConsultă jurnalul pentru mai multe informații.",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1037,7 +1067,7 @@
         {
             "id": "{Title} (out of date)",
             "message": "{Title} (out of date)",
-            "translation": "{Title} (更新あり)",
+            "translation": "{Title} (neactualizat)",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1053,13 +1083,13 @@
         {
             "id": "WireGuard Detection Error",
             "message": "WireGuard Detection Error",
-            "translation": "WireGuard 検出エラー",
+            "translation": "Eroare de detectare WireGuard",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Unable to wait for WireGuard window to appear: {Err}",
             "message": "Unable to wait for WireGuard window to appear: {Err}",
-            "translation": "WireGuard ウィンドウが表示できませんでした: {Err}",
+            "translation": "Nu se poate aștepta ca fereastra WireGuard să apară: {Err}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1075,43 +1105,43 @@
         {
             "id": "WireGuard: Deactivated",
             "message": "WireGuard: Deactivated",
-            "translation": "WireGuard: 無効化済み",
+            "translation": "WireGuard: dezactivat",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Status: Unknown",
             "message": "Status: Unknown",
-            "translation": "状態: 不明",
+            "translation": "Stare: necunoscută",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Addresses: None",
             "message": "Addresses: None",
-            "translation": "アドレス: なし",
+            "translation": "Adrese: niciuna",
             "translatorComment": "Copied from source."
         },
         {
             "id": "&Manage tunnels…",
             "message": "&Manage tunnels…",
-            "translation": "トンネルの管理…(&M)",
+            "translation": "&Gestionare tuneluri…",
             "translatorComment": "Copied from source."
         },
         {
             "id": "&Import tunnel(s) from file…",
             "message": "&Import tunnel(s) from file…",
-            "translation": "トンネルをファイルからインポート…(&I)",
+            "translation": "&Importare tunel(uri) din fișier…",
             "translatorComment": "Copied from source."
         },
         {
             "id": "E&xit",
             "message": "E&xit",
-            "translation": "終了(&X)",
+            "translation": "Ie&șire",
             "translatorComment": "Copied from source."
         },
         {
             "id": "WireGuard Tunnel Error",
             "message": "WireGuard Tunnel Error",
-            "translation": "WireGuard トンネルエラー",
+            "translation": "Eroare de tunel WireGuard",
             "translatorComment": "Copied from source."
         },
         {
@@ -1133,7 +1163,7 @@
         {
             "id": "Status: {StateText}",
             "message": "Status: {StateText}",
-            "translation": "状態: {StateText}",
+            "translation": "Stare: {StateText}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1149,7 +1179,7 @@
         {
             "id": "Addresses: {String}",
             "message": "Addresses: {String}",
-            "translation": "アドレス: {String}",
+            "translation": "Adrese: {String}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1165,13 +1195,13 @@
         {
             "id": "WireGuard Activated",
             "message": "WireGuard Activated",
-            "translation": "WireGuard 有効化済み",
+            "translation": "WireGuard activat",
             "translatorComment": "Copied from source."
         },
         {
             "id": "The {Name} tunnel has been activated.",
             "message": "The {Name} tunnel has been activated.",
-            "translation": "トンネル {Name} は有効になりました。",
+            "translation": "Tunelul {Name} a fost activat.",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1187,13 +1217,13 @@
         {
             "id": "WireGuard Deactivated",
             "message": "WireGuard Deactivated",
-            "translation": "WireGuard 無効化済み",
+            "translation": "WireGuard dezactivat",
             "translatorComment": "Copied from source."
         },
         {
             "id": "The {Name} tunnel has been deactivated.",
             "message": "The {Name} tunnel has been deactivated.",
-            "translation": "トンネル {Name} は無効になりました。",
+            "translation": "Tunelul {Name} a fost dezactivat.",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1209,85 +1239,85 @@
         {
             "id": "An Update is Available!",
             "message": "An Update is Available!",
-            "translation": "更新が利用できます！",
+            "translation": "Este disponibilă o actualizare!",
             "translatorComment": "Copied from source."
         },
         {
             "id": "WireGuard Update Available",
             "message": "WireGuard Update Available",
-            "translation": "WireGuard の更新が利用可能です",
+            "translation": "Actualizare disponibilă pentru WireGuard",
             "translatorComment": "Copied from source."
         },
         {
             "id": "An update to WireGuard is now available. You are advised to update as soon as possible.",
             "message": "An update to WireGuard is now available. You are advised to update as soon as possible.",
-            "translation": "WireGuard の更新が利用可能になりました。できるだけ早く更新してください。",
+            "translation": "O actualizare pentru WireGuard este acum disponibilă. Se recomandă efectuarea actualizării cât mai rapid posibil.",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Tunnels",
             "message": "Tunnels",
-            "translation": "トンネル",
+            "translation": "Tuneluri",
             "translatorComment": "Copied from source."
         },
         {
             "id": "&Edit",
             "message": "&Edit",
-            "translation": "編集(&E)",
+            "translation": "%Editare",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Add &empty tunnel…",
             "message": "Add &empty tunnel…",
-            "translation": "空のトンネルを追加…(&E)",
+            "translation": "Adăugare tunel &gol…",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Add Tunnel",
             "message": "Add Tunnel",
-            "translation": "トンネルの追加",
+            "translation": "Adăugare tunel",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Remove selected tunnel(s)",
             "message": "Remove selected tunnel(s)",
-            "translation": "選択したトンネルの削除",
+            "translation": "Eliminare tunel(uri) selectat(e)",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Export all tunnels to zip",
             "message": "Export all tunnels to zip",
-            "translation": "すべてのトンネルをzipにエクスポート",
+            "translation": "Exportă toate tunelurile în zip",
             "translatorComment": "Copied from source."
         },
         {
             "id": "&Toggle",
             "message": "&Toggle",
-            "translation": "切り替え(&T)",
+            "translation": "&Comutare",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Export all tunnels to &zip…",
             "message": "Export all tunnels to &zip…",
-            "translation": "すべてのトンネルをzipにエクスポート…(&Z)",
+            "translation": "Exportă toate tunelurile în &zip…",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Edit &selected tunnel…",
             "message": "Edit &selected tunnel…",
-            "translation": "選択したトンネルの編集…(&S)",
+            "translation": "Editare tunel &selectat…",
             "translatorComment": "Copied from source."
         },
         {
             "id": "&Remove selected tunnel(s)",
             "message": "&Remove selected tunnel(s)",
-            "translation": "選択したトンネルの削除(&R)",
+            "translation": "&Eliminare tunel(uri) selectat(e)",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Could not import selected configuration: {LastErr}",
             "message": "Could not import selected configuration: {LastErr}",
-            "translation": "選択したファイルからインポートできませんでした: {LastErr}",
+            "translation": "Configurația selectată nu a putut fi importată: {LastErr}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1303,7 +1333,7 @@
         {
             "id": "Could not enumerate existing tunnels: {LastErr}",
             "message": "Could not enumerate existing tunnels: {LastErr}",
-            "translation": "既存のトンネルを表示できませんでした: {LastErr}",
+            "translation": "Tunelurile existente nu au putut fi enumerate: {LastErr}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1319,7 +1349,7 @@
         {
             "id": "Another tunnel already exists with the name ‘{Name}’",
             "message": "Another tunnel already exists with the name ‘{Name}’",
-            "translation": "‘{Name}’ という名前の別のトンネルがすでに存在します",
+            "translation": "Există deja un alt tunel cu numele „{Name}”",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1335,7 +1365,7 @@
         {
             "id": "Unable to import configuration: {LastErr}",
             "message": "Unable to import configuration: {LastErr}",
-            "translation": "設定をインポートできませんでした: {LastErr}",
+            "translation": "Configurația nu poate fi importată: {LastErr}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1351,7 +1381,7 @@
         {
             "id": "Imported tunnels",
             "message": "Imported tunnels",
-            "translation": "トンネルのインポート結果",
+            "translation": "Tuneluri importate",
             "translatorComment": "Copied from source."
         },
         {
@@ -1362,8 +1392,14 @@
                     "feature": "plural",
                     "arg": "M",
                     "cases": {
+                        "one": {
+                            "msg": "Importat {M} tunel"
+                        },
+                        "few": {
+                            "msg": "Importat {M} tuneluri"
+                        },
                         "other": {
-                            "msg": "{M} トンネルをインポートしました"
+                            "msg": "Importat {M} de tuneluri"
                         }
                     }
                 }
@@ -1387,8 +1423,14 @@
                     "feature": "plural",
                     "arg": "N",
                     "cases": {
+                        "one": {
+                            "msg": "Importat {M} din {N} tunel"
+                        },
+                        "few": {
+                            "msg": "Importat {M} din {N} tuneluri"
+                        },
                         "other": {
-                            "msg": "{N} 中の {M} トンネルをインポートしました"
+                            "msg": "Importat {M} din {N} de tuneluri"
                         }
                     }
                 }
@@ -1415,7 +1457,7 @@
         {
             "id": "Unable to create tunnel",
             "message": "Unable to create tunnel",
-            "translation": "トンネルを作成できません",
+            "translation": "Tunelul nu poate fi creat",
             "translatorComment": "Copied from source."
         },
         {
@@ -1426,8 +1468,14 @@
                     "feature": "plural",
                     "arg": "TunnelCount",
                     "cases": {
+                        "one": {
+                            "msg": "Ștergere {TunnelCount} tunel"
+                        },
+                        "few": {
+                            "msg": "Ștergere {TunnelCount} tuneluri"
+                        },
                         "other": {
-                            "msg": "{TunnelCount} トンネルを削除"
+                            "msg": "Ștergere {TunnelCount} de tuneluri"
                         }
                     }
                 }
@@ -1451,8 +1499,14 @@
                     "feature": "plural",
                     "arg": "TunnelCount",
                     "cases": {
+                        "one": {
+                            "msg": "Ești sigur că dorești să ștergi {TunnelCount} tunel?"
+                        },
+                        "few": {
+                            "msg": "Ești sigur că dorești să ștergi {TunnelCount} tuneluri?"
+                        },
                         "other": {
-                            "msg": "本当に {TunnelCount} トンネルを削除しますか？"
+                            "msg": "Ești sigur că dorești să ștergi {TunnelCount} de tuneluri?"
                         }
                     }
                 }
@@ -1471,7 +1525,7 @@
         {
             "id": "Delete tunnel ‘{TunnelName}’",
             "message": "Delete tunnel ‘{TunnelName}’",
-            "translation": "トンネル ‘{TunnelName}’ を削除",
+            "translation": "Ștergere tunel „{TunnelName}”",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1487,7 +1541,7 @@
         {
             "id": "Are you sure you would like to delete tunnel ‘{TunnelName}’?",
             "message": "Are you sure you would like to delete tunnel ‘{TunnelName}’?",
-            "translation": "本当にトンネル ‘{TunnelName}’ を削除しますか？",
+            "translation": "Ești sigur că dorești să ștergi tunelul „{TunnelName}”?",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1503,7 +1557,7 @@
         {
             "id": "{Question} You cannot undo this action.",
             "message": "{Question} You cannot undo this action.",
-            "translation": "{Question} この操作はもとに戻せません。",
+            "translation": "{Question} Această acțiune nu poate fi anulată.",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1519,13 +1573,13 @@
         {
             "id": "Unable to delete tunnel",
             "message": "Unable to delete tunnel",
-            "translation": "トンネルを削除できません",
+            "translation": "Tunelul nu poate fi șters",
             "translatorComment": "Copied from source."
         },
         {
             "id": "A tunnel was unable to be removed: {Error}",
             "message": "A tunnel was unable to be removed: {Error}",
-            "translation": "トンネルを削除できませんでした: {Error}",
+            "translation": "Un tunel nu a putut fi eliminat: {Error}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1541,7 +1595,7 @@
         {
             "id": "Unable to delete tunnels",
             "message": "Unable to delete tunnels",
-            "translation": "トンネルを削除できません",
+            "translation": "Nu se pot șterge tunelurile",
             "translatorComment": "Copied from source."
         },
         {
@@ -1552,8 +1606,14 @@
                     "feature": "plural",
                     "arg": "Lenerrors",
                     "cases": {
+                        "one": {
+                            "msg": "{Lenerrors} tunel nu a putut fi eliminat."
+                        },
+                        "few": {
+                            "msg": "{Lenerrors} tuneluri nu au putut fi eliminate."
+                        },
                         "other": {
-                            "msg": "{Lenerrors} トンネルを削除できませんでした"
+                            "msg": "{Lenerrors} de tuneluri nu au putut fi eliminate."
                         }
                     }
                 }
@@ -1572,31 +1632,31 @@
         {
             "id": "Configuration Files (*.zip, *.conf)|*.zip;*.conf|All Files (*.*)|*.*",
             "message": "Configuration Files (*.zip, *.conf)|*.zip;*.conf|All Files (*.*)|*.*",
-            "translation": "設定ファイル (*.zip, *.conf)|*.zip;*.conf|すべてのファイル (*.*)|*.*",
+            "translation": "Fișiere de configurare (*.zip, *.conf)|*.zip;*.conf|Toate fișierele (*.*)|*.*",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Import tunnel(s) from file",
             "message": "Import tunnel(s) from file",
-            "translation": "ファイルからトンネルをインポート",
+            "translation": "Importare tunel(uri) din fișier",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Configuration ZIP Files (*.zip)|*.zip",
             "message": "Configuration ZIP Files (*.zip)|*.zip",
-            "translation": "ZIP形式設定ファイル (*.zip)|*.zip",
+            "translation": "Fișiere ZIP de configurare (*.zip)|*.zip",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Export tunnels to zip",
             "message": "Export tunnels to zip",
-            "translation": "トンネルをZIPにエクスポート",
+            "translation": "Exportare tuneluri în zip",
             "translatorComment": "Copied from source."
         },
         {
             "id": "{Title} (unsigned build, no updates)",
             "message": "{Title} (unsigned build, no updates)",
-            "translation": "{Title} (未署名のビルド、更新の提供なし)",
+            "translation": "{Title} (versiune nesemnată, fără actualizări)",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1612,13 +1672,13 @@
         {
             "id": "Error Exiting WireGuard",
             "message": "Error Exiting WireGuard",
-            "translation": "WireGuard 終了エラー",
+            "translation": "Eroare la ieșirea din WireGuard",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Unable to exit service due to: {Err}. You may want to stop WireGuard from the service manager.",
             "message": "Unable to exit service due to: {Err}. You may want to stop WireGuard from the service manager.",
-            "translation": "{Err} のためサービスを終了できませんでした。サービスマネージャから WireGuard を停止できます。",
+            "translation": "Nu se poate ieși din serviciu din cauza: {Err}. Poți opri WireGuard din managerul de servicii.",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1634,31 +1694,31 @@
         {
             "id": "An update to WireGuard is available. It is highly advisable to update without delay.",
             "message": "An update to WireGuard is available. It is highly advisable to update without delay.",
-            "translation": "WireGuard の更新が利用可能です。速やかに更新することを強く推奨します。",
+            "translation": "Este disponibilă o actualizare pentru WireGuard. Se recomandă ferm actualizarea imediată.",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Status: Waiting for user",
             "message": "Status: Waiting for user",
-            "translation": "状態: ユーザーからの応答待ち",
+            "translation": "Stare: se așteaptă utilizatorul",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Update Now",
             "message": "Update Now",
-            "translation": "今すぐ更新",
+            "translation": "Actualizare acum",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Status: Waiting for updater service",
             "message": "Status: Waiting for updater service",
-            "translation": "状態: アップデータサービスを待機中",
+            "translation": "Stare: se așteaptă serviciul de actualizare",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Error: {Err}. Please try again.",
             "message": "Error: {Err}. Please try again.",
-            "translation": "エラー: {Err}。再度実行してください。",
+            "translation": "Eroare: {Err}. Încearcă din nou.",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1674,13 +1734,13 @@
         {
             "id": "Status: Complete!",
             "message": "Status: Complete!",
-            "translation": "状態: 完了！",
+            "translation": "Stare: finalizată!",
             "translatorComment": "Copied from source."
         },
         {
             "id": "http2: Framer {F}: failed to decode just-written frame",
             "message": "http2: Framer {F}: failed to decode just-written frame",
-            "translation": "http2: Framer {F}: just-writtenフレームのデコードに失敗",
+            "translation": "http2: Framer {F}: decodificarea cadrului recent scris a eșuat",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1696,7 +1756,7 @@
         {
             "id": "http2: Framer {F}: wrote {Http2summarizeFramefr}",
             "message": "http2: Framer {F}: wrote {Http2summarizeFramefr}",
-            "translation": "http2: Framer {F}: {Http2summarizeFramefr} を書き込みました",
+            "translation": "http2: Framer {F}: a scris {Http2summarizeFramefr}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1720,7 +1780,7 @@
         {
             "id": "http2: Framer {Fr}: read {Http2summarizeFramef}",
             "message": "http2: Framer {Fr}: read {Http2summarizeFramef}",
-            "translation": "http2: Framer {Fr}: {Http2summarizeFramef} を読み込みました",
+            "translation": "http2: Framer {Fr}: a citit {Http2summarizeFramef}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1744,7 +1804,7 @@
         {
             "id": "http2: decoded hpack field {HeaderField}",
             "message": "http2: decoded hpack field {HeaderField}",
-            "translation": "http2: hpack フィールド {HeaderField} をデコードしました",
+            "translation": "http2: câmp hpack decodificat {HeaderField}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {

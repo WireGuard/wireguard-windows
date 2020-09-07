@@ -496,6 +496,12 @@
             "translatorComment": "Copied from source."
         },
         {
+            "id": "Config key is missing an equals separator",
+            "message": "Config key is missing an equals separator",
+            "translation": "Il manque le séparateur égal à la clé de configuration",
+            "translatorComment": "Copied from source."
+        },
+        {
             "id": "Key must have a value",
             "message": "Key must have a value",
             "translation": "Clé doit avoir une valeur",
