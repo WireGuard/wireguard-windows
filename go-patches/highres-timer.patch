@@ -1,4 +1,4 @@
-From 0b802790a76f4781c83e8fd400857bcd365b6a23 Mon Sep 17 00:00:00 2001
+From 2975b381dc3f559a2eef875582d73cec00ab6b17 Mon Sep 17 00:00:00 2001
 From: Alex Brainman <alex.brainman@gmail.com>
 Date: Sun, 19 Jul 2020 16:06:48 +1000
 Subject: [PATCH] runtime: use CreateWaitableTimerEx to implement usleep
@@ -147,7 +147,7 @@ Change-Id: I5b97ba58289c088c17c05292e12e45285c467eae
 ---
 
 diff --git a/src/runtime/os_windows.go b/src/runtime/os_windows.go
-index a584ada..5ca492b 100644
+index a62e941..46f4a23 100644
 --- a/src/runtime/os_windows.go
 +++ b/src/runtime/os_windows.go
 @@ -21,6 +21,7 @@
@@ -212,7 +212,7 @@ index a584ada..5ca492b 100644
 +
 +func initHighResTimer() {
 +	if GOARCH == "arm" {
-+		// TODO: Not implemented, if we running on arm.
++		// TODO: Not yet implemented.
 +		return
 +	}
 +	h := createHighResTimer()
