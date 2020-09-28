@@ -12,6 +12,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"syscall"
 
 	"golang.org/x/sys/windows"
 )
@@ -25,6 +26,8 @@ func runNetsh(cmds []string) error {
 		return err
 	}
 	cmd := exec.Command(filepath.Join(system32, "netsh.exe")) // I wish we could append (, "-f", "CONIN$") but Go sets up the process context wrong.
+	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
+
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
 		return fmt.Errorf("runNetsh stdin pipe - %v", err)
