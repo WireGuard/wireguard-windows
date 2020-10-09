@@ -1,3 +1,5 @@
+// +build !windows
+
 /* SPDX-License-Identifier: MIT
  *
  * Copyright (C) 2019 WireGuard LLC. All Rights Reserved.
@@ -8,8 +10,6 @@ package conf
 import (
 	"os"
 	"path/filepath"
-
-	"golang.org/x/sys/windows"
 )
 
 func tunnelConfigurationsDirectory() (string, error) {
@@ -20,13 +20,8 @@ func tunnelConfigurationsDirectory() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	c := filepath.Join(root, "Configurations")
-	maybeMigrate(c)
-	err = os.MkdirAll(c, os.ModeDir|0700)
-	if err != nil {
-		return "", err
-	}
-	cachedConfigFileDir = c
+	// on linux the configs are just in /etc/wireguard
+	cachedConfigFileDir = root
 	return cachedConfigFileDir, nil
 }
 
@@ -34,12 +29,8 @@ func RootDirectory() (string, error) {
 	if cachedRootDir != "" {
 		return cachedRootDir, nil
 	}
-	root, err := windows.KnownFolderPath(windows.FOLDERID_LocalAppData, windows.KF_FLAG_CREATE)
-	if err != nil {
-		return "", err
-	}
-	c := filepath.Join(root, "WireGuard")
-	err = os.MkdirAll(c, os.ModeDir|0700)
+	c := filepath.Join("/etc", "wireguard")
+	err := os.MkdirAll(c, os.ModeDir|0700)
 	if err != nil {
 		return "", err
 	}

@@ -11,6 +11,24 @@ import (
 	"golang.org/x/sys/windows"
 )
 
+type StoreCallback struct {
+	cb func()
+}
+
+var storeCallbacks = make(map[*StoreCallback]bool)
+
+func RegisterStoreChangeCallback(cb func()) *StoreCallback {
+	startWatchingConfigDir()
+	cb()
+	s := &StoreCallback{cb}
+	storeCallbacks[s] = true
+	return s
+}
+
+func (cb *StoreCallback) Unregister() {
+	delete(storeCallbacks, cb)
+}
+
 const (
 	fncFILE_NAME   uint32 = 0x00000001
 	fncDIR_NAME    uint32 = 0x00000002

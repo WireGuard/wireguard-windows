@@ -11,8 +11,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-
-	"golang.zx2c4.com/wireguard/windows/conf/dpapi"
 )
 
 const configFileSuffix = ".conf.dpapi"
@@ -91,7 +89,7 @@ func MigrateUnencryptedConfigs() (int, []error) {
 			continue
 		}
 
-		bytes, err = dpapi.Encrypt(bytes, strings.TrimSuffix(name, configFileUnencryptedSuffix))
+		bytes, err = platformEnvelope(bytes, strings.TrimSuffix(name, configFileUnencryptedSuffix))
 		if err != nil {
 			errs[e] = err
 			e++
@@ -142,7 +140,7 @@ func LoadFromPath(path string) (*Config, error) {
 		return nil, err
 	}
 	if strings.HasSuffix(path, configFileSuffix) {
-		bytes, err = dpapi.Decrypt(bytes, name)
+		bytes, err = platformUnenvelope(bytes, name)
 		if err != nil {
 			return nil, err
 		}
@@ -181,7 +179,7 @@ func (config *Config) Save() error {
 	}
 	filename := filepath.Join(configFileDir, config.Name+configFileSuffix)
 	bytes := []byte(config.ToWgQuick())
-	bytes, err = dpapi.Encrypt(bytes, config.Name)
+	bytes, err = platformEnvelope(bytes, config.Name)
 	if err != nil {
 		return err
 	}
