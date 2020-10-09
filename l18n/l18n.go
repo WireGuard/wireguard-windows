@@ -8,7 +8,6 @@ package l18n
 import (
 	"sync"
 
-	"golang.org/x/sys/windows"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 )
@@ -35,7 +34,7 @@ func prn() *message.Printer {
 func lang() (tag language.Tag) {
 	tag = language.English
 	confidence := language.No
-	languages, err := windows.GetUserPreferredUILanguages(windows.MUI_LANGUAGE_NAME)
+	languages, err := getUserLanguages()
 	if err != nil {
 		return
 	}
