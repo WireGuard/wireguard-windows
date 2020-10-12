@@ -887,6 +887,7 @@ const (
 	WM_MOUSEHOVER             = 0X2A1
 	WM_MOUSELEAVE             = 0X2A3
 	WM_CLIPBOARDUPDATE        = 0x031D
+	WM_UNICHAR                = 0x0109
 )
 
 const (
