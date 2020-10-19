@@ -48,7 +48,11 @@ func ExtractCertificates(path string) ([]x509.Certificate, error) {
 			break
 		}
 		buf := make([]byte, cert.Length)
-		copy(buf, (*[1 << 20]byte)(unsafe.Pointer(cert.EncodedCert))[:])
+		//TODO: when Go 1.16 or 1.17 comes out, switch to:
+		//    copy(buf, unsafe.Slice(unsafe.Pointer(cert.EncodedCert), len(buf)))
+		for i := range buf {
+			buf[i] = *(*byte)(unsafe.Pointer(uintptr(unsafe.Pointer(cert.EncodedCert)) + uintptr(i)))
+		}
 		if c, err := x509.ParseCertificate(buf); err == nil {
 			certs = append(certs, *c)
 		} else {

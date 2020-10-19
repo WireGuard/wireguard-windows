@@ -107,7 +107,7 @@ func TestAdaptersAddresses(t *testing.T) {
 			i.PhysicalAddress()
 			i.DHCPv6ClientDUID()
 			for dnsSuffix := i.FirstDNSSuffix; dnsSuffix != nil; dnsSuffix = dnsSuffix.Next {
-				dnsSuffix.String()
+				_ = dnsSuffix.String()
 			}
 		}
 	}
