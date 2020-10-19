@@ -22,7 +22,7 @@ import (
 
 //export WireGuardTunnelService
 func WireGuardTunnelService(confFile16 *uint16) bool {
-	confFile := windows.UTF16ToString((*[(1 << 30) - 1]uint16)(unsafe.Pointer(confFile16))[:])
+	confFile := windows.UTF16PtrToString(confFile16)
 	conf.PresetRootDirectory(filepath.Dir(confFile))
 	tunnel.UseFixedGUIDInsteadOfDeterministic = true
 	err := tunnel.Run(confFile)

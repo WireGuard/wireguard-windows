@@ -6,7 +6,6 @@
 package winipcfg
 
 import (
-	"bytes"
 	"net"
 	"unsafe"
 
@@ -581,12 +580,6 @@ const (
 	ScopeLevelCount                   = 16
 )
 
-// Theoretical array index limitations
-const (
-	maxIndexCount8  = (1 << 31) - 1
-	maxIndexCount16 = (1 << 30) - 1
-)
-
 // RouteData structure describes a route to add
 type RouteData struct {
 	Destination net.IPNet
@@ -609,15 +602,7 @@ func (obj *IPAdapterDNSSuffix) String() string {
 // AdapterName method returns the name of the adapter with which these addresses are associated.
 // Unlike an adapter's friendly name, the adapter name returned by AdapterName is permanent and cannot be modified by the user.
 func (addr *IPAdapterAddresses) AdapterName() string {
-	if addr.adapterName == nil {
-		return ""
-	}
-	slice := (*(*[maxIndexCount8]uint8)(unsafe.Pointer(addr.adapterName)))[:]
-	null := bytes.IndexByte(slice, 0)
-	if null != -1 {
-		slice = slice[:null]
-	}
-	return string(slice)
+	return windows.BytePtrToString(addr.adapterName)
 }
 
 // DNSSuffix method returns adapter DNS suffix associated with this adapter.
@@ -625,7 +610,7 @@ func (addr *IPAdapterAddresses) DNSSuffix() string {
 	if addr.dnsSuffix == nil {
 		return ""
 	}
-	return windows.UTF16ToString((*(*[maxIndexCount16]uint16)(unsafe.Pointer(addr.dnsSuffix)))[:])
+	return windows.UTF16PtrToString(addr.dnsSuffix)
 }
 
 // Description method returns description for the adapter.
@@ -633,7 +618,7 @@ func (addr *IPAdapterAddresses) Description() string {
 	if addr.description == nil {
 		return ""
 	}
-	return windows.UTF16ToString((*(*[maxIndexCount16]uint16)(unsafe.Pointer(addr.description)))[:])
+	return windows.UTF16PtrToString(addr.description)
 }
 
 // FriendlyName method returns a user-friendly name for the adapter. For example: "Local Area Connection 1."
@@ -642,7 +627,7 @@ func (addr *IPAdapterAddresses) FriendlyName() string {
 	if addr.friendlyName == nil {
 		return ""
 	}
-	return windows.UTF16ToString((*(*[maxIndexCount16]uint16)(unsafe.Pointer(addr.friendlyName)))[:])
+	return windows.UTF16PtrToString(addr.friendlyName)
 }
 
 // PhysicalAddress method returns the Media Access Control (MAC) address for the adapter.
@@ -693,9 +678,9 @@ func (row *MibIPInterfaceRow) Set() error {
 }
 
 // get method returns all table rows as a Go slice.
-func (tab *mibIPInterfaceTable) get() []MibIPInterfaceRow {
-	const maxCount = maxIndexCount8 / unsafe.Sizeof(MibIPInterfaceRow{})
-	return (*[maxCount]MibIPInterfaceRow)(unsafe.Pointer(&tab.table[0]))[:tab.numEntries]
+func (tab *mibIPInterfaceTable) get() (s []MibIPInterfaceRow) {
+	unsafeSlice(unsafe.Pointer(&s), unsafe.Pointer(&tab.table[0]), int(tab.numEntries))
+	return
 }
 
 // free method frees the buffer allocated by the functions that return tables of network interfaces, addresses, and routes.
@@ -731,9 +716,9 @@ func (row *MibIfRow2) get() (ret error) {
 }
 
 // get method returns all table rows as a Go slice.
-func (tab *mibIfTable2) get() []MibIfRow2 {
-	const maxCount = maxIndexCount8 / unsafe.Sizeof(MibIfRow2{})
-	return (*[maxCount]MibIfRow2)(unsafe.Pointer(&tab.table[0]))[:tab.numEntries]
+func (tab *mibIfTable2) get() (s []MibIfRow2) {
+	unsafeSlice(unsafe.Pointer(&s), unsafe.Pointer(&tab.table[0]), int(tab.numEntries))
+	return
 }
 
 // free method frees the buffer allocated by the functions that return tables of network interfaces, addresses, and routes.
@@ -821,9 +806,9 @@ func (row *MibUnicastIPAddressRow) Delete() error {
 }
 
 // get method returns all table rows as a Go slice.
-func (tab *mibUnicastIPAddressTable) get() []MibUnicastIPAddressRow {
-	const maxCount = maxIndexCount8 / unsafe.Sizeof(MibUnicastIPAddressRow{})
-	return (*[maxCount]MibUnicastIPAddressRow)(unsafe.Pointer(&tab.table[0]))[:tab.numEntries]
+func (tab *mibUnicastIPAddressTable) get() (s []MibUnicastIPAddressRow) {
+	unsafeSlice(unsafe.Pointer(&s), unsafe.Pointer(&tab.table[0]), int(tab.numEntries))
+	return
 }
 
 // free method frees the buffer allocated by the functions that return tables of network interfaces, addresses, and routes.
@@ -851,9 +836,9 @@ func (row *MibAnycastIPAddressRow) Delete() error {
 }
 
 // get method returns all table rows as a Go slice.
-func (tab *mibAnycastIPAddressTable) get() []MibAnycastIPAddressRow {
-	const maxCount = maxIndexCount8 / unsafe.Sizeof(MibAnycastIPAddressRow{})
-	return (*[maxCount]MibAnycastIPAddressRow)(unsafe.Pointer(&tab.table[0]))[:tab.numEntries]
+func (tab *mibAnycastIPAddressTable) get() (s []MibAnycastIPAddressRow) {
+	unsafeSlice(unsafe.Pointer(&s), unsafe.Pointer(&tab.table[0]), int(tab.numEntries))
+	return
 }
 
 // free method frees the buffer allocated by the functions that return tables of network interfaces, addresses, and routes.
@@ -944,13 +929,31 @@ func (row *MibIPforwardRow2) Delete() error {
 }
 
 // get method returns all table rows as a Go slice.
-func (tab *mibIPforwardTable2) get() []MibIPforwardRow2 {
-	const maxCount = maxIndexCount8 / unsafe.Sizeof(MibIPforwardRow2{})
-	return (*[maxCount]MibIPforwardRow2)(unsafe.Pointer(&tab.table[0]))[:tab.numEntries]
+func (tab *mibIPforwardTable2) get() (s []MibIPforwardRow2) {
+	unsafeSlice(unsafe.Pointer(&s), unsafe.Pointer(&tab.table[0]), int(tab.numEntries))
+	return
 }
 
 // free method frees the buffer allocated by the functions that return tables of network interfaces, addresses, and routes.
 // https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-freemibtable
 func (tab *mibIPforwardTable2) free() {
 	freeMibTable(unsafe.Pointer(tab))
+}
+
+// unsafeSlice updates the slice slicePtr to be a slice
+// referencing the provided data with its length & capacity set to
+// lenCap.
+//
+// TODO: when Go 1.16 or Go 1.17 is the minimum supported version,
+// update callers to use unsafe.Slice instead of this.
+func unsafeSlice(slicePtr, data unsafe.Pointer, lenCap int) {
+	type sliceHeader struct {
+		Data unsafe.Pointer
+		Len  int
+		Cap  int
+	}
+	h := (*sliceHeader)(slicePtr)
+	h.Data = data
+	h.Len = lenCap
+	h.Cap = lenCap
 }
