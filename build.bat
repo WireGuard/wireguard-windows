@@ -1,6 +1,6 @@
 @echo off
 rem SPDX-License-Identifier: MIT
-rem Copyright (C) 2019 WireGuard LLC. All Rights Reserved.
+rem Copyright (C) 2019-2020 WireGuard LLC. All Rights Reserved.
 
 setlocal enabledelayedexpansion
 set BUILDDIR=%~dp0
@@ -25,6 +25,7 @@ if exist .deps\prepared goto :render
 	call :download wireguard-tools.zip https://git.zx2c4.com/wireguard-tools/snapshot/wireguard-tools-1.0.20200319.zip f0f186924b67696e5dac6020270b0ac27fd7d96b4976605d1cded405d27b2f54 "--exclude wg-quick --strip-components 1" || goto :error
 	rem Mirror of https://sourceforge.net/projects/gnuwin32/files/patch/2.5.9-7/patch-2.5.9-7-bin.zip with fixed manifest
 	call :download patch.zip https://download.wireguard.com/windows-toolchain/distfiles/patch-2.5.9-7-bin-fixed-manifest.zip 25977006ca9713f2662a5d0a2ed3a5a138225b8be3757035bd7da9dcf985d0a1 "--strip-components 1 bin" || goto :error
+	call :download wintun.zip https://www.wintun.net/builds/wintun-0.9.zip 69afc860c9e5b5579f09847aeb9ac7b5190ec8ff6f21b6ec799f80351f19d1dd || goto :error
 	echo [+] Patching go
 	for %%a in ("..\go-patches\*.patch") do .\patch.exe -f -N -r- -d go -p1 --binary < "%%a" || goto :error
 	copy /y NUL prepared > NUL || goto :error
@@ -78,7 +79,7 @@ if exist .deps\prepared goto :render
 	set GOARCH=%~3
 	mkdir %1 >NUL 2>&1
 	echo [+] Assembling resources %1
-	windres -i resources.rc -o resources.syso -O coff || exit /b %errorlevel%
+	windres -I ".deps\wintun\bin\%~1" -i resources.rc -o "resources_%~3.syso" -O coff || exit /b %errorlevel%
 	echo [+] Building program %1
 	go build -ldflags="-H windowsgui -s -w" -tags walk_use_cgo -trimpath -v -o "%~1\wireguard.exe" || exit /b 1
 	if not exist "%~1\wg.exe" (
