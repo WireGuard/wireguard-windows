@@ -7,7 +7,7 @@ set PATHEXT=.exe
 set BUILDDIR=%~dp0
 cd /d %BUILDDIR% || exit /b 1
 
-for /f "tokens=3" %%a in ('findstr /r "WIREGUARD_WINDOWS_VERSION_STRING.*[0-9.]*" ..\version\version.h') do set WIREGUARD_VERSION=%%a
+for /f "tokens=3" %%a in ('findstr /r "Number.*=.*[0-9.]*" ..\version\version.go') do set WIREGUARD_VERSION=%%a
 set WIREGUARD_VERSION=%WIREGUARD_VERSION:"=%
 
 set WIX_CANDLE_FLAGS=-nologo -dWIREGUARD_VERSION="%WIREGUARD_VERSION%"

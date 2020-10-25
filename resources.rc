@@ -4,9 +4,11 @@
  */
 
 #include <windows.h>
-#include "version/version.h"
 
 #pragma code_page(65001) // UTF-8
+
+#define STRINGIZE(x) #x
+#define EXPAND(x) STRINGIZE(x)
 
 LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST manifest.xml
@@ -28,12 +30,12 @@ BEGIN \
     BEGIN \
       VALUE "CompanyName", "WireGuard LLC" \
       VALUE "FileDescription", file_desc \
-      VALUE "FileVersion", WIREGUARD_WINDOWS_VERSION_STRING \
+      VALUE "FileVersion", EXPAND(WIREGUARD_WINDOWS_VERSION_STR) \
       VALUE "InternalName", "wireguard-windows" \
       VALUE "LegalCopyright", "Copyright © 2015-2020 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved." \
       VALUE "OriginalFilename", "wireguard.exe" \
       VALUE "ProductName", "WireGuard" \
-      VALUE "ProductVersion", WIREGUARD_WINDOWS_VERSION_STRING \
+      VALUE "ProductVersion", EXPAND(WIREGUARD_WINDOWS_VERSION_STR) \
       VALUE "Comments", comments \
     END \
   END \
