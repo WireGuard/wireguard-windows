@@ -36,6 +36,8 @@ if exist .deps\prepared goto :render
 	for %%a in ("ui\icon\*.svg") do convert -background none "%%~fa" -define icon:auto-resize="256,192,128,96,64,48,32,24,16" "%%~dpna.ico" || goto :error
 
 :build
+	for /f "tokens=3" %%a in ('findstr /r "Number.*=.*[0-9.]*" .\version\version.go') do set WIREGUARD_VERSION=%%a
+	set WIREGUARD_VERSION=%WIREGUARD_VERSION:"=%
 	set GOOS=windows
 	set GOPATH=%BUILDDIR%.deps\gopath
 	set GOROOT=%BUILDDIR%.deps\go
@@ -79,7 +81,7 @@ if exist .deps\prepared goto :render
 	set GOARCH=%~3
 	mkdir %1 >NUL 2>&1
 	echo [+] Assembling resources %1
-	windres -I ".deps\wintun\bin\%~1" -i resources.rc -o "resources_%~3.syso" -O coff || exit /b %errorlevel%
+	windres -I ".deps\wintun\bin\%~1" -DWIREGUARD_WINDOWS_VERSION_ARRAY=%WIREGUARD_VERSION:.=,% -DWIREGUARD_WINDOWS_VERSION_STR=%WIREGUARD_VERSION% -i resources.rc -o "resources_%~3.syso" -O coff || exit /b %errorlevel%
 	echo [+] Building program %1
 	go build -ldflags="-H windowsgui -s -w" -tags walk_use_cgo -trimpath -v -o "%~1\wireguard.exe" || exit /b 1
 	if not exist "%~1\wg.exe" (
