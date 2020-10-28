@@ -279,7 +279,7 @@ err:
 
 func (dlg *EditDialog) onBlockUntunneledTrafficStateChanged(state int) {
 	dlg.blockUntunneledTraficCheckGuard = true
-	switch state {
+	switch syntax.BlockState(state) {
 	case syntax.InevaluableBlockingUntunneledTraffic:
 		dlg.blockUntunneledTrafficCB.SetVisible(false)
 	case syntax.BlockingUntunneledTraffic:
