@@ -52,6 +52,9 @@ if exist .deps\prepared goto :render
 	call :build_plat x86 i686 386 || goto :error
 	set CGO_LDFLAGS=%CGO_LDFLAGS% -Wl,--high-entropy-va
 	call :build_plat amd64 x86_64 amd64 || goto :error
+	set CGO_ENABLED=0
+	set GOARM=7
+	call :build_plat arm arm arm || goto :error
 
 :sign
 	if exist .\sign.bat call .\sign.bat

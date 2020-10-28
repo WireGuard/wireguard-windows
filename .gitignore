@@ -4,6 +4,7 @@
 # Build Output
 /x86
 /amd64
+/arm
 
 # Misc
 /locales/*/out.gotext.json
