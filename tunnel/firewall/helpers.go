@@ -66,9 +66,9 @@ func wrapErr(err error) error {
 	}
 	_, file, line, ok := runtime.Caller(1)
 	if !ok {
-		return fmt.Errorf("Firewall error at unknown location: %v", err)
+		return fmt.Errorf("Firewall error at unknown location: %w", err)
 	}
-	return fmt.Errorf("Firewall error at %s:%d: %v", file, line, err)
+	return fmt.Errorf("Firewall error at %s:%d: %w", file, line, err)
 }
 
 func getCurrentProcessSecurityDescriptor() (*windows.SECURITY_DESCRIPTOR, error) {

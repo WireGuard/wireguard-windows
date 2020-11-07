@@ -30,7 +30,7 @@ func runNetsh(cmds []string) error {
 
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
-		return fmt.Errorf("runNetsh stdin pipe - %v", err)
+		return fmt.Errorf("runNetsh stdin pipe - %w", err)
 	}
 	go func() {
 		defer stdin.Close()
@@ -38,7 +38,7 @@ func runNetsh(cmds []string) error {
 	}()
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("runNetsh run - %v", err)
+		return fmt.Errorf("runNetsh run - %w", err)
 	}
 	// Horrible kludges, sorry.
 	cleaned := bytes.ReplaceAll(output, []byte("netsh>"), []byte{})

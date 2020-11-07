@@ -447,7 +447,7 @@ func NewSyntaxEdit(parent walk.Container) (*SyntaxEdit, error) {
 	const LOAD_LIBRARY_SEARCH_SYSTEM32 = 0x00000800
 	_, err := windows.LoadLibraryEx("msftedit.dll", 0, LOAD_LIBRARY_SEARCH_SYSTEM32)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to load msftedit.dll: %v", err)
+		return nil, fmt.Errorf("Failed to load msftedit.dll: %w", err)
 	}
 
 	se := &SyntaxEdit{}

@@ -387,16 +387,16 @@ func (tp *TunnelsPage) exportTunnels(filePath string) {
 		for _, tunnel := range tp.listView.model.tunnels {
 			cfg, err := tunnel.StoredConfig()
 			if err != nil {
-				return fmt.Errorf("onExportTunnels: tunnel.StoredConfig failed: %v", err)
+				return fmt.Errorf("onExportTunnels: tunnel.StoredConfig failed: %w", err)
 			}
 
 			w, err := writer.Create(tunnel.Name + ".conf")
 			if err != nil {
-				return fmt.Errorf("onExportTunnels: writer.Create failed: %v", err)
+				return fmt.Errorf("onExportTunnels: writer.Create failed: %w", err)
 			}
 
 			if _, err := w.Write(([]byte)(cfg.ToWgQuick())); err != nil {
-				return fmt.Errorf("onExportTunnels: cfg.ToWgQuick failed: %v", err)
+				return fmt.Errorf("onExportTunnels: cfg.ToWgQuick failed: %w", err)
 			}
 		}
 

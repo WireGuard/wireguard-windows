@@ -158,7 +158,7 @@ func trackTunnelService(tunnelName string, service *mgr.Service) {
 			trackedTunnelsLock.Lock()
 			trackedTunnels[tunnelName] = TunnelStopped
 			trackedTunnelsLock.Unlock()
-			IPCServerNotifyTunnelChange(tunnelName, TunnelStopped, fmt.Errorf("Unable to continue monitoring service, so stopping: %v", err))
+			IPCServerNotifyTunnelChange(tunnelName, TunnelStopped, fmt.Errorf("Unable to continue monitoring service, so stopping: %w", err))
 			service.Control(svc.Stop)
 			return
 		}

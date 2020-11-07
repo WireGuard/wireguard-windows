@@ -433,23 +433,23 @@ func (luid LUID) SetDNSForFamily(family AddressFamily, dnses []net.IP) error {
 func (luid LUID) SetDNSDomain(domain string) error {
 	guid, err := luid.GUID()
 	if err != nil {
-		return fmt.Errorf("Error converting luid to guid: %v", err)
+		return fmt.Errorf("Error converting luid to guid: %w", err)
 	}
 	key, err := registry.OpenKey(registry.LOCAL_MACHINE, fmt.Sprintf("SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Adapters\\%v", guid), registry.QUERY_VALUE)
 	if err != nil {
-		return fmt.Errorf("Error opening adapter-specific TCP/IP network registry key: %v", err)
+		return fmt.Errorf("Error opening adapter-specific TCP/IP network registry key: %w", err)
 	}
 	paths, _, err := key.GetStringsValue("IpConfig")
 	key.Close()
 	if err != nil {
-		return fmt.Errorf("Error reading IpConfig registry key: %v", err)
+		return fmt.Errorf("Error reading IpConfig registry key: %w", err)
 	}
 	if len(paths) == 0 {
 		return errors.New("No TCP/IP interfaces found on adapter")
 	}
 	key, err = registry.OpenKey(registry.LOCAL_MACHINE, fmt.Sprintf("SYSTEM\\CurrentControlSet\\Services\\%s", paths[0]), registry.SET_VALUE)
 	if err != nil {
-		return fmt.Errorf("Unable to open TCP/IP network registry key: %v", err)
+		return fmt.Errorf("Unable to open TCP/IP network registry key: %w", err)
 	}
 	err = key.SetStringValue("Domain", domain)
 	key.Close()
