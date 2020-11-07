@@ -1775,6 +1775,7 @@ var (
 	createWindowEx              *windows.LazyProc
 	deferWindowPos              *windows.LazyProc
 	defWindowProc               *windows.LazyProc
+	deleteMenu                  *windows.LazyProc
 	destroyIcon                 *windows.LazyProc
 	destroyMenu                 *windows.LazyProc
 	destroyWindow               *windows.LazyProc
@@ -1785,6 +1786,7 @@ var (
 	drawFocusRect               *windows.LazyProc
 	drawTextEx                  *windows.LazyProc
 	emptyClipboard              *windows.LazyProc
+	enableMenuItem              *windows.LazyProc
 	enableWindow                *windows.LazyProc
 	endDeferWindowPos           *windows.LazyProc
 	endDialog                   *windows.LazyProc
@@ -1806,12 +1808,17 @@ var (
 	getForegroundWindow         *windows.LazyProc
 	getIconInfo                 *windows.LazyProc
 	getKeyState                 *windows.LazyProc
+	getMenuCheckMarkDimensions  *windows.LazyProc
 	getMenuInfo                 *windows.LazyProc
+	getMenuItemCount            *windows.LazyProc
+	getMenuItemID               *windows.LazyProc
+	getMenuItemInfo             *windows.LazyProc
 	getMessage                  *windows.LazyProc
 	getMonitorInfo              *windows.LazyProc
 	getParent                   *windows.LazyProc
 	getRawInputData             *windows.LazyProc
 	getScrollInfo               *windows.LazyProc
+	getSubMenu                  *windows.LazyProc
 	getSysColor                 *windows.LazyProc
 	getSysColorBrush            *windows.LazyProc
 	getSystemMenu               *windows.LazyProc
@@ -1848,6 +1855,7 @@ var (
 	peekMessage                 *windows.LazyProc
 	postMessage                 *windows.LazyProc
 	postQuitMessage             *windows.LazyProc
+	redrawWindow                *windows.LazyProc
 	registerClassEx             *windows.LazyProc
 	registerRawInputDevices     *windows.LazyProc
 	registerWindowMessage       *windows.LazyProc
@@ -1868,6 +1876,7 @@ var (
 	setMenu                     *windows.LazyProc
 	setMenuDefaultItem          *windows.LazyProc
 	setMenuInfo                 *windows.LazyProc
+	setMenuItemBitmaps          *windows.LazyProc
 	setMenuItemInfo             *windows.LazyProc
 	setParent                   *windows.LazyProc
 	setRect                     *windows.LazyProc
@@ -1881,6 +1890,7 @@ var (
 	showWindow                  *windows.LazyProc
 	systemParametersInfo        *windows.LazyProc
 	trackMouseEvent             *windows.LazyProc
+	trackPopupMenu              *windows.LazyProc
 	trackPopupMenuEx            *windows.LazyProc
 	translateMessage            *windows.LazyProc
 	unhookWinEvent              *windows.LazyProc
@@ -1915,6 +1925,7 @@ func init() {
 	createWindowEx = libuser32.NewProc("CreateWindowExW")
 	deferWindowPos = libuser32.NewProc("DeferWindowPos")
 	defWindowProc = libuser32.NewProc("DefWindowProcW")
+	deleteMenu = libuser32.NewProc("DeleteMenu")
 	destroyIcon = libuser32.NewProc("DestroyIcon")
 	destroyMenu = libuser32.NewProc("DestroyMenu")
 	destroyWindow = libuser32.NewProc("DestroyWindow")
@@ -1925,6 +1936,7 @@ func init() {
 	drawMenuBar = libuser32.NewProc("DrawMenuBar")
 	drawTextEx = libuser32.NewProc("DrawTextExW")
 	emptyClipboard = libuser32.NewProc("EmptyClipboard")
+	enableMenuItem = libuser32.NewProc("EnableMenuItem")
 	enableWindow = libuser32.NewProc("EnableWindow")
 	endDeferWindowPos = libuser32.NewProc("EndDeferWindowPos")
 	endDialog = libuser32.NewProc("EndDialog")
@@ -1946,12 +1958,17 @@ func init() {
 	getForegroundWindow = libuser32.NewProc("GetForegroundWindow")
 	getIconInfo = libuser32.NewProc("GetIconInfo")
 	getKeyState = libuser32.NewProc("GetKeyState")
+	getMenuCheckMarkDimensions = libuser32.NewProc("GetMenuCheckMarkDimensions")
 	getMenuInfo = libuser32.NewProc("GetMenuInfo")
+	getMenuItemCount = libuser32.NewProc("GetMenuItemCount")
+	getMenuItemID = libuser32.NewProc("GetMenuItemID")
+	getMenuItemInfo = libuser32.NewProc("GetMenuItemInfoW")
 	getMessage = libuser32.NewProc("GetMessageW")
 	getMonitorInfo = libuser32.NewProc("GetMonitorInfoW")
 	getParent = libuser32.NewProc("GetParent")
 	getRawInputData = libuser32.NewProc("GetRawInputData")
 	getScrollInfo = libuser32.NewProc("GetScrollInfo")
+	getSubMenu = libuser32.NewProc("GetSubMenu")
 	getSysColor = libuser32.NewProc("GetSysColor")
 	getSysColorBrush = libuser32.NewProc("GetSysColorBrush")
 	getSystemMenu = libuser32.NewProc("GetSystemMenu")
@@ -1993,6 +2010,7 @@ func init() {
 	peekMessage = libuser32.NewProc("PeekMessageW")
 	postMessage = libuser32.NewProc("PostMessageW")
 	postQuitMessage = libuser32.NewProc("PostQuitMessage")
+	redrawWindow = libuser32.NewProc("RedrawWindow")
 	registerClassEx = libuser32.NewProc("RegisterClassExW")
 	registerRawInputDevices = libuser32.NewProc("RegisterRawInputDevices")
 	registerWindowMessage = libuser32.NewProc("RegisterWindowMessageW")
@@ -2013,6 +2031,7 @@ func init() {
 	setMenu = libuser32.NewProc("SetMenu")
 	setMenuDefaultItem = libuser32.NewProc("SetMenuDefaultItem")
 	setMenuInfo = libuser32.NewProc("SetMenuInfo")
+	setMenuItemBitmaps = libuser32.NewProc("SetMenuItemBitmaps")
 	setMenuItemInfo = libuser32.NewProc("SetMenuItemInfoW")
 	setRect = libuser32.NewProc("SetRect")
 	setParent = libuser32.NewProc("SetParent")
@@ -2031,6 +2050,7 @@ func init() {
 	showWindow = libuser32.NewProc("ShowWindow")
 	systemParametersInfo = libuser32.NewProc("SystemParametersInfoW")
 	trackMouseEvent = libuser32.NewProc("TrackMouseEvent")
+	trackPopupMenu = libuser32.NewProc("TrackPopupMenu")
 	trackPopupMenuEx = libuser32.NewProc("TrackPopupMenuEx")
 	translateMessage = libuser32.NewProc("TranslateMessage")
 	unhookWinEvent = libuser32.NewProc("UnhookWinEvent")
@@ -2252,6 +2272,15 @@ func DefWindowProc(hWnd HWND, Msg uint32, wParam, lParam uintptr) uintptr {
 	return ret
 }
 
+func DeleteMenu(hMenu HMENU, uPosition uint32, uFlags uint32) bool {
+	ret, _, _ := syscall.Syscall(deleteMenu.Addr(), 3,
+		uintptr(hMenu),
+		uintptr(uPosition),
+		uintptr(uFlags))
+
+	return ret != 0
+}
+
 func DestroyIcon(hIcon HICON) bool {
 	ret, _, _ := syscall.Syscall(destroyIcon.Addr(), 1,
 		uintptr(hIcon),
@@ -2350,6 +2379,15 @@ func EmptyClipboard() bool {
 		0,
 		0,
 		0)
+
+	return ret != 0
+}
+
+func EnableMenuItem(hMenu HMENU, uIDEnableItem uint32, uEnable uint32) bool {
+	ret, _, _ := syscall.Syscall(enableMenuItem.Addr(), 3,
+		uintptr(hMenu),
+		uintptr(uIDEnableItem),
+		uintptr(uEnable))
 
 	return ret != 0
 }
@@ -2552,10 +2590,49 @@ func GetKeyState(nVirtKey int32) int16 {
 	return int16(ret)
 }
 
+func GetMenuCheckMarkDimensions() int32 {
+	ret, _, _ := syscall.Syscall(getMenuCheckMarkDimensions.Addr(), 0,
+		0,
+		0,
+		0)
+
+	return int32(ret)
+}
+
 func GetMenuInfo(hmenu HMENU, lpcmi *MENUINFO) bool {
 	ret, _, _ := syscall.Syscall(getMenuInfo.Addr(), 2,
 		uintptr(hmenu),
 		uintptr(unsafe.Pointer(lpcmi)),
+		0)
+
+	return ret != 0
+}
+
+func GetMenuItemCount(hMenu HMENU) int32 {
+	ret, _, _ := syscall.Syscall(getMenuItemCount.Addr(), 1,
+		uintptr(hMenu),
+		0,
+		0)
+
+	return int32(ret)
+}
+
+func GetMenuItemID(hMenu HMENU, nPos int32) uint32 {
+	ret, _, _ := syscall.Syscall(getMenuItemID.Addr(), 2,
+		uintptr(hMenu),
+		uintptr(nPos),
+		0)
+
+	return uint32(ret)
+}
+
+func GetMenuItemInfo(hmenu HMENU, item uint32, fByPosition BOOL, lpmii *MENUITEMINFO) bool {
+	ret, _, _ := syscall.Syscall6(getMenuItemInfo.Addr(), 4,
+		uintptr(hmenu),
+		uintptr(item),
+		uintptr(fByPosition),
+		uintptr(unsafe.Pointer(lpmii)),
+		0,
 		0)
 
 	return ret != 0
@@ -2610,6 +2687,15 @@ func GetScrollInfo(hwnd HWND, fnBar int32, lpsi *SCROLLINFO) bool {
 		uintptr(unsafe.Pointer(lpsi)))
 
 	return ret != 0
+}
+
+func GetSubMenu(hMenu HMENU, nPos int32) HMENU {
+	ret, _, _ := syscall.Syscall(getSubMenu.Addr(), 2,
+		uintptr(hMenu),
+		uintptr(nPos),
+		0)
+
+	return HMENU(ret)
 }
 
 func GetSysColor(nIndex int) uint32 {
@@ -2964,6 +3050,38 @@ func PostQuitMessage(exitCode int32) {
 		0)
 }
 
+const (
+	// RedrawWindow() flags
+	RDW_INVALIDATE    = 0x0001
+	RDW_INTERNALPAINT = 0x0002
+	RDW_ERASE         = 0x0004
+
+	RDW_VALIDATE        = 0x0008
+	RDW_NOINTERNALPAINT = 0x0010
+	RDW_NOERASE         = 0x0020
+
+	RDW_NOCHILDREN  = 0x0040
+	RDW_ALLCHILDREN = 0x0080
+
+	RDW_UPDATENOW = 0x0100
+	RDW_ERASENOW  = 0x0200
+
+	RDW_FRAME   = 0x0400
+	RDW_NOFRAME = 0x0800
+)
+
+func RedrawWindow(hWnd HWND, lprcUpdate *RECT, hrgnUpdate HRGN, flags uint32) bool {
+	ret, _, _ := syscall.Syscall6(redrawWindow.Addr(), 4,
+		uintptr(hWnd),
+		uintptr(unsafe.Pointer(lprcUpdate)),
+		uintptr(hrgnUpdate),
+		uintptr(flags),
+		0,
+		0)
+
+	return ret != 0
+}
+
 func RegisterClassEx(windowClass *WNDCLASSEX) ATOM {
 	ret, _, _ := syscall.Syscall(registerClassEx.Addr(), 1,
 		uintptr(unsafe.Pointer(windowClass)),
@@ -3151,6 +3269,18 @@ func SetMenuInfo(hmenu HMENU, lpcmi *MENUINFO) bool {
 	return ret != 0
 }
 
+func SetMenuItemBitmaps(hMenu HMENU, uPosition uint32, uFlags uint32, hBitmapUnchecked HBITMAP, hBitmapChecked HBITMAP) bool {
+	ret, _, _ := syscall.Syscall6(setMenuItemBitmaps.Addr(), 5,
+		uintptr(hMenu),
+		uintptr(uPosition),
+		uintptr(uFlags),
+		uintptr(hBitmapUnchecked),
+		uintptr(hBitmapChecked),
+		0)
+
+	return ret != 0
+}
+
 func SetMenuItemInfo(hMenu HMENU, uItem uint32, fByPosition bool, lpmii *MENUITEMINFO) bool {
 	ret, _, _ := syscall.Syscall6(setMenuItemInfo.Addr(), 4,
 		uintptr(hMenu),
@@ -3298,6 +3428,21 @@ func TrackMouseEvent(lpEventTrack *TRACKMOUSEEVENT) bool {
 		0)
 
 	return ret != 0
+}
+
+func TrackPopupMenu(hMenu HMENU, uFlags uint32, x, y int32, nReserved int32, hWnd HWND, prcRect *RECT) uint32 {
+	ret, _, _ := syscall.Syscall9(trackPopupMenu.Addr(), 7,
+		uintptr(hMenu),
+		uintptr(uFlags),
+		uintptr(x),
+		uintptr(y),
+		uintptr(nReserved),
+		uintptr(hWnd),
+		uintptr(unsafe.Pointer(prcRect)),
+		0,
+		0)
+
+	return uint32(ret)
 }
 
 func TrackPopupMenuEx(hMenu HMENU, fuFlags uint32, x, y int32, hWnd HWND, lptpm *TPMPARAMS) BOOL {
