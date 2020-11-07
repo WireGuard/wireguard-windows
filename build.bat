@@ -38,6 +38,7 @@ if exist .deps\prepared goto :render
 :build
 	for /f "tokens=3" %%a in ('findstr /r "Number.*=.*[0-9.]*" .\version\version.go') do set WIREGUARD_VERSION=%%a
 	set WIREGUARD_VERSION=%WIREGUARD_VERSION:"=%
+	for /f "tokens=1-4" %%a in ("%WIREGUARD_VERSION:.= % 0 0 0") do set WIREGUARD_VERSION_ARRAY=%%a,%%b,%%c,%%d
 	set GOOS=windows
 	set GOPATH=%BUILDDIR%.deps\gopath
 	set GOROOT=%BUILDDIR%.deps\go
@@ -84,7 +85,7 @@ if exist .deps\prepared goto :render
 	set GOARCH=%~3
 	mkdir %1 >NUL 2>&1
 	echo [+] Assembling resources %1
-	windres -I ".deps\wintun\bin\%~1" -DWIREGUARD_WINDOWS_VERSION_ARRAY=%WIREGUARD_VERSION:.=,% -DWIREGUARD_WINDOWS_VERSION_STR=%WIREGUARD_VERSION% -i resources.rc -o "resources_%~3.syso" -O coff || exit /b %errorlevel%
+	windres -I ".deps\wintun\bin\%~1" -DWIREGUARD_VERSION_ARRAY=%WIREGUARD_VERSION_ARRAY% -DWIREGUARD_VERSION_STR=%WIREGUARD_VERSION% -i resources.rc -o "resources_%~3.syso" -O coff || exit /b %errorlevel%
 	echo [+] Building program %1
 	go build -ldflags="-H windowsgui -s -w" -tags walk_use_cgo -trimpath -v -o "%~1\wireguard.exe" || exit /b 1
 	if not exist "%~1\wg.exe" (

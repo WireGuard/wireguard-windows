@@ -75,7 +75,7 @@ func iconForState(state manager.TunnelState, size int) (icon *walk.Icon, err err
 	case manager.TunnelStarted:
 		icon, err = loadSystemIcon("imageres", 101, size)
 	case manager.TunnelStopped:
-		icon, err = walk.NewIconFromResourceWithSize("dot-gray.ico", walk.Size{size, size}) // TODO: replace with real icon
+		icon, err = walk.NewIconFromResourceIdWithSize(8, walk.Size{size, size}) // TODO: replace with real icon from imageres/shell32
 	default:
 		icon, err = loadSystemIcon("shell32", 238, size) // TODO: this doesn't look that great overlayed on the app icon
 	}
@@ -128,7 +128,7 @@ func loadLogoIcon(size int) (icon *walk.Icon, err error) {
 	if icon != nil {
 		return
 	}
-	icon, err = walk.NewIconFromResourceWithSize("$wireguard.ico", walk.Size{size, size})
+	icon, err = walk.NewIconFromResourceIdWithSize(7, walk.Size{size, size})
 	if err == nil {
 		cachedLogoIconsForWidth[size] = icon
 	}

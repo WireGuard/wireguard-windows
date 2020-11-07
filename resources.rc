@@ -12,14 +12,14 @@
 
 LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST manifest.xml
-$wireguard.ico ICON ui/icon/wireguard.ico
-dot-gray.ico ICON ui/icon/dot-gray.ico
+7 ICON ui/icon/wireguard.ico
+8 ICON ui/icon/dot-gray.ico
 wintun.dll RCDATA wintun.dll
 
 #define VERSIONINFO_TEMPLATE(block_id, lang_id, codepage_id, file_desc, comments) \
 VS_VERSION_INFO VERSIONINFO \
-FILEVERSION    WIREGUARD_WINDOWS_VERSION_ARRAY \
-PRODUCTVERSION WIREGUARD_WINDOWS_VERSION_ARRAY \
+FILEVERSION    WIREGUARD_VERSION_ARRAY \
+PRODUCTVERSION WIREGUARD_VERSION_ARRAY \
 FILEOS         VOS_NT_WINDOWS32 \
 FILETYPE       VFT_APP \
 FILESUBTYPE    VFT2_UNKNOWN \
@@ -30,12 +30,12 @@ BEGIN \
     BEGIN \
       VALUE "CompanyName", "WireGuard LLC" \
       VALUE "FileDescription", file_desc \
-      VALUE "FileVersion", EXPAND(WIREGUARD_WINDOWS_VERSION_STR) \
+      VALUE "FileVersion", EXPAND(WIREGUARD_VERSION_STR) \
       VALUE "InternalName", "wireguard-windows" \
       VALUE "LegalCopyright", "Copyright © 2015-2020 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved." \
       VALUE "OriginalFilename", "wireguard.exe" \
       VALUE "ProductName", "WireGuard" \
-      VALUE "ProductVersion", EXPAND(WIREGUARD_WINDOWS_VERSION_STR) \
+      VALUE "ProductVersion", EXPAND(WIREGUARD_VERSION_STR) \
       VALUE "Comments", comments \
     END \
   END \

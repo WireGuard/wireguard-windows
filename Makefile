@@ -5,8 +5,10 @@ export CGO_LDFLAGS := -Wl,--dynamicbase -Wl,--nxcompat -Wl,--export-all-symbols
 export GOOS := windows
 
 VERSION := $(shell sed -n 's/^\s*Number\s*=\s*"\([0-9.]\+\)"$$/\1/p' version/version.go)
+empty :=
+space := $(empty) $(empty)
 comma := ,
-RCFLAGS := -DWIREGUARD_WINDOWS_VERSION_ARRAY=$(subst .,$(comma),$(VERSION)) -DWIREGUARD_WINDOWS_VERSION_STR=$(VERSION) -O coff
+RCFLAGS := -DWIREGUARD_VERSION_ARRAY=$(subst $(space),$(comma),$(wordlist 1,4,$(subst .,$(space),$(VERSION)) 0 0 0 0)) -DWIREGUARD_VERSION_STR=$(VERSION) -O coff
 
 rwildcard=$(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subst *,%,$2),$d))
 SOURCE_FILES := $(call rwildcard,,*.go *.c *.h) .deps/goroot/prepared go.mod go.sum
@@ -42,7 +44,7 @@ resources_386.syso: $(RESOURCE_FILES)
 	i686-w64-mingw32-windres $(RCFLAGS) -I .deps/wintun/bin/x86 -i $< -o $@
 
 resources_arm.syso: $(RESOURCE_FILES)
-	arm-w64-mingw32-windres $(RCFLAGS) -I .deps/wintun/bin/arm -i $< -o $@
+	armv7-w64-mingw32-windres $(RCFLAGS) -I .deps/wintun/bin/arm -i $< -o $@
 
 amd64/wireguard.exe: export CC := x86_64-w64-mingw32-gcc
 amd64/wireguard.exe: export GOARCH := amd64
@@ -55,7 +57,7 @@ x86/wireguard.exe: export GOARCH := 386
 x86/wireguard.exe: resources_386.syso $(SOURCE_FILES)
 	GOROOT="$(CURDIR)/.deps/goroot" go build $(GOFLAGS) -o $@
 
-arm/wireguard.exe: export CC := arm-w64-mingw32-gcc
+arm/wireguard.exe: export CC := armv7-w64-mingw32-gcc
 arm/wireguard.exe: export GOARCH := arm
 arm/wireguard.exe: export GOARM := 7
 arm/wireguard.exe: resources_arm.syso $(SOURCE_FILES)
