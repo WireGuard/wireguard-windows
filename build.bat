@@ -14,10 +14,8 @@ if exist .deps\prepared goto :render
 	mkdir .deps || goto :error
 	cd .deps || goto :error
 	call :download go.zip https://dl.google.com/go/go1.15.2.windows-amd64.zip e72782cc6de233188c75b06849368826eaa1b8bd9e1cd766db9466a12b7138ca || goto :error
-	rem Mirror of https://musl.cc/i686-w64-mingw32-native.zip
-	call :download mingw-x86.zip https://download.wireguard.com/windows-toolchain/distfiles/i686-w64-mingw32-native-20200907.zip c972c00993727ac9bff83c799f4df65662adb95bc871fa30cfa8857e744a7fbd || goto :error
-	rem Mirror of https://musl.cc/x86_64-w64-mingw32-native.zip
-	call :download mingw-amd64.zip https://download.wireguard.com/windows-toolchain/distfiles/x86_64-w64-mingw32-native-20200907.zip e34fbacbd25b007a8074fc96f7e08f886241e0473a055987ee57483c37567aa5 || goto :error
+	rem Mirror of https://github.com/mstorsjo/llvm-mingw/releases/download/20201020/llvm-mingw-20201020-msvcrt-x86_64.zip
+	call :download llvm-mingw-msvcrt.zip https://download.wireguard.com/windows-toolchain/distfiles/llvm-mingw-20201020-msvcrt-x86_64.zip 2e46593245090df96d15e360e092f0b62b97e93866e0162dca7f93b16722b844 || goto :error
 	rem Mirror of https://imagemagick.org/download/binaries/ImageMagick-7.0.8-42-portable-Q16-x64.zip
 	call :download imagemagick.zip https://download.wireguard.com/windows-toolchain/distfiles/ImageMagick-7.0.8-42-portable-Q16-x64.zip 584e069f56456ce7dde40220948ff9568ac810688c892c5dfb7f6db902aa05aa "convert.exe colors.xml delegates.xml" || goto :error
 	rem Mirror of https://sourceforge.net/projects/ezwinports/files/make-4.2.1-without-guile-w32-bin.zip
@@ -42,9 +40,9 @@ if exist .deps\prepared goto :render
 	set GOOS=windows
 	set GOPATH=%BUILDDIR%.deps\gopath
 	set GOROOT=%BUILDDIR%.deps\go
+	set PATH=%BUILDDIR%.deps\llvm-mingw\bin;%PATH%
 	if "%GoGenerate%"=="yes" (
 		echo [+] Regenerating files
-		set PATH=!BUILDDIR!.deps\x86_64-w64-mingw32-native\bin;!PATH!
 		go generate ./... || exit /b 1
 	)
 	set CGO_ENABLED=1
@@ -55,7 +53,7 @@ if exist .deps\prepared goto :render
 	call :build_plat amd64 x86_64 amd64 || goto :error
 	set CGO_ENABLED=0
 	set GOARM=7
-	call :build_plat arm arm arm || goto :error
+	call :build_plat arm armv7 arm || goto :error
 
 :sign
 	if exist .\sign.bat call .\sign.bat
@@ -80,12 +78,11 @@ if exist .deps\prepared goto :render
 	goto :eof
 
 :build_plat
-	set PATH=%BUILDDIR%.deps\%~2-w64-mingw32-native\bin;%PATH%
 	set CC=%~2-w64-mingw32-gcc
 	set GOARCH=%~3
 	mkdir %1 >NUL 2>&1
 	echo [+] Assembling resources %1
-	windres -I ".deps\wintun\bin\%~1" -DWIREGUARD_VERSION_ARRAY=%WIREGUARD_VERSION_ARRAY% -DWIREGUARD_VERSION_STR=%WIREGUARD_VERSION% -i resources.rc -o "resources_%~3.syso" -O coff || exit /b %errorlevel%
+	%~2-w64-mingw32-windres -I ".deps\wintun\bin\%~1" -DWIREGUARD_VERSION_ARRAY=%WIREGUARD_VERSION_ARRAY% -DWIREGUARD_VERSION_STR=%WIREGUARD_VERSION% -i resources.rc -o "resources_%~3.syso" -O coff || exit /b %errorlevel%
 	echo [+] Building program %1
 	go build -ldflags="-H windowsgui -s -w" -tags walk_use_cgo -trimpath -v -o "%~1\wireguard.exe" || exit /b 1
 	if not exist "%~1\wg.exe" (
