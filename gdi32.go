@@ -765,6 +765,10 @@ const (
 	FR_NOT_ENUM = 0x20
 )
 
+func RGB(r, g, b byte) COLORREF {
+	return COLORREF(r) | (COLORREF(g) << 8) | (COLORREF(b) << 16)
+}
+
 type (
 	COLORREF     uint32
 	HBITMAP      HGDIOBJ
