@@ -1,6 +1,4 @@
-GOFLAGS := -ldflags="-H windowsgui -s -w" -v -tags walk_use_cgo -trimpath
-export CGO_ENABLED := 1
-export CGO_CFLAGS := -O3 -Wall -Wno-unused-function -Wno-switch -std=gnu11 -DWINVER=0x0601
+GOFLAGS := -ldflags="-H windowsgui -s -w" -v -trimpath
 export GOOS := windows
 
 VERSION := $(shell sed -n 's/^\s*Number\s*=\s*"\([0-9.]\+\)"$$/\1/p' version/version.go)
@@ -45,23 +43,19 @@ resources_386.syso: $(RESOURCE_FILES)
 resources_arm.syso: $(RESOURCE_FILES)
 	armv7-w64-mingw32-windres $(RCFLAGS) -I .deps/wintun/bin/arm -i $< -o $@
 
-amd64/wireguard.exe: export CC := x86_64-w64-mingw32-gcc
 amd64/wireguard.exe: export GOARCH := amd64
 amd64/wireguard.exe: resources_amd64.syso $(SOURCE_FILES)
 	GOROOT="$(CURDIR)/.deps/goroot" go build $(GOFLAGS) -o $@
 
-x86/wireguard.exe: export CC := i686-w64-mingw32-gcc
 x86/wireguard.exe: export GOARCH := 386
 x86/wireguard.exe: resources_386.syso $(SOURCE_FILES)
 	GOROOT="$(CURDIR)/.deps/goroot" go build $(GOFLAGS) -o $@
 
-arm/wireguard.exe: export CC := armv7-w64-mingw32-gcc
 arm/wireguard.exe: export GOARCH := arm
 arm/wireguard.exe: export GOARM := 7
 arm/wireguard.exe: resources_arm.syso $(SOURCE_FILES)
 	GOROOT="$(CURDIR)/.deps/goroot" go build $(GOFLAGS) -o $@
 
-remaster: export CC := x86_64-w64-mingw32-gcc
 remaster: export GOARCH := amd64
 remaster: export GOPROXY := direct
 remaster:
@@ -69,13 +63,11 @@ remaster:
 	cp go.mod.master go.mod
 	go get -d
 
-fmt: export CC := x86_64-w64-mingw32-gcc
 fmt: export GOARCH := amd64
 fmt:
 	go fmt ./...
 
 generate: export GOOS :=
-generate: export CGO_ENABLED := 0
 generate:
 	go generate ./...
 
