@@ -780,6 +780,7 @@ type (
 	HPALETTE     HGDIOBJ
 	HPEN         HGDIOBJ
 	HRGN         HGDIOBJ
+	CLIPFORMAT   uint16
 )
 
 type PIXELFORMATDESCRIPTOR struct {
