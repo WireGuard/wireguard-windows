@@ -1,7 +1,6 @@
 GOFLAGS := -ldflags="-H windowsgui -s -w" -v -tags walk_use_cgo -trimpath
 export CGO_ENABLED := 1
 export CGO_CFLAGS := -O3 -Wall -Wno-unused-function -Wno-switch -std=gnu11 -DWINVER=0x0601
-export CGO_LDFLAGS := -Wl,--dynamicbase -Wl,--nxcompat -Wl,--export-all-symbols
 export GOOS := windows
 
 VERSION := $(shell sed -n 's/^\s*Number\s*=\s*"\([0-9.]\+\)"$$/\1/p' version/version.go)
@@ -48,7 +47,6 @@ resources_arm.syso: $(RESOURCE_FILES)
 
 amd64/wireguard.exe: export CC := x86_64-w64-mingw32-gcc
 amd64/wireguard.exe: export GOARCH := amd64
-amd64/wireguard.exe: CGO_LDFLAGS += -Wl,--high-entropy-va
 amd64/wireguard.exe: resources_amd64.syso $(SOURCE_FILES)
 	GOROOT="$(CURDIR)/.deps/goroot" go build $(GOFLAGS) -o $@
 
