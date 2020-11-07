@@ -85,7 +85,7 @@ func DetermineErrorCode(err error, serviceError Error) (bool, uint32) {
 func CombineErrors(err error, serviceError Error) error {
 	if serviceError != ErrorSuccess {
 		if err != nil {
-			return fmt.Errorf("%v: %v", serviceError, err)
+			return fmt.Errorf("%v: %w", serviceError, err)
 		}
 		return serviceError
 	}

@@ -164,7 +164,7 @@ func (lp *LogPage) onSave() {
 
 	writeFileWithOverwriteHandling(form, fd.FilePath, func(file *os.File) error {
 		if _, err := ringlogger.Global.WriteTo(file); err != nil {
-			return fmt.Errorf("exportLog: Ringlogger.WriteTo failed: %v", err)
+			return fmt.Errorf("exportLog: Ringlogger.WriteTo failed: %w", err)
 		}
 
 		return nil
