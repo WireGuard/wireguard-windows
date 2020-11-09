@@ -1,5 +1,6 @@
 GOFLAGS := -ldflags="-H windowsgui -s -w" -v -trimpath
 export GOOS := windows
+export PATH := $(CURDIR)/.deps/go/bin:$(PATH)
 
 VERSION := $(shell sed -n 's/^\s*Number\s*=\s*"\([0-9.]\+\)"$$/\1/p' version/version.go)
 empty :=
@@ -8,7 +9,7 @@ comma := ,
 RCFLAGS := -DWIREGUARD_VERSION_ARRAY=$(subst $(space),$(comma),$(wordlist 1,4,$(subst .,$(space),$(VERSION)) 0 0 0 0)) -DWIREGUARD_VERSION_STR=$(VERSION) -O coff
 
 rwildcard=$(foreach d,$(filter-out .deps,$(wildcard $1*)),$(call rwildcard,$d/,$2) $(filter $(subst *,%,$2),$d))
-SOURCE_FILES := $(call rwildcard,,*.go) .deps/goroot/prepared go.mod go.sum
+SOURCE_FILES := $(call rwildcard,,*.go) .deps/go/prepared go.mod go.sum
 RESOURCE_FILES := resources.rc version/version.go manifest.xml $(patsubst %.svg,%.ico,$(wildcard ui/icon/*.svg)) .deps/wintun/prepared
 
 DEPLOYMENT_HOST ?= winvm
@@ -16,19 +17,28 @@ DEPLOYMENT_PATH ?= Desktop
 
 all: amd64/wireguard.exe x86/wireguard.exe arm/wireguard.exe
 
-.deps/goroot/prepared: $(wildcard go-patches/*.patch)
-	rm -rf .deps/goroot && mkdir -p .deps
-	if ! rsync --exclude=pkg/obj/go-build/trim.txt -aqL $$(go env GOROOT)/ .deps/goroot; then chmod -R +w .deps/goroot; exit 1; fi
-	chmod -R +w .deps/goroot
-	cat $^ | patch -f -N -r- -p1 -d .deps/goroot
+define download =
+.distfiles/$(1):
+	mkdir -p .distfiles
+	if ! curl -L#o $$@.unverified $(2); then rm -f $$@.unverified; exit 1; fi
+	if ! echo "$(3)  $$@.unverified" | sha256sum -c; then rm -f $$@.unverified; exit 1; fi
+	if ! mv $$@.unverified $$@; then rm -f $$@.unverified; exit 1; fi
+endef
+
+$(eval $(call download,go.tar.gz,https://golang.org/dl/go1.15.4.linux-amd64.tar.gz,eb61005f0b932c93b424a3a4eaa67d72196c79129d9a3ea8578047683e2c80d5))
+$(eval $(call download,wintun.zip,https://www.wintun.net/builds/wintun-0.9.zip,69afc860c9e5b5579f09847aeb9ac7b5190ec8ff6f21b6ec799f80351f19d1dd))
+
+.deps/go/prepared: .distfiles/go.tar.gz $(wildcard go-patches/*.patch)
+	mkdir -p .deps
+	tar -C .deps -xzf .distfiles/go.tar.gz
+	chmod -R +w .deps/go
+	cat $(filter %.patch,$^) | patch -f -N -r- -p1 -d .deps/go
+	cd .deps/go/src && GOOS=linux go build -v -o ../pkg/tool/linux_amd64/link cmd/link
 	touch $@
 
-.deps/wintun/prepared:
+.deps/wintun/prepared: .distfiles/wintun.zip
 	mkdir -p .deps
-	curl -L#o .deps/wintun.zip.UNVERIFIED https://www.wintun.net/builds/wintun-0.9.zip
-	echo "69afc860c9e5b5579f09847aeb9ac7b5190ec8ff6f21b6ec799f80351f19d1dd  .deps/wintun.zip.UNVERIFIED" | sha256sum -c
-	mv .deps/wintun.zip.UNVERIFIED .deps/wintun.zip
-	unzip -d .deps .deps/wintun.zip
+	bsdtar -C .deps -xf .distfiles/wintun.zip
 	touch $@
 
 %.ico: %.svg
@@ -45,30 +55,30 @@ resources_arm.syso: $(RESOURCE_FILES)
 
 amd64/wireguard.exe: export GOARCH := amd64
 amd64/wireguard.exe: resources_amd64.syso $(SOURCE_FILES)
-	GOROOT="$(CURDIR)/.deps/goroot" go build $(GOFLAGS) -o $@
+	go build $(GOFLAGS) -o $@
 
 x86/wireguard.exe: export GOARCH := 386
 x86/wireguard.exe: resources_386.syso $(SOURCE_FILES)
-	GOROOT="$(CURDIR)/.deps/goroot" go build $(GOFLAGS) -o $@
+	go build $(GOFLAGS) -o $@
 
 arm/wireguard.exe: export GOARCH := arm
 arm/wireguard.exe: export GOARM := 7
 arm/wireguard.exe: resources_arm.syso $(SOURCE_FILES)
-	GOROOT="$(CURDIR)/.deps/goroot" go build $(GOFLAGS) -o $@
+	go build $(GOFLAGS) -o $@
 
 remaster: export GOARCH := amd64
 remaster: export GOPROXY := direct
-remaster:
+remaster: .deps/go/prepared
 	rm -f go.sum go.mod
 	cp go.mod.master go.mod
 	go get -d
 
 fmt: export GOARCH := amd64
-fmt:
+fmt: .deps/go/prepared
 	go fmt ./...
 
 generate: export GOOS :=
-generate:
+generate: .deps/go/prepared
 	go generate ./...
 
 crowdin:
@@ -84,4 +94,7 @@ deploy: amd64/wireguard.exe
 clean:
 	rm -rf *.syso ui/icon/*.ico x86/ amd64/ arm/ .deps
 
-.PHONY: deploy clean fmt remaster generate all
+distclean: clean
+	rm -rf .distfiles
+
+.PHONY: deploy clean distclean fmt remaster generate all
