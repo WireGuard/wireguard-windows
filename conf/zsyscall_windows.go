@@ -19,6 +19,7 @@ const (
 
 var (
 	errERROR_IO_PENDING error = syscall.Errno(errnoERROR_IO_PENDING)
+	errERROR_EINVAL     error = syscall.EINVAL
 )
 
 // errnoErr returns common boxed Errno values, to prevent
@@ -26,7 +27,7 @@ var (
 func errnoErr(e syscall.Errno) error {
 	switch e {
 	case 0:
-		return nil
+		return errERROR_EINVAL
 	case errnoERROR_IO_PENDING:
 		return errERROR_IO_PENDING
 	}
@@ -37,35 +38,23 @@ func errnoErr(e syscall.Errno) error {
 }
 
 var (
-	modwininet  = windows.NewLazySystemDLL("wininet.dll")
 	modkernel32 = windows.NewLazySystemDLL("kernel32.dll")
+	modwininet  = windows.NewLazySystemDLL("wininet.dll")
 
-	procInternetGetConnectedState    = modwininet.NewProc("InternetGetConnectedState")
 	procFindFirstChangeNotificationW = modkernel32.NewProc("FindFirstChangeNotificationW")
 	procFindNextChangeNotification   = modkernel32.NewProc("FindNextChangeNotification")
+	procInternetGetConnectedState    = modwininet.NewProc("InternetGetConnectedState")
 )
-
-func internetGetConnectedState(flags *uint32, reserved uint32) (connected bool) {
-	r0, _, _ := syscall.Syscall(procInternetGetConnectedState.Addr(), 2, uintptr(unsafe.Pointer(flags)), uintptr(reserved), 0)
-	connected = r0 != 0
-	return
-}
 
 func findFirstChangeNotification(path *uint16, watchSubtree bool, filter uint32) (handle windows.Handle, err error) {
 	var _p0 uint32
 	if watchSubtree {
 		_p0 = 1
-	} else {
-		_p0 = 0
 	}
 	r0, _, e1 := syscall.Syscall(procFindFirstChangeNotificationW.Addr(), 3, uintptr(unsafe.Pointer(path)), uintptr(_p0), uintptr(filter))
 	handle = windows.Handle(r0)
 	if handle == windows.InvalidHandle {
-		if e1 != 0 {
-			err = errnoErr(e1)
-		} else {
-			err = syscall.EINVAL
-		}
+		err = errnoErr(e1)
 	}
 	return
 }
@@ -73,11 +62,13 @@ func findFirstChangeNotification(path *uint16, watchSubtree bool, filter uint32)
 func findNextChangeNotification(handle windows.Handle) (err error) {
 	r1, _, e1 := syscall.Syscall(procFindNextChangeNotification.Addr(), 1, uintptr(handle), 0, 0)
 	if r1 == 0 {
-		if e1 != 0 {
-			err = errnoErr(e1)
-		} else {
-			err = syscall.EINVAL
-		}
+		err = errnoErr(e1)
 	}
+	return
+}
+
+func internetGetConnectedState(flags *uint32, reserved uint32) (connected bool) {
+	r0, _, _ := syscall.Syscall(procInternetGetConnectedState.Addr(), 2, uintptr(unsafe.Pointer(flags)), uintptr(reserved), 0)
+	connected = r0 != 0
 	return
 }
