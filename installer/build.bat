@@ -12,6 +12,7 @@ set WIREGUARD_VERSION=%WIREGUARD_VERSION:"=%
 
 set WIX_CANDLE_FLAGS=-nologo -dWIREGUARD_VERSION="%WIREGUARD_VERSION%"
 set WIX_LIGHT_FLAGS=-nologo -spdb
+set WIX_LIGHT_FLAGS=%WIX_LIGHT_FLAGS% -sice:ICE39
 set WIX_LIGHT_FLAGS=%WIX_LIGHT_FLAGS% -sice:ICE61
 
 if exist .deps\prepared goto :build
@@ -36,6 +37,7 @@ if exist .deps\prepared goto :build
 	set LDLIBS=-lmsi -lole32 -lshlwapi -lshell32 -luuid
 	call :msi x86 i686 x86 || goto :error
 	call :msi amd64 x86_64 x64 || goto :error
+	call :msi arm armv7 arm || goto :error
 	if exist ..\sign.bat call ..\sign.bat
 	if "%SigningCertificate%"=="" goto :success
 	if "%TimestampServer%"=="" goto :success
