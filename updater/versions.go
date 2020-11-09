@@ -60,6 +60,8 @@ func findCandidate(candidates fileList) (*UpdateFound, error) {
 		arch = "amd64"
 	} else if runtime.GOARCH == "386" {
 		arch = "x86"
+	} else if runtime.GOARCH == "arm" {
+		arch = "arm"
 	} else if runtime.GOARCH == "arm64" {
 		arch = "arm64"
 	} else {

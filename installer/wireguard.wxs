@@ -5,15 +5,17 @@
 	Copyright (C) 2019 WireGuard LLC. All Rights Reserved.
 -->
 
-<?if $(var.WIREGUARD_PLATFORM) = "x86"?>
-	<?define PlatformProgramFilesFolder = "ProgramFilesFolder"?>
-<?else?>
+<?if $(var.WIREGUARD_PLATFORM) = "amd64"?>
 	<?define PlatformProgramFilesFolder = "ProgramFiles64Folder"?>
+<?else?>
+	<?define PlatformProgramFilesFolder = "ProgramFilesFolder"?>
 <?endif?>
 <?if $(var.WIREGUARD_PLATFORM) = "amd64"?>
 	<?define UpgradeCode = "5e5a1da5-ba36-404d-92ec-41050d1c799c"?>
 <?elseif $(var.WIREGUARD_PLATFORM) = "x86"?>
 	<?define UpgradeCode = "62754a0a-fee9-4412-b739-e8da2e7c9405"?>
+<?elseif $(var.WIREGUARD_PLATFORM) = "arm"?>
+	<?define UpgradeCode = "f90bca59-9627-431d-92b4-a5c2d9a529ff"?>
 <?else?>
 	<?error Unknown platform ?>
 <?endif?>
@@ -27,7 +29,7 @@
 		Manufacturer="WireGuard LLC"
 		UpgradeCode="$(var.UpgradeCode)">
 		<Package
-			InstallerVersion="400"
+			InstallerVersion="500"
 			Compressed="yes"
 			InstallScope="perMachine"
 			Description="WireGuard: Fast, Modern, Secure VPN Tunnel"
