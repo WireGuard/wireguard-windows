@@ -208,10 +208,11 @@ func (se *SyntaxEdit) highlightText() error {
 		Cb:       msgSize + 1,
 	}
 	msg := make([]byte, msgSize+1)
-	if win.SendMessage(hWnd, win.EM_GETTEXTEX, uintptr(unsafe.Pointer(&gettextex)), uintptr(unsafe.Pointer(&msg[0]))) <= 0 {
+	msgCount := win.SendMessage(hWnd, win.EM_GETTEXTEX, uintptr(unsafe.Pointer(&gettextex)), uintptr(unsafe.Pointer(&msg[0])))
+	if msgCount < 0 {
 		return errors.New("Failed to get text")
 	}
-	cfg := strings.Replace(string(msg), "\r", "\n", -1)
+	cfg := strings.Replace(string(msg[:msgCount]), "\r", "\n", -1)
 
 	spans := highlightConfig(cfg)
 	se.evaluateUntunneledBlocking(cfg, spans)
