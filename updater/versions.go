@@ -8,7 +8,6 @@ package updater
 import (
 	"errors"
 	"fmt"
-	"runtime"
 	"strconv"
 	"strings"
 
@@ -55,17 +54,9 @@ func versionNewerThanUs(candidate string) (bool, error) {
 }
 
 func findCandidate(candidates fileList) (*UpdateFound, error) {
-	var arch string
-	if runtime.GOARCH == "amd64" {
-		arch = "amd64"
-	} else if runtime.GOARCH == "386" {
-		arch = "x86"
-	} else if runtime.GOARCH == "arm" {
-		arch = "arm"
-	} else if runtime.GOARCH == "arm64" {
-		arch = "arm64"
-	} else {
-		return nil, errors.New("Invalid GOARCH")
+	arch, err := findArch()
+	if err != nil {
+		return nil, err
 	}
 	prefix := fmt.Sprintf(msiArchPrefix, arch)
 	suffix := msiSuffix
