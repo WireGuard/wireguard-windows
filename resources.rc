@@ -12,7 +12,7 @@
 
 LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST manifest.xml
-.wireguard.ico ICON ui/icon/wireguard.ico
+Awireguard.ico ICON ui/icon/wireguard.ico
 dot_gray.ico ICON ui/icon/dot_gray.ico
 wintun.dll RCDATA wintun.dll
 

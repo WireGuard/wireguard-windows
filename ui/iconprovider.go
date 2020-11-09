@@ -128,7 +128,7 @@ func loadLogoIcon(size int) (icon *walk.Icon, err error) {
 	if icon != nil {
 		return
 	}
-	icon, err = walk.NewIconFromResourceWithSize(".wireguard.ico", walk.Size{size, size})
+	icon, err = walk.NewIconFromResourceWithSize("Awireguard.ico", walk.Size{size, size})
 	if err == nil {
 		cachedLogoIconsForWidth[size] = icon
 	}
