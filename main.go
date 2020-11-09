@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"golang.org/x/sys/windows"
+	"golang.zx2c4.com/wireguard/tun"
 
 	"golang.zx2c4.com/wireguard/windows/elevate"
 	"golang.zx2c4.com/wireguard/windows/l18n"
@@ -49,6 +50,7 @@ func usage() {
 		"/ui CMD_READ_HANDLE CMD_WRITE_HANDLE CMD_EVENT_HANDLE LOG_MAPPING_HANDLE",
 		"/dumplog OUTPUT_PATH",
 		"/update [LOG_FILE]",
+		"/removealladapters [LOG_FILE]",
 	}
 	builder := strings.Builder{}
 	for _, flag := range flags {
@@ -248,6 +250,29 @@ func main() {
 			if progress.Complete || progress.Error != nil {
 				return
 			}
+		}
+		return
+	case "/removealladapters":
+		if len(os.Args) != 2 && len(os.Args) != 3 {
+			usage()
+		}
+		var f *os.File
+		var err error
+		if len(os.Args) == 2 {
+			f = os.Stdout
+		} else {
+			f, err = os.Create(os.Args[2])
+			if err != nil {
+				fatal(err)
+			}
+			defer f.Close()
+		}
+		log.SetOutput(f)
+		rebootRequired, err := tun.WintunPool.DeleteDriver()
+		if err != nil {
+			log.Printf("Error: %v\n", err)
+		} else if rebootRequired {
+			log.Println("A reboot may be required")
 		}
 		return
 	}
