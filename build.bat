@@ -52,6 +52,7 @@ if exist .deps\prepared goto :render
 	call :build_plat x86 i686 386 || goto :error
 	call :build_plat amd64 x86_64 amd64 || goto :error
 	call :build_plat arm armv7 arm || goto :error
+	call :build_plat arm64 aarch64 arm64 || goto :error
 
 :sign
 	if exist .\sign.bat call .\sign.bat
@@ -81,7 +82,11 @@ if exist .deps\prepared goto :render
 	echo [+] Assembling resources %1
 	%~2-w64-mingw32-windres -I ".deps\wintun\bin\%~1" -DWIREGUARD_VERSION_ARRAY=%WIREGUARD_VERSION_ARRAY% -DWIREGUARD_VERSION_STR=%WIREGUARD_VERSION% -i resources.rc -o "resources_%~3.syso" -O coff -c 65001 || exit /b %errorlevel%
 	echo [+] Building program %1
-	go build -ldflags="-H windowsgui -s -w" -trimpath -v -o "%~1\wireguard.exe" || exit /b 1
+	if %1==arm64 (
+		copy "arm\wireguard.exe" "%~1\wireguard.exe" || exit /b 1
+	) else (
+		go build -ldflags="-H windowsgui -s -w" -trimpath -v -o "%~1\wireguard.exe" || exit /b 1
+	)
 	if not exist "%~1\wg.exe" (
 		echo [+] Building command line tools %1
 		del .deps\src\*.exe .deps\src\*.o .deps\src\wincompat\*.o 2> NUL
