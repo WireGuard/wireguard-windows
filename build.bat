@@ -20,7 +20,7 @@ if exist .deps\prepared goto :render
 	call :download imagemagick.zip https://download.wireguard.com/windows-toolchain/distfiles/ImageMagick-7.0.8-42-portable-Q16-x64.zip 584e069f56456ce7dde40220948ff9568ac810688c892c5dfb7f6db902aa05aa "convert.exe colors.xml delegates.xml" || goto :error
 	rem Mirror of https://sourceforge.net/projects/ezwinports/files/make-4.2.1-without-guile-w32-bin.zip
 	call :download make.zip https://download.wireguard.com/windows-toolchain/distfiles/make-4.2.1-without-guile-w32-bin.zip 30641be9602712be76212b99df7209f4f8f518ba764cf564262bc9d6e4047cc7 "--strip-components 1 bin" || goto :error
-	call :download wireguard-tools.zip https://git.zx2c4.com/wireguard-tools/snapshot/wireguard-tools-1.0.20200319.zip f0f186924b67696e5dac6020270b0ac27fd7d96b4976605d1cded405d27b2f54 "--exclude wg-quick --strip-components 1" || goto :error
+	call :download wireguard-tools.zip https://git.zx2c4.com/wireguard-tools/snapshot/wireguard-tools-66714e2c47bb0ff55e6f8360301af833f879b6ac.zip ad8bc49879434f52dedf7a8fc53fac014f12f708c96d61e01b3160d0f0d43ed7 "--exclude wg-quick --strip-components 1" || goto :error
 	rem Mirror of https://sourceforge.net/projects/gnuwin32/files/patch/2.5.9-7/patch-2.5.9-7-bin.zip with fixed manifest
 	call :download patch.zip https://download.wireguard.com/windows-toolchain/distfiles/patch-2.5.9-7-bin-fixed-manifest.zip 25977006ca9713f2662a5d0a2ed3a5a138225b8be3757035bd7da9dcf985d0a1 "--strip-components 1 bin" || goto :error
 	call :download wintun.zip https://www.wintun.net/builds/wintun-0.9.zip 69afc860c9e5b5579f09847aeb9ac7b5190ec8ff6f21b6ec799f80351f19d1dd || goto :error
