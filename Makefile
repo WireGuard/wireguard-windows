@@ -15,7 +15,7 @@ RESOURCE_FILES := resources.rc version/version.go manifest.xml $(patsubst %.svg,
 DEPLOYMENT_HOST ?= winvm
 DEPLOYMENT_PATH ?= Desktop
 
-all: amd64/wireguard.exe x86/wireguard.exe arm/wireguard.exe
+all: amd64/wireguard.exe x86/wireguard.exe arm64/wireguard.exe arm/wireguard.exe
 
 define download =
 .distfiles/$(1):
@@ -66,6 +66,10 @@ arm/wireguard.exe: export GOARM := 7
 arm/wireguard.exe: resources_arm.syso $(SOURCE_FILES)
 	go build $(GOFLAGS) -o $@
 
+arm64/wireguard.exe: arm/wireguard.exe
+	mkdir -p $(@D)
+	cp $< $@
+
 remaster: export GOARCH := amd64
 remaster: export GOPROXY := direct
 remaster: .deps/go/prepared
@@ -92,7 +96,7 @@ deploy: amd64/wireguard.exe
 	scp $< $(DEPLOYMENT_HOST):$(DEPLOYMENT_PATH)
 
 clean:
-	rm -rf *.syso ui/icon/*.ico x86/ amd64/ arm/ .deps
+	rm -rf *.syso ui/icon/*.ico x86/ amd64/ arm/ arm64/ .deps
 
 distclean: clean
 	rm -rf .distfiles

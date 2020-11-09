@@ -6,6 +6,7 @@
 /x86
 /amd64
 /arm
+/arm64
 
 # Misc
 /locales/*/out.gotext.json
