@@ -1,0 +1,32 @@
+From 2b3975549a043f66ad1580b0330c2bf47916f042 Mon Sep 17 00:00:00 2001
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+Date: Sun, 8 Nov 2020 02:48:09 +0100
+Subject: [PATCH 1/8] cmd/link: recognize arm header of PE objects
+
+The linker recognizes headers for 386 and amd64 PE objects, but not arm
+objects. This is easily overlooked, since its the same as the 386 header
+value, except the two nibbles of the first word are swapped. This commit
+simply adds the check for this. Without it, .syso objects are rejected,
+which means Windows binaries can't have resources built into them.
+
+Change-Id: I210411d978504c1a9540e23abc5a180e24f159ad
+---
+ src/cmd/link/internal/ld/lib.go | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/cmd/link/internal/ld/lib.go b/src/cmd/link/internal/ld/lib.go
+index 0366bc7a6f..f98668a7dc 100644
+--- a/src/cmd/link/internal/ld/lib.go
++++ b/src/cmd/link/internal/ld/lib.go
+@@ -1893,7 +1893,7 @@ func ldobj(ctxt *Link, f *bio.Reader, lib *sym.Library, length int64, pn string,
+ 		return ldhostobj(ldmacho, ctxt.HeadType, f, pkg, length, pn, file)
+ 	}
+ 
+-	if c1 == 0x4c && c2 == 0x01 || c1 == 0x64 && c2 == 0x86 {
++	if c1 == 0x4c && c2 == 0x01 || c1 == 0x64 && c2 == 0x86 || c1 == 0xc4 && c2 == 0x01 {
+ 		ldpe := func(ctxt *Link, f *bio.Reader, pkg string, length int64, pn string) {
+ 			textp, rsrc, err := loadpe.Load(ctxt.loader, ctxt.Arch, ctxt.Syms.IncVersion(), f, pkg, length, pn)
+ 			if err != nil {
+-- 
+2.29.1
+
