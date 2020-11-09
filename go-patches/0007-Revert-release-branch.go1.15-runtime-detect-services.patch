@@ -1,7 +1,7 @@
-From 8bc7bff3bff8f61312f8d2307cfe2e433d356c31 Mon Sep 17 00:00:00 2001
+From 82dfc8240f58880ec59a98ed9403d9997571573a Mon Sep 17 00:00:00 2001
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 Date: Fri, 11 Sep 2020 13:04:11 +0200
-Subject: [PATCH 1/2] Revert "[release-branch.go1.15] runtime: detect services
+Subject: [PATCH 7/8] Revert "[release-branch.go1.15] runtime: detect services
  in signal handler"
 
 This reverts commit b1253d24e159129c778377c3a2a0bde15904a417.
@@ -10,10 +10,10 @@ This reverts commit b1253d24e159129c778377c3a2a0bde15904a417.
  1 file changed, 4 insertions(+), 69 deletions(-)
 
 diff --git a/src/runtime/os_windows.go b/src/runtime/os_windows.go
-index 769197db46..a584ada702 100644
+index 9aadd993f2..125bf0b225 100644
 --- a/src/runtime/os_windows.go
 +++ b/src/runtime/os_windows.go
-@@ -36,10 +36,7 @@ const (
+@@ -37,10 +37,7 @@ const (
  //go:cgo_import_dynamic runtime._SetThreadContext SetThreadContext%2 "kernel32.dll"
  //go:cgo_import_dynamic runtime._LoadLibraryW LoadLibraryW%1 "kernel32.dll"
  //go:cgo_import_dynamic runtime._LoadLibraryA LoadLibraryA%1 "kernel32.dll"
@@ -24,7 +24,7 @@ index 769197db46..a584ada702 100644
  //go:cgo_import_dynamic runtime._ResumeThread ResumeThread%1 "kernel32.dll"
  //go:cgo_import_dynamic runtime._SetConsoleCtrlHandler SetConsoleCtrlHandler%2 "kernel32.dll"
  //go:cgo_import_dynamic runtime._SetErrorMode SetErrorMode%1 "kernel32.dll"
-@@ -87,10 +84,7 @@ var (
+@@ -89,10 +86,7 @@ var (
  	_SetThreadContext,
  	_LoadLibraryW,
  	_LoadLibraryA,
@@ -35,7 +35,7 @@ index 769197db46..a584ada702 100644
  	_QueryPerformanceCounter,
  	_QueryPerformanceFrequency,
  	_ResumeThread,
-@@ -134,8 +128,7 @@ var (
+@@ -136,8 +130,7 @@ var (
  	// Load ntdll.dll manually during startup, otherwise Mingw
  	// links wrong printf function to cgo executable (see issue
  	// 12030 for details).
@@ -45,7 +45,7 @@ index 769197db46..a584ada702 100644
  
  	// These are from non-kernel32.dll, so we prefer to LoadLibraryEx them.
  	_timeBeginPeriod,
-@@ -262,7 +255,6 @@ func loadOptionalSyscalls() {
+@@ -266,7 +259,6 @@ func loadOptionalSyscalls() {
  		throw("ntdll.dll not found")
  	}
  	_NtWaitForSingleObject = windowsFindfunc(n32, []byte("NtWaitForSingleObject\000"))
@@ -53,7 +53,7 @@ index 769197db46..a584ada702 100644
  
  	if GOARCH == "arm" {
  		_QueryPerformanceCounter = windowsFindfunc(k32, []byte("QueryPerformanceCounter\000"))
-@@ -1003,63 +995,6 @@ func usleep(us uint32) {
+@@ -1061,63 +1053,6 @@ func usleep(us uint32) {
  	onosstack(usleep2Addr, 10*us)
  }
  
@@ -117,7 +117,7 @@ index 769197db46..a584ada702 100644
  func ctrlhandler1(_type uint32) uint32 {
  	var s uint32
  
-@@ -1075,9 +1010,9 @@ func ctrlhandler1(_type uint32) uint32 {
+@@ -1133,9 +1068,9 @@ func ctrlhandler1(_type uint32) uint32 {
  	if sigsend(s) {
  		return 1
  	}
@@ -131,54 +131,5 @@ index 769197db46..a584ada702 100644
  	}
  	return 0
 -- 
-2.28.0
-
-From 84cc2046962e754af08f99327561be2e979eaf16 Mon Sep 17 00:00:00 2001
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
-Date: Tue, 14 Jul 2020 01:41:03 -0600
-Subject: [PATCH 2/2] runtime: do not explicitly exit on ctrl handler
-
-The default ctrl+c handler should process exits in situations where it
-makes sense, like console apps, but not in situations where it doesn't,
-like libraries or services. Therefore, we should remove the exit(2) so
-that the default handler is used for this. This also uses the more
-proper windows exit code of STATUS_CONTROL_C_EXIT, with the base case
-handler installed by KernelBase.dll. In particular, this helps in the
-case of services, which previously would terminate when receiving
-shutdown signals, instead of passing them onward to the service program.
-In this CL, contrary to CL 244959, we do not need to special case
-services with expensive detection algorithms, or rely on hard-coded
-library/archive flags.
-
-Fixes #40167.
-Fixes #40074.
-
-Change-Id: I9bf6ed6f65cefeff754d270aa33fa4df8d0b451f
-Reviewed-on: https://go-review.googlesource.com/c/go/+/243597
-Run-TryBot: Jason A. Donenfeld <Jason@zx2c4.com>
-TryBot-Result: Gobot Gobot <gobot@golang.org>
-Reviewed-by: Alex Brainman <alex.brainman@gmail.com>
-Reviewed-by: Jason A. Donenfeld <Jason@zx2c4.com>
----
- src/runtime/os_windows.go | 5 -----
- 1 file changed, 5 deletions(-)
-
-diff --git a/src/runtime/os_windows.go b/src/runtime/os_windows.go
-index a584ada702..a62e941229 100644
---- a/src/runtime/os_windows.go
-+++ b/src/runtime/os_windows.go
-@@ -1010,11 +1010,6 @@ func ctrlhandler1(_type uint32) uint32 {
- 	if sigsend(s) {
- 		return 1
- 	}
--	if !islibrary && !isarchive {
--		// Only exit the program if we don't have a DLL.
--		// See https://golang.org/issues/35965.
--		exit(2) // SIGINT, SIGTERM, etc
--	}
- 	return 0
- }
- 
--- 
-2.28.0
+2.29.1
 
