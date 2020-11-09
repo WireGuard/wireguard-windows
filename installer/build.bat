@@ -20,7 +20,7 @@ if exist .deps\prepared goto :build
 	rmdir /s /q .deps 2> NUL
 	mkdir .deps || goto :error
 	cd .deps || goto :error
-	call :download wix-binaries.zip https://github.com/wixtoolset/wix3/releases/download/wix3112rtm/wix311-binaries.zip 2c1888d5d1dba377fc7fa14444cf556963747ff9a0a289a3599cf09da03b9e2e || goto :error
+	call :download wix-binaries.zip https://wixtoolset.org/downloads/v3.14.0.4118/wix314-binaries.zip 34dcbba9952902bfb710161bd45ee2e721ffa878db99f738285a21c9b09c6edb || goto :error
 	echo [+] Extracting wix-binaries.zip
 	mkdir wix\bin || goto :error
 	tar -xf wix-binaries.zip -C wix\bin || goto :error
@@ -38,6 +38,7 @@ if exist .deps\prepared goto :build
 	call :msi x86 i686 x86 || goto :error
 	call :msi amd64 x86_64 x64 || goto :error
 	call :msi arm armv7 arm || goto :error
+	call :msi arm64 aarch64 arm64 || goto :error
 	if exist ..\sign.bat call ..\sign.bat
 	if "%SigningCertificate%"=="" goto :success
 	if "%TimestampServer%"=="" goto :success

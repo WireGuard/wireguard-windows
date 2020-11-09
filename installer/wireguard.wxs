@@ -5,7 +5,7 @@
 	Copyright (C) 2019 WireGuard LLC. All Rights Reserved.
 -->
 
-<?if $(var.WIREGUARD_PLATFORM) = "amd64"?>
+<?if $(var.WIREGUARD_PLATFORM) = "amd64" Or $(var.WIREGUARD_PLATFORM) = "arm64"?>
 	<?define PlatformProgramFilesFolder = "ProgramFiles64Folder"?>
 <?else?>
 	<?define PlatformProgramFilesFolder = "ProgramFilesFolder"?>
@@ -16,6 +16,8 @@
 	<?define UpgradeCode = "62754a0a-fee9-4412-b739-e8da2e7c9405"?>
 <?elseif $(var.WIREGUARD_PLATFORM) = "arm"?>
 	<?define UpgradeCode = "f90bca59-9627-431d-92b4-a5c2d9a529ff"?>
+<?elseif $(var.WIREGUARD_PLATFORM) = "arm64"?>
+	<?define UpgradeCode = "7ff76099-8940-4d3e-99b9-50a3b3ca1ee9"?>
 <?else?>
 	<?error Unknown platform ?>
 <?endif?>
