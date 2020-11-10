@@ -1,7 +1,7 @@
 From ef97bba4eec391707d08870252e555f3797ce270 Mon Sep 17 00:00:00 2001
 From: Alex Brainman <alex.brainman@gmail.com>
 Date: Sun, 19 Jul 2020 16:06:48 +1000
-Subject: [PATCH 6/8] runtime: use CreateWaitableTimerEx to implement usleep
+Subject: [PATCH 6/9] runtime: use CreateWaitableTimerEx to implement usleep
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
