@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"runtime"
 	"strconv"
 	"strings"
 	"time"
@@ -60,6 +61,20 @@ func usage() {
 	os.Exit(1)
 }
 
+func checkForWow64() {
+	if runtime.GOARCH == "arm" { //TODO: remove this exception when Go supports arm64
+		return
+	}
+	var b bool
+	err := windows.IsWow64Process(windows.CurrentProcess(), &b)
+	if err != nil {
+		fatalf("Unable to determine whether the process is running under WOW64: %v", err)
+	}
+	if b {
+		fatalf("You must use the 64-bit version of WireGuard on this computer.")
+	}
+}
+
 func checkForAdminGroup() {
 	// This is not a security check, but rather a user-confusion one.
 	var processToken windows.Token
@@ -102,6 +117,8 @@ func pipeFromHandleArgument(handleStr string) (*os.File, error) {
 }
 
 func main() {
+	checkForWow64()
+
 	if len(os.Args) <= 1 {
 		checkForAdminGroup()
 		if ui.RaiseUI() {
