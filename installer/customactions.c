@@ -536,3 +536,65 @@ out:
 		CoUninitialize();
 	return ret;
 }
+
+extern NTAPI __declspec(dllimport) void RtlGetNtVersionNumbers(DWORD *MajorVersion, DWORD *MinorVersion, DWORD *BuildNumber);
+
+__declspec(dllexport) UINT __stdcall CheckKB2921916(MSIHANDLE installer)
+{
+	bool is_com_initialized = SUCCEEDED(CoInitialize(NULL));
+	UINT ret = ERROR_SUCCESS;
+	DWORD maj, min, build, len;
+	HKEY packageKey;
+	TCHAR subkeyName[0x1000], uiLevel[10];
+	MSIHANDLE record;
+
+	RtlGetNtVersionNumbers(&maj, &min, &build);
+	if (maj != 6 || min != 1)
+		goto out;
+
+	ret = RegOpenKeyEx(HKEY_LOCAL_MACHINE, TEXT("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Component Based Servicing\\Packages"), 0, KEY_ENUMERATE_SUB_KEYS, &packageKey);
+	if (ret != ERROR_SUCCESS) {
+		log_errorf(installer, LOG_LEVEL_ERR, ret, TEXT("Unable to open Component Based Servicing\\Packages registry key"));
+		goto out;
+	}
+	for (DWORD i = 0;; ++i) {
+		len = _countof(subkeyName);
+		ret = RegEnumKeyEx(packageKey, i, subkeyName, &len, NULL, NULL, NULL, NULL);
+		if (ret == ERROR_NO_MORE_ITEMS)
+			break;
+		if (ret == ERROR_MORE_DATA)
+			continue;
+		if (ret != ERROR_SUCCESS) {
+			log_errorf(installer, LOG_LEVEL_ERR, ret, TEXT("Unable to enumerate Component Based Servicing\\Packages registry key"));
+			goto close_key;
+		}
+		if (_tcsstr(subkeyName, TEXT("KB2921916")))
+			goto close_key;
+	}
+	ret = ERROR_INSTALL_FAILURE;
+
+	len = _countof(uiLevel);
+	if (MsiGetProperty(installer, TEXT("UILevel"), uiLevel, &len) != ERROR_SUCCESS || _tcstoul(uiLevel, NULL, 10) < INSTALLUILEVEL_BASIC) {
+		log_messagef(installer, LOG_LEVEL_MSIERR, TEXT("Use of WireGuard on Windows 7 requires KB2921916."));
+		goto close_key;
+	}
+
+#ifdef _WIN64
+	static const TCHAR url[] = TEXT("https://download.wireguard.com/windows-toolchain/distfiles/Windows6.1-KB2921916-x64.msu");
+#else
+	static const TCHAR url[] = TEXT("https://download.wireguard.com/windows-toolchain/distfiles/Windows6.1-KB2921916-x86.msu");
+#endif
+	record = MsiCreateRecord(2);
+	MsiRecordSetString(record, 0, TEXT("[1]"));
+	MsiRecordSetString(record, 1, TEXT("Missing Windows Hotfix\n\nUse of WireGuard on Windows 7 requires KB2921916. Would you like to download the hotfix in your web browser?"));
+	if (MsiProcessMessage(installer, INSTALLMESSAGE_USER | MB_ICONWARNING | MB_YESNO, record) == IDYES)
+		ShellExecute(GetForegroundWindow(), NULL, url, NULL, NULL, SW_SHOWNORMAL);
+	MsiCloseHandle(record);
+
+close_key:
+	RegCloseKey(packageKey);
+out:
+	if (is_com_initialized)
+		CoUninitialize();
+	return ret;
+}
