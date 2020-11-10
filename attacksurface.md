@@ -16,6 +16,7 @@ Wintun is a kernel driver. It exposes:
 
 The tunnel service is a userspace service running as Local System, responsible for creating UDP sockets, creating Wintun adapters, and speaking the WireGuard protocol between the two. It exposes:
 
+  - The default dacl/owner/group is set to `O:SYG:SYD:PAI(A;OICI;FA;;;SY)(A;OICI;FR;;;BA)`.
   - A listening pipe in `\\.\pipe\ProtectedPrefix\Administrators\WireGuard\%s`, where `%s` is some basename of an already valid filename. Its DACL is set to `O:SYD:(A;;GA;;;SY)`. If the config file used by the tunnel service is not DPAPI-encrypted and it is owned by a SID other than "Local System" then an additional ACE is added giving that file owner SID access to the named pipe. This pipe gives access to private keys and allows for reconfiguration of the interface, as well as rebinding to different ports (below 1024, even). Clients who connect to the pipe run `GetSecurityInfo` to verify that it is owned by "Local System".
   - A global mutex is used for Wintun interface creation, with the same DACL as the pipe, but first CreatePrivateNamespace is called with a "Local System" SID.
   - It handles data from its two UDP sockets, accessible to the public Internet.
@@ -26,10 +27,11 @@ The tunnel service is a userspace service running as Local System, responsible f
 
 The manager service is a userspace service running as Local System, responsible for starting and stopping tunnel services, and ensuring a UI program with certain handles is available to Administrators. It exposes:
 
+  - The default dacl/owner/group is set to `O:SYG:SYD:PAI(A;OICI;FA;;;SY)(A;OICI;FR;;;BA)`.
   - Extensive IPC using unnamed pipes, inherited by the UI process.
   - A readable `CreateFileMapping` handle to a binary ringlog shared by all services, inherited by the UI process.
   - It listens for service changes in tunnel services according to the string prefix "WireGuardTunnel$".
-  - It manages DPAPI-encrypted configuration files in Local System's local appdata directory, and makes some effort to enforce good configuration filenames.
+  - It manages DPAPI-encrypted configuration files in `C:\ProgramData\WireGuard` and makes some effort to enforce good configuration filenames.
   - It uses `WTSEnumerateSessions` and `WTSSESSION_NOTIFICATION` to walk through each available session. It then uses `WTSQueryUserToken`, and then calls `GetTokenInformation(TokenGroups)` on it. If one of the returned group's SIDs matches `IsWellKnownSid(WinBuiltinAdministratorsSid)`, and has attributes of either `SE_GROUP_ENABLED` or `SE_GROUP_USE_FOR_DENY_ONLY` and calling `GetTokenInformation(TokenElevation)` on it or its `TokenLinkedToken` indicates that either is elevated, then it spawns the UI process as that the elevated user token, passing it three unnamed pipe handles for IPC and the log mapping handle, as described above.
 
 ### UI

@@ -305,7 +305,7 @@ out:
 __declspec(dllexport) UINT __stdcall RemoveConfigFolder(MSIHANDLE installer)
 {
 	LSTATUS ret;
-	TCHAR path[MAX_PATH];
+	TCHAR path[MAX_PATH], *program_data;
 	DWORD path_len = _countof(path);
 	bool is_com_initialized = SUCCEEDED(CoInitialize(NULL));
 
@@ -316,17 +316,18 @@ __declspec(dllexport) UINT __stdcall RemoveConfigFolder(MSIHANDLE installer)
 	}
 	if (_tcscmp(path, _T("remove")))
 		goto out;
-	ret = SHRegGetPath(HKEY_LOCAL_MACHINE, TEXT("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList\\S-1-5-18"),
-			   TEXT("ProfileImagePath"), path, 0);
-	if (ret != ERROR_SUCCESS) {
-		log_errorf(installer, LOG_LEVEL_WARN, ret, TEXT("SHRegGetPath failed"));
+	ret = SHGetKnownFolderPath(&FOLDERID_ProgramData, KF_FLAG_DEFAULT, NULL, &program_data);
+	if (ret != S_OK) {
+		log_errorf(installer, LOG_LEVEL_WARN, ret, TEXT("SHGetKnownFolderPath(FOLDERID_ProgramData) failed"));
 		goto out;
 	}
-	if (!PathAppend(path, TEXT("AppData\\Local\\WireGuard"))) {
-		log_errorf(installer, LOG_LEVEL_WARN, GetLastError(), TEXT("PathAppend(\"%1\", \"AppData\\Local\\WireGuard\") failed"), path);
-		goto out;
+	if (!PathCombine(path, program_data, TEXT("WireGuard"))) {
+		log_errorf(installer, LOG_LEVEL_WARN, GetLastError(), TEXT("PathCombine(\"%1\", \"WireGuard\") failed"), path);
+		goto out_free;
 	}
 	remove_directory_recursive(installer, path, 10);
+out_free:
+	CoTaskMemFree(program_data);
 out:
 	if (is_com_initialized)
 		CoUninitialize();

@@ -54,3 +54,50 @@ func DropAllPrivileges(retainDriverLoading bool) error {
 	runtime.KeepAlive(buffer)
 	return err
 }
+
+func GetDefaultObjectDacl() (owner, group *windows.SID, dacl *windows.ACL, err error) {
+	sd, err := windows.SecurityDescriptorFromString("O:SYG:SYD:PAI(A;OICI;FA;;;SY)(A;OICI;FR;;;BA)")
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	owner, _, err = sd.Owner()
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	group, _, err = sd.Group()
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	dacl, _, err = sd.DACL()
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	return
+}
+
+func SetDefaultObjectDacl() error {
+	owner, group, dacl, err := GetDefaultObjectDacl()
+	if err != nil {
+		return err
+	}
+	var token windows.Token
+	err = windows.OpenProcessToken(windows.CurrentProcess(), windows.TOKEN_ADJUST_DEFAULT, &token)
+	if err != nil {
+		return err
+	}
+	defer token.Close()
+	err = windows.SetTokenInformation(token, windows.TokenOwner, (*byte)(unsafe.Pointer(&owner)), uint32(unsafe.Sizeof(uintptr(0))))
+	if err != nil {
+		return err
+	}
+	err = windows.SetTokenInformation(token, windows.TokenPrimaryGroup, (*byte)(unsafe.Pointer(&group)), uint32(unsafe.Sizeof(uintptr(0))))
+	if err != nil {
+		return err
+	}
+	err = windows.SetTokenInformation(token, windows.TokenDefaultDacl, (*byte)(unsafe.Pointer(&dacl)), uint32(unsafe.Sizeof(uintptr(0))))
+	if err != nil {
+		return err
+	}
+	//TODO: sacl?
+	return nil
+}
