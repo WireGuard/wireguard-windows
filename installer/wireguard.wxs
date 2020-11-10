@@ -100,11 +100,27 @@
 		</InstallExecuteSequence>
 
 		<!--
+			Evaluate WireGuard components
+		-->
+		<CustomAction Id="EvaluateWireGuardComponents" BinaryKey="customactions.dll" DllEntry="EvaluateWireGuardComponents" />
+		<InstallExecuteSequence>
+			<Custom Action="EvaluateWireGuardComponents" After="ProcessComponents" />
+		</InstallExecuteSequence>
+
+		<!--
 			Clear out our config folder on uninstall
 		-->
 		<CustomAction Id="RemoveConfigFolder" BinaryKey="customactions.dll" DllEntry="RemoveConfigFolder" Execute="deferred" Impersonate="no" />
 		<InstallExecuteSequence>
-			<Custom Action="RemoveConfigFolder" After="DeleteServices">(NOT UPGRADINGPRODUCTCODE) AND (REMOVE="ALL")</Custom>
+			<Custom Action="RemoveConfigFolder" After="DeleteServices" />
+		</InstallExecuteSequence>
+
+		<!--
+			Clear out our adapters on uninstall
+		-->
+		<CustomAction Id="RemoveAdapters" BinaryKey="customactions.dll" DllEntry="RemoveAdapters" Execute="deferred" Impersonate="no" />
+		<InstallExecuteSequence>
+			<Custom Action="RemoveAdapters" Before="RemoveFiles" />
 		</InstallExecuteSequence>
 
 		<!--

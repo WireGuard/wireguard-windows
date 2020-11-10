@@ -255,12 +255,67 @@ out:
 	return ret == ERROR_SUCCESS ? ret : ERROR_INSTALL_FAILURE;
 }
 
+__declspec(dllexport) UINT __stdcall EvaluateWireGuardComponents(MSIHANDLE installer)
+{
+	UINT ret = ERROR_INSTALL_FAILURE;
+	bool is_com_initialized = SUCCEEDED(CoInitialize(NULL));
+	INSTALLSTATE component_installed, component_action;
+
+	ret = MsiGetComponentState(installer, TEXT("WireGuardExecutable"), &component_installed, &component_action);
+	if (ret != ERROR_SUCCESS) {
+		log_errorf(installer, LOG_LEVEL_ERR, ret, TEXT("MsiGetComponentState(\"WireGuardExecutable\") failed"));
+		goto out;
+	}
+	if (component_action >= INSTALLSTATE_LOCAL) {
+		/* WireGuardExecutable component shall be installed or updated. */
+	} else if (component_action >= INSTALLSTATE_REMOVED) {
+		/* WireGuardExecutable component shall be uninstalled. */
+		TCHAR path[MAX_PATH];
+		DWORD path_len = _countof(path);
+
+		log_messagef(installer, LOG_LEVEL_INFO, TEXT("WireGuardExecutable removal scheduled"));
+		ret = MsiSetProperty(installer, TEXT("RemoveConfigFolder"), TEXT("remove"));
+		if (ret != ERROR_SUCCESS) {
+			log_errorf(installer, LOG_LEVEL_ERR, ret, TEXT("MsiSetProperty(\"RemoveConfigFolder\") failed"));
+			goto out;
+		}
+		ret = MsiGetProperty(installer, TEXT("WireGuardFolder"), path, &path_len);
+		if (ret != ERROR_SUCCESS) {
+			log_errorf(installer, LOG_LEVEL_ERR, ret, TEXT("MsiFormatRecord failed"));
+			goto out;
+		}
+		if (!PathAppend(path, TEXT("wireguard.exe"))) {
+			log_errorf(installer, LOG_LEVEL_ERR, ret = GetLastError(), TEXT("PathAppend(\"%1\", \"wireguard.exe\") failed"), path);
+			goto out;
+		}
+		ret = MsiSetProperty(installer, TEXT("RemoveAdapters"), path);
+		if (ret != ERROR_SUCCESS) {
+			log_errorf(installer, LOG_LEVEL_ERR, ret, TEXT("MsiSetProperty(\"RemoveAdapters\") failed"));
+			goto out;
+		}
+	}
+	ret = ERROR_SUCCESS;
+
+out:
+	if (is_com_initialized)
+		CoUninitialize();
+	return ret == ERROR_SUCCESS ? ret : ERROR_INSTALL_FAILURE;
+}
+
 __declspec(dllexport) UINT __stdcall RemoveConfigFolder(MSIHANDLE installer)
 {
 	LSTATUS ret;
 	TCHAR path[MAX_PATH];
+	DWORD path_len = _countof(path);
 	bool is_com_initialized = SUCCEEDED(CoInitialize(NULL));
 
+	ret = MsiGetProperty(installer, TEXT("CustomActionData"), path, &path_len);
+	if (ret != ERROR_SUCCESS) {
+		log_errorf(installer, LOG_LEVEL_WARN, ret, TEXT("MsiGetProperty(\"CustomActionData\") failed"));
+		goto out;
+	}
+	if (_tcscmp(path, _T("remove")))
+		goto out;
 	ret = SHRegGetPath(HKEY_LOCAL_MACHINE, TEXT("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList\\S-1-5-18"),
 			   TEXT("ProfileImagePath"), path, 0);
 	if (ret != ERROR_SUCCESS) {
@@ -366,6 +421,71 @@ __declspec(dllexport) UINT __stdcall KillWireGuardProcesses(MSIHANDLE installer)
 	}
 	CloseHandle(snapshot);
 
+out:
+	if (is_com_initialized)
+		CoUninitialize();
+	return ERROR_SUCCESS;
+}
+
+__declspec(dllexport) UINT __stdcall RemoveAdapters(MSIHANDLE installer)
+{
+	UINT ret;
+	bool is_com_initialized = SUCCEEDED(CoInitialize(NULL));
+	TCHAR path[MAX_PATH];
+	DWORD path_len = _countof(path);
+	HANDLE pipe;
+	char buf[0x200];
+	DWORD offset = 0, size_read;
+	PROCESS_INFORMATION pi;
+	STARTUPINFOW si = {
+		.cb = sizeof(STARTUPINFO),
+		.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES,
+		.wShowWindow = SW_HIDE
+	};
+
+	ret = MsiGetProperty(installer, TEXT("CustomActionData"), path, &path_len);
+	if (ret != ERROR_SUCCESS) {
+		log_errorf(installer, LOG_LEVEL_WARN, ret, TEXT("MsiGetProperty(\"CustomActionData\") failed"));
+		goto out;
+	}
+	if (!path[0])
+		goto out;
+
+	if (!CreatePipe(&pipe, &si.hStdOutput, NULL, 0)) {
+		log_errorf(installer, LOG_LEVEL_WARN, GetLastError(), TEXT("CreatePipe failed"));
+		goto out;
+	}
+	if (!SetHandleInformation(si.hStdOutput, HANDLE_FLAG_INHERIT, HANDLE_FLAG_INHERIT)) {
+		log_errorf(installer, LOG_LEVEL_WARN, GetLastError(), TEXT("SetHandleInformation failed"));
+		goto cleanup_pipe_w;
+	}
+	if (!CreateProcess(path, TEXT("wireguard /removealladapters"), NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi)) {
+		log_errorf(installer, LOG_LEVEL_WARN, GetLastError(), TEXT("Failed to create \"%1\" process"), path);
+		goto cleanup_pipe_w;
+	}
+	CloseHandle(si.hStdOutput);
+	buf[sizeof(buf) - 1] = '\0';
+	while (ReadFile(pipe, buf + offset, sizeof(buf) - offset - 1, &size_read, NULL)) {
+		char *nl;
+		buf[offset + size_read] = '\0';
+		nl = strchr(buf, '\n');
+		if (!nl) {
+			offset = size_read;
+			continue;
+		}
+		nl[0] = '\0';
+		log_messagef(installer, LOG_LEVEL_INFO, TEXT("%1!hs!"), buf);
+		offset = strlen(&nl[1]);
+		memmove(buf, &nl[1], offset);
+	}
+	WaitForSingleObject(pi.hProcess, INFINITE);
+	CloseHandle(pi.hProcess);
+	goto cleanup_pipe_r;
+
+cleanup_pipe_w:
+	CloseHandle(si.hStdOutput);
+cleanup_pipe_r:
+	CloseHandle(pipe);
 out:
 	if (is_com_initialized)
 		CoUninitialize();
