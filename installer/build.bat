@@ -14,6 +14,7 @@ set WIX_CANDLE_FLAGS=-nologo -dWIREGUARD_VERSION="%WIREGUARD_VERSION%"
 set WIX_LIGHT_FLAGS=-nologo -spdb
 set WIX_LIGHT_FLAGS=%WIX_LIGHT_FLAGS% -sice:ICE39
 set WIX_LIGHT_FLAGS=%WIX_LIGHT_FLAGS% -sice:ICE61
+set WIX_LIGHT_FLAGS=%WIX_LIGHT_FLAGS% -sice:ICE03
 
 if exist .deps\prepared goto :build
 :installdeps
