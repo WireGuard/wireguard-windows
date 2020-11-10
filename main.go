@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"golang.org/x/sys/windows"
+	"golang.org/x/sys/windows/registry"
 	"golang.zx2c4.com/wireguard/tun"
 
 	"golang.zx2c4.com/wireguard/windows/elevate"
@@ -95,6 +96,47 @@ func checkForAdminDesktop() {
 	}
 }
 
+//TODO: remove me when dropping support for Windows 7
+func checkForKB2921916() {
+	maj, min, _ := windows.RtlGetNtVersionNumbers()
+	if maj != 6 || min != 1 {
+		return
+	}
+	key, err := registry.OpenKey(registry.LOCAL_MACHINE, `SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing\Packages`, registry.ENUMERATE_SUB_KEYS)
+	if err != nil {
+		return
+	}
+	defer key.Close()
+	subkeys, err := key.ReadSubKeyNames(0)
+	if err != nil {
+		return
+	}
+	found := false
+	for i := range subkeys {
+		if strings.Contains(subkeys[i], "KB2921916") {
+			found = true
+			break
+		}
+	}
+	if found {
+		return
+	}
+	var url string
+	const urlTemplate = "https://download.wireguard.com/windows-toolchain/distfiles/Windows6.1-KB2921916-%s.msu"
+	if runtime.GOARCH == "386" {
+		url = fmt.Sprintf(urlTemplate, "x86")
+	} else if runtime.GOARCH == "amd64" {
+		url = fmt.Sprintf(urlTemplate, "x64")
+	} else {
+		return
+	}
+	ret, _ := windows.MessageBox(0, windows.StringToUTF16Ptr(l18n.Sprintf("Use of WireGuard on Windows 7 requires KB2921916. Would you like to download the hotfix in your web browser?")), windows.StringToUTF16Ptr(l18n.Sprintf("Missing Windows Hotfix")), windows.MB_ICONWARNING|windows.MB_YESNO)
+	if ret == 6 {
+		windows.ShellExecute(0, nil, windows.StringToUTF16Ptr(url), nil, nil, windows.SW_SHOWNORMAL)
+	}
+	os.Exit(0)
+}
+
 func execElevatedManagerServiceInstaller() error {
 	path, err := os.Executable()
 	if err != nil {
@@ -118,6 +160,7 @@ func pipeFromHandleArgument(handleStr string) (*os.File, error) {
 
 func main() {
 	checkForWow64()
+	checkForKB2921916()
 
 	if len(os.Args) <= 1 {
 		checkForAdminGroup()
