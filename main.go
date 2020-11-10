@@ -160,7 +160,11 @@ func main() {
 		if len(os.Args) != 2 {
 			usage()
 		}
-		err := manager.Run()
+		err := elevate.SetDefaultObjectDacl()
+		if err != nil {
+			fatal(err)
+		}
+		err = manager.Run()
 		if err != nil {
 			fatal(err)
 		}
@@ -187,7 +191,11 @@ func main() {
 		if len(os.Args) != 3 {
 			usage()
 		}
-		err := tunnel.Run(os.Args[2])
+		err := elevate.SetDefaultObjectDacl()
+		if err != nil {
+			fatal(err)
+		}
+		err = tunnel.Run(os.Args[2])
 		if err != nil {
 			fatal(err)
 		}

@@ -6,46 +6,58 @@
 package conf
 
 import (
+	"io/ioutil"
 	"log"
+	"os"
 	"path/filepath"
-	"strings"
 
 	"golang.org/x/sys/windows"
 )
 
-func maybeMigrate(c string) {
+func maybeMigrateConfiguration(c string) {
 	if disableAutoMigration {
 		return
 	}
-
-	vol := filepath.VolumeName(c)
-	withoutVol := strings.TrimPrefix(c, vol)
-	oldRoot := filepath.Join(vol, "\\windows.old")
-	oldC := filepath.Join(oldRoot, withoutVol)
-
-	sd, err := windows.GetNamedSecurityInfo(oldRoot, windows.SE_FILE_OBJECT, windows.OWNER_SECURITY_INFORMATION)
-	if err == windows.ERROR_PATH_NOT_FOUND || err == windows.ERROR_FILE_NOT_FOUND {
-		return
-	}
+	oldRoot, err := windows.KnownFolderPath(windows.FOLDERID_LocalAppData, windows.KF_FLAG_DEFAULT)
 	if err != nil {
-		log.Printf("Not migrating configuration from ‘%s’ due to GetNamedSecurityInfo error: %v", oldRoot, err)
 		return
 	}
-	owner, defaulted, err := sd.Owner()
+	oldC := filepath.Join(oldRoot, "WireGuard", "Configurations")
+	files, err := ioutil.ReadDir(oldC)
 	if err != nil {
-		log.Printf("Not migrating configuration from ‘%s’ due to GetSecurityDescriptorOwner error: %v", oldRoot, err)
 		return
 	}
-	if defaulted || (!owner.IsWellKnown(windows.WinLocalSystemSid) && !owner.IsWellKnown(windows.WinBuiltinAdministratorsSid)) {
-		log.Printf("Not migrating configuration from ‘%s’, as it is not explicitly owned by SYSTEM or Built-in Administrators, but rather ‘%v’", oldRoot, owner)
-		return
-	}
-	err = windows.MoveFileEx(windows.StringToUTF16Ptr(oldC), windows.StringToUTF16Ptr(c), windows.MOVEFILE_COPY_ALLOWED)
-	if err != nil {
-		if err != windows.ERROR_FILE_NOT_FOUND && err != windows.ERROR_ALREADY_EXISTS {
-			log.Printf("Not migrating configuration from ‘%s’ due to error when moving files: %v", oldRoot, err)
+	for i := range files {
+		if files[i].IsDir() {
+			continue
 		}
-		return
+		fileName := files[i].Name()
+		newPath := filepath.Join(c, fileName)
+		newFile, err := os.OpenFile(newPath, os.O_EXCL|os.O_CREATE|os.O_WRONLY, 0600)
+		if err != nil {
+			continue
+		}
+		oldPath := filepath.Join(oldC, fileName)
+		oldConfig, err := ioutil.ReadFile(oldPath)
+		if err != nil {
+			newFile.Close()
+			os.Remove(newPath)
+			continue
+		}
+		_, err = newFile.Write(oldConfig)
+		if err != nil {
+			newFile.Close()
+			os.Remove(newPath)
+			continue
+		}
+		newFile.Close()
+		os.Remove(oldPath)
+		log.Printf("Migrated configuration from ‘%s’ to ‘%s’", oldPath, newPath)
 	}
-	log.Printf("Migrated configuration from ‘%s’", oldRoot)
+	if os.Remove(oldC) == nil {
+		oldLog := filepath.Join(oldRoot, "WireGuard", "log.bin")
+		oldRoot := filepath.Join(oldRoot, "WireGuard")
+		os.Remove(oldLog)
+		os.Remove(oldRoot)
+	}
 }
