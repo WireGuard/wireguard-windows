@@ -11,36 +11,16 @@ import (
 	"path/filepath"
 
 	"golang.org/x/sys/windows"
-	"golang.org/x/sys/windows/registry"
 
 	"golang.zx2c4.com/wireguard/windows/conf"
 )
 
-func DumpTo(out io.Writer, localSystem bool) error {
-	var path string
-	if !localSystem {
-		root, err := conf.RootDirectory()
-		if err != nil {
-			return err
-		}
-		path = filepath.Join(root, "log.bin")
-	} else {
-		k, err := registry.OpenKey(registry.LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList\\S-1-5-18", registry.QUERY_VALUE)
-		if err != nil {
-			return err
-		}
-		defer k.Close()
-
-		systemprofile, _, err := k.GetStringValue("ProfileImagePath")
-		if err != nil {
-			return err
-		}
-		systemprofile, err = registry.ExpandString(systemprofile)
-		if err != nil {
-			return err
-		}
-		path = filepath.Join(systemprofile, "AppData", "Local", "WireGuard", "log.bin")
+func DumpTo(out io.Writer, notSystem bool) error {
+	root, err := conf.RootDirectory(!notSystem)
+	if err != nil {
+		return err
 	}
+	path := filepath.Join(root, "log.bin")
 	file, err := os.Open(path)
 	if err != nil {
 		return err

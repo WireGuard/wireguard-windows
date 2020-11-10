@@ -18,7 +18,7 @@ func InitGlobalLogger(tag string) error {
 	if Global != nil {
 		return nil
 	}
-	root, err := conf.RootDirectory()
+	root, err := conf.RootDirectory(true)
 	if err != nil {
 		return err
 	}
