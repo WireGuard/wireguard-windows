@@ -765,6 +765,10 @@ const (
 	FR_NOT_ENUM = 0x20
 )
 
+func RGB(r, g, b byte) COLORREF {
+	return COLORREF(r) | (COLORREF(g) << 8) | (COLORREF(b) << 16)
+}
+
 type (
 	COLORREF     uint32
 	HBITMAP      HGDIOBJ
@@ -776,6 +780,7 @@ type (
 	HPALETTE     HGDIOBJ
 	HPEN         HGDIOBJ
 	HRGN         HGDIOBJ
+	CLIPFORMAT   uint16
 )
 
 type PIXELFORMATDESCRIPTOR struct {

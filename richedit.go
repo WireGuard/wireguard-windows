@@ -65,15 +65,15 @@ const (
 	EM_GETTEXTMODE = WM_USER + 90
 )
 
-type TEXTMODE int
+type TEXTMODE int32
 
 const (
 	TM_PLAINTEXT       TEXTMODE = 1
-	TM_RICHTEXT        TEXTMODE = 2 // Default behavior
-	TM_SINGLELEVELUNDO TEXTMODE = 4
-	TM_MULTILEVELUNDO  TEXTMODE = 8 // Default behavior
-	TM_SINGLECODEPAGE  TEXTMODE = 16
-	TM_MULTICODEPAGE   TEXTMODE = 32 // Default behavior
+	TM_RICHTEXT                 = 2 // Default behavior
+	TM_SINGLELEVELUNDO          = 4
+	TM_MULTILEVELUNDO           = 8 // Default behavior
+	TM_SINGLECODEPAGE           = 16
+	TM_MULTICODEPAGE            = 32 // Default behavior
 )
 
 const (
@@ -461,7 +461,7 @@ const (
 	EM_SETELLIPSISMODE = WM_USER + 306
 )
 
-// DWORD: *lparam for EM_GETELLIPSISMODE, lparam for EM_SETELLIPSISMODE
+// uint32: *lparam for EM_GETELLIPSISMODE, lparam for EM_SETELLIPSISMODE
 const (
 	ELLIPSIS_MASK = 0x00000003 // all meaningful bits
 	ELLIPSIS_NONE = 0x00000000 // ellipsis disabled
@@ -567,10 +567,8 @@ const (
 	ES_SAVESEL         = 0x00008000
 	ES_SUNKEN          = 0x00004000
 	ES_DISABLENOSCROLL = 0x00002000
-	// Same as WS_MAXIMIZE, but that doesn't make sense so we re-use the value
-	ES_SELECTIONBAR = 0x01000000
-	// Same as ES_UPPERCASE, but re-used to completely disable OLE drag'n'drop
-	ES_NOOLEDRAGDROP = 0x00000008
+	ES_SELECTIONBAR    = 0x01000000 // Same as WS_MAXIMIZE, but that doesn't make sense so we re-use the value
+	ES_NOOLEDRAGDROP   = 0x00000008 // Same as ES_UPPERCASE, but re-used to completely disable OLE drag'n'drop
 )
 
 // Obsolete Edit Style
@@ -653,4 +651,623 @@ const (
 	WBF_ISWHITE    byte = 0x10
 	WBF_BREAKLINE  byte = 0x20
 	WBF_BREAKAFTER byte = 0x40
+)
+
+type CHARFORMAT struct {
+	CbSize          uint32
+	DwMask          uint32
+	DwEffects       uint32
+	YHeight         int32
+	YOffset         int32
+	CrTextColor     COLORREF
+	BCharSet        byte
+	BPitchAndFamily byte
+	SzFaceName      [LF_FACESIZE]uint16
+}
+
+type CHARFORMAT2 struct {
+	CHARFORMAT
+	WWeight         uint16   // Font weight (LOGFONT value)
+	SSpacing        int16    // Amount to space between letters
+	CrBackColor     COLORREF // Background color
+	Lcid            LCID     // Locale ID
+	DwCookie        uint32   // Client cookie opaque to RichEdit
+	SStyle          int16    // Style handle
+	WKerning        uint16   // Twip size above which to kern char pair
+	BUnderlineType  byte     // Underline type
+	BAnimation      byte     // Animated text like marching ants
+	BRevAuthor      byte     // Revision author index
+	BUnderlineColor byte     // Underline color
+}
+
+// CHARFORMAT masks
+const (
+	CFM_BOLD      = 0x00000001
+	CFM_ITALIC    = 0x00000002
+	CFM_UNDERLINE = 0x00000004
+	CFM_STRIKEOUT = 0x00000008
+	CFM_PROTECTED = 0x00000010
+	CFM_LINK      = 0x00000020 // Exchange hyperlink extension
+	CFM_SIZE      = 0x80000000
+	CFM_COLOR     = 0x40000000
+	CFM_FACE      = 0x20000000
+	CFM_OFFSET    = 0x10000000
+	CFM_CHARSET   = 0x08000000
+)
+
+// CHARFORMAT effects
+const (
+	CFE_BOLD      = 0x00000001
+	CFE_ITALIC    = 0x00000002
+	CFE_UNDERLINE = 0x00000004
+	CFE_STRIKEOUT = 0x00000008
+	CFE_PROTECTED = 0x00000010
+	CFE_LINK      = 0x00000020
+	CFE_AUTOCOLOR = 0x40000000 // NOTE: this corresponds to CFM_COLOR, which controls it
+
+	// Masks and effects defined for CHARFORMAT2 -- an (*) indicates that the data is stored by RichEdit 2.0/3.0, but not displayed
+	CFM_SMALLCAPS = 0x00000040 // (*)
+	CFM_ALLCAPS   = 0x00000080 // Displayed by 3.0
+	CFM_HIDDEN    = 0x00000100 // Hidden by 3.0
+	CFM_OUTLINE   = 0x00000200 // (*)
+	CFM_SHADOW    = 0x00000400 // (*)
+	CFM_EMBOSS    = 0x00000800 // (*)
+	CFM_IMPRINT   = 0x00001000 // (*)
+	CFM_DISABLED  = 0x00002000
+	CFM_REVISED   = 0x00004000
+
+	CFM_REVAUTHOR     = 0x00008000
+	CFE_SUBSCRIPT     = 0x00010000 // Superscript and subscript are
+	CFE_SUPERSCRIPT   = 0x00020000 //	mutually exclusive
+	CFM_ANIMATION     = 0x00040000 // (*)
+	CFM_STYLE         = 0x00080000 // (*)
+	CFM_KERNING       = 0x00100000
+	CFM_SPACING       = 0x00200000 // Displayed by 3.0
+	CFM_WEIGHT        = 0x00400000
+	CFM_UNDERLINETYPE = 0x00800000 // Many displayed by 3.0
+	CFM_COOKIE        = 0x01000000 // RE 6.0
+	CFM_LCID          = 0x02000000
+	CFM_BACKCOLOR     = 0x04000000 // Higher mask bits defined above
+
+	CFM_SUBSCRIPT   = (CFE_SUBSCRIPT | CFE_SUPERSCRIPT)
+	CFM_SUPERSCRIPT = CFM_SUBSCRIPT
+
+	// CHARFORMAT "ALL" masks
+	CFM_EFFECTS  = CFM_BOLD | CFM_ITALIC | CFM_UNDERLINE | CFM_COLOR | CFM_STRIKEOUT | CFE_PROTECTED | CFM_LINK
+	CFM_ALL      = CFM_EFFECTS | CFM_SIZE | CFM_FACE | CFM_OFFSET | CFM_CHARSET
+	CFM_EFFECTS2 = CFM_EFFECTS | CFM_DISABLED | CFM_SMALLCAPS | CFM_ALLCAPS | CFM_HIDDEN | CFM_OUTLINE | CFM_SHADOW | CFM_EMBOSS | CFM_IMPRINT | CFM_REVISED | CFM_SUBSCRIPT | CFM_SUPERSCRIPT | CFM_BACKCOLOR
+	CFM_ALL2     = CFM_ALL | CFM_EFFECTS2 | CFM_BACKCOLOR | CFM_LCID | CFM_UNDERLINETYPE | CFM_WEIGHT | CFM_REVAUTHOR | CFM_SPACING | CFM_KERNING | CFM_STYLE | CFM_ANIMATION | CFM_COOKIE
+
+	CFE_SMALLCAPS = CFM_SMALLCAPS
+	CFE_ALLCAPS   = CFM_ALLCAPS
+	CFE_HIDDEN    = CFM_HIDDEN
+	CFE_OUTLINE   = CFM_OUTLINE
+	CFE_SHADOW    = CFM_SHADOW
+	CFE_EMBOSS    = CFM_EMBOSS
+	CFE_IMPRINT   = CFM_IMPRINT
+	CFE_DISABLED  = CFM_DISABLED
+	CFE_REVISED   = CFM_REVISED
+
+	// CFE_AUTOCOLOR and CFE_AUTOBACKCOLOR correspond to CFM_COLOR and
+	// CFM_BACKCOLOR, respectively, which control them
+	CFE_AUTOBACKCOLOR = CFM_BACKCOLOR
+
+	CFM_FONTBOUND     = 0x00100000
+	CFM_LINKPROTECTED = 0x00800000 // Word hyperlink field
+	CFM_EXTENDED      = 0x02000000
+	CFM_MATHNOBUILDUP = 0x08000000
+	CFM_MATH          = 0x10000000
+	CFM_MATHORDINARY  = 0x20000000
+
+	CFM_ALLEFFECTS = (CFM_EFFECTS2 | CFM_FONTBOUND | CFM_EXTENDED | CFM_MATHNOBUILDUP | CFM_MATH | CFM_MATHORDINARY)
+
+	CFE_FONTBOUND     = 0x00100000 // Font chosen by binder, not user
+	CFE_LINKPROTECTED = 0x00800000
+	CFE_EXTENDED      = 0x02000000
+	CFE_MATHNOBUILDUP = 0x08000000
+	CFE_MATH          = 0x10000000
+	CFE_MATHORDINARY  = 0x20000000
+
+	// Underline types. RE 1.0 displays only CFU_UNDERLINE
+	CFU_CF1UNDERLINE             = 0xFF // Map charformat's bit underline to CF2
+	CFU_INVERT                   = 0xFE // For IME composition fake a selection
+	CFU_UNDERLINETHICKLONGDASH   = 18   // (*) display as dash
+	CFU_UNDERLINETHICKDOTTED     = 17   // (*) display as dot
+	CFU_UNDERLINETHICKDASHDOTDOT = 16   // (*) display as dash dot dot
+	CFU_UNDERLINETHICKDASHDOT    = 15   // (*) display as dash dot
+	CFU_UNDERLINETHICKDASH       = 14   // (*) display as dash
+	CFU_UNDERLINELONGDASH        = 13   // (*) display as dash
+	CFU_UNDERLINEHEAVYWAVE       = 12   // (*) display as wave
+	CFU_UNDERLINEDOUBLEWAVE      = 11   // (*) display as wave
+	CFU_UNDERLINEHAIRLINE        = 10   // (*) display as single
+	CFU_UNDERLINETHICK           = 9
+	CFU_UNDERLINEWAVE            = 8
+	CFU_UNDERLINEDASHDOTDOT      = 7
+	CFU_UNDERLINEDASHDOT         = 6
+	CFU_UNDERLINEDASH            = 5
+	CFU_UNDERLINEDOTTED          = 4
+	CFU_UNDERLINEDOUBLE          = 3 // (*) display as single
+	CFU_UNDERLINEWORD            = 2 // (*) display as single
+	CFU_UNDERLINE                = 1
+	CFU_UNDERLINENONE            = 0
+)
+
+const YHeightCharPtsMost = 1638
+
+const (
+	// EM_SETCHARFORMAT wParam masks
+	SCF_SELECTION       = 0x0001
+	SCF_WORD            = 0x0002
+	SCF_DEFAULT         = 0x0000 // Set default charformat or paraformat
+	SCF_ALL             = 0x0004 // Not valid with SCF_SELECTION or SCF_WORD
+	SCF_USEUIRULES      = 0x0008 // Modifier for SCF_SELECTION; says that came from a toolbar, etc., and  UI formatting rules should be instead of literal formatting
+	SCF_ASSOCIATEFONT   = 0x0010 // Associate fontname with bCharSet (one possible for each of Western, ME, FE, Thai)
+	SCF_NOKBUPDATE      = 0x0020 // Do not update KB layout for this change even if autokeyboard is on
+	SCF_ASSOCIATEFONT2  = 0x0040 // Associate plane-2 (surrogate) font
+	SCF_SMARTFONT       = 0x0080 // Apply font only if it can handle script (5.0)
+	SCF_CHARREPFROMLCID = 0x0100 // Get character repertoire from lcid (5.0)
+
+	SPF_DONTSETDEFAULT = 0x0002 // Suppress setting default on empty control
+	SPF_SETDEFAULT     = 0x0004 // Set the default paraformat
+)
+
+type CHARRANGE struct {
+	CpMin int32
+	CpMax int32
+}
+
+type TEXTRANGE struct {
+	Chrg      CHARRANGE
+	LpstrText *uint16 // Allocated by caller, zero terminated by RichEdit
+}
+
+type EDITSTREAM struct {
+	DwCookie    uintptr // User value passed to callback as first parameter
+	DwError     uint32  // Last error
+	PfnCallback uintptr
+}
+
+const (
+	// Stream formats. Flags are all in low word, since high word gives possible codepage choice.
+	SF_TEXT      = 0x0001
+	SF_RTF       = 0x0002
+	SF_RTFNOOBJS = 0x0003 // Write only
+	SF_TEXTIZED  = 0x0004 // Write only
+
+	SF_UNICODE        = 0x0010 // Unicode file (UCS2 little endian)
+	SF_USECODEPAGE    = 0x0020 // CodePage given by high word
+	SF_NCRFORNONASCII = 0x40   // Output \uN for nonASCII
+	SFF_WRITEXTRAPAR  = 0x80   // Output \par at end
+
+	// Flag telling stream operations to operate on selection only
+	// EM_STREAMIN	replaces current selection
+	// EM_STREAMOUT streams out current selection
+	SFF_SELECTION = 0x8000
+
+	// Flag telling stream operations to ignore some FE control words having to do with FE word breaking and horiz vs vertical text.
+	// Not used in RichEdit 2.0 and later
+	SFF_PLAINRTF = 0x4000
+
+	// Flag telling file stream output (SFF_SELECTION flag not set) to persist // \viewscaleN control word.
+	SFF_PERSISTVIEWSCALE = 0x2000
+
+	// Flag telling file stream input with SFF_SELECTION flag not set not to // close the document
+	SFF_KEEPDOCINFO = 0x1000
+
+	// Flag telling stream operations to output in Pocket Word format
+	SFF_PWD = 0x0800
+
+	// 3-bit field specifying the value of N - 1 to use for \rtfN or \pwdN
+	SF_RTFVAL = 0x0700
+)
+
+type FINDTEXT struct {
+	Chrg      CHARRANGE
+	LpstrText *uint16
+}
+
+type FINDTEXTEX struct {
+	chrg      CHARRANGE
+	lpstrText *uint16
+	chrgText  CHARRANGE
+}
+
+type FORMATRANGE struct {
+	hdc       HDC
+	hdcTarget HDC
+	rc        RECT
+	rcPage    RECT
+	chrg      CHARRANGE
+}
+
+// All paragraph measurements are in twips
+const (
+	MAX_TAB_STOPS   = 32
+	LDefaultTab     = 720
+	MAX_TABLE_CELLS = 63
+)
+
+type PARAFORMAT struct {
+	CbSize        uint32
+	DwMask        uint32
+	WNumbering    uint16
+	WEffects      uint16
+	DxStartIndent int32
+	DxRightIndent int32
+	DxOffset      int32
+	WAlignment    uint16
+	CTabCount     int16
+	RgxTabs       [MAX_TAB_STOPS]int32
+}
+
+type PARAFORMAT2 struct {
+	PARAFORMAT
+	DySpaceBefore    int32  // Vertical spacing before para
+	DySpaceAfter     int32  // Vertical spacing after para
+	DyLineSpacing    int32  // Line spacing depending on Rule
+	SStyle           int16  // Style handle
+	BLineSpacingRule byte   // Rule for line spacing (see tom.doc)
+	BOutlineLevel    byte   // Outline level
+	WShadingWeight   uint16 // Shading in hundredths of a per cent
+	WShadingStyle    uint16 // Nibble 0: style, 1: cfpat, 2: cbpat
+	WNumberingStart  uint16 // Starting value for numbering
+	WNumberingStyle  uint16 // Alignment, roman/arabic, (), ), ., etc.
+	WNumberingTab    uint16 // Space bet FirstIndent & 1st-line text
+	WBorderSpace     uint16 // Border-text spaces (nbl/bdr in pts)
+	WBorderWidth     uint16 // Pen widths (nbl/bdr in half pts)
+	WBorders         uint16 // Border styles (nibble/border)
+}
+
+const (
+	// PARAFORMAT mask values
+	PFM_STARTINDENT  = 0x00000001
+	PFM_RIGHTINDENT  = 0x00000002
+	PFM_OFFSET       = 0x00000004
+	PFM_ALIGNMENT    = 0x00000008
+	PFM_TABSTOPS     = 0x00000010
+	PFM_NUMBERING    = 0x00000020
+	PFM_OFFSETINDENT = 0x80000000
+
+	// PARAFORMAT 2.0 masks and effects
+	PFM_SPACEBEFORE    = 0x00000040
+	PFM_SPACEAFTER     = 0x00000080
+	PFM_LINESPACING    = 0x00000100
+	PFM_STYLE          = 0x00000400
+	PFM_BORDER         = 0x00000800 // (*)
+	PFM_SHADING        = 0x00001000 // (*)
+	PFM_NUMBERINGSTYLE = 0x00002000 // RE 3.0
+	PFM_NUMBERINGTAB   = 0x00004000 // RE 3.0
+	PFM_NUMBERINGSTART = 0x00008000 // RE 3.0
+
+	PFM_RTLPARA         = 0x00010000
+	PFM_KEEP            = 0x00020000 // (*)
+	PFM_KEEPNEXT        = 0x00040000 // (*)
+	PFM_PAGEBREAKBEFORE = 0x00080000 // (*)
+	PFM_NOLINENUMBER    = 0x00100000 // (*)
+	PFM_NOWIDOWCONTROL  = 0x00200000 // (*)
+	PFM_DONOTHYPHEN     = 0x00400000 // (*)
+	PFM_SIDEBYSIDE      = 0x00800000 // (*)
+
+	// The following two paragraph-format properties are read only
+	PFM_COLLAPSED         = 0x01000000 // RE 3.0
+	PFM_OUTLINELEVEL      = 0x02000000 // RE 3.0
+	PFM_BOX               = 0x04000000 // RE 3.0
+	PFM_RESERVED2         = 0x08000000 // RE 4.0
+	PFM_TABLEROWDELIMITER = 0x10000000 // RE 4.0
+	PFM_TEXTWRAPPINGBREAK = 0x20000000 // RE 3.0
+	PFM_TABLE             = 0x40000000 // RE 3.0
+
+	// PARAFORMAT "ALL" masks
+	PFM_ALL = PFM_STARTINDENT | PFM_RIGHTINDENT | PFM_OFFSET | PFM_ALIGNMENT | PFM_TABSTOPS | PFM_NUMBERING | PFM_OFFSETINDENT | PFM_RTLPARA
+
+	// Note: PARAFORMAT has no effects (BiDi RichEdit 1.0 does have PFE_RTLPARA)
+	PFM_EFFECTS = PFM_RTLPARA | PFM_KEEP | PFM_KEEPNEXT | PFM_TABLE | PFM_PAGEBREAKBEFORE | PFM_NOLINENUMBER | PFM_NOWIDOWCONTROL | PFM_DONOTHYPHEN | PFM_SIDEBYSIDE | PFM_TABLE | PFM_TABLEROWDELIMITER
+
+	PFM_ALL2 = PFM_ALL | PFM_EFFECTS | PFM_SPACEBEFORE | PFM_SPACEAFTER | PFM_LINESPACING | PFM_STYLE | PFM_SHADING | PFM_BORDER | PFM_NUMBERINGTAB | PFM_NUMBERINGSTART | PFM_NUMBERINGSTYLE
+
+	PFE_RTLPARA           = PFM_RTLPARA >> 16
+	PFE_KEEP              = PFM_KEEP >> 16              // (*)
+	PFE_KEEPNEXT          = PFM_KEEPNEXT >> 16          // (*)
+	PFE_PAGEBREAKBEFORE   = PFM_PAGEBREAKBEFORE >> 16   // (*)
+	PFE_NOLINENUMBER      = PFM_NOLINENUMBER >> 16      // (*)
+	PFE_NOWIDOWCONTROL    = PFM_NOWIDOWCONTROL >> 16    // (*)
+	PFE_DONOTHYPHEN       = PFM_DONOTHYPHEN >> 16       // (*)
+	PFE_SIDEBYSIDE        = PFM_SIDEBYSIDE >> 16        // (*)
+	PFE_TEXTWRAPPINGBREAK = PFM_TEXTWRAPPINGBREAK >> 16 // (*)
+
+	// The following four effects are read only
+	PFE_COLLAPSED         = PFM_COLLAPSED >> 16         // (+)
+	PFE_BOX               = PFM_BOX >> 16               // (+)
+	PFE_TABLE             = PFM_TABLE >> 16             // Inside table row. RE 3.0
+	PFE_TABLEROWDELIMITER = PFM_TABLEROWDELIMITER >> 16 // Table row start. RE 4.0
+
+	// PARAFORMAT numbering options
+	PFN_BULLET = 1 // tomListBullet
+
+	// PARAFORMAT2 wNumbering options
+	PFN_ARABIC   = 2 // tomListNumberAsArabic:	0, 1, 2,	...
+	PFN_LCLETTER = 3 // tomListNumberAsLCLetter: a, b, c,	...
+	PFN_UCLETTER = 4 // tomListNumberAsUCLetter: A, B, C,	...
+	PFN_LCROMAN  = 5 // tomListNumberAsLCRoman:	i, ii, iii, ...
+	PFN_UCROMAN  = 6 // tomListNumberAsUCRoman:	I, II, III, ...
+
+	// PARAFORMAT2 wNumberingStyle options
+	PFNS_PAREN    = 0x000 // default, e.g.,				  1)
+	PFNS_PARENS   = 0x100 // tomListParentheses/256, e.g., (1)
+	PFNS_PERIOD   = 0x200 // tomListPeriod/256, e.g., 	  1.
+	PFNS_PLAIN    = 0x300 // tomListPlain/256, e.g.,		  1
+	PFNS_NONUMBER = 0x400 // Used for continuation w/o number
+
+	PFNS_NEWNUMBER = 0x8000 // Start new number with wNumberingStart
+	// (can be combined with other PFNS_xxx)
+	// PARAFORMAT alignment options
+	PFA_LEFT   = 1
+	PFA_RIGHT  = 2
+	PFA_CENTER = 3
+
+	// PARAFORMAT2 alignment options
+	PFA_JUSTIFY        = 4 // New paragraph-alignment option 2.0 (*)
+	PFA_FULL_INTERWORD = 4 // These are supported in 3.0 with advanced
+)
+
+type MSGFILTER struct {
+	Nmhdr  NMHDR
+	Msg    uint32
+	WParam uintptr
+	LParam uintptr
+}
+
+type REQRESIZE struct {
+	Nmhdr NMHDR
+	Rc    RECT
+}
+
+type SELCHANGE struct {
+	Nmhdr  NMHDR
+	Chrg   CHARRANGE
+	Seltyp uint16
+}
+
+type GROUPTYPINGCHANGE struct {
+	Nmhdr        NMHDR
+	FGroupTyping BOOL
+}
+
+type CLIPBOARDFORMAT struct {
+	Nmhdr NMHDR
+	Cf    CLIPFORMAT
+}
+
+const (
+	SEL_EMPTY       = 0x0000
+	SEL_TEXT        = 0x0001
+	SEL_OBJECT      = 0x0002
+	SEL_MULTICHAR   = 0x0004
+	SEL_MULTIOBJECT = 0x0008
+)
+
+const (
+	// Used with IRichEditOleCallback::GetContextMenu, this flag will be passed as a "selection type".  It indicates that a context menu for a right-mouse drag drop should be generated.  The IOleObject parameter will really be the IDataObject for the drop
+	GCM_RIGHTMOUSEDROP = 0x8000
+)
+
+type GETCONTEXTMENUEX struct {
+	Chrg       CHARRANGE
+	DwFlags    uint32
+	Pt         POINT
+	PvReserved uintptr
+}
+
+const (
+	// bits for GETCONTEXTMENUEX::dwFlags
+	GCMF_GRIPPER   = 0x00000001
+	GCMF_SPELLING  = 0x00000002 // pSpellingSuggestions is valid and points to the list of spelling suggestions
+	GCMF_TOUCHMENU = 0x00004000
+	GCMF_MOUSEMENU = 0x00002000
+)
+
+type ENDROPFILES struct {
+	Nmhdr      NMHDR
+	HDrop      HANDLE
+	Cp         int32
+	FProtected BOOL
+}
+
+type ENPROTECTED struct {
+	Nmhdr  NMHDR
+	Msg    uint32
+	WParam uintptr
+	LParam uintptr
+	Chrg   CHARRANGE
+}
+
+type ENSAVECLIPBOARD struct {
+	Nmhdr        NMHDR
+	CObjectCount int32
+	Cch          int32
+}
+
+type ENOLEOPFAILED struct {
+	Nmhdr NMHDR
+	Iob   int32
+	LOper int32
+	Hr    HRESULT
+}
+
+const OLEOP_DOVERB = 1
+
+type OBJECTPOSITIONS struct {
+	Nmhdr        NMHDR
+	CObjectCount int32
+	PcpPositions *int32
+}
+
+type ENLINK struct {
+	Nmhdr  NMHDR
+	Msg    uint32
+	WParam uintptr
+	LParam uintptr
+	Chrg   CHARRANGE
+}
+
+type ENLOWFIRTF struct {
+	Nmhdr     NMHDR
+	SzControl *byte
+}
+
+// PenWin specific
+type ENCORRECTTEXT struct {
+	Nmhdr  NMHDR
+	Chrg   CHARRANGE
+	Seltyp uint16
+}
+
+// East Asia specific
+type PUNCTUATION struct {
+	ISize         uint32
+	SzPunctuation *byte
+}
+
+// East Asia specific
+type COMPCOLOR struct {
+	CrText       COLORREF
+	CrBackground COLORREF
+	DwEffects    uint32
+}
+
+const (
+	// Clipboard formats - use as parameter to RegisterClipboardFormat()
+	CF_RTF       = "Rich Text Format"
+	CF_RTFNOOBJS = "Rich Text Format Without Objects"
+	CF_RETEXTOBJ = "RichEdit Text and Objects"
+)
+
+// Paste Special
+type REPASTESPECIAL struct {
+	DwAspect uint32
+	DwParam  uintptr
+}
+
+//	UndoName info
+type UNDONAMEID int32
+
+const (
+	UID_UNKNOWN   UNDONAMEID = 0
+	UID_TYPING               = 1
+	UID_DELETE               = 2
+	UID_DRAGDROP             = 3
+	UID_CUT                  = 4
+	UID_PASTE                = 5
+	UID_AUTOTABLE            = 6
+)
+
+const (
+	// Flags for the SETEXTEX data structure
+	ST_DEFAULT   = 0
+	ST_KEEPUNDO  = 1
+	ST_SELECTION = 2
+	ST_NEuint16S = 4
+	ST_UNICODE   = 8
+)
+
+// EM_SETTEXTEX info; this struct is passed in the wparam of the message
+type SETTEXTEX struct {
+	Flags    uint32 // Flags (see the ST_XXX defines)
+	Codepage uint32 // Code page for translation (CP_ACP for sys default, 1200 for Unicode, -1 for control default)
+}
+
+const (
+	// Flags for the GETEXTEX data structure
+	GT_DEFAULT      = 0
+	GT_USECRLF      = 1
+	GT_SELECTION    = 2
+	GT_RAWTEXT      = 4
+	GT_NOHIDDENTEXT = 8
+)
+
+// EM_GETTEXTEX info; this struct is passed in the wparam of the message
+type GETTEXTEX struct {
+	Cb            uint32 // Count of bytes in the string
+	Flags         uint32 // Flags (see the GT_XXX defines
+	Codepage      uint32 // Code page for translation (CP_ACP for sys default, 1200 for Unicode, -1 for control default)
+	LpDefaultChar *byte  // Replacement for unmappable chars
+	LpUsedDefChar *BOOL  // Pointer to flag set when def char used
+}
+
+const (
+	// Flags for the GETTEXTLENGTHEX data structure
+	GTL_DEFAULT  = 0  // Do default (return # of chars)
+	GTL_USECRLF  = 1  // Compute answer using CRLFs for paragraphs
+	GTL_PRECISE  = 2  // Compute a precise answer
+	GTL_CLOSE    = 4  // Fast computation of a "close" answer
+	GTL_NUMCHARS = 8  // Return number of characters
+	GTL_NUMBYTES = 16 // Return number of _bytes_
+)
+
+// EM_GETTEXTLENGTHEX info; this struct is passed in the wparam of the msg
+type GETTEXTLENGTHEX struct {
+	Flags    uint32 // Flags (see GTL_XXX defines)
+	Codepage uint32 // Code page for translation (CP_ACP for default, 1200 for Unicode)
+}
+
+// BiDi specific features
+type BIDIOPTIONS struct {
+	CbSize   uint32
+	WMask    uint16
+	WEffects uint16
+}
+
+const (
+	// BIDIOPTIONS masks
+	BOM_NEUTRALOVERRIDE  = 0x0004 // Override neutral layout (obsolete)
+	BOM_CONTEXTREADING   = 0x0008 // Context reading order
+	BOM_CONTEXTALIGNMENT = 0x0010 // Context alignment
+	BOM_LEGACYBIDICLASS  = 0x0040 // Legacy Bidi classification (obsolete)
+	BOM_UNICODEBIDI      = 0x0080 // Use Unicode BiDi algorithm
+
+	// BIDIOPTIONS effects
+	BOE_NEUTRALOVERRIDE  = 0x0004 // Override neutral layout (obsolete)
+	BOE_CONTEXTREADING   = 0x0008 // Context reading order
+	BOE_CONTEXTALIGNMENT = 0x0010 // Context alignment
+	BOE_FORCERECALC      = 0x0020 // Force recalc and redraw
+	BOE_LEGACYBIDICLASS  = 0x0040 // Legacy Bidi classification (obsolete)
+	BOE_UNICODEBIDI      = 0x0080 // Use Unicode BiDi algorithm
+
+	// Additional EM_FINDTEXT[EX] flags
+	FR_MATCHDIAC      = 0x20000000
+	FR_MATCHKASHIDA   = 0x40000000
+	FR_MATCHALEFHAMZA = 0x80000000
+
+	// UNICODE embedding character
+	WCH_EMBEDDING uint16 = 0xFFFC
+)
+
+// khyph - Kind of hyphenation
+type KHYPH int32
+
+const (
+	KhyphNil          KHYPH = iota // No Hyphenation
+	KhyphNormal                    // Normal Hyphenation
+	KhyphAddBefore                 // Add letter before hyphen
+	KhyphChangeBefore              // Change letter before hyphen
+	KhyphDeleteBefore              // Delete letter before hyphen
+	KhyphChangeAfter               // Change letter after hyphen
+	KhyphDelAndChange              // Delete letter before hyphen and change letter preceding hyphen
+)
+
+type HYPHRESULT struct {
+	Khyph   KHYPH  // Kind of hyphenation
+	IchHyph int32  // Character which was hyphenated
+	ChHyph  uint16 // Depending on hyphenation type, character added, changed, etc.
+}
+
+type HYPHENATEINFO struct {
+	CbSize          int16 // Size of HYPHENATEINFO structure
+	DxHyphenateZone int16 // If a space character is closer to the margin than this value, don't hyphenate (in TWIPs)
+	PfnHyphenate    uintptr
+}
+
+const (
+	// Additional class for Richedit 6.0
+	RICHEDIT60_CLASS = "RICHEDIT60W"
 )
