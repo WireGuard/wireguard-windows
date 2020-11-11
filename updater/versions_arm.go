@@ -6,6 +6,7 @@
 package updater
 
 import (
+	"debug/pe"
 	"errors"
 
 	"golang.org/x/sys/windows"
@@ -17,15 +18,15 @@ func findArch() (arch string, err error) {
 	if err2 != nil {
 		var isWow64 bool
 		if windows.IsWow64Process(process, &isWow64) != nil || !isWow64 {
-			nativeMachine = IMAGE_FILE_MACHINE_ARMNT
+			nativeMachine = pe.IMAGE_FILE_MACHINE_ARMNT
 		} else {
-			nativeMachine = IMAGE_FILE_MACHINE_ARM64
+			nativeMachine = pe.IMAGE_FILE_MACHINE_ARM64
 		}
 	}
 	switch nativeMachine {
-	case IMAGE_FILE_MACHINE_ARM64:
+	case pe.IMAGE_FILE_MACHINE_ARM64:
 		arch = "arm64"
-	case IMAGE_FILE_MACHINE_ARMNT:
+	case pe.IMAGE_FILE_MACHINE_ARMNT:
 		arch = "arm"
 	default:
 		err = errors.New("Invalid GOARCH")
