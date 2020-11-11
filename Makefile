@@ -1,4 +1,4 @@
-GOFLAGS := -ldflags="-H windowsgui -s -w" -v -trimpath
+GOFLAGS := -tags load_wintun_from_rsrc -ldflags="-H windowsgui -s -w" -v -trimpath
 export GOOS := windows
 export PATH := $(CURDIR)/.deps/go/bin:$(PATH)
 
