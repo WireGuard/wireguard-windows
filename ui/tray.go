@@ -113,7 +113,7 @@ func (tray *Tray) onTunnelChange(tunnel *manager.Tunnel, state manager.TunnelSta
 				tray.ShowCustom(l18n.Sprintf("WireGuard Activated"), l18n.Sprintf("The %s tunnel has been activated.", tunnel.Name), icon)
 
 			case manager.TunnelStopped:
-				icon, _ := loadSystemIcon("imageres", 26, 128) // TODO: this icon isn't very good...
+				icon, _ := loadSystemIcon("imageres", -31, 128) // TODO: this icon isn't very good...
 				tray.ShowCustom(l18n.Sprintf("WireGuard Deactivated"), l18n.Sprintf("The %s tunnel has been deactivated.", tunnel.Name), icon)
 			}
 		} else if !tray.mtw.Visible() {

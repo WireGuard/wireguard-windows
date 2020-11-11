@@ -60,7 +60,7 @@ func NewUpdatePage() (*UpdatePage, error) {
 	if err != nil {
 		return nil, err
 	}
-	updateIcon, _ := loadSystemIcon("shell32", 46, 32)
+	updateIcon, _ := loadSystemIcon("shell32", -47, 32)
 	button.SetImage(updateIcon)
 	button.SetText(l18n.Sprintf("Update Now"))
 
