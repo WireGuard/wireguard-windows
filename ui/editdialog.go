@@ -78,7 +78,7 @@ func newEditDialog(owner walk.Form, tunnel *manager.Tunnel) (*EditDialog, error)
 	dlg.SetTitle(title)
 	dlg.SetLayout(layout)
 	dlg.SetMinMaxSize(walk.Size{500, 400}, walk.Size{0, 0})
-	if icon, err := loadSystemIcon("imageres", 109, 32); err == nil {
+	if icon, err := loadSystemIcon("imageres", -114, 32); err == nil {
 		dlg.SetIcon(icon)
 	}
 
