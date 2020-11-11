@@ -85,7 +85,7 @@ if exist .deps\prepared goto :render
 	if %1==arm64 (
 		copy "arm\wireguard.exe" "%~1\wireguard.exe" || exit /b 1
 	) else (
-		go build -ldflags="-H windowsgui -s -w" -trimpath -v -o "%~1\wireguard.exe" || exit /b 1
+		go build -tags load_wintun_from_rsrc -ldflags="-H windowsgui -s -w" -trimpath -v -o "%~1\wireguard.exe" || exit /b 1
 	)
 	if not exist "%~1\wg.exe" (
 		echo [+] Building command line tools %1
