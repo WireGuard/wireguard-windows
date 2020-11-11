@@ -6,13 +6,16 @@
 package main
 
 import (
+	"debug/pe"
 	"fmt"
 	"log"
 	"os"
 	"runtime"
 	"strconv"
 	"strings"
+	"syscall"
 	"time"
+	"unsafe"
 
 	"golang.org/x/sys/windows"
 	"golang.zx2c4.com/wireguard/tun"
@@ -61,17 +64,47 @@ func usage() {
 	os.Exit(1)
 }
 
-func checkForWow64() {
-	if runtime.GOARCH == "arm" { //TODO: remove this exception when Go supports arm64
+//TODO: replace with https://go-review.googlesource.com/c/sys/+/269077 once merged
+func isWow64Process2(handle windows.Handle, processMachine *uint16, nativeMachine *uint16) (err error) {
+	p := windows.NewLazySystemDLL("kernel32.dll").NewProc("IsWow64Process2")
+	err = p.Find()
+	if err != nil {
 		return
 	}
-	var b bool
-	err := windows.IsWow64Process(windows.CurrentProcess(), &b)
+	ret, _, e := syscall.Syscall(p.Addr(), 3, uintptr(handle), uintptr(unsafe.Pointer(processMachine)), uintptr(unsafe.Pointer(nativeMachine)))
+	if ret == 0 {
+		err = e
+		return err
+	}
+	return
+}
+
+func checkForWow64() {
+	b, err := func() (bool, error) {
+		var processMachine, nativeMachine uint16
+		err := isWow64Process2(windows.CurrentProcess(), &processMachine, &nativeMachine)
+		if err == nil {
+			if nativeMachine == pe.IMAGE_FILE_MACHINE_ARM64 && runtime.GOARCH == "arm" {
+				//TODO: remove this exception when Go supports arm64
+				return false, nil
+			}
+			return processMachine != pe.IMAGE_FILE_MACHINE_UNKNOWN, nil
+		}
+		if _, isDllErr := err.(*windows.DLLError); !isDllErr {
+			return false, err
+		}
+		var b bool
+		err = windows.IsWow64Process(windows.CurrentProcess(), &b)
+		if err != nil {
+			return false, err
+		}
+		return b, nil
+	}()
 	if err != nil {
 		fatalf("Unable to determine whether the process is running under WOW64: %v", err)
 	}
 	if b {
-		fatalf("You must use the 64-bit version of WireGuard on this computer.")
+		fatalf("You must use the native version of WireGuard on this computer.")
 	}
 }
 
