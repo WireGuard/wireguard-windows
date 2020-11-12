@@ -30,14 +30,16 @@ $(eval $(call download,wintun.zip,https://www.wintun.net/builds/wintun-0.9.zip,e
 
 .deps/go/prepared: .distfiles/go.tar.gz $(wildcard go-patches/*.patch)
 	mkdir -p .deps
+	rm -rf .deps/go
 	tar -C .deps -xzf .distfiles/go.tar.gz
 	chmod -R +w .deps/go
 	cat $(filter %.patch,$^) | patch -f -N -r- -p1 -d .deps/go
-	cd .deps/go/src && GOOS=linux go build -v -o ../pkg/tool/linux_amd64/link cmd/link
+	cd .deps/go/src && GOARCH=amd64 GOOS=linux go build -v -o ../pkg/tool/linux_amd64/link cmd/link
 	touch $@
 
 .deps/wintun/prepared: .distfiles/wintun.zip
 	mkdir -p .deps
+	rm -rf .deps/wintun
 	bsdtar -C .deps -xf .distfiles/wintun.zip
 	touch $@
 
