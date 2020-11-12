@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"runtime"
 	"strconv"
 	"strings"
 	"time"
@@ -61,6 +62,9 @@ func usage() {
 }
 
 func checkForWow64() {
+	if runtime.GOARCH == "arm" { //TODO: remove this exception when Go supports arm64
+		return
+	}
 	var b bool
 	err := windows.IsWow64Process(windows.CurrentProcess(), &b)
 	if err != nil {
