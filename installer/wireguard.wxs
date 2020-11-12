@@ -92,6 +92,14 @@
 		</Feature>
 
 		<!--
+			Abort early if running under Wow64
+		-->
+		<CustomAction Id="CheckWow64" BinaryKey="customactions.dll" DllEntry="CheckWow64" />
+		<InstallExecuteSequence>
+			<Custom Action="CheckWow64" After="FindRelatedProducts" />
+		</InstallExecuteSequence>
+
+		<!--
 			Evaluate WireGuard services and populate ServiceControl table
 		-->
 		<CustomAction Id="EvaluateWireGuardServices" BinaryKey="customactions.dll" DllEntry="EvaluateWireGuardServices" />

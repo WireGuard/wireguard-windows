@@ -17,7 +17,7 @@
 #define MANAGER_SERVICE_NAME TEXT("WireGuardManager")
 #define TUNNEL_SERVICE_PREFIX TEXT("WireGuardTunnel$")
 
-enum log_level { LOG_LEVEL_INFO, LOG_LEVEL_WARN, LOG_LEVEL_ERR };
+enum log_level { LOG_LEVEL_INFO, LOG_LEVEL_WARN, LOG_LEVEL_ERR, LOG_LEVEL_MSIERR };
 
 static void log_messagef(MSIHANDLE installer, enum log_level level, const TCHAR *format, ...)
 {
@@ -47,6 +47,10 @@ static void log_messagef(MSIHANDLE installer, enum log_level level, const TCHAR 
 		break;
 	case LOG_LEVEL_ERR:
 		template = TEXT("WireGuard error: [1]");
+		type = INSTALLMESSAGE_ERROR;
+		break;
+	case LOG_LEVEL_MSIERR:
+		template = TEXT("[1]");
 		type = INSTALLMESSAGE_ERROR;
 		break;
 	default:
@@ -491,4 +495,44 @@ out:
 	if (is_com_initialized)
 		CoUninitialize();
 	return ERROR_SUCCESS;
+}
+
+__declspec(dllexport) UINT __stdcall CheckWow64(MSIHANDLE installer)
+{
+	UINT ret = ERROR_SUCCESS;
+	bool is_com_initialized = SUCCEEDED(CoInitialize(NULL));
+	HMODULE kernel32 = GetModuleHandle(TEXT("kernel32.dll"));
+	BOOL(WINAPI *IsWow64Process2)(HANDLE hProcess, USHORT *pProcessMachine, USHORT *pNativeMachine);
+	USHORT process_machine, native_machine;
+	BOOL is_wow64_process;
+
+	if (!kernel32) {
+		ret = GetLastError();
+		log_errorf(installer, LOG_LEVEL_ERR, ret, TEXT("Failed to get kernel32.dll handle"));
+		goto out;
+	}
+	IsWow64Process2 = (void *)GetProcAddress(kernel32, "IsWow64Process2");
+	if (IsWow64Process2) {
+		if (!IsWow64Process2(GetCurrentProcess(), &process_machine, &native_machine)) {
+			ret = GetLastError();
+			log_errorf(installer, LOG_LEVEL_ERR, ret, TEXT("Failed to determine Wow64 status from IsWow64Process2"));
+			goto out;
+		}
+		if (process_machine == IMAGE_FILE_MACHINE_UNKNOWN)
+			goto out;
+	} else {
+		if (!IsWow64Process(GetCurrentProcess(), &is_wow64_process)) {
+			ret = GetLastError();
+			log_errorf(installer, LOG_LEVEL_ERR, ret, TEXT("Failed to determine Wow64 status from IsWow64Process"));
+			goto out;
+		}
+		if (!is_wow64_process)
+			goto out;
+	}
+	log_messagef(installer, LOG_LEVEL_MSIERR, TEXT("You must use the native version of WireGuard on this computer."));
+	ret = ERROR_INSTALL_FAILURE;
+out:
+	if (is_com_initialized)
+		CoUninitialize();
+	return ret;
 }
