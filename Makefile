@@ -44,7 +44,7 @@ $(eval $(call download,wintun.zip,https://www.wintun.net/builds/wintun-0.9.zip,e
 	touch $@
 
 %.ico: %.svg
-	convert -background none $< -define icon:auto-resize="256,192,128,96,64,48,32,24,16" $@
+	convert -background none $< -define icon:auto-resize="256,192,128,96,64,48,40,32,24,20,16" -compress zip $@
 
 resources_amd64.syso: $(RESOURCE_FILES)
 	x86_64-w64-mingw32-windres $(RCFLAGS) -I .deps/wintun/bin/amd64 -i $< -o $@
