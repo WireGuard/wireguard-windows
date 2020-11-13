@@ -7,15 +7,14 @@ package main
 
 import (
 	"debug/pe"
+	"errors"
 	"fmt"
 	"log"
 	"os"
 	"runtime"
 	"strconv"
 	"strings"
-	"syscall"
 	"time"
-	"unsafe"
 
 	"golang.org/x/sys/windows"
 	"golang.zx2c4.com/wireguard/tun"
@@ -64,25 +63,10 @@ func usage() {
 	os.Exit(1)
 }
 
-//TODO: replace with https://go-review.googlesource.com/c/sys/+/269077 once merged
-func isWow64Process2(handle windows.Handle, processMachine *uint16, nativeMachine *uint16) (err error) {
-	p := windows.NewLazySystemDLL("kernel32.dll").NewProc("IsWow64Process2")
-	err = p.Find()
-	if err != nil {
-		return
-	}
-	ret, _, e := syscall.Syscall(p.Addr(), 3, uintptr(handle), uintptr(unsafe.Pointer(processMachine)), uintptr(unsafe.Pointer(nativeMachine)))
-	if ret == 0 {
-		err = e
-		return err
-	}
-	return
-}
-
 func checkForWow64() {
 	b, err := func() (bool, error) {
 		var processMachine, nativeMachine uint16
-		err := isWow64Process2(windows.CurrentProcess(), &processMachine, &nativeMachine)
+		err := windows.IsWow64Process2(windows.CurrentProcess(), &processMachine, &nativeMachine)
 		if err == nil {
 			if nativeMachine == pe.IMAGE_FILE_MACHINE_ARM64 && runtime.GOARCH == "arm" {
 				//TODO: remove this exception when Go supports arm64
@@ -90,7 +74,7 @@ func checkForWow64() {
 			}
 			return processMachine != pe.IMAGE_FILE_MACHINE_UNKNOWN, nil
 		}
-		if _, isDllErr := err.(*windows.DLLError); !isDllErr {
+		if !errors.Is(err, windows.ERROR_PROC_NOT_FOUND) {
 			return false, err
 		}
 		var b bool

@@ -12,24 +12,17 @@ import (
 	"golang.org/x/sys/windows"
 )
 
-func findArch() (arch string, err error) {
-	process := windows.CurrentProcess()
-	_, nativeMachine, err2 := isWow64Process2(process)
-	if err2 != nil {
-		var isWow64 bool
-		if windows.IsWow64Process(process, &isWow64) != nil || !isWow64 {
-			nativeMachine = pe.IMAGE_FILE_MACHINE_ARMNT
-		} else {
-			nativeMachine = pe.IMAGE_FILE_MACHINE_ARM64
-		}
+func findArch() (string, error) {
+	var processMachine, nativeMachine uint16
+	err := windows.IsWow64Process2(windows.CurrentProcess(), &processMachine, &nativeMachine)
+	if err != nil {
+		return "", err
 	}
 	switch nativeMachine {
 	case pe.IMAGE_FILE_MACHINE_ARM64:
-		arch = "arm64"
+		return "arm64", nil
 	case pe.IMAGE_FILE_MACHINE_ARMNT:
-		arch = "arm"
-	default:
-		err = errors.New("Invalid GOARCH")
+		return "arm", nil
 	}
-	return
+	return "", errors.New("Invalid GOARCH")
 }
