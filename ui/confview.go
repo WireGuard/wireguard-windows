@@ -364,7 +364,11 @@ func (iv *interfaceView) widgetsLines() []widgetsLine {
 }
 
 func (iv *interfaceView) apply(c *conf.Interface) {
-	iv.publicKey.show(c.PrivateKey.Public().String())
+	if IsAdmin {
+		iv.publicKey.show(c.PrivateKey.Public().String())
+	} else {
+		iv.publicKey.hide()
+	}
 
 	if c.ListenPort > 0 {
 		iv.listenPort.show(strconv.Itoa(int(c.ListenPort)))
@@ -405,9 +409,13 @@ func (pv *peerView) widgetsLines() []widgetsLine {
 }
 
 func (pv *peerView) apply(c *conf.Peer) {
-	pv.publicKey.show(c.PublicKey.String())
+	if IsAdmin {
+		pv.publicKey.show(c.PublicKey.String())
+	} else {
+		pv.publicKey.hide()
+	}
 
-	if !c.PresharedKey.IsZero() {
+	if !c.PresharedKey.IsZero() && IsAdmin {
 		pv.presharedKey.show(l18n.Sprintf("enabled"))
 	} else {
 		pv.presharedKey.hide()

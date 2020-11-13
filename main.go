@@ -137,10 +137,10 @@ func main() {
 	checkForWow64()
 
 	if len(os.Args) <= 1 {
-		checkForAdminGroup()
 		if ui.RaiseUI() {
 			return
 		}
+		checkForAdminGroup()
 		err := execElevatedManagerServiceInstaller()
 		if err != nil {
 			fatal(err)
@@ -213,9 +213,18 @@ func main() {
 		if len(os.Args) != 6 {
 			usage()
 		}
-		err := elevate.DropAllPrivileges(false)
-		if err != nil {
-			fatal(err)
+		var processToken windows.Token
+		isAdmin := false
+		err := windows.OpenProcessToken(windows.CurrentProcess(), windows.TOKEN_QUERY|windows.TOKEN_DUPLICATE, &processToken)
+		if err == nil {
+			isAdmin = elevate.TokenIsElevatedOrElevatable(processToken)
+			processToken.Close()
+		}
+		if isAdmin {
+			err := elevate.DropAllPrivileges(false)
+			if err != nil {
+				fatal(err)
+			}
 		}
 		readPipe, err := pipeFromHandleArgument(os.Args[2])
 		if err != nil {
@@ -234,6 +243,7 @@ func main() {
 			fatal(err)
 		}
 		manager.InitializeIPCClient(readPipe, writePipe, eventPipe)
+		ui.IsAdmin = isAdmin
 		ui.RunUI()
 		return
 	case "/dumplog":

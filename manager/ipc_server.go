@@ -38,7 +38,14 @@ type ManagerService struct {
 }
 
 func (s *ManagerService) StoredConfig(tunnelName string) (*conf.Config, error) {
-	return conf.LoadFromName(tunnelName)
+	conf, err := conf.LoadFromName(tunnelName)
+	if err != nil {
+		return nil, err
+	}
+	if s.elevatedToken == 0 {
+		conf.Redact()
+	}
+	return conf, nil
 }
 
 func (s *ManagerService) RuntimeConfig(tunnelName string) (*conf.Config, error) {
@@ -69,7 +76,14 @@ func (s *ManagerService) RuntimeConfig(tunnelName string) (*conf.Config, error) 
 	if err != nil {
 		return nil, err
 	}
-	return conf.FromUAPI(string(resp), storedConfig)
+	conf, err := conf.FromUAPI(string(resp), storedConfig)
+	if err != nil {
+		return nil, err
+	}
+	if s.elevatedToken == 0 {
+		conf.Redact()
+	}
+	return conf, nil
 }
 
 func (s *ManagerService) Start(tunnelName string) error {
@@ -149,6 +163,9 @@ func (s *ManagerService) WaitForStop(tunnelName string) error {
 }
 
 func (s *ManagerService) Delete(tunnelName string) error {
+	if s.elevatedToken == 0 {
+		return windows.ERROR_ACCESS_DENIED
+	}
 	err := s.Stop(tunnelName)
 	if err != nil {
 		return err
@@ -193,6 +210,9 @@ func (s *ManagerService) GlobalState() TunnelState {
 }
 
 func (s *ManagerService) Create(tunnelConfig *conf.Config) (*Tunnel, error) {
+	if s.elevatedToken == 0 {
+		return nil, windows.ERROR_ACCESS_DENIED
+	}
 	err := tunnelConfig.Save()
 	if err != nil {
 		return nil, err
@@ -216,6 +236,9 @@ func (s *ManagerService) Tunnels() ([]Tunnel, error) {
 }
 
 func (s *ManagerService) Quit(stopTunnelsOnQuit bool) (alreadyQuit bool, err error) {
+	if s.elevatedToken == 0 {
+		return false, windows.ERROR_ACCESS_DENIED
+	}
 	if !atomic.CompareAndSwapUint32(&haveQuit, 0, 1) {
 		return true, nil
 	}
@@ -244,6 +267,9 @@ func (s *ManagerService) UpdateState() UpdateState {
 }
 
 func (s *ManagerService) Update() {
+	if s.elevatedToken == 0 {
+		return
+	}
 	progress := updater.DownloadVerifyAndExecute(uintptr(s.elevatedToken))
 	go func() {
 		for {
@@ -443,7 +469,7 @@ func IPCServerListen(reader *os.File, writer *os.File, events *os.File, elevated
 	}()
 }
 
-func notifyAll(notificationType NotificationType, ifaces ...interface{}) {
+func notifyAll(notificationType NotificationType, adminOnly bool, ifaces ...interface{}) {
 	if len(managerServices) == 0 {
 		return
 	}
@@ -463,6 +489,9 @@ func notifyAll(notificationType NotificationType, ifaces ...interface{}) {
 
 	managerServicesLock.RLock()
 	for m := range managerServices {
+		if m.elevatedToken == 0 && adminOnly {
+			continue
+		}
 		m.events.SetWriteDeadline(time.Now().Add(time.Second))
 		m.events.Write(buf.Bytes())
 	}
@@ -477,22 +506,22 @@ func errToString(err error) string {
 }
 
 func IPCServerNotifyTunnelChange(name string, state TunnelState, err error) {
-	notifyAll(TunnelChangeNotificationType, name, state, trackedTunnelsGlobalState(), errToString(err))
+	notifyAll(TunnelChangeNotificationType, false, name, state, trackedTunnelsGlobalState(), errToString(err))
 }
 
 func IPCServerNotifyTunnelsChange() {
-	notifyAll(TunnelsChangeNotificationType)
+	notifyAll(TunnelsChangeNotificationType, false)
 }
 
 func IPCServerNotifyUpdateFound(state UpdateState) {
-	notifyAll(UpdateFoundNotificationType, state)
+	notifyAll(UpdateFoundNotificationType, true, state)
 }
 
 func IPCServerNotifyUpdateProgress(dp updater.DownloadProgress) {
-	notifyAll(UpdateProgressNotificationType, dp.Activity, dp.BytesDownloaded, dp.BytesTotal, errToString(dp.Error), dp.Complete)
+	notifyAll(UpdateProgressNotificationType, true, dp.Activity, dp.BytesDownloaded, dp.BytesTotal, errToString(dp.Error), dp.Complete)
 }
 
 func IPCServerNotifyManagerStopping() {
-	notifyAll(ManagerStoppingNotificationType)
+	notifyAll(ManagerStoppingNotificationType, false)
 	time.Sleep(time.Millisecond * 200)
 }

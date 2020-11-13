@@ -84,7 +84,7 @@ func (r *IPCidr) IPNet() net.IPNet {
 func (r *IPCidr) MaskSelf() {
 	bits := int(r.Bits())
 	mask := net.CIDRMask(int(r.Cidr), bits)
-	for i := 0; i < bits / 8; i++ {
+	for i := 0; i < bits/8; i++ {
 		r.IP[i] &= mask[i]
 	}
 }
@@ -236,5 +236,13 @@ func (conf *Config) DeduplicateNetworkEntries() {
 			i++
 		}
 		peer.AllowedIPs = peer.AllowedIPs[:i]
+	}
+}
+
+func (conf *Config) Redact() {
+	conf.Interface.PrivateKey = Key{}
+	for i := range conf.Peers {
+		conf.Peers[i].PublicKey = Key{}
+		conf.Peers[i].PresharedKey = Key{}
 	}
 }

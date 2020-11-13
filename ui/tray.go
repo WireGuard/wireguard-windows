@@ -82,10 +82,10 @@ func (tray *Tray) setup() error {
 		{separator: true},
 		{separator: true},
 		{label: l18n.Sprintf("&Manage tunnels…"), handler: tray.onManageTunnels, enabled: true, defawlt: true},
-		{label: l18n.Sprintf("&Import tunnel(s) from file…"), handler: tray.onImport, enabled: true},
+		{label: l18n.Sprintf("&Import tunnel(s) from file…"), handler: tray.onImport, enabled: true, hidden: !IsAdmin},
 		{separator: true},
 		{label: l18n.Sprintf("&About WireGuard…"), handler: tray.onAbout, enabled: true},
-		{label: l18n.Sprintf("E&xit"), handler: onQuit, enabled: true},
+		{label: l18n.Sprintf("E&xit"), handler: onQuit, enabled: true, hidden: !IsAdmin},
 	} {
 		var action *walk.Action
 		if item.separator {

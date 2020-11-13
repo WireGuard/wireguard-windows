@@ -23,6 +23,7 @@ import (
 var noTrayAvailable = false
 var shouldQuitManagerWhenExiting = false
 var startTime = time.Now()
+var IsAdmin = false // A global, because this really is global for the process
 
 func RunUI() {
 	runtime.LockOSThread()

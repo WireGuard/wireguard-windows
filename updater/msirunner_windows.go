@@ -32,7 +32,6 @@ func (t *tempFile) ExclusivePath() string {
 	return t.Name()
 }
 
-
 func (t *tempFile) Delete() error {
 	if t.originalHandle == 0 {
 		name16, err := windows.UTF16PtrFromString(t.Name())
