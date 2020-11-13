@@ -96,7 +96,7 @@
 		-->
 		<CustomAction Id="CheckWow64" BinaryKey="customactions.dll" DllEntry="CheckWow64" />
 		<InstallExecuteSequence>
-			<Custom Action="CheckWow64" After="FindRelatedProducts" />
+			<Custom Action="CheckWow64" After="FindRelatedProducts">NOT REMOVE</Custom>
 		</InstallExecuteSequence>
 
 		<!--
@@ -104,7 +104,7 @@
 		-->
 		<CustomAction Id="CheckKB2921916" BinaryKey="customactions.dll" DllEntry="CheckKB2921916" />
 		<InstallExecuteSequence>
-			<Custom Action="CheckKB2921916" After="CheckWow64" />
+			<Custom Action="CheckKB2921916" After="CheckWow64">NOT REMOVE</Custom>
 		</InstallExecuteSequence>
 
 		<!--
