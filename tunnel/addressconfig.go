@@ -130,7 +130,7 @@ func configureInterface(family winipcfg.AddressFamily, conf *conf.Config, tun *t
 
 	err = luid.SetRoutesForFamily(family, deduplicatedRoutes)
 	if err != nil {
-		return nil
+		return err
 	}
 
 	ipif, err := luid.IPInterface(family)
