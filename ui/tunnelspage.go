@@ -326,6 +326,9 @@ func (tp *TunnelsPage) importFiles(paths []string) {
 		}
 
 		if lastErr != nil || unparsedConfigs == nil {
+			if lastErr == nil {
+				lastErr = errors.New(l18n.Sprintf("no configuration files were found"))
+			}
 			syncedMsgBox(l18n.Sprintf("Error"), l18n.Sprintf("Could not import selected configuration: %v", lastErr), walk.MsgBoxIconWarning)
 			return
 		}
