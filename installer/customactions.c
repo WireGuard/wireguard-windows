@@ -383,9 +383,7 @@ __declspec(dllexport) UINT __stdcall KillWireGuardProcesses(MSIHANDLE installer)
 	size_t file_ids_len = 0;
 	bool is_com_initialized = SUCCEEDED(CoInitialize(NULL));
 
-	if (calculate_known_file_id(&FOLDERID_System, TEXT("wg.exe"), &file_ids[file_ids_len]))
-		++file_ids_len;
-	if (calculate_known_file_id(&FOLDERID_SystemX86, TEXT("wg.exe"), &file_ids[file_ids_len]))
+	if (calculate_known_file_id(&FOLDERID_ProgramFiles, TEXT("WireGuard\\wg.exe"), &file_ids[file_ids_len]))
 		++file_ids_len;
 	if (calculate_known_file_id(&FOLDERID_ProgramFiles, TEXT("WireGuard\\wireguard.exe"), &file_ids[file_ids_len]))
 		++file_ids_len;
