@@ -264,32 +264,33 @@ __declspec(dllexport) UINT __stdcall EvaluateWireGuardComponents(MSIHANDLE insta
 	UINT ret = ERROR_INSTALL_FAILURE;
 	bool is_com_initialized = SUCCEEDED(CoInitialize(NULL));
 	INSTALLSTATE component_installed, component_action;
+	TCHAR path[MAX_PATH];
+	DWORD path_len = _countof(path);
 
 	ret = MsiGetComponentState(installer, TEXT("WireGuardExecutable"), &component_installed, &component_action);
 	if (ret != ERROR_SUCCESS) {
 		log_errorf(installer, LOG_LEVEL_ERR, ret, TEXT("MsiGetComponentState(\"WireGuardExecutable\") failed"));
 		goto out;
 	}
+	ret = MsiGetProperty(installer, TEXT("WireGuardFolder"), path, &path_len);
+	if (ret != ERROR_SUCCESS) {
+		log_errorf(installer, LOG_LEVEL_ERR, ret, TEXT("MsiGetProperty(\"WireGuardFolder\") failed"));
+		goto out;
+	}
+	ret = MsiSetProperty(installer, TEXT("KillWireGuardProcesses"), path);
+	if (ret != ERROR_SUCCESS) {
+		log_errorf(installer, LOG_LEVEL_ERR, ret, TEXT("MsiSetProperty(\"KillWireGuardProcesses\") failed"));
+		goto out;
+	}
+
 	if (component_action >= INSTALLSTATE_LOCAL) {
 		/* WireGuardExecutable component shall be installed or updated. */
 	} else if (component_action >= INSTALLSTATE_REMOVED) {
 		/* WireGuardExecutable component shall be uninstalled. */
-		TCHAR path[MAX_PATH];
-		DWORD path_len = _countof(path);
-
 		log_messagef(installer, LOG_LEVEL_INFO, TEXT("WireGuardExecutable removal scheduled"));
-		ret = MsiSetProperty(installer, TEXT("RemoveConfigFolder"), TEXT("remove"));
+		ret = MsiSetProperty(installer, TEXT("RemoveConfigFolder"), path);
 		if (ret != ERROR_SUCCESS) {
 			log_errorf(installer, LOG_LEVEL_ERR, ret, TEXT("MsiSetProperty(\"RemoveConfigFolder\") failed"));
-			goto out;
-		}
-		ret = MsiGetProperty(installer, TEXT("WireGuardFolder"), path, &path_len);
-		if (ret != ERROR_SUCCESS) {
-			log_errorf(installer, LOG_LEVEL_ERR, ret, TEXT("MsiFormatRecord failed"));
-			goto out;
-		}
-		if (!PathAppend(path, TEXT("wireguard.exe"))) {
-			log_errorf(installer, LOG_LEVEL_ERR, ret = GetLastError(), TEXT("PathAppend(\"%1\", \"wireguard.exe\") failed"), path);
 			goto out;
 		}
 		ret = MsiSetProperty(installer, TEXT("RemoveAdapters"), path);
@@ -318,18 +319,8 @@ __declspec(dllexport) UINT __stdcall RemoveConfigFolder(MSIHANDLE installer)
 		log_errorf(installer, LOG_LEVEL_WARN, ret, TEXT("MsiGetProperty(\"CustomActionData\") failed"));
 		goto out;
 	}
-	if (_tcscmp(path, _T("remove")))
+	if (!path[0] || !PathAppend(path, TEXT("Data")))
 		goto out;
-	ret = SHRegGetPath(HKEY_LOCAL_MACHINE, TEXT("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList\\S-1-5-18"),
-			   TEXT("ProfileImagePath"), path, 0);
-	if (ret != ERROR_SUCCESS) {
-		log_errorf(installer, LOG_LEVEL_WARN, ret, TEXT("SHRegGetPath failed"));
-		goto out;
-	}
-	if (!PathAppend(path, TEXT("AppData\\Local\\WireGuard"))) {
-		log_errorf(installer, LOG_LEVEL_WARN, GetLastError(), TEXT("PathAppend(\"%1\", \"AppData\\Local\\WireGuard\") failed"), path);
-		goto out;
-	}
 	remove_directory_recursive(installer, path, 10);
 out:
 	if (is_com_initialized)
@@ -358,34 +349,28 @@ static bool calculate_file_id(const TCHAR *path, struct file_id *id)
 	return true;
 }
 
-static bool calculate_known_file_id(const KNOWNFOLDERID *known_folder, const TCHAR *file, struct file_id *id)
-{
-	TCHAR *folder_path, process_path[MAX_PATH + 1];
-	bool ret = false;
-
-	if (SHGetKnownFolderPath(known_folder, KF_FLAG_DEFAULT, NULL, &folder_path) == S_OK) {
-		if (PathCombine(process_path, folder_path, file)) {
-			if (calculate_file_id(process_path, id))
-				ret = true;
-		}
-		CoTaskMemFree(folder_path);
-	}
-	return ret;
-}
-
 __declspec(dllexport) UINT __stdcall KillWireGuardProcesses(MSIHANDLE installer)
 {
 	HANDLE snapshot, process;
 	PROCESSENTRY32 entry = { .dwSize = sizeof(PROCESSENTRY32) };
-	TCHAR process_path[MAX_PATH + 1];
-	DWORD process_path_len;
+	TCHAR process_path[MAX_PATH], executable[MAX_PATH];
+	DWORD process_path_len = _countof(process_path);
 	struct file_id file_ids[3], file_id;
 	size_t file_ids_len = 0;
 	bool is_com_initialized = SUCCEEDED(CoInitialize(NULL));
+	LSTATUS mret;
 
-	if (calculate_known_file_id(&FOLDERID_ProgramFiles, TEXT("WireGuard\\wg.exe"), &file_ids[file_ids_len]))
+	mret = MsiGetProperty(installer, TEXT("CustomActionData"), process_path, &process_path_len);
+	if (mret != ERROR_SUCCESS) {
+		log_errorf(installer, LOG_LEVEL_WARN, mret, TEXT("MsiGetProperty(\"CustomActionData\") failed"));
+		goto out;
+	}
+	if (!process_path[0])
+		goto out;
+
+	if (PathCombine(executable, process_path, TEXT("wg.exe")) && calculate_file_id(executable, &file_ids[file_ids_len]))
 		++file_ids_len;
-	if (calculate_known_file_id(&FOLDERID_ProgramFiles, TEXT("WireGuard\\wireguard.exe"), &file_ids[file_ids_len]))
+	if (PathCombine(executable, process_path, TEXT("wireguard.exe")) && calculate_file_id(executable, &file_ids[file_ids_len]))
 		++file_ids_len;
 	if (!file_ids_len)
 		goto out;
@@ -439,7 +424,7 @@ __declspec(dllexport) UINT __stdcall RemoveAdapters(MSIHANDLE installer)
 	char buf[0x200];
 	DWORD offset = 0, size_read;
 	PROCESS_INFORMATION pi;
-	STARTUPINFOW si = {
+	STARTUPINFO si = {
 		.cb = sizeof(STARTUPINFO),
 		.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES,
 		.wShowWindow = SW_HIDE
@@ -450,7 +435,7 @@ __declspec(dllexport) UINT __stdcall RemoveAdapters(MSIHANDLE installer)
 		log_errorf(installer, LOG_LEVEL_WARN, ret, TEXT("MsiGetProperty(\"CustomActionData\") failed"));
 		goto out;
 	}
-	if (!path[0])
+	if (!path[0] || !PathAppend(path, TEXT("wireguard.exe")))
 		goto out;
 
 	if (!CreatePipe(&pipe, &si.hStdOutput, NULL, 0)) {
