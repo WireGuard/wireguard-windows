@@ -172,6 +172,7 @@ static DWORD __stdcall download_thread(void *param)
 	filehandle = INVALID_HANDLE_VALUE;
 	ShowWindow(progress, SW_HIDE);
 	ret = MsiInstallProductA(msi_filename, NULL);
+	ret = ret == ERROR_INSTALL_USEREXIT ? ERROR_SUCCESS : ret;
 
 out:
 	if (request)
