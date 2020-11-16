@@ -6,12 +6,16 @@
 package conf
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
+	"regexp"
+	"strings"
 
 	"golang.org/x/sys/windows"
+	"golang.org/x/sys/windows/svc/mgr"
 )
 
 func maybeMigrateConfiguration(c string) {
@@ -27,6 +31,7 @@ func maybeMigrateConfiguration(c string) {
 	if err != nil {
 		return
 	}
+	migratedConfigs := make(map[string]string)
 	for i := range files {
 		if files[i].IsDir() {
 			continue
@@ -52,6 +57,7 @@ func maybeMigrateConfiguration(c string) {
 		}
 		newFile.Close()
 		os.Remove(oldPath)
+		migratedConfigs[strings.ToLower(oldPath)] = newPath
 		log.Printf("Migrated configuration from ‘%s’ to ‘%s’", oldPath, newPath)
 	}
 	if os.Remove(oldC) == nil {
@@ -60,4 +66,51 @@ func maybeMigrateConfiguration(c string) {
 		os.Remove(oldLog)
 		os.Remove(oldRoot)
 	}
+	if len(migratedConfigs) == 0 {
+		return
+	}
+	m, err := mgr.Connect()
+	if err != nil {
+		return
+	}
+	defer m.Disconnect()
+	services, err := m.ListServices()
+	if err != nil {
+		return
+	}
+	matcher, err := regexp.Compile(" /tunnelservice \"?([^\"]+)\"?$")
+	if err != nil {
+		return
+	}
+	for _, svcName := range services {
+		if !strings.HasPrefix(svcName, "WireGuardTunnel$") {
+			continue
+		}
+		svc, err := m.OpenService(svcName)
+		if err != nil {
+			continue
+		}
+		config, err := svc.Config()
+		if err != nil {
+			continue
+		}
+		matches := matcher.FindStringSubmatchIndex(config.BinaryPathName)
+		if len(matches) != 4 {
+			svc.Close()
+			continue
+		}
+		newName, found := migratedConfigs[strings.ToLower(config.BinaryPathName[matches[2]:])]
+		if !found {
+			svc.Close()
+			continue
+		}
+		config.BinaryPathName = config.BinaryPathName[:matches[0]] + fmt.Sprintf(" /tunnelservice \"%s\"", newName)
+		err = svc.UpdateConfig(config)
+		svc.Close()
+		if err != nil {
+			continue
+		}
+		log.Printf("Migrated service command line arguments for ‘%s’", svcName)
+	}
+
 }
