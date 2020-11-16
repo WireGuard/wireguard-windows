@@ -14,10 +14,6 @@ import (
 	"golang.zx2c4.com/wireguard/windows/elevate"
 )
 
-var cachedConfigFileDir string
-var cachedRootDir string
-var disableAutoMigration bool
-
 func tunnelConfigurationsDirectory() (string, error) {
 	if cachedConfigFileDir != "" {
 		return cachedConfigFileDir, nil
@@ -34,14 +30,6 @@ func tunnelConfigurationsDirectory() (string, error) {
 	maybeMigrateConfiguration(c)
 	cachedConfigFileDir = c
 	return cachedConfigFileDir, nil
-}
-
-// PresetRootDirectory causes RootDirectory() to not try any automatic deduction, and instead
-// uses what's passed to it. This isn't used by wireguard-windows, but is useful for external
-// consumers of our libraries who might want to do strange things.
-func PresetRootDirectory(root string) {
-	cachedRootDir = root
-	disableAutoMigration = true
 }
 
 func RootDirectory() (string, error) {
