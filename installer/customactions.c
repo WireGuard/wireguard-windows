@@ -82,6 +82,32 @@ static void log_errorf(MSIHANDLE installer, enum log_level level, DWORD error_co
 	LocalFree(system_message);
 }
 
+__declspec(dllexport) UINT __stdcall LaunchApplicationAndAbort(MSIHANDLE installer)
+{
+	UINT ret = ERROR_INSTALL_FAILURE;
+	TCHAR path[MAX_PATH];
+	DWORD path_len = _countof(path);
+	PROCESS_INFORMATION pi;
+	STARTUPINFO si = { .cb = sizeof(STARTUPINFO) };
+
+	ret = MsiGetProperty(installer, TEXT("WireGuardFolder"), path, &path_len);
+	if (ret != ERROR_SUCCESS) {
+		log_errorf(installer, LOG_LEVEL_WARN, ret, TEXT("MsiGetProperty(\"WireGuardFolder\") failed"));
+		goto out;
+	}
+	if (!path[0] || !PathAppend(path, TEXT("wireguard.exe")))
+		goto out;
+	log_messagef(installer, LOG_LEVEL_INFO, TEXT("Launching %1"), path);
+	if (!CreateProcess(path, TEXT("wireguard"), NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi)) {
+		log_errorf(installer, LOG_LEVEL_WARN, GetLastError(), TEXT("Failed to create \"%1\" process"), path);
+		goto out;
+	}
+	CloseHandle(pi.hProcess);
+	CloseHandle(pi.hThread);
+out:
+	return ERROR_INSTALL_USEREXIT;
+}
+
 static UINT insert_service_control(MSIHANDLE installer, MSIHANDLE view, const TCHAR *service_name, bool start)
 {
 	static unsigned int index = 0;

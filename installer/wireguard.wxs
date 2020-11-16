@@ -108,6 +108,14 @@
 		</InstallExecuteSequence>
 
 		<!--
+			Launch wireguard.exe on product reconfiguration (starting same MSI again)
+		-->
+		<CustomAction Id="LaunchApplicationAndAbort" BinaryKey="customactions.dll" DllEntry="LaunchApplicationAndAbort" />
+		<InstallExecuteSequence>
+			<Custom Action="LaunchApplicationAndAbort" After="CostFinalize">ProductState=5 AND NOT REMOVE AND NOT DO_NOT_LAUNCH</Custom>
+		</InstallExecuteSequence>
+
+		<!--
 			Evaluate WireGuard services and populate ServiceControl table
 		-->
 		<CustomAction Id="EvaluateWireGuardServices" BinaryKey="customactions.dll" DllEntry="EvaluateWireGuardServices" />
@@ -153,14 +161,6 @@
 		<CustomAction Id="LaunchApplication" HideTarget="yes" Impersonate="no" Execute="deferred" FileKey="wireguard.exe" ExeCommand="" Return="asyncNoWait" />
 		<InstallExecuteSequence>
 			<Custom Action="LaunchApplication" Before="InstallFinalize">(&amp;WireGuardFeature = 3) AND NOT DO_NOT_LAUNCH</Custom>
-		</InstallExecuteSequence>
-
-		<!--
-			Launch wireguard.exe on product reconfiguration (starting same MSI again)
-		-->
-		<CustomAction Id="LaunchApplicationAsOrdinaryUser" HideTarget="yes" FileKey="wireguard.exe" ExeCommand="" Return="asyncNoWait" />
-		<InstallExecuteSequence>
-			<Custom Action="LaunchApplicationAsOrdinaryUser" After="InstallFinalize">(&amp;WireGuardFeature = -1) AND (!WireGuardFeature = 3) AND NOT DO_NOT_LAUNCH</Custom>
 		</InstallExecuteSequence>
 	</Product>
 </Wix>
