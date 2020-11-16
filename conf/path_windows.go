@@ -12,7 +12,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"syscall"
 	"unsafe"
 
 	"golang.org/x/sys/windows"
@@ -47,23 +46,6 @@ func tunnelConfigurationsDirectory() (string, error) {
 func PresetRootDirectory(root string) {
 	cachedRootDir = root
 	disableAutoMigration = true
-}
-
-// TODO: replace with x/sys/windows upstreamed function
-func setKernelObjectSecurity(handle windows.Handle, securityInformation windows.SECURITY_INFORMATION, securityDescriptor *windows.SECURITY_DESCRIPTOR) (err error) {
-	r1, _, e1 := syscall.Syscall(windows.NewLazySystemDLL("advapi32.dll").NewProc("SetKernelObjectSecurity").Addr(), 3, uintptr(handle), uintptr(securityInformation), uintptr(unsafe.Pointer(securityDescriptor)))
-	if r1 == 0 {
-		err = errnoErr(e1)
-	}
-	return
-}
-func getFinalPathNameByHandle(file windows.Handle, filePath *uint16, filePathSize uint32, flags uint32) (n uint32, err error) {
-	r0, _, e1 := syscall.Syscall6(windows.NewLazySystemDLL("kernel32.dll").NewProc("GetFinalPathNameByHandleW").Addr(), 4, uintptr(file), uintptr(unsafe.Pointer(filePath)), uintptr(filePathSize), uintptr(flags), 0, 0)
-	n = uint32(r0)
-	if n == 0 {
-		err = errnoErr(e1)
-	}
-	return
 }
 
 func RootDirectory(create bool) (string, error) {
@@ -161,14 +143,14 @@ func RootDirectory(create bool) (string, error) {
 		return "", errors.New("Data directory is reparse point")
 	}
 	var buf [windows.MAX_PATH * 4]uint16
-	_, err = getFinalPathNameByHandle(dataHandle, &buf[0], uint32(len(buf)), 0)
+	_, err = windows.GetFinalPathNameByHandle(dataHandle, &buf[0], uint32(len(buf)), 0)
 	if err != nil {
 		return "", err
 	}
 	if !strings.EqualFold(`\\?\`+data, windows.UTF16ToString(buf[:])) {
 		return "", fmt.Errorf("Data directory jumped to unexpected location: got %q; want %q", windows.UTF16ToString(buf[:]), `\\?\`+data)
 	}
-	err = setKernelObjectSecurity(dataHandle, windows.DACL_SECURITY_INFORMATION|windows.GROUP_SECURITY_INFORMATION|windows.OWNER_SECURITY_INFORMATION|windows.PROTECTED_DACL_SECURITY_INFORMATION, dataDirectorySd)
+	err = windows.SetKernelObjectSecurity(dataHandle, windows.DACL_SECURITY_INFORMATION|windows.GROUP_SECURITY_INFORMATION|windows.OWNER_SECURITY_INFORMATION|windows.PROTECTED_DACL_SECURITY_INFORMATION, dataDirectorySd)
 	if err != nil {
 		return "", err
 	}
