@@ -467,6 +467,7 @@ __declspec(dllexport) UINT __stdcall RemoveAdapters(MSIHANDLE installer)
 	}
 	WaitForSingleObject(pi.hProcess, INFINITE);
 	CloseHandle(pi.hProcess);
+	CloseHandle(pi.hThread);
 	goto cleanup_pipe_r;
 
 cleanup_pipe_w:
