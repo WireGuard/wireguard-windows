@@ -51,6 +51,7 @@ func RootDirectory(create bool) (string, error) {
 	if cachedRootDir != "" {
 		return cachedRootDir, nil
 	}
+	//TODO: remove the wow detection logic when Go supports arm64
 	var isWow bool
 	var processMachine, nativeMachine uint16
 	err := windows.IsWow64Process2(windows.CurrentProcess(), &processMachine, &nativeMachine)
@@ -67,7 +68,7 @@ func RootDirectory(create bool) (string, error) {
 	}
 	var root string
 	if !isWow {
-		root, err = windows.KnownFolderPath(windows.FOLDERID_ProgramFiles, windows.KF_FLAG_CREATE)
+		root, err = windows.KnownFolderPath(windows.FOLDERID_ProgramFiles, windows.KF_FLAG_DEFAULT)
 		if err != nil {
 			return "", err
 		}
