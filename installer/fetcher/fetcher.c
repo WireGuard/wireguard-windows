@@ -201,9 +201,8 @@ out:
 
 	if (ret) {
 		ShowWindow(progress, SW_SHOWDEFAULT);
-		if (MessageBoxA(progress, "Something went wrong when downloading the WireGuard installer. Would you like to open your web browser to the MSI download page?", "Download Error", MB_YESNO | MB_ICONWARNING) == IDYES) {
+		if (MessageBoxA(progress, "Something went wrong when downloading the WireGuard installer. Would you like to open your web browser to the MSI download page?", "Download Error", MB_YESNO | MB_ICONWARNING) == IDYES)
 			ShellExecuteA(progress, NULL, "https://" server msi_path, NULL, NULL, SW_SHOWNORMAL);
-		}
 	}
 	exit(ret);
 	return ret;
