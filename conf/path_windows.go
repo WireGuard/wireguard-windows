@@ -8,7 +8,6 @@ package conf
 import (
 	"debug/pe"
 	"errors"
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -122,7 +121,7 @@ func RootDirectory(create bool) (string, error) {
 		if err != nil && err != windows.ERROR_ALREADY_EXISTS {
 			return "", err
 		}
-		dataHandle, err = windows.CreateFile(data16, windows.READ_CONTROL|windows.WRITE_OWNER|windows.WRITE_DAC, windows.FILE_SHARE_READ|windows.FILE_SHARE_WRITE|windows.FILE_SHARE_DELETE, nil, windows.OPEN_EXISTING, windows.FILE_FLAG_BACKUP_SEMANTICS|windows.FILE_FLAG_OPEN_REPARSE_POINT, 0)
+		dataHandle, err = windows.CreateFile(data16, windows.READ_CONTROL|windows.WRITE_OWNER|windows.WRITE_DAC, windows.FILE_SHARE_READ|windows.FILE_SHARE_WRITE|windows.FILE_SHARE_DELETE, nil, windows.OPEN_EXISTING, windows.FILE_FLAG_BACKUP_SEMANTICS|windows.FILE_FLAG_OPEN_REPARSE_POINT|windows.FILE_ATTRIBUTE_DIRECTORY, 0)
 		if err != nil && err != windows.ERROR_FILE_NOT_FOUND {
 			return "", err
 		}
@@ -142,13 +141,19 @@ func RootDirectory(create bool) (string, error) {
 	if fileInfo.FileAttributes&windows.FILE_ATTRIBUTE_REPARSE_POINT != 0 {
 		return "", errors.New("Data directory is reparse point")
 	}
-	var buf [windows.MAX_PATH * 4]uint16
-	_, err = windows.GetFinalPathNameByHandle(dataHandle, &buf[0], uint32(len(buf)), 0)
-	if err != nil {
-		return "", err
+	buf := make([]uint16, windows.MAX_PATH+4)
+	for {
+		bufLen, err := windows.GetFinalPathNameByHandle(dataHandle, &buf[0], uint32(len(buf)), 0)
+		if err != nil {
+			return "", err
+		}
+		if bufLen < uint32(len(buf)) {
+			break
+		}
+		buf = make([]uint16, bufLen)
 	}
 	if !strings.EqualFold(`\\?\`+data, windows.UTF16ToString(buf[:])) {
-		return "", fmt.Errorf("Data directory jumped to unexpected location: got %q; want %q", windows.UTF16ToString(buf[:]), `\\?\`+data)
+		return "", errors.New("Data directory jumped to unexpected location")
 	}
 	err = windows.SetKernelObjectSecurity(dataHandle, windows.DACL_SECURITY_INFORMATION|windows.GROUP_SECURITY_INFORMATION|windows.OWNER_SECURITY_INFORMATION|windows.PROTECTED_DACL_SECURITY_INFORMATION, dataDirectorySd)
 	if err != nil {
