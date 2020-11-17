@@ -47,7 +47,7 @@ func VerifyAuthenticode(path string) bool {
 		StateAction:                     wintrust.WTD_STATEACTION_VERIFY,
 		FileOrCatalogOrBlobOrSgnrOrCert: uintptr(unsafe.Pointer(file)),
 	}
-	return wintrust.WinVerifyTrust(0, &wintrust.WINTRUST_ACTION_GENERIC_VERIFY_V2, data) == nil
+	return wintrust.WinVerifyTrust(windows.InvalidHandle, &wintrust.WINTRUST_ACTION_GENERIC_VERIFY_V2, data) == nil
 }
 
 // This is an easily by-passable check, which doesn't serve a security purpose but mostly just a low-grade
