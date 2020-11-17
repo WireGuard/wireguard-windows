@@ -41,8 +41,8 @@ func (t *tempFile) Delete() error {
 		}
 		return windows.DeleteFile(name16) //TODO: how does this deal with reparse points?
 	}
-	disposition := uint32(1)
-	err := windows.SetFileInformationByHandle(t.originalHandle, windows.FileDispositionInfo, (*byte)(unsafe.Pointer(&disposition)), uint32(unsafe.Sizeof(disposition)))
+	disposition := byte(1)
+	err := windows.SetFileInformationByHandle(t.originalHandle, windows.FileDispositionInfo, &disposition, 1)
 	t.originalHandle = 0
 	t.Close()
 	return err
