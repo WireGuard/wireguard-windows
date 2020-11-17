@@ -5,9 +5,9 @@ go 1.15
 require (
 	github.com/lxn/walk v0.0.0-20201110160827-18ea5e372cdb
 	github.com/lxn/win v0.0.0-20201111105847-2a20daff6a55
-	golang.org/x/crypto v0.0.0-20201116153603-4be66e5b6582
+	golang.org/x/crypto v0.0.0-20201117144127-c1f2f97bffc9
 	golang.org/x/net v0.0.0-20201110031124-69a78807bb2b
-	golang.org/x/sys v0.0.0-20201116194326-cc9327a14d48
+	golang.org/x/sys v0.0.0-20201117170446-d9b008d0a637
 	golang.org/x/text v0.3.4
 	golang.zx2c4.com/wireguard v0.0.20200321-0.20201111175144-60b3766b89b9
 )

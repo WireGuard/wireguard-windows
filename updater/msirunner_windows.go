@@ -32,16 +32,6 @@ func (t *tempFile) ExclusivePath() string {
 	return t.Name()
 }
 
-//TODO: remove when https://go-review.googlesource.com/c/sys/+/270757 is merged
-const fileDispositionInfo = 4
-
-func setFileInformationByHandle(handle windows.Handle, class uint32, inBuffer *byte, inBufferLen uint32) (err error) {
-	r1, _, e1 := syscall.Syscall6(windows.NewLazySystemDLL("kernel32.dll").NewProc("SetFileInformationByHandle").Addr(), 4, uintptr(handle), uintptr(class), uintptr(unsafe.Pointer(inBuffer)), uintptr(inBufferLen), 0, 0)
-	if r1 == 0 {
-		err = e1
-	}
-	return
-}
 
 func (t *tempFile) Delete() error {
 	if t.originalHandle == 0 {
@@ -52,7 +42,7 @@ func (t *tempFile) Delete() error {
 		return windows.DeleteFile(name16) //TODO: how does this deal with reparse points?
 	}
 	disposition := uint32(1)
-	err := setFileInformationByHandle(t.originalHandle, fileDispositionInfo, (*byte)(unsafe.Pointer(&disposition)), uint32(unsafe.Sizeof(disposition)))
+	err := windows.SetFileInformationByHandle(t.originalHandle, windows.FileDispositionInfo, (*byte)(unsafe.Pointer(&disposition)), uint32(unsafe.Sizeof(disposition)))
 	t.originalHandle = 0
 	t.Close()
 	return err
