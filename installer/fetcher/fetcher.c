@@ -10,6 +10,8 @@
 #include <ntsecapi.h>
 #include <sddl.h>
 #include <winhttp.h>
+#include <wintrust.h>
+#include <softpub.h>
 #include <msi.h>
 #include <stdio.h>
 #include <string.h>
@@ -80,7 +82,16 @@ static DWORD __stdcall download_thread(void *param)
 	size_t total_bytes, current_bytes;
 	const char *arch;
 	blake2b_ctx hasher;
-	SECURITY_ATTRIBUTES security_attributes = { .nLength = sizeof(SECURITY_ATTRIBUTES) };
+	SECURITY_ATTRIBUTES security_attributes = { .nLength = sizeof(security_attributes) };
+	WINTRUST_FILE_INFO wintrust_fileinfo = { .cbStruct = sizeof(wintrust_fileinfo) };
+	WINTRUST_DATA wintrust_data = {
+		.cbStruct = sizeof(wintrust_data),
+		.dwUIChoice = WTD_UI_NONE,
+		.fdwRevocationChecks = WTD_REVOKE_WHOLECHAIN,
+		.dwUnionChoice = WTD_CHOICE_FILE,
+		.dwStateAction = WTD_STATEACTION_VERIFY,
+		.pFile = &wintrust_fileinfo
+	};
 
 	(void)param;
 
@@ -163,13 +174,18 @@ static DWORD __stdcall download_thread(void *param)
 			goto out;
 		set_progress(progress, current_bytes, total_bytes);
 	}
+
+	set_status(progress, "verifying installer");
 	blake2b_final(&hasher, computed_hash);
 	if (memcmp(hash, computed_hash, sizeof(hash)))
 		goto out;
-
-	set_status(progress, "launching installer");
 	CloseHandle(filehandle); //TODO: I wish this wasn't required.
 	filehandle = INVALID_HANDLE_VALUE;
+	wintrust_fileinfo.pcwszFilePath = L(msi_filename);
+	if (WinVerifyTrust(INVALID_HANDLE_VALUE, &(GUID)WINTRUST_ACTION_GENERIC_VERIFY_V2, &wintrust_data))
+		goto out;
+
+	set_status(progress, "launching installer");
 	ShowWindow(progress, SW_HIDE);
 	ret = MsiInstallProductA(msi_filename, NULL);
 	ret = ret == ERROR_INSTALL_USEREXIT ? ERROR_SUCCESS : ret;
