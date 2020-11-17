@@ -56,15 +56,24 @@ func maybeMigrateConfiguration(c string) {
 			continue
 		}
 		newFile.Close()
-		os.Remove(oldPath)
+		oldPath16, err := windows.UTF16PtrFromString(oldPath)
+		if err == nil {
+			windows.MoveFileEx(oldPath16, nil, windows.MOVEFILE_DELAY_UNTIL_REBOOT)
+		}
 		migratedConfigs[strings.ToLower(oldPath)] = newPath
 		log.Printf("Migrated configuration from ‘%s’ to ‘%s’", oldPath, newPath)
 	}
-	if os.Remove(oldC) == nil {
-		oldLog := filepath.Join(oldRoot, "WireGuard", "log.bin")
-		oldRoot := filepath.Join(oldRoot, "WireGuard")
-		os.Remove(oldLog)
-		os.Remove(oldRoot)
+	oldC16, err := windows.UTF16PtrFromString(oldC)
+	if err == nil {
+		windows.MoveFileEx(oldC16, nil, windows.MOVEFILE_DELAY_UNTIL_REBOOT)
+	}
+	oldLog16, err := windows.UTF16PtrFromString(filepath.Join(oldRoot, "WireGuard", "log.bin"))
+	if err == nil {
+		windows.MoveFileEx(oldLog16, nil, windows.MOVEFILE_DELAY_UNTIL_REBOOT)
+	}
+	oldRoot16, err := windows.UTF16PtrFromString(filepath.Join(oldRoot, "WireGuard"))
+	if err == nil {
+		windows.MoveFileEx(oldRoot16, nil, windows.MOVEFILE_DELAY_UNTIL_REBOOT)
 	}
 	if len(migratedConfigs) == 0 {
 		return
@@ -112,5 +121,4 @@ func maybeMigrateConfiguration(c string) {
 		}
 		log.Printf("Migrated service command line arguments for ‘%s’", svcName)
 	}
-
 }
