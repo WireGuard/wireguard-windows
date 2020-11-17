@@ -19,7 +19,46 @@ import (
 	"golang.org/x/sys/windows"
 )
 
-func runMsi(msiPath string, userToken uintptr) error {
+type tempFile struct {
+	*os.File
+	originalHandle windows.Handle
+}
+
+func (t *tempFile) ExclusivePath() string {
+	if t.originalHandle != 0 {
+		t.Close() // TODO: sort of a toctou, but msi requires unshared file
+		t.originalHandle = 0
+	}
+	return t.Name()
+}
+
+//TODO: remove when https://go-review.googlesource.com/c/sys/+/270757 is merged
+const fileDispositionInfo = 4
+
+func setFileInformationByHandle(handle windows.Handle, class uint32, inBuffer *byte, inBufferLen uint32) (err error) {
+	r1, _, e1 := syscall.Syscall6(windows.NewLazySystemDLL("kernel32.dll").NewProc("SetFileInformationByHandle").Addr(), 4, uintptr(handle), uintptr(class), uintptr(unsafe.Pointer(inBuffer)), uintptr(inBufferLen), 0, 0)
+	if r1 == 0 {
+		err = e1
+	}
+	return
+}
+
+func (t *tempFile) Delete() error {
+	if t.originalHandle == 0 {
+		name16, err := windows.UTF16PtrFromString(t.Name())
+		if err != nil {
+			return err
+		}
+		return windows.DeleteFile(name16) //TODO: how does this deal with reparse points?
+	}
+	disposition := uint32(1)
+	err := setFileInformationByHandle(t.originalHandle, fileDispositionInfo, (*byte)(unsafe.Pointer(&disposition)), uint32(unsafe.Sizeof(disposition)))
+	t.originalHandle = 0
+	t.Close()
+	return err
+}
+
+func runMsi(msi *tempFile, userToken uintptr) error {
 	system32, err := windows.GetSystemDirectory()
 	if err != nil {
 		return err
@@ -29,6 +68,7 @@ func runMsi(msiPath string, userToken uintptr) error {
 		return err
 	}
 	defer devNull.Close()
+	msiPath := msi.ExclusivePath()
 	attr := &os.ProcAttr{
 		Sys: &syscall.SysProcAttr{
 			Token: syscall.Token(userToken),
@@ -51,7 +91,7 @@ func runMsi(msiPath string, userToken uintptr) error {
 	return nil
 }
 
-func msiTempFile() (*os.File, error) {
+func msiTempFile() (*tempFile, error) {
 	var randBytes [32]byte
 	n, err := rand.Read(randBytes[:])
 	if err != nil {
@@ -74,12 +114,14 @@ func msiTempFile() (*os.File, error) {
 	}
 	name := filepath.Join(windir, "Temp", hex.EncodeToString(randBytes[:]))
 	name16 := windows.StringToUTF16Ptr(name)
-	// TODO: it would be nice to specify delete_on_close, but msiexec.exe doesn't open its files with read sharing.
-	fileHandle, err := windows.CreateFile(name16, windows.GENERIC_WRITE, windows.FILE_SHARE_READ, sa, windows.CREATE_NEW, windows.FILE_ATTRIBUTE_NORMAL, 0)
+	fileHandle, err := windows.CreateFile(name16, windows.GENERIC_WRITE|windows.DELETE, 0, sa, windows.CREATE_NEW, windows.FILE_ATTRIBUTE_TEMPORARY, 0)
 	runtime.KeepAlive(sd)
 	if err != nil {
 		return nil, err
 	}
 	windows.MoveFileEx(name16, nil, windows.MOVEFILE_DELAY_UNTIL_REBOOT)
-	return os.NewFile(uintptr(fileHandle), name), nil
+	return &tempFile{
+		File:           os.NewFile(uintptr(fileHandle), name),
+		originalHandle: fileHandle,
+	}, nil
 }
