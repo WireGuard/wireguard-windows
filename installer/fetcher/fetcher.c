@@ -76,7 +76,7 @@ static DWORD __stdcall download_thread(void *param)
 	DWORD ret = 1, bytes_read, bytes_written;
 	HINTERNET session = NULL, connection = NULL, request = NULL;
 	uint8_t hash[32], computed_hash[32];
-	char download_path[MAX_FILENAME_LEN + sizeof(msi_path)], random_filename[64 + 4 + 1];
+	char download_path[MAX_FILENAME_LEN + sizeof(msi_path)], random_filename[65];
 	char buf[512 * 1024];
 	wchar_t total_bytes_str[22];
 	size_t total_bytes, current_bytes;
@@ -102,7 +102,6 @@ static DWORD __stdcall download_thread(void *param)
 		goto out;
 	if (!random_string(random_filename))
 		goto out;
-	memcpy(random_filename + 64, ".msi", 5);
 	if (!PathAppendA(msi_filename, random_filename))
 		goto out;
 
