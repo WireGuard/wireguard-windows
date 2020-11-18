@@ -6,26 +6,42 @@
 package ui
 
 import (
+	"sort"
 	"strings"
 	"time"
 
+	"golang.zx2c4.com/wireguard/windows/conf"
 	"golang.zx2c4.com/wireguard/windows/l18n"
 	"golang.zx2c4.com/wireguard/windows/manager"
 
 	"github.com/lxn/walk"
 )
 
+// Status + active CIDRs + separator
+const trayTunnelActionsOffset = 3
+
 type Tray struct {
 	*walk.NotifyIcon
-	mtw             *ManageTunnelsWindow
-	tunnelChangedCB *manager.TunnelChangeCallback
-	clicked         func()
+
+	// Current known tunnels by name
+	tunnels                  map[string]*walk.Action
+	tunnelsAreInBreakoutMenu bool
+
+	mtw *ManageTunnelsWindow
+
+	tunnelChangedCB  *manager.TunnelChangeCallback
+	tunnelsChangedCB *manager.TunnelsChangeCallback
+
+	clicked func()
 }
 
 func NewTray(mtw *ManageTunnelsWindow) (*Tray, error) {
 	var err error
 
-	tray := &Tray{mtw: mtw}
+	tray := &Tray{
+		mtw:     mtw,
+		tunnels: make(map[string]*walk.Action),
+	}
 
 	tray.NotifyIcon, err = walk.NewNotifyIcon(mtw)
 	if err != nil {
@@ -63,7 +79,6 @@ func (tray *Tray) setup() error {
 	}{
 		{label: l18n.Sprintf("Status: Unknown")},
 		{label: l18n.Sprintf("Addresses: None"), hidden: true},
-		{label: l18n.Sprintf("&Deactivate"), handler: tray.onDeactivateTunnel, enabled: true, hidden: true},
 		{separator: true},
 		{separator: true},
 		{label: l18n.Sprintf("&Manage tunnels…"), handler: tray.onManageTunnels, enabled: true, defawlt: true},
@@ -89,6 +104,8 @@ func (tray *Tray) setup() error {
 		tray.ContextMenu().Actions().Add(action)
 	}
 	tray.tunnelChangedCB = manager.IPCClientRegisterTunnelChange(tray.onTunnelChange)
+	tray.tunnelsChangedCB = manager.IPCClientRegisterTunnelsChange(tray.onTunnelsChange)
+	tray.onTunnelsChange()
 	globalState, _ := manager.IPCClientGlobalState()
 	tray.updateGlobalState(globalState)
 
@@ -100,25 +117,166 @@ func (tray *Tray) Dispose() error {
 		tray.tunnelChangedCB.Unregister()
 		tray.tunnelChangedCB = nil
 	}
+	if tray.tunnelsChangedCB != nil {
+		tray.tunnelsChangedCB.Unregister()
+		tray.tunnelsChangedCB = nil
+	}
 	return tray.NotifyIcon.Dispose()
+}
+
+func (tray *Tray) onTunnelsChange() {
+	tunnels, err := manager.IPCClientTunnels()
+	if err != nil {
+		return
+	}
+	tray.mtw.Synchronize(func() {
+		tunnelSet := make(map[string]bool, len(tunnels))
+		for _, tunnel := range tunnels {
+			tunnelSet[tunnel.Name] = true
+			if tray.tunnels[tunnel.Name] == nil {
+				tray.addTunnelAction(&tunnel)
+			}
+		}
+		for trayTunnel := range tray.tunnels {
+			if !tunnelSet[trayTunnel] {
+				tray.removeTunnelAction(trayTunnel)
+			}
+		}
+	})
+}
+
+func (tray *Tray) sortedTunnels() []string {
+	var names []string
+	for name := range tray.tunnels {
+		names = append(names, name)
+	}
+	sort.SliceStable(names, func(i, j int) bool {
+		return conf.TunnelNameIsLess(names[i], names[j])
+	})
+	return names
+}
+
+func (tray *Tray) addTunnelAction(tunnel *manager.Tunnel) {
+	tunnelAction := walk.NewAction()
+	tunnelAction.SetText(tunnel.Name)
+	tunnelAction.SetEnabled(true)
+	tunnelAction.SetCheckable(true)
+	tclosure := *tunnel
+	tunnelAction.Triggered().Attach(func() {
+		tunnelAction.SetChecked(!tunnelAction.Checked())
+		go func() {
+			oldState, err := tclosure.Toggle()
+			if err != nil {
+				tray.mtw.Synchronize(func() {
+					raise(tray.mtw.Handle())
+					tray.mtw.tunnelsPage.listView.selectTunnel(tclosure.Name)
+					tray.mtw.tabs.SetCurrentIndex(0)
+					if oldState == manager.TunnelUnknown {
+						showErrorCustom(tray.mtw, l18n.Sprintf("Failed to determine tunnel state"), err.Error())
+					} else if oldState == manager.TunnelStopped {
+						showErrorCustom(tray.mtw, l18n.Sprintf("Failed to activate tunnel"), err.Error())
+					} else if oldState == manager.TunnelStarted {
+						showErrorCustom(tray.mtw, l18n.Sprintf("Failed to deactivate tunnel"), err.Error())
+					}
+				})
+			}
+		}()
+	})
+	tray.tunnels[tunnel.Name] = tunnelAction
+
+	var (
+		idx  int
+		name string
+	)
+	for idx, name = range tray.sortedTunnels() {
+		if name == tunnel.Name {
+			break
+		}
+	}
+
+	if tray.tunnelsAreInBreakoutMenu {
+		tray.ContextMenu().Actions().At(trayTunnelActionsOffset).Menu().Actions().Insert(idx, tunnelAction)
+	} else {
+		tray.ContextMenu().Actions().Insert(trayTunnelActionsOffset+idx, tunnelAction)
+	}
+	tray.rebalanceTunnelsMenu()
+
+	go func() {
+		state, err := tclosure.State()
+		if err != nil {
+			return
+		}
+		tray.mtw.Synchronize(func() {
+			tray.setTunnelState(&tclosure, state)
+		})
+	}()
+}
+
+func (tray *Tray) removeTunnelAction(tunnelName string) {
+	if tray.tunnelsAreInBreakoutMenu {
+		tray.ContextMenu().Actions().At(trayTunnelActionsOffset).Menu().Actions().Remove(tray.tunnels[tunnelName])
+	} else {
+		tray.ContextMenu().Actions().Remove(tray.tunnels[tunnelName])
+	}
+	delete(tray.tunnels, tunnelName)
+	tray.rebalanceTunnelsMenu()
+}
+
+func (tray *Tray) rebalanceTunnelsMenu() {
+	if tray.tunnelsAreInBreakoutMenu && len(tray.tunnels) <= 10 {
+		menuAction := tray.ContextMenu().Actions().At(trayTunnelActionsOffset)
+		idx := 1
+		for _, name := range tray.sortedTunnels() {
+			tray.ContextMenu().Actions().Insert(trayTunnelActionsOffset+idx, tray.tunnels[name])
+			idx++
+		}
+		tray.ContextMenu().Actions().Remove(menuAction)
+		menuAction.Menu().Dispose()
+		tray.tunnelsAreInBreakoutMenu = false
+	} else if !tray.tunnelsAreInBreakoutMenu && len(tray.tunnels) > 10 {
+		menu, err := walk.NewMenu()
+		if err != nil {
+			return
+		}
+		for _, name := range tray.sortedTunnels() {
+			action := tray.tunnels[name]
+			menu.Actions().Add(action)
+			tray.ContextMenu().Actions().Remove(action)
+		}
+		menuAction, err := tray.ContextMenu().Actions().InsertMenu(trayTunnelActionsOffset, menu)
+		if err != nil {
+			return
+		}
+		menuAction.SetText(l18n.Sprintf("&Tunnels"))
+		tray.tunnelsAreInBreakoutMenu = true
+	}
 }
 
 func (tray *Tray) onTunnelChange(tunnel *manager.Tunnel, state manager.TunnelState, globalState manager.TunnelState, err error) {
 	tray.mtw.Synchronize(func() {
 		tray.updateGlobalState(globalState)
 		if err == nil {
-			switch state {
-			case manager.TunnelStarted:
-				icon, _ := iconWithOverlayForState(state, 128)
-				tray.ShowCustom(l18n.Sprintf("WireGuard Activated"), l18n.Sprintf("The %s tunnel has been activated.", tunnel.Name), icon)
+			tunnelAction := tray.tunnels[tunnel.Name]
+			if tunnelAction != nil {
+				wasChecked := tunnelAction.Checked()
+				switch state {
+				case manager.TunnelStarted:
+					if !wasChecked {
+						icon, _ := iconWithOverlayForState(state, 128)
+						tray.ShowCustom(l18n.Sprintf("WireGuard Activated"), l18n.Sprintf("The %s tunnel has been activated.", tunnel.Name), icon)
+					}
 
-			case manager.TunnelStopped:
-				icon, _ := loadSystemIcon("imageres", -31, 128) // TODO: this icon isn't very good...
-				tray.ShowCustom(l18n.Sprintf("WireGuard Deactivated"), l18n.Sprintf("The %s tunnel has been deactivated.", tunnel.Name), icon)
+				case manager.TunnelStopped:
+					if wasChecked {
+						icon, _ := loadSystemIcon("imageres", -31, 128) // TODO: this icon isn't very good...
+						tray.ShowCustom(l18n.Sprintf("WireGuard Deactivated"), l18n.Sprintf("The %s tunnel has been deactivated.", tunnel.Name), icon)
+					}
+				}
 			}
 		} else if !tray.mtw.Visible() {
 			tray.ShowError(l18n.Sprintf("WireGuard Tunnel Error"), err.Error())
 		}
+		tray.setTunnelState(tunnel, state)
 	})
 }
 
@@ -129,12 +287,11 @@ func (tray *Tray) updateGlobalState(globalState manager.TunnelState) {
 
 	actions := tray.ContextMenu().Actions()
 	statusAction := actions.At(0)
-	deactivateTunnelAction := actions.At(2)
 
 	tray.SetToolTip(l18n.Sprintf("WireGuard: %s", textForState(globalState, true)))
 	stateText := textForState(globalState, false)
 	statusAction.SetText(l18n.Sprintf("Status: %s", stateText))
-	deactivateTunnelAction.SetVisible(globalState == manager.TunnelStarted)
+
 	go func() {
 		var addrs []string
 		tunnels, err := manager.IPCClientTunnels()
@@ -157,6 +314,26 @@ func (tray *Tray) updateGlobalState(globalState manager.TunnelState) {
 			activeCIDRsAction.SetVisible(len(addrs) > 0)
 		})
 	}()
+
+	for _, action := range tray.tunnels {
+		action.SetEnabled(globalState == manager.TunnelStarted || globalState == manager.TunnelStopped)
+	}
+}
+
+func (tray *Tray) setTunnelState(tunnel *manager.Tunnel, state manager.TunnelState) {
+	tunnelAction := tray.tunnels[tunnel.Name]
+	if tunnelAction == nil {
+		return
+	}
+
+	switch state {
+	case manager.TunnelStarted:
+		tunnelAction.SetEnabled(true)
+		tunnelAction.SetChecked(true)
+
+	case manager.TunnelStopped:
+		tunnelAction.SetChecked(false)
+	}
 }
 
 func (tray *Tray) UpdateFound() {
@@ -189,25 +366,6 @@ func (tray *Tray) UpdateFound() {
 	} else {
 		showUpdateBalloon()
 	}
-}
-
-func (tray *Tray) onDeactivateTunnel() {
-	go func() {
-		tunnels, err := manager.IPCClientTunnels()
-		if err == nil {
-			for i := range tunnels {
-				state, err := tunnels[i].State()
-				if err == nil && state != manager.TunnelStopped {
-					err = tunnels[i].Stop()
-				}
-			}
-		}
-		if err != nil {
-			tray.mtw.Synchronize(func() {
-				showErrorCustom(tray.mtw, l18n.Sprintf("Failed to deactivate tunnel"), err.Error())
-			})
-		}
-	}()
 }
 
 func (tray *Tray) onManageTunnels() {
