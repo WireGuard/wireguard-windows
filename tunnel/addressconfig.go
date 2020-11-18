@@ -80,6 +80,7 @@ func configureInterface(family winipcfg.AddressFamily, conf *conf.Config, tun *t
 	foundDefault6 := false
 	for _, peer := range conf.Peers {
 		for _, allowedip := range peer.AllowedIPs {
+			allowedip.MaskSelf()
 			if (allowedip.Bits() == 32 && !haveV4Address) || (allowedip.Bits() == 128 && !haveV6Address) {
 				continue
 			}

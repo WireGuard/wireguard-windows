@@ -81,6 +81,14 @@ func (r *IPCidr) IPNet() net.IPNet {
 	}
 }
 
+func (r *IPCidr) MaskSelf() {
+	bits := int(r.Bits())
+	mask := net.CIDRMask(int(r.Cidr), bits)
+	for i := 0; i < bits / 8; i++ {
+		r.IP[i] &= mask[i]
+	}
+}
+
 func (e *Endpoint) String() string {
 	if strings.IndexByte(e.Host, ':') > 0 {
 		return fmt.Sprintf("[%s]:%d", e.Host, e.Port)
