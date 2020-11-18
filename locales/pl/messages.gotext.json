@@ -8,16 +8,1838 @@
             "translatorComment": "Copied from source."
         },
         {
+            "id": "(no argument): elevate and install manager service",
+            "message": "(no argument): elevate and install manager service",
+            "translation": "(brak argumentu): Podnieś uprawnienia i zainstaluj usługę menedżera",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Usage: {Args0} [\n{String}]",
+            "message": "Usage: {Args0} [\n{String}]",
+            "translation": "Użycie: {Args0} [{String}]",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Args0",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "os.Args[0]"
+                },
+                {
+                    "id": "String",
+                    "string": "%[2]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 2,
+                    "expr": "builder.String()"
+                }
+            ]
+        },
+        {
             "id": "Command Line Options",
             "message": "Command Line Options",
             "translation": "Opcje wiersza poleceń",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "You must use the 64-bit version of WireGuard on this computer.",
-            "message": "You must use the 64-bit version of WireGuard on this computer.",
-            "translation": "Musisz użyć 64-bitowej wersji WireGuard na tym komputerze.",
+            "id": "Unable to determine whether the process is running under WOW64: {Err}",
+            "message": "Unable to determine whether the process is running under WOW64: {Err}",
+            "translation": "Nie można określić, czy proces jest uruchomiony w środowisku WOW64: {Err}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Err",
+                    "string": "%[1]v",
+                    "type": "error",
+                    "underlyingType": "interface{Error() string}",
+                    "argNum": 1,
+                    "expr": "err"
+                }
+            ]
+        },
+        {
+            "id": "Unable to open current process token: {Err}",
+            "message": "Unable to open current process token: {Err}",
+            "translation": "Nie można otworzyć bieżącego tokenu procesu: {Err}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Err",
+                    "string": "%[1]v",
+                    "type": "error",
+                    "underlyingType": "interface{Error() string}",
+                    "argNum": 1,
+                    "expr": "err"
+                }
+            ]
+        },
+        {
+            "id": "WireGuard may only be used by users who are a member of the Builtin {AdminGroupName} group.",
+            "message": "WireGuard may only be used by users who are a member of the Builtin {AdminGroupName} group.",
+            "translation": "WireGuard może być używany tylko przez użytkowników, którzy są członkami wbudowanej grupy {AdminGroupName}.",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "AdminGroupName",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "elevate.AdminGroupName()"
+                }
+            ]
+        },
+        {
+            "id": "WireGuard is running, but the UI is only accessible from desktops of the Builtin {AdminGroupName} group.",
+            "message": "WireGuard is running, but the UI is only accessible from desktops of the Builtin {AdminGroupName} group.",
+            "translation": "WireGuard jest uruchomiony, ale interfejs jest dostępny tylko z poziomu użytkowników należących do wbudowanej grupy {AdminGroupName}.",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "AdminGroupName",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "elevate.AdminGroupName()"
+                }
+            ]
+        },
+        {
+            "id": "WireGuard system tray icon did not appear after 30 seconds.",
+            "message": "WireGuard system tray icon did not appear after 30 seconds.",
+            "translation": "Ikona WireGuard nie pojawiła się po 30 sekundach w zasobniku systemowym.",
             "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Now",
+            "message": "Now",
+            "translation": "Teraz",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "System clock wound backward!",
+            "message": "System clock wound backward!",
+            "translation": "Zegar systemowy został cofnięty!",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "{Years} year(s)",
+            "message": "{Years} year(s)",
+            "translation": {
+                "select": {
+                    "feature": "plural",
+                    "arg": "Years",
+                    "cases": {
+                        "one": {
+                            "msg": "{Years} rok"
+                        },
+                        "few": {
+                            "msg": "{Years} lata"
+                        },
+                        "many": {
+                            "msg": "{Years} lat"
+                        },
+                        "other": {
+                            "msg": "{Years} lata"
+                        }
+                    }
+                }
+            },
+            "placeholders": [
+                {
+                    "id": "Years",
+                    "string": "%[1]d",
+                    "type": "int64",
+                    "underlyingType": "int64",
+                    "argNum": 1,
+                    "expr": "years"
+                }
+            ]
+        },
+        {
+            "id": "{Days} day(s)",
+            "message": "{Days} day(s)",
+            "translation": {
+                "select": {
+                    "feature": "plural",
+                    "arg": "Days",
+                    "cases": {
+                        "one": {
+                            "msg": "{Days} dzień"
+                        },
+                        "few": {
+                            "msg": "{Days} dni"
+                        },
+                        "many": {
+                            "msg": "{Days} dni"
+                        },
+                        "other": {
+                            "msg": "{Days} dni"
+                        }
+                    }
+                }
+            },
+            "placeholders": [
+                {
+                    "id": "Days",
+                    "string": "%[1]d",
+                    "type": "int64",
+                    "underlyingType": "int64",
+                    "argNum": 1,
+                    "expr": "days"
+                }
+            ]
+        },
+        {
+            "id": "{Hours} hour(s)",
+            "message": "{Hours} hour(s)",
+            "translation": {
+                "select": {
+                    "feature": "plural",
+                    "arg": "Hours",
+                    "cases": {
+                        "one": {
+                            "msg": "{Hours} godzina"
+                        },
+                        "few": {
+                            "msg": "{Hours} godziny"
+                        },
+                        "many": {
+                            "msg": "{Hours} godzin"
+                        },
+                        "other": {
+                            "msg": "{Hours} godziny"
+                        }
+                    }
+                }
+            },
+            "placeholders": [
+                {
+                    "id": "Hours",
+                    "string": "%[1]d",
+                    "type": "int64",
+                    "underlyingType": "int64",
+                    "argNum": 1,
+                    "expr": "hours"
+                }
+            ]
+        },
+        {
+            "id": "{Minutes} minute(s)",
+            "message": "{Minutes} minute(s)",
+            "translation": {
+                "select": {
+                    "feature": "plural",
+                    "arg": "Minutes",
+                    "cases": {
+                        "one": {
+                            "msg": "{Minutes} minuta"
+                        },
+                        "few": {
+                            "msg": "{Minutes} minuty"
+                        },
+                        "many": {
+                            "msg": "{Minutes} minut"
+                        },
+                        "other": {
+                            "msg": "{Minutes} minut"
+                        }
+                    }
+                }
+            },
+            "placeholders": [
+                {
+                    "id": "Minutes",
+                    "string": "%[1]d",
+                    "type": "int64",
+                    "underlyingType": "int64",
+                    "argNum": 1,
+                    "expr": "minutes"
+                }
+            ]
+        },
+        {
+            "id": "{Seconds} second(s)",
+            "message": "{Seconds} second(s)",
+            "translation": {
+                "select": {
+                    "feature": "plural",
+                    "arg": "Seconds",
+                    "cases": {
+                        "one": {
+                            "msg": "{Seconds} sekunda"
+                        },
+                        "few": {
+                            "msg": "{Seconds} sekundy"
+                        },
+                        "many": {
+                            "msg": "{Seconds} sekund"
+                        },
+                        "other": {
+                            "msg": "{Seconds} sekund"
+                        }
+                    }
+                }
+            },
+            "placeholders": [
+                {
+                    "id": "Seconds",
+                    "string": "%[1]d",
+                    "type": "int64",
+                    "underlyingType": "int64",
+                    "argNum": 1,
+                    "expr": "seconds"
+                }
+            ]
+        },
+        {
+            "id": "{Timestamp} ago",
+            "message": "{Timestamp} ago",
+            "translation": "{Timestamp} temu",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Timestamp",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "timestamp"
+                }
+            ]
+        },
+        {
+            "id": "{Bytes} B",
+            "message": "{Bytes} B",
+            "translation": "{Bytes} B",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Bytes",
+                    "string": "%[1]d",
+                    "type": "golang.zx2c4.com/wireguard/windows/conf.Bytes",
+                    "underlyingType": "uint64",
+                    "argNum": 1,
+                    "expr": "b"
+                }
+            ]
+        },
+        {
+            "id": "{Float64b__1024} KiB",
+            "message": "{Float64b__1024} KiB",
+            "translation": "{Float64b__1024} KiB",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Float64b__1024",
+                    "string": "%.2[1]f",
+                    "type": "float64",
+                    "underlyingType": "float64",
+                    "argNum": 1,
+                    "expr": "float64(b) / 1024"
+                }
+            ]
+        },
+        {
+            "id": "{Float64b__1024__1024} MiB",
+            "message": "{Float64b__1024__1024} MiB",
+            "translation": "{Float64b__1024__1024} MiB",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Float64b__1024__1024",
+                    "string": "%.2[1]f",
+                    "type": "float64",
+                    "underlyingType": "float64",
+                    "argNum": 1,
+                    "expr": "float64(b) / (1024 * 1024)"
+                }
+            ]
+        },
+        {
+            "id": "{Float64b__1024__1024__1024} GiB",
+            "message": "{Float64b__1024__1024__1024} GiB",
+            "translation": "{Float64b__1024__1024__1024} GiB",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Float64b__1024__1024__1024",
+                    "string": "%.2[1]f",
+                    "type": "float64",
+                    "underlyingType": "float64",
+                    "argNum": 1,
+                    "expr": "float64(b) / (1024 * 1024 * 1024)"
+                }
+            ]
+        },
+        {
+            "id": "{Float64b__1024__1024__1024__1024} TiB",
+            "message": "{Float64b__1024__1024__1024__1024} TiB",
+            "translation": "{Float64b__1024__1024__1024__1024} TiB",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Float64b__1024__1024__1024__1024",
+                    "string": "%.2[1]f",
+                    "type": "float64",
+                    "underlyingType": "float64",
+                    "argNum": 1,
+                    "expr": "float64(b) / (1024 * 1024 * 1024) / 1024"
+                }
+            ]
+        },
+        {
+            "id": "{Why}: {Offender}",
+            "message": "{Why}: {Offender}",
+            "translation": "{Why}: {Offender}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Why",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "e.why"
+                },
+                {
+                    "id": "Offender",
+                    "string": "%[2]q",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 2,
+                    "expr": "e.offender"
+                }
+            ]
+        },
+        {
+            "id": "Invalid IP address",
+            "message": "Invalid IP address",
+            "translation": "Nieprawidłowy adres IP",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Invalid network prefix length",
+            "message": "Invalid network prefix length",
+            "translation": "Nieprawidłowa długość prefiksu sieci",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Missing port from endpoint",
+            "message": "Missing port from endpoint",
+            "translation": "Brak portu urządzenia końcowego",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Invalid endpoint host",
+            "message": "Invalid endpoint host",
+            "translation": "Nieprawidłowy host (urządzenie końcowe)",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Brackets must contain an IPv6 address",
+            "message": "Brackets must contain an IPv6 address",
+            "translation": "Nawiasy muszą zawierać adres IPv6",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Invalid MTU",
+            "message": "Invalid MTU",
+            "translation": "Nieprawidłowe MTU",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Invalid port",
+            "message": "Invalid port",
+            "translation": "Nieprawidłowy port",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Invalid persistent keepalive",
+            "message": "Invalid persistent keepalive",
+            "translation": "Nieprawidłowy parametr utrzymania połączenia",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Invalid key: {Err}",
+            "message": "Invalid key: {Err}",
+            "translation": "Nieprawidłowy klucz: {Err}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Err",
+                    "string": "%[1]v",
+                    "type": "error",
+                    "underlyingType": "interface{Error() string}",
+                    "argNum": 1,
+                    "expr": "err"
+                }
+            ]
+        },
+        {
+            "id": "Keys must decode to exactly 32 bytes",
+            "message": "Keys must decode to exactly 32 bytes",
+            "translation": "Klucze muszą zostać zdekodowane do dokładnie 32 bajtów",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Number must be a number between 0 and 2^64-1: {Err}",
+            "message": "Number must be a number between 0 and 2^64-1: {Err}",
+            "translation": "Liczba musi zawierać się w przedziale 0 - 2^64-1: {Err}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Err",
+                    "string": "%[1]v",
+                    "type": "error",
+                    "underlyingType": "interface{Error() string}",
+                    "argNum": 1,
+                    "expr": "err"
+                }
+            ]
+        },
+        {
+            "id": "Two commas in a row",
+            "message": "Two commas in a row",
+            "translation": "Dwa przecinki z rzędu",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Tunnel name is not valid",
+            "message": "Tunnel name is not valid",
+            "translation": "Nazwa tunelu jest nieprawidłowa",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Line must occur in a section",
+            "message": "Line must occur in a section",
+            "translation": "Linia musi występować w sekcji",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Config key is missing an equals separator",
+            "message": "Config key is missing an equals separator",
+            "translation": "Klucz konfiguracyjny nie zawiera separatora równorzędnego",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Key must have a value",
+            "message": "Key must have a value",
+            "translation": "Klucz musi mieć wartość",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Invalid key for [Interface] section",
+            "message": "Invalid key for [Interface] section",
+            "translation": "Nieprawidłowy klucz dla sekcji [Interface]",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Invalid key for [Peer] section",
+            "message": "Invalid key for [Peer] section",
+            "translation": "Nieprawidłowy klucz dla sekcji [Peer]",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "An interface must have a private key",
+            "message": "An interface must have a private key",
+            "translation": "Interfejs musi mieć klucz prywatny",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "[none specified]",
+            "message": "[none specified]",
+            "translation": "[nie określono]",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "All peers must have public keys",
+            "message": "All peers must have public keys",
+            "translation": "Wszyscy uczestnicy muszą mieć klucze publiczne",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Error in getting configuration",
+            "message": "Error in getting configuration",
+            "translation": "Błąd podczas pobierania konfiguracji",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Invalid key for interface section",
+            "message": "Invalid key for interface section",
+            "translation": "Nieprawidłowy klucz dla sekcji interface",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Protocol version must be 1",
+            "message": "Protocol version must be 1",
+            "translation": "Wersja protokołu musi być 1",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Invalid key for peer section",
+            "message": "Invalid key for peer section",
+            "translation": "Nieprawidłowy klucz dla sekcji peer",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "[EnumerationSeparator]",
+            "message": "[EnumerationSeparator]",
+            "translation": ", ",
+            "comment": "Text to insert between items when listing - most western languages will translate ‘[EnumerationSeparator]’ into ‘, ’ to produce lists like ‘apple, orange, strawberry’. Eastern languages might translate into ‘、’ to produce lists like ‘リンゴ、オレンジ、イチゴ’."
+        },
+        {
+            "id": "[UnitSeparator]",
+            "message": "[UnitSeparator]",
+            "translation": ", ",
+            "comment": "Text to insert when combining units of a measure - most languages will translate ‘[UnitSeparator]’ into ‘ ’ (space) to produce lists like ‘2 minuti 30 sekund’, or empty string ‘’ to produce ‘2分30秒’."
+        },
+        {
+            "id": "About WireGuard",
+            "message": "About WireGuard",
+            "translation": "Informacje o WireGuard",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "WireGuard logo image",
+            "message": "WireGuard logo image",
+            "translation": "Logo WireGuard",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}\nOperating system: {OsName}\nArchitecture: {GOARCH}",
+            "message": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}\nOperating system: {OsName}\nArchitecture: {GOARCH}",
+            "translation": "Wersja aplikacji: {Number}\nWersja backend'u: {WireGuardGoVersion}\nWersja: {Version_go}\nSystem operacyjny: {OsName}\nArchitektura: {GOARCH}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Number",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "version.Number"
+                },
+                {
+                    "id": "WireGuardGoVersion",
+                    "string": "%[2]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 2,
+                    "expr": "device.WireGuardGoVersion"
+                },
+                {
+                    "id": "Version_go",
+                    "string": "%[3]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 3,
+                    "expr": "strings.TrimPrefix(runtime.Version(), \"go\")"
+                },
+                {
+                    "id": "OsName",
+                    "string": "%[4]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 4,
+                    "expr": "version.OsName()"
+                },
+                {
+                    "id": "GOARCH",
+                    "string": "%[5]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 5,
+                    "expr": "runtime.GOARCH"
+                }
+            ]
+        },
+        {
+            "id": "Close",
+            "message": "Close",
+            "translation": "Zamknij",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "♥ &Donate!",
+            "message": "♥ &Donate!",
+            "translation": "♥ &Wpłać!",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Status:",
+            "message": "Status:",
+            "translation": "Status:",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "&Deactivate",
+            "message": "&Deactivate",
+            "translation": "&Dezaktywuj",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "&Activate",
+            "message": "&Activate",
+            "translation": "&Aktywuj",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Public key:",
+            "message": "Public key:",
+            "translation": "Klucz publiczny:",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Listen port:",
+            "message": "Listen port:",
+            "translation": "Port nasłuchu:",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "MTU:",
+            "message": "MTU:",
+            "translation": "MTU:",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Addresses:",
+            "message": "Addresses:",
+            "translation": "Adresy:",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "DNS servers:",
+            "message": "DNS servers:",
+            "translation": "Serwery DNS:",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Preshared key:",
+            "message": "Preshared key:",
+            "translation": "PSK:",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Allowed IPs:",
+            "message": "Allowed IPs:",
+            "translation": "Dozwolone adresy IP:",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Endpoint:",
+            "message": "Endpoint:",
+            "translation": "Urządzenie końcowe:",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Persistent keepalive:",
+            "message": "Persistent keepalive:",
+            "translation": "Utrzymanie połączenia:",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Latest handshake:",
+            "message": "Latest handshake:",
+            "translation": "Ostatni uścisk dłoni (handshake):",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Transfer:",
+            "message": "Transfer:",
+            "translation": "Transfer:",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "enabled",
+            "message": "enabled",
+            "translation": "włączyć",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "{String} received, {String_1} sent",
+            "message": "{String} received, {String_1} sent",
+            "translation": "{String} odebrano, {String_1} wysłano",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "String",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "c.RxBytes.String()"
+                },
+                {
+                    "id": "String_1",
+                    "string": "%[2]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 2,
+                    "expr": "c.TxBytes.String()"
+                }
+            ]
+        },
+        {
+            "id": "Failed to determine tunnel state",
+            "message": "Failed to determine tunnel state",
+            "translation": "Nie udało się określić stanu tunelu",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Failed to activate tunnel",
+            "message": "Failed to activate tunnel",
+            "translation": "Nie udało się aktywować tunelu",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Failed to deactivate tunnel",
+            "message": "Failed to deactivate tunnel",
+            "translation": "Nie można dezaktywować tunelu",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Interface: {Name}",
+            "message": "Interface: {Name}",
+            "translation": "Interfejs: {Name}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Name",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "config.Name"
+                }
+            ]
+        },
+        {
+            "id": "Peer",
+            "message": "Peer",
+            "translation": "Peer",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Create new tunnel",
+            "message": "Create new tunnel",
+            "translation": "Utwórz nowy tunel",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Edit tunnel",
+            "message": "Edit tunnel",
+            "translation": "Edytuj tunel",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "&Name:",
+            "message": "&Name:",
+            "translation": "&Nazwa:",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "&Public key:",
+            "message": "&Public key:",
+            "translation": "&Klucz publiczny:",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "(unknown)",
+            "message": "(unknown)",
+            "translation": "(nieznany)",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "&Block untunneled traffic (kill-switch)",
+            "message": "&Block untunneled traffic (kill-switch)",
+            "translation": "Zablokuj niezabezpieczony ruch (wyłącznik awaryjny)",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface, with special exceptions for DHCP and NDP.",
+            "message": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface, with special exceptions for DHCP and NDP.",
+            "translation": "Jeśli w konfiguracji znajduje się dokładnie jeden peer, i ma on przypisany jeden z następujących adresów: 0.0.0.0/0 lub ::/0, to tunel aktywuje zasady zapory ogniowej, które blokują cały ruch z i do tunelu oprócz DHCP i NDP.",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "&Save",
+            "message": "&Save",
+            "translation": "&Zapisz",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Cancel",
+            "message": "Cancel",
+            "translation": "Anuluj",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "&Configuration:",
+            "message": "&Configuration:",
+            "translation": "&Konfiguracja:",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Invalid name",
+            "message": "Invalid name",
+            "translation": "Nieprawidłowa nazwa",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "A name is required.",
+            "message": "A name is required.",
+            "translation": "Nazwa jest wymagana.",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Tunnel name ‘{NewName}’ is invalid.",
+            "message": "Tunnel name ‘{NewName}’ is invalid.",
+            "translation": "Nazwa tunelu ‘{NewName}’ jest niepoprawna.",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "NewName",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "newName"
+                }
+            ]
+        },
+        {
+            "id": "Unable to list existing tunnels",
+            "message": "Unable to list existing tunnels",
+            "translation": "Nie można wylistować istniejących tuneli",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Tunnel already exists",
+            "message": "Tunnel already exists",
+            "translation": "Tunel już istnieje",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Another tunnel already exists with the name ‘{NewName}’.",
+            "message": "Another tunnel already exists with the name ‘{NewName}’.",
+            "translation": "Inny tunel już istnieje z tą samą nazwą ‘{NewName}’.",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "NewName",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "newName"
+                }
+            ]
+        },
+        {
+            "id": "Unable to create new configuration",
+            "message": "Unable to create new configuration",
+            "translation": "Nie można utworzyć nowej konfiguracji",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Writing file failed",
+            "message": "Writing file failed",
+            "translation": "Zapis pliku się nie powiódł",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "File ‘{FilePath}’ already exists.\n\nDo you want to overwrite it?",
+            "message": "File ‘{FilePath}’ already exists.\n\nDo you want to overwrite it?",
+            "translation": "Plik ‘{FilePath}’ już istnieje. Czy chcesz go nadpisać?",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "FilePath",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "filePath"
+                }
+            ]
+        },
+        {
+            "id": "Active",
+            "message": "Active",
+            "translation": "Aktywny",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Activating",
+            "message": "Activating",
+            "translation": "Aktywowanie",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Inactive",
+            "message": "Inactive",
+            "translation": "Nieaktywny",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Deactivating",
+            "message": "Deactivating",
+            "translation": "Dezaktywowanie",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Unknown state",
+            "message": "Unknown state",
+            "translation": "Stan nieznany",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Log",
+            "message": "Log",
+            "translation": "Dziennik",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "&Copy",
+            "message": "&Copy",
+            "translation": "&Kopiuj",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Select &all",
+            "message": "Select &all",
+            "translation": "Wybierz &wszystko",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "&Save to file…",
+            "message": "&Save to file…",
+            "translation": "&Zapisz do pliku…",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Time",
+            "message": "Time",
+            "translation": "Czas",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Log message",
+            "message": "Log message",
+            "translation": "Wiadomości dziennika",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Text Files (*.txt)|*.txt|All Files (*.*)|*.*",
+            "message": "Text Files (*.txt)|*.txt|All Files (*.*)|*.*",
+            "translation": "Pliki tekstowe (*.txt)|*.txt|Wszystkie pliki (*.*)|*.*",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Export log to file",
+            "message": "Export log to file",
+            "translation": "Eksportuj dziennik do pliku",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "&About WireGuard…",
+            "message": "&About WireGuard…",
+            "translation": "&Informacje o WireGuard…",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Tunnel Error",
+            "message": "Tunnel Error",
+            "translation": "Błąd tunelu",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "{ErrMsg}\n\nPlease consult the log for more information.",
+            "message": "{ErrMsg}\n\nPlease consult the log for more information.",
+            "translation": "{ErrMsg}\n\nAby uzyskać więcej informacji, zapoznaj się z logiem.",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "ErrMsg",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "errMsg"
+                }
+            ]
+        },
+        {
+            "id": "{Title} (out of date)",
+            "message": "{Title} (out of date)",
+            "translation": "{Title} (nieaktualny)",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Title",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "mtw.Title()"
+                }
+            ]
+        },
+        {
+            "id": "WireGuard Detection Error",
+            "message": "WireGuard Detection Error",
+            "translation": "Błąd detekcji WireGuard",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Unable to wait for WireGuard window to appear: {Err}",
+            "message": "Unable to wait for WireGuard window to appear: {Err}",
+            "translation": "Nie można poczekać na pojawienie się okna WireGuard: {Err}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Err",
+                    "string": "%[1]v",
+                    "type": "error",
+                    "underlyingType": "interface{Error() string}",
+                    "argNum": 1,
+                    "expr": "err"
+                }
+            ]
+        },
+        {
+            "id": "WireGuard: Deactivated",
+            "message": "WireGuard: Deactivated",
+            "translation": "WireGuard: Dezaktywowany",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Status: Unknown",
+            "message": "Status: Unknown",
+            "translation": "Status: Nieznany",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Addresses: None",
+            "message": "Addresses: None",
+            "translation": "Adresy: Brak",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "&Manage tunnels…",
+            "message": "&Manage tunnels…",
+            "translation": "&Zarządzaj tunelami…",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "&Import tunnel(s) from file…",
+            "message": "&Import tunnel(s) from file…",
+            "translation": "&Importuj tunel (tunele) z pliku…",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "E&xit",
+            "message": "E&xit",
+            "translation": "W&yjście",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "WireGuard Tunnel Error",
+            "message": "WireGuard Tunnel Error",
+            "translation": "Błąd tunelu WireGuard",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "WireGuard: {TextForStateglobalState_true}",
+            "message": "WireGuard: {TextForStateglobalState_true}",
+            "translation": "WireGuard: {TextForStateglobalState_true}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "TextForStateglobalState_true",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "textForState(globalState, true)"
+                }
+            ]
+        },
+        {
+            "id": "Status: {StateText}",
+            "message": "Status: {StateText}",
+            "translation": "Status: {StateText}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "StateText",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "stateText"
+                }
+            ]
+        },
+        {
+            "id": "Addresses: {String}",
+            "message": "Addresses: {String}",
+            "translation": "Adresy: {String}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "String",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "sb.String()"
+                }
+            ]
+        },
+        {
+            "id": "WireGuard Activated",
+            "message": "WireGuard Activated",
+            "translation": "WireGuard Aktywny",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "The {Name} tunnel has been activated.",
+            "message": "The {Name} tunnel has been activated.",
+            "translation": "Tunel {Name} został aktywowany.",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Name",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "tunnel.Name"
+                }
+            ]
+        },
+        {
+            "id": "WireGuard Deactivated",
+            "message": "WireGuard Deactivated",
+            "translation": "WireGuard Dezaktywowany",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "The {Name} tunnel has been deactivated.",
+            "message": "The {Name} tunnel has been deactivated.",
+            "translation": "Tunel {Name} został dezaktywowany.",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Name",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "tunnel.Name"
+                }
+            ]
+        },
+        {
+            "id": "An Update is Available!",
+            "message": "An Update is Available!",
+            "translation": "Dostępna nowa aktualizacja!",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "WireGuard Update Available",
+            "message": "WireGuard Update Available",
+            "translation": "Aktualizacja WireGuard jest dostępna",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "An update to WireGuard is now available. You are advised to update as soon as possible.",
+            "message": "An update to WireGuard is now available. You are advised to update as soon as possible.",
+            "translation": "Aktualizacja WireGuard jest już dostępna. Zaleca się jak najszybszą aktualizację.",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Tunnels",
+            "message": "Tunnels",
+            "translation": "Tunele",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "&Edit",
+            "message": "&Edit",
+            "translation": "&Edytuj",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Add &empty tunnel…",
+            "message": "Add &empty tunnel…",
+            "translation": "Dodaj &pusty tunel…",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Add Tunnel",
+            "message": "Add Tunnel",
+            "translation": "Dodaj Tunel",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Remove selected tunnel(s)",
+            "message": "Remove selected tunnel(s)",
+            "translation": "Usuń wybrany tunel (tunele)",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Export all tunnels to zip",
+            "message": "Export all tunnels to zip",
+            "translation": "Eksportuj wszystkie tunele do archiwum ZIP",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "&Toggle",
+            "message": "&Toggle",
+            "translation": "&Przełącz",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Export all tunnels to &zip…",
+            "message": "Export all tunnels to &zip…",
+            "translation": "Eksportuj wszystkie tunele do archiwum &zip…",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Edit &selected tunnel…",
+            "message": "Edit &selected tunnel…",
+            "translation": "Edytuj &wybrany tunel…",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "&Remove selected tunnel(s)",
+            "message": "&Remove selected tunnel(s)",
+            "translation": "&Usuń wybrany tunel (tunele)",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Could not import selected configuration: {LastErr}",
+            "message": "Could not import selected configuration: {LastErr}",
+            "translation": "Nie można zaimportować wybranej konfiguracji: {LastErr}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "LastErr",
+                    "string": "%[1]v",
+                    "type": "error",
+                    "underlyingType": "interface{Error() string}",
+                    "argNum": 1,
+                    "expr": "lastErr"
+                }
+            ]
+        },
+        {
+            "id": "Could not enumerate existing tunnels: {LastErr}",
+            "message": "Could not enumerate existing tunnels: {LastErr}",
+            "translation": "Nie można wskazać istniejących tuneli: {LastErr}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "LastErr",
+                    "string": "%[1]v",
+                    "type": "error",
+                    "underlyingType": "interface{Error() string}",
+                    "argNum": 1,
+                    "expr": "lastErr"
+                }
+            ]
+        },
+        {
+            "id": "Another tunnel already exists with the name ‘{Name}’",
+            "message": "Another tunnel already exists with the name ‘{Name}’",
+            "translation": "Inny tunel już istnieje z tą samą nazwą ‘{Name}’",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Name",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "unparsedConfig.Name"
+                }
+            ]
+        },
+        {
+            "id": "Unable to import configuration: {LastErr}",
+            "message": "Unable to import configuration: {LastErr}",
+            "translation": "Nie można zaimportować konfiguracji: {LastErr}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "LastErr",
+                    "string": "%[1]v",
+                    "type": "error",
+                    "underlyingType": "interface{Error() string}",
+                    "argNum": 1,
+                    "expr": "lastErr"
+                }
+            ]
+        },
+        {
+            "id": "Imported tunnels",
+            "message": "Imported tunnels",
+            "translation": "Zaimportowane tunele",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Imported {M} tunnels",
+            "message": "Imported {M} tunnels",
+            "translation": {
+                "select": {
+                    "feature": "plural",
+                    "arg": "M",
+                    "cases": {
+                        "one": {
+                            "msg": "Zaimportowano {M} tunel"
+                        },
+                        "few": {
+                            "msg": "Zaimportowano {M} tunele"
+                        },
+                        "many": {
+                            "msg": "Zaimportowano {M} tuneli"
+                        },
+                        "other": {
+                            "msg": "Zaimportowano {M} tuneli"
+                        }
+                    }
+                }
+            },
+            "placeholders": [
+                {
+                    "id": "M",
+                    "string": "%[1]d",
+                    "type": "int",
+                    "underlyingType": "int",
+                    "argNum": 1,
+                    "expr": "m"
+                }
+            ]
+        },
+        {
+            "id": "Imported {M} of {N} tunnels",
+            "message": "Imported {M} of {N} tunnels",
+            "translation": {
+                "select": {
+                    "feature": "plural",
+                    "arg": "N",
+                    "cases": {
+                        "one": {
+                            "msg": "Zaimportowano {M} z {N} tunel"
+                        },
+                        "few": {
+                            "msg": "Zaimportowano {M} z {N} tunele"
+                        },
+                        "many": {
+                            "msg": "Zaimportowano {M} z {N} tuneli"
+                        },
+                        "other": {
+                            "msg": "Zaimportowano {M} z {N} tuneli"
+                        }
+                    }
+                }
+            },
+            "placeholders": [
+                {
+                    "id": "M",
+                    "string": "%[1]d",
+                    "type": "int",
+                    "underlyingType": "int",
+                    "argNum": 1,
+                    "expr": "m"
+                },
+                {
+                    "id": "N",
+                    "string": "%[2]d",
+                    "type": "int",
+                    "underlyingType": "int",
+                    "argNum": 2,
+                    "expr": "n"
+                }
+            ]
+        },
+        {
+            "id": "Unable to create tunnel",
+            "message": "Unable to create tunnel",
+            "translation": "Nie można utworzyć tunelu",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Delete {TunnelCount} tunnels",
+            "message": "Delete {TunnelCount} tunnels",
+            "translation": {
+                "select": {
+                    "feature": "plural",
+                    "arg": "TunnelCount",
+                    "cases": {
+                        "one": {
+                            "msg": "Usuń {TunnelCount} tunel"
+                        },
+                        "few": {
+                            "msg": "Usuń {TunnelCount} tunele"
+                        },
+                        "many": {
+                            "msg": "Usuń {TunnelCount} tuneli"
+                        },
+                        "other": {
+                            "msg": "Usuń {TunnelCount} tuneli"
+                        }
+                    }
+                }
+            },
+            "placeholders": [
+                {
+                    "id": "TunnelCount",
+                    "string": "%[1]d",
+                    "type": "int",
+                    "underlyingType": "int",
+                    "argNum": 1,
+                    "expr": "tunnelCount"
+                }
+            ]
+        },
+        {
+            "id": "Are you sure you would like to delete {TunnelCount} tunnels?",
+            "message": "Are you sure you would like to delete {TunnelCount} tunnels?",
+            "translation": {
+                "select": {
+                    "feature": "plural",
+                    "arg": "TunnelCount",
+                    "cases": {
+                        "one": {
+                            "msg": "Czy na pewno chcesz usunąć {TunnelCount} tunel?"
+                        },
+                        "few": {
+                            "msg": "Czy na pewno chcesz usunąć {TunnelCount} tunele?"
+                        },
+                        "many": {
+                            "msg": "Czy na pewno chcesz usunąć {TunnelCount} tuneli?"
+                        },
+                        "other": {
+                            "msg": "Czy na pewno chcesz usunąć {TunnelCount} tuneli?"
+                        }
+                    }
+                }
+            },
+            "placeholders": [
+                {
+                    "id": "TunnelCount",
+                    "string": "%[1]d",
+                    "type": "int",
+                    "underlyingType": "int",
+                    "argNum": 1,
+                    "expr": "tunnelCount"
+                }
+            ]
+        },
+        {
+            "id": "Delete tunnel ‘{TunnelName}’",
+            "message": "Delete tunnel ‘{TunnelName}’",
+            "translation": "Usuń tunel ‘{TunnelName}’",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "TunnelName",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "tunnelName"
+                }
+            ]
+        },
+        {
+            "id": "Are you sure you would like to delete tunnel ‘{TunnelName}’?",
+            "message": "Are you sure you would like to delete tunnel ‘{TunnelName}’?",
+            "translation": "Czy na pewno chcesz usunąć tunel ‘{TunnelName}’?",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "TunnelName",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "tunnelName"
+                }
+            ]
+        },
+        {
+            "id": "{Question} You cannot undo this action.",
+            "message": "{Question} You cannot undo this action.",
+            "translation": "{Question} Tej akcji nie można cofnąć.",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Question",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "question"
+                }
+            ]
+        },
+        {
+            "id": "Unable to delete tunnel",
+            "message": "Unable to delete tunnel",
+            "translation": "Nie można usunąć tunelu",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "A tunnel was unable to be removed: {Error}",
+            "message": "A tunnel was unable to be removed: {Error}",
+            "translation": "Tunel nie mógł zostać usunięty: {Error}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Error",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "errors[0].Error()"
+                }
+            ]
+        },
+        {
+            "id": "Unable to delete tunnels",
+            "message": "Unable to delete tunnels",
+            "translation": "Nie można usunąć tuneli",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "{Lenerrors} tunnels were unable to be removed.",
+            "message": "{Lenerrors} tunnels were unable to be removed.",
+            "translation": {
+                "select": {
+                    "feature": "plural",
+                    "arg": "Lenerrors",
+                    "cases": {
+                        "one": {
+                            "msg": "{Lenerrors} tunel nie może zostać usunięty."
+                        },
+                        "few": {
+                            "msg": "{Lenerrors} tunele nie mogą być usunięte."
+                        },
+                        "many": {
+                            "msg": "{Lenerrors} tunele nie mogą być usunięte."
+                        },
+                        "other": {
+                            "msg": "{Lenerrors} tunele nie mogą być usunięte."
+                        }
+                    }
+                }
+            },
+            "placeholders": [
+                {
+                    "id": "Lenerrors",
+                    "string": "%[1]d",
+                    "type": "int",
+                    "underlyingType": "int",
+                    "argNum": 1,
+                    "expr": "len(errors)"
+                }
+            ]
+        },
+        {
+            "id": "Configuration Files (*.zip, *.conf)|*.zip;*.conf|All Files (*.*)|*.*",
+            "message": "Configuration Files (*.zip, *.conf)|*.zip;*.conf|All Files (*.*)|*.*",
+            "translation": "Pliki konfiguracji (*.zip, *.conf)|*.zip;*.conf|Wszystkie pliki (*.*)|*.*",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Import tunnel(s) from file",
+            "message": "Import tunnel(s) from file",
+            "translation": "Importuj tunel (tunele) z pliku",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Configuration ZIP Files (*.zip)|*.zip",
+            "message": "Configuration ZIP Files (*.zip)|*.zip",
+            "translation": "Pliki ZIP konfiguracji (*.zip)|*.zip",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Export tunnels to zip",
+            "message": "Export tunnels to zip",
+            "translation": "Eksportuj tunele do archiwum ZIP",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "{Title} (unsigned build, no updates)",
+            "message": "{Title} (unsigned build, no updates)",
+            "translation": "{Title} (wersja niepodpisana, brak aktualizacji)",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Title",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "mtw.Title()"
+                }
+            ]
+        },
+        {
+            "id": "Error Exiting WireGuard",
+            "message": "Error Exiting WireGuard",
+            "translation": "Błąd podczas zamykania WireGuard",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Unable to exit service due to: {Err}. You may want to stop WireGuard from the service manager.",
+            "message": "Unable to exit service due to: {Err}. You may want to stop WireGuard from the service manager.",
+            "translation": "Nie można wyłączyć usługi ze względu na: {Err}. Jeśli chcesz wyłączyć WireGuard możesz to zrobić z poziomu menedżera usług.",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Err",
+                    "string": "%[1]v",
+                    "type": "error",
+                    "underlyingType": "interface{Error() string}",
+                    "argNum": 1,
+                    "expr": "err"
+                }
+            ]
+        },
+        {
+            "id": "An update to WireGuard is available. It is highly advisable to update without delay.",
+            "message": "An update to WireGuard is available. It is highly advisable to update without delay.",
+            "translation": "Aktualizacja WireGuard jest dostępna. Zaleca się natychmiastową aktualizację.",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Status: Waiting for user",
+            "message": "Status: Waiting for user",
+            "translation": "Status: Czekam na użytkownika",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Update Now",
+            "message": "Update Now",
+            "translation": "Uaktualnij teraz",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Status: Waiting for updater service",
+            "message": "Status: Waiting for updater service",
+            "translation": "Status: Czekam na usługę aktualizacji",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Error: {Err}. Please try again.",
+            "message": "Error: {Err}. Please try again.",
+            "translation": "Błąd: {Err}. Spróbuj ponownie.",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Err",
+                    "string": "%[1]v",
+                    "type": "error",
+                    "underlyingType": "interface{Error() string}",
+                    "argNum": 1,
+                    "expr": "err"
+                }
+            ]
+        },
+        {
+            "id": "Status: Complete!",
+            "message": "Status: Complete!",
+            "translation": "Status: Ukończone!",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "http2: Framer {F}: failed to decode just-written frame",
+            "message": "http2: Framer {F}: failed to decode just-written frame",
+            "translation": "http2: Framer {F}: nie mógł zdekodować właśnie zapisanej ramki",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "F",
+                    "string": "%[1]p",
+                    "type": "*net/http.http2Framer",
+                    "underlyingType": "*net/http.http2Framer",
+                    "argNum": 1,
+                    "expr": "f"
+                }
+            ]
+        },
+        {
+            "id": "http2: Framer {F}: wrote {Http2summarizeFramefr}",
+            "message": "http2: Framer {F}: wrote {Http2summarizeFramefr}",
+            "translation": "http2: Framer {F}: zapis {Http2summarizeFramefr}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "F",
+                    "string": "%[1]p",
+                    "type": "*net/http.http2Framer",
+                    "underlyingType": "*net/http.http2Framer",
+                    "argNum": 1,
+                    "expr": "f"
+                },
+                {
+                    "id": "Http2summarizeFramefr",
+                    "string": "%[2]v",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 2,
+                    "expr": "http2summarizeFrame(fr)"
+                }
+            ]
+        },
+        {
+            "id": "http2: Framer {Fr}: read {Http2summarizeFramef}",
+            "message": "http2: Framer {Fr}: read {Http2summarizeFramef}",
+            "translation": "http2: Framer {Fr}: odczyt {Http2summarizeFramef}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Fr",
+                    "string": "%[1]p",
+                    "type": "*net/http.http2Framer",
+                    "underlyingType": "*net/http.http2Framer",
+                    "argNum": 1,
+                    "expr": "fr"
+                },
+                {
+                    "id": "Http2summarizeFramef",
+                    "string": "%[2]v",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 2,
+                    "expr": "http2summarizeFrame(f)"
+                }
+            ]
+        },
+        {
+            "id": "http2: decoded hpack field {HeaderField}",
+            "message": "http2: decoded hpack field {HeaderField}",
+            "translation": "http2: zdekodwanie hpack nie powiodło się {HeaderField}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "HeaderField",
+                    "string": "%+[1]v",
+                    "type": "vendor/golang.org/x/net/http2/hpack.HeaderField",
+                    "underlyingType": "struct{Name string; Value string; Sensitive bool}",
+                    "argNum": 1,
+                    "expr": "hf"
+                }
+            ]
         }
     ]
 }

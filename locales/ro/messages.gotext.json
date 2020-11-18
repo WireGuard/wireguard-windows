@@ -60,12 +60,6 @@
             ]
         },
         {
-            "id": "You must use the 64-bit version of WireGuard on this computer.",
-            "message": "You must use the 64-bit version of WireGuard on this computer.",
-            "translation": "Trebuie să utilizezi versiunea de 64 biți a WireGuard pe acest calculator.",
-            "translatorComment": "Copied from source."
-        },
-        {
             "id": "Unable to open current process token: {Err}",
             "message": "Unable to open current process token: {Err}",
             "translation": "Nu poate fi deschis tokenul actual de proces: {Err}",
@@ -603,7 +597,7 @@
         {
             "id": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}\nOperating system: {OsName}\nArchitecture: {GOARCH}",
             "message": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}\nOperating system: {OsName}\nArchitecture: {GOARCH}",
-            "translation": "Versiunea aplicației: {Number}\nVersiunea bibliotecii subiacente Go: {WireGuardGoVersion}\nVersiunea Go: {Version_go}\nSistem de operare: {OsName}\nArhitectură: {GOARCH}",
+            "translation": "Versiunea aplicației: {Number}\nVersiunea bibliotecii Go: {WireGuardGoVersion}\nVersiunea Go: {Version_go}\nSistem de operare: {OsName}\nArhitectură: {GOARCH}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1263,7 +1257,7 @@
         {
             "id": "&Edit",
             "message": "&Edit",
-            "translation": "%Editare",
+            "translation": "&Editare",
             "translatorComment": "Copied from source."
         },
         {

@@ -60,12 +60,6 @@
             ]
         },
         {
-            "id": "You must use the 64-bit version of WireGuard on this computer.",
-            "message": "You must use the 64-bit version of WireGuard on this computer.",
-            "translation": "Anda harus menggunakan WireGuard versi 64-bit di komputer ini.",
-            "translatorComment": "Copied from source."
-        },
-        {
             "id": "Unable to open current process token: {Err}",
             "message": "Unable to open current process token: {Err}",
             "translation": "Tidak dapat membuka token proses saat ini: {Err}",

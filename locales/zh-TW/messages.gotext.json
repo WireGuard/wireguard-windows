@@ -60,12 +60,6 @@
             ]
         },
         {
-            "id": "You must use the 64-bit version of WireGuard on this computer.",
-            "message": "You must use the 64-bit version of WireGuard on this computer.",
-            "translation": "您必須在此電腦上執行 64 位元版本的 WireGuard。",
-            "translatorComment": "Copied from source."
-        },
-        {
             "id": "Unable to open current process token: {Err}",
             "message": "Unable to open current process token: {Err}",
             "translation": "無法開啓目前處理程序的權杖： {Err}",
