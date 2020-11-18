@@ -303,17 +303,21 @@ __declspec(dllexport) UINT __stdcall EvaluateWireGuardComponents(MSIHANDLE insta
 		log_errorf(installer, LOG_LEVEL_ERR, ret, TEXT("MsiGetProperty(\"WireGuardFolder\") failed"));
 		goto out;
 	}
-	ret = MsiSetProperty(installer, TEXT("KillWireGuardProcesses"), path);
-	if (ret != ERROR_SUCCESS) {
-		log_errorf(installer, LOG_LEVEL_ERR, ret, TEXT("MsiSetProperty(\"KillWireGuardProcesses\") failed"));
-		goto out;
-	}
 
 	if (component_action >= INSTALLSTATE_LOCAL) {
-		/* WireGuardExecutable component shall be installed or updated. */
+		/* WireGuardExecutable component shall be installed. */
+		ret = MsiSetProperty(installer, TEXT("KillWireGuardProcesses"), path);
+		if (ret != ERROR_SUCCESS) {
+			log_errorf(installer, LOG_LEVEL_ERR, ret, TEXT("MsiSetProperty(\"KillWireGuardProcesses\") failed"));
+			goto out;
+		}
 	} else if (component_action >= INSTALLSTATE_REMOVED) {
 		/* WireGuardExecutable component shall be uninstalled. */
-		log_messagef(installer, LOG_LEVEL_INFO, TEXT("WireGuardExecutable removal scheduled"));
+		ret = MsiSetProperty(installer, TEXT("KillWireGuardProcesses"), path);
+		if (ret != ERROR_SUCCESS) {
+			log_errorf(installer, LOG_LEVEL_ERR, ret, TEXT("MsiSetProperty(\"KillWireGuardProcesses\") failed"));
+			goto out;
+		}
 		ret = MsiSetProperty(installer, TEXT("RemoveConfigFolder"), path);
 		if (ret != ERROR_SUCCESS) {
 			log_errorf(installer, LOG_LEVEL_ERR, ret, TEXT("MsiSetProperty(\"RemoveConfigFolder\") failed"));
@@ -393,6 +397,8 @@ __declspec(dllexport) UINT __stdcall KillWireGuardProcesses(MSIHANDLE installer)
 	}
 	if (!process_path[0])
 		goto out;
+
+	log_messagef(installer, LOG_LEVEL_INFO, TEXT("Detecting running processes"));
 
 	if (PathCombine(executable, process_path, TEXT("wg.exe")) && calculate_file_id(executable, &file_ids[file_ids_len]))
 		++file_ids_len;
