@@ -292,6 +292,7 @@ __declspec(dllexport) UINT __stdcall CheckKB2921916(MSIHANDLE installer)
 	if (MsiProcessMessage(installer, INSTALLMESSAGE_USER | MB_ICONWARNING | MB_YESNO, record) == IDYES)
 		ShellExecute(GetForegroundWindow(), NULL, url, NULL, NULL, SW_SHOWNORMAL);
 	MsiCloseHandle(record);
+	ret = ERROR_INSTALL_USEREXIT;
 
 out:
 	if (setupapi_bytes)
