@@ -15,6 +15,7 @@ import (
 	"strings"
 
 	"golang.org/x/sys/windows"
+	"golang.org/x/sys/windows/registry"
 	"golang.org/x/sys/windows/svc/mgr"
 )
 
@@ -31,22 +32,33 @@ func maybeMigrateConfiguration(c string) {
 	if err != nil {
 		return
 	}
+	pendingDeletion := make(map[string]bool)
+	if key, err := registry.OpenKey(registry.LOCAL_MACHINE, `SYSTEM\CurrentControlSet\Control\Session Manager`, registry.READ); err == nil {
+		if ntPaths, _, err := key.GetStringsValue("PendingFileRenameOperations"); err == nil {
+			for _, ntPath := range ntPaths {
+				pendingDeletion[strings.ToLower(strings.TrimPrefix(ntPath, `\??\`))] = true
+			}
+		}
+		key.Close()
+	}
 	migratedConfigs := make(map[string]string)
 	for i := range files {
 		if files[i].IsDir() {
 			continue
 		}
 		fileName := files[i].Name()
-		newPath := filepath.Join(c, fileName)
-		newFile, err := os.OpenFile(newPath, os.O_EXCL|os.O_CREATE|os.O_WRONLY, 0600)
+		oldPath := filepath.Join(oldC, fileName)
+		if pendingDeletion[strings.ToLower(oldPath)] {
+			continue
+		}
+		oldConfig, err := ioutil.ReadFile(oldPath)
 		if err != nil {
 			continue
 		}
-		oldPath := filepath.Join(oldC, fileName)
-		oldConfig, err := ioutil.ReadFile(oldPath)
+
+		newPath := filepath.Join(c, fileName)
+		newFile, err := os.OpenFile(newPath, os.O_EXCL|os.O_CREATE|os.O_WRONLY, 0600)
 		if err != nil {
-			newFile.Close()
-			os.Remove(newPath)
 			continue
 		}
 		_, err = newFile.Write(oldConfig)
