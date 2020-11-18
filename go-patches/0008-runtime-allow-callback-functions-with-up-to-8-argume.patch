@@ -1,7 +1,7 @@
-From f85bc709bd30286a310a6a98d4ab42cbadd94315 Mon Sep 17 00:00:00 2001
+From 5a7c808cbacb8c0477395c5656c1eba3ef38cd6e Mon Sep 17 00:00:00 2001
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 Date: Tue, 10 Nov 2020 21:42:36 +0100
-Subject: [PATCH 9/9] runtime: allow callback functions with up to 8 arguments
+Subject: [PATCH 8/8] runtime: allow callback functions with up to 8 arguments
  on windows/arm
 
 Previously, windows/arm programs would abort when trying to use
@@ -15,7 +15,7 @@ Change-Id: I15a6a3168237fd8bb1128cc2c11ff2d900d665d2
  1 file changed, 9 insertions(+), 5 deletions(-)
 
 diff --git a/src/runtime/sys_windows_arm.s b/src/runtime/sys_windows_arm.s
-index e6c61a4e42..7bfeb7614f 100644
+index 256b5ff7f0..049c69ec88 100644
 --- a/src/runtime/sys_windows_arm.s
 +++ b/src/runtime/sys_windows_arm.s
 @@ -315,10 +315,14 @@ GLOBL runtime·cbctxts(SB), NOPTR, $4

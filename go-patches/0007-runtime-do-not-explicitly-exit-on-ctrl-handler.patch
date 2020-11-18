@@ -1,7 +1,7 @@
-From a9e2ff1fa414106c130907ac993600bd3adcd6cd Mon Sep 17 00:00:00 2001
+From af4eb34d920c0c727041ebf587e0de608068ed59 Mon Sep 17 00:00:00 2001
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 Date: Tue, 14 Jul 2020 01:41:03 -0600
-Subject: [PATCH 8/9] runtime: do not explicitly exit on ctrl handler
+Subject: [PATCH 7/8] runtime: do not explicitly exit on ctrl handler
 
 The default ctrl+c handler should process exits in situations where it
 makes sense, like console apps, but not in situations where it doesn't,
@@ -29,10 +29,10 @@ Reviewed-by: Jason A. Donenfeld <Jason@zx2c4.com>
  1 file changed, 5 deletions(-)
 
 diff --git a/src/runtime/os_windows.go b/src/runtime/os_windows.go
-index 125bf0b225..46f4a23e5b 100644
+index a584ada702..a62e941229 100644
 --- a/src/runtime/os_windows.go
 +++ b/src/runtime/os_windows.go
-@@ -1068,11 +1068,6 @@ func ctrlhandler1(_type uint32) uint32 {
+@@ -1010,11 +1010,6 @@ func ctrlhandler1(_type uint32) uint32 {
  	if sigsend(s) {
  		return 1
  	}

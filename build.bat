@@ -13,7 +13,7 @@ if exist .deps\prepared goto :render
 	rmdir /s /q .deps 2> NUL
 	mkdir .deps || goto :error
 	cd .deps || goto :error
-	call :download go.zip https://dl.google.com/go/go1.15.4.windows-amd64.zip 3593204e3851be577e4209900ece031b36f1e9ce1671f3f3221c9af7a090a941 || goto :error
+	call :download go.zip https://dl.google.com/go/go1.15.5.windows-amd64.zip 1d24be3a200201a74be25e4134fbec467750e834e84e9c7789a9fc13248c5507 || goto :error
 	rem Mirror of https://github.com/mstorsjo/llvm-mingw/releases/download/20201020/llvm-mingw-20201020-msvcrt-x86_64.zip
 	call :download llvm-mingw-msvcrt.zip https://download.wireguard.com/windows-toolchain/distfiles/llvm-mingw-20201020-msvcrt-x86_64.zip 2e46593245090df96d15e360e092f0b62b97e93866e0162dca7f93b16722b844 || goto :error
 	rem Mirror of https://imagemagick.org/download/binaries/ImageMagick-7.0.8-42-portable-Q16-x64.zip

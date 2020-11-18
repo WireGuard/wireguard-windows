@@ -1,7 +1,7 @@
-From 3d9d47826907f8836cf4f364e45b8e2580dbc470 Mon Sep 17 00:00:00 2001
+From 8255e115f325a58fd4746741f9f35c2f54d70d63 Mon Sep 17 00:00:00 2001
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 Date: Sun, 8 Nov 2020 11:11:27 +0100
-Subject: [PATCH 4/9] cmd/link: do not mark resource section as writable
+Subject: [PATCH 4/8] cmd/link: do not mark resource section as writable
 
 Resources are immutable, and all other linkers set this section to be
 read-only and not read-write. Fix this oversight by rmoving the writable
