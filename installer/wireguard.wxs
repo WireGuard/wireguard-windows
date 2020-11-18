@@ -110,14 +110,6 @@
 		</InstallExecuteSequence>
 
 		<!--
-			Launch wireguard.exe on product reconfiguration (starting same MSI again)
-		-->
-		<CustomAction Id="LaunchApplicationAndAbort" BinaryKey="customactions.dll" DllEntry="LaunchApplicationAndAbort" />
-		<InstallExecuteSequence>
-			<Custom Action="LaunchApplicationAndAbort" After="CostFinalize">ProductState=5 AND NOT REMOVE AND NOT DO_NOT_LAUNCH</Custom>
-		</InstallExecuteSequence>
-
-		<!--
 			Evaluate WireGuard services and populate ServiceControl table
 		-->
 		<CustomAction Id="EvaluateWireGuardServices" BinaryKey="customactions.dll" DllEntry="EvaluateWireGuardServices" />
@@ -126,11 +118,27 @@
 		</InstallExecuteSequence>
 
 		<!--
+			Launch wireguard.exe on product reconfiguration (starting same MSI again)
+		-->
+		<CustomAction Id="LaunchApplicationAndAbort" BinaryKey="customactions.dll" DllEntry="LaunchApplicationAndAbort" />
+		<InstallExecuteSequence>
+			<Custom Action="LaunchApplicationAndAbort" After="CostFinalize">ProductState=5 AND NOT REMOVE AND NOT DO_NOT_LAUNCH</Custom>
+		</InstallExecuteSequence>
+
+		<!--
 			Evaluate WireGuard components
 		-->
 		<CustomAction Id="EvaluateWireGuardComponents" BinaryKey="customactions.dll" DllEntry="EvaluateWireGuardComponents" />
 		<InstallExecuteSequence>
 			<Custom Action="EvaluateWireGuardComponents" After="ProcessComponents" />
+		</InstallExecuteSequence>
+
+		<!--
+			Kill lingering processes
+		-->
+		<CustomAction Id="KillWireGuardProcesses" BinaryKey="customactions.dll" DllEntry="KillWireGuardProcesses" Execute="deferred" Impersonate="no" />
+		<InstallExecuteSequence>
+			<Custom Action="KillWireGuardProcesses" After="StopServices" />
 		</InstallExecuteSequence>
 
 		<!--
@@ -147,14 +155,6 @@
 		<CustomAction Id="RemoveAdapters" BinaryKey="customactions.dll" DllEntry="RemoveAdapters" Execute="deferred" Impersonate="no" />
 		<InstallExecuteSequence>
 			<Custom Action="RemoveAdapters" Before="RemoveFiles" />
-		</InstallExecuteSequence>
-
-		<!--
-			Kill lingering processes
-		-->
-		<CustomAction Id="KillWireGuardProcesses" BinaryKey="customactions.dll" DllEntry="KillWireGuardProcesses" Execute="deferred" Impersonate="no" />
-		<InstallExecuteSequence>
-			<Custom Action="KillWireGuardProcesses" After="StopServices" />
 		</InstallExecuteSequence>
 
 		<!--
