@@ -290,6 +290,10 @@ func (tray *Tray) updateGlobalState(globalState manager.TunnelState) {
 
 	tray.SetToolTip(l18n.Sprintf("WireGuard: %s", textForState(globalState, true)))
 	stateText := textForState(globalState, false)
+	stateIcon, err := iconForState(globalState, 16)
+	if err == nil {
+		statusAction.SetImage(stateIcon)
+	}
 	statusAction.SetText(l18n.Sprintf("Status: %s", stateText))
 
 	go func() {
