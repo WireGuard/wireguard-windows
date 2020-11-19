@@ -75,13 +75,12 @@ static DWORD __stdcall download_thread(void *param)
 {
 	DWORD ret = 1, bytes_read, bytes_written;
 	HINTERNET session = NULL, connection = NULL, request = NULL;
-	uint8_t hash[32], computed_hash[32];
+	uint8_t hash[32], computed_hash[32], buf[512 * 1024];
 	char download_path[MAX_FILENAME_LEN + sizeof(msi_path)], random_filename[65];
-	char buf[512 * 1024];
 	wchar_t total_bytes_str[22];
 	size_t total_bytes, current_bytes;
 	const char *arch;
-	blake2b_ctx hasher;
+	struct blake2b256_state hasher;
 	SECURITY_ATTRIBUTES security_attributes = { .nLength = sizeof(security_attributes) };
 	WINTRUST_FILE_INFO wintrust_fileinfo = { .cbStruct = sizeof(wintrust_fileinfo) };
 	WINTRUST_DATA wintrust_data = {
@@ -135,7 +134,7 @@ static DWORD __stdcall download_thread(void *param)
 
 	set_status(progress, "verifying installer list");
 	memcpy(download_path, msi_path, strlen(msi_path));
-	if (!extract_newest_file(download_path + strlen(msi_path), hash, buf, bytes_read, arch))
+	if (!extract_newest_file(download_path + strlen(msi_path), hash, (const char *)buf, bytes_read, arch))
 		goto out;
 
 	set_status(progress, "creating temporary file");
@@ -158,7 +157,7 @@ static DWORD __stdcall download_thread(void *param)
 	total_bytes = wcstoul(total_bytes_str, NULL, 10);
 	if (total_bytes > 100 * 1024 * 1024)
 		goto out;
-	blake2b_init(&hasher, 32, NULL, 0);
+	blake2b256_init(&hasher);
 	set_progress(progress, 0, total_bytes);
 	for (current_bytes = 0;;) {
 		if (!WinHttpReadData(request, buf, 8192, &bytes_read))
@@ -168,14 +167,14 @@ static DWORD __stdcall download_thread(void *param)
 		current_bytes += bytes_read;
 		if (current_bytes > 100 * 1024 * 1024)
 			goto out;
-		blake2b_update(&hasher, buf, bytes_read);
+		blake2b256_update(&hasher, buf, bytes_read);
 		if (!WriteFile(filehandle, buf, bytes_read, &bytes_written, NULL) || bytes_read != bytes_written)
 			goto out;
 		set_progress(progress, current_bytes, total_bytes);
 	}
 
 	set_status(progress, "verifying installer");
-	blake2b_final(&hasher, computed_hash);
+	blake2b256_final(&hasher, computed_hash);
 	if (memcmp(hash, computed_hash, sizeof(hash)))
 		goto out;
 	CloseHandle(filehandle); //TODO: I wish this wasn't required.

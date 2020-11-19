@@ -1,1185 +1,2403 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright (c) 2017-2020, Loup Vaillant. All rights reserved.
  * Copyright (C) 2020 Jason A. Donenfeld. All Rights Reserved.
+ * Copyright (c) 2020, Google Inc.
  */
 
 #include "crypto.h"
+#include <stdint.h>
+#include <string.h>
+#include <winternl.h>
 
-#define FOR_T(type, i, start, end) for (type i = (start); i < (end); i++)
-#define FOR(i, start, end)         FOR_T(size_t, i, start, end)
-#define COPY(dst, src, size)       FOR(i, 0, size) (dst)[i] = (src)[i]
-#define ZERO(buf, size)            FOR(i, 0, size) (buf)[i] = 0
-#define MIN(a, b)                  ((a) <= (b) ? (a) : (b))
-#define MAX(a, b)                  ((a) >= (b) ? (a) : (b))
+#if REG_DWORD == REG_DWORD_LITTLE_ENDIAN
+#define swap_le64(x) (x)
+#define swap_le32(x) (x)
+#define swap_be64(x) __builtin_bswap64(x)
+#elif REG_DWORD == REG_DWORD_BIG_ENDIAN
+#define swap_le64(x) __builtin_bswap64(x)
+#define swap_le32(x) __builtin_bswap32(x)
+#define swap_be64(x) (x)
+#endif
 
-typedef int8_t   i8;
-typedef uint8_t  u8;
-typedef int16_t  i16;
-typedef uint32_t u32;
-typedef int32_t  i32;
-typedef int64_t  i64;
-typedef uint64_t u64;
-
-static const u8 zero[32] = {0};
-
-// returns the smallest positive integer y such that
-// (x + y) % pow_2  == 0
-// Basically, it's how many bytes we need to add to "align" x.
-// Only works when pow_2 is a power of 2.
-// Note: we use ~x+1 instead of -x to avoid compiler warnings
-static size_t align(size_t x, size_t pow_2)
+static void store_le64(uint8_t *dst, uint64_t src)
 {
-	return (~x + 1) & (pow_2 - 1);
+	src = swap_le64(src);
+	__builtin_memcpy(dst, &src, sizeof(src));
 }
 
-static u32 load24_le(const u8 s[3])
+static void store_be64(uint8_t *dst, uint64_t src)
 {
-	return (u32)s[0]
-		| ((u32)s[1] <<  8)
-		| ((u32)s[2] << 16);
+	src = swap_be64(src);
+	__builtin_memcpy(dst, &src, sizeof(src));
 }
 
-static u32 load32_le(const u8 s[4])
+static uint64_t load_le64(const uint8_t *src)
 {
-	return (u32)s[0]
-		| ((u32)s[1] <<  8)
-		| ((u32)s[2] << 16)
-		| ((u32)s[3] << 24);
+	uint64_t dst;
+	__builtin_memcpy(&dst, src, sizeof(dst));
+	return swap_le64(dst);
 }
 
-static u64 load64_le(const u8 s[8])
+static uint32_t load_le24(const uint8_t *in)
 {
-	return load32_le(s) | ((u64)load32_le(s+4) << 32);
+	uint32_t dst;
+	dst = (uint32_t)in[0];
+	dst |= ((uint32_t)in[1]) << 8;
+	dst |= ((uint32_t)in[2]) << 16;
+	return dst;
 }
 
-static u64 load64_be(const u8 s[8])
+static uint32_t load_le32(const uint8_t *src)
 {
-	return((u64)s[0] << 56)
-		| ((u64)s[1] << 48)
-		| ((u64)s[2] << 40)
-		| ((u64)s[3] << 32)
-		| ((u64)s[4] << 24)
-		| ((u64)s[5] << 16)
-		| ((u64)s[6] <<  8)
-		|  (u64)s[7];
+	uint32_t dst;
+	__builtin_memcpy(&dst, src, sizeof(dst));
+	return swap_le32(dst);
 }
 
-static void store32_le(u8 out[4], u32 in)
+static uint64_t load_be64(const uint8_t *src)
 {
-	out[0] =  in        & 0xff;
-	out[1] = (in >>  8) & 0xff;
-	out[2] = (in >> 16) & 0xff;
-	out[3] = (in >> 24) & 0xff;
+	uint64_t dst;
+	__builtin_memcpy(&dst, src, sizeof(dst));
+	return swap_be64(dst);
 }
 
-static void store64_le(u8 out[8], u64 in)
+static uint64_t ror64(uint64_t i, unsigned int s)
 {
-	store32_le(out    , (u32)in );
-	store32_le(out + 4, in >> 32);
+	return (i >> (s & 63)) | (i << ((-s) & 63));
 }
 
-static void store64_be(u8 out[8], u64 in)
+static inline uint32_t value_barrier_u32(uint32_t a)
 {
-	out[0] = (in >> 56) & 0xff;
-	out[1] = (in >> 48) & 0xff;
-	out[2] = (in >> 40) & 0xff;
-	out[3] = (in >> 32) & 0xff;
-	out[4] = (in >> 24) & 0xff;
-	out[5] = (in >> 16) & 0xff;
-	out[6] = (in >>  8) & 0xff;
-	out[7] =  in        & 0xff;
+	__asm__("" : "+r"(a) : /* no inputs */);
+	return a;
 }
 
-static void load64_le_buf (u64 *dst, const u8 *src, size_t size) {
-	FOR(i, 0, size) { dst[i] = load64_le(src + i*8); }
-}
-static void store64_le_buf(u8 *dst, const u64 *src, size_t size) {
-	FOR(i, 0, size) { store64_le(dst + i*8, src[i]); }
-}
-
-static u64 rotr64(u64 x, u64 n) { return (x >> n) ^ (x << (64 - n)); }
-
-static int neq0(u64 diff)
+static int memcmp_ct(const void *first, const void *second, size_t len)
 {
-	// constant time comparison to zero
-	// return diff != 0 ? -1 : 0
-	u64 half = (diff >> 32) | ((u32)diff);
-	return (1 & ((half - 1) >> 32)) - 1;
-}
+	const uint8_t *a = first;
+	const uint8_t *b = second;
+	uint8_t diff = 0;
 
-static u64 x16(const u8 a[16], const u8 b[16])
-{
-	return (load64_le(a + 0) ^ load64_le(b + 0))
-		|  (load64_le(a + 8) ^ load64_le(b + 8));
-}
-static u64 x32(const u8 a[32],const u8 b[32]){ return x16(a,b) | x16(a+16, b+16); }
-static int verify32(const u8 a[32], const u8 b[32]){ return neq0(x32(a, b)); }
-static int zerocmp32(const u8 p[32]) { return verify32(p, zero); }
-
-static const u64 iv[8] = {
-	0x6a09e667f3bcc908, 0xbb67ae8584caa73b,
-	0x3c6ef372fe94f82b, 0xa54ff53a5f1d36f1,
-	0x510e527fade682d1, 0x9b05688c2b3e6c1f,
-	0x1f83d9abfb41bd6b, 0x5be0cd19137e2179,
-};
-
-// increment the input offset
-static void blake2b_incr(blake2b_ctx *ctx)
-{
-	u64   *x = ctx->input_offset;
-	size_t y = ctx->input_idx;
-	x[0] += y;
-	if (x[0] < y) {
-		x[1]++;
-	}
-}
-
-static void blake2b_compress(blake2b_ctx *ctx, int is_last_block)
-{
-	static const u8 sigma[12][16] = {
-		{  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15 },
-		{ 14, 10,  4,  8,  9, 15, 13,  6,  1, 12,  0,  2, 11,  7,  5,  3 },
-		{ 11,  8, 12,  0,  5,  2, 15, 13, 10, 14,  3,  6,  7,  1,  9,  4 },
-		{  7,  9,  3,  1, 13, 12, 11, 14,  2,  6,  5, 10,  4,  0, 15,  8 },
-		{  9,  0,  5,  7,  2,  4, 10, 15, 14,  1, 11, 12,  6,  8,  3, 13 },
-		{  2, 12,  6, 10,  0, 11,  8,  3,  4, 13,  7,  5, 15, 14,  1,  9 },
-		{ 12,  5,  1, 15, 14, 13,  4, 10,  0,  7,  6,  3,  9,  2,  8, 11 },
-		{ 13, 11,  7, 14, 12,  1,  3,  9,  5,  0, 15,  4,  8,  6,  2, 10 },
-		{  6, 15, 14,  9, 11,  3,  0,  8, 12,  2, 13,  7,  1,  4, 10,  5 },
-		{ 10,  2,  8,  4,  7,  6,  1,  5, 15, 11,  9, 14,  3, 12, 13,  0 },
-		{  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15 },
-		{ 14, 10,  4,  8,  9, 15, 13,  6,  1, 12,  0,  2, 11,  7,  5,  3 },
-	};
-
-	// init work vector
-	u64 v0 = ctx->hash[0];  u64 v8  = iv[0];
-	u64 v1 = ctx->hash[1];  u64 v9  = iv[1];
-	u64 v2 = ctx->hash[2];  u64 v10 = iv[2];
-	u64 v3 = ctx->hash[3];  u64 v11 = iv[3];
-	u64 v4 = ctx->hash[4];  u64 v12 = iv[4] ^ ctx->input_offset[0];
-	u64 v5 = ctx->hash[5];  u64 v13 = iv[5] ^ ctx->input_offset[1];
-	u64 v6 = ctx->hash[6];  u64 v14 = iv[6] ^ (u64)~(is_last_block - 1);
-	u64 v7 = ctx->hash[7];  u64 v15 = iv[7];
-
-	// mangle work vector
-	u64 *input = ctx->input;
-#define BLAKE2_G(a, b, c, d, x, y)      \
-	a += b + x;  d = rotr64(d ^ a, 32); \
-	c += d;      b = rotr64(b ^ c, 24); \
-	a += b + y;  d = rotr64(d ^ a, 16); \
-	c += d;      b = rotr64(b ^ c, 63)
-#define BLAKE2_ROUND(i)                                                 \
-	BLAKE2_G(v0, v4, v8 , v12, input[sigma[i][ 0]], input[sigma[i][ 1]]); \
-	BLAKE2_G(v1, v5, v9 , v13, input[sigma[i][ 2]], input[sigma[i][ 3]]); \
-	BLAKE2_G(v2, v6, v10, v14, input[sigma[i][ 4]], input[sigma[i][ 5]]); \
-	BLAKE2_G(v3, v7, v11, v15, input[sigma[i][ 6]], input[sigma[i][ 7]]); \
-	BLAKE2_G(v0, v5, v10, v15, input[sigma[i][ 8]], input[sigma[i][ 9]]); \
-	BLAKE2_G(v1, v6, v11, v12, input[sigma[i][10]], input[sigma[i][11]]); \
-	BLAKE2_G(v2, v7, v8 , v13, input[sigma[i][12]], input[sigma[i][13]]); \
-	BLAKE2_G(v3, v4, v9 , v14, input[sigma[i][14]], input[sigma[i][15]])
-
-	FOR (i, 0, 12) {
-		BLAKE2_ROUND(i);
+	for (size_t i = 0; i < len; ++i) {
+		diff |= a[i] ^ b[i];
+		__asm__("" : "+r"(diff) : /* no inputs */);
 	}
 
-	// update hash
-	ctx->hash[0] ^= v0 ^ v8;   ctx->hash[1] ^= v1 ^ v9;
-	ctx->hash[2] ^= v2 ^ v10;  ctx->hash[3] ^= v3 ^ v11;
-	ctx->hash[4] ^= v4 ^ v12;  ctx->hash[5] ^= v5 ^ v13;
-	ctx->hash[6] ^= v6 ^ v14;  ctx->hash[7] ^= v7 ^ v15;
+	return diff;
 }
 
-static void blake2b_set_input(blake2b_ctx *ctx, u8 input, size_t index)
+/*
+ * The function fiat_25519_addcarryx_u26 is an addition with carry.
+ * Postconditions:
+ *   out1 = (arg1 + arg2 + arg3) mod 2^26
+ *   out2 = ⌊(arg1 + arg2 + arg3) / 2^26⌋
+ *
+ * Input Bounds:
+ *   arg1: [0x0 ~> 0x1]
+ *   arg2: [0x0 ~> 0x3ffffff]
+ *   arg3: [0x0 ~> 0x3ffffff]
+ * Output Bounds:
+ *   out1: [0x0 ~> 0x3ffffff]
+ *   out2: [0x0 ~> 0x1]
+ */
+static void fiat_25519_addcarryx_u26(uint32_t *out1, uint8_t *out2,
+				     uint8_t arg1, uint32_t arg2, uint32_t arg3)
 {
-	if (index == 0) {
-		ZERO(ctx->input, 16);
-	}
-	size_t word = index >> 3;
-	size_t byte = index & 7;
-	ctx->input[word] |= (u64)input << (byte << 3);
-
+	uint32_t x1 = ((arg1 + arg2) + arg3);
+	uint32_t x2 = (x1 & UINT32_C(0x3ffffff));
+	uint8_t x3 = (uint8_t)(x1 >> 26);
+	*out1 = x2;
+	*out2 = x3;
 }
 
-static void blake2b_end_block(blake2b_ctx *ctx)
+/*
+ * The function fiat_25519_subborrowx_u26 is a subtraction with borrow.
+ * Postconditions:
+ *   out1 = (-arg1 + arg2 + -arg3) mod 2^26
+ *   out2 = -⌊(-arg1 + arg2 + -arg3) / 2^26⌋
+ *
+ * Input Bounds:
+ *   arg1: [0x0 ~> 0x1]
+ *   arg2: [0x0 ~> 0x3ffffff]
+ *   arg3: [0x0 ~> 0x3ffffff]
+ * Output Bounds:
+ *   out1: [0x0 ~> 0x3ffffff]
+ *   out2: [0x0 ~> 0x1]
+ */
+static void fiat_25519_subborrowx_u26(uint32_t *out1, uint8_t *out2,
+				      uint8_t arg1, uint32_t arg2,
+				      uint32_t arg3)
 {
-	if (ctx->input_idx == 128) {  // If buffer is full,
-		blake2b_incr(ctx);        // update the input offset
-		blake2b_compress(ctx, 0); // and compress the (not last) block
-		ctx->input_idx = 0;
-	}
+	int32_t x1 = ((int32_t)(arg2 - arg1) - (int32_t)arg3);
+	int8_t x2 = (int8_t)(x1 >> 26);
+	uint32_t x3 = (x1 & UINT32_C(0x3ffffff));
+	*out1 = x3;
+	*out2 = (uint8_t)(0x0 - x2);
 }
 
-static void blake2b_update_block(blake2b_ctx *ctx, const u8 *message, size_t message_size)
+/*
+ * The function fiat_25519_addcarryx_u25 is an addition with carry.
+ * Postconditions:
+ *   out1 = (arg1 + arg2 + arg3) mod 2^25
+ *   out2 = ⌊(arg1 + arg2 + arg3) / 2^25⌋
+ *
+ * Input Bounds:
+ *   arg1: [0x0 ~> 0x1]
+ *   arg2: [0x0 ~> 0x1ffffff]
+ *   arg3: [0x0 ~> 0x1ffffff]
+ * Output Bounds:
+ *   out1: [0x0 ~> 0x1ffffff]
+ *   out2: [0x0 ~> 0x1]
+ */
+static void fiat_25519_addcarryx_u25(uint32_t *out1, uint8_t *out2,
+				     uint8_t arg1, uint32_t arg2, uint32_t arg3)
 {
-	FOR (i, 0, message_size) {
-		blake2b_end_block(ctx);
-		blake2b_set_input(ctx, message[i], ctx->input_idx);
-		ctx->input_idx++;
-	}
+	uint32_t x1 = ((arg1 + arg2) + arg3);
+	uint32_t x2 = (x1 & UINT32_C(0x1ffffff));
+	uint8_t x3 = (uint8_t)(x1 >> 25);
+	*out1 = x2;
+	*out2 = x3;
 }
 
-void blake2b_init(blake2b_ctx *ctx, size_t hash_size, const u8 *key, size_t key_size)
+/*
+ * The function fiat_25519_subborrowx_u25 is a subtraction with borrow.
+ * Postconditions:
+ *   out1 = (-arg1 + arg2 + -arg3) mod 2^25
+ *   out2 = -⌊(-arg1 + arg2 + -arg3) / 2^25⌋
+ *
+ * Input Bounds:
+ *   arg1: [0x0 ~> 0x1]
+ *   arg2: [0x0 ~> 0x1ffffff]
+ *   arg3: [0x0 ~> 0x1ffffff]
+ * Output Bounds:
+ *   out1: [0x0 ~> 0x1ffffff]
+ *   out2: [0x0 ~> 0x1]
+ */
+static void fiat_25519_subborrowx_u25(uint32_t *out1, uint8_t *out2,
+				      uint8_t arg1, uint32_t arg2,
+				      uint32_t arg3)
 {
-	// initial hash
-	COPY(ctx->hash, iv, 8);
-	ctx->hash[0] ^= 0x01010000 ^ (key_size << 8) ^ hash_size;
-
-	ctx->input_offset[0] = 0;         // beginning of the input, no offset
-	ctx->input_offset[1] = 0;         // beginning of the input, no offset
-	ctx->hash_size       = hash_size; // remember the hash size we want
-	ctx->input_idx       = 0;
-
-	// if there is a key, the first block is that key (padded with zeroes)
-	if (key_size > 0) {
-		u8 key_block[128] = {0};
-		COPY(key_block, key, key_size);
-		// same as calling blake2b_update(ctx, key_block , 128)
-		load64_le_buf(ctx->input, key_block, 16);
-		ctx->input_idx = 128;
-	}
+	int32_t x1 = ((int32_t)(arg2 - arg1) - (int32_t)arg3);
+	int8_t x2 = (int8_t)(x1 >> 25);
+	uint32_t x3 = (x1 & UINT32_C(0x1ffffff));
+	*out1 = x3;
+	*out2 = (uint8_t)(0x0 - x2);
 }
 
-void blake2b_update(blake2b_ctx *ctx, const void *message, size_t message_size)
+/*
+ * The function fiat_25519_cmovznz_u32 is a single-word conditional move.
+ * Postconditions:
+ *   out1 = (if arg1 = 0 then arg2 else arg3)
+ *
+ * Input Bounds:
+ *   arg1: [0x0 ~> 0x1]
+ *   arg2: [0x0 ~> 0xffffffff]
+ *   arg3: [0x0 ~> 0xffffffff]
+ * Output Bounds:
+ *   out1: [0x0 ~> 0xffffffff]
+ */
+static void fiat_25519_cmovznz_u32(uint32_t *out1, uint8_t arg1, uint32_t arg2,
+				   uint32_t arg3)
 {
-	if (message_size == 0) {
-		return;
-	}
-	// Align ourselves with block boundaries
-	size_t aligned = MIN(align(ctx->input_idx, 128), message_size);
-	blake2b_update_block(ctx, message, aligned);
-	message      += aligned;
-	message_size -= aligned;
-
-	// Process the message block by block
-	FOR (i, 0, message_size >> 7) { // number of blocks
-		blake2b_end_block(ctx);
-		load64_le_buf(ctx->input, message, 16);
-		message += 128;
-		ctx->input_idx = 128;
-	}
-	message_size &= 127;
-
-	// remaining bytes
-	blake2b_update_block(ctx, message, message_size);
+	uint8_t x1 = (!(!arg1));
+	uint32_t x2 = ((int8_t)(0x0 - x1) & UINT32_C(0xffffffff));
+	// Note this line has been patched from the synthesized code to add value
+	// barriers.
+	//
+	// Clang recognizes this pattern as a select. While it usually transforms it
+	// to a cmov, it sometimes further transforms it into a branch, which we do
+	// not want.
+	uint32_t x3 = ((value_barrier_u32(x2) & arg3) |
+		       (value_barrier_u32(~x2) & arg2));
+	*out1 = x3;
 }
 
-void blake2b_final(blake2b_ctx *ctx, u8 *hash)
+/*
+ * The function fiat_25519_carry_mul multiplies two field elements and reduces the result.
+ * Postconditions:
+ *   eval out1 mod m = (eval arg1 * eval arg2) mod m
+ *
+ * Input Bounds:
+ *   arg1: [[0x0 ~> 0xd333332], [0x0 ~> 0x6999999], [0x0 ~> 0xd333332], [0x0 ~> 0x6999999], [0x0 ~> 0xd333332], [0x0 ~> 0x6999999], [0x0 ~> 0xd333332], [0x0 ~> 0x6999999], [0x0 ~> 0xd333332], [0x0 ~> 0x6999999]]
+ *   arg2: [[0x0 ~> 0xd333332], [0x0 ~> 0x6999999], [0x0 ~> 0xd333332], [0x0 ~> 0x6999999], [0x0 ~> 0xd333332], [0x0 ~> 0x6999999], [0x0 ~> 0xd333332], [0x0 ~> 0x6999999], [0x0 ~> 0xd333332], [0x0 ~> 0x6999999]]
+ * Output Bounds:
+ *   out1: [[0x0 ~> 0x4666666], [0x0 ~> 0x2333333], [0x0 ~> 0x4666666], [0x0 ~> 0x2333333], [0x0 ~> 0x4666666], [0x0 ~> 0x2333333], [0x0 ~> 0x4666666], [0x0 ~> 0x2333333], [0x0 ~> 0x4666666], [0x0 ~> 0x2333333]]
+ */
+static void fiat_25519_carry_mul(uint32_t out1[10], const uint32_t arg1[10],
+				 const uint32_t arg2[10])
 {
-	// Pad the end of the block with zeroes
-	FOR (i, ctx->input_idx, 128) {
-		blake2b_set_input(ctx, 0, i);
-	}
-	blake2b_incr(ctx);        // update the input offset
-	blake2b_compress(ctx, 1); // compress the last block
-	size_t nb_words = ctx->hash_size >> 3;
-	store64_le_buf(hash, ctx->hash, nb_words);
-	FOR (i, nb_words << 3, ctx->hash_size) {
-		hash[i] = (ctx->hash[i >> 3] >> (8 * (i & 7))) & 0xff;
-	}
+	uint64_t x1 = ((uint64_t)(arg1[9]) * ((arg2[9]) * UINT8_C(0x26)));
+	uint64_t x2 = ((uint64_t)(arg1[9]) * ((arg2[8]) * UINT8_C(0x13)));
+	uint64_t x3 = ((uint64_t)(arg1[9]) * ((arg2[7]) * UINT8_C(0x26)));
+	uint64_t x4 = ((uint64_t)(arg1[9]) * ((arg2[6]) * UINT8_C(0x13)));
+	uint64_t x5 = ((uint64_t)(arg1[9]) * ((arg2[5]) * UINT8_C(0x26)));
+	uint64_t x6 = ((uint64_t)(arg1[9]) * ((arg2[4]) * UINT8_C(0x13)));
+	uint64_t x7 = ((uint64_t)(arg1[9]) * ((arg2[3]) * UINT8_C(0x26)));
+	uint64_t x8 = ((uint64_t)(arg1[9]) * ((arg2[2]) * UINT8_C(0x13)));
+	uint64_t x9 = ((uint64_t)(arg1[9]) * ((arg2[1]) * UINT8_C(0x26)));
+	uint64_t x10 = ((uint64_t)(arg1[8]) * ((arg2[9]) * UINT8_C(0x13)));
+	uint64_t x11 = ((uint64_t)(arg1[8]) * ((arg2[8]) * UINT8_C(0x13)));
+	uint64_t x12 = ((uint64_t)(arg1[8]) * ((arg2[7]) * UINT8_C(0x13)));
+	uint64_t x13 = ((uint64_t)(arg1[8]) * ((arg2[6]) * UINT8_C(0x13)));
+	uint64_t x14 = ((uint64_t)(arg1[8]) * ((arg2[5]) * UINT8_C(0x13)));
+	uint64_t x15 = ((uint64_t)(arg1[8]) * ((arg2[4]) * UINT8_C(0x13)));
+	uint64_t x16 = ((uint64_t)(arg1[8]) * ((arg2[3]) * UINT8_C(0x13)));
+	uint64_t x17 = ((uint64_t)(arg1[8]) * ((arg2[2]) * UINT8_C(0x13)));
+	uint64_t x18 = ((uint64_t)(arg1[7]) * ((arg2[9]) * UINT8_C(0x26)));
+	uint64_t x19 = ((uint64_t)(arg1[7]) * ((arg2[8]) * UINT8_C(0x13)));
+	uint64_t x20 = ((uint64_t)(arg1[7]) * ((arg2[7]) * UINT8_C(0x26)));
+	uint64_t x21 = ((uint64_t)(arg1[7]) * ((arg2[6]) * UINT8_C(0x13)));
+	uint64_t x22 = ((uint64_t)(arg1[7]) * ((arg2[5]) * UINT8_C(0x26)));
+	uint64_t x23 = ((uint64_t)(arg1[7]) * ((arg2[4]) * UINT8_C(0x13)));
+	uint64_t x24 = ((uint64_t)(arg1[7]) * ((arg2[3]) * UINT8_C(0x26)));
+	uint64_t x25 = ((uint64_t)(arg1[6]) * ((arg2[9]) * UINT8_C(0x13)));
+	uint64_t x26 = ((uint64_t)(arg1[6]) * ((arg2[8]) * UINT8_C(0x13)));
+	uint64_t x27 = ((uint64_t)(arg1[6]) * ((arg2[7]) * UINT8_C(0x13)));
+	uint64_t x28 = ((uint64_t)(arg1[6]) * ((arg2[6]) * UINT8_C(0x13)));
+	uint64_t x29 = ((uint64_t)(arg1[6]) * ((arg2[5]) * UINT8_C(0x13)));
+	uint64_t x30 = ((uint64_t)(arg1[6]) * ((arg2[4]) * UINT8_C(0x13)));
+	uint64_t x31 = ((uint64_t)(arg1[5]) * ((arg2[9]) * UINT8_C(0x26)));
+	uint64_t x32 = ((uint64_t)(arg1[5]) * ((arg2[8]) * UINT8_C(0x13)));
+	uint64_t x33 = ((uint64_t)(arg1[5]) * ((arg2[7]) * UINT8_C(0x26)));
+	uint64_t x34 = ((uint64_t)(arg1[5]) * ((arg2[6]) * UINT8_C(0x13)));
+	uint64_t x35 = ((uint64_t)(arg1[5]) * ((arg2[5]) * UINT8_C(0x26)));
+	uint64_t x36 = ((uint64_t)(arg1[4]) * ((arg2[9]) * UINT8_C(0x13)));
+	uint64_t x37 = ((uint64_t)(arg1[4]) * ((arg2[8]) * UINT8_C(0x13)));
+	uint64_t x38 = ((uint64_t)(arg1[4]) * ((arg2[7]) * UINT8_C(0x13)));
+	uint64_t x39 = ((uint64_t)(arg1[4]) * ((arg2[6]) * UINT8_C(0x13)));
+	uint64_t x40 = ((uint64_t)(arg1[3]) * ((arg2[9]) * UINT8_C(0x26)));
+	uint64_t x41 = ((uint64_t)(arg1[3]) * ((arg2[8]) * UINT8_C(0x13)));
+	uint64_t x42 = ((uint64_t)(arg1[3]) * ((arg2[7]) * UINT8_C(0x26)));
+	uint64_t x43 = ((uint64_t)(arg1[2]) * ((arg2[9]) * UINT8_C(0x13)));
+	uint64_t x44 = ((uint64_t)(arg1[2]) * ((arg2[8]) * UINT8_C(0x13)));
+	uint64_t x45 = ((uint64_t)(arg1[1]) * ((arg2[9]) * UINT8_C(0x26)));
+	uint64_t x46 = ((uint64_t)(arg1[9]) * (arg2[0]));
+	uint64_t x47 = ((uint64_t)(arg1[8]) * (arg2[1]));
+	uint64_t x48 = ((uint64_t)(arg1[8]) * (arg2[0]));
+	uint64_t x49 = ((uint64_t)(arg1[7]) * (arg2[2]));
+	uint64_t x50 = ((uint64_t)(arg1[7]) * ((arg2[1]) * 0x2));
+	uint64_t x51 = ((uint64_t)(arg1[7]) * (arg2[0]));
+	uint64_t x52 = ((uint64_t)(arg1[6]) * (arg2[3]));
+	uint64_t x53 = ((uint64_t)(arg1[6]) * (arg2[2]));
+	uint64_t x54 = ((uint64_t)(arg1[6]) * (arg2[1]));
+	uint64_t x55 = ((uint64_t)(arg1[6]) * (arg2[0]));
+	uint64_t x56 = ((uint64_t)(arg1[5]) * (arg2[4]));
+	uint64_t x57 = ((uint64_t)(arg1[5]) * ((arg2[3]) * 0x2));
+	uint64_t x58 = ((uint64_t)(arg1[5]) * (arg2[2]));
+	uint64_t x59 = ((uint64_t)(arg1[5]) * ((arg2[1]) * 0x2));
+	uint64_t x60 = ((uint64_t)(arg1[5]) * (arg2[0]));
+	uint64_t x61 = ((uint64_t)(arg1[4]) * (arg2[5]));
+	uint64_t x62 = ((uint64_t)(arg1[4]) * (arg2[4]));
+	uint64_t x63 = ((uint64_t)(arg1[4]) * (arg2[3]));
+	uint64_t x64 = ((uint64_t)(arg1[4]) * (arg2[2]));
+	uint64_t x65 = ((uint64_t)(arg1[4]) * (arg2[1]));
+	uint64_t x66 = ((uint64_t)(arg1[4]) * (arg2[0]));
+	uint64_t x67 = ((uint64_t)(arg1[3]) * (arg2[6]));
+	uint64_t x68 = ((uint64_t)(arg1[3]) * ((arg2[5]) * 0x2));
+	uint64_t x69 = ((uint64_t)(arg1[3]) * (arg2[4]));
+	uint64_t x70 = ((uint64_t)(arg1[3]) * ((arg2[3]) * 0x2));
+	uint64_t x71 = ((uint64_t)(arg1[3]) * (arg2[2]));
+	uint64_t x72 = ((uint64_t)(arg1[3]) * ((arg2[1]) * 0x2));
+	uint64_t x73 = ((uint64_t)(arg1[3]) * (arg2[0]));
+	uint64_t x74 = ((uint64_t)(arg1[2]) * (arg2[7]));
+	uint64_t x75 = ((uint64_t)(arg1[2]) * (arg2[6]));
+	uint64_t x76 = ((uint64_t)(arg1[2]) * (arg2[5]));
+	uint64_t x77 = ((uint64_t)(arg1[2]) * (arg2[4]));
+	uint64_t x78 = ((uint64_t)(arg1[2]) * (arg2[3]));
+	uint64_t x79 = ((uint64_t)(arg1[2]) * (arg2[2]));
+	uint64_t x80 = ((uint64_t)(arg1[2]) * (arg2[1]));
+	uint64_t x81 = ((uint64_t)(arg1[2]) * (arg2[0]));
+	uint64_t x82 = ((uint64_t)(arg1[1]) * (arg2[8]));
+	uint64_t x83 = ((uint64_t)(arg1[1]) * ((arg2[7]) * 0x2));
+	uint64_t x84 = ((uint64_t)(arg1[1]) * (arg2[6]));
+	uint64_t x85 = ((uint64_t)(arg1[1]) * ((arg2[5]) * 0x2));
+	uint64_t x86 = ((uint64_t)(arg1[1]) * (arg2[4]));
+	uint64_t x87 = ((uint64_t)(arg1[1]) * ((arg2[3]) * 0x2));
+	uint64_t x88 = ((uint64_t)(arg1[1]) * (arg2[2]));
+	uint64_t x89 = ((uint64_t)(arg1[1]) * ((arg2[1]) * 0x2));
+	uint64_t x90 = ((uint64_t)(arg1[1]) * (arg2[0]));
+	uint64_t x91 = ((uint64_t)(arg1[0]) * (arg2[9]));
+	uint64_t x92 = ((uint64_t)(arg1[0]) * (arg2[8]));
+	uint64_t x93 = ((uint64_t)(arg1[0]) * (arg2[7]));
+	uint64_t x94 = ((uint64_t)(arg1[0]) * (arg2[6]));
+	uint64_t x95 = ((uint64_t)(arg1[0]) * (arg2[5]));
+	uint64_t x96 = ((uint64_t)(arg1[0]) * (arg2[4]));
+	uint64_t x97 = ((uint64_t)(arg1[0]) * (arg2[3]));
+	uint64_t x98 = ((uint64_t)(arg1[0]) * (arg2[2]));
+	uint64_t x99 = ((uint64_t)(arg1[0]) * (arg2[1]));
+	uint64_t x100 = ((uint64_t)(arg1[0]) * (arg2[0]));
+	uint64_t x101 =
+		(x100 +
+		 (x45 +
+		  (x44 + (x42 + (x39 + (x35 + (x30 + (x24 + (x17 + x9)))))))));
+	uint64_t x102 = (x101 >> 26);
+	uint32_t x103 = (uint32_t)(x101 & UINT32_C(0x3ffffff));
+	uint64_t x104 =
+		(x91 +
+		 (x82 +
+		  (x74 + (x67 + (x61 + (x56 + (x52 + (x49 + (x47 + x46)))))))));
+	uint64_t x105 =
+		(x92 +
+		 (x83 +
+		  (x75 + (x68 + (x62 + (x57 + (x53 + (x50 + (x48 + x1)))))))));
+	uint64_t x106 =
+		(x93 +
+		 (x84 +
+		  (x76 + (x69 + (x63 + (x58 + (x54 + (x51 + (x10 + x2)))))))));
+	uint64_t x107 =
+		(x94 +
+		 (x85 +
+		  (x77 + (x70 + (x64 + (x59 + (x55 + (x18 + (x11 + x3)))))))));
+	uint64_t x108 =
+		(x95 +
+		 (x86 +
+		  (x78 + (x71 + (x65 + (x60 + (x25 + (x19 + (x12 + x4)))))))));
+	uint64_t x109 =
+		(x96 +
+		 (x87 +
+		  (x79 + (x72 + (x66 + (x31 + (x26 + (x20 + (x13 + x5)))))))));
+	uint64_t x110 =
+		(x97 +
+		 (x88 +
+		  (x80 + (x73 + (x36 + (x32 + (x27 + (x21 + (x14 + x6)))))))));
+	uint64_t x111 =
+		(x98 +
+		 (x89 +
+		  (x81 + (x40 + (x37 + (x33 + (x28 + (x22 + (x15 + x7)))))))));
+	uint64_t x112 =
+		(x99 +
+		 (x90 +
+		  (x43 + (x41 + (x38 + (x34 + (x29 + (x23 + (x16 + x8)))))))));
+	uint64_t x113 = (x102 + x112);
+	uint64_t x114 = (x113 >> 25);
+	uint32_t x115 = (uint32_t)(x113 & UINT32_C(0x1ffffff));
+	uint64_t x116 = (x114 + x111);
+	uint64_t x117 = (x116 >> 26);
+	uint32_t x118 = (uint32_t)(x116 & UINT32_C(0x3ffffff));
+	uint64_t x119 = (x117 + x110);
+	uint64_t x120 = (x119 >> 25);
+	uint32_t x121 = (uint32_t)(x119 & UINT32_C(0x1ffffff));
+	uint64_t x122 = (x120 + x109);
+	uint64_t x123 = (x122 >> 26);
+	uint32_t x124 = (uint32_t)(x122 & UINT32_C(0x3ffffff));
+	uint64_t x125 = (x123 + x108);
+	uint64_t x126 = (x125 >> 25);
+	uint32_t x127 = (uint32_t)(x125 & UINT32_C(0x1ffffff));
+	uint64_t x128 = (x126 + x107);
+	uint64_t x129 = (x128 >> 26);
+	uint32_t x130 = (uint32_t)(x128 & UINT32_C(0x3ffffff));
+	uint64_t x131 = (x129 + x106);
+	uint64_t x132 = (x131 >> 25);
+	uint32_t x133 = (uint32_t)(x131 & UINT32_C(0x1ffffff));
+	uint64_t x134 = (x132 + x105);
+	uint64_t x135 = (x134 >> 26);
+	uint32_t x136 = (uint32_t)(x134 & UINT32_C(0x3ffffff));
+	uint64_t x137 = (x135 + x104);
+	uint64_t x138 = (x137 >> 25);
+	uint32_t x139 = (uint32_t)(x137 & UINT32_C(0x1ffffff));
+	uint64_t x140 = (x138 * UINT8_C(0x13));
+	uint64_t x141 = (x103 + x140);
+	uint32_t x142 = (uint32_t)(x141 >> 26);
+	uint32_t x143 = (uint32_t)(x141 & UINT32_C(0x3ffffff));
+	uint32_t x144 = (x142 + x115);
+	uint8_t x145 = (uint8_t)(x144 >> 25);
+	uint32_t x146 = (x144 & UINT32_C(0x1ffffff));
+	uint32_t x147 = (x145 + x118);
+	out1[0] = x143;
+	out1[1] = x146;
+	out1[2] = x147;
+	out1[3] = x121;
+	out1[4] = x124;
+	out1[5] = x127;
+	out1[6] = x130;
+	out1[7] = x133;
+	out1[8] = x136;
+	out1[9] = x139;
 }
+
+/*
+ * The function fiat_25519_carry_square squares a field element and reduces the result.
+ * Postconditions:
+ *   eval out1 mod m = (eval arg1 * eval arg1) mod m
+ *
+ * Input Bounds:
+ *   arg1: [[0x0 ~> 0xd333332], [0x0 ~> 0x6999999], [0x0 ~> 0xd333332], [0x0 ~> 0x6999999], [0x0 ~> 0xd333332], [0x0 ~> 0x6999999], [0x0 ~> 0xd333332], [0x0 ~> 0x6999999], [0x0 ~> 0xd333332], [0x0 ~> 0x6999999]]
+ * Output Bounds:
+ *   out1: [[0x0 ~> 0x4666666], [0x0 ~> 0x2333333], [0x0 ~> 0x4666666], [0x0 ~> 0x2333333], [0x0 ~> 0x4666666], [0x0 ~> 0x2333333], [0x0 ~> 0x4666666], [0x0 ~> 0x2333333], [0x0 ~> 0x4666666], [0x0 ~> 0x2333333]]
+ */
+static void fiat_25519_carry_square(uint32_t out1[10], const uint32_t arg1[10])
+{
+	uint32_t x1 = ((arg1[9]) * UINT8_C(0x13));
+	uint32_t x2 = (x1 * 0x2);
+	uint32_t x3 = ((arg1[9]) * 0x2);
+	uint32_t x4 = ((arg1[8]) * UINT8_C(0x13));
+	uint64_t x5 = ((uint64_t)x4 * 0x2);
+	uint32_t x6 = ((arg1[8]) * 0x2);
+	uint32_t x7 = ((arg1[7]) * UINT8_C(0x13));
+	uint32_t x8 = (x7 * 0x2);
+	uint32_t x9 = ((arg1[7]) * 0x2);
+	uint32_t x10 = ((arg1[6]) * UINT8_C(0x13));
+	uint64_t x11 = ((uint64_t)x10 * 0x2);
+	uint32_t x12 = ((arg1[6]) * 0x2);
+	uint32_t x13 = ((arg1[5]) * UINT8_C(0x13));
+	uint32_t x14 = ((arg1[5]) * 0x2);
+	uint32_t x15 = ((arg1[4]) * 0x2);
+	uint32_t x16 = ((arg1[3]) * 0x2);
+	uint32_t x17 = ((arg1[2]) * 0x2);
+	uint32_t x18 = ((arg1[1]) * 0x2);
+	uint64_t x19 = ((uint64_t)(arg1[9]) * (x1 * 0x2));
+	uint64_t x20 = ((uint64_t)(arg1[8]) * x2);
+	uint64_t x21 = ((uint64_t)(arg1[8]) * x4);
+	uint64_t x22 = ((arg1[7]) * ((uint64_t)x2 * 0x2));
+	uint64_t x23 = ((arg1[7]) * x5);
+	uint64_t x24 = ((uint64_t)(arg1[7]) * (x7 * 0x2));
+	uint64_t x25 = ((uint64_t)(arg1[6]) * x2);
+	uint64_t x26 = ((arg1[6]) * x5);
+	uint64_t x27 = ((uint64_t)(arg1[6]) * x8);
+	uint64_t x28 = ((uint64_t)(arg1[6]) * x10);
+	uint64_t x29 = ((arg1[5]) * ((uint64_t)x2 * 0x2));
+	uint64_t x30 = ((arg1[5]) * x5);
+	uint64_t x31 = ((arg1[5]) * ((uint64_t)x8 * 0x2));
+	uint64_t x32 = ((arg1[5]) * x11);
+	uint64_t x33 = ((uint64_t)(arg1[5]) * (x13 * 0x2));
+	uint64_t x34 = ((uint64_t)(arg1[4]) * x2);
+	uint64_t x35 = ((arg1[4]) * x5);
+	uint64_t x36 = ((uint64_t)(arg1[4]) * x8);
+	uint64_t x37 = ((arg1[4]) * x11);
+	uint64_t x38 = ((uint64_t)(arg1[4]) * x14);
+	uint64_t x39 = ((uint64_t)(arg1[4]) * (arg1[4]));
+	uint64_t x40 = ((arg1[3]) * ((uint64_t)x2 * 0x2));
+	uint64_t x41 = ((arg1[3]) * x5);
+	uint64_t x42 = ((arg1[3]) * ((uint64_t)x8 * 0x2));
+	uint64_t x43 = ((uint64_t)(arg1[3]) * x12);
+	uint64_t x44 = ((uint64_t)(arg1[3]) * (x14 * 0x2));
+	uint64_t x45 = ((uint64_t)(arg1[3]) * x15);
+	uint64_t x46 = ((uint64_t)(arg1[3]) * ((arg1[3]) * 0x2));
+	uint64_t x47 = ((uint64_t)(arg1[2]) * x2);
+	uint64_t x48 = ((arg1[2]) * x5);
+	uint64_t x49 = ((uint64_t)(arg1[2]) * x9);
+	uint64_t x50 = ((uint64_t)(arg1[2]) * x12);
+	uint64_t x51 = ((uint64_t)(arg1[2]) * x14);
+	uint64_t x52 = ((uint64_t)(arg1[2]) * x15);
+	uint64_t x53 = ((uint64_t)(arg1[2]) * x16);
+	uint64_t x54 = ((uint64_t)(arg1[2]) * (arg1[2]));
+	uint64_t x55 = ((arg1[1]) * ((uint64_t)x2 * 0x2));
+	uint64_t x56 = ((uint64_t)(arg1[1]) * x6);
+	uint64_t x57 = ((uint64_t)(arg1[1]) * (x9 * 0x2));
+	uint64_t x58 = ((uint64_t)(arg1[1]) * x12);
+	uint64_t x59 = ((uint64_t)(arg1[1]) * (x14 * 0x2));
+	uint64_t x60 = ((uint64_t)(arg1[1]) * x15);
+	uint64_t x61 = ((uint64_t)(arg1[1]) * (x16 * 0x2));
+	uint64_t x62 = ((uint64_t)(arg1[1]) * x17);
+	uint64_t x63 = ((uint64_t)(arg1[1]) * ((arg1[1]) * 0x2));
+	uint64_t x64 = ((uint64_t)(arg1[0]) * x3);
+	uint64_t x65 = ((uint64_t)(arg1[0]) * x6);
+	uint64_t x66 = ((uint64_t)(arg1[0]) * x9);
+	uint64_t x67 = ((uint64_t)(arg1[0]) * x12);
+	uint64_t x68 = ((uint64_t)(arg1[0]) * x14);
+	uint64_t x69 = ((uint64_t)(arg1[0]) * x15);
+	uint64_t x70 = ((uint64_t)(arg1[0]) * x16);
+	uint64_t x71 = ((uint64_t)(arg1[0]) * x17);
+	uint64_t x72 = ((uint64_t)(arg1[0]) * x18);
+	uint64_t x73 = ((uint64_t)(arg1[0]) * (arg1[0]));
+	uint64_t x74 = (x73 + (x55 + (x48 + (x42 + (x37 + x33)))));
+	uint64_t x75 = (x74 >> 26);
+	uint32_t x76 = (uint32_t)(x74 & UINT32_C(0x3ffffff));
+	uint64_t x77 = (x64 + (x56 + (x49 + (x43 + x38))));
+	uint64_t x78 = (x65 + (x57 + (x50 + (x44 + (x39 + x19)))));
+	uint64_t x79 = (x66 + (x58 + (x51 + (x45 + x20))));
+	uint64_t x80 = (x67 + (x59 + (x52 + (x46 + (x22 + x21)))));
+	uint64_t x81 = (x68 + (x60 + (x53 + (x25 + x23))));
+	uint64_t x82 = (x69 + (x61 + (x54 + (x29 + (x26 + x24)))));
+	uint64_t x83 = (x70 + (x62 + (x34 + (x30 + x27))));
+	uint64_t x84 = (x71 + (x63 + (x40 + (x35 + (x31 + x28)))));
+	uint64_t x85 = (x72 + (x47 + (x41 + (x36 + x32))));
+	uint64_t x86 = (x75 + x85);
+	uint64_t x87 = (x86 >> 25);
+	uint32_t x88 = (uint32_t)(x86 & UINT32_C(0x1ffffff));
+	uint64_t x89 = (x87 + x84);
+	uint64_t x90 = (x89 >> 26);
+	uint32_t x91 = (uint32_t)(x89 & UINT32_C(0x3ffffff));
+	uint64_t x92 = (x90 + x83);
+	uint64_t x93 = (x92 >> 25);
+	uint32_t x94 = (uint32_t)(x92 & UINT32_C(0x1ffffff));
+	uint64_t x95 = (x93 + x82);
+	uint64_t x96 = (x95 >> 26);
+	uint32_t x97 = (uint32_t)(x95 & UINT32_C(0x3ffffff));
+	uint64_t x98 = (x96 + x81);
+	uint64_t x99 = (x98 >> 25);
+	uint32_t x100 = (uint32_t)(x98 & UINT32_C(0x1ffffff));
+	uint64_t x101 = (x99 + x80);
+	uint64_t x102 = (x101 >> 26);
+	uint32_t x103 = (uint32_t)(x101 & UINT32_C(0x3ffffff));
+	uint64_t x104 = (x102 + x79);
+	uint64_t x105 = (x104 >> 25);
+	uint32_t x106 = (uint32_t)(x104 & UINT32_C(0x1ffffff));
+	uint64_t x107 = (x105 + x78);
+	uint64_t x108 = (x107 >> 26);
+	uint32_t x109 = (uint32_t)(x107 & UINT32_C(0x3ffffff));
+	uint64_t x110 = (x108 + x77);
+	uint64_t x111 = (x110 >> 25);
+	uint32_t x112 = (uint32_t)(x110 & UINT32_C(0x1ffffff));
+	uint64_t x113 = (x111 * UINT8_C(0x13));
+	uint64_t x114 = (x76 + x113);
+	uint32_t x115 = (uint32_t)(x114 >> 26);
+	uint32_t x116 = (uint32_t)(x114 & UINT32_C(0x3ffffff));
+	uint32_t x117 = (x115 + x88);
+	uint8_t x118 = (uint8_t)(x117 >> 25);
+	uint32_t x119 = (x117 & UINT32_C(0x1ffffff));
+	uint32_t x120 = (x118 + x91);
+	out1[0] = x116;
+	out1[1] = x119;
+	out1[2] = x120;
+	out1[3] = x94;
+	out1[4] = x97;
+	out1[5] = x100;
+	out1[6] = x103;
+	out1[7] = x106;
+	out1[8] = x109;
+	out1[9] = x112;
+}
+
+/*
+ * The function fiat_25519_carry reduces a field element.
+ * Postconditions:
+ *   eval out1 mod m = eval arg1 mod m
+ *
+ * Input Bounds:
+ *   arg1: [[0x0 ~> 0xd333332], [0x0 ~> 0x6999999], [0x0 ~> 0xd333332], [0x0 ~> 0x6999999], [0x0 ~> 0xd333332], [0x0 ~> 0x6999999], [0x0 ~> 0xd333332], [0x0 ~> 0x6999999], [0x0 ~> 0xd333332], [0x0 ~> 0x6999999]]
+ * Output Bounds:
+ *   out1: [[0x0 ~> 0x4666666], [0x0 ~> 0x2333333], [0x0 ~> 0x4666666], [0x0 ~> 0x2333333], [0x0 ~> 0x4666666], [0x0 ~> 0x2333333], [0x0 ~> 0x4666666], [0x0 ~> 0x2333333], [0x0 ~> 0x4666666], [0x0 ~> 0x2333333]]
+ */
+static void fiat_25519_carry(uint32_t out1[10], const uint32_t arg1[10])
+{
+	uint32_t x1 = (arg1[0]);
+	uint32_t x2 = ((x1 >> 26) + (arg1[1]));
+	uint32_t x3 = ((x2 >> 25) + (arg1[2]));
+	uint32_t x4 = ((x3 >> 26) + (arg1[3]));
+	uint32_t x5 = ((x4 >> 25) + (arg1[4]));
+	uint32_t x6 = ((x5 >> 26) + (arg1[5]));
+	uint32_t x7 = ((x6 >> 25) + (arg1[6]));
+	uint32_t x8 = ((x7 >> 26) + (arg1[7]));
+	uint32_t x9 = ((x8 >> 25) + (arg1[8]));
+	uint32_t x10 = ((x9 >> 26) + (arg1[9]));
+	uint32_t x11 =
+		((x1 & UINT32_C(0x3ffffff)) + ((x10 >> 25) * UINT8_C(0x13)));
+	uint32_t x12 = ((uint8_t)(x11 >> 26) + (x2 & UINT32_C(0x1ffffff)));
+	uint32_t x13 = (x11 & UINT32_C(0x3ffffff));
+	uint32_t x14 = (x12 & UINT32_C(0x1ffffff));
+	uint32_t x15 = ((uint8_t)(x12 >> 25) + (x3 & UINT32_C(0x3ffffff)));
+	uint32_t x16 = (x4 & UINT32_C(0x1ffffff));
+	uint32_t x17 = (x5 & UINT32_C(0x3ffffff));
+	uint32_t x18 = (x6 & UINT32_C(0x1ffffff));
+	uint32_t x19 = (x7 & UINT32_C(0x3ffffff));
+	uint32_t x20 = (x8 & UINT32_C(0x1ffffff));
+	uint32_t x21 = (x9 & UINT32_C(0x3ffffff));
+	uint32_t x22 = (x10 & UINT32_C(0x1ffffff));
+	out1[0] = x13;
+	out1[1] = x14;
+	out1[2] = x15;
+	out1[3] = x16;
+	out1[4] = x17;
+	out1[5] = x18;
+	out1[6] = x19;
+	out1[7] = x20;
+	out1[8] = x21;
+	out1[9] = x22;
+}
+
+/*
+ * The function fiat_25519_add adds two field elements.
+ * Postconditions:
+ *   eval out1 mod m = (eval arg1 + eval arg2) mod m
+ *
+ * Input Bounds:
+ *   arg1: [[0x0 ~> 0x4666666], [0x0 ~> 0x2333333], [0x0 ~> 0x4666666], [0x0 ~> 0x2333333], [0x0 ~> 0x4666666], [0x0 ~> 0x2333333], [0x0 ~> 0x4666666], [0x0 ~> 0x2333333], [0x0 ~> 0x4666666], [0x0 ~> 0x2333333]]
+ *   arg2: [[0x0 ~> 0x4666666], [0x0 ~> 0x2333333], [0x0 ~> 0x4666666], [0x0 ~> 0x2333333], [0x0 ~> 0x4666666], [0x0 ~> 0x2333333], [0x0 ~> 0x4666666], [0x0 ~> 0x2333333], [0x0 ~> 0x4666666], [0x0 ~> 0x2333333]]
+ * Output Bounds:
+ *   out1: [[0x0 ~> 0xd333332], [0x0 ~> 0x6999999], [0x0 ~> 0xd333332], [0x0 ~> 0x6999999], [0x0 ~> 0xd333332], [0x0 ~> 0x6999999], [0x0 ~> 0xd333332], [0x0 ~> 0x6999999], [0x0 ~> 0xd333332], [0x0 ~> 0x6999999]]
+ */
+static void fiat_25519_add(uint32_t out1[10], const uint32_t arg1[10],
+			   const uint32_t arg2[10])
+{
+	uint32_t x1 = ((arg1[0]) + (arg2[0]));
+	uint32_t x2 = ((arg1[1]) + (arg2[1]));
+	uint32_t x3 = ((arg1[2]) + (arg2[2]));
+	uint32_t x4 = ((arg1[3]) + (arg2[3]));
+	uint32_t x5 = ((arg1[4]) + (arg2[4]));
+	uint32_t x6 = ((arg1[5]) + (arg2[5]));
+	uint32_t x7 = ((arg1[6]) + (arg2[6]));
+	uint32_t x8 = ((arg1[7]) + (arg2[7]));
+	uint32_t x9 = ((arg1[8]) + (arg2[8]));
+	uint32_t x10 = ((arg1[9]) + (arg2[9]));
+	out1[0] = x1;
+	out1[1] = x2;
+	out1[2] = x3;
+	out1[3] = x4;
+	out1[4] = x5;
+	out1[5] = x6;
+	out1[6] = x7;
+	out1[7] = x8;
+	out1[8] = x9;
+	out1[9] = x10;
+}
+
+/*
+ * The function fiat_25519_sub subtracts two field elements.
+ * Postconditions:
+ *   eval out1 mod m = (eval arg1 - eval arg2) mod m
+ *
+ * Input Bounds:
+ *   arg1: [[0x0 ~> 0x4666666], [0x0 ~> 0x2333333], [0x0 ~> 0x4666666], [0x0 ~> 0x2333333], [0x0 ~> 0x4666666], [0x0 ~> 0x2333333], [0x0 ~> 0x4666666], [0x0 ~> 0x2333333], [0x0 ~> 0x4666666], [0x0 ~> 0x2333333]]
+ *   arg2: [[0x0 ~> 0x4666666], [0x0 ~> 0x2333333], [0x0 ~> 0x4666666], [0x0 ~> 0x2333333], [0x0 ~> 0x4666666], [0x0 ~> 0x2333333], [0x0 ~> 0x4666666], [0x0 ~> 0x2333333], [0x0 ~> 0x4666666], [0x0 ~> 0x2333333]]
+ * Output Bounds:
+ *   out1: [[0x0 ~> 0xd333332], [0x0 ~> 0x6999999], [0x0 ~> 0xd333332], [0x0 ~> 0x6999999], [0x0 ~> 0xd333332], [0x0 ~> 0x6999999], [0x0 ~> 0xd333332], [0x0 ~> 0x6999999], [0x0 ~> 0xd333332], [0x0 ~> 0x6999999]]
+ */
+static void fiat_25519_sub(uint32_t out1[10], const uint32_t arg1[10],
+			   const uint32_t arg2[10])
+{
+	uint32_t x1 = ((UINT32_C(0x7ffffda) + (arg1[0])) - (arg2[0]));
+	uint32_t x2 = ((UINT32_C(0x3fffffe) + (arg1[1])) - (arg2[1]));
+	uint32_t x3 = ((UINT32_C(0x7fffffe) + (arg1[2])) - (arg2[2]));
+	uint32_t x4 = ((UINT32_C(0x3fffffe) + (arg1[3])) - (arg2[3]));
+	uint32_t x5 = ((UINT32_C(0x7fffffe) + (arg1[4])) - (arg2[4]));
+	uint32_t x6 = ((UINT32_C(0x3fffffe) + (arg1[5])) - (arg2[5]));
+	uint32_t x7 = ((UINT32_C(0x7fffffe) + (arg1[6])) - (arg2[6]));
+	uint32_t x8 = ((UINT32_C(0x3fffffe) + (arg1[7])) - (arg2[7]));
+	uint32_t x9 = ((UINT32_C(0x7fffffe) + (arg1[8])) - (arg2[8]));
+	uint32_t x10 = ((UINT32_C(0x3fffffe) + (arg1[9])) - (arg2[9]));
+	out1[0] = x1;
+	out1[1] = x2;
+	out1[2] = x3;
+	out1[3] = x4;
+	out1[4] = x5;
+	out1[5] = x6;
+	out1[6] = x7;
+	out1[7] = x8;
+	out1[8] = x9;
+	out1[9] = x10;
+}
+
+/*
+ * The function fiat_25519_opp negates a field element.
+ * Postconditions:
+ *   eval out1 mod m = -eval arg1 mod m
+ *
+ * Input Bounds:
+ *   arg1: [[0x0 ~> 0x4666666], [0x0 ~> 0x2333333], [0x0 ~> 0x4666666], [0x0 ~> 0x2333333], [0x0 ~> 0x4666666], [0x0 ~> 0x2333333], [0x0 ~> 0x4666666], [0x0 ~> 0x2333333], [0x0 ~> 0x4666666], [0x0 ~> 0x2333333]]
+ * Output Bounds:
+ *   out1: [[0x0 ~> 0xd333332], [0x0 ~> 0x6999999], [0x0 ~> 0xd333332], [0x0 ~> 0x6999999], [0x0 ~> 0xd333332], [0x0 ~> 0x6999999], [0x0 ~> 0xd333332], [0x0 ~> 0x6999999], [0x0 ~> 0xd333332], [0x0 ~> 0x6999999]]
+ */
+static void fiat_25519_opp(uint32_t out1[10], const uint32_t arg1[10])
+{
+	uint32_t x1 = (UINT32_C(0x7ffffda) - (arg1[0]));
+	uint32_t x2 = (UINT32_C(0x3fffffe) - (arg1[1]));
+	uint32_t x3 = (UINT32_C(0x7fffffe) - (arg1[2]));
+	uint32_t x4 = (UINT32_C(0x3fffffe) - (arg1[3]));
+	uint32_t x5 = (UINT32_C(0x7fffffe) - (arg1[4]));
+	uint32_t x6 = (UINT32_C(0x3fffffe) - (arg1[5]));
+	uint32_t x7 = (UINT32_C(0x7fffffe) - (arg1[6]));
+	uint32_t x8 = (UINT32_C(0x3fffffe) - (arg1[7]));
+	uint32_t x9 = (UINT32_C(0x7fffffe) - (arg1[8]));
+	uint32_t x10 = (UINT32_C(0x3fffffe) - (arg1[9]));
+	out1[0] = x1;
+	out1[1] = x2;
+	out1[2] = x3;
+	out1[3] = x4;
+	out1[4] = x5;
+	out1[5] = x6;
+	out1[6] = x7;
+	out1[7] = x8;
+	out1[8] = x9;
+	out1[9] = x10;
+}
+
+/*
+ * The function fiat_25519_to_bytes serializes a field element to bytes in little-endian order.
+ * Postconditions:
+ *   out1 = map (λ x, ⌊((eval arg1 mod m) mod 2^(8 * (x + 1))) / 2^(8 * x)⌋) [0..31]
+ *
+ * Input Bounds:
+ *   arg1: [[0x0 ~> 0x4666666], [0x0 ~> 0x2333333], [0x0 ~> 0x4666666], [0x0 ~> 0x2333333], [0x0 ~> 0x4666666], [0x0 ~> 0x2333333], [0x0 ~> 0x4666666], [0x0 ~> 0x2333333], [0x0 ~> 0x4666666], [0x0 ~> 0x2333333]]
+ * Output Bounds:
+ *   out1: [[0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0x7f]]
+ */
+static void fiat_25519_to_bytes(uint8_t out1[32], const uint32_t arg1[10])
+{
+	uint32_t x1;
+	uint8_t x2;
+	fiat_25519_subborrowx_u26(&x1, &x2, 0x0, (arg1[0]),
+				  UINT32_C(0x3ffffed));
+	uint32_t x3;
+	uint8_t x4;
+	fiat_25519_subborrowx_u25(&x3, &x4, x2, (arg1[1]), UINT32_C(0x1ffffff));
+	uint32_t x5;
+	uint8_t x6;
+	fiat_25519_subborrowx_u26(&x5, &x6, x4, (arg1[2]), UINT32_C(0x3ffffff));
+	uint32_t x7;
+	uint8_t x8;
+	fiat_25519_subborrowx_u25(&x7, &x8, x6, (arg1[3]), UINT32_C(0x1ffffff));
+	uint32_t x9;
+	uint8_t x10;
+	fiat_25519_subborrowx_u26(&x9, &x10, x8, (arg1[4]),
+				  UINT32_C(0x3ffffff));
+	uint32_t x11;
+	uint8_t x12;
+	fiat_25519_subborrowx_u25(&x11, &x12, x10, (arg1[5]),
+				  UINT32_C(0x1ffffff));
+	uint32_t x13;
+	uint8_t x14;
+	fiat_25519_subborrowx_u26(&x13, &x14, x12, (arg1[6]),
+				  UINT32_C(0x3ffffff));
+	uint32_t x15;
+	uint8_t x16;
+	fiat_25519_subborrowx_u25(&x15, &x16, x14, (arg1[7]),
+				  UINT32_C(0x1ffffff));
+	uint32_t x17;
+	uint8_t x18;
+	fiat_25519_subborrowx_u26(&x17, &x18, x16, (arg1[8]),
+				  UINT32_C(0x3ffffff));
+	uint32_t x19;
+	uint8_t x20;
+	fiat_25519_subborrowx_u25(&x19, &x20, x18, (arg1[9]),
+				  UINT32_C(0x1ffffff));
+	uint32_t x21;
+	fiat_25519_cmovznz_u32(&x21, x20, 0x0, UINT32_C(0xffffffff));
+	uint32_t x22;
+	uint8_t x23;
+	fiat_25519_addcarryx_u26(&x22, &x23, 0x0, x1,
+				 (x21 & UINT32_C(0x3ffffed)));
+	uint32_t x24;
+	uint8_t x25;
+	fiat_25519_addcarryx_u25(&x24, &x25, x23, x3,
+				 (x21 & UINT32_C(0x1ffffff)));
+	uint32_t x26;
+	uint8_t x27;
+	fiat_25519_addcarryx_u26(&x26, &x27, x25, x5,
+				 (x21 & UINT32_C(0x3ffffff)));
+	uint32_t x28;
+	uint8_t x29;
+	fiat_25519_addcarryx_u25(&x28, &x29, x27, x7,
+				 (x21 & UINT32_C(0x1ffffff)));
+	uint32_t x30;
+	uint8_t x31;
+	fiat_25519_addcarryx_u26(&x30, &x31, x29, x9,
+				 (x21 & UINT32_C(0x3ffffff)));
+	uint32_t x32;
+	uint8_t x33;
+	fiat_25519_addcarryx_u25(&x32, &x33, x31, x11,
+				 (x21 & UINT32_C(0x1ffffff)));
+	uint32_t x34;
+	uint8_t x35;
+	fiat_25519_addcarryx_u26(&x34, &x35, x33, x13,
+				 (x21 & UINT32_C(0x3ffffff)));
+	uint32_t x36;
+	uint8_t x37;
+	fiat_25519_addcarryx_u25(&x36, &x37, x35, x15,
+				 (x21 & UINT32_C(0x1ffffff)));
+	uint32_t x38;
+	uint8_t x39;
+	fiat_25519_addcarryx_u26(&x38, &x39, x37, x17,
+				 (x21 & UINT32_C(0x3ffffff)));
+	uint32_t x40;
+	uint8_t x41;
+	fiat_25519_addcarryx_u25(&x40, &x41, x39, x19,
+				 (x21 & UINT32_C(0x1ffffff)));
+	uint32_t x42 = (x40 << 6);
+	uint32_t x43 = (x38 << 4);
+	uint32_t x44 = (x36 << 3);
+	uint32_t x45 = (x34 * (uint32_t)0x2);
+	uint32_t x46 = (x30 << 6);
+	uint32_t x47 = (x28 << 5);
+	uint32_t x48 = (x26 << 3);
+	uint32_t x49 = (x24 << 2);
+	uint32_t x50 = (x22 >> 8);
+	uint8_t x51 = (uint8_t)(x22 & UINT8_C(0xff));
+	uint32_t x52 = (x50 >> 8);
+	uint8_t x53 = (uint8_t)(x50 & UINT8_C(0xff));
+	uint8_t x54 = (uint8_t)(x52 >> 8);
+	uint8_t x55 = (uint8_t)(x52 & UINT8_C(0xff));
+	uint32_t x56 = (x54 + x49);
+	uint32_t x57 = (x56 >> 8);
+	uint8_t x58 = (uint8_t)(x56 & UINT8_C(0xff));
+	uint32_t x59 = (x57 >> 8);
+	uint8_t x60 = (uint8_t)(x57 & UINT8_C(0xff));
+	uint8_t x61 = (uint8_t)(x59 >> 8);
+	uint8_t x62 = (uint8_t)(x59 & UINT8_C(0xff));
+	uint32_t x63 = (x61 + x48);
+	uint32_t x64 = (x63 >> 8);
+	uint8_t x65 = (uint8_t)(x63 & UINT8_C(0xff));
+	uint32_t x66 = (x64 >> 8);
+	uint8_t x67 = (uint8_t)(x64 & UINT8_C(0xff));
+	uint8_t x68 = (uint8_t)(x66 >> 8);
+	uint8_t x69 = (uint8_t)(x66 & UINT8_C(0xff));
+	uint32_t x70 = (x68 + x47);
+	uint32_t x71 = (x70 >> 8);
+	uint8_t x72 = (uint8_t)(x70 & UINT8_C(0xff));
+	uint32_t x73 = (x71 >> 8);
+	uint8_t x74 = (uint8_t)(x71 & UINT8_C(0xff));
+	uint8_t x75 = (uint8_t)(x73 >> 8);
+	uint8_t x76 = (uint8_t)(x73 & UINT8_C(0xff));
+	uint32_t x77 = (x75 + x46);
+	uint32_t x78 = (x77 >> 8);
+	uint8_t x79 = (uint8_t)(x77 & UINT8_C(0xff));
+	uint32_t x80 = (x78 >> 8);
+	uint8_t x81 = (uint8_t)(x78 & UINT8_C(0xff));
+	uint8_t x82 = (uint8_t)(x80 >> 8);
+	uint8_t x83 = (uint8_t)(x80 & UINT8_C(0xff));
+	uint8_t x84 = (uint8_t)(x82 & UINT8_C(0xff));
+	uint32_t x85 = (x32 >> 8);
+	uint8_t x86 = (uint8_t)(x32 & UINT8_C(0xff));
+	uint32_t x87 = (x85 >> 8);
+	uint8_t x88 = (uint8_t)(x85 & UINT8_C(0xff));
+	uint8_t x89 = (uint8_t)(x87 >> 8);
+	uint8_t x90 = (uint8_t)(x87 & UINT8_C(0xff));
+	uint32_t x91 = (x89 + x45);
+	uint32_t x92 = (x91 >> 8);
+	uint8_t x93 = (uint8_t)(x91 & UINT8_C(0xff));
+	uint32_t x94 = (x92 >> 8);
+	uint8_t x95 = (uint8_t)(x92 & UINT8_C(0xff));
+	uint8_t x96 = (uint8_t)(x94 >> 8);
+	uint8_t x97 = (uint8_t)(x94 & UINT8_C(0xff));
+	uint32_t x98 = (x96 + x44);
+	uint32_t x99 = (x98 >> 8);
+	uint8_t x100 = (uint8_t)(x98 & UINT8_C(0xff));
+	uint32_t x101 = (x99 >> 8);
+	uint8_t x102 = (uint8_t)(x99 & UINT8_C(0xff));
+	uint8_t x103 = (uint8_t)(x101 >> 8);
+	uint8_t x104 = (uint8_t)(x101 & UINT8_C(0xff));
+	uint32_t x105 = (x103 + x43);
+	uint32_t x106 = (x105 >> 8);
+	uint8_t x107 = (uint8_t)(x105 & UINT8_C(0xff));
+	uint32_t x108 = (x106 >> 8);
+	uint8_t x109 = (uint8_t)(x106 & UINT8_C(0xff));
+	uint8_t x110 = (uint8_t)(x108 >> 8);
+	uint8_t x111 = (uint8_t)(x108 & UINT8_C(0xff));
+	uint32_t x112 = (x110 + x42);
+	uint32_t x113 = (x112 >> 8);
+	uint8_t x114 = (uint8_t)(x112 & UINT8_C(0xff));
+	uint32_t x115 = (x113 >> 8);
+	uint8_t x116 = (uint8_t)(x113 & UINT8_C(0xff));
+	uint8_t x117 = (uint8_t)(x115 >> 8);
+	uint8_t x118 = (uint8_t)(x115 & UINT8_C(0xff));
+	out1[0] = x51;
+	out1[1] = x53;
+	out1[2] = x55;
+	out1[3] = x58;
+	out1[4] = x60;
+	out1[5] = x62;
+	out1[6] = x65;
+	out1[7] = x67;
+	out1[8] = x69;
+	out1[9] = x72;
+	out1[10] = x74;
+	out1[11] = x76;
+	out1[12] = x79;
+	out1[13] = x81;
+	out1[14] = x83;
+	out1[15] = x84;
+	out1[16] = x86;
+	out1[17] = x88;
+	out1[18] = x90;
+	out1[19] = x93;
+	out1[20] = x95;
+	out1[21] = x97;
+	out1[22] = x100;
+	out1[23] = x102;
+	out1[24] = x104;
+	out1[25] = x107;
+	out1[26] = x109;
+	out1[27] = x111;
+	out1[28] = x114;
+	out1[29] = x116;
+	out1[30] = x118;
+	out1[31] = x117;
+}
+
+/*
+ * The function fiat_25519_from_bytes deserializes a field element from bytes in little-endian order.
+ * Postconditions:
+ *   eval out1 mod m = bytes_eval arg1 mod m
+ *
+ * Input Bounds:
+ *   arg1: [[0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0xff], [0x0 ~> 0x7f]]
+ * Output Bounds:
+ *   out1: [[0x0 ~> 0x4666666], [0x0 ~> 0x2333333], [0x0 ~> 0x4666666], [0x0 ~> 0x2333333], [0x0 ~> 0x4666666], [0x0 ~> 0x2333333], [0x0 ~> 0x4666666], [0x0 ~> 0x2333333], [0x0 ~> 0x4666666], [0x0 ~> 0x2333333]]
+ */
+static void fiat_25519_from_bytes(uint32_t out1[10], const uint8_t arg1[32])
+{
+	uint32_t x1 = ((uint32_t)(arg1[31]) << 18);
+	uint32_t x2 = ((uint32_t)(arg1[30]) << 10);
+	uint32_t x3 = ((uint32_t)(arg1[29]) << 2);
+	uint32_t x4 = ((uint32_t)(arg1[28]) << 20);
+	uint32_t x5 = ((uint32_t)(arg1[27]) << 12);
+	uint32_t x6 = ((uint32_t)(arg1[26]) << 4);
+	uint32_t x7 = ((uint32_t)(arg1[25]) << 21);
+	uint32_t x8 = ((uint32_t)(arg1[24]) << 13);
+	uint32_t x9 = ((uint32_t)(arg1[23]) << 5);
+	uint32_t x10 = ((uint32_t)(arg1[22]) << 23);
+	uint32_t x11 = ((uint32_t)(arg1[21]) << 15);
+	uint32_t x12 = ((uint32_t)(arg1[20]) << 7);
+	uint32_t x13 = ((uint32_t)(arg1[19]) << 24);
+	uint32_t x14 = ((uint32_t)(arg1[18]) << 16);
+	uint32_t x15 = ((uint32_t)(arg1[17]) << 8);
+	uint8_t x16 = (arg1[16]);
+	uint32_t x17 = ((uint32_t)(arg1[15]) << 18);
+	uint32_t x18 = ((uint32_t)(arg1[14]) << 10);
+	uint32_t x19 = ((uint32_t)(arg1[13]) << 2);
+	uint32_t x20 = ((uint32_t)(arg1[12]) << 19);
+	uint32_t x21 = ((uint32_t)(arg1[11]) << 11);
+	uint32_t x22 = ((uint32_t)(arg1[10]) << 3);
+	uint32_t x23 = ((uint32_t)(arg1[9]) << 21);
+	uint32_t x24 = ((uint32_t)(arg1[8]) << 13);
+	uint32_t x25 = ((uint32_t)(arg1[7]) << 5);
+	uint32_t x26 = ((uint32_t)(arg1[6]) << 22);
+	uint32_t x27 = ((uint32_t)(arg1[5]) << 14);
+	uint32_t x28 = ((uint32_t)(arg1[4]) << 6);
+	uint32_t x29 = ((uint32_t)(arg1[3]) << 24);
+	uint32_t x30 = ((uint32_t)(arg1[2]) << 16);
+	uint32_t x31 = ((uint32_t)(arg1[1]) << 8);
+	uint8_t x32 = (arg1[0]);
+	uint32_t x33 = (x32 + (x31 + (x30 + x29)));
+	uint8_t x34 = (uint8_t)(x33 >> 26);
+	uint32_t x35 = (x33 & UINT32_C(0x3ffffff));
+	uint32_t x36 = (x3 + (x2 + x1));
+	uint32_t x37 = (x6 + (x5 + x4));
+	uint32_t x38 = (x9 + (x8 + x7));
+	uint32_t x39 = (x12 + (x11 + x10));
+	uint32_t x40 = (x16 + (x15 + (x14 + x13)));
+	uint32_t x41 = (x19 + (x18 + x17));
+	uint32_t x42 = (x22 + (x21 + x20));
+	uint32_t x43 = (x25 + (x24 + x23));
+	uint32_t x44 = (x28 + (x27 + x26));
+	uint32_t x45 = (x34 + x44);
+	uint8_t x46 = (uint8_t)(x45 >> 25);
+	uint32_t x47 = (x45 & UINT32_C(0x1ffffff));
+	uint32_t x48 = (x46 + x43);
+	uint8_t x49 = (uint8_t)(x48 >> 26);
+	uint32_t x50 = (x48 & UINT32_C(0x3ffffff));
+	uint32_t x51 = (x49 + x42);
+	uint8_t x52 = (uint8_t)(x51 >> 25);
+	uint32_t x53 = (x51 & UINT32_C(0x1ffffff));
+	uint32_t x54 = (x52 + x41);
+	uint32_t x55 = (x54 & UINT32_C(0x3ffffff));
+	uint8_t x56 = (uint8_t)(x40 >> 25);
+	uint32_t x57 = (x40 & UINT32_C(0x1ffffff));
+	uint32_t x58 = (x56 + x39);
+	uint8_t x59 = (uint8_t)(x58 >> 26);
+	uint32_t x60 = (x58 & UINT32_C(0x3ffffff));
+	uint32_t x61 = (x59 + x38);
+	uint8_t x62 = (uint8_t)(x61 >> 25);
+	uint32_t x63 = (x61 & UINT32_C(0x1ffffff));
+	uint32_t x64 = (x62 + x37);
+	uint8_t x65 = (uint8_t)(x64 >> 26);
+	uint32_t x66 = (x64 & UINT32_C(0x3ffffff));
+	uint32_t x67 = (x65 + x36);
+	out1[0] = x35;
+	out1[1] = x47;
+	out1[2] = x50;
+	out1[3] = x53;
+	out1[4] = x55;
+	out1[5] = x57;
+	out1[6] = x60;
+	out1[7] = x63;
+	out1[8] = x66;
+	out1[9] = x67;
+}
+
+// Definitions
+
+// fe means field element. Here the field is \Z/(2^255-19). An element t,
+// entries t[0]...t[9], represents the integer t[0]+2^26 t[1]+2^51 t[2]+2^77
+// t[3]+2^102 t[4]+...+2^230 t[9].
+// fe limbs are bounded by 1.125*2^26,1.125*2^25,1.125*2^26,1.125*2^25,etc.
+// Multiplication and carrying produce fe from fe_loose.
+typedef struct fe {
+	uint32_t v[10];
+} fe;
+
+// fe_loose limbs are bounded by 3.375*2^26,3.375*2^25,3.375*2^26,3.375*2^25,etc.
+// Addition and subtraction produce fe_loose from (fe, fe).
+typedef struct fe_loose {
+	uint32_t v[10];
+} fe_loose;
+
+// ge means group element.
+//
+// Here the group is the set of pairs (x,y) of field elements (see fe.h)
+// satisfying -x^2 + y^2 = 1 + d x^2y^2
+// where d = -121665/121666.
+//
+// Representations:
+//   ge_p2 (projective): (X:Y:Z) satisfying x=X/Z, y=Y/Z
+//   ge_p3 (extended): (X:Y:Z:T) satisfying x=X/Z, y=Y/Z, XY=ZT
+//   ge_p1p1 (completed): ((X:Z),(Y:T)) satisfying x=X/Z, y=Y/T
+//   ge_precomp (Duif): (y+x,y-x,2dxy)
 
 typedef struct {
-	uint64_t hash[8];
-	uint64_t input[16];
-	uint64_t input_size[2];
-	size_t   input_idx;
-} sha512_ctx;
+	fe X;
+	fe Y;
+	fe Z;
+} ge_p2;
 
-static u64 rot(u64 x, int c       ) { return (x >> c) | (x << (64 - c));   }
-static u64 ch (u64 x, u64 y, u64 z) { return (x & y) ^ (~x & z);           }
-static u64 maj(u64 x, u64 y, u64 z) { return (x & y) ^ ( x & z) ^ (y & z); }
-static u64 big_sigma0(u64 x) { return rot(x, 28) ^ rot(x, 34) ^ rot(x, 39); }
-static u64 big_sigma1(u64 x) { return rot(x, 14) ^ rot(x, 18) ^ rot(x, 41); }
-static u64 lit_sigma0(u64 x) { return rot(x,  1) ^ rot(x,  8) ^ (x >> 7);   }
-static u64 lit_sigma1(u64 x) { return rot(x, 19) ^ rot(x, 61) ^ (x >> 6);   }
+typedef struct {
+	fe X;
+	fe Y;
+	fe Z;
+	fe T;
+} ge_p3;
 
-static const u64 K[80] = {
-	0x428a2f98d728ae22,0x7137449123ef65cd,0xb5c0fbcfec4d3b2f,0xe9b5dba58189dbbc,
-	0x3956c25bf348b538,0x59f111f1b605d019,0x923f82a4af194f9b,0xab1c5ed5da6d8118,
-	0xd807aa98a3030242,0x12835b0145706fbe,0x243185be4ee4b28c,0x550c7dc3d5ffb4e2,
-	0x72be5d74f27b896f,0x80deb1fe3b1696b1,0x9bdc06a725c71235,0xc19bf174cf692694,
-	0xe49b69c19ef14ad2,0xefbe4786384f25e3,0x0fc19dc68b8cd5b5,0x240ca1cc77ac9c65,
-	0x2de92c6f592b0275,0x4a7484aa6ea6e483,0x5cb0a9dcbd41fbd4,0x76f988da831153b5,
-	0x983e5152ee66dfab,0xa831c66d2db43210,0xb00327c898fb213f,0xbf597fc7beef0ee4,
-	0xc6e00bf33da88fc2,0xd5a79147930aa725,0x06ca6351e003826f,0x142929670a0e6e70,
-	0x27b70a8546d22ffc,0x2e1b21385c26c926,0x4d2c6dfc5ac42aed,0x53380d139d95b3df,
-	0x650a73548baf63de,0x766a0abb3c77b2a8,0x81c2c92e47edaee6,0x92722c851482353b,
-	0xa2bfe8a14cf10364,0xa81a664bbc423001,0xc24b8b70d0f89791,0xc76c51a30654be30,
-	0xd192e819d6ef5218,0xd69906245565a910,0xf40e35855771202a,0x106aa07032bbd1b8,
-	0x19a4c116b8d2d0c8,0x1e376c085141ab53,0x2748774cdf8eeb99,0x34b0bcb5e19b48a8,
-	0x391c0cb3c5c95a63,0x4ed8aa4ae3418acb,0x5b9cca4f7763e373,0x682e6ff3d6b2b8a3,
-	0x748f82ee5defb2fc,0x78a5636f43172f60,0x84c87814a1f0ab72,0x8cc702081a6439ec,
-	0x90befffa23631e28,0xa4506cebde82bde9,0xbef9a3f7b2c67915,0xc67178f2e372532b,
-	0xca273eceea26619c,0xd186b8c721c0c207,0xeada7dd6cde0eb1e,0xf57d4f7fee6ed178,
-	0x06f067aa72176fba,0x0a637dc5a2c898a6,0x113f9804bef90dae,0x1b710b35131c471b,
-	0x28db77f523047d84,0x32caab7b40c72493,0x3c9ebe0a15c9bebc,0x431d67c49c100d4c,
-	0x4cc5d4becb3e42b6,0x597f299cfc657e2a,0x5fcb6fab3ad6faec,0x6c44198c4a475817
+typedef struct {
+	fe_loose X;
+	fe_loose Y;
+	fe_loose Z;
+	fe_loose T;
+} ge_p1p1;
+
+typedef struct {
+	fe_loose yplusx;
+	fe_loose yminusx;
+	fe_loose xy2d;
+} ge_precomp;
+
+typedef struct {
+	fe_loose YplusX;
+	fe_loose YminusX;
+	fe_loose Z;
+	fe_loose T2d;
+} ge_cached;
+
+// Constants.
+
+static const fe d = { { 56195235, 13857412, 51736253, 6949390, 114729, 24766616,
+			60832955, 30306712, 48412415, 21499315 } };
+
+static const fe sqrtm1 = { { 34513072, 25610706, 9377949, 3500415, 12389472,
+			     33281959, 41962654, 31548777, 326685, 11406482 } };
+
+static const fe d2 = { { 45281625, 27714825, 36363642, 13898781, 229458,
+			 15978800, 54557047, 27058993, 29715967, 9444199 } };
+
+// Bi[i] = (2*i+1)*B
+static const ge_precomp Bi[8] = {
+	{
+		{ { 25967493, 19198397, 29566455, 3660896, 54414519, 4014786,
+		    27544626, 21800161, 61029707, 2047604
+
+		} },
+		{ { 54563134, 934261, 64385954, 3049989, 66381436, 9406985,
+		    12720692, 5043384, 19500929, 18085054
+
+		} },
+		{ { 58370664, 4489569, 9688441, 18769238, 10184608, 21191052,
+		    29287918, 11864899, 42594502, 29115885 } },
+	},
+	{
+		{ { 15636272, 23865875, 24204772, 25642034, 616976, 16869170,
+		    27787599, 18782243, 28944399, 32004408 } },
+		{ { 16568933, 4717097, 55552716, 32452109, 15682895, 21747389,
+		    16354576, 21778470, 7689661, 11199574 } },
+		{ { 30464137, 27578307, 55329429, 17883566, 23220364, 15915852,
+		    7512774, 10017326, 49359771, 23634074 } },
+	},
+	{
+		{ { 10861363, 11473154, 27284546, 1981175, 37044515, 12577860,
+		    32867885, 14515107, 51670560, 10819379 } },
+		{ { 4708026, 6336745, 20377586, 9066809, 55836755, 6594695,
+		    41455196, 12483687, 54440373, 5581305 } },
+		{ { 19563141, 16186464, 37722007, 4097518, 10237984, 29206317,
+		    28542349, 13850243, 43430843, 17738489 } },
+	},
+	{
+		{ { 5153727, 9909285, 1723747, 30776558, 30523604, 5516873,
+		    19480852, 5230134, 43156425, 18378665 } },
+		{ { 36839857, 30090922, 7665485, 10083793, 28475525, 1649722,
+		    20654025, 16520125, 30598449, 7715701 } },
+		{ { 28881826, 14381568, 9657904, 3680757, 46927229, 7843315,
+		    35708204, 1370707, 29794553, 32145132 } },
+	},
+	{
+		{ { 44589871, 26862249, 14201701, 24808930, 43598457, 8844725,
+		    18474211, 32192982, 54046167, 13821876 } },
+		{ { 60653668, 25714560, 3374701, 28813570, 40010246, 22982724,
+		    31655027, 26342105, 18853321, 19333481 } },
+		{ { 4566811, 20590564, 38133974, 21313742, 59506191, 30723862,
+		    58594505, 23123294, 2207752, 30344648 } },
+	},
+	{
+		{ { 41954014, 29368610, 29681143, 7868801, 60254203, 24130566,
+		    54671499, 32891431, 35997400, 17421995 } },
+		{ { 25576264, 30851218, 7349803, 21739588, 16472781, 9300885,
+		    3844789, 15725684, 171356, 6466918 } },
+		{ { 23103977, 13316479, 9739013, 17404951, 817874, 18515490,
+		    8965338, 19466374, 36393951, 16193876 } },
+	},
+	{
+		{ { 33587053, 3180712, 64714734, 14003686, 50205390, 17283591,
+		    17238397, 4729455, 49034351, 9256799 } },
+		{ { 41926547, 29380300, 32336397, 5036987, 45872047, 11360616,
+		    22616405, 9761698, 47281666, 630304 } },
+		{ { 53388152, 2639452, 42871404, 26147950, 9494426, 27780403,
+		    60554312, 17593437, 64659607, 19263131 } },
+	},
+	{
+		{ { 63957664, 28508356, 9282713, 6866145, 35201802, 32691408,
+		    48168288, 15033783, 25105118, 25659556 } },
+		{ { 42782475, 15950225, 35307649, 18961608, 55446126, 28463506,
+		    1573891, 30928545, 2198789, 17749813 } },
+		{ { 64009494, 10324966, 64867251, 7453182, 61661885, 30818928,
+		    53296841, 17317989, 34647629, 21263748 } },
+	},
 };
 
-static void sha512_compress(sha512_ctx *ctx)
+static void fe_frombytes_strict(fe *h, const uint8_t s[32])
 {
-	u64 a = ctx->hash[0];    u64 b = ctx->hash[1];
-	u64 c = ctx->hash[2];    u64 d = ctx->hash[3];
-	u64 e = ctx->hash[4];    u64 f = ctx->hash[5];
-	u64 g = ctx->hash[6];    u64 h = ctx->hash[7];
+	// |fiat_25519_from_bytes| requires the top-most bit be clear.
+	fiat_25519_from_bytes(h->v, s);
+}
 
-	FOR (j, 0, 16) {
-		u64 in = K[j] + ctx->input[j];
-		u64 t1 = big_sigma1(e) + ch (e, f, g) + h + in;
-		u64 t2 = big_sigma0(a) + maj(a, b, c);
-		h = g;  g = f;  f = e;  e = d  + t1;
-		d = c;  c = b;  b = a;  a = t1 + t2;
+static void fe_frombytes(fe *h, const uint8_t s[32])
+{
+	uint8_t s_copy[32];
+	memcpy(s_copy, s, 32);
+	s_copy[31] &= 0x7f;
+	fe_frombytes_strict(h, s_copy);
+}
+
+static void fe_tobytes(uint8_t s[32], const fe *f)
+{
+	fiat_25519_to_bytes(s, f->v);
+}
+
+// h = 0
+static void fe_0(fe *h)
+{
+	memset(h, 0, sizeof(fe));
+}
+
+// h = 1
+static void fe_1(fe *h)
+{
+	memset(h, 0, sizeof(fe));
+	h->v[0] = 1;
+}
+
+// h = f + g
+// Can overlap h with f or g.
+static void fe_add(fe_loose *h, const fe *f, const fe *g)
+{
+	fiat_25519_add(h->v, f->v, g->v);
+}
+
+// h = f - g
+// Can overlap h with f or g.
+static void fe_sub(fe_loose *h, const fe *f, const fe *g)
+{
+	fiat_25519_sub(h->v, f->v, g->v);
+}
+
+static void fe_carry(fe *h, const fe_loose *f)
+{
+	fiat_25519_carry(h->v, f->v);
+}
+
+static void fe_mul_impl(uint32_t out[10], const uint32_t in1[10],
+			const uint32_t in2[10])
+{
+	fiat_25519_carry_mul(out, in1, in2);
+}
+
+static void fe_mul_ltt(fe_loose *h, const fe *f, const fe *g)
+{
+	fe_mul_impl(h->v, f->v, g->v);
+}
+
+static void fe_mul_ttt(fe *h, const fe *f, const fe *g)
+{
+	fe_mul_impl(h->v, f->v, g->v);
+}
+
+static void fe_mul_tlt(fe *h, const fe_loose *f, const fe *g)
+{
+	fe_mul_impl(h->v, f->v, g->v);
+}
+
+static void fe_mul_ttl(fe *h, const fe *f, const fe_loose *g)
+{
+	fe_mul_impl(h->v, f->v, g->v);
+}
+
+static void fe_mul_tll(fe *h, const fe_loose *f, const fe_loose *g)
+{
+	fe_mul_impl(h->v, f->v, g->v);
+}
+
+static void fe_sq_tl(fe *h, const fe_loose *f)
+{
+	fiat_25519_carry_square(h->v, f->v);
+}
+
+static void fe_sq_tt(fe *h, const fe *f)
+{
+	fiat_25519_carry_square(h->v, f->v);
+}
+
+// h = -f
+static void fe_neg(fe_loose *h, const fe *f)
+{
+	fiat_25519_opp(h->v, f->v);
+}
+
+// h = f
+static void fe_copy(fe *h, const fe *f)
+{
+	memmove(h, f, sizeof(fe));
+}
+
+static void fe_copy_lt(fe_loose *h, const fe *f)
+{
+	memmove(h, f, sizeof(fe));
+}
+
+static void fe_loose_invert(fe *out, const fe_loose *z)
+{
+	fe t0;
+	fe t1;
+	fe t2;
+	fe t3;
+	int i;
+
+	fe_sq_tl(&t0, z);
+	fe_sq_tt(&t1, &t0);
+	for (i = 1; i < 2; ++i) {
+		fe_sq_tt(&t1, &t1);
 	}
-	size_t i16 = 0;
-	FOR(i, 1, 5) {
-		i16 += 16;
-		FOR (j, 0, 16) {
-			ctx->input[j] += lit_sigma1(ctx->input[(j- 2) & 15]);
-			ctx->input[j] += lit_sigma0(ctx->input[(j-15) & 15]);
-			ctx->input[j] +=            ctx->input[(j- 7) & 15];
-			u64 in = K[i16 + j] + ctx->input[j];
-			u64 t1 = big_sigma1(e) + ch (e, f, g) + h + in;
-			u64 t2 = big_sigma0(a) + maj(a, b, c);
-			h = g;  g = f;  f = e;  e = d  + t1;
-			d = c;  c = b;  b = a;  a = t1 + t2;
-		}
+	fe_mul_tlt(&t1, z, &t1);
+	fe_mul_ttt(&t0, &t0, &t1);
+	fe_sq_tt(&t2, &t0);
+	fe_mul_ttt(&t1, &t1, &t2);
+	fe_sq_tt(&t2, &t1);
+	for (i = 1; i < 5; ++i) {
+		fe_sq_tt(&t2, &t2);
 	}
-
-	ctx->hash[0] += a;    ctx->hash[1] += b;
-	ctx->hash[2] += c;    ctx->hash[3] += d;
-	ctx->hash[4] += e;    ctx->hash[5] += f;
-	ctx->hash[6] += g;    ctx->hash[7] += h;
-}
-
-static void sha512_set_input(sha512_ctx *ctx, u8 input)
-{
-	if (ctx->input_idx == 0) {
-		ZERO(ctx->input, 16);
+	fe_mul_ttt(&t1, &t2, &t1);
+	fe_sq_tt(&t2, &t1);
+	for (i = 1; i < 10; ++i) {
+		fe_sq_tt(&t2, &t2);
 	}
-	size_t word = ctx->input_idx >> 3;
-	size_t byte = ctx->input_idx &  7;
-	ctx->input[word] |= (u64)input << (8 * (7 - byte));
-}
-
-// increment a 128-bit "word".
-static void sha512_incr(u64 x[2], u64 y)
-{
-	x[1] += y;
-	if (x[1] < y) {
-		x[0]++;
+	fe_mul_ttt(&t2, &t2, &t1);
+	fe_sq_tt(&t3, &t2);
+	for (i = 1; i < 20; ++i) {
+		fe_sq_tt(&t3, &t3);
 	}
-}
-
-static void sha512_end_block(sha512_ctx *ctx)
-{
-	if (ctx->input_idx == 128) {
-		sha512_incr(ctx->input_size, 1024); // size is in bits
-		sha512_compress(ctx);
-		ctx->input_idx = 0;
+	fe_mul_ttt(&t2, &t3, &t2);
+	fe_sq_tt(&t2, &t2);
+	for (i = 1; i < 10; ++i) {
+		fe_sq_tt(&t2, &t2);
 	}
-}
-
-static void sha512_update_block(sha512_ctx *ctx, const u8 *message, size_t message_size)
-{
-	FOR (i, 0, message_size) {
-		sha512_set_input(ctx, message[i]);
-		ctx->input_idx++;
-		sha512_end_block(ctx);
+	fe_mul_ttt(&t1, &t2, &t1);
+	fe_sq_tt(&t2, &t1);
+	for (i = 1; i < 50; ++i) {
+		fe_sq_tt(&t2, &t2);
 	}
-}
-
-static void sha512_init(sha512_ctx *ctx)
-{
-	ctx->hash[0] = 0x6a09e667f3bcc908;
-	ctx->hash[1] = 0xbb67ae8584caa73b;
-	ctx->hash[2] = 0x3c6ef372fe94f82b;
-	ctx->hash[3] = 0xa54ff53a5f1d36f1;
-	ctx->hash[4] = 0x510e527fade682d1;
-	ctx->hash[5] = 0x9b05688c2b3e6c1f;
-	ctx->hash[6] = 0x1f83d9abfb41bd6b;
-	ctx->hash[7] = 0x5be0cd19137e2179;
-	ctx->input_size[0] = 0;
-	ctx->input_size[1] = 0;
-	ctx->input_idx = 0;
-}
-
-static void sha512_update(sha512_ctx *ctx, const u8 *message, size_t message_size)
-{
-	if (message_size == 0) {
-		return;
+	fe_mul_ttt(&t2, &t2, &t1);
+	fe_sq_tt(&t3, &t2);
+	for (i = 1; i < 100; ++i) {
+		fe_sq_tt(&t3, &t3);
 	}
-	// Align ourselves with block boundaries
-	size_t aligned = MIN(align(ctx->input_idx, 128), message_size);
-	sha512_update_block(ctx, message, aligned);
-	message      += aligned;
-	message_size -= aligned;
-
-	// Process the message block by block
-	FOR (i, 0, message_size / 128) { // number of blocks
-		FOR (j, 0, 16) {
-			ctx->input[j] = load64_be(message + j*8);
-		}
-		message        += 128;
-		ctx->input_idx += 128;
-		sha512_end_block(ctx);
+	fe_mul_ttt(&t2, &t3, &t2);
+	fe_sq_tt(&t2, &t2);
+	for (i = 1; i < 50; ++i) {
+		fe_sq_tt(&t2, &t2);
 	}
-	message_size &= 127;
-
-	// remaining bytes
-	sha512_update_block(ctx, message, message_size);
-}
-
-static void sha512_final(sha512_ctx *ctx, u8 hash[64])
-{
-	sha512_incr(ctx->input_size, ctx->input_idx * 8); // size is in bits
-	sha512_set_input(ctx, 128);                       // padding
-
-	// compress penultimate block (if any)
-	if (ctx->input_idx > 111) {
-		sha512_compress(ctx);
-		ZERO(ctx->input, 14);
+	fe_mul_ttt(&t1, &t2, &t1);
+	fe_sq_tt(&t1, &t1);
+	for (i = 1; i < 5; ++i) {
+		fe_sq_tt(&t1, &t1);
 	}
-	// compress last block
-	ctx->input[14] = ctx->input_size[0];
-	ctx->input[15] = ctx->input_size[1];
-	sha512_compress(ctx);
-
-	// copy hash to output (big endian)
-	FOR (i, 0, 8) {
-		store64_be(hash + i*8, ctx->hash[i]);
-	}
+	fe_mul_ttt(out, &t1, &t0);
 }
 
-// field element
-typedef i32 fe[10];
-
-// field constants
-//
-// sqrtm1      : sqrt(-1)
-// d           :     -121665 / 121666
-// D2          : 2 * -121665 / 121666
-// lop_x, lop_y: low order point in Edwards coordinates
-// ufactor     : -sqrt(-1) * 2
-// A2          : 486662^2  (A squared)
-static const fe sqrtm1  = {-32595792, -7943725, 9377950, 3500415, 12389472,
-			   -272473, -25146209, -2005654, 326686, 11406482,};
-static const fe d       = {-10913610, 13857413, -15372611, 6949391, 114729,
-			   -8787816, -6275908, -3247719, -18696448, -12055116,};
-static const fe D2      = {-21827239, -5839606, -30745221, 13898782, 229458,
-			   15978800, -12551817, -6495438, 29715968, 9444199,};
-
-static void fe_0(fe h) {           ZERO(h  , 10); }
-static void fe_1(fe h) { h[0] = 1; ZERO(h+1,  9); }
-
-static void fe_copy(fe h,const fe f           ){FOR(i,0,10) h[i] =  f[i];      }
-static void fe_neg (fe h,const fe f           ){FOR(i,0,10) h[i] = -f[i];      }
-static void fe_add (fe h,const fe f,const fe g){FOR(i,0,10) h[i] = f[i] + g[i];}
-static void fe_sub (fe h,const fe f,const fe g){FOR(i,0,10) h[i] = f[i] - g[i];}
-
-static void fe_ccopy(fe f, const fe g, int b)
+static void fe_invert(fe *out, const fe *z)
 {
-	i32 mask = -b; // -1 = 0xffffffff
-	FOR (i, 0, 10) {
-		i32 x = (f[i] ^ g[i]) & mask;
-		f[i] = f[i] ^ x;
-	}
+	fe_loose l;
+	fe_copy_lt(&l, z);
+	fe_loose_invert(out, &l);
 }
 
-#define FE_CARRY                                                        \
-	i64 c0, c1, c2, c3, c4, c5, c6, c7, c8, c9;                         \
-	c0 = (t0 + ((i64)1<<25)) >> 26; t1 += c0;      t0 -= c0 * ((i64)1 << 26); \
-	c4 = (t4 + ((i64)1<<25)) >> 26; t5 += c4;      t4 -= c4 * ((i64)1 << 26); \
-	c1 = (t1 + ((i64)1<<24)) >> 25; t2 += c1;      t1 -= c1 * ((i64)1 << 25); \
-	c5 = (t5 + ((i64)1<<24)) >> 25; t6 += c5;      t5 -= c5 * ((i64)1 << 25); \
-	c2 = (t2 + ((i64)1<<25)) >> 26; t3 += c2;      t2 -= c2 * ((i64)1 << 26); \
-	c6 = (t6 + ((i64)1<<25)) >> 26; t7 += c6;      t6 -= c6 * ((i64)1 << 26); \
-	c3 = (t3 + ((i64)1<<24)) >> 25; t4 += c3;      t3 -= c3 * ((i64)1 << 25); \
-	c7 = (t7 + ((i64)1<<24)) >> 25; t8 += c7;      t7 -= c7 * ((i64)1 << 25); \
-	c4 = (t4 + ((i64)1<<25)) >> 26; t5 += c4;      t4 -= c4 * ((i64)1 << 26); \
-	c8 = (t8 + ((i64)1<<25)) >> 26; t9 += c8;      t8 -= c8 * ((i64)1 << 26); \
-	c9 = (t9 + ((i64)1<<24)) >> 25; t0 += c9 * 19; t9 -= c9 * ((i64)1 << 25); \
-	c0 = (t0 + ((i64)1<<25)) >> 26; t1 += c0;      t0 -= c0 * ((i64)1 << 26); \
-	h[0]=(i32)t0;  h[1]=(i32)t1;  h[2]=(i32)t2;  h[3]=(i32)t3;  h[4]=(i32)t4; \
-	h[5]=(i32)t5;  h[6]=(i32)t6;  h[7]=(i32)t7;  h[8]=(i32)t8;  h[9]=(i32)t9
-
-static void fe_frombytes(fe h, const u8 s[32])
+// return 0 if f == 0
+// return 1 if f != 0
+static int fe_isnonzero(const fe_loose *f)
 {
-	i64 t0 =  load32_le(s);
-	i64 t1 =  load24_le(s +  4) << 6;
-	i64 t2 =  load24_le(s +  7) << 5;
-	i64 t3 =  load24_le(s + 10) << 3;
-	i64 t4 =  load24_le(s + 13) << 2;
-	i64 t5 =  load32_le(s + 16);
-	i64 t6 =  load24_le(s + 20) << 7;
-	i64 t7 =  load24_le(s + 23) << 5;
-	i64 t8 =  load24_le(s + 26) << 4;
-	i64 t9 = (load24_le(s + 29) & 0x7fffff) << 2;
-	FE_CARRY;
+	fe tight;
+	fe_carry(&tight, f);
+	uint8_t s[32];
+	fe_tobytes(s, &tight);
+
+	static const uint8_t zero[32] = { 0 };
+	return memcmp_ct(s, zero, sizeof(zero)) != 0;
 }
 
-static void fe_tobytes(u8 s[32], const fe h)
+// return 1 if f is in {1,3,5,...,q-2}
+// return 0 if f is in {0,2,4,...,q-1}
+static int fe_isnegative(const fe *f)
 {
-	i32 t[10];
-	COPY(t, h, 10);
-	i32 q = (19 * t[9] + (((i32) 1) << 24)) >> 25;
-	FOR (i, 0, 5) {
-		q += t[2*i  ]; q >>= 26;
-		q += t[2*i+1]; q >>= 25;
-	}
-	t[0] += 19 * q;
-	q = 0;
-	FOR (i, 0, 5) {
-		t[i*2  ] += q;  q = t[i*2  ] >> 26;  t[i*2  ] -= q * ((i32)1 << 26);
-		t[i*2+1] += q;  q = t[i*2+1] >> 25;  t[i*2+1] -= q * ((i32)1 << 25);
-	}
-
-	store32_le(s +  0, ((u32)t[0] >>  0) | ((u32)t[1] << 26));
-	store32_le(s +  4, ((u32)t[1] >>  6) | ((u32)t[2] << 19));
-	store32_le(s +  8, ((u32)t[2] >> 13) | ((u32)t[3] << 13));
-	store32_le(s + 12, ((u32)t[3] >> 19) | ((u32)t[4] <<  6));
-	store32_le(s + 16, ((u32)t[5] >>  0) | ((u32)t[6] << 25));
-	store32_le(s + 20, ((u32)t[6] >>  7) | ((u32)t[7] << 19));
-	store32_le(s + 24, ((u32)t[7] >> 13) | ((u32)t[8] << 12));
-	store32_le(s + 28, ((u32)t[8] >> 20) | ((u32)t[9] <<  6));
-}
-
-// multiply a field element by a signed 32-bit integer
-static void fe_mul_small(fe h, const fe f, i32 g)
-{
-	i64 t0 = f[0] * (i64) g;  i64 t1 = f[1] * (i64) g;
-	i64 t2 = f[2] * (i64) g;  i64 t3 = f[3] * (i64) g;
-	i64 t4 = f[4] * (i64) g;  i64 t5 = f[5] * (i64) g;
-	i64 t6 = f[6] * (i64) g;  i64 t7 = f[7] * (i64) g;
-	i64 t8 = f[8] * (i64) g;  i64 t9 = f[9] * (i64) g;
-	FE_CARRY;
-}
-
-static void fe_mul(fe h, const fe f, const fe g)
-{
-	// Everything is unrolled and put in temporary variables.
-	// We could roll the loop, but that would make curve25519 twice as slow.
-	i32 f0 = f[0]; i32 f1 = f[1]; i32 f2 = f[2]; i32 f3 = f[3]; i32 f4 = f[4];
-	i32 f5 = f[5]; i32 f6 = f[6]; i32 f7 = f[7]; i32 f8 = f[8]; i32 f9 = f[9];
-	i32 g0 = g[0]; i32 g1 = g[1]; i32 g2 = g[2]; i32 g3 = g[3]; i32 g4 = g[4];
-	i32 g5 = g[5]; i32 g6 = g[6]; i32 g7 = g[7]; i32 g8 = g[8]; i32 g9 = g[9];
-	i32 F1 = f1*2; i32 F3 = f3*2; i32 F5 = f5*2; i32 F7 = f7*2; i32 F9 = f9*2;
-	i32 G1 = g1*19;  i32 G2 = g2*19;  i32 G3 = g3*19;
-	i32 G4 = g4*19;  i32 G5 = g5*19;  i32 G6 = g6*19;
-	i32 G7 = g7*19;  i32 G8 = g8*19;  i32 G9 = g9*19;
-
-	i64 t0 = f0*(i64)g0 + F1*(i64)G9 + f2*(i64)G8 + F3*(i64)G7 + f4*(i64)G6
-		+    F5*(i64)G5 + f6*(i64)G4 + F7*(i64)G3 + f8*(i64)G2 + F9*(i64)G1;
-	i64 t1 = f0*(i64)g1 + f1*(i64)g0 + f2*(i64)G9 + f3*(i64)G8 + f4*(i64)G7
-		+    f5*(i64)G6 + f6*(i64)G5 + f7*(i64)G4 + f8*(i64)G3 + f9*(i64)G2;
-	i64 t2 = f0*(i64)g2 + F1*(i64)g1 + f2*(i64)g0 + F3*(i64)G9 + f4*(i64)G8
-		+    F5*(i64)G7 + f6*(i64)G6 + F7*(i64)G5 + f8*(i64)G4 + F9*(i64)G3;
-	i64 t3 = f0*(i64)g3 + f1*(i64)g2 + f2*(i64)g1 + f3*(i64)g0 + f4*(i64)G9
-		+    f5*(i64)G8 + f6*(i64)G7 + f7*(i64)G6 + f8*(i64)G5 + f9*(i64)G4;
-	i64 t4 = f0*(i64)g4 + F1*(i64)g3 + f2*(i64)g2 + F3*(i64)g1 + f4*(i64)g0
-		+    F5*(i64)G9 + f6*(i64)G8 + F7*(i64)G7 + f8*(i64)G6 + F9*(i64)G5;
-	i64 t5 = f0*(i64)g5 + f1*(i64)g4 + f2*(i64)g3 + f3*(i64)g2 + f4*(i64)g1
-		+    f5*(i64)g0 + f6*(i64)G9 + f7*(i64)G8 + f8*(i64)G7 + f9*(i64)G6;
-	i64 t6 = f0*(i64)g6 + F1*(i64)g5 + f2*(i64)g4 + F3*(i64)g3 + f4*(i64)g2
-		+    F5*(i64)g1 + f6*(i64)g0 + F7*(i64)G9 + f8*(i64)G8 + F9*(i64)G7;
-	i64 t7 = f0*(i64)g7 + f1*(i64)g6 + f2*(i64)g5 + f3*(i64)g4 + f4*(i64)g3
-		+    f5*(i64)g2 + f6*(i64)g1 + f7*(i64)g0 + f8*(i64)G9 + f9*(i64)G8;
-	i64 t8 = f0*(i64)g8 + F1*(i64)g7 + f2*(i64)g6 + F3*(i64)g5 + f4*(i64)g4
-		+    F5*(i64)g3 + f6*(i64)g2 + F7*(i64)g1 + f8*(i64)g0 + F9*(i64)G9;
-	i64 t9 = f0*(i64)g9 + f1*(i64)g8 + f2*(i64)g7 + f3*(i64)g6 + f4*(i64)g5
-		+    f5*(i64)g4 + f6*(i64)g3 + f7*(i64)g2 + f8*(i64)g1 + f9*(i64)g0;
-
-	FE_CARRY;
-}
-
-// we could use fe_mul() for this, but this is significantly faster
-static void fe_sq(fe h, const fe f)
-{
-	i32 f0 = f[0]; i32 f1 = f[1]; i32 f2 = f[2]; i32 f3 = f[3]; i32 f4 = f[4];
-	i32 f5 = f[5]; i32 f6 = f[6]; i32 f7 = f[7]; i32 f8 = f[8]; i32 f9 = f[9];
-	i32 f0_2  = f0*2;   i32 f1_2  = f1*2;   i32 f2_2  = f2*2;   i32 f3_2 = f3*2;
-	i32 f4_2  = f4*2;   i32 f5_2  = f5*2;   i32 f6_2  = f6*2;   i32 f7_2 = f7*2;
-	i32 f5_38 = f5*38;  i32 f6_19 = f6*19;  i32 f7_38 = f7*38;
-	i32 f8_19 = f8*19;  i32 f9_38 = f9*38;
-
-	i64 t0 = f0  *(i64)f0    + f1_2*(i64)f9_38 + f2_2*(i64)f8_19
-		+    f3_2*(i64)f7_38 + f4_2*(i64)f6_19 + f5  *(i64)f5_38;
-	i64 t1 = f0_2*(i64)f1    + f2  *(i64)f9_38 + f3_2*(i64)f8_19
-		+    f4  *(i64)f7_38 + f5_2*(i64)f6_19;
-	i64 t2 = f0_2*(i64)f2    + f1_2*(i64)f1    + f3_2*(i64)f9_38
-		+    f4_2*(i64)f8_19 + f5_2*(i64)f7_38 + f6  *(i64)f6_19;
-	i64 t3 = f0_2*(i64)f3    + f1_2*(i64)f2    + f4  *(i64)f9_38
-		+    f5_2*(i64)f8_19 + f6  *(i64)f7_38;
-	i64 t4 = f0_2*(i64)f4    + f1_2*(i64)f3_2  + f2  *(i64)f2
-		+    f5_2*(i64)f9_38 + f6_2*(i64)f8_19 + f7  *(i64)f7_38;
-	i64 t5 = f0_2*(i64)f5    + f1_2*(i64)f4    + f2_2*(i64)f3
-		+    f6  *(i64)f9_38 + f7_2*(i64)f8_19;
-	i64 t6 = f0_2*(i64)f6    + f1_2*(i64)f5_2  + f2_2*(i64)f4
-		+    f3_2*(i64)f3    + f7_2*(i64)f9_38 + f8  *(i64)f8_19;
-	i64 t7 = f0_2*(i64)f7    + f1_2*(i64)f6    + f2_2*(i64)f5
-		+    f3_2*(i64)f4    + f8  *(i64)f9_38;
-	i64 t8 = f0_2*(i64)f8    + f1_2*(i64)f7_2  + f2_2*(i64)f6
-		+    f3_2*(i64)f5_2  + f4  *(i64)f4    + f9  *(i64)f9_38;
-	i64 t9 = f0_2*(i64)f9    + f1_2*(i64)f8    + f2_2*(i64)f7
-		+    f3_2*(i64)f6    + f4  *(i64)f5_2;
-
-	FE_CARRY;
-}
-
-// h = 2 * (f^2)
-static void fe_sq2(fe h, const fe f)
-{
-	fe_sq(h, f);
-	fe_mul_small(h, h, 2);
-}
-
-// This could be simplified, but it would be slower
-static void fe_pow22523(fe out, const fe z)
-{
-	fe t0, t1, t2;
-	fe_sq(t0, z);
-	fe_sq(t1,t0);                   fe_sq(t1, t1);  fe_mul(t1, z, t1);
-	fe_mul(t0, t0, t1);
-	fe_sq(t0, t0);                                  fe_mul(t0, t1, t0);
-	fe_sq(t1, t0);  FOR (i, 1,   5) fe_sq(t1, t1);  fe_mul(t0, t1, t0);
-	fe_sq(t1, t0);  FOR (i, 1,  10) fe_sq(t1, t1);  fe_mul(t1, t1, t0);
-	fe_sq(t2, t1);  FOR (i, 1,  20) fe_sq(t2, t2);  fe_mul(t1, t2, t1);
-	fe_sq(t1, t1);  FOR (i, 1,  10) fe_sq(t1, t1);  fe_mul(t0, t1, t0);
-	fe_sq(t1, t0);  FOR (i, 1,  50) fe_sq(t1, t1);  fe_mul(t1, t1, t0);
-	fe_sq(t2, t1);  FOR (i, 1, 100) fe_sq(t2, t2);  fe_mul(t1, t2, t1);
-	fe_sq(t1, t1);  FOR (i, 1,  50) fe_sq(t1, t1);  fe_mul(t0, t1, t0);
-	fe_sq(t0, t0);  FOR (i, 1,   2) fe_sq(t0, t0);  fe_mul(out, t0, z);
-}
-
-// Inverting means multiplying by 2^255 - 21
-// 2^255 - 21 = (2^252 - 3) * 8 + 3
-// So we reuse the multiplication chain of fe_pow22523
-static void fe_invert(fe out, const fe z)
-{
-	fe tmp;
-	fe_pow22523(tmp, z);
-	// tmp2^8 * z^3
-	fe_sq(tmp, tmp);                        // 0
-	fe_sq(tmp, tmp);  fe_mul(tmp, tmp, z);  // 1
-	fe_sq(tmp, tmp);  fe_mul(out, tmp, z);  // 1
-}
-
-//  Parity check.  Returns 0 if even, 1 if odd
-static int fe_isodd(const fe f)
-{
-	u8 s[32];
+	uint8_t s[32];
 	fe_tobytes(s, f);
-	u8 isodd = s[0] & 1;
-	return isodd;
+	return s[0] & 1;
 }
 
-// Returns 0 if zero, 1 if non zero
-static int fe_isnonzero(const fe f)
+static void fe_sq2_tt(fe *h, const fe *f)
 {
-	u8 s[32];
-	fe_tobytes(s, f);
-	int isnonzero = zerocmp32(s);
-	return -isnonzero;
+	// h = f^2
+	fe_sq_tt(h, f);
+
+	// h = h + h
+	fe_loose tmp;
+	fe_add(&tmp, h, h);
+	fe_carry(h, &tmp);
 }
 
-// Returns 1 if equal, 0 if not equal
-static int fe_isequal(const fe f, const fe g)
+static void fe_pow22523(fe *out, const fe *z)
 {
-	fe diff;
-	fe_sub(diff, f, g);
-	int isdifferent = fe_isnonzero(diff);
-	return 1 - isdifferent;
+	fe t0;
+	fe t1;
+	fe t2;
+	int i;
+
+	fe_sq_tt(&t0, z);
+	fe_sq_tt(&t1, &t0);
+	for (i = 1; i < 2; ++i) {
+		fe_sq_tt(&t1, &t1);
+	}
+	fe_mul_ttt(&t1, z, &t1);
+	fe_mul_ttt(&t0, &t0, &t1);
+	fe_sq_tt(&t0, &t0);
+	fe_mul_ttt(&t0, &t1, &t0);
+	fe_sq_tt(&t1, &t0);
+	for (i = 1; i < 5; ++i) {
+		fe_sq_tt(&t1, &t1);
+	}
+	fe_mul_ttt(&t0, &t1, &t0);
+	fe_sq_tt(&t1, &t0);
+	for (i = 1; i < 10; ++i) {
+		fe_sq_tt(&t1, &t1);
+	}
+	fe_mul_ttt(&t1, &t1, &t0);
+	fe_sq_tt(&t2, &t1);
+	for (i = 1; i < 20; ++i) {
+		fe_sq_tt(&t2, &t2);
+	}
+	fe_mul_ttt(&t1, &t2, &t1);
+	fe_sq_tt(&t1, &t1);
+	for (i = 1; i < 10; ++i) {
+		fe_sq_tt(&t1, &t1);
+	}
+	fe_mul_ttt(&t0, &t1, &t0);
+	fe_sq_tt(&t1, &t0);
+	for (i = 1; i < 50; ++i) {
+		fe_sq_tt(&t1, &t1);
+	}
+	fe_mul_ttt(&t1, &t1, &t0);
+	fe_sq_tt(&t2, &t1);
+	for (i = 1; i < 100; ++i) {
+		fe_sq_tt(&t2, &t2);
+	}
+	fe_mul_ttt(&t1, &t2, &t1);
+	fe_sq_tt(&t1, &t1);
+	for (i = 1; i < 50; ++i) {
+		fe_sq_tt(&t1, &t1);
+	}
+	fe_mul_ttt(&t0, &t1, &t0);
+	fe_sq_tt(&t0, &t0);
+	for (i = 1; i < 2; ++i) {
+		fe_sq_tt(&t0, &t0);
+	}
+	fe_mul_ttt(out, &t0, z);
 }
 
-// Inverse square root.
-// Returns true if x is a non zero square, false otherwise.
-// After the call:
-//   isr = sqrt(1/x)        if x is non-zero square.
-//   isr = sqrt(sqrt(-1)/x) if x is not a square.
-//   isr = 0                if x is zero.
-// We do not guarantee the sign of the square root.
-//
-// Notes:
-// Let quartic = x^((p-1)/4)
-//
-// x^((p-1)/2) = chi(x)
-// quartic^2   = chi(x)
-// quartic     = sqrt(chi(x))
-// quartic     = 1 or -1 or sqrt(-1) or -sqrt(-1)
-//
-// Note that x is a square if quartic is 1 or -1
-// There are 4 cases to consider:
-//
-// if   quartic         = 1  (x is a square)
-// then x^((p-1)/4)     = 1
-//      x^((p-5)/4) * x = 1
-//      x^((p-5)/4)     = 1/x
-//      x^((p-5)/8)     = sqrt(1/x) or -sqrt(1/x)
-//
-// if   quartic                = -1  (x is a square)
-// then x^((p-1)/4)            = -1
-//      x^((p-5)/4) * x        = -1
-//      x^((p-5)/4)            = -1/x
-//      x^((p-5)/8)            = sqrt(-1)   / sqrt(x)
-//      x^((p-5)/8) * sqrt(-1) = sqrt(-1)^2 / sqrt(x)
-//      x^((p-5)/8) * sqrt(-1) = -1/sqrt(x)
-//      x^((p-5)/8) * sqrt(-1) = -sqrt(1/x) or sqrt(1/x)
-//
-// if   quartic         = sqrt(-1)  (x is not a square)
-// then x^((p-1)/4)     = sqrt(-1)
-//      x^((p-5)/4) * x = sqrt(-1)
-//      x^((p-5)/4)     = sqrt(-1)/x
-//      x^((p-5)/8)     = sqrt(sqrt(-1)/x) or -sqrt(sqrt(-1)/x)
-//
-// Note that the product of two non-squares is always a square:
-//   For any non-squares a and b, chi(a) = -1 and chi(b) = -1.
-//   Since chi(x) = x^((p-1)/2), chi(a)*chi(b) = chi(a*b) = 1.
-//   Therefore a*b is a square.
-//
-//   Since sqrt(-1) and x are both non-squares, their product is a
-//   square, and we can compute their square root.
-//
-// if   quartic                = -sqrt(-1)  (x is not a square)
-// then x^((p-1)/4)            = -sqrt(-1)
-//      x^((p-5)/4) * x        = -sqrt(-1)
-//      x^((p-5)/4)            = -sqrt(-1)/x
-//      x^((p-5)/8)            = sqrt(-sqrt(-1)/x)
-//      x^((p-5)/8)            = sqrt( sqrt(-1)/x) * sqrt(-1)
-//      x^((p-5)/8) * sqrt(-1) = sqrt( sqrt(-1)/x) * sqrt(-1)^2
-//      x^((p-5)/8) * sqrt(-1) = sqrt( sqrt(-1)/x) * -1
-//      x^((p-5)/8) * sqrt(-1) = -sqrt(sqrt(-1)/x) or sqrt(sqrt(-1)/x)
-static int invsqrt(fe isr, const fe x)
+static void x25519_ge_tobytes(uint8_t s[32], const ge_p2 *h)
 {
-	fe check, quartic;
-	fe_copy(check, x);
-	fe_pow22523(isr, check);
-	fe_sq (quartic, isr);
-	fe_mul(quartic, quartic, check);
-	fe_1  (check);          int p1 = fe_isequal(quartic, check);
-	fe_neg(check, check );  int m1 = fe_isequal(quartic, check);
-	fe_neg(check, sqrtm1);  int ms = fe_isequal(quartic, check);
-	fe_mul(check, isr, sqrtm1);
-	fe_ccopy(isr, check, m1 | ms);
-	return p1 | m1;
+	fe recip;
+	fe x;
+	fe y;
+
+	fe_invert(&recip, &h->Z);
+	fe_mul_ttt(&x, &h->X, &recip);
+	fe_mul_ttt(&y, &h->Y, &recip);
+	fe_tobytes(s, &y);
+	s[31] ^= fe_isnegative(&x) << 7;
 }
 
-// get bit from scalar at position i
-static int scalar_bit(const u8 s[32], int i)
+static int x25519_ge_frombytes_vartime(ge_p3 *h, const uint8_t s[32])
 {
-	if (i < 0) { return 0; } // handle -1 for sliding windows
-	return (s[i>>3] >> (i&7)) & 1;
-}
+	fe u;
+	fe_loose v;
+	fe v3;
+	fe vxx;
+	fe_loose check;
 
-static const  u8 L[32] = {
-	0xed, 0xd3, 0xf5, 0x5c, 0x1a, 0x63, 0x12, 0x58, 0xd6, 0x9c, 0xf7, 0xa2,
-	0xde, 0xf9, 0xde, 0x14, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10
-};
+	fe_frombytes(&h->Y, s);
+	fe_1(&h->Z);
+	fe_sq_tt(&v3, &h->Y);
+	fe_mul_ttt(&vxx, &v3, &d);
+	fe_sub(&v, &v3, &h->Z); // u = y^2-1
+	fe_carry(&u, &v);
+	fe_add(&v, &vxx, &h->Z); // v = dy^2+1
 
-// r = x mod L (little-endian)
-static void modL(u8 *r, i64 x[64])
-{
-	for (unsigned i = 63; i >= 32; i--) {
-		i64 carry = 0;
-		FOR (j, i-32, i-12) {
-			x[j] += carry - 16 * x[i] * L[j - (i - 32)];
-			carry = (x[j] + 128) >> 8;
-			x[j] -= carry * (1 << 8);
+	fe_sq_tl(&v3, &v);
+	fe_mul_ttl(&v3, &v3, &v); // v3 = v^3
+	fe_sq_tt(&h->X, &v3);
+	fe_mul_ttl(&h->X, &h->X, &v);
+	fe_mul_ttt(&h->X, &h->X, &u); // x = uv^7
+
+	fe_pow22523(&h->X, &h->X); // x = (uv^7)^((q-5)/8)
+	fe_mul_ttt(&h->X, &h->X, &v3);
+	fe_mul_ttt(&h->X, &h->X, &u); // x = uv^3(uv^7)^((q-5)/8)
+
+	fe_sq_tt(&vxx, &h->X);
+	fe_mul_ttl(&vxx, &vxx, &v);
+	fe_sub(&check, &vxx, &u);
+	if (fe_isnonzero(&check)) {
+		fe_add(&check, &vxx, &u);
+		if (fe_isnonzero(&check)) {
+			return 0;
 		}
-		x[i-12] += carry;
-		x[i] = 0;
+		fe_mul_ttt(&h->X, &h->X, &sqrtm1);
 	}
-	i64 carry = 0;
-	FOR (i, 0, 32) {
-		x[i] += carry - (x[31] >> 4) * L[i];
-		carry = x[i] >> 8;
-		x[i] &= 255;
-	}
-	FOR (i, 0, 32) {
-		x[i] -= carry * L[i];
-	}
-	FOR (i, 0, 32) {
-		x[i+1] += x[i] >> 8;
-		r[i  ]  = x[i] & 255;
-	}
-}
 
-// Reduces a 64-byte hash modulo L (little endian)
-static void reduce(u8 r[64])
-{
-	i64 x[64];
-	COPY(x, r, 64);
-	modL(r, x);
-}
-
-// Variable time! a must not be secret!
-static int is_above_L(const u8 a[32])
-{
-	for (int i = 31; i >= 0; i--) {
-		if (a[i] > L[i]) { return 1; }
-		if (a[i] < L[i]) { return 0; }
+	if (fe_isnegative(&h->X) != (s[31] >> 7)) {
+		fe_loose t;
+		fe_neg(&t, &h->X);
+		fe_carry(&h->X, &t);
 	}
+
+	fe_mul_ttt(&h->T, &h->X, &h->Y);
 	return 1;
 }
 
-// Point (group element, ge) in a twisted Edwards curve,
-// in extended projective coordinates.
-// ge        : x  = X/Z, y  = Y/Z, T  = XY/Z
-// ge_cached : Yp = X+Y, Ym = X-Y, T2 = T*D2
-// ge_precomp: Z  = 1
-typedef struct { fe X;  fe Y;  fe Z; fe T;  } ge;
-typedef struct { fe Yp; fe Ym; fe Z; fe T2; } ge_cached;
-typedef struct { fe Yp; fe Ym;       fe T2; } ge_precomp;
-
-static void ge_zero(ge *p)
+static void ge_p2_0(ge_p2 *h)
 {
-	fe_0(p->X);
-	fe_1(p->Y);
-	fe_1(p->Z);
-	fe_0(p->T);
+	fe_0(&h->X);
+	fe_1(&h->Y);
+	fe_1(&h->Z);
 }
 
-static void ge_tobytes(u8 s[32], const ge *h)
+// r = p
+static void ge_p3_to_p2(ge_p2 *r, const ge_p3 *p)
 {
-	fe recip, x, y;
-	fe_invert(recip, h->Z);
-	fe_mul(x, h->X, recip);
-	fe_mul(y, h->Y, recip);
-	fe_tobytes(s, y);
-	s[31] ^= fe_isodd(x) << 7;
+	fe_copy(&r->X, &p->X);
+	fe_copy(&r->Y, &p->Y);
+	fe_copy(&r->Z, &p->Z);
 }
 
-// h = s, where s is a point encoded in 32 bytes
-//
-// Variable time!  Inputs must not be secret!
-// => Use only to *check* signatures.
-//
-// From the specifications:
-//   The encoding of s contains y and the sign of x
-//   x = sqrt((y^2 - 1) / (d*y^2 + 1))
-// In extended coordinates:
-//   X = x, Y = y, Z = 1, T = x*y
-//
-//    Note that num * den is a square iff num / den is a square
-//    If num * den is not a square, the point was not on the curve.
-// From the above:
-//   Let num =   y^2 - 1
-//   Let den = d*y^2 + 1
-//   x = sqrt((y^2 - 1) / (d*y^2 + 1))
-//   x = sqrt(num / den)
-//   x = sqrt(num^2 / (num * den))
-//   x = num * sqrt(1 / (num * den))
-//
-// Therefore, we can just compute:
-//   num =   y^2 - 1
-//   den = d*y^2 + 1
-//   isr = invsqrt(num * den)  // abort if not square
-//   x   = num * isr
-// Finally, negate x if its sign is not as specified.
-static int ge_frombytes_vartime(ge *h, const u8 s[32])
+// r = p
+static void x25519_ge_p3_to_cached(ge_cached *r, const ge_p3 *p)
 {
-	fe_frombytes(h->Y, s);
-	fe_1(h->Z);
-	fe_sq (h->T, h->Y);        // t =   y^2
-	fe_mul(h->X, h->T, d   );  // x = d*y^2
-	fe_sub(h->T, h->T, h->Z);  // t =   y^2 - 1
-	fe_add(h->X, h->X, h->Z);  // x = d*y^2 + 1
-	fe_mul(h->X, h->T, h->X);  // x = (y^2 - 1) * (d*y^2 + 1)
-	int is_square = invsqrt(h->X, h->X);
-	if (!is_square) {
-		return -1;             // Not on the curve, abort
+	fe_add(&r->YplusX, &p->Y, &p->X);
+	fe_sub(&r->YminusX, &p->Y, &p->X);
+	fe_copy_lt(&r->Z, &p->Z);
+	fe_mul_ltt(&r->T2d, &p->T, &d2);
+}
+
+// r = p
+static void x25519_ge_p1p1_to_p2(ge_p2 *r, const ge_p1p1 *p)
+{
+	fe_mul_tll(&r->X, &p->X, &p->T);
+	fe_mul_tll(&r->Y, &p->Y, &p->Z);
+	fe_mul_tll(&r->Z, &p->Z, &p->T);
+}
+
+// r = p
+static void x25519_ge_p1p1_to_p3(ge_p3 *r, const ge_p1p1 *p)
+{
+	fe_mul_tll(&r->X, &p->X, &p->T);
+	fe_mul_tll(&r->Y, &p->Y, &p->Z);
+	fe_mul_tll(&r->Z, &p->Z, &p->T);
+	fe_mul_tll(&r->T, &p->X, &p->Y);
+}
+
+// r = 2 * p
+static void ge_p2_dbl(ge_p1p1 *r, const ge_p2 *p)
+{
+	fe trX, trZ, trT;
+	fe t0;
+
+	fe_sq_tt(&trX, &p->X);
+	fe_sq_tt(&trZ, &p->Y);
+	fe_sq2_tt(&trT, &p->Z);
+	fe_add(&r->Y, &p->X, &p->Y);
+	fe_sq_tl(&t0, &r->Y);
+
+	fe_add(&r->Y, &trZ, &trX);
+	fe_sub(&r->Z, &trZ, &trX);
+	fe_carry(&trZ, &r->Y);
+	fe_sub(&r->X, &t0, &trZ);
+	fe_carry(&trZ, &r->Z);
+	fe_sub(&r->T, &trT, &trZ);
+}
+
+// r = 2 * p
+static void ge_p3_dbl(ge_p1p1 *r, const ge_p3 *p)
+{
+	ge_p2 q;
+	ge_p3_to_p2(&q, p);
+	ge_p2_dbl(r, &q);
+}
+
+// r = p + q
+static void ge_madd(ge_p1p1 *r, const ge_p3 *p, const ge_precomp *q)
+{
+	fe trY, trZ, trT;
+
+	fe_add(&r->X, &p->Y, &p->X);
+	fe_sub(&r->Y, &p->Y, &p->X);
+	fe_mul_tll(&trZ, &r->X, &q->yplusx);
+	fe_mul_tll(&trY, &r->Y, &q->yminusx);
+	fe_mul_tlt(&trT, &q->xy2d, &p->T);
+	fe_add(&r->T, &p->Z, &p->Z);
+	fe_sub(&r->X, &trZ, &trY);
+	fe_add(&r->Y, &trZ, &trY);
+	fe_carry(&trZ, &r->T);
+	fe_add(&r->Z, &trZ, &trT);
+	fe_sub(&r->T, &trZ, &trT);
+}
+
+// r = p - q
+static void ge_msub(ge_p1p1 *r, const ge_p3 *p, const ge_precomp *q)
+{
+	fe trY, trZ, trT;
+
+	fe_add(&r->X, &p->Y, &p->X);
+	fe_sub(&r->Y, &p->Y, &p->X);
+	fe_mul_tll(&trZ, &r->X, &q->yminusx);
+	fe_mul_tll(&trY, &r->Y, &q->yplusx);
+	fe_mul_tlt(&trT, &q->xy2d, &p->T);
+	fe_add(&r->T, &p->Z, &p->Z);
+	fe_sub(&r->X, &trZ, &trY);
+	fe_add(&r->Y, &trZ, &trY);
+	fe_carry(&trZ, &r->T);
+	fe_sub(&r->Z, &trZ, &trT);
+	fe_add(&r->T, &trZ, &trT);
+}
+
+// r = p + q
+static void x25519_ge_add(ge_p1p1 *r, const ge_p3 *p, const ge_cached *q)
+{
+	fe trX, trY, trZ, trT;
+
+	fe_add(&r->X, &p->Y, &p->X);
+	fe_sub(&r->Y, &p->Y, &p->X);
+	fe_mul_tll(&trZ, &r->X, &q->YplusX);
+	fe_mul_tll(&trY, &r->Y, &q->YminusX);
+	fe_mul_tlt(&trT, &q->T2d, &p->T);
+	fe_mul_ttl(&trX, &p->Z, &q->Z);
+	fe_add(&r->T, &trX, &trX);
+	fe_sub(&r->X, &trZ, &trY);
+	fe_add(&r->Y, &trZ, &trY);
+	fe_carry(&trZ, &r->T);
+	fe_add(&r->Z, &trZ, &trT);
+	fe_sub(&r->T, &trZ, &trT);
+}
+
+// r = p - q
+static void x25519_ge_sub(ge_p1p1 *r, const ge_p3 *p, const ge_cached *q)
+{
+	fe trX, trY, trZ, trT;
+
+	fe_add(&r->X, &p->Y, &p->X);
+	fe_sub(&r->Y, &p->Y, &p->X);
+	fe_mul_tll(&trZ, &r->X, &q->YminusX);
+	fe_mul_tll(&trY, &r->Y, &q->YplusX);
+	fe_mul_tlt(&trT, &q->T2d, &p->T);
+	fe_mul_ttl(&trX, &p->Z, &q->Z);
+	fe_add(&r->T, &trX, &trX);
+	fe_sub(&r->X, &trZ, &trY);
+	fe_add(&r->Y, &trZ, &trY);
+	fe_carry(&trZ, &r->T);
+	fe_sub(&r->Z, &trZ, &trT);
+	fe_add(&r->T, &trZ, &trT);
+}
+
+static void slide(signed char *r, const uint8_t *a)
+{
+	int i;
+	int b;
+	int k;
+
+	for (i = 0; i < 256; ++i) {
+		r[i] = 1 & (a[i >> 3] >> (i & 7));
 	}
-	fe_mul(h->X, h->T, h->X);  // x = sqrt((y^2 - 1) / (d*y^2 + 1))
-	if (fe_isodd(h->X) != (s[31] >> 7)) {
-		fe_neg(h->X, h->X);
+
+	for (i = 0; i < 256; ++i) {
+		if (r[i]) {
+			for (b = 1; b <= 6 && i + b < 256; ++b) {
+				if (r[i + b]) {
+					if (r[i] + (r[i + b] << b) <= 15) {
+						r[i] += r[i + b] << b;
+						r[i + b] = 0;
+					} else if (r[i] - (r[i + b] << b) >=
+						   -15) {
+						r[i] -= r[i + b] << b;
+						for (k = i + b; k < 256; ++k) {
+							if (!r[k]) {
+								r[k] = 1;
+								break;
+							}
+							r[k] = 0;
+						}
+					} else {
+						break;
+					}
+				}
+			}
+		}
 	}
-	fe_mul(h->T, h->X, h->Y);
-	return 0;
 }
 
-static void ge_cache(ge_cached *c, const ge *p)
+// r = a * A + b * B
+// where a = a[0]+256*a[1]+...+256^31 a[31].
+// and b = b[0]+256*b[1]+...+256^31 b[31].
+// B is the Ed25519 base point (x,4/5) with x positive.
+static void ge_double_scalarmult_vartime(ge_p2 *r, const uint8_t *a,
+					 const ge_p3 *A, const uint8_t *b)
 {
-	fe_add (c->Yp, p->Y, p->X);
-	fe_sub (c->Ym, p->Y, p->X);
-	fe_copy(c->Z , p->Z      );
-	fe_mul (c->T2, p->T, D2  );
+	signed char aslide[256];
+	signed char bslide[256];
+	ge_cached Ai[8]; // A,3A,5A,7A,9A,11A,13A,15A
+	ge_p1p1 t;
+	ge_p3 u;
+	ge_p3 A2;
+	int i;
+
+	slide(aslide, a);
+	slide(bslide, b);
+
+	x25519_ge_p3_to_cached(&Ai[0], A);
+	ge_p3_dbl(&t, A);
+	x25519_ge_p1p1_to_p3(&A2, &t);
+	x25519_ge_add(&t, &A2, &Ai[0]);
+	x25519_ge_p1p1_to_p3(&u, &t);
+	x25519_ge_p3_to_cached(&Ai[1], &u);
+	x25519_ge_add(&t, &A2, &Ai[1]);
+	x25519_ge_p1p1_to_p3(&u, &t);
+	x25519_ge_p3_to_cached(&Ai[2], &u);
+	x25519_ge_add(&t, &A2, &Ai[2]);
+	x25519_ge_p1p1_to_p3(&u, &t);
+	x25519_ge_p3_to_cached(&Ai[3], &u);
+	x25519_ge_add(&t, &A2, &Ai[3]);
+	x25519_ge_p1p1_to_p3(&u, &t);
+	x25519_ge_p3_to_cached(&Ai[4], &u);
+	x25519_ge_add(&t, &A2, &Ai[4]);
+	x25519_ge_p1p1_to_p3(&u, &t);
+	x25519_ge_p3_to_cached(&Ai[5], &u);
+	x25519_ge_add(&t, &A2, &Ai[5]);
+	x25519_ge_p1p1_to_p3(&u, &t);
+	x25519_ge_p3_to_cached(&Ai[6], &u);
+	x25519_ge_add(&t, &A2, &Ai[6]);
+	x25519_ge_p1p1_to_p3(&u, &t);
+	x25519_ge_p3_to_cached(&Ai[7], &u);
+
+	ge_p2_0(r);
+
+	for (i = 255; i >= 0; --i) {
+		if (aslide[i] || bslide[i]) {
+			break;
+		}
+	}
+
+	for (; i >= 0; --i) {
+		ge_p2_dbl(&t, r);
+
+		if (aslide[i] > 0) {
+			x25519_ge_p1p1_to_p3(&u, &t);
+			x25519_ge_add(&t, &u, &Ai[aslide[i] / 2]);
+		} else if (aslide[i] < 0) {
+			x25519_ge_p1p1_to_p3(&u, &t);
+			x25519_ge_sub(&t, &u, &Ai[(-aslide[i]) / 2]);
+		}
+
+		if (bslide[i] > 0) {
+			x25519_ge_p1p1_to_p3(&u, &t);
+			ge_madd(&t, &u, &Bi[bslide[i] / 2]);
+		} else if (bslide[i] < 0) {
+			x25519_ge_p1p1_to_p3(&u, &t);
+			ge_msub(&t, &u, &Bi[(-bslide[i]) / 2]);
+		}
+
+		x25519_ge_p1p1_to_p2(r, &t);
+	}
 }
 
-// Internal buffers are not wiped! Inputs must not be secret!
-// => Use only to *check* signatures.
-static void ge_add(ge *s, const ge *p, const ge_cached *q)
+// int64_lshift21 returns |a << 21| but is defined when shifting bits into the
+// sign bit. This works around a language flaw in C.
+static inline int64_t int64_lshift21(int64_t a)
 {
-	fe a, b;
-	fe_add(a   , p->Y, p->X );
-	fe_sub(b   , p->Y, p->X );
-	fe_mul(a   , a   , q->Yp);
-	fe_mul(b   , b   , q->Ym);
-	fe_add(s->Y, a   , b    );
-	fe_sub(s->X, a   , b    );
-
-	fe_add(s->Z, p->Z, p->Z );
-	fe_mul(s->Z, s->Z, q->Z );
-	fe_mul(s->T, p->T, q->T2);
-	fe_add(a   , s->Z, s->T );
-	fe_sub(b   , s->Z, s->T );
-
-	fe_mul(s->T, s->X, s->Y);
-	fe_mul(s->X, s->X, b   );
-	fe_mul(s->Y, s->Y, a   );
-	fe_mul(s->Z, a   , b   );
+	return (int64_t)((uint64_t)a << 21);
 }
 
-// Internal buffers are not wiped! Inputs must not be secret!
-// => Use only to *check* signatures.
-static void ge_sub(ge *s, const ge *p, const ge_cached *q)
+// The set of scalars is \Z/l
+// where l = 2^252 + 27742317777372353535851937790883648493.
+
+// Input:
+//   s[0]+256*s[1]+...+256^63*s[63] = s
+//
+// Output:
+//   s[0]+256*s[1]+...+256^31*s[31] = s mod l
+//   where l = 2^252 + 27742317777372353535851937790883648493.
+//   Overwrites s in place.
+static void x25519_sc_reduce(uint8_t s[64])
 {
-	ge_cached neg;
-	fe_copy(neg.Ym, q->Yp);
-	fe_copy(neg.Yp, q->Ym);
-	fe_copy(neg.Z , q->Z );
-	fe_neg (neg.T2, q->T2);
-	ge_add(s, p, &neg);
+	int64_t s0 = 2097151 & load_le24(s);
+	int64_t s1 = 2097151 & (load_le32(s + 2) >> 5);
+	int64_t s2 = 2097151 & (load_le24(s + 5) >> 2);
+	int64_t s3 = 2097151 & (load_le32(s + 7) >> 7);
+	int64_t s4 = 2097151 & (load_le32(s + 10) >> 4);
+	int64_t s5 = 2097151 & (load_le24(s + 13) >> 1);
+	int64_t s6 = 2097151 & (load_le32(s + 15) >> 6);
+	int64_t s7 = 2097151 & (load_le24(s + 18) >> 3);
+	int64_t s8 = 2097151 & load_le24(s + 21);
+	int64_t s9 = 2097151 & (load_le32(s + 23) >> 5);
+	int64_t s10 = 2097151 & (load_le24(s + 26) >> 2);
+	int64_t s11 = 2097151 & (load_le32(s + 28) >> 7);
+	int64_t s12 = 2097151 & (load_le32(s + 31) >> 4);
+	int64_t s13 = 2097151 & (load_le24(s + 34) >> 1);
+	int64_t s14 = 2097151 & (load_le32(s + 36) >> 6);
+	int64_t s15 = 2097151 & (load_le24(s + 39) >> 3);
+	int64_t s16 = 2097151 & load_le24(s + 42);
+	int64_t s17 = 2097151 & (load_le32(s + 44) >> 5);
+	int64_t s18 = 2097151 & (load_le24(s + 47) >> 2);
+	int64_t s19 = 2097151 & (load_le32(s + 49) >> 7);
+	int64_t s20 = 2097151 & (load_le32(s + 52) >> 4);
+	int64_t s21 = 2097151 & (load_le24(s + 55) >> 1);
+	int64_t s22 = 2097151 & (load_le32(s + 57) >> 6);
+	int64_t s23 = (load_le32(s + 60) >> 3);
+	int64_t carry0;
+	int64_t carry1;
+	int64_t carry2;
+	int64_t carry3;
+	int64_t carry4;
+	int64_t carry5;
+	int64_t carry6;
+	int64_t carry7;
+	int64_t carry8;
+	int64_t carry9;
+	int64_t carry10;
+	int64_t carry11;
+	int64_t carry12;
+	int64_t carry13;
+	int64_t carry14;
+	int64_t carry15;
+	int64_t carry16;
+
+	s11 += s23 * 666643;
+	s12 += s23 * 470296;
+	s13 += s23 * 654183;
+	s14 -= s23 * 997805;
+	s15 += s23 * 136657;
+	s16 -= s23 * 683901;
+	s23 = 0;
+
+	s10 += s22 * 666643;
+	s11 += s22 * 470296;
+	s12 += s22 * 654183;
+	s13 -= s22 * 997805;
+	s14 += s22 * 136657;
+	s15 -= s22 * 683901;
+	s22 = 0;
+
+	s9 += s21 * 666643;
+	s10 += s21 * 470296;
+	s11 += s21 * 654183;
+	s12 -= s21 * 997805;
+	s13 += s21 * 136657;
+	s14 -= s21 * 683901;
+	s21 = 0;
+
+	s8 += s20 * 666643;
+	s9 += s20 * 470296;
+	s10 += s20 * 654183;
+	s11 -= s20 * 997805;
+	s12 += s20 * 136657;
+	s13 -= s20 * 683901;
+	s20 = 0;
+
+	s7 += s19 * 666643;
+	s8 += s19 * 470296;
+	s9 += s19 * 654183;
+	s10 -= s19 * 997805;
+	s11 += s19 * 136657;
+	s12 -= s19 * 683901;
+	s19 = 0;
+
+	s6 += s18 * 666643;
+	s7 += s18 * 470296;
+	s8 += s18 * 654183;
+	s9 -= s18 * 997805;
+	s10 += s18 * 136657;
+	s11 -= s18 * 683901;
+	s18 = 0;
+
+	carry6 = (s6 + (1 << 20)) >> 21;
+	s7 += carry6;
+	s6 -= int64_lshift21(carry6);
+	carry8 = (s8 + (1 << 20)) >> 21;
+	s9 += carry8;
+	s8 -= int64_lshift21(carry8);
+	carry10 = (s10 + (1 << 20)) >> 21;
+	s11 += carry10;
+	s10 -= int64_lshift21(carry10);
+	carry12 = (s12 + (1 << 20)) >> 21;
+	s13 += carry12;
+	s12 -= int64_lshift21(carry12);
+	carry14 = (s14 + (1 << 20)) >> 21;
+	s15 += carry14;
+	s14 -= int64_lshift21(carry14);
+	carry16 = (s16 + (1 << 20)) >> 21;
+	s17 += carry16;
+	s16 -= int64_lshift21(carry16);
+
+	carry7 = (s7 + (1 << 20)) >> 21;
+	s8 += carry7;
+	s7 -= int64_lshift21(carry7);
+	carry9 = (s9 + (1 << 20)) >> 21;
+	s10 += carry9;
+	s9 -= int64_lshift21(carry9);
+	carry11 = (s11 + (1 << 20)) >> 21;
+	s12 += carry11;
+	s11 -= int64_lshift21(carry11);
+	carry13 = (s13 + (1 << 20)) >> 21;
+	s14 += carry13;
+	s13 -= int64_lshift21(carry13);
+	carry15 = (s15 + (1 << 20)) >> 21;
+	s16 += carry15;
+	s15 -= int64_lshift21(carry15);
+
+	s5 += s17 * 666643;
+	s6 += s17 * 470296;
+	s7 += s17 * 654183;
+	s8 -= s17 * 997805;
+	s9 += s17 * 136657;
+	s10 -= s17 * 683901;
+	s17 = 0;
+
+	s4 += s16 * 666643;
+	s5 += s16 * 470296;
+	s6 += s16 * 654183;
+	s7 -= s16 * 997805;
+	s8 += s16 * 136657;
+	s9 -= s16 * 683901;
+	s16 = 0;
+
+	s3 += s15 * 666643;
+	s4 += s15 * 470296;
+	s5 += s15 * 654183;
+	s6 -= s15 * 997805;
+	s7 += s15 * 136657;
+	s8 -= s15 * 683901;
+	s15 = 0;
+
+	s2 += s14 * 666643;
+	s3 += s14 * 470296;
+	s4 += s14 * 654183;
+	s5 -= s14 * 997805;
+	s6 += s14 * 136657;
+	s7 -= s14 * 683901;
+	s14 = 0;
+
+	s1 += s13 * 666643;
+	s2 += s13 * 470296;
+	s3 += s13 * 654183;
+	s4 -= s13 * 997805;
+	s5 += s13 * 136657;
+	s6 -= s13 * 683901;
+	s13 = 0;
+
+	s0 += s12 * 666643;
+	s1 += s12 * 470296;
+	s2 += s12 * 654183;
+	s3 -= s12 * 997805;
+	s4 += s12 * 136657;
+	s5 -= s12 * 683901;
+	s12 = 0;
+
+	carry0 = (s0 + (1 << 20)) >> 21;
+	s1 += carry0;
+	s0 -= int64_lshift21(carry0);
+	carry2 = (s2 + (1 << 20)) >> 21;
+	s3 += carry2;
+	s2 -= int64_lshift21(carry2);
+	carry4 = (s4 + (1 << 20)) >> 21;
+	s5 += carry4;
+	s4 -= int64_lshift21(carry4);
+	carry6 = (s6 + (1 << 20)) >> 21;
+	s7 += carry6;
+	s6 -= int64_lshift21(carry6);
+	carry8 = (s8 + (1 << 20)) >> 21;
+	s9 += carry8;
+	s8 -= int64_lshift21(carry8);
+	carry10 = (s10 + (1 << 20)) >> 21;
+	s11 += carry10;
+	s10 -= int64_lshift21(carry10);
+
+	carry1 = (s1 + (1 << 20)) >> 21;
+	s2 += carry1;
+	s1 -= int64_lshift21(carry1);
+	carry3 = (s3 + (1 << 20)) >> 21;
+	s4 += carry3;
+	s3 -= int64_lshift21(carry3);
+	carry5 = (s5 + (1 << 20)) >> 21;
+	s6 += carry5;
+	s5 -= int64_lshift21(carry5);
+	carry7 = (s7 + (1 << 20)) >> 21;
+	s8 += carry7;
+	s7 -= int64_lshift21(carry7);
+	carry9 = (s9 + (1 << 20)) >> 21;
+	s10 += carry9;
+	s9 -= int64_lshift21(carry9);
+	carry11 = (s11 + (1 << 20)) >> 21;
+	s12 += carry11;
+	s11 -= int64_lshift21(carry11);
+
+	s0 += s12 * 666643;
+	s1 += s12 * 470296;
+	s2 += s12 * 654183;
+	s3 -= s12 * 997805;
+	s4 += s12 * 136657;
+	s5 -= s12 * 683901;
+	s12 = 0;
+
+	carry0 = s0 >> 21;
+	s1 += carry0;
+	s0 -= int64_lshift21(carry0);
+	carry1 = s1 >> 21;
+	s2 += carry1;
+	s1 -= int64_lshift21(carry1);
+	carry2 = s2 >> 21;
+	s3 += carry2;
+	s2 -= int64_lshift21(carry2);
+	carry3 = s3 >> 21;
+	s4 += carry3;
+	s3 -= int64_lshift21(carry3);
+	carry4 = s4 >> 21;
+	s5 += carry4;
+	s4 -= int64_lshift21(carry4);
+	carry5 = s5 >> 21;
+	s6 += carry5;
+	s5 -= int64_lshift21(carry5);
+	carry6 = s6 >> 21;
+	s7 += carry6;
+	s6 -= int64_lshift21(carry6);
+	carry7 = s7 >> 21;
+	s8 += carry7;
+	s7 -= int64_lshift21(carry7);
+	carry8 = s8 >> 21;
+	s9 += carry8;
+	s8 -= int64_lshift21(carry8);
+	carry9 = s9 >> 21;
+	s10 += carry9;
+	s9 -= int64_lshift21(carry9);
+	carry10 = s10 >> 21;
+	s11 += carry10;
+	s10 -= int64_lshift21(carry10);
+	carry11 = s11 >> 21;
+	s12 += carry11;
+	s11 -= int64_lshift21(carry11);
+
+	s0 += s12 * 666643;
+	s1 += s12 * 470296;
+	s2 += s12 * 654183;
+	s3 -= s12 * 997805;
+	s4 += s12 * 136657;
+	s5 -= s12 * 683901;
+	s12 = 0;
+
+	carry0 = s0 >> 21;
+	s1 += carry0;
+	s0 -= int64_lshift21(carry0);
+	carry1 = s1 >> 21;
+	s2 += carry1;
+	s1 -= int64_lshift21(carry1);
+	carry2 = s2 >> 21;
+	s3 += carry2;
+	s2 -= int64_lshift21(carry2);
+	carry3 = s3 >> 21;
+	s4 += carry3;
+	s3 -= int64_lshift21(carry3);
+	carry4 = s4 >> 21;
+	s5 += carry4;
+	s4 -= int64_lshift21(carry4);
+	carry5 = s5 >> 21;
+	s6 += carry5;
+	s5 -= int64_lshift21(carry5);
+	carry6 = s6 >> 21;
+	s7 += carry6;
+	s6 -= int64_lshift21(carry6);
+	carry7 = s7 >> 21;
+	s8 += carry7;
+	s7 -= int64_lshift21(carry7);
+	carry8 = s8 >> 21;
+	s9 += carry8;
+	s8 -= int64_lshift21(carry8);
+	carry9 = s9 >> 21;
+	s10 += carry9;
+	s9 -= int64_lshift21(carry9);
+	carry10 = s10 >> 21;
+	s11 += carry10;
+	s10 -= int64_lshift21(carry10);
+
+	s[0] = s0 >> 0;
+	s[1] = s0 >> 8;
+	s[2] = (s0 >> 16) | (s1 << 5);
+	s[3] = s1 >> 3;
+	s[4] = s1 >> 11;
+	s[5] = (s1 >> 19) | (s2 << 2);
+	s[6] = s2 >> 6;
+	s[7] = (s2 >> 14) | (s3 << 7);
+	s[8] = s3 >> 1;
+	s[9] = s3 >> 9;
+	s[10] = (s3 >> 17) | (s4 << 4);
+	s[11] = s4 >> 4;
+	s[12] = s4 >> 12;
+	s[13] = (s4 >> 20) | (s5 << 1);
+	s[14] = s5 >> 7;
+	s[15] = (s5 >> 15) | (s6 << 6);
+	s[16] = s6 >> 2;
+	s[17] = s6 >> 10;
+	s[18] = (s6 >> 18) | (s7 << 3);
+	s[19] = s7 >> 5;
+	s[20] = s7 >> 13;
+	s[21] = s8 >> 0;
+	s[22] = s8 >> 8;
+	s[23] = (s8 >> 16) | (s9 << 5);
+	s[24] = s9 >> 3;
+	s[25] = s9 >> 11;
+	s[26] = (s9 >> 19) | (s10 << 2);
+	s[27] = s10 >> 6;
+	s[28] = (s10 >> 14) | (s11 << 7);
+	s[29] = s11 >> 1;
+	s[30] = s11 >> 9;
+	s[31] = s11 >> 17;
 }
 
-static void ge_madd(ge *s, const ge *p, const ge_precomp *q, fe a, fe b)
+static uint64_t R(uint64_t x, int c)
 {
-	fe_add(a   , p->Y, p->X );
-	fe_sub(b   , p->Y, p->X );
-	fe_mul(a   , a   , q->Yp);
-	fe_mul(b   , b   , q->Ym);
-	fe_add(s->Y, a   , b    );
-	fe_sub(s->X, a   , b    );
-
-	fe_add(s->Z, p->Z, p->Z );
-	fe_mul(s->T, p->T, q->T2);
-	fe_add(a   , s->Z, s->T );
-	fe_sub(b   , s->Z, s->T );
-
-	fe_mul(s->T, s->X, s->Y);
-	fe_mul(s->X, s->X, b   );
-	fe_mul(s->Y, s->Y, a   );
-	fe_mul(s->Z, a   , b   );
+	return (x >> c) | (x << (64 - c));
 }
-
-static void ge_msub(ge *s, const ge *p, const ge_precomp *q, fe a, fe b)
+static uint64_t Ch(uint64_t x, uint64_t y, uint64_t z)
 {
-	fe_add(a   , p->Y, p->X );
-	fe_sub(b   , p->Y, p->X );
-	fe_mul(a   , a   , q->Ym);
-	fe_mul(b   , b   , q->Yp);
-	fe_add(s->Y, a   , b    );
-	fe_sub(s->X, a   , b    );
-
-	fe_add(s->Z, p->Z, p->Z );
-	fe_mul(s->T, p->T, q->T2);
-	fe_sub(a   , s->Z, s->T );
-	fe_add(b   , s->Z, s->T );
-
-	fe_mul(s->T, s->X, s->Y);
-	fe_mul(s->X, s->X, b   );
-	fe_mul(s->Y, s->Y, a   );
-	fe_mul(s->Z, a   , b   );
+	return (x & y) ^ (~x & z);
 }
-
-static void ge_double(ge *s, const ge *p, ge *q)
+static uint64_t Maj(uint64_t x, uint64_t y, uint64_t z)
 {
-	fe_sq (q->X, p->X);
-	fe_sq (q->Y, p->Y);
-	fe_sq2(q->Z, p->Z);
-	fe_add(q->T, p->X, p->Y);
-	fe_sq (s->T, q->T);
-	fe_add(q->T, q->Y, q->X);
-	fe_sub(q->Y, q->Y, q->X);
-	fe_sub(q->X, s->T, q->T);
-	fe_sub(q->Z, q->Z, q->Y);
-
-	fe_mul(s->X, q->X , q->Z);
-	fe_mul(s->Y, q->T , q->Y);
-	fe_mul(s->Z, q->Y , q->Z);
-	fe_mul(s->T, q->X , q->T);
+	return (x & y) ^ (x & z) ^ (y & z);
+}
+static uint64_t Sigma0(uint64_t x)
+{
+	return R(x, 28) ^ R(x, 34) ^ R(x, 39);
+}
+static uint64_t Sigma1(uint64_t x)
+{
+	return R(x, 14) ^ R(x, 18) ^ R(x, 41);
+}
+static uint64_t sigma0(uint64_t x)
+{
+	return R(x, 1) ^ R(x, 8) ^ (x >> 7);
+}
+static uint64_t sigma1(uint64_t x)
+{
+	return R(x, 19) ^ R(x, 61) ^ (x >> 6);
 }
 
-// 5-bit signed window in cached format (Niels coordinates, Z=1)
-static const ge_precomp b_window[8] = {
-	{{25967493,-14356035,29566456,3660896,-12694345,
-	  4014787,27544626,-11754271,-6079156,2047605,},
-	 {-12545711,934262,-2722910,3049990,-727428,
-	  9406986,12720692,5043384,19500929,-15469378,},
-	 {-8738181,4489570,9688441,-14785194,10184609,
-	  -12363380,29287919,11864899,-24514362,-4438546,},},
-	{{15636291,-9688557,24204773,-7912398,616977,
-	  -16685262,27787600,-14772189,28944400,-1550024,},
-	 {16568933,4717097,-11556148,-1102322,15682896,
-	  -11807043,16354577,-11775962,7689662,11199574,},
-	 {30464156,-5976125,-11779434,-15670865,23220365,
-	  15915852,7512774,10017326,-17749093,-9920357,},},
-	{{10861363,11473154,27284546,1981175,-30064349,
-	  12577861,32867885,14515107,-15438304,10819380,},
-	 {4708026,6336745,20377586,9066809,-11272109,
-	  6594696,-25653668,12483688,-12668491,5581306,},
-	 {19563160,16186464,-29386857,4097519,10237984,
-	  -4348115,28542350,13850243,-23678021,-15815942,},},
-	{{5153746,9909285,1723747,-2777874,30523605,
-	  5516873,19480852,5230134,-23952439,-15175766,},
-	 {-30269007,-3463509,7665486,10083793,28475525,
-	  1649722,20654025,16520125,30598449,7715701,},
-	 {28881845,14381568,9657904,3680757,-20181635,
-	  7843316,-31400660,1370708,29794553,-1409300,},},
-	{{-22518993,-6692182,14201702,-8745502,-23510406,
-	  8844726,18474211,-1361450,-13062696,13821877,},
-	 {-6455177,-7839871,3374702,-4740862,-27098617,
-	  -10571707,31655028,-7212327,18853322,-14220951,},
-	 {4566830,-12963868,-28974889,-12240689,-7602672,
-	  -2830569,-8514358,-10431137,2207753,-3209784,},},
-	{{-25154831,-4185821,29681144,7868801,-6854661,
-	  -9423865,-12437364,-663000,-31111463,-16132436,},
-	 {25576264,-2703214,7349804,-11814844,16472782,
-	  9300885,3844789,15725684,171356,6466918,},
-	 {23103977,13316479,9739013,-16149481,817875,
-	  -15038942,8965339,-14088058,-30714912,16193877,},},
-	{{-33521811,3180713,-2394130,14003687,-16903474,
-	  -16270840,17238398,4729455,-18074513,9256800,},
-	 {-25182317,-4174131,32336398,5036987,-21236817,
-	  11360617,22616405,9761698,-19827198,630305,},
-	 {-13720693,2639453,-24237460,-7406481,9494427,
-	  -5774029,-6554551,-15960994,-2449256,-14291300,},},
-	{{-3151181,-5046075,9282714,6866145,-31907062,
-	  -863023,-18940575,15033784,25105118,-7894876,},
-	 {-24326370,15950226,-31801215,-14592823,-11662737,
-	  -5090925,1573892,-2625887,2198790,-15804619,},
-	 {-3099351,10324967,-2241613,7453183,-5446979,
-	  -2735503,-13812022,-16236442,-32461234,-12290683,},},
+static const uint64_t K[80] = {
+	0x428a2f98d728ae22ULL, 0x7137449123ef65cdULL, 0xb5c0fbcfec4d3b2fULL,
+	0xe9b5dba58189dbbcULL, 0x3956c25bf348b538ULL, 0x59f111f1b605d019ULL,
+	0x923f82a4af194f9bULL, 0xab1c5ed5da6d8118ULL, 0xd807aa98a3030242ULL,
+	0x12835b0145706fbeULL, 0x243185be4ee4b28cULL, 0x550c7dc3d5ffb4e2ULL,
+	0x72be5d74f27b896fULL, 0x80deb1fe3b1696b1ULL, 0x9bdc06a725c71235ULL,
+	0xc19bf174cf692694ULL, 0xe49b69c19ef14ad2ULL, 0xefbe4786384f25e3ULL,
+	0x0fc19dc68b8cd5b5ULL, 0x240ca1cc77ac9c65ULL, 0x2de92c6f592b0275ULL,
+	0x4a7484aa6ea6e483ULL, 0x5cb0a9dcbd41fbd4ULL, 0x76f988da831153b5ULL,
+	0x983e5152ee66dfabULL, 0xa831c66d2db43210ULL, 0xb00327c898fb213fULL,
+	0xbf597fc7beef0ee4ULL, 0xc6e00bf33da88fc2ULL, 0xd5a79147930aa725ULL,
+	0x06ca6351e003826fULL, 0x142929670a0e6e70ULL, 0x27b70a8546d22ffcULL,
+	0x2e1b21385c26c926ULL, 0x4d2c6dfc5ac42aedULL, 0x53380d139d95b3dfULL,
+	0x650a73548baf63deULL, 0x766a0abb3c77b2a8ULL, 0x81c2c92e47edaee6ULL,
+	0x92722c851482353bULL, 0xa2bfe8a14cf10364ULL, 0xa81a664bbc423001ULL,
+	0xc24b8b70d0f89791ULL, 0xc76c51a30654be30ULL, 0xd192e819d6ef5218ULL,
+	0xd69906245565a910ULL, 0xf40e35855771202aULL, 0x106aa07032bbd1b8ULL,
+	0x19a4c116b8d2d0c8ULL, 0x1e376c085141ab53ULL, 0x2748774cdf8eeb99ULL,
+	0x34b0bcb5e19b48a8ULL, 0x391c0cb3c5c95a63ULL, 0x4ed8aa4ae3418acbULL,
+	0x5b9cca4f7763e373ULL, 0x682e6ff3d6b2b8a3ULL, 0x748f82ee5defb2fcULL,
+	0x78a5636f43172f60ULL, 0x84c87814a1f0ab72ULL, 0x8cc702081a6439ecULL,
+	0x90befffa23631e28ULL, 0xa4506cebde82bde9ULL, 0xbef9a3f7b2c67915ULL,
+	0xc67178f2e372532bULL, 0xca273eceea26619cULL, 0xd186b8c721c0c207ULL,
+	0xeada7dd6cde0eb1eULL, 0xf57d4f7fee6ed178ULL, 0x06f067aa72176fbaULL,
+	0x0a637dc5a2c898a6ULL, 0x113f9804bef90daeULL, 0x1b710b35131c471bULL,
+	0x28db77f523047d84ULL, 0x32caab7b40c72493ULL, 0x3c9ebe0a15c9bebcULL,
+	0x431d67c49c100d4cULL, 0x4cc5d4becb3e42b6ULL, 0x597f299cfc657e2aULL,
+	0x5fcb6fab3ad6faecULL, 0x6c44198c4a475817ULL
 };
 
-// Incremental sliding windows (left to right)
-// Based on Roberto Maria Avanzi[2005]
-typedef struct {
-	i16 next_index; // position of the next signed digit
-	i8  next_digit; // next signed digit (odd number below 2^window_width)
-	u8  next_check; // point at which we must check for a new window
-} slide_ctx;
-
-static void slide_init(slide_ctx *ctx, const u8 scalar[32])
+static int sha512_block(uint8_t *x, const uint8_t *m, uint64_t n)
 {
-	// scalar is guaranteed to be below L, either because we checked (s),
-	// or because we reduced it modulo L (h_ram). L is under 2^253, so
-	// so bits 253 to 255 are guaranteed to be zero. No need to test them.
-	//
-	// Note however that L is very close to 2^252, so bit 252 is almost
-	// always zero.  If we were to start at bit 251, the tests wouldn't
-	// catch the off-by-one error (constructing one that does would be
-	// prohibitively expensive).
-	//
-	// We should still check bit 252, though.
-	int i = 252;
-	while (i > 0 && scalar_bit(scalar, i) == 0) {
-		i--;
-	}
-	ctx->next_check = (u8)(i + 1);
-	ctx->next_index = -1;
-	ctx->next_digit = -1;
-}
+	uint64_t z[8], b[8], a[8], w[16], t;
+	int i, j;
 
-static int slide_step(slide_ctx *ctx, int width, int i, const u8 scalar[32])
-{
-	if (i == ctx->next_check) {
-		if (scalar_bit(scalar, i) == scalar_bit(scalar, i - 1)) {
-			ctx->next_check--;
-		} else {
-			// compute digit of next window
-			int w = MIN(width, i + 1);
-			int v = -(scalar_bit(scalar, i) << (w-1));
-			FOR_T (int, j, 0, w-1) {
-				v += scalar_bit(scalar, i-(w-1)+j) << j;
+	for (i = 0; i < 8; ++i)
+		z[i] = a[i] = load_be64(x + 8 * i);
+
+	while (n >= 128) {
+		for (i = 0; i < 16; ++i)
+			w[i] = load_be64(m + 8 * i);
+
+		for (i = 0; i < 80; ++i) {
+			for (j = 0; j < 8; ++j)
+				b[j] = a[j];
+			t = a[7] + Sigma1(a[4]) + Ch(a[4], a[5], a[6]) + K[i] +
+			    w[i % 16];
+			b[7] = t + Sigma0(a[0]) + Maj(a[0], a[1], a[2]);
+			b[3] += t;
+			for (j = 0; j < 8; ++j)
+				a[(j + 1) % 8] = b[j];
+			if (i % 16 == 15) {
+				for (j = 0; j < 16; ++j)
+					w[j] += w[(j + 9) % 16] +
+						sigma0(w[(j + 1) % 16]) +
+						sigma1(w[(j + 14) % 16]);
 			}
-			v += scalar_bit(scalar, i-w);
-			int lsb = v & (~v + 1);            // smallest bit of v
-			int s   = (   ((lsb & 0xAA) != 0)  // log2(lsb)
-					   | (((lsb & 0xCC) != 0) << 1)
-					   | (((lsb & 0xF0) != 0) << 2));
-			ctx->next_index  = (i16)(i-(w-1)+s);
-			ctx->next_digit  = (i8) (v >> s   );
-			ctx->next_check -= w;
 		}
-	}
-	return i == ctx->next_index ? ctx->next_digit: 0;
-}
 
-#define P_W_WIDTH 3 // Affects the size of the stack
-#define B_W_WIDTH 5 // Affects the size of the binary
-#define P_W_SIZE  (1<<(P_W_WIDTH-2))
-
-// P = [b]B + [p]P, where B is the base point
-//
-// Variable time! Internal buffers are not wiped! Inputs must not be secret!
-// => Use only to *check* signatures.
-static void ge_double_scalarmult_vartime(ge *P, const u8 p[32], const u8 b[32])
-{
-	// cache P window for addition
-	ge_cached cP[P_W_SIZE];
-	{
-		ge P2, tmp;
-		ge_double(&P2, P, &tmp);
-		ge_cache(&cP[0], P);
-		FOR (i, 1, P_W_SIZE) {
-			ge_add(&tmp, &P2, &cP[i-1]);
-			ge_cache(&cP[i], &tmp);
+		for (i = 0; i < 8; ++i) {
+			a[i] += z[i];
+			z[i] = a[i];
 		}
+
+		m += 128;
+		n -= 128;
 	}
 
-	// Merged double and add ladder, fused with sliding
-	slide_ctx p_slide;  slide_init(&p_slide, p);
-	slide_ctx b_slide;  slide_init(&b_slide, b);
-	int i = MAX(p_slide.next_check, b_slide.next_check);
-	ge *sum = P;
-	ge_zero(sum);
-	while (i >= 0) {
-		ge tmp;
-		ge_double(sum, sum, &tmp);
-		int p_digit = slide_step(&p_slide, P_W_WIDTH, i, p);
-		int b_digit = slide_step(&b_slide, B_W_WIDTH, i, b);
-		if (p_digit > 0) { ge_add(sum, sum, &cP[ p_digit / 2]); }
-		if (p_digit < 0) { ge_sub(sum, sum, &cP[-p_digit / 2]); }
-		fe t1, t2;
-		if (b_digit > 0) { ge_madd(sum, sum, b_window +  b_digit/2, t1, t2); }
-		if (b_digit < 0) { ge_msub(sum, sum, b_window + -b_digit/2, t1, t2); }
-		i--;
-	}
+	for (i = 0; i < 8; ++i)
+		store_be64(x + 8 * i, z[i]);
+
+	return n;
 }
 
-// R_check = s[B] - h_ram[pk], where B is the base point
-//
-// Variable time! Internal buffers are not wiped! Inputs must not be secret!
-// => Use only to *check* signatures.
-static int ge_r_check(u8 R_check[32], const u8 s[32], const u8 h_ram[32], const u8 pk[32])
+static const uint8_t sha512_iv[64] = {
+	0x6a, 0x09, 0xe6, 0x67, 0xf3, 0xbc, 0xc9, 0x08, 0xbb, 0x67, 0xae,
+	0x85, 0x84, 0xca, 0xa7, 0x3b, 0x3c, 0x6e, 0xf3, 0x72, 0xfe, 0x94,
+	0xf8, 0x2b, 0xa5, 0x4f, 0xf5, 0x3a, 0x5f, 0x1d, 0x36, 0xf1, 0x51,
+	0x0e, 0x52, 0x7f, 0xad, 0xe6, 0x82, 0xd1, 0x9b, 0x05, 0x68, 0x8c,
+	0x2b, 0x3e, 0x6c, 0x1f, 0x1f, 0x83, 0xd9, 0xab, 0xfb, 0x41, 0xbd,
+	0x6b, 0x5b, 0xe0, 0xcd, 0x19, 0x13, 0x7e, 0x21, 0x79
+};
+
+static void sha512(uint8_t h[static 64], const uint8_t first_32[static 32],
+		   const uint8_t middle_32[static 32], const uint8_t *m,
+		   size_t n)
 {
-	ge A; // not secret, not wiped
-	if (ge_frombytes_vartime(&A, pk) ||         // A = pk
-		is_above_L(s)) {                    // prevent s malleability
-		return -1;
+	uint8_t x[256];
+	uint64_t i, b = n + 64;
+
+	memcpy(h, sha512_iv, 64);
+	memcpy(x, first_32, 32);
+	memcpy(x + 32, middle_32, 32);
+	i = n > 64 ? 64 : n;
+	memcpy(x + 64, m, i);
+	if (i < 64 || n == 64) {
+		n = b;
+		memset(x + n, 0, 256 - n);
+		goto final;
 	}
-	fe_neg(A.X, A.X);
-	fe_neg(A.T, A.T);                           // A = -pk
-	ge_double_scalarmult_vartime(&A, h_ram, s); // A = [s]B - [h_ram]pk
-	ge_tobytes(R_check, &A);                    // R_check = A
-	return 0;
+	sha512_block(h, x, 64 + i);
+	n -= i, m += i;
+	if (n) {
+		sha512_block(h, m, n);
+		m += n - (n & 127);
+		n = b & 127;
+		memcpy(x, m, n);
+		memset(x + n, 0, 256 - n);
+	}
+
+final:
+	x[n] = 128;
+	n = 256 - 128 * (n < 112);
+	x[n - 9] = b >> 61;
+	store_be64(x + n - 8, b << 3);
+	sha512_block(h, x, n);
 }
 
-bool ed25519_verify(const u8 signature[64], const u8 public_key[32],
+bool ed25519_verify(const uint8_t signature[64], const uint8_t public_key[32],
 		    const void *message, size_t message_size)
 {
-	sha512_ctx hash;
-	u8 h_ram[64];
-	u8 R_check[32];
-
-	sha512_init(&hash);
-	sha512_update(&hash, signature, 32);
-	sha512_update(&hash, public_key, 32);
-	sha512_update(&hash, message, message_size);
-	sha512_final(&hash, h_ram);
-
-	reduce(h_ram);
-	if (ge_r_check(R_check, signature + 32, h_ram, public_key))
+	ge_p3 A;
+	if ((signature[63] & 224) != 0 ||
+	    !x25519_ge_frombytes_vartime(&A, public_key))
 		return false;
-	return verify32(signature, R_check) == 0 ? true : false;
+
+	fe_loose t;
+	fe_neg(&t, &A.X);
+	fe_carry(&A.X, &t);
+	fe_neg(&t, &A.T);
+	fe_carry(&A.T, &t);
+
+	uint8_t pkcopy[32];
+	memcpy(pkcopy, public_key, 32);
+	uint8_t rcopy[32];
+	memcpy(rcopy, signature, 32);
+	union {
+		uint64_t u64[4];
+		uint8_t u8[32];
+	} scopy;
+	memcpy(&scopy.u8[0], signature + 32, 32);
+
+	// https://tools.ietf.org/html/rfc8032#section-5.1.7 requires that s be in
+	// the range [0, order) in order to prevent signature malleability.
+
+	// kOrder is the order of Curve25519 in little-endian form.
+	static const uint64_t kOrder[4] = {
+		UINT64_C(0x5812631a5cf5d3ed),
+		UINT64_C(0x14def9dea2f79cd6),
+		0,
+		UINT64_C(0x1000000000000000),
+	};
+	for (size_t i = 3;; --i) {
+		if (scopy.u64[i] > kOrder[i]) {
+			return false;
+		} else if (scopy.u64[i] < kOrder[i]) {
+			break;
+		} else if (i == 0) {
+			return false;
+		}
+	}
+
+	uint8_t h[64];
+	sha512(h, signature, public_key, message, message_size);
+
+	x25519_sc_reduce(h);
+
+	ge_p2 R;
+	ge_double_scalarmult_vartime(&R, h, &A, scopy.u8);
+
+	uint8_t rcheck[32];
+	x25519_ge_tobytes(rcheck, &R);
+
+	return memcmp_ct(rcheck, rcopy, sizeof(rcheck)) == 0;
+}
+
+static const uint64_t blake2b_iv[8] = {
+	0x6a09e667f3bcc908ULL, 0xbb67ae8584caa73bULL, 0x3c6ef372fe94f82bULL,
+	0xa54ff53a5f1d36f1ULL, 0x510e527fade682d1ULL, 0x9b05688c2b3e6c1fULL,
+	0x1f83d9abfb41bd6bULL, 0x5be0cd19137e2179ULL
+};
+
+static const uint8_t blake2b_sigma[12][16] = {
+	{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 },
+	{ 14, 10, 4, 8, 9, 15, 13, 6, 1, 12, 0, 2, 11, 7, 5, 3 },
+	{ 11, 8, 12, 0, 5, 2, 15, 13, 10, 14, 3, 6, 7, 1, 9, 4 },
+	{ 7, 9, 3, 1, 13, 12, 11, 14, 2, 6, 5, 10, 4, 0, 15, 8 },
+	{ 9, 0, 5, 7, 2, 4, 10, 15, 14, 1, 11, 12, 6, 8, 3, 13 },
+	{ 2, 12, 6, 10, 0, 11, 8, 3, 4, 13, 7, 5, 15, 14, 1, 9 },
+	{ 12, 5, 1, 15, 14, 13, 4, 10, 0, 7, 6, 3, 9, 2, 8, 11 },
+	{ 13, 11, 7, 14, 12, 1, 3, 9, 5, 0, 15, 4, 8, 6, 2, 10 },
+	{ 6, 15, 14, 9, 11, 3, 0, 8, 12, 2, 13, 7, 1, 4, 10, 5 },
+	{ 10, 2, 8, 4, 7, 6, 1, 5, 15, 11, 9, 14, 3, 12, 13, 0 },
+	{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 },
+	{ 14, 10, 4, 8, 9, 15, 13, 6, 1, 12, 0, 2, 11, 7, 5, 3 }
+};
+
+#define G(r, i, a, b, c, d)                                                    \
+	do {                                                                   \
+		a = a + b + m[blake2b_sigma[r][2 * i + 0]];                    \
+		d = ror64(d ^ a, 32);                                          \
+		c = c + d;                                                     \
+		b = ror64(b ^ c, 24);                                          \
+		a = a + b + m[blake2b_sigma[r][2 * i + 1]];                    \
+		d = ror64(d ^ a, 16);                                          \
+		c = c + d;                                                     \
+		b = ror64(b ^ c, 63);                                          \
+	} while (0)
+
+#define ROUND(r)                                                               \
+	do {                                                                   \
+		G(r, 0, v[0], v[4], v[8], v[12]);                              \
+		G(r, 1, v[1], v[5], v[9], v[13]);                              \
+		G(r, 2, v[2], v[6], v[10], v[14]);                             \
+		G(r, 3, v[3], v[7], v[11], v[15]);                             \
+		G(r, 4, v[0], v[5], v[10], v[15]);                             \
+		G(r, 5, v[1], v[6], v[11], v[12]);                             \
+		G(r, 6, v[2], v[7], v[8], v[13]);                              \
+		G(r, 7, v[3], v[4], v[9], v[14]);                              \
+	} while (0)
+
+static void blake2b256_compress(struct blake2b256_state *state,
+				const uint8_t block[128])
+{
+	uint64_t m[16];
+	uint64_t v[16];
+
+	for (int i = 0; i < 16; ++i)
+		m[i] = load_le64(block + i * sizeof(m[i]));
+
+	for (int i = 0; i < 8; ++i)
+		v[i] = state->h[i];
+
+	memcpy(v + 8, blake2b_iv, sizeof(blake2b_iv));
+	v[12] ^= state->t[0];
+	v[13] ^= state->t[1];
+	v[14] ^= state->f[0];
+	v[15] ^= state->f[1];
+
+	for (int i = 0; i < 12; ++i)
+		ROUND(i);
+	for (int i = 0; i < 8; ++i)
+		state->h[i] = state->h[i] ^ v[i] ^ v[i + 8];
+}
+
+void blake2b256_init(struct blake2b256_state *state)
+{
+	memset(state, 0, sizeof(*state));
+	memcpy(state->h, blake2b_iv, sizeof(state->h));
+	state->h[0] ^= 0x01010000 | 32;
+}
+
+void blake2b256_update(struct blake2b256_state *state, const uint8_t *in,
+		       unsigned int inlen)
+{
+	const size_t left = state->buflen;
+	const size_t fill = 128 - left;
+
+	if (!inlen)
+		return;
+
+	if (inlen > fill) {
+		state->buflen = 0;
+		memcpy(state->buf + left, in, fill);
+		state->t[0] += 128;
+		state->t[1] += (state->t[0] < 128);
+		blake2b256_compress(state, state->buf);
+		in += fill;
+		inlen -= fill;
+		while (inlen > 128) {
+			state->t[0] += 128;
+			state->t[1] += (state->t[0] < 128);
+			blake2b256_compress(state, in);
+			in += 128;
+			inlen -= 128;
+		}
+	}
+	memcpy(state->buf + state->buflen, in, inlen);
+	state->buflen += inlen;
+}
+
+void blake2b256_final(struct blake2b256_state *state, uint8_t *out)
+{
+	state->t[0] += state->buflen;
+	state->t[1] += (state->t[0] < state->buflen);
+	state->f[0] = (uint64_t)-1;
+	memset(state->buf + state->buflen, 0, 128 - state->buflen);
+	blake2b256_compress(state, state->buf);
+
+	for (int i = 0; i < 8; ++i)
+		store_le64(out + i * sizeof(state->h[i]), state->h[i]);
 }
