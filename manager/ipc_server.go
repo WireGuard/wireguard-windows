@@ -374,6 +374,9 @@ func (s *ManagerService) ServeConn(reader io.Reader, writer io.Writer) {
 				return
 			}
 			tunnel, retErr := s.Create(&config)
+			if tunnel == nil {
+				tunnel = &Tunnel{}
+			}
 			err = encoder.Encode(tunnel)
 			if err != nil {
 				return
