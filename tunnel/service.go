@@ -171,7 +171,6 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 		log.Printf("Using Wintun/%d.%d", (wintunVersion>>16)&0xffff, wintunVersion&0xffff)
 	}
 
-	log.Println("Enabling firewall rules")
 	err = enableFirewall(conf, nativeTun)
 	if err != nil {
 		serviceError = services.ErrorFirewall

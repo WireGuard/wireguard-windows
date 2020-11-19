@@ -180,7 +180,6 @@ func configureInterface(family winipcfg.AddressFamily, conf *conf.Config, tun *t
 }
 
 func enableFirewall(conf *conf.Config, tun *tun.NativeTun) error {
-	restrictAll := false
 	if len(conf.Peers) == 1 {
 	nextallowedip:
 		for _, allowedip := range conf.Peers[0].AllowedIPs {
@@ -190,13 +189,10 @@ func enableFirewall(conf *conf.Config, tun *tun.NativeTun) error {
 						continue nextallowedip
 					}
 				}
-				restrictAll = true
-				break
+				log.Println("Enabling firewall rules")
+				return firewall.EnableFirewall(tun.LUID(), conf.Interface.DNS)
 			}
 		}
 	}
-	if restrictAll && len(conf.Interface.DNS) == 0 {
-		log.Println("Warning: no DNS server specified, despite having an allowed IPs of 0.0.0.0/0 or ::/0. There may be connectivity issues.")
-	}
-	return firewall.EnableFirewall(tun.LUID(), conf.Interface.DNS, restrictAll)
+	return nil
 }
