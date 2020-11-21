@@ -88,34 +88,37 @@ func (s *ManagerService) RuntimeConfig(tunnelName string) (*conf.Config, error) 
 }
 
 func (s *ManagerService) Start(tunnelName string) error {
-	// For now, enforce only one tunnel at a time. Later we'll remove this silly restriction.
-	trackedTunnelsLock.Lock()
-	tt := make([]string, 0, len(trackedTunnels))
-	var inTransition string
-	for t, state := range trackedTunnels {
-		tt = append(tt, t)
-		if len(t) > 0 && (state == TunnelStarting || state == TunnelUnknown) {
-			inTransition = t
-			break
-		}
-	}
-	trackedTunnelsLock.Unlock()
-	if len(inTransition) != 0 {
-		return fmt.Errorf("Please allow the tunnel ‘%s’ to finish activating", inTransition)
-	}
-	go func() {
-		for _, t := range tt {
-			s.Stop(t)
-		}
-		for _, t := range tt {
-			state, err := s.State(t)
-			if err == nil && (state == TunnelStarted || state == TunnelStarting) {
-				log.Printf("[%s] Trying again to stop zombie tunnel", t)
-				s.Stop(t)
-				time.Sleep(time.Millisecond * 100)
+	// TODO: Rather than being lazy and gating this behind a knob (yuck!), we should instead keep track of the routes
+	// of each tunnel, and only deactivate in the case of a tunnel with identical routes being added.
+	if !conf.AdminBool("MultipleSimultaneousTunnels") {
+		trackedTunnelsLock.Lock()
+		tt := make([]string, 0, len(trackedTunnels))
+		var inTransition string
+		for t, state := range trackedTunnels {
+			tt = append(tt, t)
+			if len(t) > 0 && (state == TunnelStarting || state == TunnelUnknown) {
+				inTransition = t
+				break
 			}
 		}
-	}()
+		trackedTunnelsLock.Unlock()
+		if len(inTransition) != 0 {
+			return fmt.Errorf("Please allow the tunnel ‘%s’ to finish activating", inTransition)
+		}
+		go func() {
+			for _, t := range tt {
+				s.Stop(t)
+			}
+			for _, t := range tt {
+				state, err := s.State(t)
+				if err == nil && (state == TunnelStarted || state == TunnelStarting) {
+					log.Printf("[%s] Trying again to stop zombie tunnel", t)
+					s.Stop(t)
+					time.Sleep(time.Millisecond * 100)
+				}
+			}
+		}()
+	}
 	time.AfterFunc(time.Second*10, cleanupStaleWintunInterfaces)
 
 	// After that process is started -- it's somewhat asynchronous -- we install the new one.

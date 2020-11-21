@@ -2,7 +2,8 @@
 
 These are advanced configuration knobs that admins can set to do unusual things
 that are not recommended. There is no UI to enable these, and no such thing is
-planned. Use at your own risk, and please make sure you know what you're doing.
+planned. These registry keys may also be removed at some point in the future.
+Use at your own risk, and please make sure you know what you're doing.
 
 #### `HKLM\Software\WireGuard\LimitedOperatorUI`
 
@@ -25,3 +26,13 @@ tunnel configuration. Note that this execution is done as the Local System user,
 which runs with the highest permissions on the operating system, and is therefore
 a real target of malware. Therefore, you should enable this option only with the
 utmost trepidation.
+
+#### `HKLM\Software\WireGuard\MultipleSimultaneousTunnels`
+
+When this key is set to `DWORD(1)`, the UI may start multiple tunnels at the
+same time; otherwise, an existing tunnel is stopped when a new one is started.
+Note that it is always possible, regardless of this key, to start multiple
+tunnels using `wireguard /installtunnelservice`; this controls only the semantics
+of tunnel start requests coming from the UI. If all goes well, this key will be
+removed and the logic of whether to stop existing tunnels will be based on
+overlapping routes, but for now, this key provides a manual override.
