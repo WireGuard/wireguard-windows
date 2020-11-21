@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: MIT
  *
- * Copyright (C) 2020 WireGuard LLC. All Rights Reserved.
+ * Copyright (C) 2019-2020 WireGuard LLC. All Rights Reserved.
  *
  * This is a direct translation of the original C, and for that reason, it's pretty unusual Go code:
  * https://git.zx2c4.com/wireguard-tools/tree/contrib/highlighter/highlighter.c
