@@ -50,6 +50,7 @@ type interfaceView struct {
 	mtu          *labelTextLine
 	addresses    *labelTextLine
 	dns          *labelTextLine
+	scripts      *labelTextLine
 	toggleActive *toggleActiveLine
 	lines        []widgetsLine
 }
@@ -305,6 +306,7 @@ func newInterfaceView(parent walk.Container) (*interfaceView, error) {
 		{l18n.Sprintf("MTU:"), &iv.mtu},
 		{l18n.Sprintf("Addresses:"), &iv.addresses},
 		{l18n.Sprintf("DNS servers:"), &iv.dns},
+		{l18n.Sprintf("Scripts:"), &iv.scripts},
 	}
 	if iv.lines, err = createLabelTextLines(items, parent, &disposables); err != nil {
 		return nil, err
@@ -401,6 +403,29 @@ func (iv *interfaceView) apply(c *conf.Interface) {
 		iv.dns.show(strings.Join(addrStrings[:], l18n.EnumerationSeparator()))
 	} else {
 		iv.dns.hide()
+	}
+
+	var scriptsInUse []string
+	if len(c.PreUp) > 0 {
+		scriptsInUse = append(scriptsInUse, l18n.Sprintf("pre-up"))
+	}
+	if len(c.PostUp) > 0 {
+		scriptsInUse = append(scriptsInUse, l18n.Sprintf("post-up"))
+	}
+	if len(c.PreDown) > 0 {
+		scriptsInUse = append(scriptsInUse, l18n.Sprintf("pre-down"))
+	}
+	if len(c.PostDown) > 0 {
+		scriptsInUse = append(scriptsInUse, l18n.Sprintf("post-down"))
+	}
+	if len(scriptsInUse) > 0 {
+		if conf.AdminBool("DangerousScriptExecution") {
+			iv.scripts.show(strings.Join(scriptsInUse, l18n.EnumerationSeparator()))
+		} else {
+			iv.scripts.show(l18n.Sprintf("disabled, per policy"))
+		}
+	} else {
+		iv.scripts.hide()
 	}
 }
 

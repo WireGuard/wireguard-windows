@@ -41,6 +41,7 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 	var uapi net.Listener
 	var watcher *interfaceWatcher
 	var nativeTun *tun.NativeTun
+	var config *conf.Config
 	var err error
 	serviceError := services.ErrorSuccess
 
@@ -84,6 +85,9 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 			}
 		}()
 
+		if logErr == nil && dev != nil && config != nil {
+			logErr = runScriptCommand(config.Interface.PreDown, config.Name)
+		}
 		if watcher != nil {
 			watcher.Destroy()
 		}
@@ -92,6 +96,9 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 		}
 		if dev != nil {
 			dev.Close()
+		}
+		if logErr == nil && dev != nil && config != nil {
+			_ = runScriptCommand(config.Interface.PostDown, config.Name)
 		}
 		stopIt <- true
 		log.Println("Shutting down")
@@ -113,19 +120,19 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 		}
 	}()
 
-	conf, err := conf.LoadFromPath(service.Path)
+	config, err = conf.LoadFromPath(service.Path)
 	if err != nil {
 		serviceError = services.ErrorLoadConfiguration
 		return
 	}
-	conf.DeduplicateNetworkEntries()
+	config.DeduplicateNetworkEntries()
 	err = CopyConfigOwnerToIPCSecurityDescriptor(service.Path)
 	if err != nil {
 		serviceError = services.ErrorLoadConfiguration
 		return
 	}
 
-	logPrefix := fmt.Sprintf("[%s] ", conf.Name)
+	logPrefix := fmt.Sprintf("[%s] ", config.Name)
 	log.SetPrefix(logPrefix)
 
 	log.Println("Starting", version.UserAgent())
@@ -151,14 +158,14 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 	}
 
 	log.Println("Resolving DNS names")
-	uapiConf, err := conf.ToUAPI()
+	uapiConf, err := config.ToUAPI()
 	if err != nil {
 		serviceError = services.ErrorDNSLookup
 		return
 	}
 
 	log.Println("Creating Wintun interface")
-	wintun, err := tun.CreateTUNWithRequestedGUID(conf.Name, deterministicGUID(conf), 0)
+	wintun, err := tun.CreateTUNWithRequestedGUID(config.Name, deterministicGUID(config), 0)
 	if err != nil {
 		serviceError = services.ErrorCreateWintun
 		return
@@ -171,7 +178,13 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 		log.Printf("Using Wintun/%d.%d", (wintunVersion>>16)&0xffff, wintunVersion&0xffff)
 	}
 
-	err = enableFirewall(conf, nativeTun)
+	err = runScriptCommand(config.Interface.PreUp, config.Name)
+	if err != nil {
+		serviceError = services.ErrorRunScript
+		return
+	}
+
+	err = enableFirewall(config, nativeTun)
 	if err != nil {
 		serviceError = services.ErrorFirewall
 		return
@@ -190,7 +203,7 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 	dev = device.NewDevice(wintun, logger)
 
 	log.Println("Setting interface configuration")
-	uapi, err = ipc.UAPIListen(conf.Name)
+	uapi, err = ipc.UAPIListen(config.Name)
 	if err != nil {
 		serviceError = services.ErrorUAPIListen
 		return
@@ -205,7 +218,7 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 	log.Println("Bringing peers up")
 	dev.Up()
 
-	watcher.Configure(dev, conf, nativeTun)
+	watcher.Configure(dev, config, nativeTun)
 
 	log.Println("Listening for UAPI requests")
 	go func() {
@@ -217,6 +230,12 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 			go dev.IpcHandle(conn)
 		}
 	}()
+
+	err = runScriptCommand(config.Interface.PostUp, config.Name)
+	if err != nil {
+		serviceError = services.ErrorRunScript
+		return
+	}
 
 	changes <- svc.Status{State: svc.Running, Accepts: svc.AcceptStop | svc.AcceptShutdown}
 	log.Println("Startup complete")

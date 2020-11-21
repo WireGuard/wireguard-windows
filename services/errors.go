@@ -30,6 +30,7 @@ const (
 	ErrorTrackTunnels
 	ErrorEnumerateSessions
 	ErrorDropPrivileges
+	ErrorRunScript
 	ErrorWin32
 )
 
@@ -65,6 +66,8 @@ func (e Error) Error() string {
 		return "Unable to enumerate current sessions"
 	case ErrorDropPrivileges:
 		return "Unable to drop privileges"
+	case ErrorRunScript:
+		return "An error occurred while running a configuration script command"
 	case ErrorWin32:
 		return "An internal Windows error has occurred"
 	default:

@@ -282,6 +282,14 @@ func FromWgQuick(s string, name string) (*Config, error) {
 						conf.Interface.DNS = append(conf.Interface.DNS, a)
 					}
 				}
+			case "preup":
+				conf.Interface.PreUp = val
+			case "postup":
+				conf.Interface.PostUp = val
+			case "predown":
+				conf.Interface.PreDown = val
+			case "postdown":
+				conf.Interface.PostDown = val
 			default:
 				return nil, &ParseError{l18n.Sprintf("Invalid key for [Interface] section"), key}
 			}

@@ -405,8 +405,6 @@ func (s stringSpan) field() field {
 		return fieldEndpoint
 	case s.isCaselessSame("PersistentKeepalive"):
 		return fieldPersistentKeepalive
-	}
-	/* TODO: uncomment this once we support these in the client
 	case s.isCaselessSame("PreUp"):
 		return fieldPreUp
 	case s.isCaselessSame("PostUp"):
@@ -415,7 +413,7 @@ func (s stringSpan) field() field {
 		return fieldPreDown
 	case s.isCaselessSame("PostDown"):
 		return fieldPostDown
-	*/
+	}
 	return fieldInvalid
 }
 
