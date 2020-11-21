@@ -16,7 +16,7 @@ func openAdminKey() (registry.Key, error) {
 		return adminKey, nil
 	}
 	var err error
-	adminKey, err = registry.OpenKey(registry.LOCAL_MACHINE, adminRegKey, registry.QUERY_VALUE)
+	adminKey, err = registry.OpenKey(registry.LOCAL_MACHINE, adminRegKey, registry.QUERY_VALUE|registry.WOW64_64KEY)
 	if err != nil {
 		return 0, err
 	}
