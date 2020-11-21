@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -57,17 +56,10 @@ func maybeMigrateConfiguration(c string) {
 		}
 
 		newPath := filepath.Join(c, fileName)
-		newFile, err := os.OpenFile(newPath, os.O_EXCL|os.O_CREATE|os.O_WRONLY, 0600)
+		err = writeEncryptedFile(newPath, oldConfig)
 		if err != nil {
 			continue
 		}
-		_, err = newFile.Write(oldConfig)
-		if err != nil {
-			newFile.Close()
-			os.Remove(newPath)
-			continue
-		}
-		newFile.Close()
 		oldPath16, err := windows.UTF16PtrFromString(oldPath)
 		if err == nil {
 			windows.MoveFileEx(oldPath16, nil, windows.MOVEFILE_DELAY_UNTIL_REBOOT)

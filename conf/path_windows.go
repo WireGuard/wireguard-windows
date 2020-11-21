@@ -102,7 +102,7 @@ func RootDirectory(create bool) (string, error) {
 		return "", err
 	}
 
-	dataDirectorySd, err := windows.SecurityDescriptorFromString("O:SYG:SYD:PAI(A;OICI;FA;;;SY)(A;OICI;FR;;;BA)")
+	dataDirectorySd, err := windows.SecurityDescriptorFromString("O:SYG:SYD:PAI(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)")
 	if err != nil {
 		return "", err
 	}

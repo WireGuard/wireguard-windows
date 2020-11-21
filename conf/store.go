@@ -103,7 +103,7 @@ func MigrateUnencryptedConfigs() (int, []error) {
 			e++
 			continue
 		}
-		err = ioutil.WriteFile(dstFile, bytes, 0600)
+		err = writeEncryptedFile(dstFile, bytes)
 		if err != nil {
 			errs[e] = err
 			e++
@@ -185,16 +185,7 @@ func (config *Config) Save() error {
 	if err != nil {
 		return err
 	}
-	err = ioutil.WriteFile(filename+".tmp", bytes, 0600)
-	if err != nil {
-		return err
-	}
-	err = os.Rename(filename+".tmp", filename)
-	if err != nil {
-		os.Remove(filename + ".tmp")
-		return err
-	}
-	return nil
+	return writeEncryptedFile(filename, bytes)
 }
 
 func (config *Config) Path() (string, error) {
