@@ -54,11 +54,7 @@ func versionNewerThanUs(candidate string) (bool, error) {
 }
 
 func findCandidate(candidates fileList) (*UpdateFound, error) {
-	arch, err := findArch()
-	if err != nil {
-		return nil, err
-	}
-	prefix := fmt.Sprintf(msiArchPrefix, arch)
+	prefix := fmt.Sprintf(msiArchPrefix, version.NativeArch())
 	suffix := msiSuffix
 	for name, hash := range candidates {
 		if strings.HasPrefix(name, prefix) && strings.HasSuffix(name, suffix) {
