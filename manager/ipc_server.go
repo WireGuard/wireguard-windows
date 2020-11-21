@@ -34,6 +34,7 @@ var quitManagersChan = make(chan struct{}, 1)
 
 type ManagerService struct {
 	events        *os.File
+	eventLock     sync.Mutex
 	elevatedToken windows.Token
 }
 
@@ -245,6 +246,9 @@ func (s *ManagerService) Quit(stopTunnelsOnQuit bool) (alreadyQuit bool, err err
 
 	// Work around potential race condition of delivering messages to the wrong process by removing from notifications.
 	managerServicesLock.Lock()
+	s.eventLock.Lock()
+	s.events = nil
+	s.eventLock.Unlock()
 	delete(managerServices, s)
 	managerServicesLock.Unlock()
 
@@ -463,6 +467,9 @@ func IPCServerListen(reader *os.File, writer *os.File, events *os.File, elevated
 		managerServicesLock.Unlock()
 		service.ServeConn(reader, writer)
 		managerServicesLock.Lock()
+		service.eventLock.Lock()
+		service.events = nil
+		service.eventLock.Unlock()
 		delete(managerServices, service)
 		managerServicesLock.Unlock()
 
@@ -492,8 +499,14 @@ func notifyAll(notificationType NotificationType, adminOnly bool, ifaces ...inte
 		if m.elevatedToken == 0 && adminOnly {
 			continue
 		}
-		m.events.SetWriteDeadline(time.Now().Add(time.Second))
-		m.events.Write(buf.Bytes())
+		go func(m *ManagerService) {
+			m.eventLock.Lock()
+			defer m.eventLock.Unlock()
+			if m.events != nil {
+				m.events.SetWriteDeadline(time.Now().Add(time.Second))
+				m.events.Write(buf.Bytes())
+			}
+		}(m)
 	}
 	managerServicesLock.RUnlock()
 }
