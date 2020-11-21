@@ -568,6 +568,7 @@ __declspec(dllexport) UINT __stdcall RemoveConfigFolder(MSIHANDLE installer)
 	if (!path[0] || !PathAppend(path, TEXT("Data")))
 		goto out;
 	remove_directory_recursive(installer, path, 10);
+	RegDeleteKey(HKEY_LOCAL_MACHINE, TEXT("Software\\WireGuard")); // Assumes no WOW.
 out:
 	if (is_com_initialized)
 		CoUninitialize();
