@@ -11,7 +11,6 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"strings"
 	"syscall"
 
 	"golang.org/x/sys/windows"
@@ -27,7 +26,6 @@ func runScriptCommand(command, interfaceName string) error {
 		log.Printf("Skipping execution of script, because dangerous script execution is safely disabled: %#q", command)
 		return nil
 	}
-	command = strings.ReplaceAll(command, "%i", interfaceName)
 	log.Printf("Executing: %#q", command)
 	comspec, _ := os.LookupEnv("COMSPEC")
 	if len(comspec) == 0 {
@@ -49,6 +47,7 @@ func runScriptCommand(command, interfaceName string) error {
 	}
 	process, err := os.StartProcess(comspec, nil /* CmdLine below */, &os.ProcAttr{
 		Files: []*os.File{devNull, writer, writer},
+		Env:   append(os.Environ(), "WIREGUARD_TUNNEL_NAME="+interfaceName),
 		Sys: &syscall.SysProcAttr{
 			HideWindow: true,
 			CmdLine:    fmt.Sprintf("cmd /c %s", command),

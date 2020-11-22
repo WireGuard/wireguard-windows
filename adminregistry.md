@@ -25,7 +25,9 @@ specified in the `PreUp`, `PostUp`, `PreDown`, and `PostDown` options of a
 tunnel configuration. Note that this execution is done as the Local System user,
 which runs with the highest permissions on the operating system, and is therefore
 a real target of malware. Therefore, you should enable this option only with the
-utmost trepidation.
+utmost trepidation. Rather than use `%i`, WireGuard for Windows instead sets the
+environment variable `WIREGUARD_TUNNEL_NAME` to the name of the tunnel when
+executing these scripts.
 
 #### `HKLM\Software\WireGuard\MultipleSimultaneousTunnels`
 
