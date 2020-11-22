@@ -17,7 +17,7 @@ In addition to this [`README.md`](README.md), which contains information about b
 
 Windows 10 64-bit or Windows Server 2019, and Git for Windows is required. The build script will take care of downloading, verifying, and extracting the right versions of the various dependencies:
 
-```
+```text
 C:\Projects> git clone https://git.zx2c4.com/wireguard-windows
 C:\Projects> cd wireguard-windows
 C:\Projects\wireguard-windows> build
@@ -27,7 +27,7 @@ C:\Projects\wireguard-windows> build
 
 After you've built the application, run `amd64\wireguard.exe` or `x86\wireguard.exe` to install the manager service and show the UI.
 
-```
+```text
 C:\Projects\wireguard-windows> amd64\wireguard.exe
 ```
 
@@ -41,13 +41,13 @@ To translate WireGuard UI to your language:
 
 2. Make a new directory in `locales\` containing the language ID:
 
-  ```
+  ```text
   C:\Projects\wireguard-windows> mkdir locales\<langID>
   ```
 
 3. Configure and run `build` to prepare initial `locales\<langID>\messages.gotext.json` file:
 
-   ```
+   ```text
    C:\Projects\wireguard-windows> set GoGenerate=yes
    C:\Projects\wireguard-windows> build
    C:\Projects\wireguard-windows> copy locales\<langID>\out.gotext.json locales\<langID>\messages.gotext.json
@@ -63,7 +63,7 @@ To translate WireGuard UI to your language:
 
 The installer build script will take care of downloading, verifying, and extracting the right versions of the various dependencies:
 
-```
+```text
 C:\Projects\wireguard-windows> cd installer
 C:\Projects\wireguard-windows\installer> build
 ```
@@ -72,7 +72,7 @@ C:\Projects\wireguard-windows\installer> build
 
 Add a file called `sign.bat` in the root of this repository with these contents, or similar:
 
-```
+```text
 set SigningCertificate=DF98E075A012ED8C86FBCF14854B8F9555CB3D45
 set TimestampServer=http://timestamp.digicert.com
 ```
@@ -83,7 +83,7 @@ After, run the above `build` commands as usual, from a shell that has [`signtool
 
 You must first have Mingw and ImageMagick installed.
 
-```
+```text
 $ sudo apt install mingw-w64 imagemagick
 $ git clone https://git.zx2c4.com/wireguard-windows
 $ cd wireguard-windows
@@ -92,7 +92,7 @@ $ make
 
 You can deploy the 64-bit build to an SSH host specified by the `DEPLOYMENT_HOST` environment variable (default "winvm") to the remote directory specified by the `DEPLOYMENT_PATH` environment variable (default "Desktop") by using the `deploy` target:
 
-```
+```text
 $ make deploy
 ```
 
@@ -100,7 +100,7 @@ $ make deploy
 
 The command line utility [`wg(8)`](https://git.zx2c4.com/wireguard-tools/about/src/man/wg.8) works well on Windows. Being a Unix-centric project, it compiles with a Makefile and MingW:
 
-```
+```text
 $ git clone https://git.zx2c4.com/wireguard-tools
 $ PLATFORM=windows make -C wireguard-tools/src
 $ stat wireguard-tools/src/wg.exe
