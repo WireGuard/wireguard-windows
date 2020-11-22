@@ -580,54 +580,6 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}\nOperating system: {OsName}\nArchitecture: {GOARCH}",
-            "message": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}\nOperating system: {OsName}\nArchitecture: {GOARCH}",
-            "translation": "Version de l'application : {Number}\nVersion wireguard-go : {WireGuardGoVersion}\nVersion Go : {Version_go}\nSystème d'exploitation : {OsName}\nArchitecture : {GOARCH}",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "Number",
-                    "string": "%[1]s",
-                    "type": "string",
-                    "underlyingType": "string",
-                    "argNum": 1,
-                    "expr": "version.Number"
-                },
-                {
-                    "id": "WireGuardGoVersion",
-                    "string": "%[2]s",
-                    "type": "string",
-                    "underlyingType": "string",
-                    "argNum": 2,
-                    "expr": "device.WireGuardGoVersion"
-                },
-                {
-                    "id": "Version_go",
-                    "string": "%[3]s",
-                    "type": "string",
-                    "underlyingType": "string",
-                    "argNum": 3,
-                    "expr": "strings.TrimPrefix(runtime.Version(), \"go\")"
-                },
-                {
-                    "id": "OsName",
-                    "string": "%[4]s",
-                    "type": "string",
-                    "underlyingType": "string",
-                    "argNum": 4,
-                    "expr": "version.OsName()"
-                },
-                {
-                    "id": "GOARCH",
-                    "string": "%[5]s",
-                    "type": "string",
-                    "underlyingType": "string",
-                    "argNum": 5,
-                    "expr": "runtime.GOARCH"
-                }
-            ]
-        },
-        {
             "id": "Close",
             "message": "Close",
             "translation": "Fermer",
@@ -827,12 +779,6 @@
             "id": "&Block untunneled traffic (kill-switch)",
             "message": "&Block untunneled traffic (kill-switch)",
             "translation": "&Bloquer tous le trafic hors tunnel (interrupteur)",
-            "translatorComment": "Copied from source."
-        },
-        {
-            "id": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface, with special exceptions for DHCP and NDP.",
-            "message": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface, with special exceptions for DHCP and NDP.",
-            "translation": "Si la configuration a exactement un homologue et si cet homologue a une addresse IP approvée contenant au moins un de 0.0.0.0/0 ou ::/0, le service de tunnelisation utilise l'ensemble de règles du pare-feu afin de blocquer tout le traffic, sauf le traffic vers ou dépuis l'interface de tunnel et l'exceptions speciales liées à DHCP et NDP.",
             "translatorComment": "Copied from source."
         },
         {
@@ -1118,60 +1064,6 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "WireGuard Tunnel Error",
-            "message": "WireGuard Tunnel Error",
-            "translation": "Erreur du tunnel WireGuard",
-            "translatorComment": "Copied from source."
-        },
-        {
-            "id": "WireGuard: {TextForStateglobalState_true}",
-            "message": "WireGuard: {TextForStateglobalState_true}",
-            "translation": "WireGuard : {TextForStateglobalState_true}",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "TextForStateglobalState_true",
-                    "string": "%[1]s",
-                    "type": "string",
-                    "underlyingType": "string",
-                    "argNum": 1,
-                    "expr": "textForState(globalState, true)"
-                }
-            ]
-        },
-        {
-            "id": "Status: {StateText}",
-            "message": "Status: {StateText}",
-            "translation": "État : {StateText}",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "StateText",
-                    "string": "%[1]s",
-                    "type": "string",
-                    "underlyingType": "string",
-                    "argNum": 1,
-                    "expr": "stateText"
-                }
-            ]
-        },
-        {
-            "id": "Addresses: {String}",
-            "message": "Addresses: {String}",
-            "translation": "Adresses : {String}",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "String",
-                    "string": "%[1]s",
-                    "type": "string",
-                    "underlyingType": "string",
-                    "argNum": 1,
-                    "expr": "sb.String()"
-                }
-            ]
-        },
-        {
             "id": "WireGuard Activated",
             "message": "WireGuard Activated",
             "translation": "WireGuard activé",
@@ -1212,6 +1104,44 @@
                     "underlyingType": "string",
                     "argNum": 1,
                     "expr": "tunnel.Name"
+                }
+            ]
+        },
+        {
+            "id": "WireGuard Tunnel Error",
+            "message": "WireGuard Tunnel Error",
+            "translation": "Erreur du tunnel WireGuard",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "WireGuard: {TextForStateglobalState_true}",
+            "message": "WireGuard: {TextForStateglobalState_true}",
+            "translation": "WireGuard : {TextForStateglobalState_true}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "TextForStateglobalState_true",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "textForState(globalState, true)"
+                }
+            ]
+        },
+        {
+            "id": "Status: {StateText}",
+            "message": "Status: {StateText}",
+            "translation": "État : {StateText}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "StateText",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "stateText"
                 }
             ]
         },

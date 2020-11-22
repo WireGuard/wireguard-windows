@@ -60,6 +60,12 @@
             ]
         },
         {
+            "id": "You must use the native version of WireGuard on this computer.",
+            "message": "You must use the native version of WireGuard on this computer.",
+            "translation": "Trebuie să utilizezi versiunea nativă a WireGuard pe acest calculator.",
+            "translatorComment": "Copied from source."
+        },
+        {
             "id": "Unable to open current process token: {Err}",
             "message": "Unable to open current process token: {Err}",
             "translation": "Nu poate fi deschis tokenul actual de proces: {Err}",
@@ -595,54 +601,6 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}\nOperating system: {OsName}\nArchitecture: {GOARCH}",
-            "message": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}\nOperating system: {OsName}\nArchitecture: {GOARCH}",
-            "translation": "Versiunea aplicației: {Number}\nVersiunea bibliotecii Go: {WireGuardGoVersion}\nVersiunea Go: {Version_go}\nSistem de operare: {OsName}\nArhitectură: {GOARCH}",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "Number",
-                    "string": "%[1]s",
-                    "type": "string",
-                    "underlyingType": "string",
-                    "argNum": 1,
-                    "expr": "version.Number"
-                },
-                {
-                    "id": "WireGuardGoVersion",
-                    "string": "%[2]s",
-                    "type": "string",
-                    "underlyingType": "string",
-                    "argNum": 2,
-                    "expr": "device.WireGuardGoVersion"
-                },
-                {
-                    "id": "Version_go",
-                    "string": "%[3]s",
-                    "type": "string",
-                    "underlyingType": "string",
-                    "argNum": 3,
-                    "expr": "strings.TrimPrefix(runtime.Version(), \"go\")"
-                },
-                {
-                    "id": "OsName",
-                    "string": "%[4]s",
-                    "type": "string",
-                    "underlyingType": "string",
-                    "argNum": 4,
-                    "expr": "version.OsName()"
-                },
-                {
-                    "id": "GOARCH",
-                    "string": "%[5]s",
-                    "type": "string",
-                    "underlyingType": "string",
-                    "argNum": 5,
-                    "expr": "runtime.GOARCH"
-                }
-            ]
-        },
-        {
             "id": "Close",
             "message": "Close",
             "translation": "Închidere",
@@ -842,12 +800,6 @@
             "id": "&Block untunneled traffic (kill-switch)",
             "message": "&Block untunneled traffic (kill-switch)",
             "translation": "&Blochează traficul care nu trece prin tunel (întrerupător de activitate)",
-            "translatorComment": "Copied from source."
-        },
-        {
-            "id": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface, with special exceptions for DHCP and NDP.",
-            "message": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface, with special exceptions for DHCP and NDP.",
-            "translation": "Când o configurație conține exact o pereche, iar acea pereche are IP-uri permise care conțin cel puțin o variantă dintre 0.0.0.0/0 sau ::/0, atunci serviciul tunelului activează un set de reguli al paravanului de protecție pentru a bloca întregul trafic care nu provine de la interfața tunelului, precum și întregul trafic direcționat spre aceasta, existând excepții speciale pentru DHCP și NDP.",
             "translatorComment": "Copied from source."
         },
         {
@@ -1133,58 +1085,10 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "WireGuard Tunnel Error",
-            "message": "WireGuard Tunnel Error",
-            "translation": "Eroare de tunel WireGuard",
+            "id": "&Tunnels",
+            "message": "&Tunnels",
+            "translation": "&Tuneluri",
             "translatorComment": "Copied from source."
-        },
-        {
-            "id": "WireGuard: {TextForStateglobalState_true}",
-            "message": "WireGuard: {TextForStateglobalState_true}",
-            "translation": "WireGuard: {TextForStateglobalState_true}",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "TextForStateglobalState_true",
-                    "string": "%[1]s",
-                    "type": "string",
-                    "underlyingType": "string",
-                    "argNum": 1,
-                    "expr": "textForState(globalState, true)"
-                }
-            ]
-        },
-        {
-            "id": "Status: {StateText}",
-            "message": "Status: {StateText}",
-            "translation": "Stare: {StateText}",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "StateText",
-                    "string": "%[1]s",
-                    "type": "string",
-                    "underlyingType": "string",
-                    "argNum": 1,
-                    "expr": "stateText"
-                }
-            ]
-        },
-        {
-            "id": "Addresses: {String}",
-            "message": "Addresses: {String}",
-            "translation": "Adrese: {String}",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "String",
-                    "string": "%[1]s",
-                    "type": "string",
-                    "underlyingType": "string",
-                    "argNum": 1,
-                    "expr": "sb.String()"
-                }
-            ]
         },
         {
             "id": "WireGuard Activated",
@@ -1231,6 +1135,44 @@
             ]
         },
         {
+            "id": "WireGuard Tunnel Error",
+            "message": "WireGuard Tunnel Error",
+            "translation": "Eroare de tunel WireGuard",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "WireGuard: {TextForStateglobalState_true}",
+            "message": "WireGuard: {TextForStateglobalState_true}",
+            "translation": "WireGuard: {TextForStateglobalState_true}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "TextForStateglobalState_true",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "textForState(globalState, true)"
+                }
+            ]
+        },
+        {
+            "id": "Status: {StateText}",
+            "message": "Status: {StateText}",
+            "translation": "Stare: {StateText}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "StateText",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "stateText"
+                }
+            ]
+        },
+        {
             "id": "An Update is Available!",
             "message": "An Update is Available!",
             "translation": "Este disponibilă o actualizare!",
@@ -1252,12 +1194,6 @@
             "id": "Tunnels",
             "message": "Tunnels",
             "translation": "Tuneluri",
-            "translatorComment": "Copied from source."
-        },
-        {
-            "id": "&Edit",
-            "message": "&Edit",
-            "translation": "&Editare",
             "translatorComment": "Copied from source."
         },
         {
@@ -1306,6 +1242,12 @@
             "id": "&Remove selected tunnel(s)",
             "message": "&Remove selected tunnel(s)",
             "translation": "&Eliminare tunel(uri) selectat(e)",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "no configuration files were found",
+            "message": "no configuration files were found",
+            "translation": "nu au fost găsite fișiere de configurare",
             "translatorComment": "Copied from source."
         },
         {
