@@ -11,6 +11,7 @@ In addition to this [`README.md`](README.md), which contains information about b
 - [`adminregistry.md`](adminregistry.md) &ndash; A list of registry keys settable by the system administrator for changing the behavior of the application.
 - [`attacksurface.md`](attacksurface.md) &ndash; A discussion of the various components from a security perspective, so that future auditors of this code have a head start in assessing its security design.
 - [`enterprise.md`](enterprise.md) &ndash; A summary of various features and tips for making the application usable in enterprise settings.
+- [`netquirk.md`](netquirk.md) &ndash; A description of various networking quirks and "kill-switch" semantics.
 
 ### Building
 
