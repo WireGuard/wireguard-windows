@@ -124,13 +124,30 @@ out:
 
 extern NTAPI __declspec(dllimport) void RtlGetNtVersionNumbers(DWORD *MajorVersion, DWORD *MinorVersion, DWORD *BuildNumber);
 
+static int message_box(MSIHANDLE installer, TCHAR *text, UINT type)
+{
+	TCHAR progressOnly[2];
+	DWORD len;
+	MSIHANDLE record;
+	int ret;
+
+	len = _countof(progressOnly);
+	if (MsiGetProperty(installer, TEXT("MsiUIProgressOnly"), progressOnly, &len) == ERROR_SUCCESS && _tcstoul(progressOnly, NULL, 10) == 1)
+		return MessageBox(GetForegroundWindow(), text, TEXT("WireGuard"), type);
+	record = MsiCreateRecord(2);
+	MsiRecordSetString(record, 0, TEXT("[1]"));
+	MsiRecordSetString(record, 1, text);
+	ret = MsiProcessMessage(installer, INSTALLMESSAGE_USER | type, record);
+	MsiCloseHandle(record);
+	return ret;
+}
+
 __declspec(dllexport) UINT __stdcall CheckKB2921916(MSIHANDLE installer)
 {
 	bool is_com_initialized = SUCCEEDED(CoInitialize(NULL));
 	UINT ret = ERROR_SUCCESS;
 	DWORD maj, min, build, len;
 	TCHAR uiLevel[10];
-	MSIHANDLE record;
 	TCHAR setupapi_path[MAX_PATH];
 	HANDLE setupapi_handle = INVALID_HANDLE_VALUE;
 	HANDLE setupapi_filemapping = NULL;
@@ -172,18 +189,13 @@ __declspec(dllexport) UINT __stdcall CheckKB2921916(MSIHANDLE installer)
 		log_messagef(installer, LOG_LEVEL_MSIERR, TEXT("Use of WireGuard on Windows 7 requires KB2921916."));
 		goto out;
 	}
-
 #ifdef _WIN64
 	static const TCHAR url[] = TEXT("https://download.wireguard.com/windows-toolchain/distfiles/Windows6.1-KB2921916-x64.msu");
 #else
 	static const TCHAR url[] = TEXT("https://download.wireguard.com/windows-toolchain/distfiles/Windows6.1-KB2921916-x86.msu");
 #endif
-	record = MsiCreateRecord(2);
-	MsiRecordSetString(record, 0, TEXT("[1]"));
-	MsiRecordSetString(record, 1, TEXT("Missing Windows Hotfix\n\nUse of WireGuard on Windows 7 requires KB2921916. Would you like to download the hotfix in your web browser?"));
-	if (MsiProcessMessage(installer, INSTALLMESSAGE_USER | MB_ICONWARNING | MB_YESNO, record) == IDYES)
+	if (message_box(installer, TEXT("Missing Windows Hotfix\n\nUse of WireGuard on Windows 7 requires KB2921916. Would you like to download the hotfix in your web browser?"), MB_ICONWARNING | MB_YESNO) == IDYES)
 		ShellExecute(GetForegroundWindow(), NULL, url, NULL, NULL, SW_SHOWNORMAL);
-	MsiCloseHandle(record);
 	ret = ERROR_INSTALL_USEREXIT;
 
 out:
