@@ -1,7 +1,7 @@
 From e8142ab5e3b3a513683a8e3792e6197644547981 Mon Sep 17 00:00:00 2001
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 Date: Sun, 8 Nov 2020 03:20:36 +0100
-Subject: [PATCH 3/8] cmd/link: ignore SEH marking on PE objects
+Subject: [PATCH 03/10] cmd/link: ignore SEH marking on PE objects
 
 Microsoft's linker looks at whether all input objects have an empty
 section called @feat.00. If all of them do, then it enables SEH;
@@ -43,5 +43,5 @@ index 5839a6a5f2..b60b84ce9f 100644
  		if pesym.SectionNumber > 0 {
  			sect = f.Sections[pesym.SectionNumber-1]
 -- 
-2.29.1
+2.29.2
 

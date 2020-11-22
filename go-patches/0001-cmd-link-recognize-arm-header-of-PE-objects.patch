@@ -1,7 +1,7 @@
 From fde4a13eb5eba28ac546b10752b38a80f389cc5a Mon Sep 17 00:00:00 2001
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 Date: Sun, 8 Nov 2020 02:48:09 +0100
-Subject: [PATCH 1/8] cmd/link: recognize arm header of PE objects
+Subject: [PATCH 01/10] cmd/link: recognize arm header of PE objects
 
 The linker recognizes headers for 386 and amd64 PE objects, but not arm
 objects. This is easily overlooked, since its the same as the 386 header
@@ -28,5 +28,5 @@ index 0366bc7a6f..f98668a7dc 100644
  			textp, rsrc, err := loadpe.Load(ctxt.loader, ctxt.Arch, ctxt.Syms.IncVersion(), f, pkg, length, pn)
  			if err != nil {
 -- 
-2.29.1
+2.29.2
 

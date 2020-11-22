@@ -1,8 +1,8 @@
 From 5a7c808cbacb8c0477395c5656c1eba3ef38cd6e Mon Sep 17 00:00:00 2001
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 Date: Tue, 10 Nov 2020 21:42:36 +0100
-Subject: [PATCH 8/8] runtime: allow callback functions with up to 8 arguments
- on windows/arm
+Subject: [PATCH 08/10] runtime: allow callback functions with up to 8
+ arguments on windows/arm
 
 Previously, windows/arm programs would abort when trying to use
 functions that took callbacks with more than 4 arguments. This caused
@@ -56,5 +56,5 @@ index 256b5ff7f0..049c69ec88 100644
  
  // uint32 tstart_stdcall(M *newm);
 -- 
-2.29.1
+2.29.2
 
