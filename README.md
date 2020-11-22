@@ -4,6 +4,14 @@
 
 This is a fully-featured WireGuard client for Windows that uses [Wintun](https://www.wintun.net/).
 
+### Documentation
+
+In addition to this [`README.md`](README.md), which contains information about building and developing WireGuard for Windows, the following documents are also available:
+
+- [`adminregistry.md`](adminregistry.md) &ndash; A list of registry keys settable by the system administrator for changing the behavior of the application.
+- [`attacksurface.md`](attacksurface.md) &ndash; A discussion of the various components from a security perspective, so that future auditors of this code have a head start in assessing its security design.
+- [`enterprise.md`](enterprise.md) &ndash; A summary of various features and tips for making the application usable in enterprise settings.
+
 ### Building
 
 Windows 10 64-bit or Windows Server 2019, and Git for Windows is required. The build script will take care of downloading, verifying, and extracting the right versions of the various dependencies:
