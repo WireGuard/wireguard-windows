@@ -475,7 +475,6 @@ func IPCServerListen(reader *os.File, writer *os.File, events *os.File, elevated
 		service.eventLock.Unlock()
 		delete(managerServices, service)
 		managerServicesLock.Unlock()
-
 	}()
 }
 
