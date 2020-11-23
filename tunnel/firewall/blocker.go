@@ -101,7 +101,7 @@ func registerBaseObjects(session uintptr) (*baseObjects, error) {
 	return bo, nil
 }
 
-func EnableFirewall(luid uint64, restrictToDNSServers []net.IP) error {
+func EnableFirewall(luid uint64, doNotRestrict bool, restrictToDNSServers []net.IP) error {
 	if wfpSession != 0 {
 		return errors.New("The firewall has already been enabled")
 	}
@@ -122,49 +122,51 @@ func EnableFirewall(luid uint64, restrictToDNSServers []net.IP) error {
 			return wrapErr(err)
 		}
 
-		if len(restrictToDNSServers) > 0 {
-			err = blockDNS(restrictToDNSServers, session, baseObjects, 15, 14)
+		if !doNotRestrict {
+			if len(restrictToDNSServers) > 0 {
+				err = blockDNS(restrictToDNSServers, session, baseObjects, 15, 14)
+				if err != nil {
+					return wrapErr(err)
+				}
+			}
+
+			err = permitLoopback(session, baseObjects, 13)
 			if err != nil {
 				return wrapErr(err)
 			}
-		}
 
-		err = permitLoopback(session, baseObjects, 13)
-		if err != nil {
-			return wrapErr(err)
-		}
+			err = permitTunInterface(session, baseObjects, 12, luid)
+			if err != nil {
+				return wrapErr(err)
+			}
 
-		err = permitTunInterface(session, baseObjects, 12, luid)
-		if err != nil {
-			return wrapErr(err)
-		}
+			err = permitDHCPIPv4(session, baseObjects, 12)
+			if err != nil {
+				return wrapErr(err)
+			}
 
-		err = permitDHCPIPv4(session, baseObjects, 12)
-		if err != nil {
-			return wrapErr(err)
-		}
+			err = permitDHCPIPv6(session, baseObjects, 12)
+			if err != nil {
+				return wrapErr(err)
+			}
 
-		err = permitDHCPIPv6(session, baseObjects, 12)
-		if err != nil {
-			return wrapErr(err)
-		}
+			err = permitNdp(session, baseObjects, 12)
+			if err != nil {
+				return wrapErr(err)
+			}
 
-		err = permitNdp(session, baseObjects, 12)
-		if err != nil {
-			return wrapErr(err)
-		}
+			/* TODO: actually evaluate if this does anything and if we need this. It's layer 2; our other rules are layer 3.
+			 *  In other words, if somebody complains, try enabling it. For now, keep it off.
+			err = permitHyperV(session, baseObjects, 12)
+			if err != nil {
+				return wrapErr(err)
+			}
+			*/
 
-		/* TODO: actually evaluate if this does anything and if we need this. It's layer 2; our other rules are layer 3.
-		 *  In other words, if somebody complains, try enabling it. For now, keep it off.
-		err = permitHyperV(session, baseObjects, 12)
-		if err != nil {
-			return wrapErr(err)
-		}
-		*/
-
-		err = blockAll(session, baseObjects, 0)
-		if err != nil {
-			return wrapErr(err)
+			err = blockAll(session, baseObjects, 0)
+			if err != nil {
+				return wrapErr(err)
+			}
 		}
 
 		return nil

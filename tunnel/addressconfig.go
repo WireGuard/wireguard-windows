@@ -180,6 +180,7 @@ func configureInterface(family winipcfg.AddressFamily, conf *conf.Config, tun *t
 }
 
 func enableFirewall(conf *conf.Config, tun *tun.NativeTun) error {
+	doNotRestrict := true
 	if len(conf.Peers) == 1 {
 	nextallowedip:
 		for _, allowedip := range conf.Peers[0].AllowedIPs {
@@ -189,10 +190,11 @@ func enableFirewall(conf *conf.Config, tun *tun.NativeTun) error {
 						continue nextallowedip
 					}
 				}
-				log.Println("Enabling firewall rules")
-				return firewall.EnableFirewall(tun.LUID(), conf.Interface.DNS)
+				doNotRestrict = false
+				break
 			}
 		}
 	}
-	return nil
+	log.Println("Enabling firewall rules")
+	return firewall.EnableFirewall(tun.LUID(), doNotRestrict, conf.Interface.DNS)
 }
