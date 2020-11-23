@@ -33,6 +33,11 @@ func inheritableEvents() (ourEvents *os.File, theirEvents *os.File, theirEventSt
 		return
 	}
 	theirEventStr, err = makeInheritableAndGetStr(theirEvents)
+	if err != nil {
+		theirEvents.Close()
+		ourEvents.Close()
+		return
+	}
 	return
 }
 
@@ -43,13 +48,24 @@ func inheritableSocketpairEmulation() (ourReader *os.File, theirReader *os.File,
 	}
 	theirWriterStr, err = makeInheritableAndGetStr(theirWriter)
 	if err != nil {
+		ourReader.Close()
+		theirWriter.Close()
 		return
 	}
 
 	theirReader, ourWriter, err = os.Pipe()
 	if err != nil {
+		ourReader.Close()
+		theirWriter.Close()
 		return
 	}
 	theirReaderStr, err = makeInheritableAndGetStr(theirReader)
+	if err != nil {
+		ourReader.Close()
+		theirWriter.Close()
+		theirReader.Close()
+		ourWriter.Close()
+		return
+	}
 	return
 }
