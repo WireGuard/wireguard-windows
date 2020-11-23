@@ -1,111 +1,46 @@
 # [WireGuard](https://www.wireguard.com/) for Windows
 
-***If you've come here looking to simply run WireGuard for Windows, [you may download it here](https://www.wireguard.com/install/).***
+This is a fully-featured WireGuard client for Windows that uses [Wintun](https://www.wintun.net/). It is the only official and recommended way of using WireGuard on Windows.
 
-This is a fully-featured WireGuard client for Windows that uses [Wintun](https://www.wintun.net/).
+## Download &amp; Install
 
-### Documentation
+If you've come here looking to simply run WireGuard for Windows, [the main download page has links](https://www.wireguard.com/install/). There you will find two things:
 
-In addition to this [`README.md`](README.md), which contains information about building and developing WireGuard for Windows, the following documents are also available:
+- [The WireGuard Installer](https://download.wireguard.com/windows-client/wireguard-installer.exe) &ndash; This selects the most recent version for your architecture, downloads it, checks signatures and hashes, and installs it.
+- [Standalone MSIs](https://download.wireguard.com/windows-client/) &ndash; These are for system admins who wish to deploy the MSIs directly. For most end users, the ordinary installer takes care of downloading these automatically.
 
-- [`adminregistry.md`](adminregistry.md) &ndash; A list of registry keys settable by the system administrator for changing the behavior of the application.
-- [`attacksurface.md`](attacksurface.md) &ndash; A discussion of the various components from a security perspective, so that future auditors of this code have a head start in assessing its security design.
-- [`enterprise.md`](enterprise.md) &ndash; A summary of various features and tips for making the application usable in enterprise settings.
-- [`netquirk.md`](netquirk.md) &ndash; A description of various networking quirks and "kill-switch" semantics.
+## Documentation
 
-### Building
+In addition to this [`README.md`](README.md), the following documents are also available:
 
-Windows 10 64-bit or Windows Server 2019, and Git for Windows is required. The build script will take care of downloading, verifying, and extracting the right versions of the various dependencies:
+- [`adminregistry.md`](docs/adminregistry.md) &ndash; A list of registry keys settable by the system administrator for changing the behavior of the application.
+- [`attacksurface.md`](docs/attacksurface.md) &ndash; A discussion of the various components from a security perspective, so that future auditors of this code have a head start in assessing its security design.
+- [`buildrun.md`](docs/buildrun.md) &ndash; Instructions on building, localizing, running, and developing for this repository.
+- [`enterprise.md`](docs/enterprise.md) &ndash; A summary of various features and tips for making the application usable in enterprise settings.
+- [`netquirk.md`](docs/netquirk.md) &ndash; A description of various networking quirks and "kill-switch" semantics.
 
-```text
-C:\Projects> git clone https://git.zx2c4.com/wireguard-windows
-C:\Projects> cd wireguard-windows
-C:\Projects\wireguard-windows> build
-```
+## License
 
-### Running
-
-After you've built the application, run `amd64\wireguard.exe` or `x86\wireguard.exe` to install the manager service and show the UI.
+This repository is MIT-licensed.
 
 ```text
-C:\Projects\wireguard-windows> amd64\wireguard.exe
+Copyright (C) 2018-2020 WireGuard LLC. All Rights Reserved.
+
+Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the "Software"),
+to deal in the Software without restriction, including without limitation
+the rights to use, copy, modify, merge, publish, distribute, sublicense,
+and/or sell copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+DEALINGS IN THE SOFTWARE.
 ```
-
-Since WireGuard requires the Wintun driver to be installed, and this generally requires a valid Microsoft signature, you may benefit from first installing a release of WireGuard for Windows from the official [wireguard.com](https://www.wireguard.com/install/) builds, which bundles a Microsoft-signed Wintun, and then subsequently run your own wireguard.exe. Alternatively, you can craft your own installer using the `quickinstall.bat` script.
-
-### Optional: Localizing
-
-To translate WireGuard UI to your language:
-
-1. Upgrade `resources.rc` accordingly. Follow the pattern.
-
-2. Make a new directory in `locales\` containing the language ID:
-
-  ```text
-  C:\Projects\wireguard-windows> mkdir locales\<langID>
-  ```
-
-3. Configure and run `build` to prepare initial `locales\<langID>\messages.gotext.json` file:
-
-   ```text
-   C:\Projects\wireguard-windows> set GoGenerate=yes
-   C:\Projects\wireguard-windows> build
-   C:\Projects\wireguard-windows> copy locales\<langID>\out.gotext.json locales\<langID>\messages.gotext.json
-   ```
-
-4. Translate `locales\<langID>\messages.gotext.json`. See other language message files how to translate messages and how to tackle plural. For this step, the project is currently using [CrowdIn](https://crowdin.com/translate/WireGuard); please make sure your translations make it there in order to be added here.
-
-5. Run `build` from the step 3 again, and test.
-
-6. Repeat from step 4.
-
-### Optional: Creating the Installer
-
-The installer build script will take care of downloading, verifying, and extracting the right versions of the various dependencies:
-
-```text
-C:\Projects\wireguard-windows> cd installer
-C:\Projects\wireguard-windows\installer> build
-```
-
-### Optional: Signing Binaries
-
-Add a file called `sign.bat` in the root of this repository with these contents, or similar:
-
-```text
-set SigningCertificate=DF98E075A012ED8C86FBCF14854B8F9555CB3D45
-set TimestampServer=http://timestamp.digicert.com
-```
-
-After, run the above `build` commands as usual, from a shell that has [`signtool.exe`](https://docs.microsoft.com/en-us/windows/desktop/SecCrypto/signtool) in its `PATH`, such as the Visual Studio 2017 command prompt.
-
-### Alternative: Building from Linux
-
-You must first have Mingw and ImageMagick installed.
-
-```text
-$ sudo apt install mingw-w64 imagemagick
-$ git clone https://git.zx2c4.com/wireguard-windows
-$ cd wireguard-windows
-$ make
-```
-
-You can deploy the 64-bit build to an SSH host specified by the `DEPLOYMENT_HOST` environment variable (default "winvm") to the remote directory specified by the `DEPLOYMENT_PATH` environment variable (default "Desktop") by using the `deploy` target:
-
-```text
-$ make deploy
-```
-
-### [`wg(8)`](https://git.zx2c4.com/wireguard-tools/about/src/man/wg.8) Support for Windows
-
-The command line utility [`wg(8)`](https://git.zx2c4.com/wireguard-tools/about/src/man/wg.8) works well on Windows. Being a Unix-centric project, it compiles with a Makefile and MingW:
-
-```text
-$ git clone https://git.zx2c4.com/wireguard-tools
-$ PLATFORM=windows make -C wireguard-tools/src
-$ stat wireguard-tools/src/wg.exe
-```
-
-It interacts with WireGuard instances run by the main WireGuard for Windows program.
-
-When building on Windows, the aforementioned `build.bat` script takes care of building this.

@@ -1,10 +1,10 @@
-### WireGuard for Windows Attack Surface
+# Attack Surface
 
 _This is an evolving document, describing currently known attack surface, a few mitigations, and several open questions. This is a work in progress. We document our current understanding with the intent of improving both our understanding and our security posture over time._
 
 WireGuard for Windows consists of four components: a kernel driver, and three separate interacting userspace parts.
 
-#### Wintun
+### Wintun
 
 Wintun is a kernel driver. It exposes:
 
