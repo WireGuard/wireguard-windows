@@ -118,11 +118,11 @@ func execElevatedManagerServiceInstaller() error {
 		return err
 	}
 	err = elevate.ShellExecute(path, "/installmanagerservice", "", windows.SW_SHOW)
-	if err != nil {
+	if err != nil && err != windows.ERROR_CANCELLED {
 		return err
 	}
 	os.Exit(0)
-	return windows.ERROR_ACCESS_DENIED // Not reached
+	return windows.ERROR_UNHANDLED_EXCEPTION // Not reached
 }
 
 func pipeFromHandleArgument(handleStr string) (*os.File, error) {
