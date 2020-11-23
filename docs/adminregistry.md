@@ -1,4 +1,4 @@
-## Registry Keys for Admins
+# Registry Keys for Admins
 
 These are advanced configuration knobs that admins can set to do unusual things
 that are not recommended. There is no UI to enable these, and no such thing is
