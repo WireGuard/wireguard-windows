@@ -11,6 +11,10 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
+	"time"
+
+	"golang.org/x/sys/windows"
 
 	"golang.zx2c4.com/wireguard/windows/conf/dpapi"
 )
@@ -47,7 +51,12 @@ func ListConfigNames() ([]string, error) {
 	return configs[:i], nil
 }
 
-func MigrateUnencryptedConfigs() (int, []error) {
+var migrating sync.Mutex
+var lastMigrationTimer *time.Timer
+
+func MigrateUnencryptedConfigs(sharingBase int) (int, []error) {
+	migrating.Lock()
+	defer migrating.Unlock()
 	configFileDir, err := tunnelConfigurationsDirectory()
 	if err != nil {
 		return 0, []error{err}
@@ -73,6 +82,13 @@ func MigrateUnencryptedConfigs() (int, []error) {
 		// of Windows file locking for ensuring the file is finished being written.
 		f, err := os.OpenFile(path, os.O_RDWR, 0)
 		if err != nil {
+			if sharingBase > 0 && errors.Is(err, windows.ERROR_SHARING_VIOLATION) {
+				if lastMigrationTimer != nil {
+					lastMigrationTimer.Stop()
+				}
+				lastMigrationTimer = time.AfterFunc(time.Second/time.Duration(sharingBase*sharingBase), func() { MigrateUnencryptedConfigs(sharingBase - 1) })
+				sharingBase = 0
+			}
 			errs[e] = err
 			e++
 			continue
@@ -98,12 +114,7 @@ func MigrateUnencryptedConfigs() (int, []error) {
 			continue
 		}
 		dstFile := strings.TrimSuffix(path, configFileUnencryptedSuffix) + configFileSuffix
-		if _, err = os.Stat(dstFile); err != nil && !os.IsNotExist(err) {
-			errs[e] = errors.New("Unable to migrate to " + dstFile + " as it already exists")
-			e++
-			continue
-		}
-		err = writeEncryptedFile(dstFile, bytes)
+		err = writeEncryptedFile(dstFile, false, bytes)
 		if err != nil {
 			errs[e] = err
 			e++
@@ -185,7 +196,7 @@ func (config *Config) Save() error {
 	if err != nil {
 		return err
 	}
-	return writeEncryptedFile(filename, bytes)
+	return writeEncryptedFile(filename, true, bytes)
 }
 
 func (config *Config) Path() (string, error) {

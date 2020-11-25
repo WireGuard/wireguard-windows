@@ -56,7 +56,7 @@ func maybeMigrateConfiguration(c string) {
 		}
 
 		newPath := filepath.Join(c, fileName)
-		err = writeEncryptedFile(newPath, oldConfig)
+		err = writeEncryptedFile(newPath, false, oldConfig)
 		if err != nil {
 			continue
 		}

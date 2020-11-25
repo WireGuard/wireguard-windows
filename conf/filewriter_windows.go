@@ -6,6 +6,8 @@
 package conf
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"sync/atomic"
 	"unsafe"
 
@@ -14,7 +16,16 @@ import (
 
 var encryptedFileSd unsafe.Pointer
 
-func writeEncryptedFile(destination string, contents []byte) error {
+func randomFileName() string {
+	var randBytes [32]byte
+	_, err := rand.Read(randBytes[:])
+	if err != nil {
+		panic(err)
+	}
+	return hex.EncodeToString(randBytes[:]) + ".tmp"
+}
+
+func writeEncryptedFile(destination string, overwrite bool, contents []byte) error {
 	var err error
 	sa := &windows.SecurityAttributes{Length: uint32(unsafe.Sizeof(windows.SecurityAttributes{}))}
 	sa.SecurityDescriptor = (*windows.SECURITY_DESCRIPTOR)(atomic.LoadPointer(&encryptedFileSd))
@@ -29,7 +40,7 @@ func writeEncryptedFile(destination string, contents []byte) error {
 	if err != nil {
 		return err
 	}
-	tmpDestination := destination + ".tmp"
+	tmpDestination := randomFileName()
 	tmpDestination16, err := windows.UTF16PtrFromString(tmpDestination)
 	if err != nil {
 		return err
@@ -57,7 +68,13 @@ func writeEncryptedFile(destination string, contents []byte) error {
 		rootDirectory   windows.Handle
 		fileNameLength  uint32
 		fileName        [windows.MAX_PATH]uint16
-	}{replaceIfExists: 1, fileNameLength: uint32(len(destination16) - 1)}
+	}{replaceIfExists: func() byte {
+		if overwrite {
+			return 1
+		} else {
+			return 0
+		}
+	}(), fileNameLength: uint32(len(destination16) - 1)}
 	if len(destination16) > len(fileRenameInfo.fileName) {
 		deleteIt()
 		return windows.ERROR_BUFFER_OVERFLOW
