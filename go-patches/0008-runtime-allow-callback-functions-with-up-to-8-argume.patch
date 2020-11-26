@@ -1,7 +1,7 @@
 From 5a7c808cbacb8c0477395c5656c1eba3ef38cd6e Mon Sep 17 00:00:00 2001
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 Date: Tue, 10 Nov 2020 21:42:36 +0100
-Subject: [PATCH 08/10] runtime: allow callback functions with up to 8
+Subject: [PATCH 08/11] runtime: allow callback functions with up to 8
  arguments on windows/arm
 
 Previously, windows/arm programs would abort when trying to use

@@ -1,0 +1,44 @@
+From fee7906e1a7e62b655bea0f25c921572ee29fc44 Mon Sep 17 00:00:00 2001
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+Date: Thu, 26 Nov 2020 22:38:45 +0100
+Subject: [PATCH 11/11] cmd/link: windows/arm is all pie, so mark it as such
+
+If the linker thinks that it's making an exe instead of a pie object, it
+won't apply relocations to the pclntab and we wind up with crashes like:
+
+    Building Go toolchain2 using go_bootstrap and Go toolchain1.
+    fatal error: minpc or maxpc invalid
+    runtime: panic before malloc heap initialized
+
+This problem was already solved by darwin/arm64, so solve it the same
+way here for windows/arm.
+
+Fixes CL 228478.
+Updates #42786.
+
+Change-Id: I6d1db6907c131183649fc263ccca06783188f344
+---
+ src/cmd/link/internal/ld/config.go | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/src/cmd/link/internal/ld/config.go b/src/cmd/link/internal/ld/config.go
+index 2373b500e3..83a8698289 100644
+--- a/src/cmd/link/internal/ld/config.go
++++ b/src/cmd/link/internal/ld/config.go
+@@ -35,7 +35,12 @@ func (mode *BuildMode) Set(s string) error {
+ 	default:
+ 		return fmt.Errorf("invalid buildmode: %q", s)
+ 	case "exe":
+-		*mode = BuildModeExe
++		switch objabi.GOOS + "/" + objabi.GOARCH {
++		case "windows/arm": // On these platforms, everything is PIE
++			*mode = BuildModePIE
++		default:
++			*mode = BuildModeExe
++		}
+ 	case "pie":
+ 		switch objabi.GOOS {
+ 		case "aix", "android", "linux", "windows":
+-- 
+2.29.2
+
