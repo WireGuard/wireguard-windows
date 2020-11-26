@@ -134,6 +134,10 @@ func pipeFromHandleArgument(handleStr string) (*os.File, error) {
 }
 
 func main() {
+	if windows.SetDllDirectory("") != nil || windows.SetDefaultDllDirectories(windows.LOAD_LIBRARY_SEARCH_SYSTEM32) != nil {
+		panic("failed to restrict dll search path")
+	}
+
 	checkForWow64()
 
 	if len(os.Args) <= 1 {
