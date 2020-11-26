@@ -77,6 +77,8 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 		return
 	}
 
+	moveConfigsFromLegacyStore()
+
 	err = trackExistingTunnels()
 	if err != nil {
 		serviceError = services.ErrorTrackTunnels

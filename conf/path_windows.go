@@ -19,7 +19,6 @@ import (
 
 var cachedConfigFileDir string
 var cachedRootDir string
-var disableAutoMigration bool
 
 func tunnelConfigurationsDirectory() (string, error) {
 	if cachedConfigFileDir != "" {
@@ -35,7 +34,6 @@ func tunnelConfigurationsDirectory() (string, error) {
 		return "", err
 	}
 	cachedConfigFileDir = c
-	moveConfigsFromLegacyStore()
 	return cachedConfigFileDir, nil
 }
 
@@ -44,7 +42,6 @@ func tunnelConfigurationsDirectory() (string, error) {
 // consumers of our libraries who might want to do strange things.
 func PresetRootDirectory(root string) {
 	cachedRootDir = root
-	disableAutoMigration = true
 }
 
 func RootDirectory(create bool) (string, error) {

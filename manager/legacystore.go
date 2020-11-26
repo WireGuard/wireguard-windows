@@ -3,7 +3,7 @@
  * Copyright (C) 2019-2020 WireGuard LLC. All Rights Reserved.
  */
 
-package conf
+package manager
 
 import (
 	"fmt"
@@ -16,12 +16,11 @@ import (
 	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/registry"
 	"golang.org/x/sys/windows/svc/mgr"
+
+	"golang.zx2c4.com/wireguard/windows/conf"
 )
 
 func moveConfigsFromLegacyStore() {
-	if disableAutoMigration {
-		return
-	}
 	oldRoot, err := windows.KnownFolderPath(windows.FOLDERID_LocalAppData, windows.KF_FLAG_DEFAULT)
 	if err != nil {
 		return
@@ -50,7 +49,7 @@ func moveConfigsFromLegacyStore() {
 		if pendingDeletion[strings.ToLower(oldPath)] {
 			continue
 		}
-		config, err := LoadFromPath(oldPath)
+		config, err := conf.LoadFromPath(oldPath)
 		if err != nil {
 			continue
 		}
