@@ -100,20 +100,21 @@ func MigrateUnencryptedConfigs(sharingBase int) (int, []error) {
 			e++
 			continue
 		}
-		_, err = FromWgQuickWithUnknownEncoding(string(bytes), "input")
+		configName := strings.TrimSuffix(name, configFileUnencryptedSuffix)
+		config, err := FromWgQuickWithUnknownEncoding(string(bytes), configName)
 		if err != nil {
 			errs[e] = err
 			e++
 			continue
 		}
 
-		bytes, err = dpapi.Encrypt(bytes, strings.TrimSuffix(name, configFileUnencryptedSuffix))
+		bytes, err = dpapi.Encrypt([]byte(config.ToWgQuick()), name)
 		if err != nil {
 			errs[e] = err
 			e++
 			continue
 		}
-		dstFile := strings.TrimSuffix(path, configFileUnencryptedSuffix) + configFileSuffix
+		dstFile := configName + configFileSuffix
 		err = writeEncryptedFile(dstFile, false, bytes)
 		if err != nil {
 			errs[e] = err
