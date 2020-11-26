@@ -45,7 +45,7 @@ func writeEncryptedFile(destination string, overwrite bool, contents []byte) err
 	if err != nil {
 		return err
 	}
-	handle, err := windows.CreateFile(tmpDestination16, windows.GENERIC_WRITE|windows.DELETE, 0, sa, windows.CREATE_ALWAYS, windows.FILE_ATTRIBUTE_NORMAL, 0)
+	handle, err := windows.CreateFile(tmpDestination16, windows.GENERIC_WRITE|windows.DELETE, windows.FILE_SHARE_READ, sa, windows.CREATE_ALWAYS, windows.FILE_ATTRIBUTE_NORMAL, 0)
 	if err != nil {
 		return err
 	}
