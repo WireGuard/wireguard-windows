@@ -18,7 +18,7 @@ import (
 	"golang.org/x/sys/windows/svc/mgr"
 )
 
-func maybeMigrateConfiguration(c string) {
+func moveConfigsFromLegacyStore() {
 	if disableAutoMigration {
 		return
 	}
@@ -50,13 +50,15 @@ func maybeMigrateConfiguration(c string) {
 		if pendingDeletion[strings.ToLower(oldPath)] {
 			continue
 		}
-		oldConfig, err := ioutil.ReadFile(oldPath)
+		config, err := LoadFromPath(oldPath)
 		if err != nil {
 			continue
 		}
-
-		newPath := filepath.Join(c, fileName)
-		err = writeEncryptedFile(newPath, false, oldConfig)
+		newPath, err := config.Path()
+		if err != nil {
+			continue
+		}
+		err = config.Save(false)
 		if err != nil {
 			continue
 		}

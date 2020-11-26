@@ -100,29 +100,20 @@ func MigrateUnencryptedConfigs(sharingBase int) (int, []error) {
 			e++
 			continue
 		}
-		configName := strings.TrimSuffix(name, configFileUnencryptedSuffix)
-		config, err := FromWgQuickWithUnknownEncoding(string(bytes), configName)
+		config, err := FromWgQuickWithUnknownEncoding(string(bytes), strings.TrimSuffix(name, configFileUnencryptedSuffix))
 		if err != nil {
 			errs[e] = err
 			e++
 			continue
 		}
-
-		bytes, err = dpapi.Encrypt([]byte(config.ToWgQuick()), name)
-		if err != nil {
-			errs[e] = err
-			e++
-			continue
-		}
-		dstFile := configName + configFileSuffix
-		err = writeEncryptedFile(dstFile, false, bytes)
+		err = config.Save(false)
 		if err != nil {
 			errs[e] = err
 			e++
 			continue
 		}
 		err = os.Remove(path)
-		if err != nil && os.Remove(dstFile) == nil {
+		if err != nil {
 			errs[e] = err
 			e++
 			continue
@@ -183,7 +174,7 @@ func NameFromPath(path string) (string, error) {
 	return name, nil
 }
 
-func (config *Config) Save() error {
+func (config *Config) Save(overwrite bool) error {
 	if !TunnelNameIsValid(config.Name) {
 		return errors.New("Tunnel name is not valid")
 	}
@@ -197,7 +188,7 @@ func (config *Config) Save() error {
 	if err != nil {
 		return err
 	}
-	return writeEncryptedFile(filename, true, bytes)
+	return writeLockedDownFile(filename, overwrite, bytes)
 }
 
 func (config *Config) Path() (string, error) {

@@ -25,7 +25,7 @@ func randomFileName() string {
 	return hex.EncodeToString(randBytes[:]) + ".tmp"
 }
 
-func writeEncryptedFile(destination string, overwrite bool, contents []byte) error {
+func writeLockedDownFile(destination string, overwrite bool, contents []byte) error {
 	var err error
 	sa := &windows.SecurityAttributes{Length: uint32(unsafe.Sizeof(windows.SecurityAttributes{}))}
 	sa.SecurityDescriptor = (*windows.SECURITY_DESCRIPTOR)(atomic.LoadPointer(&encryptedFileSd))

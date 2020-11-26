@@ -34,8 +34,8 @@ func tunnelConfigurationsDirectory() (string, error) {
 	if err != nil && !os.IsExist(err) {
 		return "", err
 	}
-	maybeMigrateConfiguration(c)
 	cachedConfigFileDir = c
+	moveConfigsFromLegacyStore()
 	return cachedConfigFileDir, nil
 }
 

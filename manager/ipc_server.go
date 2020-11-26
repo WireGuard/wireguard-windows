@@ -217,7 +217,7 @@ func (s *ManagerService) Create(tunnelConfig *conf.Config) (*Tunnel, error) {
 	if s.elevatedToken == 0 {
 		return nil, windows.ERROR_ACCESS_DENIED
 	}
-	err := tunnelConfig.Save()
+	err := tunnelConfig.Save(true)
 	if err != nil {
 		return nil, err
 	}
