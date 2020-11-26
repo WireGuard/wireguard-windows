@@ -13,7 +13,7 @@ LDLIBS += -lkernel32 -lwinhttp -lntdll -lshlwapi -lmsi -lcomctl32 -luser32 -lshe
 LDFLAGS += -s -flto -Wl,--dynamicbase -Wl,--nxcompat -Wl,--tsaware -mwindows
 LDFLAGS += -Wl,--major-os-version=6 -Wl,--minor-os-version=1 -Wl,--major-subsystem-version=6 -Wl,--minor-subsystem-version=1
 # The use of -Wl,/delayload: here implies we're using llvm-mingw
-LDFLAGS += -Wl,/delayload:winhttp.dll -Wl,/delayload:msi.dll -Wl,/delayload:wintrust.dll
+LDFLAGS += -Wl,/delayload:winhttp.dll -Wl,/delayload:msi.dll -Wl,/delayload:wintrust.dll -Wl,/delayload:advapi32.dll -Wl,/delayload:shell32.dll -Wl,/delayload:shlwapi.dll -Wl,/delayload:gdi32.dll -Wl,/delayload:user32.dll -Wl,/delayload:comctl32.dll
 TARGET := wireguard-installer.exe
 CC := i686-w64-mingw32-clang
 WINDRES := i686-w64-mingw32-windres

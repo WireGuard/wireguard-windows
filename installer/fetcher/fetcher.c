@@ -284,6 +284,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 
 	(void)hPrevInstance; (void)pCmdLine; (void)nCmdShow;
 
+	if (!SetDllDirectoryA("") || !SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_SYSTEM32))
+		return 1;
+
 	InitCommonControlsEx(&(INITCOMMONCONTROLSEX){ .dwSize = sizeof(INITCOMMONCONTROLSEX), .dwICC = ICC_PROGRESS_CLASS });
 
 	progress = CreateWindowEx(0, PROGRESS_CLASS, "WireGuard Installer",
