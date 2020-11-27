@@ -2101,9 +2101,10 @@ bool ed25519_verify(const uint8_t signature[64], const uint8_t public_key[32],
 		UINT64_C(0x1000000000000000),
 	};
 	for (size_t i = 3;; --i) {
-		if (scopy.u64[i] > kOrder[i]) {
+		uint64_t le = swap_le64(scopy.u64[i]);
+		if (le > kOrder[i]) {
 			return false;
-		} else if (scopy.u64[i] < kOrder[i]) {
+		} else if (le < kOrder[i]) {
 			break;
 		} else if (i == 0) {
 			return false;
