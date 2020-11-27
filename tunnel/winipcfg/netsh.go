@@ -37,16 +37,15 @@ func runNetsh(cmds []string) error {
 		io.WriteString(stdin, strings.Join(append(cmds, "exit\r\n"), "\r\n"))
 	}()
 	output, err := cmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("runNetsh run - %w", err)
-	}
 	// Horrible kludges, sorry.
-	cleaned := bytes.ReplaceAll(output, []byte("netsh>"), []byte{})
+	cleaned := bytes.ReplaceAll(output, []byte{'\r', '\n'}, []byte{'\n'})
+	cleaned = bytes.ReplaceAll(cleaned, []byte("netsh>"), []byte{})
 	cleaned = bytes.ReplaceAll(cleaned, []byte("There are no Domain Name Servers (DNS) configured on this computer."), []byte{})
 	cleaned = bytes.TrimSpace(cleaned)
-	if len(cleaned) != 0 {
-		return fmt.Errorf("runNetsh returned error strings.\ninput:\n%s\noutput\n:%s",
-			strings.Join(cmds, "\n"), bytes.ReplaceAll(output, []byte{'\r', '\n'}, []byte{'\n'}))
+	if len(cleaned) != 0 && err == nil {
+		return fmt.Errorf("netsh: %#q", string(cleaned))
+	} else if err != nil {
+		return fmt.Errorf("netsh: %v: %#q", err, string(cleaned))
 	}
 	return nil
 }
