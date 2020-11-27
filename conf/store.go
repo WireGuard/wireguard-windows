@@ -11,10 +11,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"sync"
-	"time"
-
-	"golang.org/x/sys/windows"
 
 	"golang.zx2c4.com/wireguard/windows/conf/dpapi"
 )
@@ -49,78 +45,6 @@ func ListConfigNames() ([]string, error) {
 		i++
 	}
 	return configs[:i], nil
-}
-
-var migrating sync.Mutex
-var lastMigrationTimer *time.Timer
-
-func MigrateUnencryptedConfigs(sharingBase int) (int, []error) {
-	migrating.Lock()
-	defer migrating.Unlock()
-	configFileDir, err := tunnelConfigurationsDirectory()
-	if err != nil {
-		return 0, []error{err}
-	}
-	files, err := ioutil.ReadDir(configFileDir)
-	if err != nil {
-		return 0, []error{err}
-	}
-	errs := make([]error, len(files))
-	i := 0
-	e := 0
-	for _, file := range files {
-		path := filepath.Join(configFileDir, file.Name())
-		name := filepath.Base(file.Name())
-		if len(name) <= len(configFileUnencryptedSuffix) || !strings.HasSuffix(name, configFileUnencryptedSuffix) {
-			continue
-		}
-		if !file.Mode().IsRegular() || file.Mode().Perm()&0444 == 0 {
-			continue
-		}
-
-		// We don't use ioutil's ReadFile, because we actually want RDWR, so that we can take advantage
-		// of Windows file locking for ensuring the file is finished being written.
-		f, err := os.OpenFile(path, os.O_RDWR, 0)
-		if err != nil {
-			if sharingBase > 0 && errors.Is(err, windows.ERROR_SHARING_VIOLATION) {
-				if lastMigrationTimer != nil {
-					lastMigrationTimer.Stop()
-				}
-				lastMigrationTimer = time.AfterFunc(time.Second/time.Duration(sharingBase*sharingBase), func() { MigrateUnencryptedConfigs(sharingBase - 1) })
-				sharingBase = 0
-			}
-			errs[e] = err
-			e++
-			continue
-		}
-		bytes, err := ioutil.ReadAll(f)
-		f.Close()
-		if err != nil {
-			errs[e] = err
-			e++
-			continue
-		}
-		config, err := FromWgQuickWithUnknownEncoding(string(bytes), strings.TrimSuffix(name, configFileUnencryptedSuffix))
-		if err != nil {
-			errs[e] = err
-			e++
-			continue
-		}
-		err = config.Save(false)
-		if err != nil {
-			errs[e] = err
-			e++
-			continue
-		}
-		err = os.Remove(path)
-		if err != nil {
-			errs[e] = err
-			e++
-			continue
-		}
-		i++
-	}
-	return i, errs[:e]
 }
 
 func LoadFromName(name string) (*Config, error) {
