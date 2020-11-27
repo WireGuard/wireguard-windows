@@ -3,13 +3,13 @@ module golang.zx2c4.com/wireguard/windows
 go 1.15
 
 require (
-	github.com/lxn/walk v0.0.0-20201123161058-0a7a9b4462c3
+	github.com/lxn/walk v0.0.0-20201125094449-2a61ddb5a2b8
 	github.com/lxn/win v0.0.0-20201111105847-2a20daff6a55
-	golang.org/x/crypto v0.0.0-20201117144127-c1f2f97bffc9
+	golang.org/x/crypto v0.0.0-20201124201722-c8d3bf9c5392
 	golang.org/x/net v0.0.0-20201110031124-69a78807bb2b
-	golang.org/x/sys v0.0.0-20201119102817-f84b799fce68
-	golang.org/x/text v0.3.5-0.20201118010606-4482a914f523
-	golang.zx2c4.com/wireguard v0.0.20201118
+	golang.org/x/sys v0.0.0-20201126233918-771906719818
+	golang.org/x/text v0.3.5-0.20201125200606-c27b9fd57aec
+	golang.zx2c4.com/wireguard v0.0.20201119-0.20201127121345-b6303091fc8c
 )
 
 replace (
