@@ -1,7 +1,7 @@
 From e6b4c1b3beb4f843ed40abead27c8132d29a0db8 Mon Sep 17 00:00:00 2001
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 Date: Fri, 11 Sep 2020 13:04:11 +0200
-Subject: [PATCH 06/11] Revert "[release-branch.go1.15] runtime: detect
+Subject: [PATCH 06/12] Revert "[release-branch.go1.15] runtime: detect
  services in signal handler"
 
 This reverts commit b1253d24e159129c778377c3a2a0bde15904a417.

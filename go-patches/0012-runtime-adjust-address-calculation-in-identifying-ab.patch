@@ -1,0 +1,44 @@
+From 8ec41fee1e6ef074ef74e56fe079c70c8a1d0548 Mon Sep 17 00:00:00 2001
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+Date: Fri, 27 Nov 2020 22:07:23 +0100
+Subject: [PATCH 12/12] runtime: adjust address calculation in identifying
+ abort on windows/arm
+
+Apparently we're being called on arm 1 byte off, just like on 386 and
+amd64, so unify the handler for isAbortPC.
+
+Fixes #42859.
+Updates #29050.
+
+Change-Id: I97fffeb4a33d93ca3397ce1c9ba2b05137f391ca
+---
+ src/runtime/signal_windows.go | 13 +++----------
+ 1 file changed, 3 insertions(+), 10 deletions(-)
+
+diff --git a/src/runtime/signal_windows.go b/src/runtime/signal_windows.go
+index d123276d3e..8db24fb805 100644
+--- a/src/runtime/signal_windows.go
++++ b/src/runtime/signal_windows.go
+@@ -43,16 +43,9 @@ func initExceptionHandler() {
+ //
+ //go:nosplit
+ func isAbort(r *context) bool {
+-	switch GOARCH {
+-	case "386", "amd64":
+-		// In the case of an abort, the exception IP is one byte after
+-		// the INT3 (this differs from UNIX OSes).
+-		return isAbortPC(r.ip() - 1)
+-	case "arm":
+-		return isAbortPC(r.ip())
+-	default:
+-		return false
+-	}
++	// In the case of an abort, the exception IP is one byte after
++	// the INT3 (this differs from UNIX OSes).
++	return isAbortPC(r.ip() - 1)
+ }
+ 
+ // isgoexception reports whether this exception should be translated
+-- 
+2.29.2
+

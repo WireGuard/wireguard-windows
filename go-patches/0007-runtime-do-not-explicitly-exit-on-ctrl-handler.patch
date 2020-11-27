@@ -1,7 +1,7 @@
 From af4eb34d920c0c727041ebf587e0de608068ed59 Mon Sep 17 00:00:00 2001
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 Date: Tue, 14 Jul 2020 01:41:03 -0600
-Subject: [PATCH 07/11] runtime: do not explicitly exit on ctrl handler
+Subject: [PATCH 07/12] runtime: do not explicitly exit on ctrl handler
 
 The default ctrl+c handler should process exits in situations where it
 makes sense, like console apps, but not in situations where it doesn't,

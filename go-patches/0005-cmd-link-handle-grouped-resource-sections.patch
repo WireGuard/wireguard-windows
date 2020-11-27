@@ -1,7 +1,7 @@
 From 5d5d74f35dd3375cda8ef2ba8257547aad107ecb Mon Sep 17 00:00:00 2001
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 Date: Sun, 8 Nov 2020 11:57:42 +0100
-Subject: [PATCH 05/11] cmd/link: handle grouped resource sections
+Subject: [PATCH 05/12] cmd/link: handle grouped resource sections
 
 The Go PE linker does not support enough generalized PE logic to
 properly handle .rsrc sections gracefully. Instead a few things are

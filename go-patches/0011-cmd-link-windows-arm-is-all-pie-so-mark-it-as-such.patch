@@ -1,7 +1,7 @@
 From fee7906e1a7e62b655bea0f25c921572ee29fc44 Mon Sep 17 00:00:00 2001
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 Date: Thu, 26 Nov 2020 22:38:45 +0100
-Subject: [PATCH 11/11] cmd/link: windows/arm is all pie, so mark it as such
+Subject: [PATCH 11/12] cmd/link: windows/arm is all pie, so mark it as such
 
 If the linker thinks that it's making an exe instead of a pie object, it
 won't apply relocations to the pclntab and we wind up with crashes like:
