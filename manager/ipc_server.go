@@ -270,6 +270,9 @@ func (s *ManagerService) Quit(stopTunnelsOnQuit bool) (alreadyQuit bool, err err
 }
 
 func (s *ManagerService) UpdateState() UpdateState {
+	if s.elevatedToken == 0 {
+		return UpdateStateUnknown
+	}
 	return updateState
 }
 
