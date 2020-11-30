@@ -8,7 +8,6 @@ package walk
 
 import (
 	"fmt"
-	"math/big"
 	"reflect"
 	"syscall"
 	"time"
@@ -195,9 +194,6 @@ func (lb *ListBox) itemString(index int) string {
 
 	case time.Time:
 		return val.Format(lb.format)
-
-	case *big.Rat:
-		return val.FloatString(lb.precision)
 
 	default:
 		return fmt.Sprintf(lb.format, val)

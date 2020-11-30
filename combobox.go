@@ -8,7 +8,6 @@ package walk
 
 import (
 	"fmt"
-	"math/big"
 	"reflect"
 	"strconv"
 	"syscall"
@@ -255,9 +254,6 @@ func (cb *ComboBox) itemString(index int) string {
 
 	case time.Time:
 		return val.Format(cb.format)
-
-	case *big.Rat:
-		return val.FloatString(cb.precision)
 
 	default:
 		return fmt.Sprintf(cb.format, val)

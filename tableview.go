@@ -9,7 +9,6 @@ package walk
 import (
 	"encoding/json"
 	"fmt"
-	"math/big"
 	"reflect"
 	"syscall"
 	"time"
@@ -2104,13 +2103,6 @@ func (tv *TableView) lvWndProc(origWndProcPtr uintptr, hwnd win.HWND, msg uint32
 						if val {
 							text = checkmark
 						}
-
-					case *big.Rat:
-						prec := tv.columns.items[col].precision
-						if prec == 0 {
-							prec = 2
-						}
-						text = formatBigRatGrouped(val, prec)
 
 					default:
 						text = fmt.Sprintf(tv.columns.items[col].format, val)

@@ -9,7 +9,6 @@ package walk
 import (
 	"bytes"
 	"math"
-	"math/big"
 	"strconv"
 	"strings"
 	"syscall"
@@ -173,14 +172,6 @@ func FormatFloat(f float64, prec int) string {
 
 func FormatFloatGrouped(f float64, prec int) string {
 	return formatFloatString(strconv.FormatFloat(f, 'f', maxi(1, prec), 64), prec, true)
-}
-
-func formatBigRat(r *big.Rat, prec int) string {
-	return formatFloatString(r.FloatString(prec), prec, false)
-}
-
-func formatBigRatGrouped(r *big.Rat, prec int) string {
-	return formatFloatString(r.FloatString(prec), prec, true)
 }
 
 func formatFloatString(s string, prec int, grouped bool) string {
