@@ -6,11 +6,11 @@
 package version
 
 import (
-	"encoding/asn1"
 	"os"
 	"unsafe"
 
 	"golang.org/x/sys/windows"
+
 	"golang.zx2c4.com/wireguard/windows/version/wintrust"
 )
 
@@ -19,16 +19,6 @@ const (
 	evPolicyOid        = "2.23.140.1.3"
 	policyExtensionOid = "2.5.29.32"
 )
-
-type policyQualifierInfo struct {
-	PolicyQualifierId asn1.ObjectIdentifier
-	Qualifier         asn1.RawValue
-}
-
-type policyInformation struct {
-	Policy     asn1.ObjectIdentifier
-	Qualifiers []policyQualifierInfo `asn1:"optional"`
-}
 
 func VerifyAuthenticode(path string) bool {
 	path16, err := windows.UTF16PtrFromString(path)
@@ -50,23 +40,21 @@ func VerifyAuthenticode(path string) bool {
 	return wintrust.WinVerifyTrust(windows.InvalidHandle, &wintrust.WINTRUST_ACTION_GENERIC_VERIFY_V2, data) == nil
 }
 
-// This is an easily by-passable check, which doesn't serve a security purpose but mostly just a low-grade
-// informational and semantic one.
+// These are easily by-passable checks, which do not serve serve security purposes. Do not place security-sensitive
+// functions below this line.
+
 func IsRunningOfficialVersion() bool {
 	path, err := os.Executable()
 	if err != nil {
 		return false
 	}
 
-	// This is easily circumvented. We don't even verify the chain before hand with WinVerifyTrust.
-	// False certificates can be appended. But that's okay, as this isn't security related.
-
-	certs, err := wintrust.ExtractCertificates(path)
+	names, err := wintrust.ExtractCertificateNames(path)
 	if err != nil {
 		return false
 	}
-	for _, cert := range certs {
-		if cert.Subject.CommonName == officialCommonName {
+	for _, name := range names {
+		if name == officialCommonName {
 			return true
 		}
 	}
@@ -79,26 +67,13 @@ func IsRunningEVSigned() bool {
 		return false
 	}
 
-	// This is easily circumvented. We don't even verify the chain before hand with WinVerifyTrust.
-	// False certificates can be appended. But that's okay, as this isn't security related.
-
-	certs, err := wintrust.ExtractCertificates(path)
+	policies, err := wintrust.ExtractCertificatePolicies(path, policyExtensionOid)
 	if err != nil {
 		return false
 	}
-	for _, cert := range certs {
-		for _, extension := range cert.Extensions {
-			if extension.Id.String() == policyExtensionOid {
-				var policies []policyInformation
-				if _, err = asn1.Unmarshal(extension.Value, &policies); err != nil {
-					continue
-				}
-				for _, policy := range policies {
-					if policy.Policy.String() == evPolicyOid {
-						return true
-					}
-				}
-			}
+	for _, policy := range policies {
+		if policy == evPolicyOid {
+			return true
 		}
 	}
 	return false
