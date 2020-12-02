@@ -27,6 +27,7 @@ if exist .deps\prepared goto :render
 	echo [+] Patching go
 	for %%a in ("..\go-patches\*.patch") do .\patch.exe -f -N -r- -d go -p1 --binary < "%%a" || goto :error
 	cd go\src || goto :error
+	..\bin\go build -v -o ..\pkg\tool\windows_amd64\compile.exe cmd/compile || goto :error
 	..\bin\go build -v -o ..\pkg\tool\windows_amd64\link.exe cmd/link || goto :error
 	cd ..\.. || goto :error
 	copy /y NUL prepared > NUL || goto :error

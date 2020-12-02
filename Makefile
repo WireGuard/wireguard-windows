@@ -34,6 +34,7 @@ $(eval $(call download,wintun.zip,https://www.wintun.net/builds/wintun-0.9.2.zip
 	tar -C .deps -xzf .distfiles/go.tar.gz
 	chmod -R +w .deps/go
 	cat $(filter %.patch,$^) | patch -f -N -r- -p1 -d .deps/go
+	cd .deps/go/src && GOARCH=amd64 GOOS=linux go build -v -o ../pkg/tool/linux_amd64/compile cmd/compile
 	cd .deps/go/src && GOARCH=amd64 GOOS=linux go build -v -o ../pkg/tool/linux_amd64/link cmd/link
 	touch $@
 
