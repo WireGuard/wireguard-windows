@@ -1,7 +1,7 @@
 From 58e426bb8175959d7bf32ea7c87e51f4706b309b Mon Sep 17 00:00:00 2001
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 Date: Mon, 30 Nov 2020 10:41:46 +0100
-Subject: [PATCH 13/13] cmd/compile: do not assume TST and TEQ set V on arm
+Subject: [PATCH 13/14] cmd/compile: do not assume TST and TEQ set V on arm
 
 These replacement rules assume that TST and TEQ set V. But TST and
 TEQ do not set V. This is a problem because instructions like LT are

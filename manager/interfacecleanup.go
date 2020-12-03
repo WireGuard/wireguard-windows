@@ -18,8 +18,6 @@ import (
 )
 
 func cleanupStaleWintunInterfaces() {
-	defer printPanic()
-
 	m, err := mgr.Connect()
 	if err != nil {
 		return

@@ -1,0 +1,32 @@
+From d7b6f2bfcee5787d9055f5d7ec92c74e258e8fab Mon Sep 17 00:00:00 2001
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+Date: Thu, 3 Dec 2020 13:29:58 +0100
+Subject: [PATCH 14/14] runtime: make write into function pointer
+
+Change-Id: I77a32ff7e1494324e8cc38e792e007f86d32672d
+---
+ src/runtime/time_nofake.go | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/src/runtime/time_nofake.go b/src/runtime/time_nofake.go
+index 1912a94e87..0564448b2e 100644
+--- a/src/runtime/time_nofake.go
++++ b/src/runtime/time_nofake.go
+@@ -23,9 +23,14 @@ func walltime() (sec int64, nsec int32) {
+ 	return walltime1()
+ }
+ 
++var overrideWrite func(fd uintptr, p unsafe.Pointer, n int32) int32
++
+ // write must be nosplit on Windows (see write1)
+ //
+ //go:nosplit
+ func write(fd uintptr, p unsafe.Pointer, n int32) int32 {
++	if overrideWrite != nil {
++		return overrideWrite(fd, noescape(p), n)
++	}
+ 	return write1(fd, p, n)
+ }
+-- 
+2.29.2
+

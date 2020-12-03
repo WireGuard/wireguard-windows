@@ -1,7 +1,7 @@
 From fde4a13eb5eba28ac546b10752b38a80f389cc5a Mon Sep 17 00:00:00 2001
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 Date: Sun, 8 Nov 2020 02:48:09 +0100
-Subject: [PATCH 01/13] cmd/link: recognize arm header of PE objects
+Subject: [PATCH 01/14] cmd/link: recognize arm header of PE objects
 
 The linker recognizes headers for 386 and amd64 PE objects, but not arm
 objects. This is easily overlooked, since its the same as the 386 header

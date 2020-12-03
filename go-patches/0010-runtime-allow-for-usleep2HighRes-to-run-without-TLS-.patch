@@ -1,7 +1,7 @@
 From 1edac4879e2d4a36d339353c151cb7b9871e135f Mon Sep 17 00:00:00 2001
 From: Alex Brainman <alex.brainman@gmail.com>
 Date: Sat, 21 Nov 2020 14:56:26 +1100
-Subject: [PATCH 10/13] runtime: allow for usleep2HighRes to run without TLS
+Subject: [PATCH 10/14] runtime: allow for usleep2HighRes to run without TLS
  setup
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8

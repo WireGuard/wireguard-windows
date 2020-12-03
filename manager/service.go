@@ -7,12 +7,9 @@ package manager
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"os"
 	"runtime"
-	"runtime/debug"
-	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -29,17 +26,6 @@ import (
 )
 
 type managerService struct{}
-
-func printPanic() {
-	if x := recover(); x != nil {
-		for _, line := range append([]string{fmt.Sprint(x)}, strings.Split(string(debug.Stack()), "\n")...) {
-			if len(strings.TrimSpace(line)) > 0 {
-				log.Println(line)
-			}
-		}
-		panic(x)
-	}
-}
 
 func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest, changes chan<- svc.Status) (svcSpecificEC bool, exitCode uint32) {
 	changes <- svc.Status{State: svc.StartPending}
@@ -61,7 +47,6 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 		serviceError = services.ErrorRingloggerOpen
 		return
 	}
-	defer printPanic()
 
 	log.Println("Starting", version.UserAgent())
 
@@ -268,7 +253,6 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 	goStartProcess := func(session uint32) {
 		procsGroup.Add(1)
 		go func() {
-			defer printPanic()
 			startProcess(session)
 			procsGroup.Done()
 		}()

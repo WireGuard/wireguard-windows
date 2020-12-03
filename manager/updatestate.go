@@ -24,8 +24,6 @@ const (
 var updateState = UpdateStateUnknown
 
 func checkForUpdates() {
-	defer printPanic()
-
 	if !version.IsRunningOfficialVersion() {
 		log.Println("Build is not official, so updates are disabled")
 		updateState = UpdateStateUpdatesDisabledUnofficialBuild

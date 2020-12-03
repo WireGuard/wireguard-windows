@@ -1,7 +1,7 @@
 From 8ec41fee1e6ef074ef74e56fe079c70c8a1d0548 Mon Sep 17 00:00:00 2001
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 Date: Fri, 27 Nov 2020 22:07:23 +0100
-Subject: [PATCH 12/13] runtime: adjust address calculation in identifying
+Subject: [PATCH 12/14] runtime: adjust address calculation in identifying
  abort on windows/arm
 
 Apparently we're being called on arm 1 byte off, just like on 386 and

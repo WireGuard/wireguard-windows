@@ -196,8 +196,6 @@ func trackService(service *mgr.Service, callback func(status uint32) bool) error
 }
 
 func trackTunnelService(tunnelName string, service *mgr.Service) {
-	defer printPanic()
-
 	defer func() {
 		service.Close()
 		log.Printf("[%s] Tunnel service tracker finished", tunnelName)

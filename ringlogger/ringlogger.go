@@ -21,6 +21,7 @@ import (
 
 const (
 	maxLogLineLength = 512
+	maxTagLength     = 5
 	maxLines         = 2048
 	magic            = 0xbadbabe
 )
@@ -45,6 +46,9 @@ type Ringlogger struct {
 }
 
 func NewRinglogger(filename string, tag string) (*Ringlogger, error) {
+	if len(tag) > maxTagLength {
+		return nil, windows.ERROR_LABEL_TOO_LONG
+	}
 	file, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE, 0600)
 	if err != nil {
 		return nil, err
@@ -106,6 +110,11 @@ func (rl *Ringlogger) Write(p []byte) (n int, err error) {
 	if rl.readOnly {
 		return 0, io.ErrShortWrite
 	}
+	ret := len(p)
+	p = bytes.TrimSpace(p)
+	if len(p) == 0 {
+		return ret, nil
+	}
 
 	// Race: This isn't synchronized with the fetch_add below, so items might be slightly out of order.
 	ts := time.Now().UnixNano()
@@ -124,18 +133,20 @@ func (rl *Ringlogger) Write(p []byte) (n int, err error) {
 		line.line[i] = 0
 	}
 
-	text := []byte(fmt.Sprintf("[%s] %s", rl.tag, bytes.TrimSpace(p)))
-	if len(text) > maxLogLineLength-1 {
-		text = text[:maxLogLineLength-1]
+	textLen := 3 + len(p) + len(rl.tag)
+	if textLen > maxLogLineLength-1 {
+		p = p[:maxLogLineLength-1-3-len(rl.tag)]
 	}
-	line.line[len(text)] = 0
-	copy(line.line[:], text[:])
+	line.line[textLen] = 0
+	line.line[0] = 0 // Null out the beginning and only let it extend after the other writes have completed
+	copy(line.line[1:], rl.tag)
+	line.line[1+len(rl.tag)] = ']'
+	line.line[2+len(rl.tag)] = ' '
+	copy(line.line[3+len(rl.tag):], p[:])
+	line.line[0] = '['
 	atomic.StoreInt64(&line.timeNs, ts)
 
-	windows.FlushViewOfFile((uintptr)(unsafe.Pointer(&rl.log.nextIndex)), unsafe.Sizeof(rl.log.nextIndex))
-	windows.FlushViewOfFile((uintptr)(unsafe.Pointer(line)), unsafe.Sizeof(*line))
-
-	return len(p), nil
+	return ret, nil
 }
 
 func (rl *Ringlogger) WriteTo(out io.Writer) (n int64, err error) {
