@@ -25,7 +25,7 @@ define download =
 	if ! mv $$@.unverified $$@; then rm -f $$@.unverified; exit 1; fi
 endef
 
-$(eval $(call download,go.tar.gz,https://golang.org/dl/go1.15.5.linux-amd64.tar.gz,9a58494e8da722c3aef248c9227b0e9c528c7318309827780f16220998180a0d))
+$(eval $(call download,go.tar.gz,https://golang.org/dl/go1.15.6.linux-amd64.tar.gz,3918e6cc85e7eaaa6f859f1bdbaac772e7a825b0eb423c63d3ae68b21f84b844))
 $(eval $(call download,wintun.zip,https://www.wintun.net/builds/wintun-0.9.2.zip,984b2db0b4e7742653797db197df5dabfcbb5a5ed31e75bada3b765a002fc8ce))
 
 .deps/go/prepared: .distfiles/go.tar.gz $(wildcard go-patches/*.patch)
