@@ -20,7 +20,7 @@ if exist .deps\prepared goto :render
 	call :download imagemagick.zip https://download.wireguard.com/windows-toolchain/distfiles/ImageMagick-7.0.8-42-portable-Q16-x64.zip 584e069f56456ce7dde40220948ff9568ac810688c892c5dfb7f6db902aa05aa "convert.exe colors.xml delegates.xml" || goto :error
 	rem Mirror of https://sourceforge.net/projects/ezwinports/files/make-4.2.1-without-guile-w32-bin.zip
 	call :download make.zip https://download.wireguard.com/windows-toolchain/distfiles/make-4.2.1-without-guile-w32-bin.zip 30641be9602712be76212b99df7209f4f8f518ba764cf564262bc9d6e4047cc7 "--strip-components 1 bin" || goto :error
-	call :download wireguard-tools.zip https://git.zx2c4.com/wireguard-tools/snapshot/wireguard-tools-66714e2c47bb0ff55e6f8360301af833f879b6ac.zip ad8bc49879434f52dedf7a8fc53fac014f12f708c96d61e01b3160d0f0d43ed7 "--exclude wg-quick --strip-components 1" || goto :error
+	call :download wireguard-tools.zip https://git.zx2c4.com/wireguard-tools/snapshot/wireguard-tools-5e24780d4cb259b7392db0fe7f0c2f129bd598f3.zip c900b42401b8d661c948b508ef906636d2eb0f6af85760b2f66ccc175687e98f "--exclude wg-quick --strip-components 1" || goto :error
 	rem Mirror of https://sourceforge.net/projects/gnuwin32/files/patch/2.5.9-7/patch-2.5.9-7-bin.zip with fixed manifest
 	call :download patch.zip https://download.wireguard.com/windows-toolchain/distfiles/patch-2.5.9-7-bin-fixed-manifest.zip 25977006ca9713f2662a5d0a2ed3a5a138225b8be3757035bd7da9dcf985d0a1 "--strip-components 1 bin" || goto :error
 	call :download wintun.zip https://www.wintun.net/builds/wintun-0.9.2.zip 984b2db0b4e7742653797db197df5dabfcbb5a5ed31e75bada3b765a002fc8ce || goto :error
@@ -91,7 +91,7 @@ if exist .deps\prepared goto :render
 	if not exist "%~1\wg.exe" (
 		echo [+] Building command line tools %1
 		del .deps\src\*.exe .deps\src\*.o .deps\src\wincompat\*.o 2> NUL
-		make --no-print-directory -C .deps\src PLATFORM=windows CC=%~2-w64-mingw32-gcc V=1 LDFLAGS=-s RUNSTATEDIR= SYSTEMDUNITDIR= -j%NUMBER_OF_PROCESSORS% || exit /b 1
+		make --no-print-directory -C .deps\src PLATFORM=windows CC=%~2-w64-mingw32-gcc WINDRES=%~2-w64-mingw32-windres V=1 LDFLAGS=-s RUNSTATEDIR= SYSTEMDUNITDIR= -j%NUMBER_OF_PROCESSORS% || exit /b 1
 		move /Y .deps\src\wg.exe "%~1\wg.exe" > NUL || exit /b 1
 	)
 	goto :eof
