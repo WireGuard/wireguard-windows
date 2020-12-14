@@ -290,10 +290,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 
 	InitCommonControlsEx(&(INITCOMMONCONTROLSEX){ .dwSize = sizeof(INITCOMMONCONTROLSEX), .dwICC = ICC_PROGRESS_CLASS });
 
-	progress = CreateWindowEx(0, PROGRESS_CLASS, "WireGuard Installer",
-				  (WS_OVERLAPPEDWINDOW & ~(WS_BORDER | WS_THICKFRAME | WS_MAXIMIZEBOX)) | PBS_MARQUEE | PBS_SMOOTH,
-				  CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-				  NULL, NULL, hInstance, NULL);
+	progress = CreateWindowExA(0, PROGRESS_CLASS, "WireGuard Installer",
+				   (WS_OVERLAPPEDWINDOW & ~(WS_BORDER | WS_THICKFRAME | WS_MAXIMIZEBOX)) | PBS_MARQUEE | PBS_SMOOTH,
+				   CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+				   NULL, NULL, hInstance, NULL);
 	SetWindowSubclass(progress, wndproc, 0, 0);
 	dc = GetDC(progress);
 	scale = GetDeviceCaps(dc, LOGPIXELSY) / 96.0f;
