@@ -56,6 +56,12 @@ func InstallManager() error {
 		}
 		if status.State != svc.Stopped {
 			service.Close()
+			if status.State == svc.StartPending {
+				// We were *just* started by something else, so return success here, assuming the other program
+				// starting this does the right thing. This can happen when, e.g., the updater relaunches the
+				// manager service and then invokes wireguard.exe to raise the UI.
+				return nil
+			}
 			return ErrManagerAlreadyRunning
 		}
 		err = service.Delete()
