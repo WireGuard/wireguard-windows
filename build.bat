@@ -23,7 +23,7 @@ if exist .deps\prepared goto :render
 	call :download wireguard-tools.zip https://git.zx2c4.com/wireguard-tools/snapshot/wireguard-tools-5e24780d4cb259b7392db0fe7f0c2f129bd598f3.zip c900b42401b8d661c948b508ef906636d2eb0f6af85760b2f66ccc175687e98f "--exclude wg-quick --strip-components 1" || goto :error
 	rem Mirror of https://sourceforge.net/projects/gnuwin32/files/patch/2.5.9-7/patch-2.5.9-7-bin.zip with fixed manifest
 	call :download patch.zip https://download.wireguard.com/windows-toolchain/distfiles/patch-2.5.9-7-bin-fixed-manifest.zip 25977006ca9713f2662a5d0a2ed3a5a138225b8be3757035bd7da9dcf985d0a1 "--strip-components 1 bin" || goto :error
-	call :download wintun.zip https://www.wintun.net/builds/wintun-0.9.2.zip 984b2db0b4e7742653797db197df5dabfcbb5a5ed31e75bada3b765a002fc8ce || goto :error
+	call :download wintun.zip https://www.wintun.net/builds/wintun-0.10.zip 45bbe63a7cc60e5b6123b8d06747ba703ab3fd636298a50953db10da1d70f5b6 || goto :error
 	echo [+] Patching go
 	for %%a in ("..\go-patches\*.patch") do .\patch.exe -f -N -r- -d go -p1 --binary < "%%a" || goto :error
 	cd go\src || goto :error
