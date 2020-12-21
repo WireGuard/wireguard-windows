@@ -60,9 +60,15 @@
             ]
         },
         {
+            "id": "You must use the native version of WireGuard on this computer.",
+            "message": "You must use the native version of WireGuard on this computer.",
+            "translation": "Vous devez utiliser la version native de WireGuard sur cet ordinateur.",
+            "translatorComment": "Copied from source."
+        },
+        {
             "id": "Unable to open current process token: {Err}",
             "message": "Unable to open current process token: {Err}",
-            "translation": "Impossible d'ouvrir le jeton de processus actuel : {Err}",
+            "translation": "Impossible d'ouvrir le jeton du processus actuel : {Err}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -412,7 +418,7 @@
         {
             "id": "Brackets must contain an IPv6 address",
             "message": "Brackets must contain an IPv6 address",
-            "translation": "Il faut mettre un adresse IPv6 entre les crochets",
+            "translation": "L’adresse IPv6 doit être contenue entre des crochets",
             "translatorComment": "Copied from source."
         },
         {
@@ -430,7 +436,7 @@
         {
             "id": "Invalid persistent keepalive",
             "message": "Invalid persistent keepalive",
-            "translation": "Conservation de connexion active permanente non valide",
+            "translation": "Keepalive non valide",
             "translatorComment": "Copied from source."
         },
         {
@@ -458,7 +464,7 @@
         {
             "id": "Number must be a number between 0 and 2^64-1: {Err}",
             "message": "Number must be a number between 0 and 2^64-1: {Err}",
-            "translation": "Le numéro doit être un numéro entre 0 et 2^64-1 : {Err}",
+            "translation": "Le numéro doit être compris entre 0 et 2^64-1 : {Err}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -528,7 +534,7 @@
         {
             "id": "All peers must have public keys",
             "message": "All peers must have public keys",
-            "translation": "Tous les homologues doivent avoirs les clés publiques.",
+            "translation": "Toutes les pairs doivent contenir une clé publique",
             "translatorComment": "Copied from source."
         },
         {
@@ -578,6 +584,62 @@
             "message": "WireGuard logo image",
             "translation": "Image du logo du WireGuard",
             "translatorComment": "Copied from source."
+        },
+        {
+            "id": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}-{GOARCH}\nOperating system: {OsName}\nArchitecture: {NativeArch}",
+            "message": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}-{GOARCH}\nOperating system: {OsName}\nArchitecture: {NativeArch}",
+            "translation": "Version de l'application : {Number}\nVersion backend Go : {WireGuardGoVersion}\nVersion Go : {Version_go}-{GOARCH}\nSystème d'exploitation : {OsName}\nArchitecture : {NativeArch}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Number",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "version.Number"
+                },
+                {
+                    "id": "WireGuardGoVersion",
+                    "string": "%[2]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 2,
+                    "expr": "device.WireGuardGoVersion"
+                },
+                {
+                    "id": "Version_go",
+                    "string": "%[3]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 3,
+                    "expr": "strings.TrimPrefix(runtime.Version(), \"go\")"
+                },
+                {
+                    "id": "GOARCH",
+                    "string": "%[4]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 4,
+                    "expr": "runtime.GOARCH"
+                },
+                {
+                    "id": "OsName",
+                    "string": "%[5]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 5,
+                    "expr": "version.OsName()"
+                },
+                {
+                    "id": "NativeArch",
+                    "string": "%[6]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 6,
+                    "expr": "version.NativeArch()"
+                }
+            ]
         },
         {
             "id": "Close",
@@ -640,6 +702,12 @@
             "translatorComment": "Copied from source."
         },
         {
+            "id": "Scripts:",
+            "message": "Scripts:",
+            "translation": "Scripts :",
+            "translatorComment": "Copied from source."
+        },
+        {
             "id": "Preshared key:",
             "message": "Preshared key:",
             "translation": "Clé pré-partagée :",
@@ -673,6 +741,36 @@
             "id": "Transfer:",
             "message": "Transfer:",
             "translation": "Transfert :",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "pre-up",
+            "message": "pre-up",
+            "translation": "pré-activation",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "post-up",
+            "message": "post-up",
+            "translation": "post-activation",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "pre-down",
+            "message": "pre-down",
+            "translation": "pré-désactivation",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "post-down",
+            "message": "post-down",
+            "translation": "post-désactivation",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "disabled, per policy",
+            "message": "disabled, per policy",
+            "translation": "désactivé, par préférence",
             "translatorComment": "Copied from source."
         },
         {
@@ -782,6 +880,12 @@
             "translatorComment": "Copied from source."
         },
         {
+            "id": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface or is to the wrong DNS server, with special exceptions for DHCP and NDP.",
+            "message": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface or is to the wrong DNS server, with special exceptions for DHCP and NDP.",
+            "translation": "Si la configuration a exactement un homologue et si cet homologue a une adresse IP autorisée contenant au moins un de 0.0.0.0/0 ou ::/0, le service de tunnel utilise un ensemble de règles du pare-feu afin de bloquer tout le trafic qui n'est ni vers ni depuis l'interface de tunnel ou qui est vers le mauvais serveur DNS, avec des exceptions spéciales pour les DHCP et NDP.",
+            "translatorComment": "Copied from source."
+        },
+        {
             "id": "&Save",
             "message": "&Save",
             "translation": "&Enregistrer",
@@ -886,7 +990,7 @@
         {
             "id": "Active",
             "message": "Active",
-            "translation": "Activé(e)",
+            "translation": "Activée",
             "translatorComment": "Copied from source."
         },
         {
@@ -898,7 +1002,7 @@
         {
             "id": "Inactive",
             "message": "Inactive",
-            "translation": "Inactivé(e)",
+            "translation": "Éteinte",
             "translatorComment": "Copied from source."
         },
         {
@@ -1064,6 +1168,12 @@
             "translatorComment": "Copied from source."
         },
         {
+            "id": "&Tunnels",
+            "message": "&Tunnels",
+            "translation": "& Tunnels",
+            "translatorComment": "Copied from source."
+        },
+        {
             "id": "WireGuard Activated",
             "message": "WireGuard Activated",
             "translation": "WireGuard activé",
@@ -1146,6 +1256,22 @@
             ]
         },
         {
+            "id": "Addresses: {EnumerationSeparator}",
+            "message": "Addresses: {EnumerationSeparator}",
+            "translation": "Adresses : {EnumerationSeparator}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "EnumerationSeparator",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "strings.Join(addrs, l18n.EnumerationSeparator())"
+                }
+            ]
+        },
+        {
             "id": "An Update is Available!",
             "message": "An Update is Available!",
             "translation": "Mise à jour disponible!",
@@ -1221,6 +1347,12 @@
             "id": "&Remove selected tunnel(s)",
             "message": "&Remove selected tunnel(s)",
             "translation": "&Supprimer le(s) tunnel(s) sélectionné(s)",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "no configuration files were found",
+            "message": "no configuration files were found",
+            "translation": "aucun fichier de configuration trouvé",
             "translatorComment": "Copied from source."
         },
         {

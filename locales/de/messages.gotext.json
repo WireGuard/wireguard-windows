@@ -60,6 +60,12 @@
             ]
         },
         {
+            "id": "You must use the native version of WireGuard on this computer.",
+            "message": "You must use the native version of WireGuard on this computer.",
+            "translation": "Sie müssen die Version von Wireguard benutzen, die für ihren Computer bestimmt ist.",
+            "translatorComment": "Copied from source."
+        },
+        {
             "id": "Unable to open current process token: {Err}",
             "message": "Unable to open current process token: {Err}",
             "translation": "Konnte aktuellen Prozess-Token nicht öffnen: {Err}",
@@ -580,6 +586,62 @@
             "translatorComment": "Copied from source."
         },
         {
+            "id": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}-{GOARCH}\nOperating system: {OsName}\nArchitecture: {NativeArch}",
+            "message": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}-{GOARCH}\nOperating system: {OsName}\nArchitecture: {NativeArch}",
+            "translation": "App Version: {Number}\nGo backend Version: {WireGuardGoVersion}\nGo Version: {Version_go}-{GOARCH}\nBetriebssystem: {OsName}\nArchitektur: {NativeArch}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Number",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "version.Number"
+                },
+                {
+                    "id": "WireGuardGoVersion",
+                    "string": "%[2]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 2,
+                    "expr": "device.WireGuardGoVersion"
+                },
+                {
+                    "id": "Version_go",
+                    "string": "%[3]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 3,
+                    "expr": "strings.TrimPrefix(runtime.Version(), \"go\")"
+                },
+                {
+                    "id": "GOARCH",
+                    "string": "%[4]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 4,
+                    "expr": "runtime.GOARCH"
+                },
+                {
+                    "id": "OsName",
+                    "string": "%[5]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 5,
+                    "expr": "version.OsName()"
+                },
+                {
+                    "id": "NativeArch",
+                    "string": "%[6]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 6,
+                    "expr": "version.NativeArch()"
+                }
+            ]
+        },
+        {
             "id": "Close",
             "message": "Close",
             "translation": "Schließen",
@@ -640,6 +702,12 @@
             "translatorComment": "Copied from source."
         },
         {
+            "id": "Scripts:",
+            "message": "Scripts:",
+            "translation": "Skripte:",
+            "translatorComment": "Copied from source."
+        },
+        {
             "id": "Preshared key:",
             "message": "Preshared key:",
             "translation": "Geteilter Schlüssel:",
@@ -676,6 +744,12 @@
             "translatorComment": "Copied from source."
         },
         {
+            "id": "disabled, per policy",
+            "message": "disabled, per policy",
+            "translation": "deaktiviert, per Richtlinie",
+            "translatorComment": "Copied from source."
+        },
+        {
             "id": "enabled",
             "message": "enabled",
             "translation": "aktiviert",
@@ -684,7 +758,7 @@
         {
             "id": "{String} received, {String_1} sent",
             "message": "{String} received, {String_1} sent",
-            "translation": "{String} empfangen, {String} gesendet",
+            "translation": "{String} empfangen, {String_1} gesendet",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -779,6 +853,12 @@
             "id": "&Block untunneled traffic (kill-switch)",
             "message": "&Block untunneled traffic (kill-switch)",
             "translation": "&Blockiere Verkehr außerhalb des Tunnels (Not-Aus)",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface or is to the wrong DNS server, with special exceptions for DHCP and NDP.",
+            "message": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface or is to the wrong DNS server, with special exceptions for DHCP and NDP.",
+            "translation": "Wenn eine Konfiguration genau einen Teilnehmer enthält und dieser einen der Einträge 0.0.0.0/0 oder ::/0 in den erlaubten IPs enthält, dann erstellt der Tunneldienst ein Firewall-Regelsatz, der allen Verkehr (insbesondere zum falschen DNS-Server) blockiert, der weder aus dem Tunnel stammt noch in den Tunnel geht, mit Ausnahmen für DHCP- und NDP-Verkehr.",
             "translatorComment": "Copied from source."
         },
         {
@@ -1146,6 +1226,22 @@
             ]
         },
         {
+            "id": "Addresses: {EnumerationSeparator}",
+            "message": "Addresses: {EnumerationSeparator}",
+            "translation": "Adressen: {EnumerationSeparator}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "EnumerationSeparator",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "strings.Join(addrs, l18n.EnumerationSeparator())"
+                }
+            ]
+        },
+        {
             "id": "An Update is Available!",
             "message": "An Update is Available!",
             "translation": "Eine Aktualisierung ist verfügbar!",
@@ -1221,6 +1317,12 @@
             "id": "&Remove selected tunnel(s)",
             "message": "&Remove selected tunnel(s)",
             "translation": "Ausgewählte(n) Tunnel &löschen",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "no configuration files were found",
+            "message": "no configuration files were found",
+            "translation": "keine Konfigurationsdateien gefunden",
             "translatorComment": "Copied from source."
         },
         {

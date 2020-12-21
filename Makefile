@@ -85,7 +85,7 @@ fmt: .deps/go/prepared
 
 generate: export GOOS :=
 generate: .deps/go/prepared
-	go generate ./...
+	go generate -mod=mod ./...
 
 crowdin:
 	find locales -maxdepth 1 -mindepth 1 -type d \! -name en -exec rm -rf {} +
