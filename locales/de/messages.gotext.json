@@ -684,7 +684,7 @@
         {
             "id": "{String} received, {String_1} sent",
             "message": "{String} received, {String_1} sent",
-            "translation": "{String} empfangen, {String} gesendet",
+            "translation": "{String} empfangen, {String_1} gesendet",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
