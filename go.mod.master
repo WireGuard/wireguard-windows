@@ -1,5 +1,7 @@
 module golang.zx2c4.com/wireguard/windows
 
+go 1.15
+
 require (
 	github.com/lxn/walk latest
 	github.com/lxn/win latest
