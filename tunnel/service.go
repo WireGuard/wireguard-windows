@@ -6,7 +6,6 @@
 package tunnel
 
 import (
-	"bufio"
 	"bytes"
 	"fmt"
 	"log"
@@ -208,9 +207,8 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 		serviceError = services.ErrorUAPIListen
 		return
 	}
-	ipcErr := dev.IpcSetOperation(bufio.NewReader(strings.NewReader(uapiConf)))
-	if ipcErr != nil {
-		err = ipcErr
+	err = dev.IpcSet(uapiConf)
+	if err != nil {
 		serviceError = services.ErrorDeviceSetConfig
 		return
 	}
