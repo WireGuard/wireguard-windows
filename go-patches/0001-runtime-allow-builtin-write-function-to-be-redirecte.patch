@@ -1,0 +1,59 @@
+From 293b84bef3f6656a263248ff00c9d2fb82f4168d Mon Sep 17 00:00:00 2001
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+Date: Thu, 3 Dec 2020 13:29:58 +0100
+Subject: [PATCH 1/2] runtime: allow builtin write function to be redirected
+ with function pointer
+
+The x/sys/windows package currently uses go:linkname for other facilities
+inside of runtime that are not suitable to be exposed as a public API
+due to their dangers but are still necessary for manipulating any
+low-level plumbing that the runtime controls.
+
+Logging, via the built-in println and panic handler, is one such
+low-level plumbing feature. In this case, x/sys/windows/svc needs to be
+able to redirect panics to the Windows event log. Because the event log
+is a complicated interface, this requires a bit more fiddling than the
+simple solution used on Android (baking it into runtime itself), and
+because Windows services are very diverse, the event log might not even
+always be a desirable destination.
+
+This commit accomplishes this by exposing a function pointer called
+"overrideWrite" that low-level runtime packages like x/sys/windows/svc
+can use to redirect output logs toward the event log or otherwise.
+
+It is not safe or acceptable to use as a generic mechanism, and for that
+reason, we wouldn't want to expose this as a real stable API, similar to
+the other instances of go:linkname in x/sys/windows. But for packages
+that must interoperate with low-level Go runtime fundamentals, this is a
+safety hatch for packages that are developed in tandem with the runtime.
+x/sys/windows is one such package.
+
+Fixes #42888.
+
+Change-Id: I77a32ff7e1494324e8cc38e792e007f86d32672d
+---
+ src/runtime/time_nofake.go | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/src/runtime/time_nofake.go b/src/runtime/time_nofake.go
+index 1912a94e87..0564448b2e 100644
+--- a/src/runtime/time_nofake.go
++++ b/src/runtime/time_nofake.go
+@@ -23,9 +23,14 @@ func walltime() (sec int64, nsec int32) {
+ 	return walltime1()
+ }
+ 
++var overrideWrite func(fd uintptr, p unsafe.Pointer, n int32) int32
++
+ // write must be nosplit on Windows (see write1)
+ //
+ //go:nosplit
+ func write(fd uintptr, p unsafe.Pointer, n int32) int32 {
++	if overrideWrite != nil {
++		return overrideWrite(fd, noescape(p), n)
++	}
+ 	return write1(fd, p, n)
+ }
+-- 
+2.29.2
+

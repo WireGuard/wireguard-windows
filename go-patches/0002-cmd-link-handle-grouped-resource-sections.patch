@@ -1,7 +1,7 @@
-From 5d5d74f35dd3375cda8ef2ba8257547aad107ecb Mon Sep 17 00:00:00 2001
+From f7465aae6e0e8bc4c90c3b8386f5a2a574a15de0 Mon Sep 17 00:00:00 2001
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 Date: Sun, 8 Nov 2020 11:57:42 +0100
-Subject: [PATCH 05/14] cmd/link: handle grouped resource sections
+Subject: [PATCH 2/2] cmd/link: handle grouped resource sections
 
 The Go PE linker does not support enough generalized PE logic to
 properly handle .rsrc sections gracefully. Instead a few things are
@@ -26,28 +26,46 @@ sections, just as there isn't generic support already for what resources
 require. Instead we augment the resource handling logic to deal with
 standard two-section resource objects.
 
+We also add a test for this, akin to the current test for more vanilla
+binutils resource objects, and make sure that the rsrc tests are always
+performed.
+
+Fixes #42866.
+Fixes #43182.
+
 Change-Id: I059450021405cdf2ef1c195ddbab3960764ad711
+Reviewed-on: https://go-review.googlesource.com/c/go/+/268337
+Run-TryBot: Jason A. Donenfeld <Jason@zx2c4.com>
+TryBot-Result: Go Bot <gobot@golang.org>
+Reviewed-by: Cherry Zhang <cherryyz@google.com>
+Trust: Alex Brainman <alex.brainman@gmail.com>
+Trust: Jason A. Donenfeld <Jason@zx2c4.com>
 ---
- src/cmd/link/internal/ld/lib.go      |  2 +-
- src/cmd/link/internal/ld/pe.go       | 50 ++++++++++++++--------------
- src/cmd/link/internal/loadpe/ldpe.go | 47 ++++++++++++++------------
- 3 files changed, 52 insertions(+), 47 deletions(-)
+ src/cmd/link/internal/ld/lib.go               |   2 +-
+ src/cmd/link/internal/ld/pe.go                |  60 ++++++++++--------
+ src/cmd/link/internal/loadpe/ldpe.go          |  49 +++++++-------
+ src/cmd/link/link_test.go                     |  19 ++++++
+ .../link/testdata/testPErsrc-complex/main.go  |  43 +++++++++++++
+ .../testdata/testPErsrc-complex/rsrc.syso     | Bin 0 -> 352 bytes
+ 6 files changed, 124 insertions(+), 49 deletions(-)
+ create mode 100644 src/cmd/link/testdata/testPErsrc-complex/main.go
+ create mode 100644 src/cmd/link/testdata/testPErsrc-complex/rsrc.syso
 
 diff --git a/src/cmd/link/internal/ld/lib.go b/src/cmd/link/internal/ld/lib.go
-index f98668a7dc..f09b5910b9 100644
+index f3c301cc9b..9c2231a34e 100644
 --- a/src/cmd/link/internal/ld/lib.go
 +++ b/src/cmd/link/internal/ld/lib.go
-@@ -1900,7 +1900,7 @@ func ldobj(ctxt *Link, f *bio.Reader, lib *sym.Library, length int64, pn string,
+@@ -1808,7 +1808,7 @@ func ldobj(ctxt *Link, f *bio.Reader, lib *sym.Library, length int64, pn string,
  				Errorf(nil, "%v", err)
  				return
  			}
 -			if rsrc != 0 {
-+			if rsrc != nil {
++			if len(rsrc) != 0 {
  				setpersrc(ctxt, rsrc)
  			}
- 			ctxt.Textp2 = append(ctxt.Textp2, textp...)
+ 			ctxt.Textp = append(ctxt.Textp, textp...)
 diff --git a/src/cmd/link/internal/ld/pe.go b/src/cmd/link/internal/ld/pe.go
-index ec5b6d5f52..29094fe8ed 100644
+index adbf516d5c..5edaf54dd2 100644
 --- a/src/cmd/link/internal/ld/pe.go
 +++ b/src/cmd/link/internal/ld/pe.go
 @@ -253,7 +253,7 @@ type Dll struct {
@@ -59,47 +77,44 @@ index ec5b6d5f52..29094fe8ed 100644
  	PESECTHEADR int32
  	PEFILEHEADR int32
  	pe64        int
-@@ -1464,47 +1464,47 @@ func (ctxt *Link) dope() {
+@@ -1508,46 +1508,56 @@ func (ctxt *Link) dope() {
  	initdynexport(ctxt)
  }
  
 -func setpersrc(ctxt *Link, sym loader.Sym) {
 -	if rsrcsym != 0 {
 +func setpersrc(ctxt *Link, syms []loader.Sym) {
-+	if rsrcsyms != nil {
++	if len(rsrcsyms) != 0 {
  		Errorf(nil, "too many .rsrc sections")
  	}
 -
 -	rsrcsym = sym
--	ctxt.loader.SetAttrReachable(rsrcsym, true)
 +	rsrcsyms = syms
-+	for i := range rsrcsyms {
-+		ctxt.loader.SetAttrReachable(rsrcsyms[i], true)
-+	}
  }
  
  func addpersrc(ctxt *Link) {
 -	if rsrcsym == 0 {
-+	if rsrcsyms == nil {
++	if len(rsrcsyms) == 0 {
  		return
  	}
  
--	rsrc := ctxt.loader.Syms[rsrcsym]
--	data := rsrc.P
+-	data := ctxt.loader.Data(rsrcsym)
 -	size := len(data)
-+	var size int
-+	for i := range rsrcsyms {
-+		size += len(ctxt.loader.Syms[rsrcsyms[i]].P)
+-	h := pefile.addSection(".rsrc", size, size)
++	var size int64
++	for _, rsrcsym := range rsrcsyms {
++		size += ctxt.loader.SymSize(rsrcsym)
 +	}
- 	h := pefile.addSection(".rsrc", size, size)
++	h := pefile.addSection(".rsrc", int(size), int(size))
  	h.characteristics = IMAGE_SCN_MEM_READ | IMAGE_SCN_CNT_INITIALIZED_DATA
  	h.checkOffset(ctxt.Out.Offset())
  
 -	// relocation
--	for ri := range rsrc.R {
--		r := &rsrc.R[ri]
--		p := data[r.Off:]
--		val := uint32(int64(h.virtualAddress) + r.Add)
+-	relocs := ctxt.loader.Relocs(rsrcsym)
+-	for i := 0; i < relocs.Count(); i++ {
+-		r := relocs.At(i)
+-		p := data[r.Off():]
+-		val := uint32(int64(h.virtualAddress) + r.Add())
 -
 -		// 32-bit little-endian
 -		p[0] = byte(val)
@@ -107,19 +122,31 @@ index ec5b6d5f52..29094fe8ed 100644
 -		p[1] = byte(val >> 8)
 -		p[2] = byte(val >> 16)
 -		p[3] = byte(val >> 24)
-+	for i := range rsrcsyms {
-+		rsrc := ctxt.loader.Syms[rsrcsyms[i]]
-+		splitResources := strings.Contains(rsrc.Name, ".rsrc$")
-+		for ri := range rsrc.R {
-+			r := &rsrc.R[ri]
-+			p := rsrc.P[r.Off:]
-+			val := uint32(int64(h.virtualAddress) + r.Add)
++	for _, rsrcsym := range rsrcsyms {
++		// A split resource happens when the actual resource data and its relocations are
++		// split across multiple sections, denoted by a $01 or $02 at the end of the .rsrc
++		// section name.
++		splitResources := strings.Contains(ctxt.loader.SymName(rsrcsym), ".rsrc$")
++		relocs := ctxt.loader.Relocs(rsrcsym)
++		data := ctxt.loader.Data(rsrcsym)
++		for ri := 0; ri < relocs.Count(); ri++ {
++			r := relocs.At(ri)
++			p := data[r.Off():]
++			val := uint32(int64(h.virtualAddress) + r.Add())
 +			if splitResources {
-+				val += uint32(len(rsrc.P))
++				// If we're a split resource section, and that section has relocation
++				// symbols, then the data that it points to doesn't actually begin at
++				// the virtual address listed in this current section, but rather
++				// begins at the section immediately after this one. So, in order to
++				// calculate the proper virtual address of the data it's pointing to,
++				// we have to add the length of this section to the virtual address.
++				// This works because .rsrc sections are divided into two (but not more)
++				// of these sections.
++				val += uint32(len(data))
 +			}
 +			binary.LittleEndian.PutUint32(p, val)
 +		}
-+		ctxt.Out.Write(rsrc.P)
++		ctxt.Out.Write(data)
  	}
 -
 -	ctxt.Out.Write(data)
@@ -132,19 +159,22 @@ index ec5b6d5f52..29094fe8ed 100644
  }
  
 diff --git a/src/cmd/link/internal/loadpe/ldpe.go b/src/cmd/link/internal/loadpe/ldpe.go
-index b60b84ce9f..08832ba552 100644
+index 1e6f978531..a5c025de8f 100644
 --- a/src/cmd/link/internal/loadpe/ldpe.go
 +++ b/src/cmd/link/internal/loadpe/ldpe.go
-@@ -158,7 +158,7 @@ func makeUpdater(l *loader.Loader, bld *loader.SymbolBuilder, s loader.Sym) *loa
+@@ -157,8 +157,9 @@ func makeUpdater(l *loader.Loader, bld *loader.SymbolBuilder, s loader.Sym) *loa
+ 
  // Load loads the PE file pn from input.
  // Symbols are written into syms, and a slice of the text symbols is returned.
- // If an .rsrc section is found, its symbol is returned as rsrc.
+-// If an .rsrc section is found, its symbol is returned as rsrc.
 -func Load(l *loader.Loader, arch *sys.Arch, localSymVersion int, input *bio.Reader, pkg string, length int64, pn string) (textp []loader.Sym, rsrc loader.Sym, err error) {
++// If an .rsrc section or set of .rsrc$xx sections is found, its symbols are
++// returned as rsrc.
 +func Load(l *loader.Loader, arch *sys.Arch, localSymVersion int, input *bio.Reader, pkg string, length int64, pn string) (textp []loader.Sym, rsrc []loader.Sym, err error) {
  	lookup := func(name string, version int) (*loader.SymbolBuilder, loader.Sym) {
  		s := l.LookupOrCreateSym(name, version)
  		sb := l.MakeSymbolUpdater(s)
-@@ -176,7 +176,7 @@ func Load(l *loader.Loader, arch *sys.Arch, localSymVersion int, input *bio.Read
+@@ -176,7 +177,7 @@ func Load(l *loader.Loader, arch *sys.Arch, localSymVersion int, input *bio.Read
  	// TODO: replace pe.NewFile with pe.Load (grep for "add Load function" in debug/pe for details)
  	f, err := pe.NewFile(sr)
  	if err != nil {
@@ -153,7 +183,7 @@ index b60b84ce9f..08832ba552 100644
  	}
  	defer f.Close()
  
-@@ -211,21 +211,21 @@ func Load(l *loader.Loader, arch *sys.Arch, localSymVersion int, input *bio.Read
+@@ -211,21 +212,21 @@ func Load(l *loader.Loader, arch *sys.Arch, localSymVersion int, input *bio.Read
  			bld.SetType(sym.STEXT)
  
  		default:
@@ -179,7 +209,7 @@ index b60b84ce9f..08832ba552 100644
  		}
  	}
  
-@@ -246,22 +246,23 @@ func Load(l *loader.Loader, arch *sys.Arch, localSymVersion int, input *bio.Read
+@@ -246,22 +247,23 @@ func Load(l *loader.Loader, arch *sys.Arch, localSymVersion int, input *bio.Read
  			continue
  		}
  
@@ -206,7 +236,7 @@ index b60b84ce9f..08832ba552 100644
  			}
  
  			rSym := gosym
-@@ -271,11 +272,11 @@ func Load(l *loader.Loader, arch *sys.Arch, localSymVersion int, input *bio.Read
+@@ -271,11 +273,11 @@ func Load(l *loader.Loader, arch *sys.Arch, localSymVersion int, input *bio.Read
  			var rType objabi.RelocType
  			switch arch.Family {
  			default:
@@ -220,7 +250,7 @@ index b60b84ce9f..08832ba552 100644
  
  				case IMAGE_REL_I386_REL32, IMAGE_REL_AMD64_REL32,
  					IMAGE_REL_AMD64_ADDR32, // R_X86_64_PC32
-@@ -302,7 +303,7 @@ func Load(l *loader.Loader, arch *sys.Arch, localSymVersion int, input *bio.Read
+@@ -302,7 +304,7 @@ func Load(l *loader.Loader, arch *sys.Arch, localSymVersion int, input *bio.Read
  			case sys.ARM:
  				switch r.Type {
  				default:
@@ -229,27 +259,19 @@ index b60b84ce9f..08832ba552 100644
  
  				case IMAGE_REL_ARM_SECREL:
  					rType = objabi.R_PCREL
-@@ -324,7 +325,7 @@ func Load(l *loader.Loader, arch *sys.Arch, localSymVersion int, input *bio.Read
+@@ -323,8 +325,9 @@ func Load(l *loader.Loader, arch *sys.Arch, localSymVersion int, input *bio.Read
+ 
  			// ld -r could generate multiple section symbols for the
  			// same section but with different values, we have to take
- 			// that into account
+-			// that into account
 -			if issect(pesym) {
++			// that into account, or in the case of split resources,
++			// the section and its symbols are split into two sections.
 +			if issect(pesym) || splitResources {
  				rAdd += int64(pesym.Value)
  			}
  
-@@ -333,6 +334,10 @@ func Load(l *loader.Loader, arch *sys.Arch, localSymVersion int, input *bio.Read
- 			rel.SetSiz(rSize)
- 			rel.SetSym(rSym)
- 			rel.SetAdd(rAdd)
-+
-+			if splitResources {
-+				l.SetAttrReachable(rSym, true)
-+			}
- 		}
- 
- 		sb.SortRelocs()
-@@ -346,7 +351,7 @@ func Load(l *loader.Loader, arch *sys.Arch, localSymVersion int, input *bio.Read
+@@ -346,7 +349,7 @@ func Load(l *loader.Loader, arch *sys.Arch, localSymVersion int, input *bio.Read
  
  		name, err := pesym.FullName(f.StringTable)
  		if err != nil {
@@ -258,7 +280,7 @@ index b60b84ce9f..08832ba552 100644
  		}
  		if name == "" {
  			continue
-@@ -373,7 +378,7 @@ func Load(l *loader.Loader, arch *sys.Arch, localSymVersion int, input *bio.Read
+@@ -384,7 +387,7 @@ func Load(l *loader.Loader, arch *sys.Arch, localSymVersion int, input *bio.Read
  
  		bld, s, err := readpesym(l, arch, l.LookupOrCreateSym, f, pesym, sectsyms, localSymVersion)
  		if err != nil {
@@ -267,7 +289,7 @@ index b60b84ce9f..08832ba552 100644
  		}
  
  		if pesym.SectionNumber == 0 { // extern
-@@ -391,14 +396,14 @@ func Load(l *loader.Loader, arch *sys.Arch, localSymVersion int, input *bio.Read
+@@ -402,14 +405,14 @@ func Load(l *loader.Loader, arch *sys.Arch, localSymVersion int, input *bio.Read
  		} else if pesym.SectionNumber > 0 && int(pesym.SectionNumber) <= len(f.Sections) {
  			sect = f.Sections[pesym.SectionNumber-1]
  			if _, found := sectsyms[sect]; !found {
@@ -285,7 +307,7 @@ index b60b84ce9f..08832ba552 100644
  		}
  
  		if l.OuterSym(s) != 0 {
-@@ -407,7 +412,7 @@ func Load(l *loader.Loader, arch *sys.Arch, localSymVersion int, input *bio.Read
+@@ -418,7 +421,7 @@ func Load(l *loader.Loader, arch *sys.Arch, localSymVersion int, input *bio.Read
  			}
  			outerName := l.SymName(l.OuterSym(s))
  			sectName := l.SymName(sectsyms[sect])
@@ -294,7 +316,7 @@ index b60b84ce9f..08832ba552 100644
  		}
  
  		bld = makeUpdater(l, bld, s)
-@@ -418,7 +423,7 @@ func Load(l *loader.Loader, arch *sys.Arch, localSymVersion int, input *bio.Read
+@@ -429,7 +432,7 @@ func Load(l *loader.Loader, arch *sys.Arch, localSymVersion int, input *bio.Read
  		bld.SetSize(4)
  		if l.SymType(sectsym) == sym.STEXT {
  			if bld.External() && !bld.DuplicateOK() {
@@ -303,7 +325,7 @@ index b60b84ce9f..08832ba552 100644
  			}
  			bld.SetExternal(true)
  		}
-@@ -435,7 +440,7 @@ func Load(l *loader.Loader, arch *sys.Arch, localSymVersion int, input *bio.Read
+@@ -446,7 +449,7 @@ func Load(l *loader.Loader, arch *sys.Arch, localSymVersion int, input *bio.Read
  		if l.SymType(s) == sym.STEXT {
  			for ; s != 0; s = l.SubSym(s) {
  				if l.AttrOnList(s) {
