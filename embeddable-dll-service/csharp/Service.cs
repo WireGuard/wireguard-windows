@@ -51,7 +51,7 @@ namespace Tunnel
                     Win32.CloseServiceHandle(service);
                     Remove(configFile);
                 }
-                service = Win32.CreateService(scm, shortName, longName, Win32.ServiceAccessRights.AllAccess, Win32.ServiceType.Win32OwnProcess, Win32.ServiceStartType.Demand, Win32.ServiceError.Normal, pathAndArgs, null, IntPtr.Zero, "Nsi", null, null);
+                service = Win32.CreateService(scm, shortName, longName, Win32.ServiceAccessRights.AllAccess, Win32.ServiceType.Win32OwnProcess, Win32.ServiceStartType.Demand, Win32.ServiceError.Normal, pathAndArgs, null, IntPtr.Zero, "Nsi\0TcpIp", null, null);
                 if (service == IntPtr.Zero)
                     throw new Win32Exception(Marshal.GetLastWin32Error());
                 try
