@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net5.0-windows</TargetFramework>
+    <RootNamespace>DemoUI</RootNamespace>
+    <UseWindowsForms>true</UseWindowsForms>
+    <AssemblyName>demo-client</AssemblyName>
+    <Platforms>x64</Platforms>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <ApplicationManifest>DemoUI\app.manifest</ApplicationManifest>
+  </PropertyGroup>
+
+</Project>

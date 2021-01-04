@@ -1,6 +1,6 @@
 ﻿/* SPDX-License-Identifier: MIT
  *
- * Copyright (C) 2019-2020 WireGuard LLC. All Rights Reserved.
+ * Copyright (C) 2019-2021 WireGuard LLC. All Rights Reserved.
  */
 
 using System;
@@ -13,7 +13,7 @@ namespace Tunnel
         public readonly string Public;
         public readonly string Private;
 
-        private Keypair(string pub, string priv)
+        public Keypair(string pub, string priv)
         {
             Public = pub;
             Private = priv;
