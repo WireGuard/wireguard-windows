@@ -115,9 +115,12 @@ func configureInterface(family winipcfg.AddressFamily, conf *conf.Config, tun *t
 	deduplicatedRoutes := make([]*winipcfg.RouteData, 0, len(routes))
 	sort.Slice(routes, func(i, j int) bool {
 		return routes[i].Metric < routes[j].Metric ||
-			bytes.Compare(routes[i].NextHop, routes[j].NextHop) == -1 ||
-			bytes.Compare(routes[i].Destination.IP, routes[j].Destination.IP) == -1 ||
-			bytes.Compare(routes[i].Destination.Mask, routes[j].Destination.Mask) == -1
+			(routes[i].Metric == routes[j].Metric &&
+				(bytes.Compare(routes[i].NextHop, routes[j].NextHop) == -1 ||
+					(bytes.Equal(routes[i].NextHop, routes[j].NextHop) &&
+						(bytes.Compare(routes[i].Destination.IP, routes[j].Destination.IP) == -1 ||
+							(bytes.Equal(routes[i].Destination.IP, routes[j].Destination.IP) &&
+								(bytes.Compare(routes[i].Destination.Mask, routes[j].Destination.Mask) == -1))))))
 	})
 	for i := 0; i < len(routes); i++ {
 		if i > 0 && routes[i].Metric == routes[i-1].Metric &&
