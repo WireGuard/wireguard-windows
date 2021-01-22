@@ -38,17 +38,14 @@ func errnoErr(e syscall.Errno) error {
 }
 
 var (
-	modntdll  = windows.NewLazySystemDLL("ntdll.dll")
-	modole32  = windows.NewLazySystemDLL("ole32.dll")
-	moduser32 = windows.NewLazySystemDLL("user32.dll")
+	modntdll = windows.NewLazySystemDLL("ntdll.dll")
+	modole32 = windows.NewLazySystemDLL("ole32.dll")
 
-	procRtlGetCurrentPeb         = modntdll.NewProc("RtlGetCurrentPeb")
-	procRtlInitUnicodeString     = modntdll.NewProc("RtlInitUnicodeString")
-	procCoGetObject              = modole32.NewProc("CoGetObject")
-	procCoInitializeEx           = modole32.NewProc("CoInitializeEx")
-	procCoUninitialize           = modole32.NewProc("CoUninitialize")
-	procGetShellWindow           = moduser32.NewProc("GetShellWindow")
-	procGetWindowThreadProcessId = moduser32.NewProc("GetWindowThreadProcessId")
+	procRtlGetCurrentPeb     = modntdll.NewProc("RtlGetCurrentPeb")
+	procRtlInitUnicodeString = modntdll.NewProc("RtlInitUnicodeString")
+	procCoGetObject          = modole32.NewProc("CoGetObject")
+	procCoInitializeEx       = modole32.NewProc("CoInitializeEx")
+	procCoUninitialize       = modole32.NewProc("CoUninitialize")
 )
 
 func rtlGetCurrentPeb() (peb *cPEB) {
@@ -80,20 +77,5 @@ func coInitializeEx(reserved uintptr, coInit uint32) (ret error) {
 
 func coUninitialize() {
 	syscall.Syscall(procCoUninitialize.Addr(), 0, 0, 0, 0)
-	return
-}
-
-func getShellWindow() (hwnd uintptr) {
-	r0, _, _ := syscall.Syscall(procGetShellWindow.Addr(), 0, 0, 0, 0)
-	hwnd = uintptr(r0)
-	return
-}
-
-func getWindowThreadProcessId(hwnd uintptr, pid *uint32) (tid uint32, err error) {
-	r0, _, e1 := syscall.Syscall(procGetWindowThreadProcessId.Addr(), 2, uintptr(hwnd), uintptr(unsafe.Pointer(pid)), 0)
-	tid = uint32(r0)
-	if tid == 0 {
-		err = errnoErr(e1)
-	}
 	return
 }

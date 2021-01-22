@@ -38,34 +38,10 @@ func errnoErr(e syscall.Errno) error {
 }
 
 var (
-	modkernel32 = windows.NewLazySystemDLL("kernel32.dll")
-	modwininet  = windows.NewLazySystemDLL("wininet.dll")
+	modwininet = windows.NewLazySystemDLL("wininet.dll")
 
-	procFindFirstChangeNotificationW = modkernel32.NewProc("FindFirstChangeNotificationW")
-	procFindNextChangeNotification   = modkernel32.NewProc("FindNextChangeNotification")
-	procInternetGetConnectedState    = modwininet.NewProc("InternetGetConnectedState")
+	procInternetGetConnectedState = modwininet.NewProc("InternetGetConnectedState")
 )
-
-func findFirstChangeNotification(path *uint16, watchSubtree bool, filter uint32) (handle windows.Handle, err error) {
-	var _p0 uint32
-	if watchSubtree {
-		_p0 = 1
-	}
-	r0, _, e1 := syscall.Syscall(procFindFirstChangeNotificationW.Addr(), 3, uintptr(unsafe.Pointer(path)), uintptr(_p0), uintptr(filter))
-	handle = windows.Handle(r0)
-	if handle == windows.InvalidHandle {
-		err = errnoErr(e1)
-	}
-	return
-}
-
-func findNextChangeNotification(handle windows.Handle) (err error) {
-	r1, _, e1 := syscall.Syscall(procFindNextChangeNotification.Addr(), 1, uintptr(handle), 0, 0)
-	if r1 == 0 {
-		err = errnoErr(e1)
-	}
-	return
-}
 
 func internetGetConnectedState(flags *uint32, reserved uint32) (connected bool) {
 	r0, _, _ := syscall.Syscall(procInternetGetConnectedState.Addr(), 2, uintptr(unsafe.Pointer(flags)), uintptr(reserved), 0)

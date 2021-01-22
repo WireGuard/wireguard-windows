@@ -11,20 +11,6 @@ import (
 	"golang.org/x/sys/windows"
 )
 
-const (
-	fncFILE_NAME   uint32 = 0x00000001
-	fncDIR_NAME    uint32 = 0x00000002
-	fncATTRIBUTES  uint32 = 0x00000004
-	fncSIZE        uint32 = 0x00000008
-	fncLAST_WRITE  uint32 = 0x00000010
-	fncLAST_ACCESS uint32 = 0x00000020
-	fncCREATION    uint32 = 0x00000040
-	fncSECURITY    uint32 = 0x00000100
-)
-
-//sys	findFirstChangeNotification(path *uint16, watchSubtree bool, filter uint32) (handle windows.Handle, err error) [failretval==windows.InvalidHandle] = kernel32.FindFirstChangeNotificationW
-//sys	findNextChangeNotification(handle windows.Handle) (err error) = kernel32.FindNextChangeNotification
-
 var haveStartedWatchingConfigDir bool
 
 func startWatchingConfigDir() {
@@ -36,7 +22,7 @@ func startWatchingConfigDir() {
 		h := windows.InvalidHandle
 		defer func() {
 			if h != windows.InvalidHandle {
-				windows.CloseHandle(h)
+				windows.FindCloseChangeNotification(h)
 			}
 			haveStartedWatchingConfigDir = false
 		}()
@@ -45,7 +31,7 @@ func startWatchingConfigDir() {
 		if err != nil {
 			return
 		}
-		h, err = findFirstChangeNotification(windows.StringToUTF16Ptr(configFileDir), true, fncFILE_NAME|fncDIR_NAME|fncATTRIBUTES|fncSIZE|fncLAST_WRITE|fncLAST_ACCESS|fncCREATION|fncSECURITY)
+		h, err = windows.FindFirstChangeNotification(configFileDir, true, windows.FILE_NOTIFY_CHANGE_FILE_NAME|windows.FILE_NOTIFY_CHANGE_DIR_NAME|windows.FILE_NOTIFY_CHANGE_ATTRIBUTES|windows.FILE_NOTIFY_CHANGE_SIZE|windows.FILE_NOTIFY_CHANGE_LAST_WRITE|windows.FILE_NOTIFY_CHANGE_LAST_ACCESS|windows.FILE_NOTIFY_CHANGE_CREATION|windows.FILE_NOTIFY_CHANGE_SECURITY)
 		if err != nil {
 			log.Printf("Unable to monitor config directory: %v", err)
 			return
@@ -54,7 +40,7 @@ func startWatchingConfigDir() {
 			s, err := windows.WaitForSingleObject(h, windows.INFINITE)
 			if err != nil || s == windows.WAIT_FAILED {
 				log.Printf("Unable to wait on config directory watcher: %v", err)
-				windows.CloseHandle(h)
+				windows.FindCloseChangeNotification(h)
 				h = windows.InvalidHandle
 				goto startover
 			}
@@ -63,10 +49,10 @@ func startWatchingConfigDir() {
 				cb.cb()
 			}
 
-			err = findNextChangeNotification(h)
+			err = windows.FindNextChangeNotification(h)
 			if err != nil {
 				log.Printf("Unable to monitor config directory again: %v", err)
-				windows.CloseHandle(h)
+				windows.FindCloseChangeNotification(h)
 				h = windows.InvalidHandle
 				goto startover
 			}

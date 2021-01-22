@@ -3,7 +3,7 @@
  * Copyright (C) 2019-2020 WireGuard LLC. All Rights Reserved.
  */
 
-package wintrust
+package version
 
 import (
 	"fmt"
@@ -18,7 +18,7 @@ func TestExtractCertificateNames(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	names, err := ExtractCertificateNames(filepath.Join(system32, "ntoskrnl.exe"))
+	names, err := extractCertificateNames(filepath.Join(system32, "ntoskrnl.exe"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -32,7 +32,7 @@ func TestExtractCertificateExtension(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	policies, err := ExtractCertificatePolicies(filepath.Join(system32, "ntoskrnl.exe"), "2.5.29.32")
+	policies, err := extractCertificatePolicies(filepath.Join(system32, "ntoskrnl.exe"), "2.5.29.32")
 	if err != nil {
 		t.Fatal(err)
 	}

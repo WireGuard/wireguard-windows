@@ -10,8 +10,6 @@ import (
 	"unsafe"
 
 	"golang.org/x/sys/windows"
-
-	"golang.zx2c4.com/wireguard/windows/version/wintrust"
 )
 
 const (
@@ -25,19 +23,18 @@ func VerifyAuthenticode(path string) bool {
 	if err != nil {
 		return false
 	}
-	file := &wintrust.WinTrustFileInfo{
-		CbStruct: uint32(unsafe.Sizeof(wintrust.WinTrustFileInfo{})),
-		FilePath: path16,
+	data := &windows.WinTrustData{
+		Size:                        uint32(unsafe.Sizeof(windows.WinTrustData{})),
+		UIChoice:                        windows.WTD_UI_NONE,
+		RevocationChecks:                windows.WTD_REVOKE_WHOLECHAIN, // Full revocation checking, as this is called with network connectivity.
+		UnionChoice:                     windows.WTD_CHOICE_FILE,
+		StateAction:                     windows.WTD_STATEACTION_VERIFY,
+		FileOrCatalogOrBlobOrSgnrOrCert: unsafe.Pointer(&windows.WinTrustFileInfo{
+			Size: uint32(unsafe.Sizeof(windows.WinTrustFileInfo{})),
+			FilePath: path16,
+		}),
 	}
-	data := &wintrust.WinTrustData{
-		CbStruct:                        uint32(unsafe.Sizeof(wintrust.WinTrustData{})),
-		UIChoice:                        wintrust.WTD_UI_NONE,
-		RevocationChecks:                wintrust.WTD_REVOKE_WHOLECHAIN, // Full revocation checking, as this is called with network connectivity.
-		UnionChoice:                     wintrust.WTD_CHOICE_FILE,
-		StateAction:                     wintrust.WTD_STATEACTION_VERIFY,
-		FileOrCatalogOrBlobOrSgnrOrCert: uintptr(unsafe.Pointer(file)),
-	}
-	return wintrust.WinVerifyTrust(windows.InvalidHandle, &wintrust.WINTRUST_ACTION_GENERIC_VERIFY_V2, data) == nil
+	return windows.WinVerifyTrustEx(windows.InvalidHWND, &windows.WINTRUST_ACTION_GENERIC_VERIFY_V2, data) == nil
 }
 
 // These are easily by-passable checks, which do not serve serve security purposes. Do not place security-sensitive
@@ -49,7 +46,7 @@ func IsRunningOfficialVersion() bool {
 		return false
 	}
 
-	names, err := wintrust.ExtractCertificateNames(path)
+	names, err := extractCertificateNames(path)
 	if err != nil {
 		return false
 	}
@@ -67,7 +64,7 @@ func IsRunningEVSigned() bool {
 		return false
 	}
 
-	policies, err := wintrust.ExtractCertificatePolicies(path, policyExtensionOid)
+	policies, err := extractCertificatePolicies(path, policyExtensionOid)
 	if err != nil {
 		return false
 	}
