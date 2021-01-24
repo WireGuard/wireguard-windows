@@ -7,7 +7,7 @@ require (
 	github.com/lxn/win v0.0.0-20201111105847-2a20daff6a55
 	golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad
 	golang.org/x/net v0.0.0-20210119194325-5f4716e94777
-	golang.org/x/sys v0.0.0-20210123231150-1d476976d117
+	golang.org/x/sys v0.0.0-20210124154548-22da62e12c0c
 	golang.org/x/text v0.3.5
 	golang.zx2c4.com/wireguard v0.0.20201119-0.20210120232502-fcc8ad05df75
 )
