@@ -168,7 +168,7 @@ func DownloadVerifyAndExecute(userToken uintptr) (progress chan DownloadProgress
 		}
 
 		progress <- DownloadProgress{Activity: "Verifying authenticode signature"}
-		if !version.VerifyAuthenticode(file.ExclusivePath()) {
+		if !verifyAuthenticode(file.ExclusivePath()) {
 			progress <- DownloadProgress{Error: errors.New("The downloaded update does not have an authentic authenticode signature")}
 			return
 		}

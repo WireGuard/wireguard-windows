@@ -7,19 +7,19 @@ package dpapi
 
 import (
 	"errors"
+	"fmt"
 	"runtime"
 	"unsafe"
-	"fmt"
 
 	"golang.org/x/sys/windows"
 )
 
 func bytesToBlob(bytes []byte) *windows.DataBlob {
-       blob := &windows.DataBlob{Size: uint32(len(bytes))}
-       if len(bytes) > 0 {
-               blob.Data = &bytes[0]
-       }
-       return blob
+	blob := &windows.DataBlob{Size: uint32(len(bytes))}
+	if len(bytes) > 0 {
+		blob.Data = &bytes[0]
+	}
+	return blob
 }
 
 func Encrypt(data []byte, name string) ([]byte, error) {

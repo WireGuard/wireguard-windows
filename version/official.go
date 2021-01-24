@@ -6,11 +6,57 @@
 package version
 
 import (
-	"syscall"
+	"errors"
+	"os"
 	"unsafe"
 
 	"golang.org/x/sys/windows"
 )
+
+const (
+	officialCommonName = "WireGuard LLC"
+	evPolicyOid        = "2.23.140.1.3"
+	policyExtensionOid = "2.5.29.32"
+)
+
+// These are easily by-passable checks, which do not serve serve security purposes.
+// DO NOT PLACE SECURITY-SENSITIVE FUNCTIONS IN THIS FILE
+
+func IsRunningOfficialVersion() bool {
+	path, err := os.Executable()
+	if err != nil {
+		return false
+	}
+
+	names, err := extractCertificateNames(path)
+	if err != nil {
+		return false
+	}
+	for _, name := range names {
+		if name == officialCommonName {
+			return true
+		}
+	}
+	return false
+}
+
+func IsRunningEVSigned() bool {
+	path, err := os.Executable()
+	if err != nil {
+		return false
+	}
+
+	policies, err := extractCertificatePolicies(path, policyExtensionOid)
+	if err != nil {
+		return false
+	}
+	for _, policy := range policies {
+		if policy == evPolicyOid {
+			return true
+		}
+	}
+	return false
+}
 
 func extractCertificateNames(path string) ([]string, error) {
 	path16, err := windows.UTF16PtrFromString(path)
@@ -28,10 +74,8 @@ func extractCertificateNames(path string) ([]string, error) {
 	for {
 		cert, err = windows.CertEnumCertificatesInStore(certStore, cert)
 		if err != nil {
-			if errno, ok := err.(syscall.Errno); ok {
-				if errno == syscall.Errno(windows.CRYPT_E_NOT_FOUND) {
-					break
-				}
+			if errors.Is(err, windows.Errno(windows.CRYPT_E_NOT_FOUND)) {
+				break
 			}
 			return nil, err
 		}
@@ -52,7 +96,7 @@ func extractCertificateNames(path string) ([]string, error) {
 		names = append(names, windows.UTF16ToString(name16))
 	}
 	if names == nil {
-		return nil, syscall.Errno(windows.CRYPT_E_NOT_FOUND)
+		return nil, windows.Errno(windows.CRYPT_E_NOT_FOUND)
 	}
 	return names, nil
 }
@@ -77,10 +121,8 @@ func extractCertificatePolicies(path string, oid string) ([]string, error) {
 	for {
 		cert, err = windows.CertEnumCertificatesInStore(certStore, cert)
 		if err != nil {
-			if errno, ok := err.(syscall.Errno); ok {
-				if errno == syscall.Errno(windows.CRYPT_E_NOT_FOUND) {
-					break
-				}
+			if errors.Is(err, windows.Errno(windows.CRYPT_E_NOT_FOUND)) {
+				break
 			}
 			return nil, err
 		}
@@ -109,7 +151,7 @@ func extractCertificatePolicies(path string, oid string) ([]string, error) {
 		}
 	}
 	if policies == nil {
-		return nil, syscall.Errno(windows.CRYPT_E_NOT_FOUND)
+		return nil, windows.Errno(windows.CRYPT_E_NOT_FOUND)
 	}
 	return policies, nil
 }

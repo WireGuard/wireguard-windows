@@ -20,7 +20,7 @@ func TestUpdate(t *testing.T) {
 		return
 	}
 	t.Log("Found update")
-	progress := DownloadVerifyAndExecute(0, nil)
+	progress := DownloadVerifyAndExecute(0)
 	for {
 		dp := <-progress
 		if dp.Error != nil {
