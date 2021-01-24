@@ -6,13 +6,13 @@
 package winhttp
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"runtime"
 	"strconv"
 	"strings"
 	"sync/atomic"
-	"syscall"
 	"unsafe"
 
 	"golang.org/x/sys/windows"
@@ -35,9 +35,10 @@ func convertError(err *error) {
 	if *err == nil {
 		return
 	}
-	if se, ok := (*err).(syscall.Errno); ok {
-		if se > _WINHTTP_ERROR_BASE && se <= _WINHTTP_ERROR_LAST {
-			*err = Error(se)
+	var errno windows.Errno
+	if errors.As(*err, &errno) {
+		if errno > _WINHTTP_ERROR_BASE && errno <= _WINHTTP_ERROR_LAST {
+			*err = Error(errno)
 		}
 	}
 }
