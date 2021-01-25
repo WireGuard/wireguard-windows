@@ -58,24 +58,25 @@ namespace DemoUI
 
         private void tailTransfer()
         {
+            StreamReader reader = null;
             NamedPipeClientStream stream = null;
+            while (threadsRunning)
+            {
+                try
+                {
+                    stream = Tunnel.Service.GetPipe(configFile);
+                    stream.Connect();
+                    reader = new StreamReader(stream);
+                    break;
+                }
+                catch { }
+                Thread.Sleep(1000);
+            }
+
             try
             {
                 while (threadsRunning)
                 {
-                    while (threadsRunning)
-                    {
-                        try
-                        {
-                            stream = Tunnel.Service.GetPipe(configFile);
-                            stream.Connect();
-                            break;
-                        }
-                        catch { }
-                        Thread.Sleep(1000);
-                    }
-
-                    var reader = new StreamReader(stream);
                     stream.Write(Encoding.UTF8.GetBytes("get=1\n\n"));
                     ulong rx = 0, tx = 0;
                     while (threadsRunning)
@@ -92,14 +93,13 @@ namespace DemoUI
                             tx += ulong.Parse(line.Substring(9));
                     }
                     Invoke(new Action<ulong, ulong>(updateTransferTitle), new object[] { rx, tx });
-                    stream.Close();
                     Thread.Sleep(1000);
                 }
             }
             catch { }
             finally
             {
-                if (stream != null && stream.IsConnected)
+                if (stream.IsConnected)
                     stream.Close();
             }
         }

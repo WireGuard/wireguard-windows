@@ -10,7 +10,6 @@ import (
 	"encoding/gob"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"sync"
@@ -19,8 +18,6 @@ import (
 
 	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/svc"
-
-	"golang.zx2c4.com/wireguard/ipc/winpipe"
 
 	"golang.zx2c4.com/wireguard/windows/conf"
 	"golang.zx2c4.com/wireguard/windows/services"
@@ -54,30 +51,30 @@ func (s *ManagerService) RuntimeConfig(tunnelName string) (*conf.Config, error) 
 	if err != nil {
 		return nil, err
 	}
-	pipePath, err := services.PipePathOfTunnel(storedConfig.Name)
+	pipe, err := connectTunnelServicePipe(tunnelName)
 	if err != nil {
 		return nil, err
 	}
-	localSystem, err := windows.CreateWellKnownSid(windows.WinLocalSystemSid)
-	if err != nil {
-		return nil, err
-	}
-	pipe, err := winpipe.DialPipe(pipePath, nil, localSystem)
-	if err != nil {
-		return nil, err
-	}
-	defer pipe.Close()
-	pipe.SetWriteDeadline(time.Now().Add(time.Second * 2))
+	pipe.SetDeadline(time.Now().Add(time.Second * 2))
 	_, err = pipe.Write([]byte("get=1\n\n"))
+	if err == windows.ERROR_NO_DATA {
+		log.Println("IPC pipe closed unexpectedly, so reopening")
+		pipe.Unlock()
+		disconnectTunnelServicePipe(tunnelName)
+		pipe, err = connectTunnelServicePipe(tunnelName)
+		if err != nil {
+			return nil, err
+		}
+		pipe.SetDeadline(time.Now().Add(time.Second * 2))
+		_, err = pipe.Write([]byte("get=1\n\n"))
+	}
 	if err != nil {
+		pipe.Unlock()
+		disconnectTunnelServicePipe(tunnelName)
 		return nil, err
 	}
-	pipe.SetReadDeadline(time.Now().Add(time.Second * 2))
-	resp, err := ioutil.ReadAll(pipe)
-	if err != nil {
-		return nil, err
-	}
-	conf, err := conf.FromUAPI(string(resp), storedConfig)
+	conf, err := conf.FromUAPI(pipe, storedConfig)
+	pipe.Unlock()
 	if err != nil {
 		return nil, err
 	}
