@@ -131,8 +131,7 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 		return
 	}
 
-	logPrefix := fmt.Sprintf("[%s] ", config.Name)
-	log.SetPrefix(logPrefix)
+	log.SetPrefix(fmt.Sprintf("[%s] ", config.Name))
 
 	log.Println("Starting", version.UserAgent())
 
@@ -197,9 +196,7 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 	}
 
 	log.Println("Creating interface instance")
-	logOutput := log.New(ringlogger.Global, logPrefix, 0)
-	logger := &device.Logger{logOutput, logOutput, logOutput}
-	dev = device.NewDevice(wintun, logger)
+	dev = device.NewDevice(wintun, &device.Logger{log.Printf, log.Printf})
 
 	log.Println("Setting interface configuration")
 	uapi, err = ipc.UAPIListen(config.Name)
