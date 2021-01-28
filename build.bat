@@ -13,7 +13,7 @@ if exist .deps\prepared goto :render
 	rmdir /s /q .deps 2> NUL
 	mkdir .deps || goto :error
 	cd .deps || goto :error
-	call :download go.zip https://golang.org/dl/go1.16beta1.windows-amd64.zip f06e2d7f300843473527e8fdd2d496aef5ffa6507ade0ac1141934e5c6ca7d63 || goto :error
+	call :download go.zip https://golang.org/dl/go1.16rc1.windows-amd64.zip ff765c31cf321b431f9a11ec42e61d42ec87d56333c847f5a87d30e01aaed3df || goto :error
 	rem Mirror of https://github.com/mstorsjo/llvm-mingw/releases/download/20201020/llvm-mingw-20201020-msvcrt-x86_64.zip
 	call :download llvm-mingw-msvcrt.zip https://download.wireguard.com/windows-toolchain/distfiles/llvm-mingw-20201020-msvcrt-x86_64.zip 2e46593245090df96d15e360e092f0b62b97e93866e0162dca7f93b16722b844 || goto :error
 	rem Mirror of https://imagemagick.org/download/binaries/ImageMagick-7.0.8-42-portable-Q16-x64.zip
@@ -26,9 +26,6 @@ if exist .deps\prepared goto :render
 	call :download wintun.zip https://www.wintun.net/builds/wintun-0.10.zip 45bbe63a7cc60e5b6123b8d06747ba703ab3fd636298a50953db10da1d70f5b6 || goto :error
 	echo [+] Patching go
 	for %%a in ("..\go-patches\*.patch") do .\patch.exe -f -N -r- -d go -p1 --binary < "%%a" || goto :error
-	cd go\src || goto :error
-	..\bin\go build -v -o ..\pkg\tool\windows_amd64\link.exe cmd/link || goto :error
-	cd ..\.. || goto :error
 	copy /y NUL prepared > NUL || goto :error
 	cd .. || goto :error
 

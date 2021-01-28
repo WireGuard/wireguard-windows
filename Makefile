@@ -25,7 +25,7 @@ define download =
 	if ! mv $$@.unverified $$@; then rm -f $$@.unverified; exit 1; fi
 endef
 
-$(eval $(call download,go.tar.gz,https://golang.org/dl/go1.16beta1.linux-amd64.tar.gz,3931a0d493d411d6c697df6f15d5292fdd8031fde7014fded399effdad4c12d8))
+$(eval $(call download,go.tar.gz,https://golang.org/dl/go1.16rc1.linux-amd64.tar.gz,6a62610f56a04bae8702cd2bd73bfea34645c1b89ded3f0b81a841393b6f1f14))
 $(eval $(call download,wintun.zip,https://www.wintun.net/builds/wintun-0.10.zip,45bbe63a7cc60e5b6123b8d06747ba703ab3fd636298a50953db10da1d70f5b6))
 
 .deps/go/prepared: .distfiles/go.tar.gz $(wildcard go-patches/*.patch)
@@ -34,7 +34,6 @@ $(eval $(call download,wintun.zip,https://www.wintun.net/builds/wintun-0.10.zip,
 	tar -C .deps -xzf .distfiles/go.tar.gz
 	chmod -R +w .deps/go
 	cat $(filter %.patch,$^) | patch -f -N -r- -p1 -d .deps/go
-	cd .deps/go/src && GOARCH=amd64 GOOS=linux go build -v -o ../pkg/tool/linux_amd64/link cmd/link
 	touch $@
 
 .deps/wintun/prepared: .distfiles/wintun.zip
