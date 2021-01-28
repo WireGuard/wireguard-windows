@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: MIT
  *
- * Copyright (C) 2019-2020 WireGuard LLC. All Rights Reserved.
+ * Copyright (C) 2019-2021 WireGuard LLC. All Rights Reserved.
  */
 
 package ui
@@ -104,7 +104,7 @@ func runAboutDialog(owner walk.Form) error {
 	copyrightFont, _ := walk.NewFont("Segoe UI", 7, 0)
 	copyrightLbl.SetFont(copyrightFont)
 	copyrightLbl.SetTextAlignment(walk.AlignHCenterVNear)
-	copyrightLbl.SetText("Copyright © 2015-2020 Jason A. Donenfeld. All Rights Reserved.")
+	copyrightLbl.SetText("Copyright © 2015-2021 Jason A. Donenfeld. All Rights Reserved.")
 
 	buttonCP, err := walk.NewComposite(showingAboutDialog)
 	if err != nil {
