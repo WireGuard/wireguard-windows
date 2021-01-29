@@ -68,20 +68,17 @@ func resolveHostnameOnce(name string) (resolvedIPString string, err error) {
 	defer windows.FreeAddrInfoW(result)
 	ipv6 := ""
 	for ; result != nil; result = result.Next {
-		addr := unsafe.Pointer(result.Addr)
 		switch result.Family {
 		case windows.AF_INET:
-			a := (*syscall.RawSockaddrInet4)(addr).Addr
-			return net.IP{a[0], a[1], a[2], a[3]}.String(), nil
+			return (net.IP)((*syscall.RawSockaddrInet4)(unsafe.Pointer(result.Addr)).Addr[:]).String(), nil
 		case windows.AF_INET6:
 			if len(ipv6) != 0 {
 				continue
 			}
-			a := (*syscall.RawSockaddrInet6)(addr).Addr
-			ipv6 = net.IP{a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7], a[8], a[9], a[10], a[11], a[12], a[13], a[14], a[15]}.String()
-			scope := uint32((*syscall.RawSockaddrInet6)(addr).Scope_id)
-			if scope != 0 {
-				ipv6 += fmt.Sprintf("%%%d", scope)
+			a := (*syscall.RawSockaddrInet6)(unsafe.Pointer(result.Addr))
+			ipv6 = (net.IP)(a.Addr[:]).String()
+			if a.Scope_id != 0 {
+				ipv6 += fmt.Sprintf("%%%d", a.Scope_id)
 			}
 		}
 	}
