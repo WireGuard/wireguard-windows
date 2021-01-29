@@ -7,11 +7,10 @@ package winipcfg
 
 import (
 	"errors"
-	"fmt"
 	"net"
+	"strings"
 
 	"golang.org/x/sys/windows"
-	"golang.org/x/sys/windows/registry"
 )
 
 // LUID represents a network interface.
@@ -317,141 +316,60 @@ func (luid LUID) DNS() ([]net.IP, error) {
 	return r, nil
 }
 
-const (
-	netshCmdTemplateFlush4 = "interface ipv4 set dnsservers name=%d source=static address=none validate=no register=both"
-	netshCmdTemplateFlush6 = "interface ipv6 set dnsservers name=%d source=static address=none validate=no register=both"
-	netshCmdTemplateAdd4   = "interface ipv4 add dnsservers name=%d address=%s validate=no"
-	netshCmdTemplateAdd6   = "interface ipv6 add dnsservers name=%d address=%s validate=no"
-)
-
-// FlushDNS method clears all DNS servers associated with the adapter.
-func (luid LUID) FlushDNS() error {
-	cmds := make([]string, 0, 2)
-	ipif4, err := luid.IPInterface(windows.AF_INET)
-	if err == nil {
-		cmds = append(cmds, fmt.Sprintf(netshCmdTemplateFlush4, ipif4.InterfaceIndex))
-	}
-	ipif6, err := luid.IPInterface(windows.AF_INET6)
-	if err == nil {
-		cmds = append(cmds, fmt.Sprintf(netshCmdTemplateFlush6, ipif6.InterfaceIndex))
+// SetDNS method clears previous and associates new DNS servers and search domains with the adapter for a specific family.
+func (luid LUID) SetDNS(family AddressFamily, servers []net.IP, domains []string) error {
+	if family != windows.AF_INET && family != windows.AF_INET6 {
+		return windows.ERROR_PROTOCOL_UNREACHABLE
 	}
 
-	if len(cmds) == 0 {
-		return nil
-	}
-	return runNetsh(cmds)
-}
-
-// AddDNS method associates additional DNS servers with the adapter.
-func (luid LUID) AddDNS(dnses []net.IP) error {
-	var ipif4, ipif6 *MibIPInterfaceRow
-	var err error
-	cmds := make([]string, 0, len(dnses))
-	for i := 0; i < len(dnses); i++ {
-		if v4 := dnses[i].To4(); v4 != nil {
-			if ipif4 == nil {
-				ipif4, err = luid.IPInterface(windows.AF_INET)
-				if err != nil {
-					return err
-				}
-			}
-			cmds = append(cmds, fmt.Sprintf(netshCmdTemplateAdd4, ipif4.InterfaceIndex, v4.String()))
-		} else if v6 := dnses[i].To16(); v6 != nil {
-			if ipif6 == nil {
-				ipif6, err = luid.IPInterface(windows.AF_INET6)
-				if err != nil {
-					return err
-				}
-			}
-			cmds = append(cmds, fmt.Sprintf(netshCmdTemplateAdd6, ipif6.InterfaceIndex, v6.String()))
+	var filteredServers []string
+	for _, server := range servers {
+		if v4 := server.To4(); v4 != nil && family == windows.AF_INET {
+			filteredServers = append(filteredServers, v4.String())
+		} else if v6 := server.To16(); v4 == nil && v6 != nil && family == windows.AF_INET6 {
+			filteredServers = append(filteredServers, v6.String())
 		}
 	}
-
-	if len(cmds) == 0 {
-		return nil
-	}
-	return runNetsh(cmds)
-}
-
-// SetDNS method clears previous and associates new DNS servers with the adapter.
-func (luid LUID) SetDNS(dnses []net.IP) error {
-	cmds := make([]string, 0, 2+len(dnses))
-	ipif4, err := luid.IPInterface(windows.AF_INET)
-	if err == nil {
-		cmds = append(cmds, fmt.Sprintf(netshCmdTemplateFlush4, ipif4.InterfaceIndex))
-	}
-	ipif6, err := luid.IPInterface(windows.AF_INET6)
-	if err == nil {
-		cmds = append(cmds, fmt.Sprintf(netshCmdTemplateFlush6, ipif6.InterfaceIndex))
-	}
-	for i := 0; i < len(dnses); i++ {
-		if v4 := dnses[i].To4(); v4 != nil {
-			if ipif4 == nil {
-				return windows.ERROR_NOT_SUPPORTED
-			}
-			cmds = append(cmds, fmt.Sprintf(netshCmdTemplateAdd4, ipif4.InterfaceIndex, v4.String()))
-		} else if v6 := dnses[i].To16(); v6 != nil {
-			if ipif6 == nil {
-				return windows.ERROR_NOT_SUPPORTED
-			}
-			cmds = append(cmds, fmt.Sprintf(netshCmdTemplateAdd6, ipif6.InterfaceIndex, v6.String()))
-		}
-	}
-
-	if len(cmds) == 0 {
-		return nil
-	}
-	return runNetsh(cmds)
-}
-
-// SetDNSForFamily method clears previous and associates new DNS servers with the adapter for a specific family.
-func (luid LUID) SetDNSForFamily(family AddressFamily, dnses []net.IP) error {
-	var templateFlush string
-	if family == windows.AF_INET {
-		templateFlush = netshCmdTemplateFlush4
-	} else if family == windows.AF_INET6 {
-		templateFlush = netshCmdTemplateFlush6
-	}
-
-	cmds := make([]string, 0, 1+len(dnses))
-	ipif, err := luid.IPInterface(family)
+	servers16, err := windows.UTF16PtrFromString(strings.Join(filteredServers, ","))
 	if err != nil {
 		return err
 	}
-	cmds = append(cmds, fmt.Sprintf(templateFlush, ipif.InterfaceIndex))
-	for i := 0; i < len(dnses); i++ {
-		if v4 := dnses[i].To4(); v4 != nil && family == windows.AF_INET {
-			cmds = append(cmds, fmt.Sprintf(netshCmdTemplateAdd4, ipif.InterfaceIndex, v4.String()))
-		} else if v6 := dnses[i].To16(); v4 == nil && v6 != nil && family == windows.AF_INET6 {
-			cmds = append(cmds, fmt.Sprintf(netshCmdTemplateAdd6, ipif.InterfaceIndex, v6.String()))
-		}
+	domains16, err := windows.UTF16PtrFromString(strings.Join(domains, ","))
+	if err != nil {
+		return err
 	}
-	return runNetsh(cmds)
-}
-
-// SetDNSDomain method sets the interface-specific DNS domain.
-func (luid LUID) SetDNSDomain(domain string) error {
 	guid, err := luid.GUID()
 	if err != nil {
-		return fmt.Errorf("Error converting luid to guid: %w", err)
+		return err
 	}
-	key, err := registry.OpenKey(registry.LOCAL_MACHINE, fmt.Sprintf("SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Adapters\\%v", guid), registry.QUERY_VALUE)
+	var maybeV6 uint64
+	if family == windows.AF_INET6 {
+		maybeV6 = disFlagsIPv6
+	}
+	// For >= Windows 10 1809
+	err = setInterfaceDnsSettings(*guid, &dnsInterfaceSettings{
+		Version:    disVersion1,
+		Flags:      disFlagsNameServer | disFlagsSearchList | maybeV6,
+		NameServer: servers16,
+		SearchList: domains16,
+	})
+	if err == nil || !errors.Is(err, windows.ERROR_PROC_NOT_FOUND) {
+		return err
+	}
+
+	// For < Windows 10 1809
+	err = luid.fallbackSetDNSForFamily(family, servers)
 	if err != nil {
-		return fmt.Errorf("Error opening adapter-specific TCP/IP network registry key: %w", err)
+		return err
 	}
-	paths, _, err := key.GetStringsValue("IpConfig")
-	key.Close()
-	if err != nil {
-		return fmt.Errorf("Error reading IpConfig registry key: %w", err)
+	if len(domains) > 0 {
+		return luid.fallbackSetDNSDomain(domains[0])
+	} else {
+		return luid.fallbackSetDNSDomain("")
 	}
-	if len(paths) == 0 {
-		return errors.New("No TCP/IP interfaces found on adapter")
-	}
-	key, err = registry.OpenKey(registry.LOCAL_MACHINE, fmt.Sprintf("SYSTEM\\CurrentControlSet\\Services\\%s", paths[0]), registry.SET_VALUE)
-	if err != nil {
-		return fmt.Errorf("Unable to open TCP/IP network registry key: %w", err)
-	}
-	err = key.SetStringValue("Domain", domain)
-	key.Close()
-	return err
+}
+
+// FlushDNS method clears all DNS servers associated with the adapter.
+func (luid LUID) FlushDNS(family AddressFamily) error {
+	return luid.SetDNS(family, nil, nil)
 }

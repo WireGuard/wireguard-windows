@@ -6,6 +6,7 @@
 package winipcfg
 
 import (
+	"runtime"
 	"unsafe"
 
 	"golang.org/x/sys/windows"
@@ -166,3 +167,29 @@ func GetIPForwardTable2(family AddressFamily) ([]MibIPforwardRow2, error) {
 
 // https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-cancelmibchangenotify2
 //sys	cancelMibChangeNotify2(notificationHandle windows.Handle) (ret error) = iphlpapi.CancelMibChangeNotify2
+
+//
+// Undocumented DNS API
+//
+
+//sys	setInterfaceDnsSettingsByPtr(guid *windows.GUID, settings *dnsInterfaceSettings) (ret error) = iphlpapi.SetInterfaceDnsSettings?
+//sys	setInterfaceDnsSettingsByQwords(guid1 uintptr, guid2 uintptr, settings *dnsInterfaceSettings) (ret error) = iphlpapi.SetInterfaceDnsSettings?
+//sys	setInterfaceDnsSettingsByDwords(guid1 uintptr, guid2 uintptr, guid3 uintptr, guid4 uintptr, settings *dnsInterfaceSettings) (ret error) = iphlpapi.SetInterfaceDnsSettings?
+
+// The GUID is passed by value, not by reference, which means different
+// things on different calling conventions.  On amd64, this means it's
+// passed by reference anyway, while on arm, arm64, and 386, it's split
+// into words.
+func setInterfaceDnsSettings(guid windows.GUID, settings *dnsInterfaceSettings) error {
+	words := (*[4]uintptr)(unsafe.Pointer(&guid))
+	switch runtime.GOARCH {
+	case "amd64":
+		return setInterfaceDnsSettingsByPtr(&guid, settings)
+	case "arm64":
+		return setInterfaceDnsSettingsByQwords(words[0], words[1], settings)
+	case "arm", "386":
+		return setInterfaceDnsSettingsByDwords(words[0], words[1], words[2], words[3], settings)
+	default:
+		panic("unknown calling convention")
+	}
+}

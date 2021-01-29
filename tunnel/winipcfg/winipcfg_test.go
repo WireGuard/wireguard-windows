@@ -25,6 +25,7 @@ import (
 	"bytes"
 	"net"
 	"strings"
+	"syscall"
 	"testing"
 	"time"
 
@@ -592,7 +593,7 @@ func TestFlushDNS(t *testing.T) {
 		t.Errorf("LUID.DNS() returned an error: %w", err)
 	}
 
-	err = ifc.LUID.FlushDNS()
+	err = ifc.LUID.FlushDNS(syscall.AF_INET)
 	if err != nil {
 		t.Errorf("LUID.FlushDNS() returned an error: %w", err)
 	}
@@ -613,51 +614,7 @@ func TestFlushDNS(t *testing.T) {
 		t.Errorf("DNSServerAddresses contains %d items, although FlushDNS is executed successfully.", n)
 	}
 
-	err = ifc.LUID.SetDNS(prevDNSes)
-	if err != nil {
-		t.Errorf("LUID.SetDNS() returned an error: %v.", err)
-	}
-}
-
-func TestAddDNS(t *testing.T) {
-	ifc, err := getTestInterface()
-	if err != nil {
-		t.Errorf("getTestInterface() returned an error: %w", err)
-		return
-	}
-	if !runningElevated() {
-		t.Errorf("%s requires elevation", t.Name())
-		return
-	}
-
-	prevDNSes, err := ifc.LUID.DNS()
-	if err != nil {
-		t.Errorf("LUID.DNS() returned an error: %w", err)
-	}
-	expectedDNSes := append(prevDNSes, dnsesToSet...)
-
-	err = ifc.LUID.AddDNS(dnsesToSet)
-	if err != nil {
-		t.Errorf("LUID.AddDNS() returned an error: %w", err)
-		return
-	}
-
-	ifc, _ = getTestInterface()
-
-	newDNSes, err := ifc.LUID.DNS()
-	if err != nil {
-		t.Errorf("LUID.DNS() returned an error: %w", err)
-	} else if len(newDNSes) != len(expectedDNSes) {
-		t.Errorf("expectedDNSes contains %d items, while DNSServerAddresses contains %d.", len(expectedDNSes), len(newDNSes))
-	} else {
-		for i := range expectedDNSes {
-			if !expectedDNSes[i].Equal(newDNSes[i]) {
-				t.Errorf("expectedDNSes[%d] = %s while DNSServerAddresses[%d] = %s.", i, expectedDNSes[i].String(), i, newDNSes[i].String())
-			}
-		}
-	}
-
-	err = ifc.LUID.SetDNS(prevDNSes)
+	err = ifc.LUID.SetDNS(windows.AF_INET, prevDNSes, nil)
 	if err != nil {
 		t.Errorf("LUID.SetDNS() returned an error: %v.", err)
 	}
@@ -679,7 +636,7 @@ func TestSetDNS(t *testing.T) {
 		t.Errorf("LUID.DNS() returned an error: %w", err)
 	}
 
-	err = ifc.LUID.SetDNS(dnsesToSet)
+	err = ifc.LUID.SetDNS(windows.AF_INET, dnsesToSet, nil)
 	if err != nil {
 		t.Errorf("LUID.SetDNS() returned an error: %w", err)
 		return
@@ -700,7 +657,7 @@ func TestSetDNS(t *testing.T) {
 		}
 	}
 
-	err = ifc.LUID.SetDNS(prevDNSes)
+	err = ifc.LUID.SetDNS(windows.AF_INET, prevDNSes, nil)
 	if err != nil {
 		t.Errorf("LUID.SetDNS() returned an error: %v.", err)
 	}

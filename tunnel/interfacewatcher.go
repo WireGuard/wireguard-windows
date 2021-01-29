@@ -192,9 +192,10 @@ func (iw *interfaceWatcher) Destroy() {
 		luid := winipcfg.LUID(tun.LUID())
 		luid.FlushRoutes(windows.AF_INET)
 		luid.FlushIPAddresses(windows.AF_INET)
+		luid.FlushDNS(windows.AF_INET)
 		luid.FlushRoutes(windows.AF_INET6)
 		luid.FlushIPAddresses(windows.AF_INET6)
-		luid.FlushDNS()
+		luid.FlushDNS(windows.AF_INET6)
 	}
 	iw.setupMutex.Unlock()
 }
