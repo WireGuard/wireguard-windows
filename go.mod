@@ -9,7 +9,7 @@ require (
 	golang.org/x/net v0.0.0-20210119194325-5f4716e94777
 	golang.org/x/sys v0.0.0-20210124154548-22da62e12c0c
 	golang.org/x/text v0.3.5
-	golang.zx2c4.com/wireguard v0.0.0-20210128165215-d4112d9096f4
+	golang.zx2c4.com/wireguard v0.0.0-20210129191048-a9f80d8c587d
 )
 
 replace (
