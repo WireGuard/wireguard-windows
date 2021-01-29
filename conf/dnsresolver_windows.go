@@ -25,19 +25,20 @@ func resolveHostname(name string) (resolvedIPString string, err error) {
 		maxTries *= 4
 	}
 	for i := 0; i < maxTries; i++ {
+		if i > 0 {
+			time.Sleep(time.Second * 4)
+		}
 		resolvedIPString, err = resolveHostnameOnce(name)
 		if err == nil {
 			return
 		}
 		if err == windows.WSATRY_AGAIN {
 			log.Printf("Temporary DNS error when resolving %s, sleeping for 4 seconds", name)
-			time.Sleep(time.Second * 4)
 			continue
 		}
 		var state uint32
 		if err == windows.WSAHOST_NOT_FOUND && systemJustBooted && !internetGetConnectedState(&state, 0) {
 			log.Printf("Host not found when resolving %s, but no Internet connection available, sleeping for 4 seconds", name)
-			time.Sleep(time.Second * 4)
 			continue
 		}
 		return
