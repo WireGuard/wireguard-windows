@@ -9,7 +9,7 @@ import (
 	"archive/zip"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"path/filepath"
 	"sort"
@@ -297,7 +297,7 @@ func (tp *TunnelsPage) importFiles(paths []string) {
 		for _, path := range paths {
 			switch strings.ToLower(filepath.Ext(path)) {
 			case ".conf":
-				textConfig, err := ioutil.ReadFile(path)
+				textConfig, err := os.ReadFile(path)
 				if err != nil {
 					lastErr = err
 					continue
@@ -321,7 +321,7 @@ func (tp *TunnelsPage) importFiles(paths []string) {
 						lastErr = err
 						continue
 					}
-					textConfig, err := ioutil.ReadAll(rc)
+					textConfig, err := io.ReadAll(rc)
 					rc.Close()
 					if err != nil {
 						lastErr = err

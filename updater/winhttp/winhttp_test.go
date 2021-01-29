@@ -8,7 +8,6 @@ package winhttp
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"runtime"
 	"testing"
 )
@@ -40,7 +39,7 @@ func TestResponse(t *testing.T) {
 		t.Fatal(err)
 	}
 	fmt.Printf("The length is %d\n", length)
-	bytes, err := ioutil.ReadAll(r)
+	bytes, err := io.ReadAll(r)
 	if err != nil {
 		t.Fatal(err)
 	}

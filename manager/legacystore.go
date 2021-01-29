@@ -7,8 +7,8 @@ package manager
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
+	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -26,7 +26,7 @@ func moveConfigsFromLegacyStore() {
 		return
 	}
 	oldC := filepath.Join(oldRoot, "WireGuard", "Configurations")
-	files, err := ioutil.ReadDir(oldC)
+	files, err := os.ReadDir(oldC)
 	if err != nil {
 		return
 	}
