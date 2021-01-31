@@ -1,0 +1,55 @@
+From cfd236cd9a5122d12047751f0ba561c81779a337 Mon Sep 17 00:00:00 2001
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+Date: Sun, 31 Jan 2021 18:07:43 +0100
+Subject: [PATCH 4/6] syscall: introduce SysProcAttr.AdditionalInheritedHandles
+ on Windows
+
+This allows users to specify handles that they explicitly want to be
+inherited by the new process. These handles must already be marked as
+inheritable.
+
+Updates #44011.
+Updates #21085.
+
+Change-Id: Ib18322e7dc2909e68c4209e80385492804fa15d3
+---
+ src/syscall/exec_windows.go | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
+
+diff --git a/src/syscall/exec_windows.go b/src/syscall/exec_windows.go
+index 6aea91e718..958b11260f 100644
+--- a/src/syscall/exec_windows.go
++++ b/src/syscall/exec_windows.go
+@@ -235,13 +235,14 @@ type ProcAttr struct {
+ }
+ 
+ type SysProcAttr struct {
+-	HideWindow        bool
+-	CmdLine           string // used if non-empty, else the windows command line is built by escaping the arguments passed to StartProcess
+-	CreationFlags     uint32
+-	Token             Token               // if set, runs new process in the security context represented by the token
+-	ProcessAttributes *SecurityAttributes // if set, applies these security attributes as the descriptor for the new process
+-	ThreadAttributes  *SecurityAttributes // if set, applies these security attributes as the descriptor for the main thread of the new process
+-	NoInheritHandles  bool                // if set, each inheritable handle in the calling process is not inherited by the new process
++	HideWindow                 bool
++	CmdLine                    string // used if non-empty, else the windows command line is built by escaping the arguments passed to StartProcess
++	CreationFlags              uint32
++	Token                      Token               // if set, runs new process in the security context represented by the token
++	ProcessAttributes          *SecurityAttributes // if set, applies these security attributes as the descriptor for the new process
++	ThreadAttributes           *SecurityAttributes // if set, applies these security attributes as the descriptor for the main thread of the new process
++	NoInheritHandles           bool                // if set, each inheritable handle in the calling process is not inherited by the new process
++	AdditionalInheritedHandles []Handle            // a list of additional handles, already marked as inheritable, that will be inherited by the new process
+ }
+ 
+ var zeroProcAttr ProcAttr
+@@ -336,6 +337,7 @@ func StartProcess(argv0 string, argv []string, attr *ProcAttr) (pid int, handle
+ 	si.StdOutput = fd[1]
+ 	si.StdErr = fd[2]
+ 
++	fd = append(fd, sys.AdditionalInheritedHandles...)
+ 	// Do not accidentally inherit more than these handles.
+ 	err = si.ProcThreadAttributeList.Add(_PROC_THREAD_ATTRIBUTE_HANDLE_LIST, unsafe.Pointer(&fd[0]), uintptr(len(fd))*unsafe.Sizeof(fd[0]))
+ 	if err != nil {
+-- 
+2.30.0
+

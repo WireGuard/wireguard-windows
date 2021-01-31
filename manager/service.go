@@ -10,6 +10,7 @@ import (
 	"log"
 	"os"
 	"runtime"
+	"strconv"
 	"sync"
 	"syscall"
 	"time"
@@ -172,22 +173,23 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 				first = false
 			}
 
-			// TODO: we lock the OS thread so that these inheritable handles don't escape into other processes that
-			// might be running in parallel Go routines. But the Go runtime is strange and who knows what's really
-			// happening with these or what is inherited. We need to do some analysis to be certain of what's going on.
-			runtime.LockOSThread()
-			ourReader, theirReader, theirReaderStr, ourWriter, theirWriter, theirWriterStr, err := inheritableSocketpairEmulation()
+			ourReader, theirWriter, err := os.Pipe()
 			if err != nil {
-				log.Printf("Unable to create two inheritable RPC pipes: %v", err)
+				log.Printf("Unable to create pipe: %v", err)
 				return
 			}
-			ourEvents, theirEvents, theirEventStr, err := inheritableEvents()
+			theirReader, ourWriter, err := os.Pipe()
 			if err != nil {
-				log.Printf("Unable to create one inheritable events pipe: %v", err)
+				log.Printf("Unable to create pipe: %v", err)
+				return
+			}
+			theirEvents, ourEvents, err := os.Pipe()
+			if err != nil {
+				log.Printf("Unable to create pipe: %v", err)
 				return
 			}
 			IPCServerListen(ourReader, ourWriter, ourEvents, elevatedToken)
-			theirLogMapping, theirLogMappingHandle, err := ringlogger.Global.ExportInheritableMappingHandleStr()
+			theirLogMapping, err := ringlogger.Global.ExportInheritableMappingHandle()
 			if err != nil {
 				log.Printf("Unable to export inheritable mapping handle for logging: %v", err)
 				return
@@ -197,6 +199,11 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 			attr := &os.ProcAttr{
 				Sys: &syscall.SysProcAttr{
 					Token: syscall.Token(runToken),
+					AdditionalInheritedHandles: []syscall.Handle{
+						syscall.Handle(theirReader.Fd()),
+						syscall.Handle(theirWriter.Fd()),
+						syscall.Handle(theirEvents.Fd()),
+						syscall.Handle(theirLogMapping)},
 				},
 				Files: []*os.File{devNull, devNull, devNull},
 				Dir:   userProfileDirectory,
@@ -204,7 +211,14 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 			procsLock.Lock()
 			var proc *os.Process
 			if alive := aliveSessions[session]; alive {
-				proc, err = os.StartProcess(path, []string{path, "/ui", theirReaderStr, theirWriterStr, theirEventStr, theirLogMapping}, attr)
+				proc, err = os.StartProcess(path, []string{
+					path,
+					"/ui",
+					strconv.FormatUint(uint64(theirReader.Fd()), 10),
+					strconv.FormatUint(uint64(theirWriter.Fd()), 10),
+					strconv.FormatUint(uint64(theirEvents.Fd()), 10),
+					strconv.FormatUint(uint64(theirLogMapping), 10),
+				}, attr)
 			} else {
 				err = errors.New("Session has logged out")
 			}
@@ -212,8 +226,7 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 			theirReader.Close()
 			theirWriter.Close()
 			theirEvents.Close()
-			windows.Close(theirLogMappingHandle)
-			runtime.UnlockOSThread()
+			windows.Close(theirLogMapping)
 			if err != nil {
 				ourReader.Close()
 				ourWriter.Close()

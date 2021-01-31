@@ -1,0 +1,39 @@
+From 39d70b6441f914a41cf8568d0930c299b926c139 Mon Sep 17 00:00:00 2001
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+Date: Sun, 31 Jan 2021 19:51:45 +0100
+Subject: [PATCH 5/6] os: mark pipes returned by os.Pipe() as inheritable by
+ default
+
+Now that we don't automatically pass all inheritable handles to new
+processes, we can make pipes returned by os.Pipe() inheritable, just
+like they are on Unix. This then allows them to be passed through the
+SysProcAttr.AdditionalInheritedHandles parameter simply.
+
+Updates #44011.
+Fixes #21085.
+
+Change-Id: I8eae329fbc74f9dc7962136fa9aae8fb66879751
+---
+ src/os/file_windows.go | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/os/file_windows.go b/src/os/file_windows.go
+index dfc5fc6ce6..239690ce43 100644
+--- a/src/os/file_windows.go
++++ b/src/os/file_windows.go
+@@ -279,10 +279,10 @@ func rename(oldname, newname string) error {
+ }
+ 
+ // Pipe returns a connected pair of Files; reads from r return bytes written to w.
+-// It returns the files and an error, if any.
++// It returns the files and an error, if any. This handle is inheritable by default.
+ func Pipe() (r *File, w *File, err error) {
+ 	var p [2]syscall.Handle
+-	e := syscall.CreatePipe(&p[0], &p[1], nil, 0)
++	e := syscall.Pipe(p[:])
+ 	if e != nil {
+ 		return nil, nil, NewSyscallError("pipe", e)
+ 	}
+-- 
+2.30.0
+

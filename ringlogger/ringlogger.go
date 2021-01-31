@@ -234,7 +234,7 @@ func (rl *Ringlogger) Close() error {
 	return nil
 }
 
-func (rl *Ringlogger) ExportInheritableMappingHandleStr() (str string, handleToClose windows.Handle, err error) {
+func (rl *Ringlogger) ExportInheritableMappingHandle() (handleToClose windows.Handle, err error) {
 	handleToClose, err = windows.CreateFileMapping(windows.Handle(rl.file.Fd()), nil, windows.PAGE_READONLY, 0, 0, nil)
 	if err != nil {
 		return
@@ -245,6 +245,5 @@ func (rl *Ringlogger) ExportInheritableMappingHandleStr() (str string, handleToC
 		handleToClose = 0
 		return
 	}
-	str = strconv.FormatUint(uint64(handleToClose), 10)
 	return
 }
