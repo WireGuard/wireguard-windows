@@ -226,7 +226,7 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 			theirReader.Close()
 			theirWriter.Close()
 			theirEvents.Close()
-			windows.Close(theirLogMapping)
+			windows.CloseHandle(theirLogMapping)
 			if err != nil {
 				ourReader.Close()
 				ourWriter.Close()

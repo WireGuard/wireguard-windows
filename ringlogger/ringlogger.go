@@ -241,7 +241,7 @@ func (rl *Ringlogger) ExportInheritableMappingHandle() (handleToClose windows.Ha
 	}
 	err = windows.SetHandleInformation(handleToClose, windows.HANDLE_FLAG_INHERIT, windows.HANDLE_FLAG_INHERIT)
 	if err != nil {
-		windows.Close(handleToClose)
+		windows.CloseHandle(handleToClose)
 		handleToClose = 0
 		return
 	}
