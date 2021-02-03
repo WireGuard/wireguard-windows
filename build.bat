@@ -20,10 +20,10 @@ if exist .deps\prepared goto :render
 	call :download imagemagick.zip https://download.wireguard.com/windows-toolchain/distfiles/ImageMagick-7.0.8-42-portable-Q16-x64.zip 584e069f56456ce7dde40220948ff9568ac810688c892c5dfb7f6db902aa05aa "convert.exe colors.xml delegates.xml" || goto :error
 	rem Mirror of https://sourceforge.net/projects/ezwinports/files/make-4.2.1-without-guile-w32-bin.zip
 	call :download make.zip https://download.wireguard.com/windows-toolchain/distfiles/make-4.2.1-without-guile-w32-bin.zip 30641be9602712be76212b99df7209f4f8f518ba764cf564262bc9d6e4047cc7 "--strip-components 1 bin" || goto :error
-	call :download wireguard-tools.zip https://git.zx2c4.com/wireguard-tools/snapshot/wireguard-tools-5e24780d4cb259b7392db0fe7f0c2f129bd598f3.zip c900b42401b8d661c948b508ef906636d2eb0f6af85760b2f66ccc175687e98f "--exclude wg-quick --strip-components 1" || goto :error
+	call :download wireguard-tools.zip https://git.zx2c4.com/wireguard-tools/snapshot/wireguard-tools-e8fa0f662f2541952e745d9c7fff0eeaec538a5c.zip feda0818551493eb608b2ca2a6ecd972ce7548d4221847f9bb3994199e28b44b "--exclude wg-quick --strip-components 1" || goto :error
 	rem Mirror of https://sourceforge.net/projects/gnuwin32/files/patch/2.5.9-7/patch-2.5.9-7-bin.zip with fixed manifest
 	call :download patch.zip https://download.wireguard.com/windows-toolchain/distfiles/patch-2.5.9-7-bin-fixed-manifest.zip 25977006ca9713f2662a5d0a2ed3a5a138225b8be3757035bd7da9dcf985d0a1 "--strip-components 1 bin" || goto :error
-	call :download wintun.zip https://www.wintun.net/builds/wintun-0.10.zip 45bbe63a7cc60e5b6123b8d06747ba703ab3fd636298a50953db10da1d70f5b6 || goto :error
+	call :download wintun.zip https://www.wintun.net/builds/wintun-0.10.1.zip ff871508b3316701fa2c9ab72b919ef23cf2683ba04bbc405df4b509aa06e368 || goto :error
 	echo [+] Patching go
 	for %%a in ("..\go-patches\*.patch") do .\patch.exe -f -N -r- -d go -p1 --binary < "%%a" || goto :error
 	copy /y NUL prepared > NUL || goto :error
