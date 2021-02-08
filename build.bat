@@ -4,7 +4,7 @@ rem Copyright (C) 2019-2021 WireGuard LLC. All Rights Reserved.
 
 setlocal enabledelayedexpansion
 set BUILDDIR=%~dp0
-set PATH=%BUILDDIR%.deps\go\bin;%BUILDDIR%.deps;%PATH%
+set PATH=%BUILDDIR%.deps\llvm-mingw\bin;%BUILDDIR%.deps\go\bin;%BUILDDIR%.deps;%PATH%
 set PATHEXT=.exe
 cd /d %BUILDDIR% || exit /b 1
 
@@ -13,7 +13,9 @@ if exist .deps\prepared goto :render
 	rmdir /s /q .deps 2> NUL
 	mkdir .deps || goto :error
 	cd .deps || goto :error
-	call :download go.zip https://golang.org/dl/go1.16rc1.windows-amd64.zip ff765c31cf321b431f9a11ec42e61d42ec87d56333c847f5a87d30e01aaed3df || goto :error
+	call :download go.zip https://download.wireguard.com/windows-toolchain/distfiles/go1.16beta1-2021-02-14.zip 0af66d990618568638b1910e548af8fdaf5c081fa0ca0c9afd316105505ac29d || goto :error
+	mkdir go-bootstrap || goto :error
+	call :download go-bootstrap.zip https://dl.google.com/go/go1.4.3.windows-amd64.zip a88486b386c7aa10e72b804888e79733d573f97e38b16b6bc3a001d875663f92 "-C go-bootstrap --strip-components 1" || goto :error
 	rem Mirror of https://github.com/mstorsjo/llvm-mingw/releases/download/20201020/llvm-mingw-20201020-msvcrt-x86_64.zip
 	call :download llvm-mingw-msvcrt.zip https://download.wireguard.com/windows-toolchain/distfiles/llvm-mingw-20201020-msvcrt-x86_64.zip 2e46593245090df96d15e360e092f0b62b97e93866e0162dca7f93b16722b844 || goto :error
 	rem Mirror of https://imagemagick.org/download/binaries/ImageMagick-7.0.8-42-portable-Q16-x64.zip
@@ -21,11 +23,12 @@ if exist .deps\prepared goto :render
 	rem Mirror of https://sourceforge.net/projects/ezwinports/files/make-4.2.1-without-guile-w32-bin.zip
 	call :download make.zip https://download.wireguard.com/windows-toolchain/distfiles/make-4.2.1-without-guile-w32-bin.zip 30641be9602712be76212b99df7209f4f8f518ba764cf564262bc9d6e4047cc7 "--strip-components 1 bin" || goto :error
 	call :download wireguard-tools.zip https://git.zx2c4.com/wireguard-tools/snapshot/wireguard-tools-e8fa0f662f2541952e745d9c7fff0eeaec538a5c.zip feda0818551493eb608b2ca2a6ecd972ce7548d4221847f9bb3994199e28b44b "--exclude wg-quick --strip-components 1" || goto :error
-	rem Mirror of https://sourceforge.net/projects/gnuwin32/files/patch/2.5.9-7/patch-2.5.9-7-bin.zip with fixed manifest
-	call :download patch.zip https://download.wireguard.com/windows-toolchain/distfiles/patch-2.5.9-7-bin-fixed-manifest.zip 25977006ca9713f2662a5d0a2ed3a5a138225b8be3757035bd7da9dcf985d0a1 "--strip-components 1 bin" || goto :error
 	call :download wintun.zip https://www.wintun.net/builds/wintun-0.10.1.zip ff871508b3316701fa2c9ab72b919ef23cf2683ba04bbc405df4b509aa06e368 || goto :error
-	echo [+] Patching go
-	for %%a in ("..\go-patches\*.patch") do .\patch.exe -f -N -r- -d go -p1 --binary < "%%a" || goto :error
+	echo [+] Building go
+	set GOROOT_BOOTSTRAP=%CD%\go-bootstrap
+	set CGO_ENABLED=0
+	cmd /d /c "cd go\src && .\make.bat" || goto :error
+	rmdir /s /q go-bootstrap || goto :error
 	copy /y NUL prepared > NUL || goto :error
 	cd .. || goto :error
 
@@ -41,7 +44,6 @@ if exist .deps\prepared goto :render
 	set GOARM=7
 	set GOPATH=%BUILDDIR%.deps\gopath
 	set GOROOT=%BUILDDIR%.deps\go
-	set PATH=%BUILDDIR%.deps\llvm-mingw\bin;%PATH%
 	if "%GoGenerate%"=="yes" (
 		echo [+] Regenerating files
 		go generate ./... || exit /b 1
@@ -79,11 +81,7 @@ if exist .deps\prepared goto :render
 	echo [+] Assembling resources %1
 	%~2-w64-mingw32-windres -I ".deps\wintun\bin\%~1" -DWIREGUARD_VERSION_ARRAY=%WIREGUARD_VERSION_ARRAY% -DWIREGUARD_VERSION_STR=%WIREGUARD_VERSION% -i resources.rc -o "resources_%~3.syso" -O coff -c 65001 || exit /b %errorlevel%
 	echo [+] Building program %1
-	if %1==arm64 (
-		copy "arm\wireguard.exe" "%~1\wireguard.exe" || exit /b 1
-	) else (
-		go build -tags load_wintun_from_rsrc -ldflags="-H windowsgui -s -w" -trimpath -v -o "%~1\wireguard.exe" || exit /b 1
-	)
+	go build -tags load_wintun_from_rsrc -ldflags="-H windowsgui -s -w" -trimpath -v -o "%~1\wireguard.exe" || exit /b 1
 	if not exist "%~1\wg.exe" (
 		echo [+] Building command line tools %1
 		del .deps\src\*.exe .deps\src\*.o .deps\src\wincompat\*.o 2> NUL

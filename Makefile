@@ -25,15 +25,17 @@ define download =
 	if ! mv $$@.unverified $$@; then rm -f $$@.unverified; exit 1; fi
 endef
 
-$(eval $(call download,go.tar.gz,https://golang.org/dl/go1.16rc1.linux-amd64.tar.gz,6a62610f56a04bae8702cd2bd73bfea34645c1b89ded3f0b81a841393b6f1f14))
+$(eval $(call download,go.zip,https://download.wireguard.com/windows-toolchain/distfiles/go1.16beta1-2021-02-14.zip,0af66d990618568638b1910e548af8fdaf5c081fa0ca0c9afd316105505ac29d))
+$(eval $(call download,go-bootstrap.tar.gz,https://dl.google.com/go/go1.4.3.linux-amd64.tar.gz,ce3140662f45356eb78bc16a88fc7cfb29fb00e18d7c632608245b789b2086d2))
 $(eval $(call download,wintun.zip,https://www.wintun.net/builds/wintun-0.10.1.zip,ff871508b3316701fa2c9ab72b919ef23cf2683ba04bbc405df4b509aa06e368))
 
-.deps/go/prepared: .distfiles/go.tar.gz $(wildcard go-patches/*.patch)
+.deps/go/prepared: .distfiles/go.zip .distfiles/go-bootstrap.tar.gz
 	mkdir -p .deps
-	rm -rf .deps/go
-	tar -C .deps -xzf .distfiles/go.tar.gz
-	chmod -R +w .deps/go
-	cat $(filter %.patch,$^) | patch -f -N -r- -p1 -d .deps/go
+	rm -rf .deps/go .deps/go-bootstrap
+	bsdtar -C .deps -s '/^go/go-bootstrap/' -xzf .distfiles/go-bootstrap.tar.gz
+	bsdtar -C .deps -xzf .distfiles/go.zip
+	cd .deps/go/src && GOARCH=amd64 GOOS=linux CGO_ENABLED=0 GOROOT_BOOTSTRAP=$(CURDIR)/.deps/go-bootstrap ./make.bash
+	rm -rf .deps/go-bootstrap
 	touch $@
 
 .deps/wintun/prepared: .distfiles/wintun.zip
@@ -54,6 +56,9 @@ resources_386.syso: $(RESOURCE_FILES)
 resources_arm.syso: $(RESOURCE_FILES)
 	armv7-w64-mingw32-windres $(RCFLAGS) -I .deps/wintun/bin/arm -i $< -o $@
 
+resources_arm64.syso: $(RESOURCE_FILES)
+	aarch64-w64-mingw32-windres $(RCFLAGS) -I .deps/wintun/bin/arm64 -i $< -o $@
+
 amd64/wireguard.exe: export GOARCH := amd64
 amd64/wireguard.exe: resources_amd64.syso $(SOURCE_FILES)
 	go build $(GOFLAGS) -o $@
@@ -67,9 +72,9 @@ arm/wireguard.exe: export GOARM := 7
 arm/wireguard.exe: resources_arm.syso $(SOURCE_FILES)
 	go build $(GOFLAGS) -o $@
 
-arm64/wireguard.exe: arm/wireguard.exe
-	mkdir -p $(@D)
-	cp $< $@
+arm64/wireguard.exe: export GOARCH := arm64
+arm64/wireguard.exe: resources_arm64.syso $(SOURCE_FILES)
+	go build $(GOFLAGS) -o $@
 
 remaster: export GOARCH := amd64
 remaster: export GOPROXY := direct

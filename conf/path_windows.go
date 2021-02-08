@@ -6,7 +6,6 @@
 package conf
 
 import (
-	"debug/pe"
 	"errors"
 	"os"
 	"path/filepath"
@@ -14,7 +13,6 @@ import (
 	"unsafe"
 
 	"golang.org/x/sys/windows"
-	"golang.org/x/sys/windows/registry"
 )
 
 var cachedConfigFileDir string
@@ -48,41 +46,9 @@ func RootDirectory(create bool) (string, error) {
 	if cachedRootDir != "" {
 		return cachedRootDir, nil
 	}
-	//TODO: remove the wow detection logic when Go supports arm64
-	var isWow bool
-	var processMachine, nativeMachine uint16
-	err := windows.IsWow64Process2(windows.CurrentProcess(), &processMachine, &nativeMachine)
-	if err == nil {
-		isWow = processMachine != pe.IMAGE_FILE_MACHINE_UNKNOWN
-	} else {
-		if !errors.Is(err, windows.ERROR_PROC_NOT_FOUND) {
-			return "", err
-		}
-		err = windows.IsWow64Process(windows.CurrentProcess(), &isWow)
-		if err != nil {
-			return "", err
-		}
-	}
-	var root string
-	if !isWow {
-		root, err = windows.KnownFolderPath(windows.FOLDERID_ProgramFiles, windows.KF_FLAG_DEFAULT)
-		if err != nil {
-			return "", err
-		}
-	} else {
-		key, err := registry.OpenKey(windows.HKEY_LOCAL_MACHINE, `SOFTWARE\Microsoft\Windows\CurrentVersion`, registry.READ|registry.WOW64_64KEY)
-		if err != nil {
-			return "", err
-		}
-		var typ uint32
-		root, typ, err = key.GetStringValue("ProgramFilesDir")
-		key.Close()
-		if err != nil {
-			return "", err
-		}
-		if typ != registry.SZ {
-			return "", registry.ErrUnexpectedType
-		}
+	root, err := windows.KnownFolderPath(windows.FOLDERID_ProgramFiles, windows.KF_FLAG_DEFAULT)
+	if err != nil {
+		return "", err
 	}
 	root = filepath.Join(root, "WireGuard")
 	if !create {
