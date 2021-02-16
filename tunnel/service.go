@@ -12,8 +12,6 @@ import (
 	"net"
 	"os"
 	"runtime"
-	"runtime/debug"
-	"strings"
 	"time"
 
 	"golang.org/x/sys/windows/svc"
@@ -108,16 +106,6 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 		serviceError = services.ErrorRingloggerOpen
 		return
 	}
-	defer func() {
-		if x := recover(); x != nil {
-			for _, line := range append([]string{fmt.Sprint(x)}, strings.Split(string(debug.Stack()), "\n")...) {
-				if len(strings.TrimSpace(line)) > 0 {
-					log.Println(line)
-				}
-			}
-			panic(x)
-		}
-	}()
 
 	config, err = conf.LoadFromPath(service.Path)
 	if err != nil {
