@@ -14,6 +14,7 @@ import (
 	"runtime"
 	"time"
 
+	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/svc"
 	"golang.org/x/sys/windows/svc/mgr"
 	"golang.zx2c4.com/wireguard/device"
@@ -151,7 +152,17 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 	}
 
 	log.Println("Creating Wintun interface")
-	wintun, err := tun.CreateTUNWithRequestedGUID(config.Name, deterministicGUID(config), 0)
+	var wintun tun.Device
+	for i := 0; i < 5; i++ {
+		if i > 0 {
+			time.Sleep(time.Second)
+			log.Printf("Retrying Wintun creation after failure because system just booted (T+%v): %v", windows.DurationSinceBoot(), err)
+		}
+		wintun, err = tun.CreateTUNWithRequestedGUID(config.Name, deterministicGUID(config), 0)
+		if err == nil || windows.DurationSinceBoot() > time.Minute*4 {
+			break
+		}
+	}
 	if err != nil {
 		serviceError = services.ErrorCreateWintun
 		return
