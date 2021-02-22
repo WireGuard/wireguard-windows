@@ -11,13 +11,13 @@ import (
 	"time"
 
 	"golang.org/x/sys/windows"
+
 	"golang.zx2c4.com/wireguard/conn"
-	"golang.zx2c4.com/wireguard/device"
 	"golang.zx2c4.com/wireguard/tun"
 	"golang.zx2c4.com/wireguard/windows/tunnel/winipcfg"
 )
 
-func bindSocketRoute(family winipcfg.AddressFamily, device *device.Device, ourLUID winipcfg.LUID, lastLUID *winipcfg.LUID, lastIndex *uint32, blackholeWhenLoop bool) error {
+func bindSocketRoute(family winipcfg.AddressFamily, binder conn.BindSocketToInterface, ourLUID winipcfg.LUID, lastLUID *winipcfg.LUID, lastIndex *uint32, blackholeWhenLoop bool) error {
 	r, err := winipcfg.GetIPForwardTable2(family)
 	if err != nil {
 		return err
@@ -51,21 +51,17 @@ func bindSocketRoute(family winipcfg.AddressFamily, device *device.Device, ourLU
 	*lastLUID = luid
 	*lastIndex = index
 	blackhole := blackholeWhenLoop && index == 0
-	bind, _ := device.Bind().(conn.BindSocketToInterface)
-	if bind == nil {
-		return nil
-	}
 	if family == windows.AF_INET {
 		log.Printf("Binding v4 socket to interface %d (blackhole=%v)", index, blackhole)
-		return bind.BindSocketToInterface4(index, blackhole)
+		return binder.BindSocketToInterface4(index, blackhole)
 	} else if family == windows.AF_INET6 {
 		log.Printf("Binding v6 socket to interface %d (blackhole=%v)", index, blackhole)
-		return bind.BindSocketToInterface6(index, blackhole)
+		return binder.BindSocketToInterface6(index, blackhole)
 	}
 	return nil
 }
 
-func monitorDefaultRoutes(family winipcfg.AddressFamily, device *device.Device, autoMTU bool, blackholeWhenLoop bool, tun *tun.NativeTun) ([]winipcfg.ChangeCallback, error) {
+func monitorDefaultRoutes(family winipcfg.AddressFamily, binder conn.BindSocketToInterface, autoMTU bool, blackholeWhenLoop bool, tun *tun.NativeTun) ([]winipcfg.ChangeCallback, error) {
 	var minMTU uint32
 	if family == windows.AF_INET {
 		minMTU = 576
@@ -77,7 +73,7 @@ func monitorDefaultRoutes(family winipcfg.AddressFamily, device *device.Device, 
 	lastIndex := ^uint32(0)
 	lastMTU := uint32(0)
 	doIt := func() error {
-		err := bindSocketRoute(family, device, ourLUID, &lastLUID, &lastIndex, blackholeWhenLoop)
+		err := bindSocketRoute(family, binder, ourLUID, &lastLUID, &lastIndex, blackholeWhenLoop)
 		if err != nil {
 			return err
 		}

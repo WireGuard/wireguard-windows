@@ -11,7 +11,7 @@ import (
 
 	"golang.org/x/sys/windows"
 
-	"golang.zx2c4.com/wireguard/device"
+	"golang.zx2c4.com/wireguard/conn"
 	"golang.zx2c4.com/wireguard/tun"
 
 	"golang.zx2c4.com/wireguard/windows/conf"
@@ -31,7 +31,7 @@ type interfaceWatcherEvent struct {
 type interfaceWatcher struct {
 	errors chan interfaceWatcherError
 
-	device *device.Device
+	binder conn.BindSocketToInterface
 	conf   *conf.Config
 	tun    *tun.NativeTun
 
@@ -101,7 +101,7 @@ func (iw *interfaceWatcher) setup(family winipcfg.AddressFamily) {
 	var err error
 
 	log.Printf("Monitoring default %s routes", ipversion)
-	*changeCallbacks, err = monitorDefaultRoutes(family, iw.device, iw.conf.Interface.MTU == 0, hasDefaultRoute(family, iw.conf.Peers), iw.tun)
+	*changeCallbacks, err = monitorDefaultRoutes(family, iw.binder, iw.conf.Interface.MTU == 0, hasDefaultRoute(family, iw.conf.Peers), iw.tun)
 	if err != nil {
 		iw.errors <- interfaceWatcherError{services.ErrorBindSocketsToDefaultRoutes, err}
 		return
@@ -142,11 +142,11 @@ func watchInterface() (*interfaceWatcher, error) {
 	return iw, nil
 }
 
-func (iw *interfaceWatcher) Configure(device *device.Device, conf *conf.Config, tun *tun.NativeTun) {
+func (iw *interfaceWatcher) Configure(binder conn.BindSocketToInterface, conf *conf.Config, tun *tun.NativeTun) {
 	iw.setupMutex.Lock()
 	defer iw.setupMutex.Unlock()
 
-	iw.device, iw.conf, iw.tun = device, conf, tun
+	iw.binder, iw.conf, iw.tun = binder, conf, tun
 	for _, event := range iw.storedEvents {
 		if event.luid == winipcfg.LUID(iw.tun.LUID()) {
 			iw.setup(event.family)

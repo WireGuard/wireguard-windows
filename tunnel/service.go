@@ -17,6 +17,7 @@ import (
 	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/svc"
 	"golang.org/x/sys/windows/svc/mgr"
+	"golang.zx2c4.com/wireguard/conn"
 	"golang.zx2c4.com/wireguard/device"
 	"golang.zx2c4.com/wireguard/ipc"
 	"golang.zx2c4.com/wireguard/tun"
@@ -195,7 +196,8 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 	}
 
 	log.Println("Creating interface instance")
-	dev = device.NewDevice(wintun, &device.Logger{log.Printf, log.Printf})
+	bind := conn.NewDefaultBind()
+	dev = device.NewDevice(wintun, bind, &device.Logger{log.Printf, log.Printf})
 
 	log.Println("Setting interface configuration")
 	uapi, err = ipc.UAPIListen(config.Name)
@@ -212,7 +214,7 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 	log.Println("Bringing peers up")
 	dev.Up()
 
-	watcher.Configure(dev, config, nativeTun)
+	watcher.Configure(bind.(conn.BindSocketToInterface), config, nativeTun)
 
 	log.Println("Listening for UAPI requests")
 	go func() {
