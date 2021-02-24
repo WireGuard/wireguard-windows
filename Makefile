@@ -25,17 +25,13 @@ define download =
 	if ! mv $$@.unverified $$@; then rm -f $$@.unverified; exit 1; fi
 endef
 
-$(eval $(call download,go.zip,https://download.wireguard.com/windows-toolchain/distfiles/go1.16-2021-02-18.zip,3b214888f70f2c0d7f96eed6335adda262c24c83f0fdfeefdeb5302703d05f46))
-$(eval $(call download,go-bootstrap.tar.gz,https://dl.google.com/go/go1.4.3.linux-amd64.tar.gz,ce3140662f45356eb78bc16a88fc7cfb29fb00e18d7c632608245b789b2086d2))
+$(eval $(call download,go.tar.zst,https://download.wireguard.com/windows-toolchain/distfiles/go1.16-linux_amd64_2021-02-24.tar.zst,78ee5fc067fdced52e751921a0c9941e43e251d0263a049cb753409708563385))
 $(eval $(call download,wintun.zip,https://www.wintun.net/builds/wintun-0.10.1.zip,ff871508b3316701fa2c9ab72b919ef23cf2683ba04bbc405df4b509aa06e368))
 
-.deps/go/prepared: .distfiles/go.zip .distfiles/go-bootstrap.tar.gz
+.deps/go/prepared: .distfiles/go.tar.zst
 	mkdir -p .deps
-	rm -rf .deps/go .deps/go-bootstrap
-	bsdtar -C .deps -s '/^go/go-bootstrap/' -xzf .distfiles/go-bootstrap.tar.gz
-	bsdtar -C .deps -xzf .distfiles/go.zip
-	cd .deps/go/src && GOARCH=amd64 GOOS=linux CGO_ENABLED=0 GOROOT_BOOTSTRAP=$(CURDIR)/.deps/go-bootstrap ./make.bash
-	rm -rf .deps/go-bootstrap
+	rm -rf .deps/go
+	bsdtar -C .deps -xf .distfiles/go.tar.zst
 	touch $@
 
 .deps/wintun/prepared: .distfiles/wintun.zip

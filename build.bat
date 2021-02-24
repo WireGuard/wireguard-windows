@@ -13,9 +13,7 @@ if exist .deps\prepared goto :render
 	rmdir /s /q .deps 2> NUL
 	mkdir .deps || goto :error
 	cd .deps || goto :error
-	call :download go.zip https://download.wireguard.com/windows-toolchain/distfiles/go1.16-2021-02-18.zip 3b214888f70f2c0d7f96eed6335adda262c24c83f0fdfeefdeb5302703d05f46 || goto :error
-	mkdir go-bootstrap || goto :error
-	call :download go-bootstrap.zip https://dl.google.com/go/go1.4.3.windows-amd64.zip a88486b386c7aa10e72b804888e79733d573f97e38b16b6bc3a001d875663f92 "-C go-bootstrap --strip-components 1" || goto :error
+	call :download go.zip https://download.wireguard.com/windows-toolchain/distfiles/go1.16-windows_amd64_2021-02-24.zip 7d2c05e73caf06feaf4546c8d6e61dfea1b023757250bedfc625063d796dba1e || goto :error
 	rem Mirror of https://github.com/mstorsjo/llvm-mingw/releases/download/20201020/llvm-mingw-20201020-msvcrt-x86_64.zip
 	call :download llvm-mingw-msvcrt.zip https://download.wireguard.com/windows-toolchain/distfiles/llvm-mingw-20201020-msvcrt-x86_64.zip 2e46593245090df96d15e360e092f0b62b97e93866e0162dca7f93b16722b844 || goto :error
 	rem Mirror of https://imagemagick.org/download/binaries/ImageMagick-7.0.8-42-portable-Q16-x64.zip
@@ -24,11 +22,6 @@ if exist .deps\prepared goto :render
 	call :download make.zip https://download.wireguard.com/windows-toolchain/distfiles/make-4.2.1-without-guile-w32-bin.zip 30641be9602712be76212b99df7209f4f8f518ba764cf564262bc9d6e4047cc7 "--strip-components 1 bin" || goto :error
 	call :download wireguard-tools.zip https://git.zx2c4.com/wireguard-tools/snapshot/wireguard-tools-e8fa0f662f2541952e745d9c7fff0eeaec538a5c.zip feda0818551493eb608b2ca2a6ecd972ce7548d4221847f9bb3994199e28b44b "--exclude wg-quick --strip-components 1" || goto :error
 	call :download wintun.zip https://www.wintun.net/builds/wintun-0.10.1.zip ff871508b3316701fa2c9ab72b919ef23cf2683ba04bbc405df4b509aa06e368 || goto :error
-	echo [+] Building go
-	set GOROOT_BOOTSTRAP=%CD%\go-bootstrap
-	set CGO_ENABLED=0
-	cmd /d /c "cd go\src && .\make.bat" || goto :error
-	rmdir /s /q go-bootstrap || goto :error
 	copy /y NUL prepared > NUL || goto :error
 	cd .. || goto :error
 
