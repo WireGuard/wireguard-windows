@@ -20,7 +20,7 @@ if exist .deps\prepared goto :render
 	call :download imagemagick.zip https://download.wireguard.com/windows-toolchain/distfiles/ImageMagick-7.0.8-42-portable-Q16-x64.zip 584e069f56456ce7dde40220948ff9568ac810688c892c5dfb7f6db902aa05aa "convert.exe colors.xml delegates.xml" || goto :error
 	rem Mirror of https://sourceforge.net/projects/ezwinports/files/make-4.2.1-without-guile-w32-bin.zip
 	call :download make.zip https://download.wireguard.com/windows-toolchain/distfiles/make-4.2.1-without-guile-w32-bin.zip 30641be9602712be76212b99df7209f4f8f518ba764cf564262bc9d6e4047cc7 "--strip-components 1 bin" || goto :error
-	call :download wireguard-tools.zip https://git.zx2c4.com/wireguard-tools/snapshot/wireguard-tools-e8fa0f662f2541952e745d9c7fff0eeaec538a5c.zip feda0818551493eb608b2ca2a6ecd972ce7548d4221847f9bb3994199e28b44b "--exclude wg-quick --strip-components 1" || goto :error
+	call :download wireguard-tools.zip https://git.zx2c4.com/wireguard-tools/snapshot/wireguard-tools-1.0.20210223.zip c0cee24d469ecd3f0420dd2cc9747faa67f257a39c17063c10cff99ba62a6fa6 "--exclude wg-quick --strip-components 1" || goto :error
 	call :download wintun.zip https://www.wintun.net/builds/wintun-0.10.1.zip ff871508b3316701fa2c9ab72b919ef23cf2683ba04bbc405df4b509aa06e368 || goto :error
 	copy /y NUL prepared > NUL || goto :error
 	cd .. || goto :error
