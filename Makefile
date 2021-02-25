@@ -25,8 +25,8 @@ define download =
 	if ! mv $$@.unverified $$@; then rm -f $$@.unverified; exit 1; fi
 endef
 
-$(eval $(call download,go.tar.zst,https://download.wireguard.com/windows-toolchain/distfiles/go1.16-linux_amd64_2021-02-24.tar.zst,78ee5fc067fdced52e751921a0c9941e43e251d0263a049cb753409708563385))
-$(eval $(call download,wintun.zip,https://www.wintun.net/builds/wintun-0.10.1.zip,ff871508b3316701fa2c9ab72b919ef23cf2683ba04bbc405df4b509aa06e368))
+$(eval $(call download,go.tar.zst,https://download.wireguard.com/windows-toolchain/distfiles/go1.16-linux_amd64_2021-02-25.tar.zst,3bed4521cc5f6fa009fe6999cf55324c9251fca340c89b326034f9921fd26cc9))
+$(eval $(call download,wintun.zip,https://www.wintun.net/builds/wintun-0.10.2.zip,fcd9f62f1bd5a550fcb9c21fbb5d6a556214753ccbbd1a3ebad4d318ec9dcbef))
 
 .deps/go/prepared: .distfiles/go.tar.zst
 	mkdir -p .deps
