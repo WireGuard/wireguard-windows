@@ -12,12 +12,13 @@ using System.Threading;
 using System.IO.Pipes;
 using System.Diagnostics;
 using System.Net.Sockets;
+using System.Security.AccessControl;
 
 namespace DemoUI
 {
     public partial class MainWindow : Form
     {
-        private static readonly string userDirectory = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
+        private static readonly string userDirectory = Path.Combine(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName), "Config"); //TODO: put in Program Files in real code.
         private static readonly string configFile = Path.Combine(userDirectory, "demobox.conf");
         private static readonly string logFile = Path.Combine(userDirectory, "log.bin");
 
@@ -28,13 +29,20 @@ namespace DemoUI
 
         public MainWindow()
         {
+            makeConfigDirectory();
             InitializeComponent();
             Application.ApplicationExit += Application_ApplicationExit;
-
             try { File.Delete(logFile); } catch { }
             log = new Tunnel.Ringlogger(logFile, "GUI");
             logPrintingThread = new Thread(new ThreadStart(tailLog));
             transferUpdateThread = new Thread(new ThreadStart(tailTransfer));
+        }
+
+        private void makeConfigDirectory()
+        {
+            var ds = new DirectorySecurity();
+            ds.SetSecurityDescriptorSddlForm("O:BAG:BAD:PAI(A;OICI;FA;;;BA)(A;OICI;FA;;;SY)");
+            FileSystemAclExtensions.CreateDirectory(ds, userDirectory);
         }
 
         private void tailLog()
