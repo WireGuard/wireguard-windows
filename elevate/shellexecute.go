@@ -113,19 +113,19 @@ func ShellExecute(program string, arguments string, directory string, show int32
 		runtime.KeepAlive(explorerPath)
 	}()
 
-	if err = coInitializeEx(0, cCOINIT_APARTMENTTHREADED); err == nil {
-		defer coUninitialize()
+	if err = windows.CoInitializeEx(0, windows.COINIT_APARTMENTTHREADED); err == nil {
+		defer windows.CoUninitialize()
 	}
 
 	var interfacePointer **[0xffff]uintptr
-	if err = coGetObject(
+	if err = windows.CoGetObject(
 		windows.StringToUTF16Ptr("Elevation:Administrator!new:{3E5FC7F9-9A51-4367-9063-A120244FBEC7}"),
-		&cBIND_OPTS3{
-			cbStruct:       uint32(unsafe.Sizeof(cBIND_OPTS3{})),
-			dwClassContext: cCLSCTX_LOCAL_SERVER,
+		&windows.BIND_OPTS3{
+			CbStruct:       uint32(unsafe.Sizeof(windows.BIND_OPTS3{})),
+			ClassContext: windows.CLSCTX_LOCAL_SERVER,
 		},
 		&windows.GUID{0x6EDD6D74, 0xC007, 0x4E75, [8]byte{0xB7, 0x6A, 0xE5, 0x74, 0x09, 0x95, 0xE2, 0x4C}},
-		&interfacePointer,
+		(**uintptr)(unsafe.Pointer(&interfacePointer)),
 	); err != nil {
 		return
 	}
