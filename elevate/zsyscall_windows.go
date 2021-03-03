@@ -38,26 +38,12 @@ func errnoErr(e syscall.Errno) error {
 }
 
 var (
-	modntdll = windows.NewLazySystemDLL("ntdll.dll")
 	modole32 = windows.NewLazySystemDLL("ole32.dll")
 
-	procRtlGetCurrentPeb     = modntdll.NewProc("RtlGetCurrentPeb")
-	procRtlInitUnicodeString = modntdll.NewProc("RtlInitUnicodeString")
-	procCoGetObject          = modole32.NewProc("CoGetObject")
-	procCoInitializeEx       = modole32.NewProc("CoInitializeEx")
-	procCoUninitialize       = modole32.NewProc("CoUninitialize")
+	procCoGetObject    = modole32.NewProc("CoGetObject")
+	procCoInitializeEx = modole32.NewProc("CoInitializeEx")
+	procCoUninitialize = modole32.NewProc("CoUninitialize")
 )
-
-func rtlGetCurrentPeb() (peb *cPEB) {
-	r0, _, _ := syscall.Syscall(procRtlGetCurrentPeb.Addr(), 0, 0, 0, 0)
-	peb = (*cPEB)(unsafe.Pointer(r0))
-	return
-}
-
-func rtlInitUnicodeString(destinationString *cUNICODE_STRING, sourceString *uint16) {
-	syscall.Syscall(procRtlInitUnicodeString.Addr(), 2, uintptr(unsafe.Pointer(destinationString)), uintptr(unsafe.Pointer(sourceString)), 0)
-	return
-}
 
 func coGetObject(name *uint16, bindOpts *cBIND_OPTS3, guid *windows.GUID, functionTable ***[0xffff]uintptr) (ret error) {
 	r0, _, _ := syscall.Syscall6(procCoGetObject.Addr(), 4, uintptr(unsafe.Pointer(name)), uintptr(unsafe.Pointer(bindOpts)), uintptr(unsafe.Pointer(guid)), uintptr(unsafe.Pointer(functionTable)), 0, 0)
