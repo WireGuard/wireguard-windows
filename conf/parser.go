@@ -378,6 +378,10 @@ func FromUAPI(reader io.Reader, existingConfig *Config) (*Config, error) {
 			DNS:       existingConfig.Interface.DNS,
 			DNSSearch: existingConfig.Interface.DNSSearch,
 			MTU:       existingConfig.Interface.MTU,
+			PreUp:     existingConfig.Interface.PreUp,
+			PostUp:    existingConfig.Interface.PostUp,
+			PreDown:   existingConfig.Interface.PreDown,
+			PostDown:  existingConfig.Interface.PostDown,
 		},
 	}
 	var peer *Peer
