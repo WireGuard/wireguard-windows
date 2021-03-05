@@ -136,6 +136,7 @@ func (rl *Ringlogger) Write(p []byte) (n int, err error) {
 	textLen := 3 + len(p) + len(rl.tag)
 	if textLen > maxLogLineLength-1 {
 		p = p[:maxLogLineLength-1-3-len(rl.tag)]
+		textLen = maxLogLineLength-1
 	}
 	line.line[textLen] = 0
 	line.line[0] = 0 // Null out the beginning and only let it extend after the other writes have completed
