@@ -58,7 +58,7 @@ func NewRinglogger(filename string, tag string) (*Ringlogger, error) {
 		return nil, err
 	}
 	mapping, err := windows.CreateFileMapping(windows.Handle(file.Fd()), nil, windows.PAGE_READWRITE, 0, 0, nil)
-	if err != nil {
+	if err != nil && err != windows.ERROR_ALREADY_EXISTS {
 		return nil, err
 	}
 	rl, err := newRingloggerFromMappingHandle(mapping, tag, windows.FILE_MAP_WRITE)
@@ -237,7 +237,7 @@ func (rl *Ringlogger) Close() error {
 
 func (rl *Ringlogger) ExportInheritableMappingHandle() (handleToClose windows.Handle, err error) {
 	handleToClose, err = windows.CreateFileMapping(windows.Handle(rl.file.Fd()), nil, windows.PAGE_READONLY, 0, 0, nil)
-	if err != nil {
+	if err != nil && err != windows.ERROR_ALREADY_EXISTS {
 		return
 	}
 	err = windows.SetHandleInformation(handleToClose, windows.HANDLE_FLAG_INHERIT, windows.HANDLE_FLAG_INHERIT)
