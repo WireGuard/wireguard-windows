@@ -48,7 +48,7 @@ func connectTunnelServicePipe(tunnelName string) (*connectedTunnel, error) {
 		return nil, err
 	}
 	pipe = &connectedTunnel{}
-	pipe.Conn, err = winpipe.Dial(pipePath, nil, localSystem)
+	pipe.Conn, err = winpipe.Dial(pipePath, nil, &winpipe.DialConfig{ExpectedOwner: localSystem})
 	if err != nil {
 		return nil, err
 	}
