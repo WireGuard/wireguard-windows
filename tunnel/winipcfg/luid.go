@@ -63,6 +63,17 @@ func LUIDFromGUID(guid *windows.GUID) (LUID, error) {
 	return luid, nil
 }
 
+// LUIDFromIndex function converts a local index for a network interface to the locally unique identifier (LUID) for the interface.
+// https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-convertinterfaceindextoluid
+func LUIDFromIndex(index uint32) (LUID, error) {
+	var luid LUID
+	err := convertInterfaceIndexToLUID(index, &luid)
+	if err != nil {
+		return 0, err
+	}
+	return luid, nil
+}
+
 // IPAddress method returns MibUnicastIPAddressRow struct that matches to provided 'ip' argument. Corresponds to GetUnicastIpAddressEntry
 // (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getunicastipaddressentry)
 func (luid LUID) IPAddress(ip net.IP) (*MibUnicastIPAddressRow, error) {
