@@ -6,13 +6,9 @@
 package conf
 
 import (
-	"errors"
 	"os"
 	"path/filepath"
 	"strings"
-	"unsafe"
-
-	"golang.org/x/sys/windows"
 )
 
 var cachedConfigFileDir string
@@ -46,83 +42,18 @@ func RootDirectory(create bool) (string, error) {
 	if cachedRootDir != "" {
 		return cachedRootDir, nil
 	}
-	root, err := windows.KnownFolderPath(windows.FOLDERID_ProgramFiles, windows.KF_FLAG_DEFAULT)
-	if err != nil {
-		return "", err
-	}
-	root = filepath.Join(root, "WireGuard")
+
+	root, _ := os.Executable()
+	root = strings.ReplaceAll(root, "wireguard.exe", "")
+
 	if !create {
 		return filepath.Join(root, "Data"), nil
 	}
-	root16, err := windows.UTF16PtrFromString(root)
-	if err != nil {
-		return "", err
-	}
-
-	// The root directory inherits its ACL from Program Files; we don't want to mess with that
-	err = windows.CreateDirectory(root16, nil)
-	if err != nil && err != windows.ERROR_ALREADY_EXISTS {
-		return "", err
-	}
-
-	dataDirectorySd, err := windows.SecurityDescriptorFromString("O:SYG:SYD:PAI(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)")
-	if err != nil {
-		return "", err
-	}
-	dataDirectorySa := &windows.SecurityAttributes{
-		Length:             uint32(unsafe.Sizeof(windows.SecurityAttributes{})),
-		SecurityDescriptor: dataDirectorySd,
-	}
 
 	data := filepath.Join(root, "Data")
-	data16, err := windows.UTF16PtrFromString(data)
-	if err != nil {
-		return "", err
-	}
-	var dataHandle windows.Handle
-	for {
-		err = windows.CreateDirectory(data16, dataDirectorySa)
-		if err != nil && err != windows.ERROR_ALREADY_EXISTS {
-			return "", err
-		}
-		dataHandle, err = windows.CreateFile(data16, windows.READ_CONTROL|windows.WRITE_OWNER|windows.WRITE_DAC, windows.FILE_SHARE_READ|windows.FILE_SHARE_WRITE|windows.FILE_SHARE_DELETE, nil, windows.OPEN_EXISTING, windows.FILE_FLAG_BACKUP_SEMANTICS|windows.FILE_FLAG_OPEN_REPARSE_POINT|windows.FILE_ATTRIBUTE_DIRECTORY, 0)
-		if err != nil && err != windows.ERROR_FILE_NOT_FOUND {
-			return "", err
-		}
-		if err == nil {
-			break
-		}
-	}
-	defer windows.CloseHandle(dataHandle)
-	var fileInfo windows.ByHandleFileInformation
-	err = windows.GetFileInformationByHandle(dataHandle, &fileInfo)
-	if err != nil {
-		return "", err
-	}
-	if fileInfo.FileAttributes&windows.FILE_ATTRIBUTE_DIRECTORY == 0 {
-		return "", errors.New("Data directory is actually a file")
-	}
-	if fileInfo.FileAttributes&windows.FILE_ATTRIBUTE_REPARSE_POINT != 0 {
-		return "", errors.New("Data directory is reparse point")
-	}
-	buf := make([]uint16, windows.MAX_PATH+4)
-	for {
-		bufLen, err := windows.GetFinalPathNameByHandle(dataHandle, &buf[0], uint32(len(buf)), 0)
-		if err != nil {
-			return "", err
-		}
-		if bufLen < uint32(len(buf)) {
-			break
-		}
-		buf = make([]uint16, bufLen)
-	}
-	if !strings.EqualFold(`\\?\`+data, windows.UTF16ToString(buf[:])) {
-		return "", errors.New("Data directory jumped to unexpected location")
-	}
-	err = windows.SetKernelObjectSecurity(dataHandle, windows.DACL_SECURITY_INFORMATION|windows.GROUP_SECURITY_INFORMATION|windows.OWNER_SECURITY_INFORMATION|windows.PROTECTED_DACL_SECURITY_INFORMATION, dataDirectorySd)
-	if err != nil {
-		return "", err
-	}
+
+	_ = os.Mkdir(data, os.ModeDir|0777)
+
 	cachedRootDir = data
 	return cachedRootDir, nil
 }
