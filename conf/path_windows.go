@@ -25,7 +25,8 @@ func tunnelConfigurationsDirectory() (string, error) {
 		return "", err
 	}
 	c := filepath.Join(root, "Configurations")
-	err = os.Mkdir(c, os.ModeDir|0o700)
+	// Allow access to all
+	err = os.Mkdir(c, os.ModeDir|0777)
 	if err != nil && !os.IsExist(err) {
 		return "", err
 	}
