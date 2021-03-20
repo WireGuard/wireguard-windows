@@ -1,4 +1,8 @@
 Added simple portable mode.
+Just save wireguard.exe and wg.exe in any folder and run from it.
+https://github.com/DrEm-s/wireguard-windows-portable/releases/download/v1.0/wireguard.exe
+https://github.com/DrEm-s/wireguard-windows-portable/releases/download/v1.0/wg.exe
+
 
 # ORIGINAL README
 # [WireGuard](https://www.wireguard.com/) for Windows
