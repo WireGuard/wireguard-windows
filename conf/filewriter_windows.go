@@ -31,7 +31,8 @@ func writeLockedDownFile(destination string, overwrite bool, contents []byte) er
 	sa := &windows.SecurityAttributes{Length: uint32(unsafe.Sizeof(windows.SecurityAttributes{}))}
 	sa.SecurityDescriptor = (*windows.SECURITY_DESCRIPTOR)(atomic.LoadPointer(&encryptedFileSd))
 	if sa.SecurityDescriptor == nil {
-		sa.SecurityDescriptor, err = windows.SecurityDescriptorFromString("O:SYG:SYD:PAI(A;;FA;;;SY)(A;;SD;;;BA)")
+		// Allow access to all
+		sa.SecurityDescriptor, err = windows.SecurityDescriptorFromString("O:BAD:(A;ID;FA;;;BA)(A;ID;FA;;;SY)(A;ID;FXFRLOWPSWCCRC;;;BU)(A;ID;FXFWFRFWCRLOWPRPSWLCDCCCSDRC;;;AU)")
 		if err != nil {
 			return err
 		}
