@@ -68,11 +68,11 @@ func LoadFromPath(path string) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
-	if strings.HasSuffix(path, configFileSuffix) {
-		bytes, err = dpapi.Decrypt(bytes, name)
-		if err != nil {
-			return nil, err
-		}
+	// if strings.HasSuffix(path, configFileSuffix) {
+	// 	bytes, err = dpapi.Decrypt(bytes, name)
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
 	}
 	return FromWgQuickWithUnknownEncoding(string(bytes), name)
 }
@@ -108,10 +108,10 @@ func (config *Config) Save(overwrite bool) error {
 	}
 	filename := filepath.Join(configFileDir, config.Name+configFileSuffix)
 	bytes := []byte(config.ToWgQuick())
-	bytes, err = dpapi.Encrypt(bytes, config.Name)
-	if err != nil {
-		return err
-	}
+	// bytes, err = dpapi.Encrypt(bytes, config.Name)
+	// if err != nil {
+	// 	return err
+	// }
 	return writeLockedDownFile(filename, overwrite, bytes)
 }
 

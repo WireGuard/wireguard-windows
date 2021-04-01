@@ -27,11 +27,11 @@ func AdminBool(name string) bool {
 
 	switch name {
 	case "MultipleSimultaneousTunnels":
-		return false
+		return true
 	case "LimitedOperatorUI":
 		return false
 	case "DangerousScriptExecution":
-		return false
+		return true
 	}
 
 	return false
