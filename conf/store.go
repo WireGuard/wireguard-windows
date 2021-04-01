@@ -10,8 +10,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-
-	"golang.zx2c4.com/wireguard/windows/conf/dpapi"
 )
 
 const (
@@ -73,7 +71,7 @@ func LoadFromPath(path string) (*Config, error) {
 	// 	if err != nil {
 	// 		return nil, err
 	// 	}
-	}
+	// }
 	return FromWgQuickWithUnknownEncoding(string(bytes), name)
 }
 
