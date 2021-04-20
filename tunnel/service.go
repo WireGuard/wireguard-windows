@@ -154,14 +154,18 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 
 	log.Println("Creating Wintun interface")
 	var wintun tun.Device
+	var needReboot = false
 	for i := 0; i < 5; i++ {
 		if i > 0 {
 			time.Sleep(time.Second)
 			log.Printf("Retrying Wintun creation after failure because system just booted (T+%v): %v", windows.DurationSinceBoot(), err)
 		}
-		wintun, err = tun.CreateTUNWithRequestedGUID(config.Name, deterministicGUID(config), 0)
+		wintun, needReboot, err = tun.CreateTUNWithRequestedGUID(config.Name, deterministicGUID(config), 0)
 		if err == nil || windows.DurationSinceBoot() > time.Minute*4 {
 			break
+		}
+		if needReboot {
+			log.Printf("Windows indicated a reboot is required.")
 		}
 	}
 	if err != nil {
