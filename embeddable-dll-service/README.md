@@ -24,18 +24,14 @@ is absolutely essential; do not forget it.
 ##### 2. Have your program's main function handle the `/service` switch:
 
 ```c
-if (!strcmp(argv[1], "/service") && argc == 3) {
+if (!wcscmp(wargv[1], "/service") && wargc == 3) {
     HMODULE tunnel_lib = LoadLibrary("tunnel.dll");
     if (!tunnel_lib)
         abort();
     tunnel_proc_t tunnel_proc = (tunnel_proc_t)GetProcAddress(tunnel_lib, "WireGuardTunnelService");
     if (!tunnel_proc)
         abort();
-    struct go_string conf_file = {
-        .str = argv[2],
-        .n = strlen(argv[2])
-    };
-    return tunnel_proc(conf_file);
+    return tunnel_proc(wargv[2]);
 }
 ```
 
