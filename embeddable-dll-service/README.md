@@ -24,7 +24,7 @@ is absolutely essential; do not forget it.
 ##### 2. Have your program's main function handle the `/service` switch:
 
 ```c
-if (!wcscmp(wargv[1], "/service") && wargc == 3) {
+if (!wcscmp(wargv[1], L"/service") && wargc == 3) {
     HMODULE tunnel_lib = LoadLibrary("tunnel.dll");
     if (!tunnel_lib)
         abort();
