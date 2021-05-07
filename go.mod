@@ -5,11 +5,11 @@ go 1.16
 require (
 	github.com/lxn/walk v0.0.0-20210112085537-c389da54e794
 	github.com/lxn/win v0.0.0-20210218163916-a377121e959e
-	golang.org/x/crypto v0.0.0-20210503195802-e9a32991a82e
-	golang.org/x/net v0.0.0-20210505024714-0287a6fb4125
-	golang.org/x/sys v0.0.0-20210503173754-0981d6026fa6
+	golang.org/x/crypto v0.0.0-20210506145944-38f3c27a63bf
+	golang.org/x/net v0.0.0-20210505214959-0714010a04ed
+	golang.org/x/sys v0.0.0-20210507014357-30e306a8bba5
 	golang.org/x/text v0.3.7-0.20210503195748-5c7c50ebbd4f
-	golang.zx2c4.com/wireguard v0.0.0-20210505094245-69a42a4eefc7
+	golang.zx2c4.com/wireguard v0.0.0-20210507110843-18ea215f0684
 )
 
 replace (
