@@ -121,7 +121,7 @@ func ShellExecute(program string, arguments string, directory string, show int32
 	if err = windows.CoGetObject(
 		windows.StringToUTF16Ptr("Elevation:Administrator!new:{3E5FC7F9-9A51-4367-9063-A120244FBEC7}"),
 		&windows.BIND_OPTS3{
-			CbStruct:       uint32(unsafe.Sizeof(windows.BIND_OPTS3{})),
+			CbStruct:     uint32(unsafe.Sizeof(windows.BIND_OPTS3{})),
 			ClassContext: windows.CLSCTX_LOCAL_SERVER,
 		},
 		&windows.GUID{0x6EDD6D74, 0xC007, 0x4E75, [8]byte{0xB7, 0x6A, 0xE5, 0x74, 0x09, 0x95, 0xE2, 0x4C}},
