@@ -26,7 +26,7 @@ define download =
 endef
 
 $(eval $(call download,go.tar.zst,https://download.wireguard.com/windows-toolchain/distfiles/go1.16.2-linux_amd64_2021-03-22.tar.zst,a12882673a0e29842a3ba5bfefd1a41dcb4fd0889e1957c98e33b9a3872190a9))
-$(eval $(call download,wintun.zip,https://www.wintun.net/builds/wintun-0.10.4.zip,bebaab454a589dd4f9c7f8f4a757553181d5bf7fb7eddcdf48811f840055fb55))
+$(eval $(call download,wintun.zip,https://www.wintun.net/builds/wintun-0.11.zip,a5e212dcfd11ba172f8c2d9ee34ae1a68e15d8115a05912d95b1209ce0695408))
 
 .deps/go/prepared: .distfiles/go.tar.zst
 	mkdir -p .deps
