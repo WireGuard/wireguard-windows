@@ -21,9 +21,14 @@ import (
 var migrating sync.Mutex
 var lastMigrationTimer *time.Timer
 
-func MigrateUnencryptedConfigs() { migrateUnencryptedConfigs(3) }
+type MigrationCallback func(name, oldPath, newPath string)
 
-func migrateUnencryptedConfigs(sharingBase int) {
+func MigrateUnencryptedConfigs(migrated MigrationCallback) { migrateUnencryptedConfigs(3, migrated) }
+
+func migrateUnencryptedConfigs(sharingBase int, migrated MigrationCallback) {
+	if migrated == nil {
+		migrated = func(_, _, _ string) {}
+	}
 	migrating.Lock()
 	defer migrating.Unlock()
 	configFileDir, err := tunnelConfigurationsDirectory()
@@ -54,6 +59,7 @@ func migrateUnencryptedConfigs(sharingBase int) {
 
 		var bytes []byte
 		var config *Config
+		var newPath string
 		// We don't use os.ReadFile, because we actually want RDWR, so that we can take advantage
 		// of Windows file locking for ensuring the file is finished being written.
 		f, err := os.OpenFile(path, os.O_RDWR, 0)
@@ -65,7 +71,7 @@ func migrateUnencryptedConfigs(sharingBase int) {
 					if lastMigrationTimer != nil {
 						lastMigrationTimer.Stop()
 					}
-					lastMigrationTimer = time.AfterFunc(time.Second/time.Duration(sharingBase*sharingBase), func() { migrateUnencryptedConfigs(sharingBase - 1) })
+					lastMigrationTimer = time.AfterFunc(time.Second/time.Duration(sharingBase*sharingBase), func() { migrateUnencryptedConfigs(sharingBase-1, migrated) })
 					ignoreSharingViolations = true
 					continue
 				}
@@ -87,8 +93,13 @@ func migrateUnencryptedConfigs(sharingBase int) {
 		}
 		err = os.Remove(path)
 		if err != nil {
-			log.Printf("Unable to remove old path %#q: %v", path, err)
+			goto error
 		}
+		newPath, err = config.Path()
+		if err != nil {
+			goto error
+		}
+		migrated(config.Name, path, newPath)
 		continue
 	error:
 		log.Printf("Unable to ingest and encrypt %#q: %v", path, err)

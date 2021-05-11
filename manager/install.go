@@ -7,7 +7,9 @@ package manager
 
 import (
 	"errors"
+	"log"
 	"os"
+	"strings"
 	"time"
 
 	"golang.org/x/sys/windows"
@@ -196,4 +198,46 @@ func UninstallTunnel(name string) error {
 		return err
 	}
 	return err2
+}
+
+func changeTunnelServiceConfigFilePath(name, oldPath, newPath string) {
+	var err error
+	defer func() {
+		if err != nil {
+			log.Printf("Unable to change tunnel service command line argument from %#q to %#q: %v", oldPath, newPath, err)
+		}
+	}()
+	m, err := serviceManager()
+	if err != nil {
+		return
+	}
+	serviceName, err := services.ServiceNameOfTunnel(name)
+	if err != nil {
+		return
+	}
+	service, err := m.OpenService(serviceName)
+	if err == windows.ERROR_SERVICE_DOES_NOT_EXIST {
+		err = nil
+		return
+	} else if err != nil {
+		return
+	}
+	defer service.Close()
+	config, err := service.Config()
+	if err != nil {
+		return
+	}
+	exePath, err := os.Executable()
+	if err != nil {
+		return
+	}
+	args, err := windows.DecomposeCommandLine(config.BinaryPathName)
+	if err != nil || len(args) != 3 ||
+		!strings.EqualFold(args[0], exePath) || args[1] != "/tunnelservice" || !strings.EqualFold(args[2], oldPath) {
+		err = nil
+		return
+	}
+	args[2] = newPath
+	config.BinaryPathName = windows.ComposeCommandLine(args)
+	err = service.UpdateConfig(config)
 }
