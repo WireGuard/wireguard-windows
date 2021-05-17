@@ -73,7 +73,7 @@ func RunUI() {
 			switch updateState {
 			case manager.UpdateStateFoundUpdate:
 				mtw.UpdateFound()
-				if tray != nil {
+				if tray != nil && IsAdmin {
 					tray.UpdateFound()
 				}
 			case manager.UpdateStateUpdatesDisabledUnofficialBuild:

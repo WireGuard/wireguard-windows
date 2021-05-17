@@ -64,6 +64,12 @@ func NewUpdatePage() (*UpdatePage, error) {
 	button.SetImage(updateIcon)
 	button.SetText(l18n.Sprintf("Update Now"))
 
+	if !IsAdmin {
+		button.SetText(l18n.Sprintf("Please ask the system administrator to update."))
+		button.SetEnabled(false)
+		status.SetText(l18n.Sprintf("Status: Waiting for administrator"))
+	}
+
 	walk.NewVSpacer(up)
 
 	switchToUpdatingState := func() {
