@@ -9,6 +9,7 @@ import (
 	"debug/pe"
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"strconv"
@@ -27,9 +28,25 @@ import (
 	"golang.zx2c4.com/wireguard/windows/updater"
 )
 
+func setLogFile() {
+	logHandle, err := windows.GetStdHandle(windows.STD_ERROR_HANDLE)
+	if logHandle == 0 || err != nil {
+		logHandle, err = windows.GetStdHandle(windows.STD_OUTPUT_HANDLE)
+	}
+	if logHandle == 0 || err != nil {
+		log.SetOutput(io.Discard)
+	} else {
+		log.SetOutput(os.NewFile(uintptr(logHandle), "stderr"))
+	}
+}
+
 func fatal(v ...interface{}) {
-	windows.MessageBox(0, windows.StringToUTF16Ptr(fmt.Sprint(v...)), windows.StringToUTF16Ptr(l18n.Sprintf("Error")), windows.MB_ICONERROR)
-	os.Exit(1)
+	if log.Writer() == io.Discard {
+		windows.MessageBox(0, windows.StringToUTF16Ptr(fmt.Sprint(v...)), windows.StringToUTF16Ptr(l18n.Sprintf("Error")), windows.MB_ICONERROR)
+		os.Exit(1)
+	} else {
+		log.Fatal(append([]interface{}{l18n.Sprintf("Error: ")}, v...))
+	}
 }
 
 func fatalf(format string, v ...interface{}) {
@@ -37,7 +54,11 @@ func fatalf(format string, v ...interface{}) {
 }
 
 func info(title string, format string, v ...interface{}) {
-	windows.MessageBox(0, windows.StringToUTF16Ptr(l18n.Sprintf(format, v...)), windows.StringToUTF16Ptr(title), windows.MB_ICONINFORMATION)
+	if log.Writer() == io.Discard {
+		windows.MessageBox(0, windows.StringToUTF16Ptr(l18n.Sprintf(format, v...)), windows.StringToUTF16Ptr(title), windows.MB_ICONINFORMATION)
+	} else {
+		log.Printf(title+":\n"+format, v...)
+	}
 }
 
 func usage() {
@@ -50,9 +71,9 @@ func usage() {
 		"/managerservice",
 		"/tunnelservice CONFIG_PATH",
 		"/ui CMD_READ_HANDLE CMD_WRITE_HANDLE CMD_EVENT_HANDLE LOG_MAPPING_HANDLE",
-		"/dumplog OUTPUT_PATH",
-		"/update [LOG_FILE]",
-		"/removealladapters [LOG_FILE]",
+		"/dumplog",
+		"/update",
+		"/removealladapters",
 	}
 	builder := strings.Builder{}
 	for _, flag := range flags {
@@ -133,6 +154,7 @@ func main() {
 		panic("failed to restrict dll search path")
 	}
 
+	setLogFile()
 	checkForWow64()
 
 	if len(os.Args) <= 1 {
@@ -246,13 +268,17 @@ func main() {
 		ui.RunUI()
 		return
 	case "/dumplog":
-		if len(os.Args) != 3 {
+		if len(os.Args) != 2 {
 			usage()
 		}
-		file, err := os.Create(os.Args[2])
+		outputHandle, err := windows.GetStdHandle(windows.STD_OUTPUT_HANDLE)
 		if err != nil {
 			fatal(err)
 		}
+		if outputHandle == 0 {
+			fatal("Stdout must be set")
+		}
+		file := os.NewFile(uintptr(outputHandle), "stdout")
 		defer file.Close()
 		err = ringlogger.DumpTo(file, true)
 		if err != nil {
@@ -260,21 +286,9 @@ func main() {
 		}
 		return
 	case "/update":
-		if len(os.Args) != 2 && len(os.Args) != 3 {
+		if len(os.Args) != 2 {
 			usage()
 		}
-		var f *os.File
-		var err error
-		if len(os.Args) == 2 {
-			f = os.Stdout
-		} else {
-			f, err = os.Create(os.Args[2])
-			if err != nil {
-				fatal(err)
-			}
-			defer f.Close()
-		}
-		l := log.New(f, "", log.LstdFlags)
 		for progress := range updater.DownloadVerifyAndExecute(0) {
 			if len(progress.Activity) > 0 {
 				if progress.BytesTotal > 0 || progress.BytesDownloaded > 0 {
@@ -282,13 +296,13 @@ func main() {
 					if progress.BytesTotal > 0 {
 						percent = float64(progress.BytesDownloaded) / float64(progress.BytesTotal) * 100.0
 					}
-					l.Printf("%s: %d/%d (%.2f%%)\n", progress.Activity, progress.BytesDownloaded, progress.BytesTotal, percent)
+					log.Printf("%s: %d/%d (%.2f%%)\n", progress.Activity, progress.BytesDownloaded, progress.BytesTotal, percent)
 				} else {
-					l.Println(progress.Activity)
+					log.Println(progress.Activity)
 				}
 			}
 			if progress.Error != nil {
-				l.Printf("Error: %v\n", progress.Error)
+				log.Printf("Error: %v\n", progress.Error)
 			}
 			if progress.Complete || progress.Error != nil {
 				return
@@ -296,24 +310,12 @@ func main() {
 		}
 		return
 	case "/removealladapters":
-		if len(os.Args) != 2 && len(os.Args) != 3 {
+		if len(os.Args) != 2 {
 			usage()
 		}
-		var f *os.File
-		var err error
-		if len(os.Args) == 2 {
-			f = os.Stdout
-		} else {
-			f, err = os.Create(os.Args[2])
-			if err != nil {
-				fatal(err)
-			}
-			defer f.Close()
-		}
-		log.SetOutput(f)
 		rebootRequired, err := tun.WintunPool.DeleteDriver()
 		if err != nil {
-			log.Printf("Error: %v\n", err)
+			fatal(err)
 		} else if rebootRequired {
 			log.Println("A reboot may be required")
 		}

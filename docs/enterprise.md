@@ -8,7 +8,7 @@ While consumer users are generally directed toward [wireguard-installer.exe](htt
 
 ### Tunnel Service versus Manager Service and UI
 
-The "manager service" is responsible for displaying a UI on select users' desktops (in the system tray), and responding to requests from the UI to do things like add, remove, start, or stop tunnels. The "tunnel service" is a separate Windows service for each tunnel. These two services may be used together, or separately, as described below.
+The "manager service" is responsible for displaying a UI on select users' desktops (in the system tray), and responding to requests from the UI to do things like add, remove, start, or stop tunnels. The "tunnel service" is a separate Windows service for each tunnel. These two services may be used together, or separately, as described below. The various commands below will log errors and status to standard error, or, if standard error does not exist, to standard output.
 
 ### Tunnel Service
 
@@ -63,10 +63,10 @@ By default, the manager stops existing tunnels when starting new tunnels, so tha
 
 ### Diagnostic Logs
 
-The manager and all tunnel services produce diagnostic logs in a shared ringbuffer-based log. This is shown in the UI, and also can be dumped to a file using the command:
+The manager and all tunnel services produce diagnostic logs in a shared ringbuffer-based log. This is shown in the UI, and also can be dumped to standard out using the command:
 
 ```text
-> wireguard /dumplog C:\path\to\diagnostic\log.txt
+> wireguard /dumplog > C:\path\to\diagnostic\log.txt
 ```
 
 ### Updates
@@ -74,7 +74,13 @@ The manager and all tunnel services produce diagnostic logs in a shared ringbuff
 Administrators are notified of updates within the UI and can update from within the UI, but updates can also be invoked at the command line using the command:
 
 ```text
-> wireguard /update C:\path\to\update\log.txt
+> wireguard /update
+```
+
+Or, to log the status of that command:
+
+```text
+> wireguard /update 2> C:\path\to\update\log.txt
 ```
 
 ### Wintun Adapters
@@ -82,5 +88,11 @@ Administrators are notified of updates within the UI and can update from within 
 The tunnel service creates a Wintun adapter at startup and destroys it at shutdown. It may be desirable, however, to remove all Wintun adapters created in WireGuard's pool and uninstall the driver if no other applications are using Wintun. This can be accomplished using the command:
 
 ```text
-> wireguard /removealladapters C:\path\to\removal\log.txt
+> wireguard /removealladapters
+```
+
+Or, to log the status of that command:
+
+```text
+> wireguard /removealladapters 2> C:\path\to\removal\log.txt
 ```
