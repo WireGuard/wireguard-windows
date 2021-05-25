@@ -12,7 +12,6 @@ import (
 	"runtime"
 	"strconv"
 	"sync"
-	"syscall"
 	"time"
 	"unsafe"
 
@@ -57,12 +56,6 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 		return
 	}
 
-	devNull, err := os.OpenFile(os.DevNull, os.O_RDWR, 0)
-	if err != nil {
-		serviceError = services.ErrorOpenNULFile
-		return
-	}
-
 	moveConfigsFromLegacyStore()
 
 	err = trackExistingTunnels()
@@ -74,7 +67,7 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 	conf.RegisterStoreChangeCallback(func() { conf.MigrateUnencryptedConfigs(changeTunnelServiceConfigFilePath) })
 	conf.RegisterStoreChangeCallback(IPCServerNotifyTunnelsChange)
 
-	procs := make(map[uint32]*os.Process)
+	procs := make(map[uint32]*uiProcess)
 	aliveSessions := make(map[uint32]bool)
 	procsLock := sync.Mutex{}
 	stoppingManager := false
@@ -196,29 +189,21 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 			}
 
 			log.Printf("Starting UI process for user ‘%s@%s’ for session %d", username, domain, session)
-			attr := &os.ProcAttr{
-				Sys: &syscall.SysProcAttr{
-					Token: syscall.Token(runToken),
-					AdditionalInheritedHandles: []syscall.Handle{
-						syscall.Handle(theirReader.Fd()),
-						syscall.Handle(theirWriter.Fd()),
-						syscall.Handle(theirEvents.Fd()),
-						syscall.Handle(theirLogMapping)},
-				},
-				Files: []*os.File{devNull, devNull, devNull},
-				Dir:   userProfileDirectory,
-			}
 			procsLock.Lock()
-			var proc *os.Process
+			var proc *uiProcess
 			if alive := aliveSessions[session]; alive {
-				proc, err = os.StartProcess(path, []string{
+				proc, err = launchUIProcess(path, []string{
 					path,
 					"/ui",
 					strconv.FormatUint(uint64(theirReader.Fd()), 10),
 					strconv.FormatUint(uint64(theirWriter.Fd()), 10),
 					strconv.FormatUint(uint64(theirEvents.Fd()), 10),
 					strconv.FormatUint(uint64(theirLogMapping), 10),
-				}, attr)
+				}, userProfileDirectory, []windows.Handle{
+					windows.Handle(theirReader.Fd()),
+					windows.Handle(theirWriter.Fd()),
+					windows.Handle(theirEvents.Fd()),
+					theirLogMapping}, runToken)
 			} else {
 				err = errors.New("Session has logged out")
 			}
@@ -240,9 +225,7 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 			procsLock.Unlock()
 
 			sessionIsDead := false
-			processStatus, err := proc.Wait()
-			if err == nil {
-				exitCode := processStatus.Sys().(syscall.WaitStatus).ExitCode
+			if exitCode, err := proc.Wait(); err == nil {
 				log.Printf("Exited UI process for user '%s@%s' for session %d with status %x", username, domain, session, exitCode)
 				const STATUS_DLL_INIT_FAILED_LOGOFF = 0xC000026B
 				sessionIsDead = exitCode == STATUS_DLL_INIT_FAILED_LOGOFF
