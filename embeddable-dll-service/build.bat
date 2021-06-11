@@ -21,9 +21,9 @@ if exist ..\.deps\prepared goto :build
 	set CGO_CFLAGS=-O3 -Wall -Wno-unused-function -Wno-switch -std=gnu11 -DWINVER=0x0601
 	call :build_plat x86 i686 386 || goto :error
 	call :build_plat amd64 x86_64 amd64 || goto :error
+	call :build_plat arm64 aarch64 arm64 || goto :error
 	rem Uncomment when cgo is implemented:
 	rem call :build_plat arm armv7 arm || goto :error
-	rem call :build_plat arm64 aarch64 arm64 || goto :error
 
 :success
 	echo [+] Success
