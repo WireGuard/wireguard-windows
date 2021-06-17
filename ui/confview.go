@@ -620,7 +620,7 @@ func (cv *ConfView) onTunnelChanged(tunnel *manager.Tunnel, state manager.Tunnel
 }
 
 func (cv *ConfView) SetTunnel(tunnel *manager.Tunnel) {
-	cv.tunnel = tunnel //XXX: This races with the read in the updateTicker, but it's pointer-sized!
+	cv.tunnel = tunnel // XXX: This races with the read in the updateTicker, but it's pointer-sized!
 
 	var config conf.Config
 	var state manager.TunnelState

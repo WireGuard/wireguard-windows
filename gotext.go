@@ -1,4 +1,6 @@
+//go:build generate
 // +build generate
+
 //go:generate go run gotext.go
 
 /* SPDX-License-Identifier: MIT
