@@ -26,6 +26,7 @@ const (
 	highlightKeepalive
 	highlightComment
 	highlightDelimiter
+	highlightTable
 	highlightCmd
 	highlightError
 )
@@ -256,6 +257,10 @@ func (s stringSpan) isValidMTU() bool {
 	return s.isValidUint(false, 576, 65535)
 }
 
+func (s stringSpan) isValidTable() bool {
+	return s.isSame("off") || s.isSame("auto") || s.isSame("main") || s.isValidUint(false, 0, (1<<32)-1)
+}
+
 func (s stringSpan) isValidPersistentKeepAlive() bool {
 	if s.isSame("off") {
 		return true
@@ -360,6 +365,7 @@ const (
 	fieldAddress
 	fieldDNS
 	fieldMTU
+	fieldTable
 	fieldPreUp
 	fieldPostUp
 	fieldPreDown
@@ -395,6 +401,8 @@ func (s stringSpan) field() field {
 		return fieldDNS
 	case s.isCaselessSame("MTU"):
 		return fieldMTU
+	case s.isCaselessSame("Table"):
+		return fieldTable
 	case s.isCaselessSame("PublicKey"):
 		return fieldPublicKey
 	case s.isCaselessSame("PresharedKey"):
@@ -508,6 +516,8 @@ func (hsa *highlightSpanArray) highlightValue(parent stringSpan, s stringSpan, s
 		hsa.append(parent.s, s, validateHighlight(s.isValidKey(), highlightPresharedKey))
 	case fieldMTU:
 		hsa.append(parent.s, s, validateHighlight(s.isValidMTU(), highlightMTU))
+	case fieldTable:
+		hsa.append(parent.s, s, validateHighlight(s.isValidTable(), highlightTable))
 	case fieldPreUp, fieldPostUp, fieldPreDown, fieldPostDown:
 		hsa.append(parent.s, s, validateHighlight(s.isValidPrePostUpDown(), highlightCmd))
 	case fieldListenPort:

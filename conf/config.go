@@ -53,6 +53,7 @@ type Interface struct {
 	PostUp     string
 	PreDown    string
 	PostDown   string
+	TableOff   bool
 }
 
 type Peer struct {

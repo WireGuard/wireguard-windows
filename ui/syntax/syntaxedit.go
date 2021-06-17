@@ -100,6 +100,7 @@ var stylemap = map[highlight]spanStyle{
 	highlightHost:         spanStyle{color: win.RGB(0x0E, 0x0E, 0xFF)},
 	highlightPort:         spanStyle{color: win.RGB(0x81, 0x5F, 0x03)},
 	highlightMTU:          spanStyle{color: win.RGB(0x1C, 0x00, 0xCF)},
+	highlightTable:        spanStyle{color: win.RGB(0x1C, 0x00, 0xCF)},
 	highlightKeepalive:    spanStyle{color: win.RGB(0x1C, 0x00, 0xCF)},
 	highlightComment:      spanStyle{color: win.RGB(0x53, 0x65, 0x79), effects: win.CFE_ITALIC},
 	highlightDelimiter:    spanStyle{color: win.RGB(0x00, 0x00, 0x00)},
@@ -110,6 +111,8 @@ var stylemap = map[highlight]spanStyle{
 func (se *SyntaxEdit) evaluateUntunneledBlocking(cfg string, spans []highlightSpan) {
 	state := InevaluableBlockingUntunneledTraffic
 	var onAllowedIPs,
+		onTable,
+		tableOff,
 		seenPeer,
 		seen00v6,
 		seen00v4,
@@ -132,10 +135,13 @@ func (se *SyntaxEdit) evaluateUntunneledBlocking(cfg string, spans []highlightSp
 			} else {
 				goto done
 			}
-			break
 		case highlightField:
 			onAllowedIPs = strings.EqualFold(cfg[span.s:span.s+span.len], "AllowedIPs")
-			break
+			onTable = strings.EqualFold(cfg[span.s:span.s+span.len], "Table")
+		case highlightTable:
+			if onTable {
+				tableOff = cfg[span.s:span.s+span.len] == "off"
+			}
 		case highlightIP:
 			if !onAllowedIPs || !seenPeer {
 				break
@@ -166,8 +172,10 @@ func (se *SyntaxEdit) evaluateUntunneledBlocking(cfg string, spans []highlightSp
 					seen80001v6 = true
 				}
 			}
-			break
 		}
+	}
+	if tableOff {
+		return
 	}
 
 	if seen00v4 || seen00v6 {

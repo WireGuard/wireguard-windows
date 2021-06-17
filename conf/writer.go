@@ -53,6 +53,9 @@ func (conf *Config) ToWgQuick() string {
 	if len(conf.Interface.PostDown) > 0 {
 		output.WriteString(fmt.Sprintf("PostDown = %s\n", conf.Interface.PostDown))
 	}
+	if conf.Interface.TableOff {
+		output.WriteString("Table = off\n")
+	}
 
 	for _, peer := range conf.Peers {
 		output.WriteString("\n[Peer]\n")

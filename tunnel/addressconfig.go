@@ -138,9 +138,11 @@ func configureInterface(family winipcfg.AddressFamily, conf *conf.Config, tun *t
 		deduplicatedRoutes = append(deduplicatedRoutes, &routes[i])
 	}
 
-	err = luid.SetRoutesForFamily(family, deduplicatedRoutes)
-	if err != nil {
-		return err
+	if !conf.Interface.TableOff {
+		err = luid.SetRoutesForFamily(family, deduplicatedRoutes)
+		if err != nil {
+			return err
+		}
 	}
 
 	ipif, err := luid.IPInterface(family)
@@ -174,7 +176,7 @@ func configureInterface(family winipcfg.AddressFamily, conf *conf.Config, tun *t
 
 func enableFirewall(conf *conf.Config, tun *tun.NativeTun) error {
 	doNotRestrict := true
-	if len(conf.Peers) == 1 {
+	if len(conf.Peers) == 1 && !conf.Interface.TableOff {
 	nextallowedip:
 		for _, allowedip := range conf.Peers[0].AllowedIPs {
 			if allowedip.Cidr == 0 {

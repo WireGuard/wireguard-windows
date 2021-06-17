@@ -51,6 +51,7 @@ type interfaceView struct {
 	addresses    *labelTextLine
 	dns          *labelTextLine
 	scripts      *labelTextLine
+	table        *labelTextLine
 	toggleActive *toggleActiveLine
 	lines        []widgetsLine
 }
@@ -307,6 +308,7 @@ func newInterfaceView(parent walk.Container) (*interfaceView, error) {
 		{l18n.Sprintf("Addresses:"), &iv.addresses},
 		{l18n.Sprintf("DNS servers:"), &iv.dns},
 		{l18n.Sprintf("Scripts:"), &iv.scripts},
+		{l18n.Sprintf("Table:"), &iv.table},
 	}
 	if iv.lines, err = createLabelTextLines(items, parent, &disposables); err != nil {
 		return nil, err
@@ -426,6 +428,12 @@ func (iv *interfaceView) apply(c *conf.Interface) {
 		}
 	} else {
 		iv.scripts.hide()
+	}
+
+	if c.TableOff {
+		iv.table.show(l18n.Sprintf("off"))
+	} else {
+		iv.table.hide()
 	}
 }
 

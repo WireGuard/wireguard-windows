@@ -137,6 +137,16 @@ func parsePersistentKeepalive(s string) (uint16, error) {
 	return uint16(m), nil
 }
 
+func parseTableOff(s string) (bool, error) {
+	if s == "off" {
+		return true, nil
+	} else if s == "auto" || s == "main" {
+		return false, nil
+	}
+	_, err := strconv.ParseUint(s, 10, 32)
+	return false, err
+}
+
 func parseKeyBase64(s string) (*Key, error) {
 	k, err := base64.StdEncoding.DecodeString(s)
 	if err != nil {
@@ -292,6 +302,12 @@ func FromWgQuick(s string, name string) (*Config, error) {
 				conf.Interface.PreDown = val
 			case "postdown":
 				conf.Interface.PostDown = val
+			case "table":
+				tableOff, err := parseTableOff(val)
+				if err != nil {
+					return nil, err
+				}
+				conf.Interface.TableOff = tableOff
 			default:
 				return nil, &ParseError{l18n.Sprintf("Invalid key for [Interface] section"), key}
 			}
@@ -382,6 +398,7 @@ func FromUAPI(reader io.Reader, existingConfig *Config) (*Config, error) {
 			PostUp:    existingConfig.Interface.PostUp,
 			PreDown:   existingConfig.Interface.PreDown,
 			PostDown:  existingConfig.Interface.PostDown,
+			TableOff:  existingConfig.Interface.TableOff,
 		},
 	}
 	var peer *Peer
