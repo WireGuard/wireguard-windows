@@ -7,7 +7,6 @@ package services
 
 import (
 	"fmt"
-	"syscall"
 
 	"golang.org/x/sys/windows"
 )
@@ -73,7 +72,7 @@ func (e Error) Error() string {
 }
 
 func DetermineErrorCode(err error, serviceError Error) (bool, uint32) {
-	if syserr, ok := err.(syscall.Errno); ok {
+	if syserr, ok := err.(windows.Errno); ok {
 		return false, uint32(syserr)
 	} else if serviceError != ErrorSuccess {
 		return true, uint32(serviceError)

@@ -95,5 +95,9 @@ func (p *uiProcess) Wait() (uint32, error) {
 }
 
 func (p *uiProcess) Kill() error {
-	return windows.TerminateProcess(windows.Handle(atomic.LoadUintptr(&p.handle)), 1)
+	handle := windows.Handle(atomic.LoadUintptr(&p.handle))
+	if handle == windows.InvalidHandle {
+		return nil
+	}
+	return windows.TerminateProcess(handle, 1)
 }
