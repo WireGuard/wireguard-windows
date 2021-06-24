@@ -24,8 +24,8 @@ golang.org/x/text v0.3.7-0.20210524175448-3115f89c4b99 h1:ZEXtoJu1S0ie/EmdYnjY3C
 golang.org/x/text v0.3.7-0.20210524175448-3115f89c4b99/go.mod h1:u+2+/6zg+i71rQMx5EYifcz6MCKuco9NR6JIITiCfzQ=
 golang.org/x/tools v0.0.0-20180917221912-90fa682c2a6e h1:FDhOuMEY4JVRztM/gsbk+IKUQ8kj74bxZrgw87eMMVc=
 golang.org/x/tools v0.0.0-20180917221912-90fa682c2a6e/go.mod h1:n7NCudcB/nEzxVGmLbDWY5pfWTLqBcC2KZ6jyYvM4mQ=
-golang.zx2c4.com/wireguard v0.0.0-20210604143328-f9b48a961cd2 h1:wfOOSvHgIzTZ9h5Vb6yUFZNn7uf3bT7PeYsHOO7tYDM=
-golang.zx2c4.com/wireguard v0.0.0-20210604143328-f9b48a961cd2/go.mod h1:laHzsbfMhGSobUmruXWAyMKKHSqvIcrqZJMyHD+/3O8=
+golang.zx2c4.com/wireguard v0.0.0-20210624150102-15b24b6179e0 h1:qINUmOnDCCF7i14oomDDkGmlda7BSDTGfge77/aqdfk=
+golang.zx2c4.com/wireguard v0.0.0-20210624150102-15b24b6179e0/go.mod h1:laHzsbfMhGSobUmruXWAyMKKHSqvIcrqZJMyHD+/3O8=
 golang.zx2c4.com/wireguard/windows v0.0.0-20210121140954-e7fc19d483bd h1:kAUzMAITME2MCtrXBaUa9P4tndiXGWO674k9gn6ZR28=
 golang.zx2c4.com/wireguard/windows v0.0.0-20210121140954-e7fc19d483bd/go.mod h1:Y+FYqVFaQO6a+1uigm0N0GiuaZrLEaBxEiJ8tfH9sMQ=
 golang.zx2c4.com/wireguard/windows v0.0.0-20210224134948-620c54ef6199 h1:ogXKLng/Myrt2odYTkleySGzQj/GWg9GV1AQ8P9NnU4=
