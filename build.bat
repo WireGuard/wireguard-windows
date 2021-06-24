@@ -20,7 +20,7 @@ if exist .deps\prepared goto :render
 	call :download imagemagick.zip https://download.wireguard.com/windows-toolchain/distfiles/ImageMagick-7.0.8-42-portable-Q16-x64.zip 584e069f56456ce7dde40220948ff9568ac810688c892c5dfb7f6db902aa05aa "convert.exe colors.xml delegates.xml" || goto :error
 	rem Mirror of https://sourceforge.net/projects/ezwinports/files/make-4.2.1-without-guile-w32-bin.zip
 	call :download make.zip https://download.wireguard.com/windows-toolchain/distfiles/make-4.2.1-without-guile-w32-bin.zip 30641be9602712be76212b99df7209f4f8f518ba764cf564262bc9d6e4047cc7 "--strip-components 1 bin" || goto :error
-	call :download wireguard-tools.zip https://git.zx2c4.com/wireguard-tools/snapshot/wireguard-tools-1.0.20210223.zip c0cee24d469ecd3f0420dd2cc9747faa67f257a39c17063c10cff99ba62a6fa6 "--exclude wg-quick --strip-components 1" || goto :error
+	call :download wireguard-tools.zip https://git.zx2c4.com/wireguard-tools/snapshot/wireguard-tools-542b7c0f2474fca14e18c23148790f76728dd46a.zip 10ac31af150220850c82b7ed7b65a0e39b60557ed366fcb351da0e0ff2700aea "--exclude wg-quick --strip-components 1" || goto :error
 	call :download wintun.zip https://www.wintun.net/builds/wintun-0.11.zip a5e212dcfd11ba172f8c2d9ee34ae1a68e15d8115a05912d95b1209ce0695408 || goto :error
 	copy /y NUL prepared > NUL || goto :error
 	cd .. || goto :error
@@ -77,7 +77,7 @@ if exist .deps\prepared goto :render
 	go build -tags load_wintun_from_rsrc -ldflags="-H windowsgui -s -w" -trimpath -v -o "%~1\wireguard.exe" || exit /b 1
 	if not exist "%~1\wg.exe" (
 		echo [+] Building command line tools %1
-		del .deps\src\*.exe .deps\src\*.o .deps\src\wincompat\*.o 2> NUL
+		del .deps\src\*.exe .deps\src\*.o .deps\src\wincompat\*.o .deps\src\wincompat\*.lib 2> NUL
 		make --no-print-directory -C .deps\src PLATFORM=windows CC=%~2-w64-mingw32-gcc WINDRES=%~2-w64-mingw32-windres V=1 LDFLAGS=-s RUNSTATEDIR= SYSTEMDUNITDIR= -j%NUMBER_OF_PROCESSORS% || exit /b 1
 		move /Y .deps\src\wg.exe "%~1\wg.exe" > NUL || exit /b 1
 	)
