@@ -10,13 +10,13 @@ Wintun is a kernel driver. It exposes:
 
   - A miniport driver to the ndis stack, meaning any process on the system that can access the network stack in a reasonable way can send and receive packets, hitting those related ndis handlers.
   - There are also various ndis OID calls, accessible to certain users, which hit further code.
-  - IOCTLs are added to the NDIS device file, and those IOCTLs are restricted to `SDDL_DEVOBJ_SYS_ALL`. The IOCTL allows userspace to register a pair of rings and event objects, which Wintun then locks the pages of with a double mapping and takes a reference to the event object. It parses the contents of the ring to send and receive layer 3 packets, each of which it minimally parses to determine IP family.
+  - IOCTLs are added to the NDIS device file, and those IOCTLs are restricted to `O:SYD:P(A;;FA;;;SY)(A;;FA;;;BA)S:(ML;;NWNRNX;;;HI)`. The IOCTL allows userspace to register a pair of rings and event objects, which Wintun then locks the pages of with a double mapping and takes a reference to the event object. It parses the contents of the ring to send and receive layer 3 packets, each of which it minimally parses to determine IP family.
 
 ### Tunnel Service
 
 The tunnel service is a userspace service running as Local System, responsible for creating UDP sockets, creating Wintun adapters, and speaking the WireGuard protocol between the two. It exposes:
 
-  - A listening pipe in `\\.\pipe\ProtectedPrefix\Administrators\WireGuard\%s`, where `%s` is some basename of an already valid filename. Its DACL is set to `O:SYD:(A;;GA;;;SY)`. If the config file used by the tunnel service is not DPAPI-encrypted and it is owned by a SID other than "Local System" then an additional ACE is added giving that file owner SID access to the named pipe. This pipe gives access to private keys and allows for reconfiguration of the interface, as well as rebinding to different ports (below 1024, even). Clients who connect to the pipe run `GetSecurityInfo` to verify that it is owned by "Local System".
+  - A listening pipe in `\\.\pipe\ProtectedPrefix\Administrators\WireGuard\%s`, where `%s` is some basename of an already valid filename. Its DACL is set to `O:SYD:P(A;;GA;;;SY)(A;;GA;;;BA)S:(ML;;NWNRNX;;;HI)`. If the config file used by the tunnel service is not DPAPI-encrypted and it is owned by a SID other than "Local System" then an additional ACE is added giving that file owner SID access to the named pipe. This pipe gives access to private keys and allows for reconfiguration of the interface, as well as rebinding to different ports (below 1024, even). Clients who connect to the pipe run `GetSecurityInfo` to verify that it is owned by "Local System".
   - A global mutex is used for Wintun interface creation, with the same DACL as the pipe, but first CreatePrivateNamespace is called with a "Local System" SID.
   - It handles data from its two UDP sockets, accessible to the public Internet.
   - It handles data from Wintun, accessible to all users who can do anything with the network stack.
