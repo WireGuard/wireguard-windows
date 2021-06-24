@@ -230,7 +230,7 @@ func (s *ManagerService) Tunnels() ([]Tunnel, error) {
 	}
 	tunnels := make([]Tunnel, len(names))
 	for i := 0; i < len(tunnels); i++ {
-		(tunnels)[i].Name = names[i]
+		tunnels[i].Name = names[i]
 	}
 	return tunnels, nil
 	// TODO: account for running ones that aren't in the configuration store somehow

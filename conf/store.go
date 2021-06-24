@@ -29,8 +29,8 @@ func ListConfigNames() ([]string, error) {
 	configs := make([]string, len(files))
 	i := 0
 	for _, file := range files {
-		name := filepath.Base(file.Name())
-		if len(name) <= len(configFileSuffix) || !strings.HasSuffix(name, configFileSuffix) {
+		name, err := NameFromPath(file.Name())
+		if err != nil {
 			continue
 		}
 		if !file.Type().IsRegular() {
@@ -41,10 +41,6 @@ func ListConfigNames() ([]string, error) {
 			continue
 		}
 		if info.Mode().Perm()&0444 == 0 {
-			continue
-		}
-		name = strings.TrimSuffix(name, configFileSuffix)
-		if !TunnelNameIsValid(name) {
 			continue
 		}
 		configs[i] = name
