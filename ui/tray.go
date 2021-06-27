@@ -343,7 +343,7 @@ func (tray *Tray) setTunnelState(tunnel *manager.Tunnel, state manager.TunnelSta
 func (tray *Tray) UpdateFound() {
 	action := walk.NewAction()
 	action.SetText(l18n.Sprintf("An Update is Available!"))
-	menuIcon, _ := loadSystemIcon("imageres", 1, 16)
+	menuIcon, _ := loadShieldIcon(16)
 	action.SetImage(menuIcon)
 	action.SetDefault(true)
 	showUpdateTab := func() {
@@ -358,7 +358,7 @@ func (tray *Tray) UpdateFound() {
 	tray.ContextMenu().Actions().Insert(tray.ContextMenu().Actions().Len()-2, action)
 
 	showUpdateBalloon := func() {
-		icon, _ := loadSystemIcon("imageres", 1, 128)
+		icon, _ := loadShieldIcon(128)
 		tray.ShowCustom(l18n.Sprintf("WireGuard Update Available"), l18n.Sprintf("An update to WireGuard is now available. You are advised to update as soon as possible."), icon)
 	}
 

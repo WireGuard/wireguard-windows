@@ -121,6 +121,14 @@ func loadSystemIcon(dll string, index int32, size int) (icon *walk.Icon, err err
 	return
 }
 
+func loadShieldIcon(size int) (icon *walk.Icon, err error) {
+	icon, err = loadSystemIcon("imageres", -1028, size)
+	if err != nil {
+		icon, err = loadSystemIcon("imageres", 1, size)
+	}
+	return
+}
+
 var cachedLogoIconsForWidth = make(map[int]*walk.Icon)
 
 func loadLogoIcon(size int) (icon *walk.Icon, err error) {

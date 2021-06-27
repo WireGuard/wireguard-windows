@@ -31,7 +31,7 @@ func NewUpdatePage() (*UpdatePage, error) {
 
 	up.SetTitle(l18n.Sprintf("An Update is Available!"))
 
-	tabIcon, _ := loadSystemIcon("imageres", 1, 16)
+	tabIcon, _ := loadShieldIcon(16)
 	up.SetImage(tabIcon)
 
 	up.SetLayout(walk.NewVBoxLayout())
