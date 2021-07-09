@@ -741,7 +741,7 @@ func (addr *RawSockaddrInet) SetIP(ip net.IP, port uint16) error {
 		addr4 := (*windows.RawSockaddrInet4)(unsafe.Pointer(addr))
 		addr4.Family = windows.AF_INET
 		copy(addr4.Addr[:], v4)
-		addr4.Port = port
+		addr4.Port = windows.Ntohs(port)
 		for i := 0; i < 8; i++ {
 			addr4.Zero[i] = 0
 		}
@@ -751,7 +751,7 @@ func (addr *RawSockaddrInet) SetIP(ip net.IP, port uint16) error {
 	if v6 := ip.To16(); v6 != nil {
 		addr6 := (*windows.RawSockaddrInet6)(unsafe.Pointer(addr))
 		addr6.Family = windows.AF_INET6
-		addr6.Port = port
+		addr6.Port = windows.Ntohs(port)
 		addr6.Flowinfo = 0
 		copy(addr6.Addr[:], v6)
 		addr6.Scope_id = 0
