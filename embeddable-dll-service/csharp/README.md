@@ -12,4 +12,4 @@ The code in this repository can be built in Visual Studio 2019 by opening the .s
 > .\build.bat
 ```
 
-In addition, `tunnel.dll` requires `wintun.dll`, which can be downloaded from [wintun.net](https://www.wintun.net).
+In addition, `tunnel.dll` requires `wintun.dll`, which can be downloaded from [wintun.net](https://www.wintun.net), and `wireguard.dll`, which can be downloaded from [the wireguard-nt download server](https://download.wireguard.com/wireguard-nt/).

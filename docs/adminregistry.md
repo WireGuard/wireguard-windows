@@ -51,3 +51,15 @@ overlapping routes, but for now, this key provides a manual override.
 ```
 > reg add HKLM\Software\WireGuard /v MultipleSimultaneousTunnels /t REG_DWORD /d 1 /f
 ```
+
+#### `HKLM\Software\WireGuard\ExperimentalKernelDriver`
+
+When this key is set to `DWORD(1)`, an experimental kernel driver from the
+[WireGuardNT](https://git.zx2c4.com/wireguard-nt/about/) project is used instead
+of the much slower wireguard-go/Wintun implementation. There are significant
+performance gains, but do note that this is _currently_ considered experimental,
+and hence is not recommended.
+
+```
+> reg add HKLM\Software\WireGuard /v ExperimentalKernelDriver /t REG_DWORD /d 1 /f
+```

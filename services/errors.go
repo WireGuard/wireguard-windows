@@ -17,12 +17,14 @@ const (
 	ErrorSuccess Error = iota
 	ErrorRingloggerOpen
 	ErrorLoadConfiguration
-	ErrorCreateWintun
+	ErrorCreateNetworkAdapter
 	ErrorUAPIListen
 	ErrorDNSLookup
 	ErrorFirewall
 	ErrorDeviceSetConfig
+	ErrorDeviceBringUp
 	ErrorBindSocketsToDefaultRoutes
+	ErrorMonitorMTUChanges
 	ErrorSetNetConfig
 	ErrorDetermineExecutablePath
 	ErrorTrackTunnels
@@ -42,8 +44,8 @@ func (e Error) Error() string {
 		return "Unable to determine path of running executable"
 	case ErrorLoadConfiguration:
 		return "Unable to load configuration from path"
-	case ErrorCreateWintun:
-		return "Unable to create Wintun interface"
+	case ErrorCreateNetworkAdapter:
+		return "Unable to create network adapter"
 	case ErrorUAPIListen:
 		return "Unable to listen on named pipe"
 	case ErrorDNSLookup:
@@ -52,8 +54,12 @@ func (e Error) Error() string {
 		return "Unable to enable firewall rules"
 	case ErrorDeviceSetConfig:
 		return "Unable to set device configuration"
+	case ErrorDeviceBringUp:
+		return "Unable to bring up adapter"
 	case ErrorBindSocketsToDefaultRoutes:
 		return "Unable to bind sockets to default route"
+	case ErrorMonitorMTUChanges:
+		return "Unable to monitor default route MTU for changes"
 	case ErrorSetNetConfig:
 		return "Unable to set interface addresses, routes, dns, and/or interface settings"
 	case ErrorTrackTunnels:

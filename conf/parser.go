@@ -15,7 +15,9 @@ import (
 	"strings"
 	"time"
 
+	"golang.org/x/sys/windows"
 	"golang.org/x/text/encoding/unicode"
+	"golang.zx2c4.com/wireguard/windows/driver"
 
 	"golang.zx2c4.com/wireguard/windows/l18n"
 )
@@ -520,4 +522,74 @@ func FromUAPI(reader io.Reader, existingConfig *Config) (*Config, error) {
 	conf.maybeAddPeer(peer)
 
 	return &conf, nil
+}
+
+func FromDriverConfiguration(interfaze *driver.Interface, existingConfig *Config) *Config {
+	conf := Config{
+		Name: existingConfig.Name,
+		Interface: Interface{
+			Addresses: existingConfig.Interface.Addresses,
+			DNS:       existingConfig.Interface.DNS,
+			DNSSearch: existingConfig.Interface.DNSSearch,
+			MTU:       existingConfig.Interface.MTU,
+			PreUp:     existingConfig.Interface.PreUp,
+			PostUp:    existingConfig.Interface.PostUp,
+			PreDown:   existingConfig.Interface.PreDown,
+			PostDown:  existingConfig.Interface.PostDown,
+			TableOff:  existingConfig.Interface.TableOff,
+		},
+	}
+	if interfaze.Flags&driver.InterfaceHasPrivateKey != 0 {
+		conf.Interface.PrivateKey = interfaze.PrivateKey
+	}
+	if interfaze.Flags&driver.InterfaceHasListenPort != 0 {
+		conf.Interface.ListenPort = interfaze.ListenPort
+	}
+	var p *driver.Peer
+	for i := uint32(0); i < interfaze.PeerCount; i++ {
+		if p == nil {
+			p = interfaze.FirstPeer()
+		} else {
+			p = p.NextPeer()
+		}
+		peer := Peer{}
+		if p.Flags&driver.PeerHasPublicKey != 0 {
+			peer.PublicKey = p.PublicKey
+		}
+		if p.Flags&driver.PeerHasPresharedKey != 0 {
+			peer.PresharedKey = p.PresharedKey
+		}
+		if p.Flags&driver.PeerHasEndpoint != 0 {
+			peer.Endpoint.Port = p.Endpoint.Port()
+			peer.Endpoint.Host = p.Endpoint.IP().String()
+		}
+		if p.Flags&driver.PeerHasPersistentKeepalive != 0 {
+			peer.PersistentKeepalive = p.PersistentKeepalive
+		}
+		peer.TxBytes = Bytes(p.TxBytes)
+		peer.RxBytes = Bytes(p.RxBytes)
+		if p.LastHandshake != 0 {
+			peer.LastHandshakeTime = HandshakeTime((p.LastHandshake - 116444736000000000) * 100)
+		}
+		var a *driver.AllowedIP
+		for j := uint32(0); j < p.AllowedIPsCount; j++ {
+			if a == nil {
+				a = p.FirstAllowedIP()
+			} else {
+				a = a.NextAllowedIP()
+			}
+			var ip net.IP
+			if a.AddressFamily == windows.AF_INET {
+				ip = a.Address[:4]
+			} else if a.AddressFamily == windows.AF_INET6 {
+				ip = a.Address[:16]
+			}
+			peer.AllowedIPs = append(peer.AllowedIPs, IPCidr{
+				IP:   ip,
+				Cidr: a.Cidr,
+			})
+		}
+		conf.Peers = append(conf.Peers, peer)
+	}
+	return &conf
 }

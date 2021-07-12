@@ -254,7 +254,7 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 		}()
 	}
 
-	time.AfterFunc(time.Second*10, cleanupStaleWintunInterfaces)
+	time.AfterFunc(time.Second*10, cleanupStaleNetworkInterfaces)
 	go checkForUpdates()
 
 	var sessionsPointer *windows.WTS_SESSION_INFO

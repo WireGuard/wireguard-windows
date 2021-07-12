@@ -1,6 +1,6 @@
 # [WireGuard](https://www.wireguard.com/) for Windows
 
-This is a fully-featured WireGuard client for Windows that uses [Wintun](https://www.wintun.net/). It is the only official and recommended way of using WireGuard on Windows.
+This is a fully-featured WireGuard client for Windows that uses [Wintun](https://www.wintun.net/) or [WireGuardNT](https://git.zx2c4.com/wireguard-nt/about/). It is the only official and recommended way of using WireGuard on Windows.
 
 ## Download &amp; Install
 

@@ -12,8 +12,6 @@ import (
 	"sort"
 
 	"golang.org/x/sys/windows"
-	"golang.zx2c4.com/wireguard/tun"
-
 	"golang.zx2c4.com/wireguard/windows/conf"
 	"golang.zx2c4.com/wireguard/windows/tunnel/firewall"
 	"golang.zx2c4.com/wireguard/windows/tunnel/winipcfg"
@@ -57,9 +55,7 @@ func cleanupAddressesOnDisconnectedInterfaces(family winipcfg.AddressFamily, add
 	}
 }
 
-func configureInterface(family winipcfg.AddressFamily, conf *conf.Config, tun *tun.NativeTun) error {
-	luid := winipcfg.LUID(tun.LUID())
-
+func configureInterface(family winipcfg.AddressFamily, conf *conf.Config, luid winipcfg.LUID, clamper mtuClamper) error {
 	estimatedRouteCount := 0
 	for _, peer := range conf.Peers {
 		estimatedRouteCount += len(peer.AllowedIPs)
@@ -151,7 +147,9 @@ func configureInterface(family winipcfg.AddressFamily, conf *conf.Config, tun *t
 	}
 	if conf.Interface.MTU > 0 {
 		ipif.NLMTU = uint32(conf.Interface.MTU)
-		tun.ForceMTU(int(ipif.NLMTU))
+		if clamper != nil {
+			clamper.ForceMTU(int(ipif.NLMTU))
+		}
 	}
 	if family == windows.AF_INET {
 		if foundDefault4 {
@@ -174,7 +172,7 @@ func configureInterface(family winipcfg.AddressFamily, conf *conf.Config, tun *t
 	return luid.SetDNS(family, conf.Interface.DNS, conf.Interface.DNSSearch)
 }
 
-func enableFirewall(conf *conf.Config, tun *tun.NativeTun) error {
+func enableFirewall(conf *conf.Config, luid winipcfg.LUID) error {
 	doNotRestrict := true
 	if len(conf.Peers) == 1 && !conf.Interface.TableOff {
 	nextallowedip:
@@ -191,5 +189,5 @@ func enableFirewall(conf *conf.Config, tun *tun.NativeTun) error {
 		}
 	}
 	log.Println("Enabling firewall rules")
-	return firewall.EnableFirewall(tun.LUID(), doNotRestrict, conf.Interface.DNS)
+	return firewall.EnableFirewall(uint64(luid), doNotRestrict, conf.Interface.DNS)
 }

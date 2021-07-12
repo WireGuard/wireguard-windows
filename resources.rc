@@ -15,6 +15,7 @@ CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST manifest.xml
 7 ICON ui/icon/wireguard.ico
 8 ICON ui/icon/dot.ico
 wintun.dll RCDATA wintun.dll
+wireguard.dll RCDATA wireguard.dll
 
 #define VERSIONINFO_TEMPLATE(block_id, lang_id, codepage_id, file_desc, comments) \
 VS_VERSION_INFO VERSIONINFO \

@@ -47,41 +47,64 @@ func (s *ManagerService) StoredConfig(tunnelName string) (*conf.Config, error) {
 }
 
 func (s *ManagerService) RuntimeConfig(tunnelName string) (*conf.Config, error) {
-	storedConfig, err := conf.LoadFromName(tunnelName)
-	if err != nil {
-		return nil, err
-	}
-	pipe, err := connectTunnelServicePipe(tunnelName)
-	if err != nil {
-		return nil, err
-	}
-	pipe.SetDeadline(time.Now().Add(time.Second * 2))
-	_, err = pipe.Write([]byte("get=1\n\n"))
-	if err == windows.ERROR_NO_DATA {
-		log.Println("IPC pipe closed unexpectedly, so reopening")
-		pipe.Unlock()
-		disconnectTunnelServicePipe(tunnelName)
-		pipe, err = connectTunnelServicePipe(tunnelName)
+	if conf.AdminBool("ExperimentalKernelDriver") {
+		storedConfig, err := conf.LoadFromName(tunnelName)
+		if err != nil {
+			return nil, err
+		}
+		driverAdapter, err := findDriverAdapter(tunnelName)
+		if err != nil {
+			return nil, err
+		}
+		runtimeConfig, err := driverAdapter.Configuration()
+		if err != nil {
+			driverAdapter.Unlock()
+			releaseDriverAdapter(tunnelName)
+			return nil, err
+		}
+		conf := conf.FromDriverConfiguration(runtimeConfig, storedConfig)
+		driverAdapter.Unlock()
+		if s.elevatedToken == 0 {
+			conf.Redact()
+		}
+		return conf, nil
+	} else {
+		storedConfig, err := conf.LoadFromName(tunnelName)
+		if err != nil {
+			return nil, err
+		}
+		pipe, err := connectTunnelServicePipe(tunnelName)
 		if err != nil {
 			return nil, err
 		}
 		pipe.SetDeadline(time.Now().Add(time.Second * 2))
 		_, err = pipe.Write([]byte("get=1\n\n"))
-	}
-	if err != nil {
+		if err == windows.ERROR_NO_DATA {
+			log.Println("IPC pipe closed unexpectedly, so reopening")
+			pipe.Unlock()
+			disconnectTunnelServicePipe(tunnelName)
+			pipe, err = connectTunnelServicePipe(tunnelName)
+			if err != nil {
+				return nil, err
+			}
+			pipe.SetDeadline(time.Now().Add(time.Second * 2))
+			_, err = pipe.Write([]byte("get=1\n\n"))
+		}
+		if err != nil {
+			pipe.Unlock()
+			disconnectTunnelServicePipe(tunnelName)
+			return nil, err
+		}
+		conf, err := conf.FromUAPI(pipe, storedConfig)
 		pipe.Unlock()
-		disconnectTunnelServicePipe(tunnelName)
-		return nil, err
+		if err != nil {
+			return nil, err
+		}
+		if s.elevatedToken == 0 {
+			conf.Redact()
+		}
+		return conf, nil
 	}
-	conf, err := conf.FromUAPI(pipe, storedConfig)
-	pipe.Unlock()
-	if err != nil {
-		return nil, err
-	}
-	if s.elevatedToken == 0 {
-		conf.Redact()
-	}
-	return conf, nil
 }
 
 func (s *ManagerService) Start(tunnelName string) error {
@@ -116,7 +139,7 @@ func (s *ManagerService) Start(tunnelName string) error {
 			}
 		}()
 	}
-	time.AfterFunc(time.Second*10, cleanupStaleWintunInterfaces)
+	time.AfterFunc(time.Second*10, cleanupStaleNetworkInterfaces)
 
 	// After that process is started -- it's somewhat asynchronous -- we install the new one.
 	c, err := conf.LoadFromName(tunnelName)
@@ -131,7 +154,7 @@ func (s *ManagerService) Start(tunnelName string) error {
 }
 
 func (s *ManagerService) Stop(tunnelName string) error {
-	time.AfterFunc(time.Second*10, cleanupStaleWintunInterfaces)
+	time.AfterFunc(time.Second*10, cleanupStaleNetworkInterfaces)
 
 	err := UninstallTunnel(tunnelName)
 	if err == windows.ERROR_SERVICE_DOES_NOT_EXIST {

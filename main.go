@@ -19,6 +19,8 @@ import (
 	"golang.org/x/sys/windows"
 	"golang.zx2c4.com/wireguard/tun"
 
+	"golang.zx2c4.com/wireguard/windows/conf"
+	"golang.zx2c4.com/wireguard/windows/driver"
 	"golang.zx2c4.com/wireguard/windows/elevate"
 	"golang.zx2c4.com/wireguard/windows/l18n"
 	"golang.zx2c4.com/wireguard/windows/manager"
@@ -313,10 +315,18 @@ func main() {
 		if len(os.Args) != 2 {
 			usage()
 		}
-		rebootRequired, err := tun.WintunPool.DeleteDriver()
+		var rebootRequiredDriver, rebootRequiredWintun bool
+		var err error
+		if conf.AdminBool("ExperimentalKernelDriver") {
+			rebootRequiredDriver, err = driver.DefaultPool.DeleteDriver()
+			if err != nil {
+				fatal(err)
+			}
+		}
+		rebootRequiredWintun, err = tun.WintunPool.DeleteDriver()
 		if err != nil {
 			fatal(err)
-		} else if rebootRequired {
+		} else if rebootRequiredWintun || rebootRequiredDriver {
 			log.Println("A reboot may be required")
 		}
 		return

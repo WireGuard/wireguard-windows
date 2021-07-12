@@ -88,3 +88,14 @@ func resolveHostnameOnce(name string) (resolvedIPString string, err error) {
 	err = windows.WSAHOST_NOT_FOUND
 	return
 }
+
+func (config *Config) ResolveEndpoints() error {
+	for i := range config.Peers {
+		var err error
+		config.Peers[i].Endpoint.Host, err = resolveHostname(config.Peers[i].Endpoint.Host)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}

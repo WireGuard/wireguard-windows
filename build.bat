@@ -20,10 +20,11 @@ if exist .deps\prepared goto :render
 	call :download imagemagick.zip https://download.wireguard.com/windows-toolchain/distfiles/ImageMagick-7.0.8-42-portable-Q16-x64.zip 584e069f56456ce7dde40220948ff9568ac810688c892c5dfb7f6db902aa05aa "convert.exe colors.xml delegates.xml" || goto :error
 	rem Mirror of https://sourceforge.net/projects/ezwinports/files/make-4.2.1-without-guile-w32-bin.zip
 	call :download make.zip https://download.wireguard.com/windows-toolchain/distfiles/make-4.2.1-without-guile-w32-bin.zip 30641be9602712be76212b99df7209f4f8f518ba764cf564262bc9d6e4047cc7 "--strip-components 1 bin" || goto :error
-	call :download wireguard-tools.zip https://git.zx2c4.com/wireguard-tools/snapshot/wireguard-tools-542b7c0f2474fca14e18c23148790f76728dd46a.zip 10ac31af150220850c82b7ed7b65a0e39b60557ed366fcb351da0e0ff2700aea "--exclude wg-quick --strip-components 1" || goto :error
+	call :download wireguard-tools.zip https://git.zx2c4.com/wireguard-tools/snapshot/wireguard-tools-52597c351554ec7f39c0817d45771d1f30572f4b.zip c869f539dee0f5d4028d2d33f931c548c3aa5a22fe01ee4b28ffa01ffb33b8c9 "--exclude wg-quick --strip-components 1" || goto :error
 	rem Mirror of https://sourceforge.net/projects/gnuwin32/files/patch/2.5.9-7/patch-2.5.9-7-bin.zip with fixed manifest
 	call :download patch.zip https://download.wireguard.com/windows-toolchain/distfiles/patch-2.5.9-7-bin-fixed-manifest.zip 25977006ca9713f2662a5d0a2ed3a5a138225b8be3757035bd7da9dcf985d0a1 "--strip-components 1 bin" || goto :error
 	call :download wintun.zip https://www.wintun.net/builds/wintun-0.13.zip 34afe7d0de1fdb781af3defc0a75fd8c97daa756279b42dd6be6a1bd8ccdc7f0 || goto :error
+	call :download wireguard-nt.zip https://download.wireguard.com/wireguard-nt/wireguard-nt-0.1.zip 00478a0a2e24d3c0638193b063cb273c956014cb3ddd81307cbe61b07fdeb692 || goto :error
 	echo [+] Patching go
 	for %%a in ("..\go-patches\*.patch") do .\patch.exe -f -N -r- -d go -p1 --binary < "%%a" || goto :error
 	copy /y NUL prepared > NUL || goto :error
@@ -76,13 +77,14 @@ if exist .deps\prepared goto :render
 	set GOARCH=%~3
 	mkdir %1 >NUL 2>&1
 	echo [+] Assembling resources %1
-	%~2-w64-mingw32-windres -I ".deps\wintun\bin\%~1" -DWIREGUARD_VERSION_ARRAY=%WIREGUARD_VERSION_ARRAY% -DWIREGUARD_VERSION_STR=%WIREGUARD_VERSION% -i resources.rc -o "resources_%~3.syso" -O coff -c 65001 || exit /b %errorlevel%
+	%~2-w64-mingw32-windres -I ".deps\wintun\bin\%~1" -I ".deps\wireguard-nt\bin\%~1" -DWIREGUARD_VERSION_ARRAY=%WIREGUARD_VERSION_ARRAY% -DWIREGUARD_VERSION_STR=%WIREGUARD_VERSION% -i resources.rc -o "resources_%~3.syso" -O coff -c 65001 || exit /b %errorlevel%
 	echo [+] Building program %1
-	go build -tags load_wintun_from_rsrc -ldflags="-H windowsgui -s -w" -trimpath -v -o "%~1\wireguard.exe" || exit /b 1
+	go build -tags load_wintun_from_rsrc,load_wgnt_from_rsrc -ldflags="-H windowsgui -s -w" -trimpath -v -o "%~1\wireguard.exe" || exit /b 1
 	if not exist "%~1\wg.exe" (
 		echo [+] Building command line tools %1
 		del .deps\src\*.exe .deps\src\*.o .deps\src\wincompat\*.o .deps\src\wincompat\*.lib 2> NUL
-		make --no-print-directory -C .deps\src PLATFORM=windows CC=%~2-w64-mingw32-gcc WINDRES=%~2-w64-mingw32-windres V=1 LDFLAGS=-s RUNSTATEDIR= SYSTEMDUNITDIR= -j%NUMBER_OF_PROCESSORS% || exit /b 1
+		set LDFLAGS=-s
+		make --no-print-directory -C .deps\src PLATFORM=windows CC=%~2-w64-mingw32-gcc WINDRES=%~2-w64-mingw32-windres V=1 RUNSTATEDIR= SYSTEMDUNITDIR= -j%NUMBER_OF_PROCESSORS% || exit /b 1
 		move /Y .deps\src\wg.exe "%~1\wg.exe" > NUL || exit /b 1
 	)
 	goto :eof
