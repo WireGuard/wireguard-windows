@@ -39,3 +39,9 @@ tunnels using `wireguard /installtunnelservice`; this controls only the semantic
 of tunnel start requests coming from the UI. If all goes well, this key will be
 removed and the logic of whether to stop existing tunnels will be based on
 overlapping routes, but for now, this key provides a manual override.
+
+#### `HKLM\Software\WireGuard\ExperimentalKernelDriver`
+
+When this key is set to `DWORD(1)`, an experimental kernel driver is loaded
+from a `wireguard.dll` file placed next to the main executable. This is highly
+experimental at this point, and not recommended.

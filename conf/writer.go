@@ -7,7 +7,13 @@ package conf
 
 import (
 	"fmt"
+	"net"
 	"strings"
+	"unsafe"
+
+	"golang.org/x/sys/windows"
+	"golang.zx2c4.com/wireguard/windows/driver"
+	"golang.zx2c4.com/wireguard/windows/tunnel/winipcfg"
 )
 
 func (conf *Config) ToWgQuick() string {
@@ -85,7 +91,7 @@ func (conf *Config) ToWgQuick() string {
 	return output.String()
 }
 
-func (conf *Config) ToUAPI() (uapi string, dnsErr error) {
+func (conf *Config) ToUAPI() string {
 	var output strings.Builder
 	output.WriteString(fmt.Sprintf("private_key=%s\n", conf.Interface.PrivateKey.HexString()))
 
@@ -105,13 +111,7 @@ func (conf *Config) ToUAPI() (uapi string, dnsErr error) {
 		}
 
 		if !peer.Endpoint.IsEmpty() {
-			var resolvedIP string
-			resolvedIP, dnsErr = resolveHostname(peer.Endpoint.Host)
-			if dnsErr != nil {
-				return
-			}
-			resolvedEndpoint := Endpoint{resolvedIP, peer.Endpoint.Port}
-			output.WriteString(fmt.Sprintf("endpoint=%s\n", resolvedEndpoint.String()))
+			output.WriteString(fmt.Sprintf("endpoint=%s\n", peer.Endpoint.String()))
 		}
 
 		output.WriteString(fmt.Sprintf("persistent_keepalive_interval=%d\n", peer.PersistentKeepalive))
@@ -123,5 +123,54 @@ func (conf *Config) ToUAPI() (uapi string, dnsErr error) {
 			}
 		}
 	}
-	return output.String(), nil
+	return output.String()
+}
+
+func (config *Config) ToDriverConfiguration() (*driver.Interface, uint32) {
+	preallocation := unsafe.Sizeof(driver.Interface{}) + uintptr(len(config.Peers))*unsafe.Sizeof(driver.Peer{})
+	for i := range config.Peers {
+		preallocation += uintptr(len(config.Peers[i].AllowedIPs)) * unsafe.Sizeof(driver.AllowedIP{})
+	}
+	var c driver.ConfigBuilder
+	c.Preallocate(uint32(preallocation))
+	c.AppendInterface(&driver.Interface{
+		Flags:      driver.InterfaceHasPrivateKey | driver.InterfaceHasListenPort,
+		ListenPort: config.Interface.ListenPort,
+		PrivateKey: config.Interface.PrivateKey,
+		PeerCount:  uint32(len(config.Peers)),
+	})
+	for i := range config.Peers {
+		flags := driver.PeerHasPublicKey
+		if !config.Peers[i].PresharedKey.IsZero() {
+			flags |= driver.PeerHasPresharedKey
+		}
+		var endpoint winipcfg.RawSockaddrInet
+		if !config.Peers[i].Endpoint.IsEmpty() {
+			flags |= driver.PeerHasEndpoint
+			endpoint.SetIP(net.ParseIP(config.Peers[i].Endpoint.Host), config.Peers[i].Endpoint.Port)
+		}
+		c.AppendPeer(&driver.Peer{
+			Flags:               flags,
+			PublicKey:           config.Peers[i].PublicKey,
+			PresharedKey:        config.Peers[i].PresharedKey,
+			PersistentKeepalive: config.Peers[i].PersistentKeepalive,
+			Endpoint:            endpoint,
+			AllowedIPsCount:     uint32(len(config.Peers[i].AllowedIPs)),
+		})
+		for j := range config.Peers[i].AllowedIPs {
+			var family winipcfg.AddressFamily
+			if config.Peers[i].AllowedIPs[j].IP.To4() != nil {
+				family = windows.AF_INET
+			} else {
+				family = windows.AF_INET6
+			}
+			a := &driver.AllowedIP{
+				AddressFamily: family,
+				Cidr:          config.Peers[i].AllowedIPs[j].Cidr,
+			}
+			copy(a.Address[:], config.Peers[i].AllowedIPs[j].IP)
+			c.AppendAllowedIP(a)
+		}
+	}
+	return c.Interface()
 }

@@ -254,7 +254,11 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 		}()
 	}
 
-	time.AfterFunc(time.Second*10, cleanupStaleWintunInterfaces)
+	if conf.AdminBool("ExperimentalKernelDriver") {
+		time.AfterFunc(time.Second*10, cleanupStaleWintunInterfaces)
+	} else {
+		time.AfterFunc(time.Second*10, cleanupStaleDriverInterfaces)
+	}
 	go checkForUpdates()
 
 	var sessionsPointer *windows.WTS_SESSION_INFO

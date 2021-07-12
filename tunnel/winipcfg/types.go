@@ -6,6 +6,7 @@
 package winipcfg
 
 import (
+	"encoding/binary"
 	"net"
 	"unsafe"
 
@@ -734,6 +735,16 @@ type RawSockaddrInet struct {
 	data   [26]byte
 }
 
+func ntohs(i uint16) uint16 {
+	return binary.BigEndian.Uint16((*[2]byte)(unsafe.Pointer(&i))[:])
+}
+
+func htons(i uint16) uint16 {
+	b := make([]byte, 2)
+	binary.BigEndian.PutUint16(b, i)
+	return *(*uint16)(unsafe.Pointer(&b[0]))
+}
+
 // SetIP method sets family, address, and port to the given IPv4 or IPv6 address and port.
 // All other members of the structure are set to zero.
 func (addr *RawSockaddrInet) SetIP(ip net.IP, port uint16) error {
@@ -741,7 +752,7 @@ func (addr *RawSockaddrInet) SetIP(ip net.IP, port uint16) error {
 		addr4 := (*windows.RawSockaddrInet4)(unsafe.Pointer(addr))
 		addr4.Family = windows.AF_INET
 		copy(addr4.Addr[:], v4)
-		addr4.Port = windows.Ntohs(port)
+		addr4.Port = htons(port)
 		for i := 0; i < 8; i++ {
 			addr4.Zero[i] = 0
 		}
@@ -751,7 +762,7 @@ func (addr *RawSockaddrInet) SetIP(ip net.IP, port uint16) error {
 	if v6 := ip.To16(); v6 != nil {
 		addr6 := (*windows.RawSockaddrInet6)(unsafe.Pointer(addr))
 		addr6.Family = windows.AF_INET6
-		addr6.Port = windows.Ntohs(port)
+		addr6.Port = htons(port)
 		addr6.Flowinfo = 0
 		copy(addr6.Addr[:], v6)
 		addr6.Scope_id = 0
@@ -761,8 +772,7 @@ func (addr *RawSockaddrInet) SetIP(ip net.IP, port uint16) error {
 	return windows.ERROR_INVALID_PARAMETER
 }
 
-// IP method returns IPv4 or IPv6 address.
-// If the address is neither IPv4 not IPv6 nil is returned.
+// IP returns IPv4 or IPv6 address, or nil if the address is neither.
 func (addr *RawSockaddrInet) IP() net.IP {
 	switch addr.Family {
 	case windows.AF_INET:
@@ -773,6 +783,19 @@ func (addr *RawSockaddrInet) IP() net.IP {
 	}
 
 	return nil
+}
+
+// Port returns the port if the address if IPv4 or IPv6, or 0 if neither.
+func (addr *RawSockaddrInet) Port() uint16 {
+	switch addr.Family {
+	case windows.AF_INET:
+		return ntohs((*windows.RawSockaddrInet4)(unsafe.Pointer(addr)).Port)
+
+	case windows.AF_INET6:
+		return ntohs((*windows.RawSockaddrInet6)(unsafe.Pointer(addr)).Port)
+	}
+
+	return 0
 }
 
 // Init method initializes a MibUnicastIPAddressRow structure with default values for a unicast IP address entry on the local computer.
