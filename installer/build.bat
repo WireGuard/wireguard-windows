@@ -31,6 +31,7 @@ if exist .deps\prepared goto :build
 	cd .. || goto :error
 
 :build
+	if exist ..\sign.bat call ..\sign.bat
 	set PATH=%BUILDDIR%..\.deps\llvm-mingw\bin;%PATH%
 	set WIX=%BUILDDIR%.deps\wix\
 	set CFLAGS=-O3 -Wall -std=gnu11 -DWINVER=0x0601 -D_WIN32_WINNT=0x0601 -municode -DUNICODE -D_UNICODE -DNDEBUG
@@ -40,7 +41,6 @@ if exist .deps\prepared goto :build
 	call :msi amd64 x86_64 x64 || goto :error
 	call :msi arm armv7 arm || goto :error
 	call :msi arm64 aarch64 arm64 || goto :error
-	if exist ..\sign.bat call ..\sign.bat
 	if "%SigningCertificate%"=="" goto :success
 	if "%TimestampServer%"=="" goto :success
 	echo [+] Signing
@@ -62,6 +62,11 @@ if exist .deps\prepared goto :build
 	if not exist "%~1" mkdir "%~1"
 	echo [+] Compiling %1
 	%CC% %CFLAGS% %LDFLAGS% -o "%~1\customactions.dll" customactions.c %LDLIBS% || exit /b 1
+	if "%SigningCertificate%"=="" goto :skipsign
+	if "%TimestampServer%"=="" goto :skipsign
+	echo [+] Signing %1
+	signtool sign /sha1 "%SigningCertificate%" /fd sha256 /tr "%TimestampServer%" /td sha256 /d "WireGuard Setup Custom Actions" "%~1\customactions.dll" || exit /b 1
+:skipsign
 	"%WIX%bin\candle" %WIX_CANDLE_FLAGS% -dWIREGUARD_PLATFORM="%~1" -out "%~1\wireguard.wixobj" -arch %3 wireguard.wxs || exit /b %errorlevel%
 	echo [+] Linking %1
 	"%WIX%bin\light" %WIX_LIGHT_FLAGS% -out "dist\wireguard-%~1-%WIREGUARD_VERSION%.msi" "%~1\wireguard.wixobj" || exit /b %errorlevel%
