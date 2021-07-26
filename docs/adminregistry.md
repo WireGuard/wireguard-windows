@@ -19,6 +19,10 @@ users belonging to the Network Configuration Operators builtin group
 
 However, basic functionality such as starting and stopping tunnels remains intact.
 
+```
+> reg add HKLM\Software\WireGuard /v LimitedOperatorUI /t REG_DWORD /d 1 /f
+```
+
 #### `HKLM\Software\WireGuard\DangerousScriptExecution`
 
 When this key is set to `DWORD(1)`, the tunnel service will execute the commands
@@ -30,6 +34,10 @@ utmost trepidation. Rather than use `%i`, WireGuard for Windows instead sets the
 environment variable `WIREGUARD_TUNNEL_NAME` to the name of the tunnel when
 executing these scripts.
 
+```
+> reg add HKLM\Software\WireGuard /v DangerousScriptExecution /t REG_DWORD /d 1 /f
+```
+
 #### `HKLM\Software\WireGuard\MultipleSimultaneousTunnels`
 
 When this key is set to `DWORD(1)`, the UI may start multiple tunnels at the
@@ -39,3 +47,7 @@ tunnels using `wireguard /installtunnelservice`; this controls only the semantic
 of tunnel start requests coming from the UI. If all goes well, this key will be
 removed and the logic of whether to stop existing tunnels will be based on
 overlapping routes, but for now, this key provides a manual override.
+
+```
+> reg add HKLM\Software\WireGuard /v MultipleSimultaneousTunnels /t REG_DWORD /d 1 /f
+```
