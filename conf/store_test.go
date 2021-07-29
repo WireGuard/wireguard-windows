@@ -17,7 +17,7 @@ func TestStorage(t *testing.T) {
 		return
 	}
 
-	err = c.Save()
+	err = c.Save(true)
 	if err != nil {
 		t.Errorf("Unable to save config: %s", err.Error())
 	}
@@ -54,7 +54,11 @@ func TestStorage(t *testing.T) {
 	}
 	c.Interface.PrivateKey = *k
 
-	err = c.Save()
+	err = c.Save(false)
+	if err == nil {
+		t.Error("Config disappeared or was unexpectedly overwritten")
+	}
+	err = c.Save(true)
 	if err != nil {
 		t.Errorf("Unable to save config a second time: %s", err.Error())
 	}
