@@ -181,7 +181,10 @@ static DWORD __stdcall download_thread(void *param)
 	CloseHandle(filehandle); //TODO: I wish this wasn't required.
 	filehandle = INVALID_HANDLE_VALUE;
 	wintrust_fileinfo.pcwszFilePath = L(msi_filename);
-	if (WinVerifyTrust(INVALID_HANDLE_VALUE, &(GUID)WINTRUST_ACTION_GENERIC_VERIFY_V2, &wintrust_data))
+	ret = WinVerifyTrustEx(INVALID_HANDLE_VALUE, &(GUID)WINTRUST_ACTION_GENERIC_VERIFY_V2, &wintrust_data);
+	wintrust_data.dwStateAction = WTD_STATEACTION_CLOSE;
+	WinVerifyTrustEx(INVALID_HANDLE_VALUE, &(GUID)WINTRUST_ACTION_GENERIC_VERIFY_V2, &wintrust_data);
+	if (ret)
 		goto out;
 
 	set_status(progress, "launching installer");
