@@ -25,13 +25,15 @@ define download =
 	if ! mv $$@.unverified $$@; then rm -f $$@.unverified; exit 1; fi
 endef
 
-$(eval $(call download,go.tar.zst,https://download.wireguard.com/windows-toolchain/distfiles/go1.17beta1-linux_amd64_2021-06-11.tar.zst,fc25a3eccfdd1ad42b2963c7736f4fdb9b0e995aca3ecae88a6114da07aff2ec))
+$(eval $(call download,go.tar.gz,https://golang.org/dl/go1.17rc1.linux-amd64.tar.gz,bfbd3881a01ca3826777b1c40f241acacd45b14730d373259cd673d74e15e534))
 $(eval $(call download,wintun.zip,https://www.wintun.net/builds/wintun-0.12.zip,eba90e26686ed86595ae0a6d4d3f4f022924b1758f5148a32a91c60cc6e604df))
 
-.deps/go/prepared: .distfiles/go.tar.zst
+.deps/go/prepared: .distfiles/go.tar.gz $(wildcard go-patches/*.patch)
 	mkdir -p .deps
 	rm -rf .deps/go
-	bsdtar -C .deps -xf .distfiles/go.tar.zst
+	bsdtar -C .deps -xf .distfiles/go.tar.gz
+	chmod -R +w .deps/go
+	cat $(filter %.patch,$^) | patch -f -N -r- -p1 -d .deps/go
 	touch $@
 
 .deps/wintun/prepared: .distfiles/wintun.zip
