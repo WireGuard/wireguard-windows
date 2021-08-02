@@ -102,14 +102,6 @@
 		</InstallExecuteSequence>
 
 		<!--
-			Abort early if running without KB2921916 on Windows 7
-		-->
-		<CustomAction Id="CheckKB2921916" BinaryKey="customactions.dll" DllEntry="CheckKB2921916" />
-		<InstallExecuteSequence>
-			<Custom Action="CheckKB2921916" After="CheckWow64">NOT REMOVE</Custom>
-		</InstallExecuteSequence>
-
-		<!--
 			Evaluate WireGuard services and populate ServiceControl table
 		-->
 		<CustomAction Id="EvaluateWireGuardServices" BinaryKey="customactions.dll" DllEntry="EvaluateWireGuardServices" />
