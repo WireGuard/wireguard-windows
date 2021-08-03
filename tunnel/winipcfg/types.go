@@ -11,7 +11,6 @@ import (
 	"unsafe"
 
 	"golang.org/x/sys/windows"
-	"golang.org/x/sys/windows/registry"
 )
 
 const (
@@ -676,23 +675,7 @@ func (row *MibIPInterfaceRow) get() error {
 // Set method sets the properties of an IP interface on the local computer.
 // https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-setipinterfaceentry
 func (row *MibIPInterfaceRow) Set() error {
-	err := setIPInterfaceEntry(row)
-	if err != nil {
-		return err
-	}
-	if row.NLMTU == 0 || row.InterfaceLUID == 0 {
-		return nil
-	}
-	guid, err := row.InterfaceLUID.GUID()
-	if err != nil {
-		return err
-	}
-	key, err := registry.OpenKey(registry.LOCAL_MACHINE, `SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces\`+guid.String(), registry.SET_VALUE)
-	if err != nil {
-		return err
-	}
-	defer key.Close()
-	return key.SetDWordValue("MTU", row.NLMTU)
+	return setIPInterfaceEntry(row)
 }
 
 // get method returns all table rows as a Go slice.

@@ -105,9 +105,7 @@ func monitorDefaultRoutes(family winipcfg.AddressFamily, binder conn.BindSocketT
 				return err
 			}
 
-			// Having one MTU for both v4 and v6 kind of breaks the Windows model, so right now this just gets the
-			// second one which looks bad. However, internally, it doesn't seem like the Windows stack differentiates
-			// anyway, so it's probably fine.
+			// Having one MTU for both v4 and v6 kind of breaks the Windows model, unfortunately.
 			clamper.ForceMTU(int(iface.NLMTU))
 			lastMTU = mtu
 		}
