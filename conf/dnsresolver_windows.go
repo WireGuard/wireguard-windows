@@ -91,6 +91,9 @@ func resolveHostnameOnce(name string) (resolvedIPString string, err error) {
 
 func (config *Config) ResolveEndpoints() error {
 	for i := range config.Peers {
+		if config.Peers[i].Endpoint.IsEmpty() {
+			continue
+		}
 		var err error
 		config.Peers[i].Endpoint.Host, err = resolveHostname(config.Peers[i].Endpoint.Host)
 		if err != nil {
