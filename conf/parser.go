@@ -559,7 +559,7 @@ func FromDriverConfiguration(interfaze *driver.Interface, existingConfig *Config
 		if p.Flags&driver.PeerHasPresharedKey != 0 {
 			peer.PresharedKey = p.PresharedKey
 		}
-		if p.Flags&driver.PeerHasEndpoint != 0 {
+		if p.Flags&driver.PeerHasEndpoint != 0 && p.Endpoint.Family != 0 {
 			peer.Endpoint.Port = p.Endpoint.Port()
 			peer.Endpoint.Host = p.Endpoint.IP().String()
 		}
