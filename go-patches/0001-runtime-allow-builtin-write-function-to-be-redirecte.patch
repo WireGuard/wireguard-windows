@@ -1,4 +1,4 @@
-From 1c566ea2420f0503c8494e361bccb943d83c135c Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 Date: Thu, 3 Dec 2020 13:29:58 +0100
 Subject: [PATCH] runtime: allow builtin write function to be redirected with
