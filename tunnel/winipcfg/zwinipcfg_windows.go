@@ -289,7 +289,7 @@ func notifyUnicastIPAddressChange(family AddressFamily, callback uintptr, caller
 	return
 }
 
-func setInterfaceDnsSettingsByDwords(guid1 uintptr, guid2 uintptr, guid3 uintptr, guid4 uintptr, settings *dnsInterfaceSettings) (ret error) {
+func setInterfaceDnsSettingsByDwords(guid1 uintptr, guid2 uintptr, guid3 uintptr, guid4 uintptr, settings *DnsInterfaceSettings) (ret error) {
 	ret = procSetInterfaceDnsSettings.Find()
 	if ret != nil {
 		return
@@ -301,7 +301,7 @@ func setInterfaceDnsSettingsByDwords(guid1 uintptr, guid2 uintptr, guid3 uintptr
 	return
 }
 
-func setInterfaceDnsSettingsByPtr(guid *windows.GUID, settings *dnsInterfaceSettings) (ret error) {
+func setInterfaceDnsSettingsByPtr(guid *windows.GUID, settings *DnsInterfaceSettings) (ret error) {
 	ret = procSetInterfaceDnsSettings.Find()
 	if ret != nil {
 		return
@@ -313,7 +313,7 @@ func setInterfaceDnsSettingsByPtr(guid *windows.GUID, settings *dnsInterfaceSett
 	return
 }
 
-func setInterfaceDnsSettingsByQwords(guid1 uintptr, guid2 uintptr, settings *dnsInterfaceSettings) (ret error) {
+func setInterfaceDnsSettingsByQwords(guid1 uintptr, guid2 uintptr, settings *DnsInterfaceSettings) (ret error) {
 	ret = procSetInterfaceDnsSettings.Find()
 	if ret != nil {
 		return

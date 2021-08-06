@@ -353,17 +353,17 @@ func (luid LUID) SetDNS(family AddressFamily, servers []net.IP, domains []string
 	if err != nil {
 		return err
 	}
-	var maybeV6 uint64
-	if family == windows.AF_INET6 {
-		maybeV6 = disFlagsIPv6
-	}
-	// For >= Windows 10 1809
-	err = setInterfaceDnsSettings(*guid, &dnsInterfaceSettings{
-		Version:    disVersion1,
-		Flags:      disFlagsNameServer | disFlagsSearchList | maybeV6,
+	dnsInterfaceSettings := &DnsInterfaceSettings{
+		Version:    DnsInterfaceSettingsVersion1,
+		Flags:      DnsInterfaceSettingsFlagNameserver | DnsInterfaceSettingsFlagSearchList,
 		NameServer: servers16,
 		SearchList: domains16,
-	})
+	}
+	if family == windows.AF_INET6 {
+		dnsInterfaceSettings.Flags |= DnsInterfaceSettingsFlagIPv6
+	}
+	// For >= Windows 10 1809
+	err = SetInterfaceDnsSettings(*guid, dnsInterfaceSettings)
 	if err == nil || !errors.Is(err, windows.ERROR_PROC_NOT_FOUND) {
 		return err
 	}

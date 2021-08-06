@@ -964,11 +964,11 @@ func (tab *mibIPforwardTable2) free() {
 }
 
 //
-// Undocumented DNS API
+// DNS API
 //
 
 // dnsInterfaceSettings is mean to be used with setInterfaceDnsSettings
-type dnsInterfaceSettings struct {
+type DnsInterfaceSettings struct {
 	Version             uint32
 	_                   [4]byte
 	Flags               uint64
@@ -983,21 +983,24 @@ type dnsInterfaceSettings struct {
 }
 
 const (
-	disVersion1 = 1
-	disVersion2 = 2
+	DnsInterfaceSettingsVersion1 = 1 // for DnsInterfaceSettings
+	DnsInterfaceSettingsVersion2 = 2 // for DnsInterfaceSettingsEx
+	DnsInterfaceSettingsVersion3 = 3 // for DnsInterfaceSettings3
 
-	disFlagsIPv6                = 0x1
-	disFlagsNameServer          = 0x2
-	disFlagsSearchList          = 0x4
-	disFlagsRegistrationEnabled = 0x8
-	disFlagsRegisterAdapterName = 0x10
-	disFlagsDomain              = 0x20
-	disFlagsHostname            = 0x40 // ??
-	disFlagsEnableLLMNR         = 0x80
-	disFlagsQueryAdapterName    = 0x100
-	disFlagsProfileNameServer   = 0x200
-	disFlagsVersion2            = 0x400 // ?? - v2 only
-	disFlagsMoreFlags           = 0x800 // ?? - v2 only
+	DnsInterfaceSettingsFlagIPv6                        = 0x0001
+	DnsInterfaceSettingsFlagNameserver                  = 0x0002
+	DnsInterfaceSettingsFlagSearchList                  = 0x0004
+	DnsInterfaceSettingsFlagRegistrationEnabled         = 0x0008
+	DnsInterfaceSettingsFlagRegisterAdapterName         = 0x0010
+	DnsInterfaceSettingsFlagDomain                      = 0x0020
+	DnsInterfaceSettingsFlagHostname                    = 0x0040
+	DnsInterfaceSettingsFlagEenableLLMNR                = 0x0080
+	DnsInterfaceSettingsFlagQueryAdapterName            = 0x0100
+	DnsInterfaceSettingsFlagProfileNameserver           = 0x0200
+	DnsInterfaceSettingsFlagDisableUnconstrainedQueries = 0x0400 // v2 only
+	DnsInterfaceSettingsFlagSupplementalSearchList      = 0x0800 // v2 only
+	DnsInterfaceSettingsFlagDOH                         = 0x1000 // v3 only
+	DnsInterfaceSettingsFlagDOHProfile                  = 0x2000 // v3 only
 )
 
 // unsafeSlice updates the slice slicePtr to be a slice
