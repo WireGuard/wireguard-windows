@@ -52,7 +52,8 @@ var (
 )
 
 func setupLogger(dll *lazyDLL) {
-	syscall.Syscall(dll.NewProc("WireGuardSetLogger").Addr(), 1, windows.NewCallback(func(level loggerLevel, msg *uint16) int {
+	syscall.Syscall(dll.NewProc("WireGuardSetLogger").Addr(), 1, windows.NewCallback(func(level loggerLevel, timestamp uint64, msg *uint16) int {
+		// TODO: Unfortunately, we're ignoring the precise timestamp here.
 		log.Println(windows.UTF16PtrToString(msg))
 		return 0
 	}), 0, 0)
