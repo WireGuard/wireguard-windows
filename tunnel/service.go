@@ -176,7 +176,7 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 			}
 			var rebootRequired bool
 			adapter, rebootRequired, err = driver.DefaultPool.CreateAdapter(config.Name, deterministicGUID(config))
-			if err == nil || windows.DurationSinceBoot() > time.Minute*4 {
+			if err == nil || windows.DurationSinceBoot() > time.Minute*10 {
 				if rebootRequired {
 					log.Println("Windows indicated a reboot is required.")
 				}
@@ -209,7 +209,7 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 				log.Printf("Retrying adapter creation after failure because system just booted (T+%v): %v", windows.DurationSinceBoot(), err)
 			}
 			wintun, err = tun.CreateTUNWithRequestedGUID(config.Name, deterministicGUID(config), 0)
-			if err == nil || windows.DurationSinceBoot() > time.Minute*4 {
+			if err == nil || windows.DurationSinceBoot() > time.Minute*10 {
 				break
 			}
 		}
