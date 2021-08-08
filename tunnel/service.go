@@ -107,7 +107,13 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 		log.Println("Shutting down")
 	}()
 
-	err = ringlogger.InitGlobalLogger("TUN")
+	var logFile string
+	logFile, err = conf.LogFile(true)
+	if err != nil {
+		serviceError = services.ErrorRingloggerOpen
+		return
+	}
+	err = ringlogger.InitGlobalLogger(logFile, "TUN")
 	if err != nil {
 		serviceError = services.ErrorRingloggerOpen
 		return

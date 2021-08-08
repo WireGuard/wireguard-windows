@@ -282,7 +282,11 @@ func main() {
 		}
 		file := os.NewFile(uintptr(outputHandle), "stdout")
 		defer file.Close()
-		err = ringlogger.DumpTo(file, true)
+		logPath, err := conf.LogFile(false)
+		if err != nil {
+			fatal(err)
+		}
+		err = ringlogger.DumpTo(logPath, file)
 		if err != nil {
 			fatal(err)
 		}

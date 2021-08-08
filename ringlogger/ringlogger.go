@@ -107,6 +107,12 @@ func newRingloggerFromMappingHandle(mappingHandle windows.Handle, tag string, ac
 }
 
 func (rl *Ringlogger) Write(p []byte) (n int, err error) {
+	// Race: This isn't synchronized with the fetch_add below, so items might be slightly out of order.
+	ts := time.Now().UnixNano()
+	return rl.WriteWithTimestamp(p, ts)
+}
+
+func (rl *Ringlogger) WriteWithTimestamp(p []byte, ts int64) (n int, err error) {
 	if rl.readOnly {
 		return 0, io.ErrShortWrite
 	}
@@ -115,9 +121,6 @@ func (rl *Ringlogger) Write(p []byte) (n int, err error) {
 	if len(p) == 0 {
 		return ret, nil
 	}
-
-	// Race: This isn't synchronized with the fetch_add below, so items might be slightly out of order.
-	ts := time.Now().UnixNano()
 
 	if rl.log == nil {
 		return 0, io.EOF

@@ -7,23 +7,17 @@ package ringlogger
 
 import (
 	"log"
-	"path/filepath"
 	"unsafe"
-
-	"golang.zx2c4.com/wireguard/windows/conf"
 )
 
 var Global *Ringlogger
 
-func InitGlobalLogger(tag string) error {
+func InitGlobalLogger(file, tag string) error {
 	if Global != nil {
 		return nil
 	}
-	root, err := conf.RootDirectory(true)
-	if err != nil {
-		return err
-	}
-	Global, err = NewRinglogger(filepath.Join(root, "log.bin"), tag)
+	var err error
+	Global, err = NewRinglogger(file, tag)
 	if err != nil {
 		return err
 	}

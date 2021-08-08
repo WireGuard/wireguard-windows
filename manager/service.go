@@ -42,7 +42,13 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 		changes <- svc.Status{State: svc.StopPending}
 	}()
 
-	err = ringlogger.InitGlobalLogger("MGR")
+	var logFile string
+	logFile, err = conf.LogFile(true)
+	if err != nil {
+		serviceError = services.ErrorRingloggerOpen
+		return
+	}
+	err = ringlogger.InitGlobalLogger(logFile, "MGR")
 	if err != nil {
 		serviceError = services.ErrorRingloggerOpen
 		return

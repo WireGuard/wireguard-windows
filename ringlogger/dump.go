@@ -8,20 +8,12 @@ package ringlogger
 import (
 	"io"
 	"os"
-	"path/filepath"
 
 	"golang.org/x/sys/windows"
-
-	"golang.zx2c4.com/wireguard/windows/conf"
 )
 
-func DumpTo(out io.Writer, notSystem bool) error {
-	root, err := conf.RootDirectory(!notSystem)
-	if err != nil {
-		return err
-	}
-	path := filepath.Join(root, "log.bin")
-	file, err := os.Open(path)
+func DumpTo(inPath string, out io.Writer) error {
+	file, err := os.Open(inPath)
 	if err != nil {
 		return err
 	}

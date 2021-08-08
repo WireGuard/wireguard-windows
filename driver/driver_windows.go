@@ -13,6 +13,7 @@ import (
 	"unsafe"
 
 	"golang.org/x/sys/windows"
+	"golang.zx2c4.com/wireguard/windows/ringlogger"
 	"golang.zx2c4.com/wireguard/windows/tunnel/winipcfg"
 )
 
@@ -53,8 +54,13 @@ var (
 
 func setupLogger(dll *lazyDLL) {
 	syscall.Syscall(dll.NewProc("WireGuardSetLogger").Addr(), 1, windows.NewCallback(func(level loggerLevel, timestamp uint64, msg *uint16) int {
-		// TODO: Unfortunately, we're ignoring the precise timestamp here.
-		log.Println(windows.UTF16PtrToString(msg))
+		// This is a filthy hack that breaks layers of encapsulation and also introduces
+		// an unfortunate dependency of this package.
+		if rl, ok := log.Default().Writer().(*ringlogger.Ringlogger); ok {
+			rl.WriteWithTimestamp([]byte(log.Default().Prefix()+windows.UTF16PtrToString(msg)), (int64(timestamp)-116444736000000000)*100)
+		} else {
+			log.Println(windows.UTF16PtrToString(msg))
+		}
 		return 0
 	}), 0, 0)
 }

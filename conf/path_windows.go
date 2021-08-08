@@ -126,3 +126,11 @@ func RootDirectory(create bool) (string, error) {
 	cachedRootDir = data
 	return cachedRootDir, nil
 }
+
+func LogFile(createRoot bool) (string, error) {
+	root, err := RootDirectory(createRoot)
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(root, "log.bin"), nil
+}
