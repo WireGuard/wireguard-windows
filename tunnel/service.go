@@ -34,6 +34,12 @@ type tunnelService struct {
 	Path string
 }
 
+// Escape hatch to let the embeddable-dll-service force an implementation.
+//   0 - use the registry key
+//   1 - use the kernel driver
+//   2 - use wireguard-go
+var ForceImplementation = 0
+
 func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest, changes chan<- svc.Status) (svcSpecificEC bool, exitCode uint32) {
 	changes <- svc.Status{State: svc.StartPending}
 
@@ -163,7 +169,7 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 	}
 
 	log.Println("Creating network adapter")
-	if conf.AdminBool("ExperimentalKernelDriver") {
+	if ForceImplementation == 1 || (ForceImplementation == 0 && conf.AdminBool("ExperimentalKernelDriver")) {
 		// Does an adapter with this name already exist?
 		adapter, err = driver.DefaultPool.OpenAdapter(config.Name)
 		if err == nil {

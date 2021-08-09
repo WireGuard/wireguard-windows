@@ -25,6 +25,7 @@ func WireGuardTunnelService(confFile16 *uint16) bool {
 	confFile := windows.UTF16PtrToString(confFile16)
 	conf.PresetRootDirectory(filepath.Dir(confFile))
 	tunnel.UseFixedGUIDInsteadOfDeterministic = true
+	tunnel.ForceImplementation = 1
 	err := tunnel.Run(confFile)
 	if err != nil {
 		log.Printf("Service run error: %v", err)
