@@ -27,7 +27,7 @@ endef
 
 $(eval $(call download,go.tar.gz,https://golang.org/dl/go1.17rc1.linux-amd64.tar.gz,bfbd3881a01ca3826777b1c40f241acacd45b14730d373259cd673d74e15e534))
 $(eval $(call download,wintun.zip,https://www.wintun.net/builds/wintun-0.13.zip,34afe7d0de1fdb781af3defc0a75fd8c97daa756279b42dd6be6a1bd8ccdc7f0))
-$(eval $(call download,wireguard-nt.zip,https://download.wireguard.com/wireguard-nt/wireguard-nt-0.3.zip,6f88398cee22b562e8a20fea6572c2d5ec6c87d90f03e03ad609b26677e9d1e0))
+$(eval $(call download,wireguard-nt.zip,https://download.wireguard.com/wireguard-nt/wireguard-nt-0.4.zip,f2d9784dcf4c1920a71b1c3af332b55debdbafc6cbcf89cbefb6be8b0f1a5465))
 
 .deps/go/prepared: .distfiles/go.tar.gz $(wildcard go-patches/*.patch)
 	mkdir -p .deps
