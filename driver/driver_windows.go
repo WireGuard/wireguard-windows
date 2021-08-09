@@ -52,17 +52,27 @@ var (
 	procWireGuardSetAdapterLogging       = modwireguard.NewProc("WireGuardSetAdapterLogging")
 )
 
+func logMessage(level loggerLevel, timestamp uint64, msg *uint16) int {
+	// This is a filthy hack that breaks layers of encapsulation and also introduces
+	// an unfortunate dependency of this package.
+	if rl, ok := log.Default().Writer().(*ringlogger.Ringlogger); ok {
+		rl.WriteWithTimestamp([]byte(log.Default().Prefix()+windows.UTF16PtrToString(msg)), (int64(timestamp)-116444736000000000)*100)
+	} else {
+		log.Println(windows.UTF16PtrToString(msg))
+	}
+	return 0
+}
+
 func setupLogger(dll *lazyDLL) {
-	syscall.Syscall(dll.NewProc("WireGuardSetLogger").Addr(), 1, windows.NewCallback(func(level loggerLevel, timestamp uint64, msg *uint16) int {
-		// This is a filthy hack that breaks layers of encapsulation and also introduces
-		// an unfortunate dependency of this package.
-		if rl, ok := log.Default().Writer().(*ringlogger.Ringlogger); ok {
-			rl.WriteWithTimestamp([]byte(log.Default().Prefix()+windows.UTF16PtrToString(msg)), (int64(timestamp)-116444736000000000)*100)
-		} else {
-			log.Println(windows.UTF16PtrToString(msg))
-		}
-		return 0
-	}), 0, 0)
+	var callback uintptr
+	if runtime.GOARCH == "386" || runtime.GOARCH == "arm" {
+		callback = windows.NewCallback(func(level loggerLevel, timestampLow, timestampHigh uint32, msg *uint16) int {
+			return logMessage(level, uint64(timestampHigh)<<32|uint64(timestampLow), msg)
+		})
+	} else if runtime.GOARCH == "amd64" || runtime.GOARCH == "arm64" {
+		callback = windows.NewCallback(logMessage)
+	}
+	syscall.Syscall(dll.NewProc("WireGuardSetLogger").Addr(), 1, callback, 0, 0)
 }
 
 var DefaultPool, _ = MakePool("WireGuard")
