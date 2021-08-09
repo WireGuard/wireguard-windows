@@ -1,6 +1,6 @@
 ## Embeddable WireGuard Tunnel Library
 
-This allows embedding WireGuard as a service inside of another application. Build `tunnel.dll` by running `./build.bat` in this folder. The first time you run it, it will invoke `..\build.bat` simply for downloading dependencies. After, you should have `amd64/tunnel.dll`, `x86/tunnel.dll`, and `arm64/tunnel.dll`.
+This allows embedding WireGuard as a service inside of another application. Build `tunnel.dll` by running `./build.bat` in this folder. The first time you run it, it will invoke `..\build.bat` simply for downloading dependencies. After, you should have `amd64/tunnel.dll`, `x86/tunnel.dll`, and `arm64/tunnel.dll`. In addition, `tunnel.dll` requires `wintun.dll`, which can be downloaded from [wintun.net](https://www.wintun.net), and `wireguard.dll`, which can be downloaded from [the wireguard-nt download server](https://download.wireguard.com/wireguard-nt/).
 
 The basic setup to use `tunnel.dll` is:
 
