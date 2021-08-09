@@ -21,10 +21,9 @@ namespace Tunnel
         [DllImport("tunnel.dll", EntryPoint = "WireGuardTunnelService", CallingConvention = CallingConvention.Cdecl)]
         public static extern bool Run([MarshalAs(UnmanagedType.LPWStr)] string configFile);
 
-        public static NamedPipeClientStream GetPipe(string configFile)
+        public static Driver.Adapter GetAdapter(string configFile)
         {
-            var pipepath = "ProtectedPrefix\\Administrators\\WireGuard\\" + Path.GetFileNameWithoutExtension(configFile);
-            return new NamedPipeClientStream(pipepath);
+            return new Driver.Adapter(Path.GetFileNameWithoutExtension(configFile));
         }
 
         public static void Add(string configFile, bool ephemeral)

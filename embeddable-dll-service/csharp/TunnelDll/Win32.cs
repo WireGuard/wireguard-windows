@@ -135,6 +135,58 @@ namespace Tunnel
             SidInfo = 5
         }
 
+        [StructLayout(LayoutKind.Sequential)]
+        public unsafe struct IN_ADDR
+        {
+            public fixed byte bytes[4];
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public unsafe struct IN6_ADDR
+        {
+            public fixed byte bytes[16];
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct SOCKADDR_IN
+        {
+            public ushort sin_family;
+            public ushort sin_port;
+            public IN_ADDR sin_addr;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct SOCKADDR_IN6
+        {
+            public ushort sin6_family;
+            public ushort sin6_port;
+            public uint sin6_flowinfo;
+            public IN6_ADDR sin6_addr;
+            public uint sin6_scope_id;
+        }
+
+        [StructLayout(LayoutKind.Explicit)]
+        public struct SOCKADDR_INET
+        {
+            [FieldOffset(0)]
+            [MarshalAs(UnmanagedType.Struct)]
+            public SOCKADDR_IN Ipv4;
+
+            [FieldOffset(0)]
+            [MarshalAs(UnmanagedType.Struct)]
+            public SOCKADDR_IN6 Ipv6;
+
+            [FieldOffset(0)]
+            public ADDRESS_FAMILY si_family;
+        }
+
+        public enum ADDRESS_FAMILY : UInt32
+        {
+            AF_UNSPEC = 0,
+            AF_INET = 2,
+            AF_INET6 = 23
+        }
+
         [DllImport("advapi32.dll", EntryPoint = "OpenSCManagerW", ExactSpelling = true, CharSet = CharSet.Unicode, SetLastError = true)]
         public static extern IntPtr OpenSCManager(string machineName, string databaseName, ScmAccessRights dwDesiredAccess);
 

@@ -66,49 +66,43 @@ namespace DemoUI
 
         private void tailTransfer()
         {
-            StreamReader reader = null;
-            NamedPipeClientStream stream = null;
+            Tunnel.Driver.Adapter adapter = null;
             while (threadsRunning)
             {
-                try
+                if (adapter == null)
                 {
-                    stream = Tunnel.Service.GetPipe(configFile);
-                    stream.Connect();
-                    reader = new StreamReader(stream);
-                    break;
-                }
-                catch { }
-                Thread.Sleep(1000);
-            }
-
-            try
-            {
-                while (threadsRunning)
-                {
-                    stream.Write(Encoding.UTF8.GetBytes("get=1\n\n"));
-                    ulong rx = 0, tx = 0;
                     while (threadsRunning)
                     {
-                        var line = reader.ReadLine();
-                        if (line == null)
+                        try
+                        {
+                            adapter = Tunnel.Service.GetAdapter(configFile);
                             break;
-                        line = line.Trim();
-                        if (line.Length == 0)
-                            break;
-                        if (line.StartsWith("rx_bytes="))
-                            rx += ulong.Parse(line.Substring(9));
-                        else if (line.StartsWith("tx_bytes="))
-                            tx += ulong.Parse(line.Substring(9));
+                        }
+                        catch
+                        {
+                            try
+                            {
+                                Thread.Sleep(1000);
+                            }
+                            catch { }
+                        }
+                    }
+                }
+                if (adapter == null)
+                    continue;
+                try
+                {
+                    ulong rx = 0, tx = 0;
+                    var config = adapter.GetConfiguration();
+                    foreach (var peer in config.Peers)
+                    {
+                        rx += peer.RxBytes;
+                        tx += peer.TxBytes;
                     }
                     Invoke(new Action<ulong, ulong>(updateTransferTitle), new object[] { rx, tx });
                     Thread.Sleep(1000);
                 }
-            }
-            catch { }
-            finally
-            {
-                if (stream.IsConnected)
-                    stream.Close();
+                catch { adapter = null; }
             }
         }
 
