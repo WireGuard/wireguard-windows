@@ -321,16 +321,15 @@ func main() {
 		}
 		var rebootRequiredDriver, rebootRequiredWintun bool
 		var err error
-		if conf.AdminBool("ExperimentalKernelDriver") {
-			rebootRequiredDriver, err = driver.DefaultPool.DeleteDriver()
-			if err != nil {
-				fatal(err)
-			}
+		rebootRequiredDriver, err = driver.DefaultPool.DeleteDriver()
+		if err != nil {
+			fatal(err)
 		}
 		rebootRequiredWintun, err = tun.WintunPool.DeleteDriver()
 		if err != nil {
 			fatal(err)
-		} else if rebootRequiredWintun || rebootRequiredDriver {
+		}
+		if rebootRequiredWintun || rebootRequiredDriver {
 			log.Println("A reboot may be required")
 		}
 		return
