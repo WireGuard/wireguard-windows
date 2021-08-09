@@ -24,29 +24,6 @@ import (
 	"golang.zx2c4.com/wireguard/windows/services"
 )
 
-func trackExistingTunnels() error {
-	m, err := serviceManager()
-	if err != nil {
-		return err
-	}
-	names, err := conf.ListConfigNames()
-	if err != nil {
-		return err
-	}
-	for _, name := range names {
-		serviceName, err := services.ServiceNameOfTunnel(name)
-		if err != nil {
-			continue
-		}
-		service, err := m.OpenService(serviceName)
-		if err != nil {
-			continue
-		}
-		go trackTunnelService(name, service)
-	}
-	return nil
-}
-
 var trackedTunnels = make(map[string]TunnelState)
 var trackedTunnelsLock = sync.Mutex{}
 
@@ -196,16 +173,17 @@ func trackService(service *mgr.Service, callback func(status uint32) bool) error
 }
 
 func trackTunnelService(tunnelName string, service *mgr.Service) {
+	trackedTunnelsLock.Lock()
+	if _, found := trackedTunnels[tunnelName]; found {
+		trackedTunnelsLock.Unlock()
+		service.Close()
+		return
+	}
+
 	defer func() {
 		service.Close()
 		log.Printf("[%s] Tunnel service tracker finished", tunnelName)
 	}()
-
-	trackedTunnelsLock.Lock()
-	if _, found := trackedTunnels[tunnelName]; found {
-		trackedTunnelsLock.Unlock()
-		return
-	}
 	trackedTunnels[tunnelName] = TunnelUnknown
 	trackedTunnelsLock.Unlock()
 	defer func() {
@@ -213,6 +191,15 @@ func trackTunnelService(tunnelName string, service *mgr.Service) {
 		delete(trackedTunnels, tunnelName)
 		trackedTunnelsLock.Unlock()
 	}()
+
+	for i := 0; i < 20; i++ {
+		if i > 0 {
+			time.Sleep(time.Second / 5)
+		}
+		if status, err := service.Query(); err != nil || status.State != svc.Stopped {
+			break
+		}
+	}
 
 	checkForDisabled := func() (shouldReturn bool) {
 		config, err := service.Config()
@@ -274,4 +261,82 @@ func trackTunnelService(tunnelName string, service *mgr.Service) {
 		service.Control(svc.Stop)
 	}
 	disconnectTunnelServicePipe(tunnelName)
+}
+
+func trackExistingTunnels() error {
+	m, err := serviceManager()
+	if err != nil {
+		return err
+	}
+	names, err := conf.ListConfigNames()
+	if err != nil {
+		return err
+	}
+	for _, name := range names {
+		trackedTunnelsLock.Lock()
+		if _, found := trackedTunnels[name]; found {
+			trackedTunnelsLock.Unlock()
+			continue
+		}
+		trackedTunnelsLock.Unlock()
+		serviceName, err := services.ServiceNameOfTunnel(name)
+		if err != nil {
+			continue
+		}
+		service, err := m.OpenService(serviceName)
+		if err != nil {
+			continue
+		}
+		go trackTunnelService(name, service)
+	}
+	return nil
+}
+
+var servicesSubscriptionWatcherCallbackPtr = windows.NewCallback(func(notification uint32, context uintptr) uintptr {
+	trackExistingTunnels()
+	return 0
+})
+
+func watchNewTunnelServices() error {
+	m, err := serviceManager()
+	if err != nil {
+		return err
+	}
+	var subscription uintptr
+	err = windows.SubscribeServiceChangeNotifications(m.Handle, windows.SC_EVENT_DATABASE_CHANGE, servicesSubscriptionWatcherCallbackPtr, 0, &subscription)
+	if err == nil {
+		// We probably could do:
+		//     defer windows.UnsubscribeServiceChangeNotifications(subscription)
+		// and then terminate after some point, but instead we just let this go forever; it's process-lived.
+		return trackExistingTunnels()
+	}
+	if !errors.Is(err, windows.ERROR_PROC_NOT_FOUND) {
+		return err
+	}
+
+	// TODO: Below this line is Windows 7 compatibility code, which hopefully we can delete at some point.
+	go func() {
+		runtime.LockOSThread()
+		notifier := &windows.SERVICE_NOTIFY{
+			Version:        windows.SERVICE_NOTIFY_STATUS_CHANGE,
+			NotifyCallback: serviceTrackerCallbackPtr,
+		}
+		for {
+			err := windows.NotifyServiceStatusChange(m.Handle, windows.SERVICE_NOTIFY_CREATED, notifier)
+			if err == nil {
+				windows.SleepEx(windows.INFINITE, true)
+				if notifier.ServiceNames != nil {
+					windows.LocalFree(windows.Handle(unsafe.Pointer(notifier.ServiceNames)))
+					notifier.ServiceNames = nil
+				}
+				trackExistingTunnels()
+			} else if err == windows.ERROR_SERVICE_NOTIFY_CLIENT_LAGGING {
+				continue
+			} else {
+				time.Sleep(time.Second * 3)
+				trackExistingTunnels()
+			}
+		}
+	}()
+	return trackExistingTunnels()
 }
