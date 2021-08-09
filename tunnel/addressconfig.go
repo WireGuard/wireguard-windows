@@ -7,6 +7,7 @@ package tunnel
 
 import (
 	"bytes"
+	"fmt"
 	"log"
 	"net"
 	"sort"
@@ -105,7 +106,7 @@ func configureInterface(family winipcfg.AddressFamily, conf *conf.Config, luid w
 		err = luid.SetIPAddressesForFamily(family, addresses)
 	}
 	if err != nil {
-		return err
+		return fmt.Errorf("unable to set ips %v: %w", addresses, err)
 	}
 
 	deduplicatedRoutes := make([]*winipcfg.RouteData, 0, len(routes))
@@ -137,6 +138,7 @@ func configureInterface(family winipcfg.AddressFamily, conf *conf.Config, luid w
 	if !conf.Interface.TableOff {
 		err = luid.SetRoutesForFamily(family, deduplicatedRoutes)
 		if err != nil {
+			return fmt.Errorf("unable to set routes %v: %w", deduplicatedRoutes, err)
 			return err
 		}
 	}
@@ -166,10 +168,14 @@ func configureInterface(family winipcfg.AddressFamily, conf *conf.Config, luid w
 	}
 	err = ipif.Set()
 	if err != nil {
-		return err
+		return fmt.Errorf("unable to set metric and MTU: %w", err)
 	}
 
-	return luid.SetDNS(family, conf.Interface.DNS, conf.Interface.DNSSearch)
+	err = luid.SetDNS(family, conf.Interface.DNS, conf.Interface.DNSSearch)
+	if err != nil {
+		return fmt.Errorf("unable to set DNS %v %v: %w", conf.Interface.DNS, conf.Interface.DNSSearch, err)
+	}
+	return nil
 }
 
 func enableFirewall(conf *conf.Config, luid winipcfg.LUID) error {

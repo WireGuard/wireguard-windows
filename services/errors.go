@@ -61,7 +61,7 @@ func (e Error) Error() string {
 	case ErrorMonitorMTUChanges:
 		return "Unable to monitor default route MTU for changes"
 	case ErrorSetNetConfig:
-		return "Unable to set interface addresses, routes, dns, and/or interface settings"
+		return "Unable to configure adapter network settings"
 	case ErrorTrackTunnels:
 		return "Unable to track existing tunnels"
 	case ErrorEnumerateSessions:

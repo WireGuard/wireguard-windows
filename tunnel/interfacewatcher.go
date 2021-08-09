@@ -6,6 +6,7 @@
 package tunnel
 
 import (
+	"fmt"
 	"log"
 	"sync"
 
@@ -145,7 +146,7 @@ func watchInterface() (*interfaceWatcher, error) {
 		iw.setup(iface.Family)
 	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("unable to register interface change callback: %w", err)
 	}
 	return iw, nil
 }
