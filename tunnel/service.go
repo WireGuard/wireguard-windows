@@ -94,7 +94,7 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 			}
 		}()
 
-		if logErr == nil && dev != nil && config != nil {
+		if logErr == nil && (dev != nil || adapter != nil) && config != nil {
 			logErr = runScriptCommand(config.Interface.PreDown, config.Name)
 		}
 		if watcher != nil {
@@ -106,7 +106,10 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 		if dev != nil {
 			dev.Close()
 		}
-		if logErr == nil && dev != nil && config != nil {
+		if adapter != nil {
+			adapter.Delete()
+		}
+		if logErr == nil && (dev != nil || adapter != nil) && config != nil {
 			_ = runScriptCommand(config.Interface.PostDown, config.Name)
 		}
 		stopIt <- true
@@ -200,7 +203,6 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 			serviceError = services.ErrorCreateNetworkAdapter
 			return
 		}
-		defer adapter.Delete()
 		luid = adapter.LUID()
 		driverVersion, err := driver.RunningVersion()
 		if err != nil {
@@ -293,6 +295,7 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 			}
 		}()
 	} else {
+		log.Println("Setting interface configuration")
 		err = adapter.SetConfiguration(config.ToDriverConfiguration())
 		if err != nil {
 			serviceError = services.ErrorDeviceSetConfig
