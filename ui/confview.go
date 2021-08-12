@@ -41,6 +41,7 @@ type labelTextLine struct {
 type toggleActiveLine struct {
 	composite *walk.Composite
 	button    *walk.PushButton
+	betaTest  *walk.CheckBox
 }
 
 type interfaceView struct {
@@ -211,6 +212,12 @@ func (tal *toggleActiveLine) widgets() (walk.Widget, walk.Widget) {
 
 func (tal *toggleActiveLine) updateGlobal(globalState manager.TunnelState) {
 	tal.button.SetEnabled(globalState == manager.TunnelStarted || globalState == manager.TunnelStopped)
+	tal.betaTest.SetVisible(globalState == manager.TunnelStopped && IsAdmin)
+	if globalState == manager.TunnelStopped && IsAdmin {
+		tal.composite.Layout().SetMargins(walk.Margins{})
+	} else {
+		tal.composite.Layout().SetMargins(walk.Margins{0, 0, 0, 6})
+	}
 }
 
 func (tal *toggleActiveLine) update(state manager.TunnelState) {
@@ -246,16 +253,55 @@ func newToggleActiveLine(parent walk.Container) (*toggleActiveLine, error) {
 		return nil, err
 	}
 	disposables.Add(tal.composite)
-	layout := walk.NewHBoxLayout()
-	layout.SetMargins(walk.Margins{0, 0, 0, 6})
-	tal.composite.SetLayout(layout)
+	vlayout := walk.NewVBoxLayout()
+	vlayout.SetMargins(walk.Margins{})
+	vlayout.SetSpacing(0)
+	tal.composite.SetLayout(vlayout)
 
-	if tal.button, err = walk.NewPushButton(tal.composite); err != nil {
+	buttonComposite, err := walk.NewComposite(tal.composite)
+	if err != nil {
+		return nil, err
+	}
+	hlayout := walk.NewHBoxLayout()
+	hlayout.SetMargins(walk.Margins{})
+	buttonComposite.SetLayout(hlayout)
+	if tal.button, err = walk.NewPushButton(buttonComposite); err != nil {
 		return nil, err
 	}
 	disposables.Add(tal.button)
-	walk.NewHSpacer(tal.composite)
+	walk.NewHSpacer(buttonComposite)
 	tal.update(manager.TunnelStopped)
+
+	betaComposite, err := walk.NewComposite(tal.composite)
+	if err != nil {
+		return nil, err
+	}
+	hlayout = walk.NewHBoxLayout()
+	hlayout.SetMargins(walk.Margins{})
+	betaComposite.SetLayout(hlayout)
+	if tal.betaTest, err = walk.NewCheckBox(betaComposite); err != nil {
+		return nil, err
+	}
+	tal.betaTest.SetText(l18n.Sprintf("&Test experimental kernel driver"))
+	tal.betaTest.SetVisible(IsAdmin)
+	const experimentalKernelDriver = "ExperimentalKernelDriver"
+	tal.betaTest.SetChecked(conf.AdminBool(experimentalKernelDriver))
+	tal.betaTest.CheckedChanged().Attach(func() {
+		if tal.betaTest.Checked() {
+			if walk.MsgBox(parent.Form(), l18n.Sprintf("Enable experimental kernel driver?"),
+				l18n.Sprintf("The WireGuard project is currently testing a high performance kernel driver "+
+					"called WireGuardNT. It will eventually be enabled by default, but for now the project needs "+
+					"testers to try it out. Whether you encounter problems or you find that it works well, please do "+
+					"email team@wireguard.com about your experience.\n\nWould you like to enable the experimental "+
+					"kernel driver?"), walk.MsgBoxIconQuestion|walk.MsgBoxYesNo) != walk.DlgCmdYes {
+				tal.betaTest.SetChecked(false)
+			}
+		}
+		if conf.SetAdminBool(experimentalKernelDriver, tal.betaTest.Checked()) != nil {
+			tal.betaTest.SetChecked(conf.AdminBool(experimentalKernelDriver))
+		}
+	})
+	walk.NewHSpacer(betaComposite)
 
 	disposables.Spare()
 

@@ -16,7 +16,7 @@ func openAdminKey() (registry.Key, error) {
 		return adminKey, nil
 	}
 	var err error
-	adminKey, err = registry.OpenKey(registry.LOCAL_MACHINE, adminRegKey, registry.QUERY_VALUE|registry.WOW64_64KEY)
+	adminKey, err = registry.OpenKey(registry.LOCAL_MACHINE, adminRegKey, registry.QUERY_VALUE|registry.SET_VALUE|registry.WOW64_64KEY)
 	if err != nil {
 		return 0, err
 	}
@@ -33,4 +33,16 @@ func AdminBool(name string) bool {
 		return false
 	}
 	return val != 0
+}
+
+func SetAdminBool(name string, val bool) error {
+	key, err := openAdminKey()
+	if err != nil {
+		return err
+	}
+	if val {
+		return key.SetDWordValue(name, 1)
+	} else {
+		return key.DeleteValue(name)
+	}
 }
