@@ -91,8 +91,9 @@ func NewTunnelsPage() (*TunnelsPage, error) {
 	if err != nil {
 		return nil, err
 	}
-	controlsContainer.SetLayout(walk.NewHBoxLayout())
-	controlsContainer.Layout().SetMargins(walk.Margins{})
+	hlayout = walk.NewHBoxLayout()
+	hlayout.SetMargins(walk.Margins{})
+	controlsContainer.SetLayout(hlayout)
 
 	walk.NewHSpacer(controlsContainer)
 
