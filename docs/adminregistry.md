@@ -38,20 +38,6 @@ executing these scripts.
 > reg add HKLM\Software\WireGuard /v DangerousScriptExecution /t REG_DWORD /d 1 /f
 ```
 
-#### `HKLM\Software\WireGuard\MultipleSimultaneousTunnels`
-
-When this key is set to `DWORD(1)`, the UI may start multiple tunnels at the
-same time; otherwise, an existing tunnel is stopped when a new one is started.
-Note that it is always possible, regardless of this key, to start multiple
-tunnels using `wireguard /installtunnelservice`; this controls only the semantics
-of tunnel start requests coming from the UI. If all goes well, this key will be
-removed and the logic of whether to stop existing tunnels will be based on
-overlapping routes, but for now, this key provides a manual override.
-
-```
-> reg add HKLM\Software\WireGuard /v MultipleSimultaneousTunnels /t REG_DWORD /d 1 /f
-```
-
 #### `HKLM\Software\WireGuard\ExperimentalKernelDriver`
 
 When this key is set to `DWORD(1)`, an experimental kernel driver from the
