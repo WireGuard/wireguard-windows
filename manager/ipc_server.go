@@ -47,7 +47,7 @@ func (s *ManagerService) StoredConfig(tunnelName string) (*conf.Config, error) {
 }
 
 func (s *ManagerService) RuntimeConfig(tunnelName string) (*conf.Config, error) {
-	if conf.AdminBool("ExperimentalKernelDriver") {
+	if !conf.AdminBool("UseUserspaceImplementation") {
 		storedConfig, err := conf.LoadFromName(tunnelName)
 		if err != nil {
 			return nil, err

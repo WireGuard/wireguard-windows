@@ -38,14 +38,16 @@ executing these scripts.
 > reg add HKLM\Software\WireGuard /v DangerousScriptExecution /t REG_DWORD /d 1 /f
 ```
 
-#### `HKLM\Software\WireGuard\ExperimentalKernelDriver`
+#### `HKLM\Software\WireGuard\UseUserspaceImplementation`
 
-When this key is set to `DWORD(1)`, an experimental kernel driver from the
-[WireGuardNT](https://git.zx2c4.com/wireguard-nt/about/) project is used instead
-of the much slower wireguard-go/Wintun implementation. There are significant
-performance gains, but do note that this is _currently_ considered experimental,
-and hence is not recommended.
+When this key is set to `DWORD(1)`, the legacy wireguard-go/Wintun implementation
+is used instead of the newer, faster [WireGuardNT](https://git.zx2c4.com/wireguard-nt/about/)
+implementation. This is an intended stop-gap solution in case there are early bugs
+with WireGuardNT, and this option will be removed after a short period. If you use
+this option, please send an email to team@wireguard.com explaining the issues you
+had with WireGuardNT, so that they can be fixed before this option goes away. If
+you are not having issues, do not use this option.
 
 ```
-> reg add HKLM\Software\WireGuard /v ExperimentalKernelDriver /t REG_DWORD /d 1 /f
+> reg add HKLM\Software\WireGuard /v UseUserspaceImplementation /t REG_DWORD /d 1 /f
 ```

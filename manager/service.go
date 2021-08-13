@@ -17,6 +17,7 @@ import (
 
 	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/svc"
+	"golang.zx2c4.com/wireguard/tun"
 
 	"golang.zx2c4.com/wireguard/windows/conf"
 	"golang.zx2c4.com/wireguard/windows/elevate"
@@ -261,6 +262,11 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 	}
 
 	time.AfterFunc(time.Second*10, cleanupStaleNetworkInterfaces)
+	time.AfterFunc(time.Second*15, func() {
+		if !conf.AdminBool("UseUserspaceImplementation") {
+			tun.WintunPool.DeleteDriver()
+		}
+	})
 	go checkForUpdates()
 
 	var sessionsPointer *windows.WTS_SESSION_INFO

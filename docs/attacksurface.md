@@ -4,14 +4,6 @@ _This is an evolving document, describing currently known attack surface, a few 
 
 WireGuard for Windows consists of four components: a kernel driver, and three separate interacting userspace parts.
 
-### Wintun
-
-Wintun is a kernel driver. It exposes:
-
-  - A miniport driver to the ndis stack, meaning any process on the system that can access the network stack in a reasonable way can send and receive packets, hitting those related ndis handlers.
-  - There are also various ndis OID calls, accessible to certain users, which hit further code.
-  - IOCTLs are added to the NDIS device file, and those IOCTLs are restricted to `O:SYD:P(A;;FA;;;SY)(A;;FA;;;BA)S:(ML;;NWNRNX;;;HI)`. The IOCTL allows userspace to register a pair of rings and event objects, which Wintun then locks the pages of with a double mapping and takes a reference to the event object. It parses the contents of the ring to send and receive layer 3 packets, each of which it minimally parses to determine IP family.
-
 ### WireGuardNT
 
 WireGuardNT is a kernel driver. It exposes:
@@ -24,12 +16,9 @@ WireGuardNT is a kernel driver. It exposes:
 
 ### Tunnel Service
 
-The tunnel service is a userspace service running as Local System, responsible for either A) creating UDP sockets, creating Wintun adapters, and speaking the WireGuard protocol between the two, or B) creating WireGuardNT adapters and configuring them. It exposes:
+The tunnel service is a userspace service running as Local System, responsible for creating WireGuardNT adapters and configuring them. It exposes:
 
-  - In case A) a listening pipe in `\\.\pipe\ProtectedPrefix\Administrators\WireGuard\%s`, where `%s` is some basename of an already valid filename. Its DACL is set to `O:SYD:P(A;;GA;;;SY)(A;;GA;;;BA)S:(ML;;NWNRNX;;;HI)`. If the config file used by the tunnel service is not DPAPI-encrypted and it is owned by a SID other than "Local System" then an additional ACE is added giving that file owner SID access to the named pipe. This pipe gives access to private keys and allows for reconfiguration of the interface, as well as rebinding to different ports (below 1024, even). Clients who connect to the pipe run `GetSecurityInfo` to verify that it is owned by "Local System".
-  - A global mutex is used for Wintun/WireGuardNT interface creation, with the same DACL as the pipe, but first CreatePrivateNamespace is called with a "Local System" SID.
-  - In case A) it handles data from its two UDP sockets, accessible to the public Internet.
-  - In case A) it handles data from Wintun, accessible to all users who can do anything with the network stack.
+  - A global mutex is used for WireGuardNT interface creation, with the same DACL as the pipe, but first CreatePrivateNamespace is called with a "Local System" SID.
   - After some initial setup, it uses `AdjustTokenPrivileges` to remove all privileges, except for `SeLoadDriverPrivilege`, so that it can remove the interface when shutting down. This latter point is rather unfortunate, as `SeLoadDriverPrivilege` can be used for all sorts of interesting escalation. Future work includes forking an additional process or the like so that we can drop this from the main tunnel process.
 
 ### Manager Service
