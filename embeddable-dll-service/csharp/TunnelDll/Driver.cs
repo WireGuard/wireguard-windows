@@ -12,11 +12,11 @@ namespace Tunnel
 {
     public class Driver
     {
-        [DllImport("wireguard.dll", EntryPoint = "WireGuardOpenAdapter", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        [DllImport("wireguard.dll", EntryPoint = "WireGuardOpenAdapter", CallingConvention = CallingConvention.StdCall, SetLastError = true)]
         private static extern IntPtr openAdapter([MarshalAs(UnmanagedType.LPWStr)] string pool, [MarshalAs(UnmanagedType.LPWStr)] string name);
-        [DllImport("wireguard.dll", EntryPoint = "WireGuardFreeAdapter", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("wireguard.dll", EntryPoint = "WireGuardFreeAdapter", CallingConvention = CallingConvention.StdCall)]
         private static extern void freeAdapter(IntPtr adapter);
-        [DllImport("wireguard.dll", EntryPoint = "WireGuardGetConfiguration", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        [DllImport("wireguard.dll", EntryPoint = "WireGuardGetConfiguration", CallingConvention = CallingConvention.StdCall, SetLastError = true)]
         private static extern bool getConfiguration(IntPtr adapter, byte[] iface, ref UInt32 bytes);
 
         private const string defaultPool = "WireGuard";
