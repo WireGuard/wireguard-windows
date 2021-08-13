@@ -967,7 +967,7 @@ func (tab *mibIPforwardTable2) free() {
 // DNS API
 //
 
-// dnsInterfaceSettings is mean to be used with setInterfaceDnsSettings
+// DnsInterfaceSettings is meant to be used with SetInterfaceDnsSettings
 type DnsInterfaceSettings struct {
 	Version             uint32
 	_                   [4]byte
