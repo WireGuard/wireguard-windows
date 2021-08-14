@@ -180,7 +180,7 @@ namespace Tunnel
             public ADDRESS_FAMILY si_family;
         }
 
-        public enum ADDRESS_FAMILY : UInt32
+        public enum ADDRESS_FAMILY : UInt16
         {
             AF_UNSPEC = 0,
             AF_INET = 2,

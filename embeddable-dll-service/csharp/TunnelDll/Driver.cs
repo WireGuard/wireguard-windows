@@ -74,13 +74,13 @@ namespace Tunnel
                             {
                                 var ip = new byte[4];
                                 Marshal.Copy((IntPtr)ioctlPeer->Endpoint.Ipv4.sin_addr.bytes, ip, 0, 4);
-                                peer.Endpoint = new IPEndPoint(new IPAddress(ip), IPAddress.NetworkToHostOrder(ioctlPeer->Endpoint.Ipv4.sin_port));
+                                peer.Endpoint = new IPEndPoint(new IPAddress(ip), (ushort)IPAddress.NetworkToHostOrder((short)ioctlPeer->Endpoint.Ipv4.sin_port));
                             }
                             else if (ioctlPeer->Endpoint.si_family == Win32.ADDRESS_FAMILY.AF_INET6)
                             {
                                 var ip = new byte[16];
                                 Marshal.Copy((IntPtr)ioctlPeer->Endpoint.Ipv6.sin6_addr.bytes, ip, 0, 16);
-                                peer.Endpoint = new IPEndPoint(new IPAddress(ip), IPAddress.NetworkToHostOrder(ioctlPeer->Endpoint.Ipv6.sin6_port));
+                                peer.Endpoint = new IPEndPoint(new IPAddress(ip), (ushort)IPAddress.NetworkToHostOrder((short)ioctlPeer->Endpoint.Ipv6.sin6_port));
                             }
                         }
                         peer.TxBytes = ioctlPeer->TxBytes;
