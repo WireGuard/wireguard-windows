@@ -24,7 +24,7 @@ if exist .deps\prepared goto :render
 	rem Mirror of https://sourceforge.net/projects/gnuwin32/files/patch/2.5.9-7/patch-2.5.9-7-bin.zip with fixed manifest
 	call :download patch.zip https://download.wireguard.com/windows-toolchain/distfiles/patch-2.5.9-7-bin-fixed-manifest.zip 25977006ca9713f2662a5d0a2ed3a5a138225b8be3757035bd7da9dcf985d0a1 "--strip-components 1 bin" || goto :error
 	call :download wintun.zip https://www.wintun.net/builds/wintun-0.13.zip 34afe7d0de1fdb781af3defc0a75fd8c97daa756279b42dd6be6a1bd8ccdc7f0 || goto :error
-	call :download wireguard-nt.zip https://download.wireguard.com/wireguard-nt/wireguard-nt-0.4.zip f2d9784dcf4c1920a71b1c3af332b55debdbafc6cbcf89cbefb6be8b0f1a5465 || goto :error
+	call :download wireguard-nt.zip https://download.wireguard.com/wireguard-nt/wireguard-nt-0.5.zip bf29e3f97a23db84379f6c2e7057cd1cc32c40a8b2d89a90c8a4463ce5dd3e83 || goto :error
 	echo [+] Patching go
 	for %%a in ("..\go-patches\*.patch") do .\patch.exe -f -N -r- -d go -p1 --binary < "%%a" || goto :error
 	copy /y NUL prepared > NUL || goto :error
