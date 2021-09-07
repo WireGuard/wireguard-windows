@@ -1,0 +1,11 @@
+{
+    "language": "ko",
+    "messages": [
+        {
+            "id": "Error",
+            "message": "Error",
+            "translation": "오류",
+            "translatorComment": "Copied from source."
+        }
+    ]
+}

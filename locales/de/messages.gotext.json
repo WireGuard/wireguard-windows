@@ -744,6 +744,30 @@
             "translatorComment": "Copied from source."
         },
         {
+            "id": "pre-up",
+            "message": "pre-up",
+            "translation": "vor Verbindsaufbau",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "post-up",
+            "message": "post-up",
+            "translation": "nach Verbindungsaufbau",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "pre-down",
+            "message": "pre-down",
+            "translation": "vor Verbindungsabbau",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "post-down",
+            "message": "post-down",
+            "translation": "nach Verbindungsabbau",
+            "translatorComment": "Copied from source."
+        },
+        {
             "id": "disabled, per policy",
             "message": "disabled, per policy",
             "translation": "deaktiviert, per Richtlinie",
@@ -1141,6 +1165,12 @@
             "id": "E&xit",
             "message": "E&xit",
             "translation": "&Beenden",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "&Tunnels",
+            "message": "&Tunnels",
+            "translation": "&Tunnel",
             "translatorComment": "Copied from source."
         },
         {

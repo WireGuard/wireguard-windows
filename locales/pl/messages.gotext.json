@@ -16,7 +16,7 @@
         {
             "id": "Usage: {Args0} [\n{String}]",
             "message": "Usage: {Args0} [\n{String}]",
-            "translation": "Użycie: {Args0} [{String}]",
+            "translation": "Użycie: {Args0} [\n{String}]",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -62,7 +62,7 @@
         {
             "id": "You must use the native version of WireGuard on this computer.",
             "message": "You must use the native version of WireGuard on this computer.",
-            "translation": "Musisz użyć natywnej wersji WireGuard na tym komputerze.",
+            "translation": "Należy użyć natywnej wersji WireGuard na tym komputerze.",
             "translatorComment": "Copied from source."
         },
         {
@@ -149,7 +149,7 @@
                             "msg": "{Years} lat"
                         },
                         "other": {
-                            "msg": "{Years} lata"
+                            "msg": "{Years} lat"
                         }
                     }
                 }
@@ -217,7 +217,7 @@
                             "msg": "{Hours} godzin"
                         },
                         "other": {
-                            "msg": "{Hours} godziny"
+                            "msg": "{Hours} godzin"
                         }
                     }
                 }

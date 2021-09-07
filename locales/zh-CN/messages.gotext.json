@@ -495,13 +495,13 @@
         {
             "id": "Invalid key for [Interface] section",
             "message": "Invalid key for [Interface] section",
-            "translation": "[Interface] 段落的键无效",
+            "translation": "[Interface] 段落中的该键无效",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid key for [Peer] section",
             "message": "Invalid key for [Peer] section",
-            "translation": "[Peer] 段落的键无效",
+            "translation": "[Peer] 段落中的该键无效",
             "translatorComment": "Copied from source."
         },
         {
@@ -519,7 +519,7 @@
         {
             "id": "All peers must have public keys",
             "message": "All peers must have public keys",
-            "translation": "所有节点必须拥有公钥。",
+            "translation": "每个节点都必须指定公钥",
             "translatorComment": "Copied from source."
         },
         {
