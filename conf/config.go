@@ -132,7 +132,7 @@ func (conf *Config) IntersectsWith(other *Config) bool {
 }
 
 func (e *Endpoint) String() string {
-	if strings.IndexByte(e.Host, ':') > 0 {
+	if strings.IndexByte(e.Host, ':') != -1 {
 		return fmt.Sprintf("[%s]:%d", e.Host, e.Port)
 	}
 	return fmt.Sprintf("%s:%d", e.Host, e.Port)
