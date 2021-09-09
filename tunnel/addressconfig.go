@@ -147,24 +147,17 @@ func configureInterface(family winipcfg.AddressFamily, conf *conf.Config, luid w
 	if err != nil {
 		return err
 	}
+	ipif.RouterDiscoveryBehavior = winipcfg.RouterDiscoveryDisabled
+	ipif.DadTransmits = 0
 	if conf.Interface.MTU > 0 {
 		ipif.NLMTU = uint32(conf.Interface.MTU)
 		if clamper != nil {
 			clamper.ForceMTU(int(ipif.NLMTU))
 		}
 	}
-	if family == windows.AF_INET {
-		if foundDefault4 {
-			ipif.UseAutomaticMetric = false
-			ipif.Metric = 0
-		}
-	} else if family == windows.AF_INET6 {
-		if foundDefault6 {
-			ipif.UseAutomaticMetric = false
-			ipif.Metric = 0
-		}
-		ipif.DadTransmits = 0
-		ipif.RouterDiscoveryBehavior = winipcfg.RouterDiscoveryDisabled
+	if (family == windows.AF_INET && foundDefault4) || (family == windows.AF_INET6 && foundDefault6) {
+		ipif.UseAutomaticMetric = false
+		ipif.Metric = 0
 	}
 	err = ipif.Set()
 	if err != nil {
