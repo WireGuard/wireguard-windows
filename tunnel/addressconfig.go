@@ -100,15 +100,6 @@ func configureInterface(family winipcfg.AddressFamily, conf *conf.Config, luid w
 		}
 	}
 
-	err := luid.SetIPAddressesForFamily(family, addresses)
-	if err == windows.ERROR_OBJECT_ALREADY_EXISTS {
-		cleanupAddressesOnDisconnectedInterfaces(family, addresses)
-		err = luid.SetIPAddressesForFamily(family, addresses)
-	}
-	if err != nil {
-		return fmt.Errorf("unable to set ips %v: %w", addresses, err)
-	}
-
 	deduplicatedRoutes := make([]*winipcfg.RouteData, 0, len(routes))
 	sort.Slice(routes, func(i, j int) bool {
 		if routes[i].Metric != routes[j].Metric {
@@ -136,11 +127,19 @@ func configureInterface(family winipcfg.AddressFamily, conf *conf.Config, luid w
 	}
 
 	if !conf.Interface.TableOff {
-		err = luid.SetRoutesForFamily(family, deduplicatedRoutes)
+		err := luid.SetRoutesForFamily(family, deduplicatedRoutes)
 		if err != nil {
 			return fmt.Errorf("unable to set routes %v: %w", deduplicatedRoutes, err)
-			return err
 		}
+	}
+
+	err := luid.SetIPAddressesForFamily(family, addresses)
+	if err == windows.ERROR_OBJECT_ALREADY_EXISTS {
+		cleanupAddressesOnDisconnectedInterfaces(family, addresses)
+		err = luid.SetIPAddressesForFamily(family, addresses)
+	}
+	if err != nil {
+		return fmt.Errorf("unable to set ips %v: %w", addresses, err)
 	}
 
 	ipif, err := luid.IPInterface(family)
