@@ -149,6 +149,8 @@ func configureInterface(family winipcfg.AddressFamily, conf *conf.Config, luid w
 	}
 	ipif.RouterDiscoveryBehavior = winipcfg.RouterDiscoveryDisabled
 	ipif.DadTransmits = 0
+	ipif.ManagedAddressConfigurationSupported = false
+	ipif.OtherStatefulConfigurationSupported = false
 	if conf.Interface.MTU > 0 {
 		ipif.NLMTU = uint32(conf.Interface.MTU)
 		if clamper != nil {
