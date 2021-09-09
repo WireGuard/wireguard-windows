@@ -5,7 +5,11 @@
 
 package conf
 
-import "golang.org/x/sys/windows/registry"
+import (
+	"strings"
+
+	"golang.org/x/sys/windows/registry"
+)
 
 const adminRegKey = `Software\WireGuard`
 
@@ -23,7 +27,34 @@ func openAdminKey() (registry.Key, error) {
 	return adminKey, nil
 }
 
+func IsInsiderEnrolled() bool {
+	if AdminBool("IgnoreInsiderProgram") {
+		return false
+	}
+	key, err := registry.OpenKey(registry.LOCAL_MACHINE, `SOFTWARE\Microsoft\WindowsSelfHost\Applicability`, registry.QUERY_VALUE)
+	if err != nil {
+		return false
+	}
+	defer key.Close()
+	val, _, err := key.GetIntegerValue("IsBuildFlightingEnabled")
+	if err != nil || val != 1 {
+		return false
+	}
+	val, _, err = key.GetIntegerValue("EnablePreviewBuilds")
+	if err != nil || val != 1 {
+		return false
+	}
+	ring, _, err := key.GetStringValue("Ring")
+	if err != nil || !strings.EqualFold(ring, "external") {
+		return false
+	}
+	return true
+}
+
 func AdminBool(name string) bool {
+	if name == "ExperimentalKernelDriver" && IsInsiderEnrolled() {
+		return true
+	}
 	key, err := openAdminKey()
 	if err != nil {
 		return false

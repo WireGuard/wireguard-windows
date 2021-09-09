@@ -212,8 +212,8 @@ func (tal *toggleActiveLine) widgets() (walk.Widget, walk.Widget) {
 
 func (tal *toggleActiveLine) updateGlobal(globalState manager.TunnelState) {
 	tal.button.SetEnabled(globalState == manager.TunnelStarted || globalState == manager.TunnelStopped)
-	tal.betaTest.SetVisible(globalState == manager.TunnelStopped && IsAdmin)
-	if globalState == manager.TunnelStopped && IsAdmin {
+	tal.betaTest.SetVisible(globalState == manager.TunnelStopped && IsAdmin && !conf.IsInsiderEnrolled())
+	if globalState == manager.TunnelStopped && IsAdmin && !conf.IsInsiderEnrolled() {
 		tal.composite.Layout().SetMargins(walk.Margins{})
 	} else {
 		tal.composite.Layout().SetMargins(walk.Margins{0, 0, 0, 6})
@@ -283,7 +283,7 @@ func newToggleActiveLine(parent walk.Container) (*toggleActiveLine, error) {
 		return nil, err
 	}
 	tal.betaTest.SetText(l18n.Sprintf("&Test experimental kernel driver"))
-	tal.betaTest.SetVisible(IsAdmin)
+	tal.betaTest.SetVisible(IsAdmin && !conf.IsInsiderEnrolled())
 	const experimentalKernelDriver = "ExperimentalKernelDriver"
 	tal.betaTest.SetChecked(conf.AdminBool(experimentalKernelDriver))
 	tal.betaTest.CheckedChanged().Attach(func() {
