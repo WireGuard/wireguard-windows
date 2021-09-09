@@ -98,6 +98,9 @@ func (luid LUID) AddIPAddress(address net.IPNet) error {
 	row := &MibUnicastIPAddressRow{}
 	row.Init()
 	row.InterfaceLUID = luid
+	row.DadState = DadStatePreferred
+	row.ValidLifetime = 0xffffffff
+	row.PreferredLifetime = 0xffffffff
 	err := row.Address.SetIP(address.IP, 0)
 	if err != nil {
 		return err
@@ -189,6 +192,8 @@ func (luid LUID) Route(destination net.IPNet, nextHop net.IP) (*MibIPforwardRow2
 	row := &MibIPforwardRow2{}
 	row.Init()
 	row.InterfaceLUID = luid
+	row.ValidLifetime = 0xffffffff
+	row.PreferredLifetime = 0xffffffff
 	err := row.DestinationPrefix.SetIPNet(destination)
 	if err != nil {
 		return nil, err
