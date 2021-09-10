@@ -113,13 +113,14 @@ func (s *ManagerService) Start(tunnelName string) error {
 		return err
 	}
 
+	maj, _, _ := windows.RtlGetNtVersionNumbers()
 	// Figure out which tunnels have intersecting addresses/routes and stop those.
 	trackedTunnelsLock.Lock()
 	tt := make([]string, 0, len(trackedTunnels))
 	var inTransition string
 	for t, state := range trackedTunnels {
 		c2, err := conf.LoadFromName(t)
-		if err != nil || !c.IntersectsWith(c2) {
+		if maj >= 10 && (err != nil || !c.IntersectsWith(c2)) {
 			// If we can't get the config, assume it doesn't intersect.
 			continue
 		}
