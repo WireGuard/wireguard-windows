@@ -9,7 +9,6 @@ import (
 	"crypto/rand"
 	"crypto/subtle"
 	"encoding/base64"
-	"encoding/hex"
 	"fmt"
 	"net"
 	"strings"
@@ -144,10 +143,6 @@ func (e *Endpoint) IsEmpty() bool {
 
 func (k *Key) String() string {
 	return base64.StdEncoding.EncodeToString(k[:])
-}
-
-func (k *Key) HexString() string {
-	return hex.EncodeToString(k[:])
 }
 
 func (k *Key) IsZero() bool {

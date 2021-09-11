@@ -91,41 +91,6 @@ func (conf *Config) ToWgQuick() string {
 	return output.String()
 }
 
-func (conf *Config) ToUAPI() string {
-	var output strings.Builder
-	output.WriteString(fmt.Sprintf("private_key=%s\n", conf.Interface.PrivateKey.HexString()))
-
-	if conf.Interface.ListenPort > 0 {
-		output.WriteString(fmt.Sprintf("listen_port=%d\n", conf.Interface.ListenPort))
-	}
-
-	if len(conf.Peers) > 0 {
-		output.WriteString("replace_peers=true\n")
-	}
-
-	for _, peer := range conf.Peers {
-		output.WriteString(fmt.Sprintf("public_key=%s\n", peer.PublicKey.HexString()))
-
-		if !peer.PresharedKey.IsZero() {
-			output.WriteString(fmt.Sprintf("preshared_key=%s\n", peer.PresharedKey.HexString()))
-		}
-
-		if !peer.Endpoint.IsEmpty() {
-			output.WriteString(fmt.Sprintf("endpoint=%s\n", peer.Endpoint.String()))
-		}
-
-		output.WriteString(fmt.Sprintf("persistent_keepalive_interval=%d\n", peer.PersistentKeepalive))
-
-		if len(peer.AllowedIPs) > 0 {
-			output.WriteString("replace_allowed_ips=true\n")
-			for _, address := range peer.AllowedIPs {
-				output.WriteString(fmt.Sprintf("allowed_ip=%s\n", address.String()))
-			}
-		}
-	}
-	return output.String()
-}
-
 func (config *Config) ToDriverConfiguration() (*driver.Interface, uint32) {
 	preallocation := unsafe.Sizeof(driver.Interface{}) + uintptr(len(config.Peers))*unsafe.Sizeof(driver.Peer{})
 	for i := range config.Peers {

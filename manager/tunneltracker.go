@@ -260,7 +260,6 @@ func trackTunnelService(tunnelName string, service *mgr.Service) {
 		IPCServerNotifyTunnelChange(tunnelName, TunnelStopped, fmt.Errorf("Unable to continue monitoring service, so stopping: %w", err))
 		service.Control(svc.Stop)
 	}
-	disconnectTunnelServicePipe(tunnelName)
 }
 
 func trackExistingTunnels() error {

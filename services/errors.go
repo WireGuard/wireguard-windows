@@ -18,7 +18,6 @@ const (
 	ErrorRingloggerOpen
 	ErrorLoadConfiguration
 	ErrorCreateNetworkAdapter
-	ErrorUAPIListen
 	ErrorDNSLookup
 	ErrorFirewall
 	ErrorDeviceSetConfig
@@ -46,8 +45,6 @@ func (e Error) Error() string {
 		return "Unable to load configuration from path"
 	case ErrorCreateNetworkAdapter:
 		return "Unable to create network adapter"
-	case ErrorUAPIListen:
-		return "Unable to listen on named pipe"
 	case ErrorDNSLookup:
 		return "Unable to resolve one or more DNS hostname endpoints"
 	case ErrorFirewall:

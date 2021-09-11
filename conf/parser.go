@@ -6,19 +6,15 @@
 package conf
 
 import (
-	"bufio"
 	"encoding/base64"
-	"encoding/hex"
-	"io"
 	"net"
 	"strconv"
 	"strings"
-	"time"
 
 	"golang.org/x/sys/windows"
 	"golang.org/x/text/encoding/unicode"
-	"golang.zx2c4.com/wireguard/windows/driver"
 
+	"golang.zx2c4.com/wireguard/windows/driver"
 	"golang.zx2c4.com/wireguard/windows/l18n"
 )
 
@@ -160,27 +156,6 @@ func parseKeyBase64(s string) (*Key, error) {
 	var key Key
 	copy(key[:], k)
 	return &key, nil
-}
-
-func parseKeyHex(s string) (*Key, error) {
-	k, err := hex.DecodeString(s)
-	if err != nil {
-		return nil, &ParseError{l18n.Sprintf("Invalid key: %v", err), s}
-	}
-	if len(k) != KeyLength {
-		return nil, &ParseError{l18n.Sprintf("Keys must decode to exactly 32 bytes"), s}
-	}
-	var key Key
-	copy(key[:], k)
-	return &key, nil
-}
-
-func parseBytesOrStamp(s string) (uint64, error) {
-	b, err := strconv.ParseUint(s, 10, 64)
-	if err != nil {
-		return 0, &ParseError{l18n.Sprintf("Number must be a number between 0 and 2^64-1: %v", err), s}
-	}
-	return b, nil
 }
 
 func splitList(s string) ([]string, error) {
@@ -385,143 +360,6 @@ func FromWgQuickWithUnknownEncoding(s string, name string) (*Config, error) {
 		}
 	}
 	return nil, firstErr
-}
-
-func FromUAPI(reader io.Reader, existingConfig *Config) (*Config, error) {
-	parserState := inInterfaceSection
-	conf := Config{
-		Name: existingConfig.Name,
-		Interface: Interface{
-			Addresses: existingConfig.Interface.Addresses,
-			DNS:       existingConfig.Interface.DNS,
-			DNSSearch: existingConfig.Interface.DNSSearch,
-			MTU:       existingConfig.Interface.MTU,
-			PreUp:     existingConfig.Interface.PreUp,
-			PostUp:    existingConfig.Interface.PostUp,
-			PreDown:   existingConfig.Interface.PreDown,
-			PostDown:  existingConfig.Interface.PostDown,
-			TableOff:  existingConfig.Interface.TableOff,
-		},
-	}
-	var peer *Peer
-	lineReader := bufio.NewReader(reader)
-	for {
-		line, err := lineReader.ReadString('\n')
-		if err != nil {
-			return nil, err
-		}
-		line = line[:len(line)-1]
-		if len(line) == 0 {
-			break
-		}
-		equals := strings.IndexByte(line, '=')
-		if equals < 0 {
-			return nil, &ParseError{l18n.Sprintf("Config key is missing an equals separator"), line}
-		}
-		key, val := line[:equals], line[equals+1:]
-		if len(val) == 0 {
-			return nil, &ParseError{l18n.Sprintf("Key must have a value"), line}
-		}
-		switch key {
-		case "public_key":
-			conf.maybeAddPeer(peer)
-			peer = &Peer{}
-			parserState = inPeerSection
-		case "errno":
-			if val == "0" {
-				continue
-			} else {
-				return nil, &ParseError{l18n.Sprintf("Error in getting configuration"), val}
-			}
-		}
-		if parserState == inInterfaceSection {
-			switch key {
-			case "private_key":
-				k, err := parseKeyHex(val)
-				if err != nil {
-					return nil, err
-				}
-				conf.Interface.PrivateKey = *k
-			case "listen_port":
-				p, err := parsePort(val)
-				if err != nil {
-					return nil, err
-				}
-				conf.Interface.ListenPort = p
-			case "fwmark":
-				// Ignored for now.
-
-			default:
-				return nil, &ParseError{l18n.Sprintf("Invalid key for interface section"), key}
-			}
-		} else if parserState == inPeerSection {
-			switch key {
-			case "public_key":
-				k, err := parseKeyHex(val)
-				if err != nil {
-					return nil, err
-				}
-				peer.PublicKey = *k
-			case "preshared_key":
-				k, err := parseKeyHex(val)
-				if err != nil {
-					return nil, err
-				}
-				peer.PresharedKey = *k
-			case "protocol_version":
-				if val != "1" {
-					return nil, &ParseError{l18n.Sprintf("Protocol version must be 1"), val}
-				}
-			case "allowed_ip":
-				a, err := parseIPCidr(val)
-				if err != nil {
-					return nil, err
-				}
-				peer.AllowedIPs = append(peer.AllowedIPs, *a)
-			case "persistent_keepalive_interval":
-				p, err := parsePersistentKeepalive(val)
-				if err != nil {
-					return nil, err
-				}
-				peer.PersistentKeepalive = p
-			case "endpoint":
-				e, err := parseEndpoint(val)
-				if err != nil {
-					return nil, err
-				}
-				peer.Endpoint = *e
-			case "tx_bytes":
-				b, err := parseBytesOrStamp(val)
-				if err != nil {
-					return nil, err
-				}
-				peer.TxBytes = Bytes(b)
-			case "rx_bytes":
-				b, err := parseBytesOrStamp(val)
-				if err != nil {
-					return nil, err
-				}
-				peer.RxBytes = Bytes(b)
-			case "last_handshake_time_sec":
-				t, err := parseBytesOrStamp(val)
-				if err != nil {
-					return nil, err
-				}
-				peer.LastHandshakeTime += HandshakeTime(time.Duration(t) * time.Second)
-			case "last_handshake_time_nsec":
-				t, err := parseBytesOrStamp(val)
-				if err != nil {
-					return nil, err
-				}
-				peer.LastHandshakeTime += HandshakeTime(time.Duration(t) * time.Nanosecond)
-			default:
-				return nil, &ParseError{l18n.Sprintf("Invalid key for peer section"), key}
-			}
-		}
-	}
-	conf.maybeAddPeer(peer)
-
-	return &conf, nil
 }
 
 func FromDriverConfiguration(interfaze *driver.Interface, existingConfig *Config) *Config {

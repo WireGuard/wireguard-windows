@@ -11,10 +11,8 @@ import (
 	"sync"
 
 	"golang.org/x/sys/windows"
-	"golang.zx2c4.com/wireguard/windows/driver"
-
-	"golang.zx2c4.com/wireguard/conn"
 	"golang.zx2c4.com/wireguard/windows/conf"
+	"golang.zx2c4.com/wireguard/windows/driver"
 	"golang.zx2c4.com/wireguard/windows/services"
 	"golang.zx2c4.com/wireguard/windows/tunnel/firewall"
 	"golang.zx2c4.com/wireguard/windows/tunnel/winipcfg"
@@ -31,8 +29,6 @@ type interfaceWatcherEvent struct {
 type interfaceWatcher struct {
 	errors chan interfaceWatcherError
 
-	binder  conn.BindSocketToInterface
-	clamper mtuClamper
 	conf    *conf.Config
 	adapter *driver.Adapter
 	luid    winipcfg.LUID
@@ -42,44 +38,6 @@ type interfaceWatcher struct {
 	changeCallbacks4        []winipcfg.ChangeCallback
 	changeCallbacks6        []winipcfg.ChangeCallback
 	storedEvents            []interfaceWatcherEvent
-}
-
-func hasDefaultRoute(family winipcfg.AddressFamily, peers []conf.Peer) bool {
-	var (
-		foundV401    bool
-		foundV41281  bool
-		foundV600001 bool
-		foundV680001 bool
-		foundV400    bool
-		foundV600    bool
-		v40          = [4]byte{}
-		v60          = [16]byte{}
-		v48          = [4]byte{0x80}
-		v68          = [16]byte{0x80}
-	)
-	for _, peer := range peers {
-		for _, allowedip := range peer.AllowedIPs {
-			if allowedip.Cidr == 1 && len(allowedip.IP) == 16 && allowedip.IP.Equal(v60[:]) {
-				foundV600001 = true
-			} else if allowedip.Cidr == 1 && len(allowedip.IP) == 16 && allowedip.IP.Equal(v68[:]) {
-				foundV680001 = true
-			} else if allowedip.Cidr == 1 && len(allowedip.IP) == 4 && allowedip.IP.Equal(v40[:]) {
-				foundV401 = true
-			} else if allowedip.Cidr == 1 && len(allowedip.IP) == 4 && allowedip.IP.Equal(v48[:]) {
-				foundV41281 = true
-			} else if allowedip.Cidr == 0 && len(allowedip.IP) == 16 && allowedip.IP.Equal(v60[:]) {
-				foundV600 = true
-			} else if allowedip.Cidr == 0 && len(allowedip.IP) == 4 && allowedip.IP.Equal(v40[:]) {
-				foundV400 = true
-			}
-		}
-	}
-	if family == windows.AF_INET {
-		return foundV400 || (foundV401 && foundV41281)
-	} else if family == windows.AF_INET6 {
-		return foundV600 || (foundV600001 && foundV680001)
-	}
-	return false
 }
 
 func (iw *interfaceWatcher) setup(family winipcfg.AddressFamily) {
@@ -102,14 +60,7 @@ func (iw *interfaceWatcher) setup(family winipcfg.AddressFamily) {
 	}
 	var err error
 
-	if iw.binder != nil && iw.clamper != nil {
-		log.Printf("Monitoring default %s routes", ipversion)
-		*changeCallbacks, err = monitorDefaultRoutes(family, iw.binder, iw.conf.Interface.MTU == 0, hasDefaultRoute(family, iw.conf.Peers), iw.clamper, iw.luid)
-		if err != nil {
-			iw.errors <- interfaceWatcherError{services.ErrorBindSocketsToDefaultRoutes, err}
-			return
-		}
-	} else if iw.conf.Interface.MTU == 0 {
+	if iw.conf.Interface.MTU == 0 {
 		log.Printf("Monitoring MTU of default %s routes", ipversion)
 		*changeCallbacks, err = monitorMTU(family, iw.luid)
 		if err != nil {
@@ -119,7 +70,7 @@ func (iw *interfaceWatcher) setup(family winipcfg.AddressFamily) {
 	}
 
 	log.Printf("Setting device %s addresses", ipversion)
-	err = configureInterface(family, iw.conf, iw.luid, iw.clamper)
+	err = configureInterface(family, iw.conf, iw.luid)
 	if err != nil {
 		iw.errors <- interfaceWatcherError{services.ErrorSetNetConfig, err}
 		return
@@ -147,17 +98,15 @@ func watchInterface() (*interfaceWatcher, error) {
 		}
 		iw.setup(iface.Family)
 
-		if iw.adapter != nil {
-			if state, err := iw.adapter.AdapterState(); err == nil && state == driver.AdapterStateDown {
-				log.Println("Reinitializing adapter configuration")
-				err = iw.adapter.SetConfiguration(iw.conf.ToDriverConfiguration())
-				if err != nil {
-					log.Println(fmt.Errorf("%v: %w", services.ErrorDeviceSetConfig, err))
-				}
-				err = iw.adapter.SetAdapterState(driver.AdapterStateUp)
-				if err != nil {
-					log.Println(fmt.Errorf("%v: %w", services.ErrorDeviceBringUp, err))
-				}
+		if state, err := iw.adapter.AdapterState(); err == nil && state == driver.AdapterStateDown {
+			log.Println("Reinitializing adapter configuration")
+			err = iw.adapter.SetConfiguration(iw.conf.ToDriverConfiguration())
+			if err != nil {
+				log.Println(fmt.Errorf("%v: %w", services.ErrorDeviceSetConfig, err))
+			}
+			err = iw.adapter.SetAdapterState(driver.AdapterStateUp)
+			if err != nil {
+				log.Println(fmt.Errorf("%v: %w", services.ErrorDeviceBringUp, err))
 			}
 		}
 	})
@@ -167,11 +116,11 @@ func watchInterface() (*interfaceWatcher, error) {
 	return iw, nil
 }
 
-func (iw *interfaceWatcher) Configure(binder conn.BindSocketToInterface, clamper mtuClamper, adapter *driver.Adapter, conf *conf.Config, luid winipcfg.LUID) {
+func (iw *interfaceWatcher) Configure(adapter *driver.Adapter, conf *conf.Config, luid winipcfg.LUID) {
 	iw.setupMutex.Lock()
 	defer iw.setupMutex.Unlock()
 
-	iw.binder, iw.clamper, iw.adapter, iw.conf, iw.luid = binder, clamper, adapter, conf, luid
+	iw.adapter, iw.conf, iw.luid = adapter, conf, luid
 	for _, event := range iw.storedEvents {
 		if event.luid == luid {
 			iw.setup(event.family)

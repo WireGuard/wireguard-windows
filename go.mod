@@ -9,7 +9,6 @@ require (
 	golang.org/x/net v0.0.0-20211011170408-caeb26a5c8c0
 	golang.org/x/sys v0.0.0-20211007075335-d3039528d8ac
 	golang.org/x/text v0.3.8-0.20211004125949-5bd84dd9b33b
-	golang.zx2c4.com/wireguard v0.0.0-20211012062646-82d2aa87aa62
 )
 
 require (
