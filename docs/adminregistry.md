@@ -13,7 +13,7 @@ users belonging to the Network Configuration Operators builtin group
 (S-1-5-32-556), with the following limitations for members of that group:
 
   - Configurations are stripped of all public, private, and pre-shared keys;
-  - No version update notifications are delivered;
+  - No version update popup notifications are shown, and updates are not permitted, though a tab still indicates the availability;
   - Adding, removing, editing, importing, or exporting configurations is forbidden; and
   - Quitting the manager is forbidden.
 
