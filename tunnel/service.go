@@ -276,7 +276,7 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 
 		var clamper mtuClamper
 		clamper = nativeTun
-		watcher.Configure(bind.(conn.BindSocketToInterface), clamper, config, luid)
+		watcher.Configure(bind.(conn.BindSocketToInterface), clamper, nil, config, luid)
 
 		log.Println("Listening for UAPI requests")
 		go func() {
@@ -298,7 +298,7 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 		if err != nil {
 			serviceError = services.ErrorDeviceBringUp
 		}
-		watcher.Configure(nil, nil, config, luid)
+		watcher.Configure(nil, nil, adapter, config, luid)
 	}
 
 	err = runScriptCommand(config.Interface.PostUp, config.Name)

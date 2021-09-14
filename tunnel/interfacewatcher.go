@@ -11,6 +11,7 @@ import (
 	"sync"
 
 	"golang.org/x/sys/windows"
+	"golang.zx2c4.com/wireguard/windows/driver"
 
 	"golang.zx2c4.com/wireguard/conn"
 	"golang.zx2c4.com/wireguard/windows/conf"
@@ -33,6 +34,7 @@ type interfaceWatcher struct {
 	binder  conn.BindSocketToInterface
 	clamper mtuClamper
 	conf    *conf.Config
+	adapter *driver.Adapter
 	luid    winipcfg.LUID
 
 	setupMutex              sync.Mutex
@@ -144,6 +146,20 @@ func watchInterface() (*interfaceWatcher, error) {
 			return
 		}
 		iw.setup(iface.Family)
+
+		if iw.adapter != nil {
+			if state, err := iw.adapter.AdapterState(); err == nil && state == driver.AdapterStateDown {
+				log.Println("Reinitializing adapter configuration")
+				err = iw.adapter.SetConfiguration(iw.conf.ToDriverConfiguration())
+				if err != nil {
+					log.Println(fmt.Errorf("%v: %w", services.ErrorDeviceSetConfig, err))
+				}
+				err = iw.adapter.SetAdapterState(driver.AdapterStateUp)
+				if err != nil {
+					log.Println(fmt.Errorf("%v: %w", services.ErrorDeviceBringUp, err))
+				}
+			}
+		}
 	})
 	if err != nil {
 		return nil, fmt.Errorf("unable to register interface change callback: %w", err)
@@ -151,11 +167,11 @@ func watchInterface() (*interfaceWatcher, error) {
 	return iw, nil
 }
 
-func (iw *interfaceWatcher) Configure(binder conn.BindSocketToInterface, clamper mtuClamper, conf *conf.Config, luid winipcfg.LUID) {
+func (iw *interfaceWatcher) Configure(binder conn.BindSocketToInterface, clamper mtuClamper, adapter *driver.Adapter, conf *conf.Config, luid winipcfg.LUID) {
 	iw.setupMutex.Lock()
 	defer iw.setupMutex.Unlock()
 
-	iw.binder, iw.clamper, iw.conf, iw.luid = binder, clamper, conf, luid
+	iw.binder, iw.clamper, iw.adapter, iw.conf, iw.luid = binder, clamper, adapter, conf, luid
 	for _, event := range iw.storedEvents {
 		if event.luid == luid {
 			iw.setup(event.family)
