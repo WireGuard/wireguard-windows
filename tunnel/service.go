@@ -293,10 +293,12 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 		err = adapter.SetConfiguration(config.ToDriverConfiguration())
 		if err != nil {
 			serviceError = services.ErrorDeviceSetConfig
+			return
 		}
 		err = adapter.SetAdapterState(driver.AdapterStateUp)
 		if err != nil {
 			serviceError = services.ErrorDeviceBringUp
+			return
 		}
 		watcher.Configure(nil, nil, adapter, config, luid)
 	}
