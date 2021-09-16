@@ -129,7 +129,7 @@ func configureInterface(family winipcfg.AddressFamily, conf *conf.Config, luid w
 	if !conf.Interface.TableOff {
 		err := luid.SetRoutesForFamily(family, deduplicatedRoutes)
 		if err != nil {
-			return fmt.Errorf("unable to set routes %v: %w", deduplicatedRoutes, err)
+			return fmt.Errorf("unable to set routes %+v: %w", deduplicatedRoutes, err)
 		}
 	}
 
@@ -139,7 +139,7 @@ func configureInterface(family winipcfg.AddressFamily, conf *conf.Config, luid w
 		err = luid.SetIPAddressesForFamily(family, addresses)
 	}
 	if err != nil {
-		return fmt.Errorf("unable to set ips %v: %w", addresses, err)
+		return fmt.Errorf("unable to set ips %+v: %w", addresses, err)
 	}
 
 	ipif, err := luid.IPInterface(family)

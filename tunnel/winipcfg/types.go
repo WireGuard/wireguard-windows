@@ -7,6 +7,7 @@ package winipcfg
 
 import (
 	"encoding/binary"
+	"fmt"
 	"net"
 	"unsafe"
 
@@ -586,6 +587,10 @@ type RouteData struct {
 	Destination net.IPNet
 	NextHop     net.IP
 	Metric      uint32
+}
+
+func (routeData *RouteData) String() string {
+	return fmt.Sprintf("%+v", *routeData)
 }
 
 // IPAdapterDNSSuffix structure stores a DNS suffix in a linked list of DNS suffixes for a particular adapter.
