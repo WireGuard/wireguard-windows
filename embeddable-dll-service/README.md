@@ -12,7 +12,7 @@ Display Name:  "Some Service Name"
 Service Type:  SERVICE_WIN32_OWN_PROCESS
 Start Type:    StartAutomatic
 Error Control: ErrorNormal,
-Dependencies:  [ "Nsi", "TcpIp" ]
+Dependencies:  [ "Nsi", "Tcpip", "iphlpsvc", "dnscache" ]
 Sid Type:      SERVICE_SID_TYPE_UNRESTRICTED
 Executable:    "C:\path\to\example\vpnclient.exe /service configfile.conf"
 ```

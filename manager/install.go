@@ -15,6 +15,7 @@ import (
 	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/svc"
 	"golang.org/x/sys/windows/svc/mgr"
+	"golang.zx2c4.com/wireguard/windows/l18n"
 
 	"golang.zx2c4.com/wireguard/windows/conf"
 	"golang.zx2c4.com/wireguard/windows/services"
@@ -164,7 +165,7 @@ func InstallTunnel(configPath string) error {
 		ServiceType:  windows.SERVICE_WIN32_OWN_PROCESS,
 		StartType:    mgr.StartAutomatic,
 		ErrorControl: mgr.ErrorNormal,
-		Dependencies: []string{"Nsi", "TcpIp"},
+		Dependencies: []string{"Nsi", "Tcpip", "iphlpsvc", "dnscache"},
 		DisplayName:  "WireGuard Tunnel: " + name,
 		SidType:      windows.SERVICE_SID_TYPE_UNRESTRICTED,
 	}
@@ -175,6 +176,21 @@ func InstallTunnel(configPath string) error {
 
 	err = service.Start()
 	go trackTunnelService(name, service) // Pass off reference to handle.
+	if err == windows.ERROR_SERVICE_DEPENDENCY_FAIL {
+		for _, dependentName := range config.Dependencies {
+			dependentService := mgr.Service{Name: dependentName}
+			var serr error
+			dependentService.Handle, serr = windows.OpenService(m.Handle, windows.StringToUTF16Ptr(dependentService.Name), windows.SERVICE_QUERY_CONFIG)
+			if serr == nil {
+				cfg, serr := dependentService.Config()
+				dependentService.Close()
+				if serr == nil && cfg.StartType == mgr.StartDisabled {
+					err = errors.New(l18n.Sprintf("The %q service (%s) is disabled; please re-enable it.", cfg.DisplayName, dependentName))
+					break
+				}
+			}
+		}
+	}
 	return err
 }
 
