@@ -999,7 +999,7 @@ const (
 	DnsInterfaceSettingsFlagRegisterAdapterName         = 0x0010
 	DnsInterfaceSettingsFlagDomain                      = 0x0020
 	DnsInterfaceSettingsFlagHostname                    = 0x0040
-	DnsInterfaceSettingsFlagEenableLLMNR                = 0x0080
+	DnsInterfaceSettingsFlagEnableLLMNR                 = 0x0080
 	DnsInterfaceSettingsFlagQueryAdapterName            = 0x0100
 	DnsInterfaceSettingsFlagProfileNameserver           = 0x0200
 	DnsInterfaceSettingsFlagDisableUnconstrainedQueries = 0x0400 // v2 only
