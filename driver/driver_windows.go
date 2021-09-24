@@ -77,6 +77,7 @@ func setupLogger(dll *lazyDLL) {
 
 var DefaultPool, _ = MakePool("WireGuard")
 
+// MakePool creates a driver pool for creating adapters.
 func MakePool(poolName string) (pool *Pool, err error) {
 	poolName16, err := windows.UTF16FromString(poolName)
 	if err != nil {
@@ -91,6 +92,7 @@ func MakePool(poolName string) (pool *Pool, err error) {
 	return
 }
 
+// String returns the name of the pool.
 func (pool *Pool) String() string {
 	return windows.UTF16ToString(pool[:])
 }

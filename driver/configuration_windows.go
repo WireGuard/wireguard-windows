@@ -79,6 +79,7 @@ var (
 	procWireGuardGetConfiguration = modwireguard.NewProc("WireGuardGetConfiguration")
 )
 
+// SetAdapterState sets the adapter either Up or Down.
 func (wireguard *Adapter) SetAdapterState(adapterState AdapterState) (err error) {
 	r0, _, e1 := syscall.Syscall(procWireGuardSetAdapterState.Addr(), 2, wireguard.handle, uintptr(adapterState), 0)
 	if r0 == 0 {
@@ -87,6 +88,7 @@ func (wireguard *Adapter) SetAdapterState(adapterState AdapterState) (err error)
 	return
 }
 
+// AdapterState returns the current state of the adapter.
 func (wireguard *Adapter) AdapterState() (adapterState AdapterState, err error) {
 	r0, _, e1 := syscall.Syscall(procWireGuardGetAdapterState.Addr(), 2, wireguard.handle, uintptr(unsafe.Pointer(&adapterState)), 0)
 	if r0 == 0 {
@@ -95,6 +97,7 @@ func (wireguard *Adapter) AdapterState() (adapterState AdapterState, err error) 
 	return
 }
 
+// SetConfiguration sets the adapter configuration.
 func (wireguard *Adapter) SetConfiguration(interfaze *Interface, size uint32) (err error) {
 	r0, _, e1 := syscall.Syscall(procWireGuardSetConfiguration.Addr(), 3, wireguard.handle, uintptr(unsafe.Pointer(interfaze)), uintptr(size))
 	if r0 == 0 {
@@ -103,6 +106,7 @@ func (wireguard *Adapter) SetConfiguration(interfaze *Interface, size uint32) (e
 	return
 }
 
+// Configuration gets the adapter configuration.
 func (wireguard *Adapter) Configuration() (interfaze *Interface, err error) {
 	size := wireguard.lastGetGuessSize
 	if size == 0 {
@@ -121,18 +125,22 @@ func (wireguard *Adapter) Configuration() (interfaze *Interface, err error) {
 	}
 }
 
+// FirstPeer returns the first peer attached to the interface.
 func (interfaze *Interface) FirstPeer() *Peer {
 	return (*Peer)(unsafe.Pointer(uintptr(unsafe.Pointer(interfaze)) + unsafe.Sizeof(*interfaze)))
 }
 
+// NextPeer returns the subsequent peer of the current one.
 func (peer *Peer) NextPeer() *Peer {
 	return (*Peer)(unsafe.Pointer(uintptr(unsafe.Pointer(peer)) + unsafe.Sizeof(*peer) + uintptr(peer.AllowedIPsCount)*unsafe.Sizeof(AllowedIP{})))
 }
 
+// FirstAllowedIP returns the first allowed IP attached to the peer.
 func (peer *Peer) FirstAllowedIP() *AllowedIP {
 	return (*AllowedIP)(unsafe.Pointer(uintptr(unsafe.Pointer(peer)) + unsafe.Sizeof(*peer)))
 }
 
+// NextAllowedIP returns the subsequent allowed IP of the current one.
 func (allowedIP *AllowedIP) NextAllowedIP() *AllowedIP {
 	return (*AllowedIP)(unsafe.Pointer(uintptr(unsafe.Pointer(allowedIP)) + unsafe.Sizeof(*allowedIP)))
 }
@@ -141,30 +149,35 @@ type ConfigBuilder struct {
 	buffer []byte
 }
 
+// Preallocate reserves memory in the config builder to reduce allocations of append operations.
 func (builder *ConfigBuilder) Preallocate(size uint32) {
 	if builder.buffer == nil {
 		builder.buffer = make([]byte, 0, size)
 	}
 }
 
+// AppendInterface appends an interface to the building configuration. This should be called first.
 func (builder *ConfigBuilder) AppendInterface(interfaze *Interface) {
 	var newBytes []byte
 	unsafeSlice(unsafe.Pointer(&newBytes), unsafe.Pointer(interfaze), int(unsafe.Sizeof(*interfaze)))
 	builder.buffer = append(builder.buffer, newBytes...)
 }
 
+// AppendPeer appends a peer to the building configuration. This should be called after an interface has been added.
 func (builder *ConfigBuilder) AppendPeer(peer *Peer) {
 	var newBytes []byte
 	unsafeSlice(unsafe.Pointer(&newBytes), unsafe.Pointer(peer), int(unsafe.Sizeof(*peer)))
 	builder.buffer = append(builder.buffer, newBytes...)
 }
 
+// AppendAllowedIP appends an allowed IP to the building configuration. This should be called after a peer has been added.
 func (builder *ConfigBuilder) AppendAllowedIP(allowedIP *AllowedIP) {
 	var newBytes []byte
 	unsafeSlice(unsafe.Pointer(&newBytes), unsafe.Pointer(allowedIP), int(unsafe.Sizeof(*allowedIP)))
 	builder.buffer = append(builder.buffer, newBytes...)
 }
 
+// Interface assembles the configuration and returns the interface and length to be passed to SetConfiguration.
 func (builder *ConfigBuilder) Interface() (*Interface, uint32) {
 	if builder.buffer == nil {
 		return nil, 0
