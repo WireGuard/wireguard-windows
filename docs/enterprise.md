@@ -83,6 +83,12 @@ Or, to log the status of that command:
 > wireguard /update 2> C:\path\to\update\log.txt
 ```
 
+One could have Task Scheduler run it daily at 3am:
+
+```text
+> schtasks /create /f /ru SYSTEM /sc daily /tn "WireGuard Update" /tr "%PROGRAMFILES%\WireGuard\wireguard.exe /update" /st 03:00
+```
+
 ### Network Adapters
 
 The tunnel service creates a network adapter at startup and destroys it at shutdown. It may be desirable, however, to remove all network adapters created in WireGuard's pool and uninstall the driver if no other applications are using our network adapters. This can be accomplished using the command:
