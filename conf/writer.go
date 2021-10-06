@@ -159,16 +159,19 @@ func (config *Config) ToDriverConfiguration() (*driver.Interface, uint32) {
 		})
 		for j := range config.Peers[i].AllowedIPs {
 			var family winipcfg.AddressFamily
-			if config.Peers[i].AllowedIPs[j].IP.To4() != nil {
+			var ip net.IP
+			if ip = config.Peers[i].AllowedIPs[j].IP.To4(); ip != nil {
 				family = windows.AF_INET
-			} else {
+			} else if ip = config.Peers[i].AllowedIPs[j].IP.To16(); ip != nil {
 				family = windows.AF_INET6
+			} else {
+				ip = config.Peers[i].AllowedIPs[j].IP
 			}
 			a := &driver.AllowedIP{
 				AddressFamily: family,
 				Cidr:          config.Peers[i].AllowedIPs[j].Cidr,
 			}
-			copy(a.Address[:], config.Peers[i].AllowedIPs[j].IP)
+			copy(a.Address[:], ip)
 			c.AppendAllowedIP(a)
 		}
 	}
