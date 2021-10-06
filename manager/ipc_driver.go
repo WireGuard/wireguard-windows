@@ -37,7 +37,7 @@ func findDriverAdapter(tunnelName string) (*lockedDriverAdapter, error) {
 	}
 	driverAdapter = &lockedDriverAdapter{}
 	var err error
-	driverAdapter.Adapter, err = driver.DefaultPool.OpenAdapter(tunnelName)
+	driverAdapter.Adapter, err = driver.OpenAdapter(tunnelName)
 	if err != nil {
 		return nil, err
 	}

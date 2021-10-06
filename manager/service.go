@@ -261,7 +261,9 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 		}()
 	}
 
-	time.AfterFunc(time.Second*10, cleanupStaleNetworkInterfaces)
+	if conf.AdminBool("UseUserspaceImplementation") {
+		time.AfterFunc(time.Second*10, cleanupStaleWintunInterfaces)
+	}
 	time.AfterFunc(time.Second*15, func() {
 		if !conf.AdminBool("UseUserspaceImplementation") {
 			tun.WintunPool.DeleteDriver()

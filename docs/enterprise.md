@@ -89,16 +89,16 @@ One could have Task Scheduler run it daily at 3am:
 > schtasks /create /f /ru SYSTEM /sc daily /tn "WireGuard Update" /tr "%PROGRAMFILES%\WireGuard\wireguard.exe /update" /st 03:00
 ```
 
-### Network Adapters
+### Driver Removal
 
-The tunnel service creates a network adapter at startup and destroys it at shutdown. It may be desirable, however, to remove all network adapters created in WireGuard's pool and uninstall the driver if no other applications are using our network adapters. This can be accomplished using the command:
+The tunnel service creates a network adapter at startup and destroys it at shutdown. If there are no more network adapters, the driver may be removed with:
 
 ```text
-> wireguard /removealladapters
+> wireguard /removedriver
 ```
 
 Or, to log the status of that command:
 
 ```text
-> wireguard /removealladapters 2> C:\path\to\removal\log.txt
+> wireguard /removedriver 2> C:\path\to\removal\log.txt
 ```

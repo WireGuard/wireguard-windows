@@ -101,7 +101,7 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 			dev.Close()
 		}
 		if adapter != nil {
-			adapter.Delete()
+			adapter.Close()
 		}
 		if logErr == nil && (dev != nil || adapter != nil) && config != nil {
 			_ = runScriptCommand(config.Interface.PostDown, config.Name)
@@ -167,24 +167,13 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 
 	log.Println("Creating network adapter")
 	if UseFixedGUIDInsteadOfDeterministic || !conf.AdminBool("UseUserspaceImplementation") {
-		// Does an adapter with this name already exist?
-		adapter, err = driver.DefaultPool.OpenAdapter(config.Name)
-		if err == nil {
-			// If so, we delete it, in case it has weird residual configuration.
-			_, err = adapter.Delete()
-			if err != nil {
-				err = fmt.Errorf("Error deleting already existing adapter: %w", err)
-				serviceError = services.ErrorCreateNetworkAdapter
-				return
-			}
-		}
 		for i := 0; i < 5; i++ {
 			if i > 0 {
 				time.Sleep(time.Second)
 				log.Printf("Retrying adapter creation after failure because system just booted (T+%v): %v", windows.DurationSinceBoot(), err)
 			}
 			var rebootRequired bool
-			adapter, rebootRequired, err = driver.DefaultPool.CreateAdapter(config.Name, deterministicGUID(config))
+			adapter, err = driver.CreateAdapter(config.Name, "WireGuard", deterministicGUID(config))
 			if err == nil || windows.DurationSinceBoot() > time.Minute*10 {
 				if rebootRequired {
 					log.Println("Windows indicated a reboot is required.")

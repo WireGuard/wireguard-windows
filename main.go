@@ -75,7 +75,7 @@ func usage() {
 		"/ui CMD_READ_HANDLE CMD_WRITE_HANDLE CMD_EVENT_HANDLE LOG_MAPPING_HANDLE",
 		"/dumplog",
 		"/update",
-		"/removealladapters",
+		"/removedriver",
 	}
 	builder := strings.Builder{}
 	for _, flag := range flags {
@@ -315,22 +315,18 @@ func main() {
 			}
 		}
 		return
-	case "/removealladapters":
+	case "/removedriver":
 		if len(os.Args) != 2 {
 			usage()
 		}
-		var rebootRequiredDriver, rebootRequiredWintun bool
 		var err error
-		rebootRequiredDriver, err = driver.DefaultPool.DeleteDriver()
+		err = driver.Uninstall()
 		if err != nil {
 			fatal(err)
 		}
-		rebootRequiredWintun, err = tun.WintunPool.DeleteDriver()
+		_, err = tun.WintunPool.DeleteDriver()
 		if err != nil {
 			fatal(err)
-		}
-		if rebootRequiredWintun || rebootRequiredDriver {
-			log.Println("A reboot may be required")
 		}
 		return
 	}
