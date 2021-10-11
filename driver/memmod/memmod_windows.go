@@ -64,8 +64,7 @@ func (module *Module) copySections(address uintptr, size uintptr, oldHeaders *IM
 			dest = module.codeBase + uintptr(sections[i].VirtualAddress)
 			// NOTE: On 64bit systems we truncate to 32bit here but expand again later when "PhysicalAddress" is used.
 			sections[i].SetPhysicalAddress((uint32)(dest & 0xffffffff))
-			var dst []byte
-			unsafeSlice(unsafe.Pointer(&dst), a2p(dest), int(sectionSize))
+			dst := unsafe.Slice((*byte)(a2p(dest)), sectionSize)
 			for j := range dst {
 				dst[j] = 0
 			}
@@ -247,11 +246,9 @@ func (module *Module) performBaseRelocation(delta uintptr) (relocated bool, err 
 	for relocationHdr.VirtualAddress > 0 {
 		dest := module.codeBase + uintptr(relocationHdr.VirtualAddress)
 
-		var relInfos []uint16
-		unsafeSlice(
-			unsafe.Pointer(&relInfos),
-			a2p(uintptr(unsafe.Pointer(relocationHdr))+unsafe.Sizeof(*relocationHdr)),
-			int((uintptr(relocationHdr.SizeOfBlock)-unsafe.Sizeof(*relocationHdr))/unsafe.Sizeof(relInfos[0])))
+		relInfos := unsafe.Slice(
+			(*uint16)(a2p(uintptr(unsafe.Pointer(relocationHdr))+unsafe.Sizeof(*relocationHdr))),
+			(uintptr(relocationHdr.SizeOfBlock)-unsafe.Sizeof(*relocationHdr))/unsafe.Sizeof(uint16(0)))
 		for _, relInfo := range relInfos {
 			// The upper 4 bits define the type of relocation.
 			relType := relInfo >> 12
@@ -372,10 +369,8 @@ func (module *Module) buildNameExports() error {
 	if exports.NumberOfNames == 0 {
 		return errors.New("No functions exported by name")
 	}
-	var nameRefs []uint32
-	unsafeSlice(unsafe.Pointer(&nameRefs), a2p(module.codeBase+uintptr(exports.AddressOfNames)), int(exports.NumberOfNames))
-	var ordinals []uint16
-	unsafeSlice(unsafe.Pointer(&ordinals), a2p(module.codeBase+uintptr(exports.AddressOfNameOrdinals)), int(exports.NumberOfNames))
+	nameRefs := unsafe.Slice((*uint32)(a2p(module.codeBase+uintptr(exports.AddressOfNames))), exports.NumberOfNames)
+	ordinals := unsafe.Slice((*uint16)(a2p(module.codeBase+uintptr(exports.AddressOfNameOrdinals))), exports.NumberOfNames)
 	module.nameExports = make(map[string]uint16)
 	for i := range nameRefs {
 		nameArray := windows.BytePtrToString((*byte)(a2p(module.codeBase + uintptr(nameRefs[i]))))
@@ -694,26 +689,5 @@ func a2p(addr uintptr) unsafe.Pointer {
 }
 
 func memcpy(dst, src, size uintptr) {
-	var d, s []byte
-	unsafeSlice(unsafe.Pointer(&d), a2p(dst), int(size))
-	unsafeSlice(unsafe.Pointer(&s), a2p(src), int(size))
-	copy(d, s)
-}
-
-// unsafeSlice updates the slice slicePtr to be a slice
-// referencing the provided data with its length & capacity set to
-// lenCap.
-//
-// TODO: when Go 1.16 or Go 1.17 is the minimum supported version,
-// update callers to use unsafe.Slice instead of this.
-func unsafeSlice(slicePtr, data unsafe.Pointer, lenCap int) {
-	type sliceHeader struct {
-		Data unsafe.Pointer
-		Len  int
-		Cap  int
-	}
-	h := (*sliceHeader)(slicePtr)
-	h.Data = data
-	h.Len = lenCap
-	h.Cap = lenCap
+	copy(unsafe.Slice((*byte)(a2p(dst)), size), unsafe.Slice((*byte)(a2p(src)), size))
 }

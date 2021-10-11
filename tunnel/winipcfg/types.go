@@ -685,8 +685,7 @@ func (row *MibIPInterfaceRow) Set() error {
 
 // get method returns all table rows as a Go slice.
 func (tab *mibIPInterfaceTable) get() (s []MibIPInterfaceRow) {
-	unsafeSlice(unsafe.Pointer(&s), unsafe.Pointer(&tab.table[0]), int(tab.numEntries))
-	return
+	return unsafe.Slice(&tab.table[0], tab.numEntries)
 }
 
 // free method frees the buffer allocated by the functions that return tables of network interfaces, addresses, and routes.
@@ -723,8 +722,7 @@ func (row *MibIfRow2) get() (ret error) {
 
 // get method returns all table rows as a Go slice.
 func (tab *mibIfTable2) get() (s []MibIfRow2) {
-	unsafeSlice(unsafe.Pointer(&s), unsafe.Pointer(&tab.table[0]), int(tab.numEntries))
-	return
+	return unsafe.Slice(&tab.table[0], tab.numEntries)
 }
 
 // free method frees the buffer allocated by the functions that return tables of network interfaces, addresses, and routes.
@@ -835,8 +833,7 @@ func (row *MibUnicastIPAddressRow) Delete() error {
 
 // get method returns all table rows as a Go slice.
 func (tab *mibUnicastIPAddressTable) get() (s []MibUnicastIPAddressRow) {
-	unsafeSlice(unsafe.Pointer(&s), unsafe.Pointer(&tab.table[0]), int(tab.numEntries))
-	return
+	return unsafe.Slice(&tab.table[0], tab.numEntries)
 }
 
 // free method frees the buffer allocated by the functions that return tables of network interfaces, addresses, and routes.
@@ -865,8 +862,7 @@ func (row *MibAnycastIPAddressRow) Delete() error {
 
 // get method returns all table rows as a Go slice.
 func (tab *mibAnycastIPAddressTable) get() (s []MibAnycastIPAddressRow) {
-	unsafeSlice(unsafe.Pointer(&s), unsafe.Pointer(&tab.table[0]), int(tab.numEntries))
-	return
+	return unsafe.Slice(&tab.table[0], tab.numEntries)
 }
 
 // free method frees the buffer allocated by the functions that return tables of network interfaces, addresses, and routes.
@@ -958,8 +954,7 @@ func (row *MibIPforwardRow2) Delete() error {
 
 // get method returns all table rows as a Go slice.
 func (tab *mibIPforwardTable2) get() (s []MibIPforwardRow2) {
-	unsafeSlice(unsafe.Pointer(&s), unsafe.Pointer(&tab.table[0]), int(tab.numEntries))
-	return
+	return unsafe.Slice(&tab.table[0], tab.numEntries)
 }
 
 // free method frees the buffer allocated by the functions that return tables of network interfaces, addresses, and routes.
@@ -1007,21 +1002,3 @@ const (
 	DnsInterfaceSettingsFlagDOH                         = 0x1000 // v3 only
 	DnsInterfaceSettingsFlagDOHProfile                  = 0x2000 // v3 only
 )
-
-// unsafeSlice updates the slice slicePtr to be a slice
-// referencing the provided data with its length & capacity set to
-// lenCap.
-//
-// TODO: when Go 1.16 or Go 1.17 is the minimum supported version,
-// update callers to use unsafe.Slice instead of this.
-func unsafeSlice(slicePtr, data unsafe.Pointer, lenCap int) {
-	type sliceHeader struct {
-		Data unsafe.Pointer
-		Len  int
-		Cap  int
-	}
-	h := (*sliceHeader)(slicePtr)
-	h.Data = data
-	h.Len = lenCap
-	h.Cap = lenCap
-}

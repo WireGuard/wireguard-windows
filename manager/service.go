@@ -278,12 +278,7 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 		serviceError = services.ErrorEnumerateSessions
 		return
 	}
-	sessions := *(*[]windows.WTS_SESSION_INFO)(unsafe.Pointer(&struct {
-		addr *windows.WTS_SESSION_INFO
-		len  int
-		cap  int
-	}{sessionsPointer, int(count), int(count)}))
-	for _, session := range sessions {
+	for _, session := range unsafe.Slice(sessionsPointer, count) {
 		if session.State != windows.WTSActive && session.State != windows.WTSDisconnected {
 			continue
 		}

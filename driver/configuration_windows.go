@@ -158,22 +158,19 @@ func (builder *ConfigBuilder) Preallocate(size uint32) {
 
 // AppendInterface appends an interface to the building configuration. This should be called first.
 func (builder *ConfigBuilder) AppendInterface(interfaze *Interface) {
-	var newBytes []byte
-	unsafeSlice(unsafe.Pointer(&newBytes), unsafe.Pointer(interfaze), int(unsafe.Sizeof(*interfaze)))
+	newBytes := unsafe.Slice((*byte)(unsafe.Pointer(interfaze)), unsafe.Sizeof(*interfaze))
 	builder.buffer = append(builder.buffer, newBytes...)
 }
 
 // AppendPeer appends a peer to the building configuration. This should be called after an interface has been added.
 func (builder *ConfigBuilder) AppendPeer(peer *Peer) {
-	var newBytes []byte
-	unsafeSlice(unsafe.Pointer(&newBytes), unsafe.Pointer(peer), int(unsafe.Sizeof(*peer)))
+	newBytes := unsafe.Slice((*byte)(unsafe.Pointer(peer)), unsafe.Sizeof(*peer))
 	builder.buffer = append(builder.buffer, newBytes...)
 }
 
 // AppendAllowedIP appends an allowed IP to the building configuration. This should be called after a peer has been added.
 func (builder *ConfigBuilder) AppendAllowedIP(allowedIP *AllowedIP) {
-	var newBytes []byte
-	unsafeSlice(unsafe.Pointer(&newBytes), unsafe.Pointer(allowedIP), int(unsafe.Sizeof(*allowedIP)))
+	newBytes := unsafe.Slice((*byte)(unsafe.Pointer(allowedIP)), unsafe.Sizeof(*allowedIP))
 	builder.buffer = append(builder.buffer, newBytes...)
 }
 
@@ -183,22 +180,4 @@ func (builder *ConfigBuilder) Interface() (*Interface, uint32) {
 		return nil, 0
 	}
 	return (*Interface)(unsafe.Pointer(&builder.buffer[0])), uint32(len(builder.buffer))
-}
-
-// unsafeSlice updates the slice slicePtr to be a slice
-// referencing the provided data with its length & capacity set to
-// lenCap.
-//
-// TODO: when Go 1.16 or Go 1.17 is the minimum supported version,
-// update callers to use unsafe.Slice instead of this.
-func unsafeSlice(slicePtr, data unsafe.Pointer, lenCap int) {
-	type sliceHeader struct {
-		Data unsafe.Pointer
-		Len  int
-		Cap  int
-	}
-	h := (*sliceHeader)(slicePtr)
-	h.Data = data
-	h.Len = lenCap
-	h.Cap = lenCap
 }

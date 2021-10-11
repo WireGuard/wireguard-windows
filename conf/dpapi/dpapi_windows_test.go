@@ -53,11 +53,7 @@ func TestRoundTrip(t *testing.T) {
 	if err != nil {
 		t.Errorf("Unable to get utf16 chars for name: %s", err)
 	}
-	nameUtf16Bytes := *(*[]byte)(unsafe.Pointer(&struct {
-		addr *byte
-		len  int
-		cap  int
-	}{(*byte)(unsafe.Pointer(&nameUtf16[0])), len(nameUtf16) * 2, cap(nameUtf16) * 2}))
+	nameUtf16Bytes := unsafe.Slice((*byte)(unsafe.Pointer(&nameUtf16[0])), len(nameUtf16) * 2)
 	i := bytes.Index(eCorrupt, nameUtf16Bytes)
 	if i == -1 {
 		t.Error("Unable to find ad in blob")

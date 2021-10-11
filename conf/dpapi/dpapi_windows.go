@@ -28,16 +28,9 @@ func Encrypt(data []byte, name string) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("unable to encrypt DPAPI protected data: %w", err)
 	}
-
-	outSlice := *(*[]byte)(unsafe.Pointer(&(struct {
-		addr *byte
-		len  int
-		cap  int
-	}{out.Data, int(out.Size), int(out.Size)})))
-	ret := make([]byte, len(outSlice))
-	copy(ret, outSlice)
+	ret := make([]byte, out.Size)
+	copy(ret, unsafe.Slice(out.Data, out.Size))
 	windows.LocalFree(windows.Handle(unsafe.Pointer(out.Data)))
-
 	return ret, nil
 }
 
@@ -48,19 +41,12 @@ func Decrypt(data []byte, name string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	err = windows.CryptUnprotectData(bytesToBlob(data), &outName, nil, 0, nil, windows.CRYPTPROTECT_UI_FORBIDDEN, &out)
 	if err != nil {
 		return nil, fmt.Errorf("unable to decrypt DPAPI protected data: %w", err)
 	}
-
-	outSlice := *(*[]byte)(unsafe.Pointer(&(struct {
-		addr *byte
-		len  int
-		cap  int
-	}{out.Data, int(out.Size), int(out.Size)})))
-	ret := make([]byte, len(outSlice))
-	copy(ret, outSlice)
+	ret := make([]byte, out.Size)
+	copy(ret, unsafe.Slice(out.Data, out.Size))
 	windows.LocalFree(windows.Handle(unsafe.Pointer(out.Data)))
 
 	// Note: this ridiculous open-coded strcmp is not constant time.
