@@ -63,8 +63,6 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 		return
 	}
 
-	moveConfigsFromLegacyStore()
-
 	err = watchNewTunnelServices()
 	if err != nil {
 		serviceError = services.ErrorTrackTunnels
