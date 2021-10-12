@@ -12,7 +12,6 @@ import (
 	"unsafe"
 
 	"golang.org/x/sys/windows"
-	"golang.zx2c4.com/wireguard/windows/ringlogger"
 	"golang.zx2c4.com/wireguard/windows/tunnel/winipcfg"
 )
 
@@ -32,7 +31,7 @@ type Adapter struct {
 }
 
 var (
-	modwireguard = newLazyDLL("wireguard.dll", setupLogger)
+	modwireguard                         = newLazyDLL("wireguard.dll", setupLogger)
 	procWireGuardCreateAdapter           = modwireguard.NewProc("WireGuardCreateAdapter")
 	procWireGuardOpenAdapter             = modwireguard.NewProc("WireGuardOpenAdapter")
 	procWireGuardCloseAdapter            = modwireguard.NewProc("WireGuardCloseAdapter")
@@ -42,11 +41,13 @@ var (
 	procWireGuardSetAdapterLogging       = modwireguard.NewProc("WireGuardSetAdapterLogging")
 )
 
+type TimestampedWriter interface {
+	WriteWithTimestamp(p []byte, ts int64) (n int, err error)
+}
+
 func logMessage(level loggerLevel, timestamp uint64, msg *uint16) int {
-	// This is a filthy hack that breaks layers of encapsulation and also introduces
-	// an unfortunate dependency of this package.
-	if rl, ok := log.Default().Writer().(*ringlogger.Ringlogger); ok {
-		rl.WriteWithTimestamp([]byte(log.Default().Prefix()+windows.UTF16PtrToString(msg)), (int64(timestamp)-116444736000000000)*100)
+	if tw, ok := log.Default().Writer().(TimestampedWriter); ok {
+		tw.WriteWithTimestamp([]byte(log.Default().Prefix()+windows.UTF16PtrToString(msg)), (int64(timestamp)-116444736000000000)*100)
 	} else {
 		log.Println(windows.UTF16PtrToString(msg))
 	}
@@ -129,7 +130,6 @@ func Uninstall() (err error) {
 		err = e1
 	}
 	return
-
 }
 
 type AdapterLogState uint32

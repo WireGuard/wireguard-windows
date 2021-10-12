@@ -148,9 +148,6 @@ func (s *ManagerService) Start(tunnelName string) error {
 			}
 		}
 	}()
-	if conf.AdminBool("UseUserspaceImplementation") {
-		time.AfterFunc(time.Second*10, cleanupStaleWintunInterfaces)
-	}
 	// After the stop process has begun, but before it's finished, we install the new one.
 	path, err := c.Path()
 	if err != nil {
@@ -160,9 +157,6 @@ func (s *ManagerService) Start(tunnelName string) error {
 }
 
 func (s *ManagerService) Stop(tunnelName string) error {
-	if conf.AdminBool("UseUserspaceImplementation") {
-		time.AfterFunc(time.Second*10, cleanupStaleWintunInterfaces)
-	}
 	err := UninstallTunnel(tunnelName)
 	if err == windows.ERROR_SERVICE_DOES_NOT_EXIST {
 		_, notExistsError := conf.LoadFromName(tunnelName)

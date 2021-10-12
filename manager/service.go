@@ -17,7 +17,7 @@ import (
 
 	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/svc"
-	"golang.zx2c4.com/wireguard/tun"
+	"golang.zx2c4.com/wireguard/tun/wintun"
 
 	"golang.zx2c4.com/wireguard/windows/conf"
 	"golang.zx2c4.com/wireguard/windows/elevate"
@@ -261,12 +261,9 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 		}()
 	}
 
-	if conf.AdminBool("UseUserspaceImplementation") {
-		time.AfterFunc(time.Second*10, cleanupStaleWintunInterfaces)
-	}
 	time.AfterFunc(time.Second*15, func() {
 		if !conf.AdminBool("UseUserspaceImplementation") {
-			tun.WintunPool.DeleteDriver()
+			wintun.Uninstall()
 		}
 	})
 	go checkForUpdates()
