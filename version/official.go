@@ -146,7 +146,7 @@ func extractCertificatePolicies(path string, oid string) ([]string, error) {
 			return nil, err
 		}
 		for i := uintptr(0); i < uintptr(certPoliciesInfo.Count); i++ {
-			cp := (*windows.CertPolicyInfo)(unsafe.Pointer(uintptr(unsafe.Pointer(certPoliciesInfo.PolicyInfos)) + i*unsafe.Sizeof(*certPoliciesInfo.PolicyInfos)))
+			cp := (*windows.CertPolicyInfo)(unsafe.Add(unsafe.Pointer(certPoliciesInfo.PolicyInfos), i*unsafe.Sizeof(*certPoliciesInfo.PolicyInfos)))
 			policies = append(policies, windows.BytePtrToString(cp.Identifier))
 		}
 	}

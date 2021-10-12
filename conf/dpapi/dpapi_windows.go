@@ -61,8 +61,8 @@ func Decrypt(data []byte, name string) ([]byte, error) {
 		if *a == 0 || *b == 0 {
 			break
 		}
-		a = (*uint16)(unsafe.Pointer(uintptr(unsafe.Pointer(a)) + 2))
-		b = (*uint16)(unsafe.Pointer(uintptr(unsafe.Pointer(b)) + 2))
+		a = (*uint16)(unsafe.Add(unsafe.Pointer(a), 2))
+		b = (*uint16)(unsafe.Add(unsafe.Pointer(b), 2))
 	}
 	runtime.KeepAlive(utf16Name)
 	windows.LocalFree(windows.Handle(unsafe.Pointer(outName)))

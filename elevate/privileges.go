@@ -44,7 +44,7 @@ func DropAllPrivileges(retainDriverLoading bool) error {
 	}
 	tokenPrivileges := (*windows.Tokenprivileges)(unsafe.Pointer(&buffer[0]))
 	for i := uint32(0); i < tokenPrivileges.PrivilegeCount; i++ {
-		item := (*windows.LUIDAndAttributes)(unsafe.Pointer(uintptr(unsafe.Pointer(&tokenPrivileges.Privileges[0])) + unsafe.Sizeof(tokenPrivileges.Privileges[0])*uintptr(i)))
+		item := (*windows.LUIDAndAttributes)(unsafe.Add(unsafe.Pointer(&tokenPrivileges.Privileges[0]), unsafe.Sizeof(tokenPrivileges.Privileges[0])*uintptr(i)))
 		if retainDriverLoading && item.Luid == luid {
 			continue
 		}

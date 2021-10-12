@@ -127,7 +127,7 @@ func (wireguard *Adapter) Configuration() (interfaze *Interface, err error) {
 
 // FirstPeer returns the first peer attached to the interface.
 func (interfaze *Interface) FirstPeer() *Peer {
-	return (*Peer)(unsafe.Pointer(uintptr(unsafe.Pointer(interfaze)) + unsafe.Sizeof(*interfaze)))
+	return (*Peer)(unsafe.Add(unsafe.Pointer(interfaze), unsafe.Sizeof(*interfaze)))
 }
 
 // NextPeer returns the subsequent peer of the current one.
@@ -137,12 +137,12 @@ func (peer *Peer) NextPeer() *Peer {
 
 // FirstAllowedIP returns the first allowed IP attached to the peer.
 func (peer *Peer) FirstAllowedIP() *AllowedIP {
-	return (*AllowedIP)(unsafe.Pointer(uintptr(unsafe.Pointer(peer)) + unsafe.Sizeof(*peer)))
+	return (*AllowedIP)(unsafe.Add(unsafe.Pointer(peer), unsafe.Sizeof(*peer)))
 }
 
 // NextAllowedIP returns the subsequent allowed IP of the current one.
 func (allowedIP *AllowedIP) NextAllowedIP() *AllowedIP {
-	return (*AllowedIP)(unsafe.Pointer(uintptr(unsafe.Pointer(allowedIP)) + unsafe.Sizeof(*allowedIP)))
+	return (*AllowedIP)(unsafe.Add(unsafe.Pointer(allowedIP), unsafe.Sizeof(*allowedIP)))
 }
 
 type ConfigBuilder struct {

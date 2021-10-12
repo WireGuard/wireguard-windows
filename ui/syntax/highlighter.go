@@ -62,7 +62,7 @@ type stringSpan struct {
 }
 
 func (s stringSpan) at(i int) *byte {
-	return (*byte)(unsafe.Pointer(uintptr(unsafe.Pointer(s.s)) + uintptr(i)))
+	return (*byte)(unsafe.Add(unsafe.Pointer(s.s), uintptr(i)))
 }
 
 func (s stringSpan) isSame(c string) bool {
