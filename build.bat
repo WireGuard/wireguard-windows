@@ -23,7 +23,7 @@ if exist .deps\prepared goto :render
 	call :download wireguard-tools.zip https://git.zx2c4.com/wireguard-tools/snapshot/wireguard-tools-1ee37b8e4833a25efe6f1fc0d5bdcb476148f4ba.zip ed0739bc3e5a7021a59d4cc4fc63e5fb60a0cb8628d30515a747bfbdcf1fdb0a "--exclude wg-quick --strip-components 1" || goto :error
 	rem Mirror of https://sourceforge.net/projects/gnuwin32/files/patch/2.5.9-7/patch-2.5.9-7-bin.zip with fixed manifest
 	call :download patch.zip https://download.wireguard.com/windows-toolchain/distfiles/patch-2.5.9-7-bin-fixed-manifest.zip 25977006ca9713f2662a5d0a2ed3a5a138225b8be3757035bd7da9dcf985d0a1 "--strip-components 1 bin" || goto :error
-	call :download wintun.zip https://www.wintun.net/builds/wintun-0.13.zip 34afe7d0de1fdb781af3defc0a75fd8c97daa756279b42dd6be6a1bd8ccdc7f0 || goto :error
+	call :download wintun.zip https://www.wintun.net/builds/wintun-0.14.zip 6813a1b603734fd6f42ea7706dc23afac4b53b6ea90b3b0996dc07db29b55745 || goto :error
 	call :download wireguard-nt.zip https://download.wireguard.com/wireguard-nt/wireguard-nt-0.10.zip 012ccbdd7dcdf03c2326fbb63de1349085facaf28438da021154d9bbfd5bc4de || goto :error
 	echo [+] Patching go
 	for %%a in ("..\go-patches\*.patch") do .\patch.exe -f -N -r- -d go -p1 --binary < "%%a" || goto :error
