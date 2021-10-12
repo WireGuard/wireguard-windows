@@ -1,5 +1,4 @@
 //go:build !load_wgnt_from_rsrc
-// +build !load_wgnt_from_rsrc
 
 /* SPDX-License-Identifier: MIT
  *
