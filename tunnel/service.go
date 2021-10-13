@@ -172,12 +172,8 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 				time.Sleep(time.Second)
 				log.Printf("Retrying adapter creation after failure because system just booted (T+%v): %v", windows.DurationSinceBoot(), err)
 			}
-			var rebootRequired bool
 			adapter, err = driver.CreateAdapter(config.Name, "WireGuard", deterministicGUID(config))
 			if err == nil || windows.DurationSinceBoot() > time.Minute*10 {
-				if rebootRequired {
-					log.Println("Windows indicated a reboot is required.")
-				}
 				break
 			}
 		}
