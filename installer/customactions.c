@@ -96,7 +96,7 @@ __declspec(dllexport) UINT __stdcall CheckWow64(MSIHANDLE installer)
 		log_errorf(installer, LOG_LEVEL_ERR, ret, TEXT("Failed to get kernel32.dll handle"));
 		goto out;
 	}
-	IsWow64Process2 = (void *)GetProcAddress(kernel32, "IsWow64Process2");
+	*(FARPROC *)&IsWow64Process2 = GetProcAddress(kernel32, "IsWow64Process2");
 	if (IsWow64Process2) {
 		if (!IsWow64Process2(GetCurrentProcess(), &process_machine, &native_machine)) {
 			ret = GetLastError();

@@ -25,7 +25,7 @@ const char *architecture(void)
 	kernel32 = GetModuleHandleA("kernel32.dll");
 	if (!kernel32)
 		return NULL;
-	IsWow64Process2 = (void *)GetProcAddress(kernel32, "IsWow64Process2");
+	*(FARPROC *)&IsWow64Process2 = GetProcAddress(kernel32, "IsWow64Process2");
 	if (IsWow64Process2) {
 		if (!IsWow64Process2(GetCurrentProcess(), &process_machine, &native_machine))
 			return NULL;
