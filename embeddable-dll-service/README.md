@@ -37,6 +37,4 @@ if (!wcscmp(wargv[1], L"/service") && wargc == 3) {
 
 ##### 3. Scoop up logs by implementing a ringlogger format reader.
 
-##### 4. Talk to the service over its named pipe.
-
 There is a sample implementation of bits and pieces of this inside of the `csharp\` directory.
