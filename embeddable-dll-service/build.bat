@@ -22,8 +22,6 @@ if exist ..\.deps\prepared goto :build
 	call :build_plat x86 i686 386 || goto :error
 	call :build_plat amd64 x86_64 amd64 || goto :error
 	call :build_plat arm64 aarch64 arm64 || goto :error
-	rem Uncomment when cgo is implemented:
-	rem call :build_plat arm armv7 arm || goto :error
 
 :success
 	echo [+] Success

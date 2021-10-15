@@ -13,13 +13,11 @@ namespace Tunnel
     public class Driver
     {
         [DllImport("wireguard.dll", EntryPoint = "WireGuardOpenAdapter", CallingConvention = CallingConvention.StdCall, SetLastError = true)]
-        private static extern IntPtr openAdapter([MarshalAs(UnmanagedType.LPWStr)] string pool, [MarshalAs(UnmanagedType.LPWStr)] string name);
-        [DllImport("wireguard.dll", EntryPoint = "WireGuardFreeAdapter", CallingConvention = CallingConvention.StdCall)]
+        private static extern IntPtr openAdapter([MarshalAs(UnmanagedType.LPWStr)] string name);
+        [DllImport("wireguard.dll", EntryPoint = "WireGuardCloseAdapter", CallingConvention = CallingConvention.StdCall)]
         private static extern void freeAdapter(IntPtr adapter);
         [DllImport("wireguard.dll", EntryPoint = "WireGuardGetConfiguration", CallingConvention = CallingConvention.StdCall, SetLastError = true)]
         private static extern bool getConfiguration(IntPtr adapter, byte[] iface, ref UInt32 bytes);
-
-        private const string defaultPool = "WireGuard";
 
         public class Adapter
         {
@@ -28,7 +26,7 @@ namespace Tunnel
             public Adapter(string name)
             {
                 _lastGetGuess = 1024;
-                _handle = openAdapter(defaultPool, name);
+                _handle = openAdapter(name);
                 if (_handle == IntPtr.Zero)
                     throw new Win32Exception();
             }
@@ -200,7 +198,7 @@ namespace Tunnel
                 HasEndpoint = 1 << 3,
                 ReplaceAllowedIPs = 1 << 5,
                 Remove = 1 << 6,
-                Update = 1 << 7
+                UpdateOnly = 1 << 7
             };
 
             [StructLayout(LayoutKind.Sequential, Pack = 8, Size = 136)]
