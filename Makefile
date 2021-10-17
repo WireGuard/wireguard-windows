@@ -26,7 +26,7 @@ define download =
 endef
 
 $(eval $(call download,go.tar.gz,https://golang.org/dl/go1.17.2.linux-amd64.tar.gz,f242a9db6a0ad1846de7b6d94d507915d14062660616a61ef7c808a76e4f1676))
-$(eval $(call download,wintun.zip,https://www.wintun.net/builds/wintun-0.14.zip,6813a1b603734fd6f42ea7706dc23afac4b53b6ea90b3b0996dc07db29b55745))
+$(eval $(call download,wintun.zip,https://www.wintun.net/builds/wintun-0.14.1.zip,07c256185d6ee3652e09fa55c0b673e2624b565e02c4b9091c79ca7d2f24ef51))
 $(eval $(call download,wireguard-nt.zip,https://download.wireguard.com/wireguard-nt/wireguard-nt-0.10.1.zip,772c0b1463d8d2212716f43f06f4594d880dea4f735165bd68e388fc41b81605))
 
 .deps/go/prepared: .distfiles/go.tar.gz $(wildcard go-patches/*.patch)
