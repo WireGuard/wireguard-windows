@@ -13,7 +13,6 @@ import (
 	"sort"
 
 	"golang.org/x/sys/windows"
-	"golang.org/x/sys/windows/svc/mgr"
 	"golang.zx2c4.com/wireguard/windows/conf"
 	"golang.zx2c4.com/wireguard/windows/tunnel/firewall"
 	"golang.zx2c4.com/wireguard/windows/tunnel/winipcfg"
@@ -55,25 +54,6 @@ func cleanupAddressesOnDisconnectedInterfaces(family winipcfg.AddressFamily, add
 			}
 		}
 	}
-}
-
-func isDnsCacheDisabled() (bool, string) {
-	scm, err := mgr.Connect()
-	if err != nil {
-		return false, ""
-	}
-	defer scm.Disconnect()
-	svc := mgr.Service{Name: "dnscache"}
-	svc.Handle, err = windows.OpenService(scm.Handle, windows.StringToUTF16Ptr(svc.Name), windows.SERVICE_QUERY_CONFIG)
-	if err != nil {
-		return false, ""
-	}
-	defer svc.Close()
-	cfg, err := svc.Config()
-	if err != nil {
-		return false, ""
-	}
-	return cfg.StartType == mgr.StartDisabled, cfg.DisplayName
 }
 
 func configureInterface(family winipcfg.AddressFamily, conf *conf.Config, luid winipcfg.LUID) error {
@@ -184,11 +164,6 @@ func configureInterface(family winipcfg.AddressFamily, conf *conf.Config, luid w
 
 	err = luid.SetDNS(family, conf.Interface.DNS, conf.Interface.DNSSearch)
 	if err != nil {
-		if err == windows.RPC_S_INVALID_BINDING || err == windows.ERROR_SERVICE_NOT_ACTIVE {
-			if disabled, name := isDnsCacheDisabled(); disabled {
-				err = fmt.Errorf("the %q service (dnscache) is disabled; please re-enable it", name)
-			}
-		}
 		return fmt.Errorf("unable to set DNS %v %v: %w", conf.Interface.DNS, conf.Interface.DNSSearch, err)
 	}
 	return nil

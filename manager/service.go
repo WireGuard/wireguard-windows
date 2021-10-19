@@ -56,6 +56,8 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 
 	log.Println("Starting", version.UserAgent())
 
+	checkForPitfalls()
+
 	path, err := os.Executable()
 	if err != nil {
 		serviceError = services.ErrorDetermineExecutablePath
