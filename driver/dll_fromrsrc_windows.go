@@ -19,6 +19,7 @@ import (
 
 type lazyDLL struct {
 	Name   string
+	Base   windows.Handle
 	mu     sync.Mutex
 	module *memmod.Module
 	onLoad func(d *lazyDLL)
@@ -47,6 +48,7 @@ func (d *lazyDLL) Load() error {
 	if err != nil {
 		return fmt.Errorf("Unable to load library: %w", err)
 	}
+	d.Base = windows.Handle(module.BaseAddr())
 
 	atomic.StorePointer((*unsafe.Pointer)(unsafe.Pointer(&d.module)), unsafe.Pointer(module))
 	if d.onLoad != nil {

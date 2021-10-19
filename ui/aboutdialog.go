@@ -12,6 +12,7 @@ import (
 	"github.com/lxn/walk"
 	"github.com/lxn/win"
 	"golang.org/x/sys/windows"
+	"golang.zx2c4.com/wireguard/windows/driver"
 
 	"golang.zx2c4.com/wireguard/windows/l18n"
 	"golang.zx2c4.com/wireguard/windows/version"
@@ -95,7 +96,7 @@ func runAboutDialog(owner walk.Form) error {
 		return err
 	}
 	detailsLbl.SetTextAlignment(walk.AlignHCenterVNear)
-	detailsLbl.SetText(l18n.Sprintf("App version: %s\nGo version: %s-%s\nOperating system: %s\nArchitecture: %s", version.Number, strings.TrimPrefix(runtime.Version(), "go"), runtime.GOARCH, version.OsName(), version.Arch()))
+	detailsLbl.SetText(l18n.Sprintf("App version: %s\nDriver version: %s\nGo version: %s-%s\nOperating system: %s\nArchitecture: %s", version.Number, driver.Version(), strings.TrimPrefix(runtime.Version(), "go"), runtime.GOARCH, version.OsName(), version.Arch()))
 
 	copyrightLbl, err := walk.NewTextLabel(showingAboutDialog)
 	if err != nil {

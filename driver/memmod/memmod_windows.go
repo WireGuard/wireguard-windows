@@ -39,6 +39,10 @@ type Module struct {
 	blockedMemory *addressList
 }
 
+func (module *Module) BaseAddr() uintptr {
+	return module.codeBase
+}
+
 func (module *Module) headerDirectory(idx int) *IMAGE_DATA_DIRECTORY {
 	return &module.headers.OptionalHeader.DataDirectory[idx]
 }
