@@ -36,7 +36,7 @@ const (
 	PeerHasEndpoint            PeerFlag = 1 << 3
 	PeerReplaceAllowedIPs      PeerFlag = 1 << 5
 	PeerRemove                 PeerFlag = 1 << 6
-	PeerUpdate                 PeerFlag = 1 << 7
+	PeerUpdateOnly             PeerFlag = 1 << 7
 )
 
 type Peer struct {
