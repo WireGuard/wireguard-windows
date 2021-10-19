@@ -149,7 +149,7 @@ func (wireguard *Adapter) SetLogging(logState AdapterLogState) (err error) {
 	return
 }
 
-// RunningVersion returns the version of the running WireGuard driver.
+// RunningVersion returns the version of the loaded driver.
 func RunningVersion() (version uint32, err error) {
 	r0, _, e1 := syscall.Syscall(procWireGuardGetRunningDriverVersion.Addr(), 0, 0, 0, 0)
 	version = uint32(r0)

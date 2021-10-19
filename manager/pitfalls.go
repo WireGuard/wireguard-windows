@@ -44,66 +44,21 @@ func pitfallDnsCacheDisabled() {
 	log.Printf("Warning: the %q (dnscache) service is disabled; please re-enable it", cfg.DisplayName)
 }
 
-/* TODO: put this into x/sys/windows */
-
-var versionDll = windows.NewLazySystemDLL("version.dll")
-var getFileVersionInfo = versionDll.NewProc("GetFileVersionInfoW")
-var getFileVersionInfoSize = versionDll.NewProc("GetFileVersionInfoSizeW")
-var verQueryValue = versionDll.NewProc("VerQueryValueW")
-
-type VS_FIXEDFILEINFO struct {
-	Signature        uint32
-	StrucVersion     uint32
-	FileVersionMS    uint32
-	FileVersionLS    uint32
-	ProductVersionMS uint32
-	ProductVersionLS uint32
-	FileFlagsMask    uint32
-	FileFlags        uint32
-	FileOS           uint32
-	FileType         uint32
-	FileSubtype      uint32
-	FileDateMS       uint32
-	FileDateLS       uint32
-}
-
-var ntQuerySystemInformation = windows.NewLazySystemDLL("ntdll.dll").NewProc("NtQuerySystemInformation")
-
-const systemModuleInformation = 11
-
-type RTL_PROCESS_MODULE_INFORMATION struct {
-	Section          windows.Handle
-	MappedBase       uintptr
-	ImageBase        uintptr
-	ImageSize        uint32
-	Flags            uint32
-	LoadOrderIndex   uint16
-	InitOrderIndex   uint16
-	LoadCount        uint16
-	OffsetToFileName uint16
-	FullPathName     [256]byte
-}
-
-type RTL_PROCESS_MODULES struct {
-	NumberOfModules uint32
-	FirstModule     RTL_PROCESS_MODULE_INFORMATION
-}
-
 func pitfallVirtioNetworkDriver() {
-	var modules []RTL_PROCESS_MODULE_INFORMATION
+	var modules []windows.RTL_PROCESS_MODULE_INFORMATION
 	for bufferSize := uint32(128 * 1024); ; {
 		moduleBuffer := make([]byte, bufferSize)
-		ret, _, _ := ntQuerySystemInformation.Call(systemModuleInformation, uintptr(unsafe.Pointer(&moduleBuffer[0])), uintptr(bufferSize), uintptr(unsafe.Pointer(&bufferSize)))
-		switch windows.NTStatus(ret) {
+		err := windows.NtQuerySystemInformation(windows.SystemModuleInformation, unsafe.Pointer(&moduleBuffer[0]), bufferSize, &bufferSize)
+		switch err {
 		case windows.STATUS_INFO_LENGTH_MISMATCH:
 			continue
-		case windows.STATUS_SUCCESS:
+		case nil:
 			break
 		default:
 			return
 		}
-		mods := (*RTL_PROCESS_MODULES)(unsafe.Pointer(&moduleBuffer[0]))
-		modules = unsafe.Slice(&mods.FirstModule, mods.NumberOfModules)
+		mods := (*windows.RTL_PROCESS_MODULES)(unsafe.Pointer(&moduleBuffer[0]))
+		modules = unsafe.Slice(&mods.Modules[0], mods.NumberOfModules)
 		break
 	}
 	for i := range modules {
@@ -111,18 +66,20 @@ func pitfallVirtioNetworkDriver() {
 			continue
 		}
 		driverPath := `\\?\GLOBALROOT` + windows.ByteSliceToString(modules[i].FullPathName[:])
-		zero := uint32(0)
-		ret, _, _ := getFileVersionInfoSize.Call(uintptr(unsafe.Pointer(windows.StringToUTF16Ptr(driverPath))), uintptr(unsafe.Pointer(&zero)))
-		if ret == 0 {
+		var zero windows.Handle
+		infoSize, err := windows.GetFileVersionInfoSize(driverPath, &zero)
+		if err != nil {
 			return
 		}
-		infoSize := uint32(ret)
 		versionInfo := make([]byte, infoSize)
-		ret, _, _ = getFileVersionInfo.Call(uintptr(unsafe.Pointer(windows.StringToUTF16Ptr(driverPath))), 0, uintptr(infoSize), uintptr(unsafe.Pointer(&versionInfo[0])))
-		var fixedInfo *VS_FIXEDFILEINFO
+		err = windows.GetFileVersionInfo(driverPath, 0, infoSize, unsafe.Pointer(&versionInfo[0]))
+		if err != nil {
+			return
+		}
+		var fixedInfo *windows.VS_FIXEDFILEINFO
 		fixedInfoLen := uint32(unsafe.Sizeof(*fixedInfo))
-		ret, _, _ = verQueryValue.Call(uintptr(unsafe.Pointer(&versionInfo[0])), uintptr(unsafe.Pointer(windows.StringToUTF16Ptr(`\`))), uintptr(unsafe.Pointer(&fixedInfo)), uintptr(unsafe.Pointer(&fixedInfoLen)))
-		if ret == 0 {
+		err = windows.VerQueryValue(unsafe.Pointer(&versionInfo[0]), `\`, unsafe.Pointer(&fixedInfo), &fixedInfoLen)
+		if err != nil {
 			return
 		}
 		const minimumGoodVersion = (100 << 48) | (85 << 32) | (104 << 16) | (20800 << 0)

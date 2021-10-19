@@ -164,14 +164,13 @@ func (module *Module) finalizeSection(sectionData *sectionFinalizeData) error {
 	return nil
 }
 
-var rtlAddFunctionTable = windows.NewLazySystemDLL("ntdll.dll").NewProc("RtlAddFunctionTable")
-
 func (module *Module) registerExceptionHandlers() {
 	directory := module.headerDirectory(IMAGE_DIRECTORY_ENTRY_EXCEPTION)
 	if directory.Size == 0 || directory.VirtualAddress == 0 {
 		return
 	}
-	rtlAddFunctionTable.Call(module.codeBase+uintptr(directory.VirtualAddress), uintptr(directory.Size)/unsafe.Sizeof(IMAGE_RUNTIME_FUNCTION_ENTRY{}), module.codeBase)
+	runtimeFuncs := (*windows.RUNTIME_FUNCTION)(unsafe.Pointer(module.codeBase+uintptr(directory.VirtualAddress)))
+	windows.RtlAddFunctionTable(runtimeFuncs, uint32(uintptr(directory.Size)/unsafe.Sizeof(*runtimeFuncs)), module.codeBase)
 }
 
 func (module *Module) finalizeSections() error {
