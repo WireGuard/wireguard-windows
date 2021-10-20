@@ -20,7 +20,7 @@ import (
 
 func resolveHostname(name string) (resolvedIPString string, err error) {
 	maxTries := 10
-	systemJustBooted := windows.DurationSinceBoot() <= time.Minute*4
+	systemJustBooted := windows.DurationSinceBoot() <= time.Minute*10
 	if systemJustBooted {
 		maxTries *= 4
 	}

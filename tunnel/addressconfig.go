@@ -11,6 +11,7 @@ import (
 	"log"
 	"net"
 	"sort"
+	"time"
 
 	"golang.org/x/sys/windows"
 	"golang.zx2c4.com/wireguard/windows/conf"
@@ -57,6 +58,17 @@ func cleanupAddressesOnDisconnectedInterfaces(family winipcfg.AddressFamily, add
 }
 
 func configureInterface(family winipcfg.AddressFamily, conf *conf.Config, luid winipcfg.LUID) error {
+	systemJustBooted := windows.DurationSinceBoot() <= time.Minute*10
+	tryTimes := 0
+startOver:
+	var err error
+	if tryTimes > 0 {
+		log.Printf("Retrying interface configuration after failure because system just booted (T+%v): %v", windows.DurationSinceBoot(), err)
+		time.Sleep(time.Second)
+		systemJustBooted = systemJustBooted && tryTimes < 15
+	}
+	tryTimes++
+
 	estimatedRouteCount := 0
 	for _, peer := range conf.Peers {
 		estimatedRouteCount += len(peer.AllowedIPs)
@@ -127,22 +139,27 @@ func configureInterface(family winipcfg.AddressFamily, conf *conf.Config, luid w
 	}
 
 	if !conf.Interface.TableOff {
-		err := luid.SetRoutesForFamily(family, deduplicatedRoutes)
-		if err != nil {
-			return fmt.Errorf("unable to set routes %+v: %w", deduplicatedRoutes, err)
+		err = luid.SetRoutesForFamily(family, deduplicatedRoutes)
+		if err == windows.ERROR_NOT_FOUND && systemJustBooted {
+			goto startOver
+		} else if err != nil {
+			return fmt.Errorf("unable to set routes: %w", err)
 		}
 	}
 
-	err := luid.SetIPAddressesForFamily(family, addresses)
+	err = luid.SetIPAddressesForFamily(family, addresses)
 	if err == windows.ERROR_OBJECT_ALREADY_EXISTS {
 		cleanupAddressesOnDisconnectedInterfaces(family, addresses)
 		err = luid.SetIPAddressesForFamily(family, addresses)
 	}
-	if err != nil {
-		return fmt.Errorf("unable to set ips %+v: %w", addresses, err)
+	if err == windows.ERROR_NOT_FOUND && systemJustBooted {
+		goto startOver
+	} else if err != nil {
+		return fmt.Errorf("unable to set ips: %w", err)
 	}
 
-	ipif, err := luid.IPInterface(family)
+	var ipif *winipcfg.MibIPInterfaceRow
+	ipif, err = luid.IPInterface(family)
 	if err != nil {
 		return err
 	}
@@ -158,13 +175,17 @@ func configureInterface(family winipcfg.AddressFamily, conf *conf.Config, luid w
 		ipif.Metric = 0
 	}
 	err = ipif.Set()
-	if err != nil {
+	if err == windows.ERROR_NOT_FOUND && systemJustBooted {
+		goto startOver
+	} else if err != nil {
 		return fmt.Errorf("unable to set metric and MTU: %w", err)
 	}
 
 	err = luid.SetDNS(family, conf.Interface.DNS, conf.Interface.DNSSearch)
-	if err != nil {
-		return fmt.Errorf("unable to set DNS %v %v: %w", conf.Interface.DNS, conf.Interface.DNSSearch, err)
+	if err == windows.ERROR_NOT_FOUND && systemJustBooted {
+		goto startOver
+	} else if err != nil {
+		return fmt.Errorf("unable to set DNS: %w", err)
 	}
 	return nil
 }
