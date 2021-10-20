@@ -39,7 +39,6 @@ if exist .deps\prepared goto :build
 	set LDLIBS=-lmsi -lole32 -lshlwapi -lshell32 -luuid -lntdll
 	call :msi x86 i686 x86 || goto :error
 	call :msi amd64 x86_64 x64 || goto :error
-	call :msi arm armv7 arm || goto :error
 	call :msi arm64 aarch64 arm64 || goto :error
 	if "%SigningCertificate%"=="" goto :success
 	if "%TimestampServer%"=="" goto :success

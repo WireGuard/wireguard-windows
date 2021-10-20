@@ -15,7 +15,7 @@ RESOURCE_FILES := resources.rc version/version.go manifest.xml $(patsubst %.svg,
 DEPLOYMENT_HOST ?= winvm
 DEPLOYMENT_PATH ?= Desktop
 
-all: amd64/wireguard.exe x86/wireguard.exe arm64/wireguard.exe arm/wireguard.exe
+all: amd64/wireguard.exe x86/wireguard.exe arm64/wireguard.exe
 
 define download =
 .distfiles/$(1):
@@ -51,9 +51,6 @@ resources_amd64.syso: $(RESOURCE_FILES)
 resources_386.syso: $(RESOURCE_FILES)
 	i686-w64-mingw32-windres $(RCFLAGS) -I .deps/wireguard-nt/bin/x86 -i $< -o $@
 
-resources_arm.syso: $(RESOURCE_FILES)
-	armv7-w64-mingw32-windres $(RCFLAGS) -I .deps/wireguard-nt/bin/arm -i $< -o $@
-
 resources_arm64.syso: $(RESOURCE_FILES)
 	aarch64-w64-mingw32-windres $(RCFLAGS) -I .deps/wireguard-nt/bin/arm64 -i $< -o $@
 
@@ -63,11 +60,6 @@ amd64/wireguard.exe: resources_amd64.syso $(SOURCE_FILES)
 
 x86/wireguard.exe: export GOARCH := 386
 x86/wireguard.exe: resources_386.syso $(SOURCE_FILES)
-	go build $(GOFLAGS) -o $@
-
-arm/wireguard.exe: export GOARCH := arm
-arm/wireguard.exe: export GOARM := 7
-arm/wireguard.exe: resources_arm.syso $(SOURCE_FILES)
 	go build $(GOFLAGS) -o $@
 
 arm64/wireguard.exe: export GOARCH := arm64
@@ -100,7 +92,7 @@ deploy: amd64/wireguard.exe
 	scp $< $(DEPLOYMENT_HOST):$(DEPLOYMENT_PATH)
 
 clean:
-	rm -rf *.syso ui/icon/*.ico x86/ amd64/ arm/ arm64/ .deps
+	rm -rf *.syso ui/icon/*.ico x86/ amd64/ arm64/ .deps
 
 distclean: clean
 	rm -rf .distfiles
