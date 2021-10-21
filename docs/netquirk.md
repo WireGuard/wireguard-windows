@@ -30,4 +30,4 @@ Windows assigns a unique GUID to each new WireGuard adapter. The application tak
 
 ### Adapter Lifetime
 
-WireGuard's network adapter is created dynamically when a tunnel is started and destroyed when a tunnel is stopped. This means that additional filters, address families, or protocols should be bound to the adapter programmatically, possibly through use of dangerous script execution in thet configuration file or by way of automatic NDIS layer binding.
+WireGuard's network adapter is created dynamically when a tunnel is started and destroyed when a tunnel is stopped. This means that additional filters, address families, or protocols should be bound to the adapter programmatically, possibly through use of dangerous script execution in the configuration file or by way of automatic NDIS layer binding.
