@@ -169,7 +169,7 @@ func (module *Module) registerExceptionHandlers() {
 	if directory.Size == 0 || directory.VirtualAddress == 0 {
 		return
 	}
-	runtimeFuncs := (*windows.RUNTIME_FUNCTION)(unsafe.Pointer(module.codeBase+uintptr(directory.VirtualAddress)))
+	runtimeFuncs := (*windows.RUNTIME_FUNCTION)(unsafe.Pointer(module.codeBase + uintptr(directory.VirtualAddress)))
 	windows.RtlAddFunctionTable(runtimeFuncs, uint32(uintptr(directory.Size)/unsafe.Sizeof(*runtimeFuncs)), module.codeBase)
 }
 
