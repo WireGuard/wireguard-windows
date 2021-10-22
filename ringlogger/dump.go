@@ -6,13 +6,16 @@
 package ringlogger
 
 import (
+	"errors"
+	"fmt"
 	"io"
 	"os"
+	"time"
 
 	"golang.org/x/sys/windows"
 )
 
-func DumpTo(inPath string, out io.Writer) error {
+func DumpTo(inPath string, out io.Writer, continuous bool) error {
 	file, err := os.Open(inPath)
 	if err != nil {
 		return err
@@ -28,9 +31,26 @@ func DumpTo(inPath string, out io.Writer) error {
 		return err
 	}
 	defer rl.Close()
-	_, err = rl.WriteTo(out)
-	if err != nil {
-		return err
+	if !continuous {
+		_, err = rl.WriteTo(out)
+		if err != nil {
+			return err
+		}
+	} else {
+		cursor := CursorAll
+		for {
+			var items []FollowLine
+			items, cursor = rl.FollowFromCursor(cursor)
+			for _, item := range items {
+				_, err = fmt.Fprintf(out, "%s: %s\n", item.Stamp.Format("2006-01-02 15:04:05.000000"), item.Line)
+				if errors.Is(err, io.EOF) {
+					return nil
+				} else if err != nil {
+					return err
+				}
+			}
+			time.Sleep(time.Millisecond * 100)
+		}
 	}
 	return nil
 }

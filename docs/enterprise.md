@@ -69,6 +69,18 @@ The manager and all tunnel services produce diagnostic logs in a shared ringbuff
 > wireguard /dumplog > C:\path\to\diagnostic\log.txt
 ```
 
+Alternatively, the log can be tailed continuously, for passing it to logging services:
+
+```text
+> wireguard /dumplog /tail | log-ingest
+```
+
+Or it can be monitored in PowerShell by piping to `select`:
+
+```text
+PS> wireguard /dumplog /tail | select
+```
+
 ### Updates
 
 Administrators are notified of updates within the UI and can update from within the UI, but updates can also be invoked at the command line using the command:

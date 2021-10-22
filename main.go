@@ -72,7 +72,7 @@ func usage() {
 		"/managerservice",
 		"/tunnelservice CONFIG_PATH",
 		"/ui CMD_READ_HANDLE CMD_WRITE_HANDLE CMD_EVENT_HANDLE LOG_MAPPING_HANDLE",
-		"/dumplog",
+		"/dumplog [/tail]",
 		"/update",
 		"/removedriver",
 	}
@@ -269,7 +269,7 @@ func main() {
 		ui.RunUI()
 		return
 	case "/dumplog":
-		if len(os.Args) != 2 {
+		if len(os.Args) != 2 && len(os.Args) != 3 {
 			usage()
 		}
 		outputHandle, err := windows.GetStdHandle(windows.STD_OUTPUT_HANDLE)
@@ -285,7 +285,7 @@ func main() {
 		if err != nil {
 			fatal(err)
 		}
-		err = ringlogger.DumpTo(logPath, file)
+		err = ringlogger.DumpTo(logPath, file, len(os.Args) == 3 && os.Args[2] == "/tail")
 		if err != nil {
 			fatal(err)
 		}
