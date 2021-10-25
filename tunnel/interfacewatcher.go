@@ -6,9 +6,11 @@
 package tunnel
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"sync"
+	"time"
 
 	"golang.org/x/sys/windows"
 	"golang.zx2c4.com/wireguard/windows/conf"
@@ -27,7 +29,8 @@ type interfaceWatcherEvent struct {
 	family winipcfg.AddressFamily
 }
 type interfaceWatcher struct {
-	errors chan interfaceWatcherError
+	errors  chan interfaceWatcherError
+	started chan winipcfg.AddressFamily
 
 	conf    *conf.Config
 	adapter *driver.Adapter
@@ -38,9 +41,11 @@ type interfaceWatcher struct {
 	changeCallbacks4        []winipcfg.ChangeCallback
 	changeCallbacks6        []winipcfg.ChangeCallback
 	storedEvents            []interfaceWatcherEvent
+	watchdog                *time.Timer
 }
 
 func (iw *interfaceWatcher) setup(family winipcfg.AddressFamily) {
+	iw.watchdog.Stop()
 	var changeCallbacks *[]winipcfg.ChangeCallback
 	var ipversion string
 	if family == windows.AF_INET {
@@ -75,12 +80,19 @@ func (iw *interfaceWatcher) setup(family winipcfg.AddressFamily) {
 		iw.errors <- interfaceWatcherError{services.ErrorSetNetConfig, err}
 		return
 	}
+
+	iw.started <- family
 }
 
 func watchInterface() (*interfaceWatcher, error) {
 	iw := &interfaceWatcher{
-		errors: make(chan interfaceWatcherError, 2),
+		errors:  make(chan interfaceWatcherError, 2),
+		started: make(chan winipcfg.AddressFamily, 4),
 	}
+	iw.watchdog = time.AfterFunc(time.Duration(1<<63-1), func() {
+		iw.errors <- interfaceWatcherError{services.ErrorCreateNetworkAdapter, errors.New("TCP/IP interface for adapter did not appear after one minute")}
+	})
+	iw.watchdog.Stop()
 	var err error
 	iw.interfaceChangeCallback, err = winipcfg.RegisterInterfaceChangeCallback(func(notificationType winipcfg.MibNotificationType, iface *winipcfg.MibIPInterfaceRow) {
 		iw.setupMutex.Lock()
@@ -119,6 +131,7 @@ func watchInterface() (*interfaceWatcher, error) {
 func (iw *interfaceWatcher) Configure(adapter *driver.Adapter, conf *conf.Config, luid winipcfg.LUID) {
 	iw.setupMutex.Lock()
 	defer iw.setupMutex.Unlock()
+	iw.watchdog.Reset(time.Minute)
 
 	iw.adapter, iw.conf, iw.luid = adapter, conf, luid
 	for _, event := range iw.storedEvents {
@@ -131,6 +144,7 @@ func (iw *interfaceWatcher) Configure(adapter *driver.Adapter, conf *conf.Config
 
 func (iw *interfaceWatcher) Destroy() {
 	iw.setupMutex.Lock()
+	iw.watchdog.Stop()
 	changeCallbacks4 := iw.changeCallbacks4
 	changeCallbacks6 := iw.changeCallbacks6
 	interfaceChangeCallback := iw.interfaceChangeCallback

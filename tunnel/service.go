@@ -31,7 +31,8 @@ type tunnelService struct {
 }
 
 func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest, changes chan<- svc.Status) (svcSpecificEC bool, exitCode uint32) {
-	changes <- svc.Status{State: svc.StartPending}
+	serviceState := svc.StartPending
+	changes <- svc.Status{State: serviceState}
 
 	var watcher *interfaceWatcher
 	var adapter *driver.Adapter
@@ -46,7 +47,8 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 		if logErr != nil {
 			log.Println(logErr)
 		}
-		changes <- svc.Status{State: svc.StopPending}
+		serviceState = svc.StopPending
+		changes <- svc.Status{State: serviceState}
 
 		stopIt := make(chan bool, 1)
 		go func() {
@@ -127,7 +129,8 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 			 * announce that we're running before starting additional services.
 			 */
 			log.Printf("SCM locked for %v by %s, marking service as started", lockStatus.Age, lockStatus.Owner)
-			changes <- svc.Status{State: svc.Running}
+			serviceState = svc.Running
+			changes <- svc.Status{State: serviceState}
 		}
 		m.Disconnect()
 	}
@@ -214,9 +217,9 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 		return
 	}
 
-	changes <- svc.Status{State: svc.Running, Accepts: svc.AcceptStop | svc.AcceptShutdown}
-	log.Println("Startup complete")
+	changes <- svc.Status{State: serviceState, Accepts: svc.AcceptStop | svc.AcceptShutdown}
 
+	var started bool
 	for {
 		select {
 		case c := <-r:
@@ -227,6 +230,13 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 				changes <- c.CurrentStatus
 			default:
 				log.Printf("Unexpected service control request #%d\n", c)
+			}
+		case <-watcher.started:
+			if !started {
+				serviceState = svc.Running
+				changes <- svc.Status{State: serviceState, Accepts: svc.AcceptStop | svc.AcceptShutdown}
+				log.Println("Startup complete")
+				started = true
 			}
 		case e := <-watcher.errors:
 			serviceError, err = e.serviceError, e.err
