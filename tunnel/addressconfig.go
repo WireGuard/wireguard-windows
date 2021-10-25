@@ -23,20 +23,18 @@ func cleanupAddressesOnDisconnectedInterfaces(family winipcfg.AddressFamily, add
 	if len(addresses) == 0 {
 		return
 	}
-	includedInAddresses := func(a net.IPNet) bool {
-		// TODO: this makes the whole algorithm O(n^2). But we can't stick net.IPNet in a Go hashmap. Bummer!
-		for _, addr := range addresses {
-			ip := addr.IP
-			if ip4 := ip.To4(); ip4 != nil {
-				ip = ip4
-			}
-			mA, _ := addr.Mask.Size()
-			mB, _ := a.Mask.Size()
-			if bytes.Equal(ip, a.IP) && mA == mB {
-				return true
-			}
+	addrToStr := func(addr *net.IPNet) string {
+		ip := addr.IP
+		if ip4 := ip.To4(); ip4 != nil {
+			ip = ip4
 		}
-		return false
+		ones, _ := addr.Mask.Size()
+		ip = append(ip, byte(ones))
+		return string(ip)
+	}
+	addrHash := make(map[string]bool, len(addresses))
+	for i := range addresses {
+		addrHash[addrToStr(&addresses[i])] = true
 	}
 	interfaces, err := winipcfg.GetAdaptersAddresses(family, winipcfg.GAAFlagDefault)
 	if err != nil {
@@ -49,7 +47,7 @@ func cleanupAddressesOnDisconnectedInterfaces(family winipcfg.AddressFamily, add
 		for address := iface.FirstUnicastAddress; address != nil; address = address.Next {
 			ip := address.Address.IP()
 			ipnet := net.IPNet{IP: ip, Mask: net.CIDRMask(int(address.OnLinkPrefixLength), 8*len(ip))}
-			if includedInAddresses(ipnet) {
+			if addrHash[addrToStr(&ipnet)] {
 				log.Printf("Cleaning up stale address %s from interface ‘%s’", ipnet.String(), iface.FriendlyName())
 				iface.LUID.DeleteIPAddress(ipnet)
 			}
