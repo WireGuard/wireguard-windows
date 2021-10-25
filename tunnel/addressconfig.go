@@ -23,18 +23,15 @@ func cleanupAddressesOnDisconnectedInterfaces(family winipcfg.AddressFamily, add
 	if len(addresses) == 0 {
 		return
 	}
-	addrToStr := func(addr *net.IPNet) string {
-		ip := addr.IP
+	addrToStr := func(ip *net.IP) string {
 		if ip4 := ip.To4(); ip4 != nil {
-			ip = ip4
+			return string(ip4)
 		}
-		ones, _ := addr.Mask.Size()
-		ip = append(ip, byte(ones))
-		return string(ip)
+		return string(*ip)
 	}
 	addrHash := make(map[string]bool, len(addresses))
 	for i := range addresses {
-		addrHash[addrToStr(&addresses[i])] = true
+		addrHash[addrToStr(&addresses[i].IP)] = true
 	}
 	interfaces, err := winipcfg.GetAdaptersAddresses(family, winipcfg.GAAFlagDefault)
 	if err != nil {
@@ -46,8 +43,8 @@ func cleanupAddressesOnDisconnectedInterfaces(family winipcfg.AddressFamily, add
 		}
 		for address := iface.FirstUnicastAddress; address != nil; address = address.Next {
 			ip := address.Address.IP()
-			ipnet := net.IPNet{IP: ip, Mask: net.CIDRMask(int(address.OnLinkPrefixLength), 8*len(ip))}
-			if addrHash[addrToStr(&ipnet)] {
+			if addrHash[addrToStr(&ip)] {
+				ipnet := net.IPNet{IP: ip, Mask: net.CIDRMask(int(address.OnLinkPrefixLength), 8*len(ip))}
 				log.Printf("Cleaning up stale address %s from interface ‘%s’", ipnet.String(), iface.FriendlyName())
 				iface.LUID.DeleteIPAddress(ipnet)
 			}
