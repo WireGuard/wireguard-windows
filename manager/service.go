@@ -22,7 +22,6 @@ import (
 	"golang.zx2c4.com/wireguard/windows/elevate"
 	"golang.zx2c4.com/wireguard/windows/ringlogger"
 	"golang.zx2c4.com/wireguard/windows/services"
-	"golang.zx2c4.com/wireguard/windows/version"
 )
 
 type managerService struct{}
@@ -54,8 +53,7 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 		return
 	}
 
-	log.Println("Starting", version.UserAgent())
-
+	services.PrintStarting()
 	checkForPitfalls()
 
 	path, err := os.Executable()

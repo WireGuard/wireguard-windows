@@ -15,6 +15,7 @@ import (
 
 	"golang.org/x/sys/windows"
 	"golang.zx2c4.com/wireguard/windows/conf"
+	"golang.zx2c4.com/wireguard/windows/services"
 	"golang.zx2c4.com/wireguard/windows/tunnel/firewall"
 	"golang.zx2c4.com/wireguard/windows/tunnel/winipcfg"
 )
@@ -53,14 +54,14 @@ func cleanupAddressesOnDisconnectedInterfaces(family winipcfg.AddressFamily, add
 }
 
 func configureInterface(family winipcfg.AddressFamily, conf *conf.Config, luid winipcfg.LUID) error {
-	systemJustBooted := windows.DurationSinceBoot() <= time.Minute*10
+	retryOnFailure := services.StartedAtBoot()
 	tryTimes := 0
 startOver:
 	var err error
 	if tryTimes > 0 {
 		log.Printf("Retrying interface configuration after failure because system just booted (T+%v): %v", windows.DurationSinceBoot(), err)
 		time.Sleep(time.Second)
-		systemJustBooted = systemJustBooted && tryTimes < 15
+		retryOnFailure = retryOnFailure && tryTimes < 15
 	}
 	tryTimes++
 
@@ -135,7 +136,7 @@ startOver:
 
 	if !conf.Interface.TableOff {
 		err = luid.SetRoutesForFamily(family, deduplicatedRoutes)
-		if err == windows.ERROR_NOT_FOUND && systemJustBooted {
+		if err == windows.ERROR_NOT_FOUND && retryOnFailure {
 			goto startOver
 		} else if err != nil {
 			return fmt.Errorf("unable to set routes: %w", err)
@@ -147,7 +148,7 @@ startOver:
 		cleanupAddressesOnDisconnectedInterfaces(family, addresses)
 		err = luid.SetIPAddressesForFamily(family, addresses)
 	}
-	if err == windows.ERROR_NOT_FOUND && systemJustBooted {
+	if err == windows.ERROR_NOT_FOUND && retryOnFailure {
 		goto startOver
 	} else if err != nil {
 		return fmt.Errorf("unable to set ips: %w", err)
@@ -170,14 +171,14 @@ startOver:
 		ipif.Metric = 0
 	}
 	err = ipif.Set()
-	if err == windows.ERROR_NOT_FOUND && systemJustBooted {
+	if err == windows.ERROR_NOT_FOUND && retryOnFailure {
 		goto startOver
 	} else if err != nil {
 		return fmt.Errorf("unable to set metric and MTU: %w", err)
 	}
 
 	err = luid.SetDNS(family, conf.Interface.DNS, conf.Interface.DNSSearch)
-	if err == windows.ERROR_NOT_FOUND && systemJustBooted {
+	if err == windows.ERROR_NOT_FOUND && retryOnFailure {
 		goto startOver
 	} else if err != nil {
 		return fmt.Errorf("unable to set DNS: %w", err)

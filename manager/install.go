@@ -17,7 +17,6 @@ import (
 	"golang.org/x/sys/windows/svc/mgr"
 
 	"golang.zx2c4.com/wireguard/windows/conf"
-	"golang.zx2c4.com/wireguard/windows/services"
 )
 
 var cachedServiceManager *mgr.Mgr
@@ -130,7 +129,7 @@ func InstallTunnel(configPath string) error {
 		return err
 	}
 
-	serviceName, err := services.ServiceNameOfTunnel(name)
+	serviceName, err := conf.ServiceNameOfTunnel(name)
 	if err != nil {
 		return err
 	}
@@ -183,7 +182,7 @@ func UninstallTunnel(name string) error {
 	if err != nil {
 		return err
 	}
-	serviceName, err := services.ServiceNameOfTunnel(name)
+	serviceName, err := conf.ServiceNameOfTunnel(name)
 	if err != nil {
 		return err
 	}
@@ -211,7 +210,7 @@ func changeTunnelServiceConfigFilePath(name, oldPath, newPath string) {
 	if err != nil {
 		return
 	}
-	serviceName, err := services.ServiceNameOfTunnel(name)
+	serviceName, err := conf.ServiceNameOfTunnel(name)
 	if err != nil {
 		return
 	}

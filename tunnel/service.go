@@ -16,14 +16,12 @@ import (
 	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/svc"
 	"golang.org/x/sys/windows/svc/mgr"
-
 	"golang.zx2c4.com/wireguard/windows/conf"
 	"golang.zx2c4.com/wireguard/windows/driver"
 	"golang.zx2c4.com/wireguard/windows/elevate"
 	"golang.zx2c4.com/wireguard/windows/ringlogger"
 	"golang.zx2c4.com/wireguard/windows/services"
 	"golang.zx2c4.com/wireguard/windows/tunnel/winipcfg"
-	"golang.zx2c4.com/wireguard/windows/version"
 )
 
 type tunnelService struct {
@@ -119,20 +117,22 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 
 	log.SetPrefix(fmt.Sprintf("[%s] ", config.Name))
 
-	log.Println("Starting", version.UserAgent())
+	services.PrintStarting()
 
-	if m, err := mgr.Connect(); err == nil {
-		if lockStatus, err := m.LockStatus(); err == nil && lockStatus.IsLocked {
-			/* If we don't do this, then the driver installation will block forever, because
-			 * installing a network adapter starts the driver service too. Apparently at boot time,
-			 * Windows 8.1 locks the SCM for each service start, creating a deadlock if we don't
-			 * announce that we're running before starting additional services.
-			 */
-			log.Printf("SCM locked for %v by %s, marking service as started", lockStatus.Age, lockStatus.Owner)
-			serviceState = svc.Running
-			changes <- svc.Status{State: serviceState}
+	if services.StartedAtBoot() {
+		if m, err := mgr.Connect(); err == nil {
+			if lockStatus, err := m.LockStatus(); err == nil && lockStatus.IsLocked {
+				/* If we don't do this, then the driver installation will block forever, because
+				 * installing a network adapter starts the driver service too. Apparently at boot time,
+				 * Windows 8.1 locks the SCM for each service start, creating a deadlock if we don't
+				 * announce that we're running before starting additional services.
+				 */
+				log.Printf("SCM locked for %v by %s, marking service as started", lockStatus.Age, lockStatus.Owner)
+				serviceState = svc.Running
+				changes <- svc.Status{State: serviceState}
+			}
+			m.Disconnect()
 		}
-		m.Disconnect()
 	}
 
 	log.Println("Watching network interfaces")
@@ -156,7 +156,7 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 			log.Printf("Retrying adapter creation after failure because system just booted (T+%v): %v", windows.DurationSinceBoot(), err)
 		}
 		adapter, err = driver.CreateAdapter(config.Name, "WireGuard", deterministicGUID(config))
-		if err == nil || windows.DurationSinceBoot() > time.Minute*10 {
+		if err == nil || !services.StartedAtBoot() {
 			break
 		}
 	}
@@ -250,7 +250,7 @@ func Run(confPath string) error {
 	if err != nil {
 		return err
 	}
-	serviceName, err := services.ServiceNameOfTunnel(name)
+	serviceName, err := conf.ServiceNameOfTunnel(name)
 	if err != nil {
 		return err
 	}

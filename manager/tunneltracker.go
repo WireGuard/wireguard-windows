@@ -278,7 +278,7 @@ func trackExistingTunnels() error {
 			continue
 		}
 		trackedTunnelsLock.Unlock()
-		serviceName, err := services.ServiceNameOfTunnel(name)
+		serviceName, err := conf.ServiceNameOfTunnel(name)
 		if err != nil {
 			continue
 		}

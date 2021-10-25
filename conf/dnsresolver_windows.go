@@ -14,14 +14,14 @@ import (
 	"unsafe"
 
 	"golang.org/x/sys/windows"
+	"golang.zx2c4.com/wireguard/windows/services"
 )
 
 //sys	internetGetConnectedState(flags *uint32, reserved uint32) (connected bool) = wininet.InternetGetConnectedState
 
 func resolveHostname(name string) (resolvedIPString string, err error) {
 	maxTries := 10
-	systemJustBooted := windows.DurationSinceBoot() <= time.Minute*10
-	if systemJustBooted {
+	if services.StartedAtBoot() {
 		maxTries *= 4
 	}
 	for i := 0; i < maxTries; i++ {
@@ -37,7 +37,7 @@ func resolveHostname(name string) (resolvedIPString string, err error) {
 			continue
 		}
 		var state uint32
-		if err == windows.WSAHOST_NOT_FOUND && systemJustBooted && !internetGetConnectedState(&state, 0) {
+		if err == windows.WSAHOST_NOT_FOUND && services.StartedAtBoot() && !internetGetConnectedState(&state, 0) {
 			log.Printf("Host not found when resolving %s, but no Internet connection available, sleeping for 4 seconds", name)
 			continue
 		}

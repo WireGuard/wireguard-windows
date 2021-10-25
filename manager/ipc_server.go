@@ -20,7 +20,6 @@ import (
 	"golang.org/x/sys/windows/svc"
 
 	"golang.zx2c4.com/wireguard/windows/conf"
-	"golang.zx2c4.com/wireguard/windows/services"
 	"golang.zx2c4.com/wireguard/windows/updater"
 )
 
@@ -130,7 +129,7 @@ func (s *ManagerService) Stop(tunnelName string) error {
 }
 
 func (s *ManagerService) WaitForStop(tunnelName string) error {
-	serviceName, err := services.ServiceNameOfTunnel(tunnelName)
+	serviceName, err := conf.ServiceNameOfTunnel(tunnelName)
 	if err != nil {
 		return err
 	}
@@ -161,7 +160,7 @@ func (s *ManagerService) Delete(tunnelName string) error {
 }
 
 func (s *ManagerService) State(tunnelName string) (TunnelState, error) {
-	serviceName, err := services.ServiceNameOfTunnel(tunnelName)
+	serviceName, err := conf.ServiceNameOfTunnel(tunnelName)
 	if err != nil {
 		return 0, err
 	}

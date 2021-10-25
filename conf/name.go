@@ -6,6 +6,7 @@
 package conf
 
 import (
+	"errors"
 	"regexp"
 	"strconv"
 	"strings"
@@ -113,4 +114,11 @@ func TunnelNameIsLess(a, b string) bool {
 		}
 	}
 	return false
+}
+
+func ServiceNameOfTunnel(tunnelName string) (string, error) {
+	if !TunnelNameIsValid(tunnelName) {
+		return "", errors.New("Tunnel name is not valid")
+	}
+	return "WireGuardTunnel$" + tunnelName, nil
 }
