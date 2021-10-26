@@ -82,9 +82,10 @@ func pitfallVirtioNetworkDriver() {
 		if err != nil {
 			return
 		}
+		const minimumPlausibleVersion = 40 << 48
 		const minimumGoodVersion = (100 << 48) | (85 << 32) | (104 << 16) | (20800 << 0)
 		version := (uint64(fixedInfo.FileVersionMS) << 32) | uint64(fixedInfo.FileVersionLS)
-		if version >= minimumGoodVersion {
+		if version >= minimumGoodVersion || version < minimumPlausibleVersion {
 			return
 		}
 		log.Println("Warning: the VirtIO network driver (NetKVM) is out of date and may cause known problems; please update to v100.85.104.20800 or later")
