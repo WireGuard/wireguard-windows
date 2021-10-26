@@ -19,7 +19,7 @@ const (
 	policyExtensionOid = "2.5.29.32"
 )
 
-// These are easily by-passable checks, which do not serve serve security purposes.
+// These are easily by-passable checks, which do not serve security purposes.
 // DO NOT PLACE SECURITY-SENSITIVE FUNCTIONS IN THIS FILE
 
 func IsRunningOfficialVersion() bool {
@@ -129,8 +129,7 @@ func extractCertificatePolicies(path string, oid string) ([]string, error) {
 		if cert == nil {
 			break
 		}
-		ci := (*windows.CertInfo)(unsafe.Pointer(cert.CertInfo))
-		ext := windows.CertFindExtension(oid8, ci.CountExtensions, ci.Extensions)
+		ext := windows.CertFindExtension(oid8, cert.CertInfo.CountExtensions, cert.CertInfo.Extensions)
 		if ext == nil {
 			continue
 		}
