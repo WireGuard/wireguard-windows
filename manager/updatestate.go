@@ -7,8 +7,10 @@ package manager
 
 import (
 	"log"
+	unsafeRand "math/rand"
 	"time"
 
+	"golang.zx2c4.com/wireguard/windows/services"
 	"golang.zx2c4.com/wireguard/windows/updater"
 	"golang.zx2c4.com/wireguard/windows/version"
 )
@@ -23,6 +25,10 @@ const (
 
 var updateState = UpdateStateUnknown
 
+func jitterSleep(min, max time.Duration) {
+	time.Sleep(min + time.Duration(unsafeRand.Int63n(int64(max-min+1))))
+}
+
 func checkForUpdates() {
 	if !version.IsRunningOfficialVersion() {
 		log.Println("Build is not official, so updates are disabled")
@@ -30,26 +36,27 @@ func checkForUpdates() {
 		IPCServerNotifyUpdateFound(updateState)
 		return
 	}
-
-	first := true
+	if services.StartedAtBoot() {
+		jitterSleep(time.Minute*2, time.Minute*5)
+	}
+	noError, didNotify := true, false
 	for {
 		update, err := updater.CheckForUpdate()
-		if err == nil && update != nil {
+		if err == nil && update != nil && !didNotify {
 			log.Println("An update is available")
 			updateState = UpdateStateFoundUpdate
 			IPCServerNotifyUpdateFound(updateState)
-			return
-		}
-		if err != nil {
+			didNotify = true
+		} else if err != nil && !didNotify {
 			log.Printf("Update checker: %v", err)
-			if first {
-				time.Sleep(time.Minute * 4)
-				first = false
+			if noError {
+				jitterSleep(time.Minute*4, time.Minute*6)
+				noError = false
 			} else {
-				time.Sleep(time.Minute * 25)
+				jitterSleep(time.Minute*25, time.Minute*30)
 			}
 		} else {
-			time.Sleep(time.Hour)
+			jitterSleep(time.Hour-time.Minute*3, time.Hour+time.Minute*3)
 		}
 	}
 }

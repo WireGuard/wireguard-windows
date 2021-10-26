@@ -6,15 +6,18 @@
 package main
 
 import (
+	"crypto/rand"
 	"debug/pe"
 	"errors"
 	"fmt"
 	"io"
 	"log"
+	unsafeRand "math/rand"
 	"os"
 	"strconv"
 	"strings"
 	"time"
+	"unsafe"
 
 	"golang.org/x/sys/windows"
 
@@ -150,12 +153,19 @@ func pipeFromHandleArgument(handleStr string) (*os.File, error) {
 	return os.NewFile(uintptr(handleInt), "pipe"), nil
 }
 
+func seedUnsafeRng() {
+	var seed int64
+	rand.Read(unsafe.Slice((*byte)(unsafe.Pointer(&seed)), unsafe.Sizeof(seed)))
+	unsafeRand.Seed(seed)
+}
+
 func main() {
 	if windows.SetDllDirectory("") != nil || windows.SetDefaultDllDirectories(windows.LOAD_LIBRARY_SEARCH_SYSTEM32) != nil {
 		panic("failed to restrict dll search path")
 	}
 
 	setLogFile()
+	seedUnsafeRng()
 	checkForWow64()
 
 	if len(os.Args) <= 1 {
