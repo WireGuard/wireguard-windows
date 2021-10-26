@@ -58,9 +58,6 @@ The manager service monitors `%ProgramFiles%\WireGuard\Data\Configurations\` for
 
 The UI is started in the system tray of all builtin Administrators when the manager service is running. A limited UI may also be started in the system tray of all builtin Network Configuration Operators, if the correct registry key is set. [See `adminregistry.md` for information.](adminregistry.md)
 
-By default, the manager stops existing tunnels when starting new tunnels, so that only one tunnel service is running at a time. This behavior may be disabled if the correct registry key is set. [See `adminregistry.md` for information.](adminregistry.md)
-
-
 ### Diagnostic Logs
 
 The manager and all tunnel services produce diagnostic logs in a shared ringbuffer-based log. This is shown in the UI, and also can be dumped to standard out using the command:
