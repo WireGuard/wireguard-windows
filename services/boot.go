@@ -29,7 +29,7 @@ func StartedAtBoot() bool {
 		if reason, err := svc.DynamicStartReason(); err == nil {
 			startedAtBoot = (reason & svc.StartReasonAuto) != 0 || (reason & svc.StartReasonDelayedAuto) != 0
 		} else if errors.Is(err, windows.ERROR_PROC_NOT_FOUND) {
-			// This is an ugly hack for Windows 7, which hopefully we'll be able to remove down the road.
+			// TODO: Below this line is Windows 7 compatibility code, which hopefully we can delete at some point.
 			startedAtBoot = windows.DurationSinceBoot() < time.Minute*10
 		} else {
 			log.Printf("Unable to determine service start reason: %v", err)
