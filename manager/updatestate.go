@@ -7,13 +7,16 @@ package manager
 
 import (
 	"log"
-	unsafeRand "math/rand"
 	"time"
+	_ "unsafe"
 
 	"golang.zx2c4.com/wireguard/windows/services"
 	"golang.zx2c4.com/wireguard/windows/updater"
 	"golang.zx2c4.com/wireguard/windows/version"
 )
+
+//go:linkname fastrandn runtime.fastrandn
+func fastrandn(n uint32) uint32
 
 type UpdateState uint32
 
@@ -26,7 +29,7 @@ const (
 var updateState = UpdateStateUnknown
 
 func jitterSleep(min, max time.Duration) {
-	time.Sleep(min + time.Duration(unsafeRand.Int63n(int64(max-min+1))))
+	time.Sleep(min + time.Millisecond*time.Duration(fastrandn(uint32((max-min+1)/time.Millisecond))))
 }
 
 func checkForUpdates() {
