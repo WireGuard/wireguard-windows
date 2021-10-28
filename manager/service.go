@@ -17,6 +17,7 @@ import (
 
 	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/svc"
+	"golang.zx2c4.com/wireguard/windows/driver"
 
 	"golang.zx2c4.com/wireguard/windows/conf"
 	"golang.zx2c4.com/wireguard/windows/elevate"
@@ -259,6 +260,7 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 	}
 
 	go checkForUpdates()
+	go driver.UninstallLegacyWintun() // We uninstall opportunistically here, so that we don't have to carry around the uninstaller code forever.
 
 	var sessionsPointer *windows.WTS_SESSION_INFO
 	var count uint32
