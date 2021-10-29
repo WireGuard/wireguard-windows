@@ -48,6 +48,11 @@ func isWin7() bool {
 	return maj < 6 || (maj == 6 && min <= 1)
 }
 
+func isWin8DotZeroOrBelow() bool {
+	maj, min, _ := windows.RtlGetNtVersionNumbers()
+	return maj < 6 || (maj == 6 && min <= 2)
+}
+
 func NewSession(userAgent string) (session *Session, err error) {
 	session = new(Session)
 	defer convertError(&err)
@@ -69,8 +74,16 @@ func NewSession(userAgent string) (session *Session, err error) {
 	if err != nil {
 		return
 	}
-	var enableHttp2 uint32 = 1
+	var enableHttp2 uint32 = _WINHTTP_PROTOCOL_FLAG_HTTP2
 	_ = winHttpSetOption(session.handle, _WINHTTP_OPTION_ENABLE_HTTP_PROTOCOL, unsafe.Pointer(&enableHttp2), uint32(unsafe.Sizeof(enableHttp2))) // Don't check return value, in case of old Windows
+
+	if isWin8DotZeroOrBelow() {
+		var enableTLS12 uint32 = _WINHTTP_FLAG_SECURE_PROTOCOL_TLS1_2
+		err = winHttpSetOption(session.handle, _WINHTTP_OPTION_SECURE_PROTOCOLS, unsafe.Pointer(&enableTLS12), uint32(unsafe.Sizeof(enableTLS12)))
+		if err != nil {
+			return
+		}
+	}
 
 	runtime.SetFinalizer(session, func(session *Session) {
 		session.Close()

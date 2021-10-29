@@ -65,3 +65,10 @@ bool is_win7(void)
 	RtlGetNtVersionNumbers(&maj, &min, &build);
 	return maj == 6 && min == 1;
 }
+
+bool is_win8dotzero_or_below(void)
+{
+	DWORD maj, min, build;
+	RtlGetNtVersionNumbers(&maj, &min, &build);
+	return maj == 6 && min <= 2;
+}

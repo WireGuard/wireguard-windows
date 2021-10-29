@@ -114,6 +114,12 @@ static DWORD __stdcall download_thread(void *param)
 	if (!session)
 		goto out;
 	WinHttpSetOption(session, WINHTTP_OPTION_ENABLE_HTTP_PROTOCOL, &enable_http2, sizeof(enable_http2)); // Don't check return value, in case of old Windows
+	if (is_win8dotzero_or_below()) {
+		DWORD enable_tls12 = WINHTTP_FLAG_SECURE_PROTOCOL_TLS1_2;
+		if (!WinHttpSetOption(session, WINHTTP_OPTION_SECURE_PROTOCOLS, &enable_tls12, sizeof(enable_tls12)))
+			goto out;
+	}
+
 	connection = WinHttpConnect(session, L(server), port, 0);
 	if (!connection)
 		goto out;

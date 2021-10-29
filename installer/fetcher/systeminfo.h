@@ -11,5 +11,6 @@
 const char *architecture(void);
 const char *useragent(void);
 bool is_win7(void);
+bool is_win8dotzero_or_below(void);
 
 #endif
