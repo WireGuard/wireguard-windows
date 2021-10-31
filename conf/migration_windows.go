@@ -87,7 +87,7 @@ func migrateUnencryptedConfigs(sharingBase int, migrated MigrationCallback) {
 		if err != nil {
 			goto error
 		}
-		err = config.Save(false)
+		err = config.Save(true)
 		if err != nil {
 			goto error
 		}
