@@ -10,9 +10,10 @@ import (
 	"crypto/subtle"
 	"encoding/base64"
 	"fmt"
-	"net"
 	"strings"
 	"time"
+
+	"golang.zx2c4.com/go118/netip"
 
 	"golang.org/x/crypto/curve25519"
 
@@ -20,11 +21,6 @@ import (
 )
 
 const KeyLength = 32
-
-type IPCidr struct {
-	IP   net.IP
-	Cidr uint8
-}
 
 type Endpoint struct {
 	Host string
@@ -43,10 +39,10 @@ type Config struct {
 
 type Interface struct {
 	PrivateKey Key
-	Addresses  []IPCidr
+	Addresses  []netip.Prefix
 	ListenPort uint16
 	MTU        uint16
-	DNS        []net.IP
+	DNS        []netip.Addr
 	DNSSearch  []string
 	PreUp      string
 	PostUp     string
@@ -58,7 +54,7 @@ type Interface struct {
 type Peer struct {
 	PublicKey           Key
 	PresharedKey        Key
-	AllowedIPs          []IPCidr
+	AllowedIPs          []netip.Prefix
 	Endpoint            Endpoint
 	PersistentKeepalive uint16
 
@@ -67,62 +63,28 @@ type Peer struct {
 	LastHandshakeTime HandshakeTime
 }
 
-func (r *IPCidr) String() string {
-	return fmt.Sprintf("%s/%d", r.IP.String(), r.Cidr)
-}
-
-func (r *IPCidr) Bits() uint8 {
-	if r.IP.To4() != nil {
-		return 32
-	}
-	return 128
-}
-
-func (r *IPCidr) IPNet() net.IPNet {
-	return net.IPNet{
-		IP:   r.IP,
-		Mask: net.CIDRMask(int(r.Cidr), int(r.Bits())),
-	}
-}
-
-func (r *IPCidr) MaskSelf() {
-	bits := int(r.Bits())
-	mask := net.CIDRMask(int(r.Cidr), bits)
-	for i := 0; i < bits/8; i++ {
-		r.IP[i] &= mask[i]
-	}
-}
-
 func (conf *Config) IntersectsWith(other *Config) bool {
-	type hashableIPCidr struct {
-		ip   string
-		cidr byte
-	}
-	allRoutes := make(map[hashableIPCidr]bool, len(conf.Interface.Addresses)*2+len(conf.Peers)*3)
+	allRoutes := make(map[netip.Prefix]bool, len(conf.Interface.Addresses)*2+len(conf.Peers)*3)
 	for _, a := range conf.Interface.Addresses {
-		allRoutes[hashableIPCidr{string(a.IP), byte(len(a.IP) * 8)}] = true
-		a.MaskSelf()
-		allRoutes[hashableIPCidr{string(a.IP), a.Cidr}] = true
+		allRoutes[netip.PrefixFrom(a.Addr(), a.Addr().BitLen())] = true
+		allRoutes[a.Masked()] = true
 	}
 	for i := range conf.Peers {
 		for _, a := range conf.Peers[i].AllowedIPs {
-			a.MaskSelf()
-			allRoutes[hashableIPCidr{string(a.IP), a.Cidr}] = true
+			allRoutes[a.Masked()] = true
 		}
 	}
 	for _, a := range other.Interface.Addresses {
-		if allRoutes[hashableIPCidr{string(a.IP), byte(len(a.IP) * 8)}] {
+		if allRoutes[netip.PrefixFrom(a.Addr(), a.Addr().BitLen())] {
 			return true
 		}
-		a.MaskSelf()
-		if allRoutes[hashableIPCidr{string(a.IP), a.Cidr}] {
+		if allRoutes[a.Masked()] {
 			return true
 		}
 	}
 	for i := range other.Peers {
 		for _, a := range other.Peers[i].AllowedIPs {
-			a.MaskSelf()
-			if allRoutes[hashableIPCidr{string(a.IP), a.Cidr}] {
+			if allRoutes[a.Masked()] {
 				return true
 			}
 		}

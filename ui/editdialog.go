@@ -8,6 +8,8 @@ package ui
 import (
 	"strings"
 
+	"golang.zx2c4.com/go118/netip"
+
 	"github.com/lxn/walk"
 	"github.com/lxn/win"
 	"golang.org/x/sys/windows"
@@ -185,15 +187,17 @@ func (dlg *EditDialog) onBlockUntunneledTrafficCBCheckedChanged() {
 		return
 	}
 	var (
-		v40 = [4]byte{}
-		v60 = [16]byte{}
-		v48 = [4]byte{0x80}
-		v68 = [16]byte{0x80}
+		v400    = netip.PrefixFrom(netip.IPv4Unspecified(), 0)
+		v600000 = netip.PrefixFrom(netip.IPv6Unspecified(), 0)
+		v401    = netip.PrefixFrom(netip.AddrFrom4([4]byte{}), 1)
+		v600001 = netip.PrefixFrom(netip.AddrFrom16([16]byte{}), 1)
+		v41281  = netip.PrefixFrom(netip.AddrFrom4([4]byte{0x80}), 1)
+		v680001 = netip.PrefixFrom(netip.AddrFrom16([16]byte{0x80}), 1)
 	)
 
 	block := dlg.blockUntunneledTrafficCB.Checked()
 	cfg, err := conf.FromWgQuick(dlg.syntaxEdit.Text(), "temporary")
-	var newAllowedIPs []conf.IPCidr
+	var newAllowedIPs []netip.Prefix
 
 	if err != nil {
 		goto err
@@ -202,7 +206,7 @@ func (dlg *EditDialog) onBlockUntunneledTrafficCBCheckedChanged() {
 		goto err
 	}
 
-	newAllowedIPs = make([]conf.IPCidr, 0, len(cfg.Peers[0].AllowedIPs))
+	newAllowedIPs = make([]netip.Prefix, 0, len(cfg.Peers[0].AllowedIPs))
 	if block {
 		var (
 			foundV401    bool
@@ -211,13 +215,13 @@ func (dlg *EditDialog) onBlockUntunneledTrafficCBCheckedChanged() {
 			foundV680001 bool
 		)
 		for _, allowedip := range cfg.Peers[0].AllowedIPs {
-			if allowedip.Cidr == 1 && len(allowedip.IP) == 16 && allowedip.IP.Equal(v60[:]) {
+			if allowedip == v600001 {
 				foundV600001 = true
-			} else if allowedip.Cidr == 1 && len(allowedip.IP) == 16 && allowedip.IP.Equal(v68[:]) {
+			} else if allowedip == v680001 {
 				foundV680001 = true
-			} else if allowedip.Cidr == 1 && len(allowedip.IP) == 4 && allowedip.IP.Equal(v40[:]) {
+			} else if allowedip == v401 {
 				foundV401 = true
-			} else if allowedip.Cidr == 1 && len(allowedip.IP) == 4 && allowedip.IP.Equal(v48[:]) {
+			} else if allowedip == v41281 {
 				foundV41281 = true
 			} else {
 				newAllowedIPs = append(newAllowedIPs, allowedip)
@@ -227,44 +231,44 @@ func (dlg *EditDialog) onBlockUntunneledTrafficCBCheckedChanged() {
 			goto err
 		}
 		if foundV401 && foundV41281 {
-			newAllowedIPs = append(newAllowedIPs, conf.IPCidr{v40[:], 0})
+			newAllowedIPs = append(newAllowedIPs, v400)
 		} else if foundV401 {
-			newAllowedIPs = append(newAllowedIPs, conf.IPCidr{v40[:], 1})
+			newAllowedIPs = append(newAllowedIPs, v401)
 		} else if foundV41281 {
-			newAllowedIPs = append(newAllowedIPs, conf.IPCidr{v48[:], 1})
+			newAllowedIPs = append(newAllowedIPs, v41281)
 		}
 		if foundV600001 && foundV680001 {
-			newAllowedIPs = append(newAllowedIPs, conf.IPCidr{v60[:], 0})
+			newAllowedIPs = append(newAllowedIPs, v600000)
 		} else if foundV600001 {
-			newAllowedIPs = append(newAllowedIPs, conf.IPCidr{v60[:], 1})
+			newAllowedIPs = append(newAllowedIPs, v600001)
 		} else if foundV680001 {
-			newAllowedIPs = append(newAllowedIPs, conf.IPCidr{v68[:], 1})
+			newAllowedIPs = append(newAllowedIPs, v680001)
 		}
 		cfg.Peers[0].AllowedIPs = newAllowedIPs
 	} else {
 		var (
-			foundV400 bool
-			foundV600 bool
+			foundV400    bool
+			foundV600000 bool
 		)
 		for _, allowedip := range cfg.Peers[0].AllowedIPs {
-			if allowedip.Cidr == 0 && len(allowedip.IP) == 16 && allowedip.IP.Equal(v60[:]) {
-				foundV600 = true
-			} else if allowedip.Cidr == 0 && len(allowedip.IP) == 4 && allowedip.IP.Equal(v40[:]) {
+			if allowedip == v600000 {
+				foundV600000 = true
+			} else if allowedip == v400 {
 				foundV400 = true
 			} else {
 				newAllowedIPs = append(newAllowedIPs, allowedip)
 			}
 		}
-		if !(foundV400 || foundV600) {
+		if !(foundV400 || foundV600000) {
 			goto err
 		}
 		if foundV400 {
-			newAllowedIPs = append(newAllowedIPs, conf.IPCidr{v40[:], 1})
-			newAllowedIPs = append(newAllowedIPs, conf.IPCidr{v48[:], 1})
+			newAllowedIPs = append(newAllowedIPs, v401)
+			newAllowedIPs = append(newAllowedIPs, v41281)
 		}
-		if foundV600 {
-			newAllowedIPs = append(newAllowedIPs, conf.IPCidr{v60[:], 1})
-			newAllowedIPs = append(newAllowedIPs, conf.IPCidr{v68[:], 1})
+		if foundV600000 {
+			newAllowedIPs = append(newAllowedIPs, v600001)
+			newAllowedIPs = append(newAllowedIPs, v680001)
 		}
 		cfg.Peers[0].AllowedIPs = newAllowedIPs
 	}

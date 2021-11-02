@@ -8,9 +8,10 @@ package firewall
 import (
 	"encoding/binary"
 	"errors"
-	"net"
 	"runtime"
 	"unsafe"
+
+	"golang.zx2c4.com/go118/netip"
 
 	"golang.org/x/sys/windows"
 )
@@ -985,7 +986,7 @@ func blockAll(session uintptr, baseObjects *baseObjects, weight uint8) error {
 }
 
 // Block all DNS traffic except towards specified DNS servers.
-func blockDNS(except []net.IP, session uintptr, baseObjects *baseObjects, weightAllow uint8, weightDeny uint8) error {
+func blockDNS(except []netip.Addr, session uintptr, baseObjects *baseObjects, weightAllow uint8, weightDeny uint8) error {
 	if weightDeny >= weightAllow {
 		return errors.New("The allow weight must be greater than the deny weight")
 	}
@@ -1106,8 +1107,7 @@ func blockDNS(except []net.IP, session uintptr, baseObjects *baseObjects, weight
 	allowConditionsV4 := make([]wtFwpmFilterCondition0, 0, len(denyConditions)+len(except))
 	allowConditionsV4 = append(allowConditionsV4, denyConditions...)
 	for _, ip := range except {
-		ip4 := ip.To4()
-		if ip4 == nil {
+		if !ip.Is4() {
 			continue
 		}
 		allowConditionsV4 = append(allowConditionsV4, wtFwpmFilterCondition0{
@@ -1115,7 +1115,7 @@ func blockDNS(except []net.IP, session uintptr, baseObjects *baseObjects, weight
 			matchType: cFWP_MATCH_EQUAL,
 			conditionValue: wtFwpConditionValue0{
 				_type: cFWP_UINT32,
-				value: uintptr(binary.BigEndian.Uint32(ip4)),
+				value: uintptr(binary.BigEndian.Uint32(ip.AsSlice())),
 			},
 		})
 	}
@@ -1124,11 +1124,10 @@ func blockDNS(except []net.IP, session uintptr, baseObjects *baseObjects, weight
 	allowConditionsV6 := make([]wtFwpmFilterCondition0, 0, len(denyConditions)+len(except))
 	allowConditionsV6 = append(allowConditionsV6, denyConditions...)
 	for _, ip := range except {
-		if ip.To4() != nil {
+		if !ip.Is6() {
 			continue
 		}
-		var address wtFwpByteArray16
-		copy(address.byteArray16[:], ip)
+		address := wtFwpByteArray16{byteArray16: ip.As16()}
 		allowConditionsV6 = append(allowConditionsV6, wtFwpmFilterCondition0{
 			fieldKey:  cFWPM_CONDITION_IP_REMOTE_ADDRESS,
 			matchType: cFWP_MATCH_EQUAL,

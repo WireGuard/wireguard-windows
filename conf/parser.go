@@ -7,9 +7,10 @@ package conf
 
 import (
 	"encoding/base64"
-	"net"
 	"strconv"
 	"strings"
+
+	"golang.zx2c4.com/go118/netip"
 
 	"golang.org/x/sys/windows"
 	"golang.org/x/text/encoding/unicode"
@@ -27,43 +28,16 @@ func (e *ParseError) Error() string {
 	return l18n.Sprintf("%s: %q", e.why, e.offender)
 }
 
-func parseIPCidr(s string) (ipcidr *IPCidr, err error) {
-	var addrStr, cidrStr string
-	var cidr int
-
-	i := strings.IndexByte(s, '/')
-	if i < 0 {
-		addrStr = s
-	} else {
-		addrStr, cidrStr = s[:i], s[i+1:]
+func parseIPCidr(s string) (netip.Prefix, error) {
+	ipcidr, err := netip.ParsePrefix(s)
+	if err == nil {
+		return ipcidr, nil
 	}
-
-	err = &ParseError{l18n.Sprintf("Invalid IP address"), s}
-	addr := net.ParseIP(addrStr)
-	if addr == nil {
-		return
+	addr, err := netip.ParseAddr(s)
+	if err != nil {
+		return netip.Prefix{}, &ParseError{l18n.Sprintf("Invalid IP address: "), s}
 	}
-	maybeV4 := addr.To4()
-	if maybeV4 != nil {
-		addr = maybeV4
-	}
-	if len(cidrStr) > 0 {
-		err = &ParseError{l18n.Sprintf("Invalid network prefix length"), s}
-		cidr, err = strconv.Atoi(cidrStr)
-		if err != nil || cidr < 0 || cidr > 128 {
-			return
-		}
-		if cidr > 32 && maybeV4 != nil {
-			return
-		}
-	} else {
-		if maybeV4 != nil {
-			cidr = 32
-		} else {
-			cidr = 128
-		}
-	}
-	return &IPCidr{addr, uint8(cidr)}, nil
+	return netip.PrefixFrom(addr, addr.BitLen()), nil
 }
 
 func parseEndpoint(s string) (*Endpoint, error) {
@@ -87,8 +61,8 @@ func parseEndpoint(s string) (*Endpoint, error) {
 			if i := strings.LastIndexByte(host, '%'); i > 1 {
 				end = i
 			}
-			maybeV6 := net.ParseIP(host[1:end])
-			if maybeV6 == nil || len(maybeV6) != net.IPv6len {
+			maybeV6, err2 := netip.ParseAddr(host[1:end])
+			if err2 != nil || !maybeV6.Is6() {
 				return nil, err
 			}
 		} else {
@@ -96,7 +70,7 @@ func parseEndpoint(s string) (*Endpoint, error) {
 		}
 		host = host[1 : len(host)-1]
 	}
-	return &Endpoint{host, uint16(port)}, nil
+	return &Endpoint{host, port}, nil
 }
 
 func parseMTU(s string) (uint16, error) {
@@ -256,7 +230,7 @@ func FromWgQuick(s string, name string) (*Config, error) {
 					if err != nil {
 						return nil, err
 					}
-					conf.Interface.Addresses = append(conf.Interface.Addresses, *a)
+					conf.Interface.Addresses = append(conf.Interface.Addresses, a)
 				}
 			case "dns":
 				addresses, err := splitList(val)
@@ -264,8 +238,8 @@ func FromWgQuick(s string, name string) (*Config, error) {
 					return nil, err
 				}
 				for _, address := range addresses {
-					a := net.ParseIP(address)
-					if a == nil {
+					a, err := netip.ParseAddr(address)
+					if err != nil {
 						conf.Interface.DNSSearch = append(conf.Interface.DNSSearch, address)
 					} else {
 						conf.Interface.DNS = append(conf.Interface.DNS, a)
@@ -312,7 +286,7 @@ func FromWgQuick(s string, name string) (*Config, error) {
 					if err != nil {
 						return nil, err
 					}
-					peer.AllowedIPs = append(peer.AllowedIPs, *a)
+					peer.AllowedIPs = append(peer.AllowedIPs, a)
 				}
 			case "persistentkeepalive":
 				p, err := parsePersistentKeepalive(val)
@@ -399,7 +373,7 @@ func FromDriverConfiguration(interfaze *driver.Interface, existingConfig *Config
 		}
 		if p.Flags&driver.PeerHasEndpoint != 0 {
 			peer.Endpoint.Port = p.Endpoint.Port()
-			peer.Endpoint.Host = p.Endpoint.IP().String()
+			peer.Endpoint.Host = p.Endpoint.Addr().String()
 		}
 		if p.Flags&driver.PeerHasPersistentKeepalive != 0 {
 			peer.PersistentKeepalive = p.PersistentKeepalive
@@ -416,16 +390,13 @@ func FromDriverConfiguration(interfaze *driver.Interface, existingConfig *Config
 			} else {
 				a = a.NextAllowedIP()
 			}
-			var ip net.IP
+			var ip netip.Addr
 			if a.AddressFamily == windows.AF_INET {
-				ip = a.Address[:4]
+				ip = netip.AddrFrom4(*(*[4]byte)(a.Address[:4]))
 			} else if a.AddressFamily == windows.AF_INET6 {
-				ip = a.Address[:16]
+				ip = netip.AddrFrom16(*(*[16]byte)(a.Address[:16]))
 			}
-			peer.AllowedIPs = append(peer.AllowedIPs, IPCidr{
-				IP:   ip,
-				Cidr: a.Cidr,
-			})
+			peer.AllowedIPs = append(peer.AllowedIPs, netip.PrefixFrom(ip, int(a.Cidr)))
 		}
 		conf.Peers = append(conf.Peers, peer)
 	}

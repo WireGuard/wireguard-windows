@@ -6,12 +6,11 @@
 package tunnel
 
 import (
-	"bytes"
 	"fmt"
 	"log"
-	"net"
-	"sort"
 	"time"
+
+	"golang.zx2c4.com/go118/netip"
 
 	"golang.org/x/sys/windows"
 	"golang.zx2c4.com/wireguard/windows/conf"
@@ -20,19 +19,13 @@ import (
 	"golang.zx2c4.com/wireguard/windows/tunnel/winipcfg"
 )
 
-func cleanupAddressesOnDisconnectedInterfaces(family winipcfg.AddressFamily, addresses []net.IPNet) {
+func cleanupAddressesOnDisconnectedInterfaces(family winipcfg.AddressFamily, addresses []netip.Prefix) {
 	if len(addresses) == 0 {
 		return
 	}
-	addrToStr := func(ip *net.IP) string {
-		if ip4 := ip.To4(); ip4 != nil {
-			return string(ip4)
-		}
-		return string(*ip)
-	}
-	addrHash := make(map[string]bool, len(addresses))
+	addrHash := make(map[netip.Addr]bool, len(addresses))
 	for i := range addresses {
-		addrHash[addrToStr(&addresses[i].IP)] = true
+		addrHash[addresses[i].Addr()] = true
 	}
 	interfaces, err := winipcfg.GetAdaptersAddresses(family, winipcfg.GAAFlagDefault)
 	if err != nil {
@@ -43,11 +36,10 @@ func cleanupAddressesOnDisconnectedInterfaces(family winipcfg.AddressFamily, add
 			continue
 		}
 		for address := iface.FirstUnicastAddress; address != nil; address = address.Next {
-			ip := address.Address.IP()
-			if addrHash[addrToStr(&ip)] {
-				ipnet := net.IPNet{IP: ip, Mask: net.CIDRMask(int(address.OnLinkPrefixLength), 8*len(ip))}
-				log.Printf("Cleaning up stale address %s from interface ‘%s’", ipnet.String(), iface.FriendlyName())
-				iface.LUID.DeleteIPAddress(ipnet)
+			if ip := netip.AddrFromSlice(address.Address.IP()); addrHash[ip] {
+				prefix := netip.PrefixFrom(ip, int(address.OnLinkPrefixLength))
+				log.Printf("Cleaning up stale address %s from interface ‘%s’", prefix.String(), iface.FriendlyName())
+				iface.LUID.DeleteIPAddress(prefix)
 			}
 		}
 	}
@@ -69,14 +61,14 @@ startOver:
 	for _, peer := range conf.Peers {
 		estimatedRouteCount += len(peer.AllowedIPs)
 	}
-	routes := make([]winipcfg.RouteData, 0, estimatedRouteCount)
-	addresses := make([]net.IPNet, len(conf.Interface.Addresses))
+	routes := make(map[winipcfg.RouteData]bool, estimatedRouteCount)
+	addresses := make([]netip.Prefix, len(conf.Interface.Addresses))
 	var haveV4Address, haveV6Address bool
 	for i, addr := range conf.Interface.Addresses {
-		addresses[i] = addr.IPNet()
-		if addr.Bits() == 32 {
+		addresses[i] = addr
+		if addr.Addr().Is4() {
 			haveV4Address = true
-		} else if addr.Bits() == 128 {
+		} else if addr.Addr().Is6() {
 			haveV6Address = true
 		}
 	}
@@ -85,53 +77,32 @@ startOver:
 	foundDefault6 := false
 	for _, peer := range conf.Peers {
 		for _, allowedip := range peer.AllowedIPs {
-			allowedip.MaskSelf()
-			if (allowedip.Bits() == 32 && !haveV4Address) || (allowedip.Bits() == 128 && !haveV6Address) {
+			if (allowedip.Addr().Is4() && !haveV4Address) || (allowedip.Addr().Is6() && !haveV6Address) {
 				continue
 			}
 			route := winipcfg.RouteData{
-				Destination: allowedip.IPNet(),
+				Destination: allowedip.Masked(),
 				Metric:      0,
 			}
-			if allowedip.Bits() == 32 {
-				if allowedip.Cidr == 0 {
+			if allowedip.Addr().Is4() {
+				if allowedip.Bits() == 0 {
 					foundDefault4 = true
 				}
-				route.NextHop = net.IPv4zero
-			} else if allowedip.Bits() == 128 {
-				if allowedip.Cidr == 0 {
+				route.NextHop = netip.IPv4Unspecified()
+			} else if allowedip.Addr().Is6() {
+				if allowedip.Bits() == 0 {
 					foundDefault6 = true
 				}
-				route.NextHop = net.IPv6zero
+				route.NextHop = netip.IPv6Unspecified()
 			}
-			routes = append(routes, route)
+			routes[route] = true
 		}
 	}
 
 	deduplicatedRoutes := make([]*winipcfg.RouteData, 0, len(routes))
-	sort.Slice(routes, func(i, j int) bool {
-		if routes[i].Metric != routes[j].Metric {
-			return routes[i].Metric < routes[j].Metric
-		}
-		if c := bytes.Compare(routes[i].NextHop, routes[j].NextHop); c != 0 {
-			return c < 0
-		}
-		if c := bytes.Compare(routes[i].Destination.IP, routes[j].Destination.IP); c != 0 {
-			return c < 0
-		}
-		if c := bytes.Compare(routes[i].Destination.Mask, routes[j].Destination.Mask); c != 0 {
-			return c < 0
-		}
-		return false
-	})
-	for i := 0; i < len(routes); i++ {
-		if i > 0 && routes[i].Metric == routes[i-1].Metric &&
-			bytes.Equal(routes[i].NextHop, routes[i-1].NextHop) &&
-			bytes.Equal(routes[i].Destination.IP, routes[i-1].Destination.IP) &&
-			bytes.Equal(routes[i].Destination.Mask, routes[i-1].Destination.Mask) {
-			continue
-		}
-		deduplicatedRoutes = append(deduplicatedRoutes, &routes[i])
+	for route := range routes {
+		r := route
+		deduplicatedRoutes = append(deduplicatedRoutes, &r)
 	}
 
 	if !conf.Interface.TableOff {
@@ -189,14 +160,8 @@ startOver:
 func enableFirewall(conf *conf.Config, luid winipcfg.LUID) error {
 	doNotRestrict := true
 	if len(conf.Peers) == 1 && !conf.Interface.TableOff {
-	nextallowedip:
 		for _, allowedip := range conf.Peers[0].AllowedIPs {
-			if allowedip.Cidr == 0 {
-				for _, b := range allowedip.IP {
-					if b != 0 {
-						continue nextallowedip
-					}
-				}
+			if allowedip.Bits() == 0 && allowedip == allowedip.Masked() {
 				doNotRestrict = false
 				break
 			}

@@ -22,12 +22,12 @@ Some tests in this file require:
 package winipcfg
 
 import (
-	"bytes"
-	"net"
 	"strings"
 	"syscall"
 	"testing"
 	"time"
+
+	"golang.zx2c4.com/go118/netip"
 
 	"golang.org/x/sys/windows"
 )
@@ -38,22 +38,13 @@ const (
 
 // TODO: Add IPv6 tests.
 var (
-	unexistentIPAddresToAdd = net.IPNet{
-		IP:   net.IP{172, 16, 1, 114},
-		Mask: net.IPMask{255, 255, 255, 0},
+	nonexistantIPv4ToAdd      = netip.MustParsePrefix("172.16.1.114/24")
+	nonexistentRouteIPv4ToAdd = RouteData{
+		Destination: netip.MustParsePrefix("172.16.200.0/24"),
+		NextHop:     netip.MustParseAddr("172.16.1.2"),
+		Metric:      0,
 	}
-	unexistentRouteIPv4ToAdd = RouteData{
-		Destination: net.IPNet{
-			IP:   net.IP{172, 16, 200, 0},
-			Mask: net.IPMask{255, 255, 255, 0},
-		},
-		NextHop: net.IP{172, 16, 1, 2},
-		Metric:  0,
-	}
-	dnsesToSet = []net.IP{
-		net.IPv4(8, 8, 8, 8),
-		net.IPv4(8, 8, 4, 4),
-	}
+	dnsesToSet = []netip.Addr{netip.MustParseAddr("8.8.8.8"), netip.MustParseAddr("8.8.4.4")}
 )
 
 func runningElevated() bool {
@@ -380,9 +371,9 @@ func TestAddDeleteIPAddress(t *testing.T) {
 		return
 	}
 
-	addr, err := ifc.LUID.IPAddress(unexistentIPAddresToAdd.IP)
+	addr, err := ifc.LUID.IPAddress(nonexistantIPv4ToAdd.Addr())
 	if err == nil {
-		t.Errorf("Unicast address %s already exists. Please set unexistentIPAddresToAdd appropriately.", unexistentIPAddresToAdd.IP.String())
+		t.Errorf("Unicast address %s already exists. Please set nonexistantIPv4ToAdd appropriately.", nonexistantIPv4ToAdd.Addr().String())
 		return
 	} else if err != windows.ERROR_NOT_FOUND {
 		t.Errorf("LUID.IPAddress() returned an error: %w", err)
@@ -410,7 +401,7 @@ func TestAddDeleteIPAddress(t *testing.T) {
 	for addr := ifc.FirstUnicastAddress; addr != nil; addr = addr.Next {
 		count--
 	}
-	err = ifc.LUID.AddIPAddresses([]net.IPNet{unexistentIPAddresToAdd})
+	err = ifc.LUID.AddIPAddresses([]netip.Prefix{nonexistantIPv4ToAdd})
 	if err != nil {
 		t.Errorf("LUID.AddIPAddresses() returned an error: %w", err)
 	}
@@ -424,26 +415,26 @@ func TestAddDeleteIPAddress(t *testing.T) {
 	if count != 1 {
 		t.Errorf("After adding there are %d new interface(s).", count)
 	}
-	addr, err = ifc.LUID.IPAddress(unexistentIPAddresToAdd.IP)
+	addr, err = ifc.LUID.IPAddress(nonexistantIPv4ToAdd.Addr())
 	if err != nil {
 		t.Errorf("LUID.IPAddress() returned an error: %w", err)
 	} else if addr == nil {
-		t.Errorf("Unicast address %s still doesn't exist, although it's added successfully.", unexistentIPAddresToAdd.IP.String())
+		t.Errorf("Unicast address %s still doesn't exist, although it's added successfully.", nonexistantIPv4ToAdd.Addr().String())
 	}
 	if !created {
 		t.Errorf("Notification handler has not been called on add.")
 	}
 
-	err = ifc.LUID.DeleteIPAddress(unexistentIPAddresToAdd)
+	err = ifc.LUID.DeleteIPAddress(nonexistantIPv4ToAdd)
 	if err != nil {
 		t.Errorf("LUID.DeleteIPAddress() returned an error: %w", err)
 	}
 
 	time.Sleep(500 * time.Millisecond)
 
-	addr, err = ifc.LUID.IPAddress(unexistentIPAddresToAdd.IP)
+	addr, err = ifc.LUID.IPAddress(nonexistantIPv4ToAdd.Addr())
 	if err == nil {
-		t.Errorf("Unicast address %s still exists, although it's deleted successfully.", unexistentIPAddresToAdd.IP.String())
+		t.Errorf("Unicast address %s still exists, although it's deleted successfully.", nonexistantIPv4ToAdd.Addr().String())
 	} else if err != windows.ERROR_NOT_FOUND {
 		t.Errorf("LUID.IPAddress() returned an error: %w", err)
 	}
@@ -460,14 +451,13 @@ func TestGetRoutes(t *testing.T) {
 }
 
 func TestAddDeleteRoute(t *testing.T) {
-	findRoute := func(luid LUID, dest net.IPNet) ([]MibIPforwardRow2, error) {
+	findRoute := func(luid LUID, dest netip.Prefix) ([]MibIPforwardRow2, error) {
 		var family AddressFamily
-		switch {
-		case dest.IP.To4() != nil:
+		if dest.Addr().Is4() {
 			family = windows.AF_INET
-		case dest.IP.To16() != nil:
+		} else if dest.Addr().Is6() {
 			family = windows.AF_INET6
-		default:
+		} else {
 			return nil, windows.ERROR_INVALID_PARAMETER
 		}
 		r, err := GetIPForwardTable2(family)
@@ -475,9 +465,8 @@ func TestAddDeleteRoute(t *testing.T) {
 			return nil, err
 		}
 		matches := make([]MibIPforwardRow2, 0, len(r))
-		ones, _ := dest.Mask.Size()
 		for _, route := range r {
-			if route.InterfaceLUID == luid && route.DestinationPrefix.PrefixLength == uint8(ones) && route.DestinationPrefix.Prefix.Family == family && route.DestinationPrefix.Prefix.IP().Equal(dest.IP) {
+			if route.InterfaceLUID == luid && route.DestinationPrefix.PrefixLength == uint8(dest.Bits()) && route.DestinationPrefix.RawPrefix.Family == family && route.DestinationPrefix.RawPrefix.Addr() == dest.Addr() {
 				matches = append(matches, route)
 			}
 		}
@@ -494,20 +483,20 @@ func TestAddDeleteRoute(t *testing.T) {
 		return
 	}
 
-	_, err = ifc.LUID.Route(unexistentRouteIPv4ToAdd.Destination, unexistentRouteIPv4ToAdd.NextHop)
+	_, err = ifc.LUID.Route(nonexistentRouteIPv4ToAdd.Destination, nonexistentRouteIPv4ToAdd.NextHop)
 	if err == nil {
-		t.Error("LUID.Route() returned a route although it isn't added yet. Have you forgot to set unexistentRouteIPv4ToAdd appropriately?")
+		t.Error("LUID.Route() returned a route although it isn't added yet. Have you forgot to set nonexistentRouteIPv4ToAdd appropriately?")
 		return
 	} else if err != windows.ERROR_NOT_FOUND {
 		t.Errorf("LUID.Route() returned an error: %w", err)
 		return
 	}
 
-	routes, err := findRoute(ifc.LUID, unexistentRouteIPv4ToAdd.Destination)
+	routes, err := findRoute(ifc.LUID, nonexistentRouteIPv4ToAdd.Destination)
 	if err != nil {
 		t.Errorf("findRoute() returned an error: %w", err)
 	} else if len(routes) != 0 {
-		t.Errorf("findRoute() returned %d items although the route isn't added yet. Have you forgot to set unexistentRouteIPv4ToAdd appropriately?", len(routes))
+		t.Errorf("findRoute() returned %d items although the route isn't added yet. Have you forgot to set nonexistentRouteIPv4ToAdd appropriately?", len(routes))
 	}
 
 	var created, deleted bool
@@ -524,42 +513,42 @@ func TestAddDeleteRoute(t *testing.T) {
 	} else {
 		defer cb.Unregister()
 	}
-	err = ifc.LUID.AddRoute(unexistentRouteIPv4ToAdd.Destination, unexistentRouteIPv4ToAdd.NextHop, unexistentRouteIPv4ToAdd.Metric)
+	err = ifc.LUID.AddRoute(nonexistentRouteIPv4ToAdd.Destination, nonexistentRouteIPv4ToAdd.NextHop, nonexistentRouteIPv4ToAdd.Metric)
 	if err != nil {
 		t.Errorf("LUID.AddRoute() returned an error: %w", err)
 	}
 
 	time.Sleep(500 * time.Millisecond)
 
-	route, err := ifc.LUID.Route(unexistentRouteIPv4ToAdd.Destination, unexistentRouteIPv4ToAdd.NextHop)
+	route, err := ifc.LUID.Route(nonexistentRouteIPv4ToAdd.Destination, nonexistentRouteIPv4ToAdd.NextHop)
 	if err == windows.ERROR_NOT_FOUND {
 		t.Error("LUID.Route() returned nil although the route is added successfully.")
 	} else if err != nil {
 		t.Errorf("LUID.Route() returned an error: %w", err)
-	} else if !route.DestinationPrefix.Prefix.IP().Equal(unexistentRouteIPv4ToAdd.Destination.IP) || !route.NextHop.IP().Equal(unexistentRouteIPv4ToAdd.NextHop) {
+	} else if route.DestinationPrefix.RawPrefix.Addr() != nonexistentRouteIPv4ToAdd.Destination.Addr() || route.NextHop.Addr() != nonexistentRouteIPv4ToAdd.NextHop {
 		t.Error("LUID.Route() returned a wrong route!")
 	}
 	if !created {
 		t.Errorf("Route handler has not been called on add.")
 	}
 
-	routes, err = findRoute(ifc.LUID, unexistentRouteIPv4ToAdd.Destination)
+	routes, err = findRoute(ifc.LUID, nonexistentRouteIPv4ToAdd.Destination)
 	if err != nil {
 		t.Errorf("findRoute() returned an error: %w", err)
 	} else if len(routes) != 1 {
 		t.Errorf("findRoute() returned %d items although %d is expected.", len(routes), 1)
-	} else if !routes[0].DestinationPrefix.Prefix.IP().Equal(unexistentRouteIPv4ToAdd.Destination.IP) {
-		t.Errorf("findRoute() returned a wrong route. Dest: %s; expected: %s.", routes[0].DestinationPrefix.Prefix.IP().String(), unexistentRouteIPv4ToAdd.Destination.IP.String())
+	} else if routes[0].DestinationPrefix.RawPrefix.Addr() != nonexistentRouteIPv4ToAdd.Destination.Addr() {
+		t.Errorf("findRoute() returned a wrong route. Dest: %s; expected: %s.", routes[0].DestinationPrefix.RawPrefix.Addr().String(), nonexistentRouteIPv4ToAdd.Destination.Addr().String())
 	}
 
-	err = ifc.LUID.DeleteRoute(unexistentRouteIPv4ToAdd.Destination, unexistentRouteIPv4ToAdd.NextHop)
+	err = ifc.LUID.DeleteRoute(nonexistentRouteIPv4ToAdd.Destination, nonexistentRouteIPv4ToAdd.NextHop)
 	if err != nil {
 		t.Errorf("LUID.DeleteRoute() returned an error: %w", err)
 	}
 
 	time.Sleep(500 * time.Millisecond)
 
-	_, err = ifc.LUID.Route(unexistentRouteIPv4ToAdd.Destination, unexistentRouteIPv4ToAdd.NextHop)
+	_, err = ifc.LUID.Route(nonexistentRouteIPv4ToAdd.Destination, nonexistentRouteIPv4ToAdd.NextHop)
 	if err == nil {
 		t.Error("LUID.Route() returned a route although it is removed successfully.")
 	} else if err != windows.ERROR_NOT_FOUND {
@@ -569,7 +558,7 @@ func TestAddDeleteRoute(t *testing.T) {
 		t.Errorf("Route handler has not been called on delete.")
 	}
 
-	routes, err = findRoute(ifc.LUID, unexistentRouteIPv4ToAdd.Destination)
+	routes, err = findRoute(ifc.LUID, nonexistentRouteIPv4ToAdd.Destination)
 	if err != nil {
 		t.Errorf("findRoute() returned an error: %w", err)
 	} else if len(routes) != 0 {
@@ -606,7 +595,7 @@ func TestFlushDNS(t *testing.T) {
 		t.Errorf("LUID.DNS() returned an error: %w", err)
 	}
 	for _, a := range dns {
-		if len(a) != 16 || a.To4() != nil || !((a[15] == 1 || a[15] == 2 || a[15] == 3) && bytes.HasPrefix(a, []byte{0xfe, 0xc0, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})) {
+		if a.Is4() {
 			n++
 		}
 	}
@@ -651,7 +640,7 @@ func TestSetDNS(t *testing.T) {
 		t.Errorf("dnsesToSet contains %d items, while DNSServerAddresses contains %d.", len(dnsesToSet), len(newDNSes))
 	} else {
 		for i := range dnsesToSet {
-			if !dnsesToSet[i].Equal(newDNSes[i]) {
+			if dnsesToSet[i] != newDNSes[i] {
 				t.Errorf("dnsesToSet[%d] = %s while DNSServerAddresses[%d] = %s.", i, dnsesToSet[i].String(), i, newDNSes[i].String())
 			}
 		}

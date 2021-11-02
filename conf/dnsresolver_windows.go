@@ -6,12 +6,12 @@
 package conf
 
 import (
-	"fmt"
 	"log"
-	"net"
-	"syscall"
+	"strconv"
 	"time"
 	"unsafe"
+
+	"golang.zx2c4.com/go118/netip"
 
 	"golang.org/x/sys/windows"
 	"golang.zx2c4.com/wireguard/windows/services"
@@ -66,24 +66,24 @@ func resolveHostnameOnce(name string) (resolvedIPString string, err error) {
 		return
 	}
 	defer windows.FreeAddrInfoW(result)
-	ipv6 := ""
+	var v6 netip.Addr
 	for ; result != nil; result = result.Next {
 		switch result.Family {
 		case windows.AF_INET:
-			return (net.IP)((*syscall.RawSockaddrInet4)(unsafe.Pointer(result.Addr)).Addr[:]).String(), nil
+			return netip.AddrFrom4((*windows.RawSockaddrInet4)(unsafe.Pointer(result.Addr)).Addr).String(), nil
 		case windows.AF_INET6:
-			if len(ipv6) != 0 {
+			if v6.IsValid() {
 				continue
 			}
-			a := (*syscall.RawSockaddrInet6)(unsafe.Pointer(result.Addr))
-			ipv6 = (net.IP)(a.Addr[:]).String()
+			a := (*windows.RawSockaddrInet6)(unsafe.Pointer(result.Addr))
+			v6 = netip.AddrFrom16(a.Addr)
 			if a.Scope_id != 0 {
-				ipv6 += fmt.Sprintf("%%%d", a.Scope_id)
+				v6 = v6.WithZone(strconv.FormatUint(uint64(a.Scope_id), 10))
 			}
 		}
 	}
-	if len(ipv6) != 0 {
-		return ipv6, nil
+	if v6.IsValid() {
+		return v6.String(), nil
 	}
 	err = windows.WSAHOST_NOT_FOUND
 	return

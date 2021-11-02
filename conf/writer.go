@@ -7,9 +7,10 @@ package conf
 
 import (
 	"fmt"
-	"net"
 	"strings"
 	"unsafe"
+
+	"golang.zx2c4.com/go118/netip"
 
 	"golang.org/x/sys/windows"
 	"golang.zx2c4.com/wireguard/windows/driver"
@@ -111,8 +112,11 @@ func (config *Config) ToDriverConfiguration() (*driver.Interface, uint32) {
 		}
 		var endpoint winipcfg.RawSockaddrInet
 		if !config.Peers[i].Endpoint.IsEmpty() {
-			flags |= driver.PeerHasEndpoint
-			endpoint.SetIP(net.ParseIP(config.Peers[i].Endpoint.Host), config.Peers[i].Endpoint.Port)
+			addr, err := netip.ParseAddr(config.Peers[i].Endpoint.Host)
+			if err == nil {
+				flags |= driver.PeerHasEndpoint
+				endpoint.SetAddrPort(netip.AddrPortFrom(addr, config.Peers[i].Endpoint.Port))
+			}
 		}
 		c.AppendPeer(&driver.Peer{
 			Flags:               flags,
@@ -123,20 +127,13 @@ func (config *Config) ToDriverConfiguration() (*driver.Interface, uint32) {
 			AllowedIPsCount:     uint32(len(config.Peers[i].AllowedIPs)),
 		})
 		for j := range config.Peers[i].AllowedIPs {
-			var family winipcfg.AddressFamily
-			var ip net.IP
-			if ip = config.Peers[i].AllowedIPs[j].IP.To4(); ip != nil {
-				family = windows.AF_INET
-			} else if ip = config.Peers[i].AllowedIPs[j].IP.To16(); ip != nil {
-				family = windows.AF_INET6
-			} else {
-				ip = config.Peers[i].AllowedIPs[j].IP
+			a := &driver.AllowedIP{Cidr: uint8(config.Peers[i].AllowedIPs[j].Bits())}
+			copy(a.Address[:], config.Peers[i].AllowedIPs[j].Addr().AsSlice())
+			if config.Peers[i].AllowedIPs[j].Addr().Is4() {
+				a.AddressFamily = windows.AF_INET
+			} else if config.Peers[i].AllowedIPs[j].Addr().Is6() {
+				a.AddressFamily = windows.AF_INET6
 			}
-			a := &driver.AllowedIP{
-				AddressFamily: family,
-				Cidr:          config.Peers[i].AllowedIPs[j].Cidr,
-			}
-			copy(a.Address[:], ip)
 			c.AppendAllowedIP(a)
 		}
 	}

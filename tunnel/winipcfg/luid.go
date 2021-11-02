@@ -7,8 +7,9 @@ package winipcfg
 
 import (
 	"errors"
-	"net"
 	"strings"
+
+	"golang.zx2c4.com/go118/netip"
 
 	"golang.org/x/sys/windows"
 )
@@ -76,10 +77,10 @@ func LUIDFromIndex(index uint32) (LUID, error) {
 
 // IPAddress method returns MibUnicastIPAddressRow struct that matches to provided 'ip' argument. Corresponds to GetUnicastIpAddressEntry
 // (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getunicastipaddressentry)
-func (luid LUID) IPAddress(ip net.IP) (*MibUnicastIPAddressRow, error) {
+func (luid LUID) IPAddress(addr netip.Addr) (*MibUnicastIPAddressRow, error) {
 	row := &MibUnicastIPAddressRow{InterfaceLUID: luid}
 
-	err := row.Address.SetIP(ip, 0)
+	err := row.Address.SetAddr(addr)
 	if err != nil {
 		return nil, err
 	}
@@ -94,25 +95,24 @@ func (luid LUID) IPAddress(ip net.IP) (*MibUnicastIPAddressRow, error) {
 
 // AddIPAddress method adds new unicast IP address to the interface. Corresponds to CreateUnicastIpAddressEntry function
 // (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-createunicastipaddressentry).
-func (luid LUID) AddIPAddress(address net.IPNet) error {
+func (luid LUID) AddIPAddress(address netip.Prefix) error {
 	row := &MibUnicastIPAddressRow{}
 	row.Init()
 	row.InterfaceLUID = luid
 	row.DadState = DadStatePreferred
 	row.ValidLifetime = 0xffffffff
 	row.PreferredLifetime = 0xffffffff
-	err := row.Address.SetIP(address.IP, 0)
+	err := row.Address.SetAddr(address.Addr())
 	if err != nil {
 		return err
 	}
-	ones, _ := address.Mask.Size()
-	row.OnLinkPrefixLength = uint8(ones)
+	row.OnLinkPrefixLength = uint8(address.Bits())
 	return row.Create()
 }
 
 // AddIPAddresses method adds multiple new unicast IP addresses to the interface. Corresponds to CreateUnicastIpAddressEntry function
 // (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-createunicastipaddressentry).
-func (luid LUID) AddIPAddresses(addresses []net.IPNet) error {
+func (luid LUID) AddIPAddresses(addresses []netip.Prefix) error {
 	for i := range addresses {
 		err := luid.AddIPAddress(addresses[i])
 		if err != nil {
@@ -123,7 +123,7 @@ func (luid LUID) AddIPAddresses(addresses []net.IPNet) error {
 }
 
 // SetIPAddresses method sets new unicast IP addresses to the interface.
-func (luid LUID) SetIPAddresses(addresses []net.IPNet) error {
+func (luid LUID) SetIPAddresses(addresses []netip.Prefix) error {
 	err := luid.FlushIPAddresses(windows.AF_UNSPEC)
 	if err != nil {
 		return err
@@ -132,16 +132,15 @@ func (luid LUID) SetIPAddresses(addresses []net.IPNet) error {
 }
 
 // SetIPAddressesForFamily method sets new unicast IP addresses for a specific family to the interface.
-func (luid LUID) SetIPAddressesForFamily(family AddressFamily, addresses []net.IPNet) error {
+func (luid LUID) SetIPAddressesForFamily(family AddressFamily, addresses []netip.Prefix) error {
 	err := luid.FlushIPAddresses(family)
 	if err != nil {
 		return err
 	}
 	for i := range addresses {
-		asV4 := addresses[i].IP.To4()
-		if asV4 == nil && family == windows.AF_INET {
+		if !addresses[i].Addr().Is4() && family == windows.AF_INET {
 			continue
-		} else if asV4 != nil && family == windows.AF_INET6 {
+		} else if !addresses[i].Addr().Is6() && family == windows.AF_INET6 {
 			continue
 		}
 		err := luid.AddIPAddress(addresses[i])
@@ -154,17 +153,16 @@ func (luid LUID) SetIPAddressesForFamily(family AddressFamily, addresses []net.I
 
 // DeleteIPAddress method deletes interface's unicast IP address. Corresponds to DeleteUnicastIpAddressEntry function
 // (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-deleteunicastipaddressentry).
-func (luid LUID) DeleteIPAddress(address net.IPNet) error {
+func (luid LUID) DeleteIPAddress(address netip.Prefix) error {
 	row := &MibUnicastIPAddressRow{}
 	row.Init()
 	row.InterfaceLUID = luid
-	err := row.Address.SetIP(address.IP, 0)
+	err := row.Address.SetAddr(address.Addr())
 	if err != nil {
 		return err
 	}
 	// Note: OnLinkPrefixLength member is ignored by DeleteUnicastIpAddressEntry().
-	ones, _ := address.Mask.Size()
-	row.OnLinkPrefixLength = uint8(ones)
+	row.OnLinkPrefixLength = uint8(address.Bits())
 	return row.Delete()
 }
 
@@ -188,17 +186,17 @@ func (luid LUID) FlushIPAddresses(family AddressFamily) error {
 // Route method returns route determined with the input arguments. Corresponds to GetIpForwardEntry2 function
 // (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-getipforwardentry2).
 // NOTE: If the corresponding route isn't found, the method will return error.
-func (luid LUID) Route(destination net.IPNet, nextHop net.IP) (*MibIPforwardRow2, error) {
+func (luid LUID) Route(destination netip.Prefix, nextHop netip.Addr) (*MibIPforwardRow2, error) {
 	row := &MibIPforwardRow2{}
 	row.Init()
 	row.InterfaceLUID = luid
 	row.ValidLifetime = 0xffffffff
 	row.PreferredLifetime = 0xffffffff
-	err := row.DestinationPrefix.SetIPNet(destination)
+	err := row.DestinationPrefix.SetPrefix(destination)
 	if err != nil {
 		return nil, err
 	}
-	err = row.NextHop.SetIP(nextHop, 0)
+	err = row.NextHop.SetAddr(nextHop)
 	if err != nil {
 		return nil, err
 	}
@@ -212,15 +210,15 @@ func (luid LUID) Route(destination net.IPNet, nextHop net.IP) (*MibIPforwardRow2
 
 // AddRoute method adds a route to the interface. Corresponds to CreateIpForwardEntry2 function, with added splitDefault feature.
 // (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-createipforwardentry2)
-func (luid LUID) AddRoute(destination net.IPNet, nextHop net.IP, metric uint32) error {
+func (luid LUID) AddRoute(destination netip.Prefix, nextHop netip.Addr, metric uint32) error {
 	row := &MibIPforwardRow2{}
 	row.Init()
 	row.InterfaceLUID = luid
-	err := row.DestinationPrefix.SetIPNet(destination)
+	err := row.DestinationPrefix.SetPrefix(destination)
 	if err != nil {
 		return err
 	}
-	err = row.NextHop.SetIP(nextHop, 0)
+	err = row.NextHop.SetAddr(nextHop)
 	if err != nil {
 		return err
 	}
@@ -255,10 +253,9 @@ func (luid LUID) SetRoutesForFamily(family AddressFamily, routesData []*RouteDat
 		return err
 	}
 	for _, rd := range routesData {
-		asV4 := rd.Destination.IP.To4()
-		if asV4 == nil && family == windows.AF_INET {
+		if !rd.Destination.Addr().Is4() && family == windows.AF_INET {
 			continue
-		} else if asV4 != nil && family == windows.AF_INET6 {
+		} else if !rd.Destination.Addr().Is6() && family == windows.AF_INET6 {
 			continue
 		}
 		err := luid.AddRoute(rd.Destination, rd.NextHop, rd.Metric)
@@ -271,15 +268,15 @@ func (luid LUID) SetRoutesForFamily(family AddressFamily, routesData []*RouteDat
 
 // DeleteRoute method deletes a route that matches the criteria. Corresponds to DeleteIpForwardEntry2 function
 // (https://docs.microsoft.com/en-us/windows/desktop/api/netioapi/nf-netioapi-deleteipforwardentry2).
-func (luid LUID) DeleteRoute(destination net.IPNet, nextHop net.IP) error {
+func (luid LUID) DeleteRoute(destination netip.Prefix, nextHop netip.Addr) error {
 	row := &MibIPforwardRow2{}
 	row.Init()
 	row.InterfaceLUID = luid
-	err := row.DestinationPrefix.SetIPNet(destination)
+	err := row.DestinationPrefix.SetPrefix(destination)
 	if err != nil {
 		return err
 	}
-	err = row.NextHop.SetIP(nextHop, 0)
+	err = row.NextHop.SetAddr(nextHop)
 	if err != nil {
 		return err
 	}
@@ -312,17 +309,19 @@ func (luid LUID) FlushRoutes(family AddressFamily) error {
 }
 
 // DNS method returns all DNS server addresses associated with the adapter.
-func (luid LUID) DNS() ([]net.IP, error) {
+func (luid LUID) DNS() ([]netip.Addr, error) {
 	addresses, err := GetAdaptersAddresses(windows.AF_UNSPEC, GAAFlagDefault)
 	if err != nil {
 		return nil, err
 	}
-	r := make([]net.IP, 0, len(addresses))
+	r := make([]netip.Addr, 0, len(addresses))
 	for _, addr := range addresses {
 		if addr.LUID == luid {
 			for dns := addr.FirstDNSServerAddress; dns != nil; dns = dns.Next {
 				if ip := dns.Address.IP(); ip != nil {
-					r = append(r, ip)
+					if a := netip.AddrFromSlice(ip); a.IsValid() {
+						r = append(r, a)
+					}
 				} else {
 					return nil, windows.ERROR_INVALID_PARAMETER
 				}
@@ -333,17 +332,15 @@ func (luid LUID) DNS() ([]net.IP, error) {
 }
 
 // SetDNS method clears previous and associates new DNS servers and search domains with the adapter for a specific family.
-func (luid LUID) SetDNS(family AddressFamily, servers []net.IP, domains []string) error {
+func (luid LUID) SetDNS(family AddressFamily, servers []netip.Addr, domains []string) error {
 	if family != windows.AF_INET && family != windows.AF_INET6 {
 		return windows.ERROR_PROTOCOL_UNREACHABLE
 	}
 
 	var filteredServers []string
 	for _, server := range servers {
-		if v4 := server.To4(); v4 != nil && family == windows.AF_INET {
-			filteredServers = append(filteredServers, v4.String())
-		} else if v6 := server.To16(); v4 == nil && v6 != nil && family == windows.AF_INET6 {
-			filteredServers = append(filteredServers, v6.String())
+		if (server.Is4() && family == windows.AF_INET) || (server.Is6() && family == windows.AF_INET6) {
+			filteredServers = append(filteredServers, server.String())
 		}
 	}
 	servers16, err := windows.UTF16PtrFromString(strings.Join(filteredServers, ","))

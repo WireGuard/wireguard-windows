@@ -9,6 +9,7 @@ require (
 	golang.org/x/net latest
 	golang.org/x/sys latest
 	golang.org/x/text master
+	golang.zx2c4.com/go118/netip master
 )
 
 replace (
