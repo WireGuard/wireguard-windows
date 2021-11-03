@@ -54,6 +54,3 @@ index 5a4ceaf43d..68c01805a5 100644
 +	}
  	return write1(fd, p, n)
  }
--- 
-2.33.0
-
