@@ -62,24 +62,11 @@ startOver:
 		estimatedRouteCount += len(peer.AllowedIPs)
 	}
 	routes := make(map[winipcfg.RouteData]bool, estimatedRouteCount)
-	addresses := make([]netip.Prefix, len(conf.Interface.Addresses))
-	var haveV4Address, haveV6Address bool
-	for i, addr := range conf.Interface.Addresses {
-		addresses[i] = addr
-		if addr.Addr().Is4() {
-			haveV4Address = true
-		} else if addr.Addr().Is6() {
-			haveV6Address = true
-		}
-	}
 
 	foundDefault4 := false
 	foundDefault6 := false
 	for _, peer := range conf.Peers {
 		for _, allowedip := range peer.AllowedIPs {
-			if (allowedip.Addr().Is4() && !haveV4Address) || (allowedip.Addr().Is6() && !haveV6Address) {
-				continue
-			}
 			route := winipcfg.RouteData{
 				Destination: allowedip.Masked(),
 				Metric:      0,
@@ -114,10 +101,10 @@ startOver:
 		}
 	}
 
-	err = luid.SetIPAddressesForFamily(family, addresses)
+	err = luid.SetIPAddressesForFamily(family, conf.Interface.Addresses)
 	if err == windows.ERROR_OBJECT_ALREADY_EXISTS {
-		cleanupAddressesOnDisconnectedInterfaces(family, addresses)
-		err = luid.SetIPAddressesForFamily(family, addresses)
+		cleanupAddressesOnDisconnectedInterfaces(family, conf.Interface.Addresses)
+		err = luid.SetIPAddressesForFamily(family, conf.Interface.Addresses)
 	}
 	if err == windows.ERROR_NOT_FOUND && retryOnFailure {
 		goto startOver
