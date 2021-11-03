@@ -8,6 +8,7 @@ package winipcfg
 import (
 	"encoding/binary"
 	"fmt"
+	"strconv"
 	"unsafe"
 
 	"golang.zx2c4.com/go118/netip"
@@ -767,7 +768,13 @@ func (addr *RawSockaddrInet) SetAddrPort(addrPort netip.AddrPort) error {
 		addr6.Addr = addrPort.Addr().As16()
 		addr6.Port = htons(addrPort.Port())
 		addr6.Flowinfo = 0
-		addr6.Scope_id = 0
+		scopeId := uint32(0)
+		if z := addrPort.Addr().Zone(); z != "" {
+			if s, err := strconv.ParseUint(z, 10, 32); err == nil {
+				scopeId = uint32(s)
+			}
+		}
+		addr6.Scope_id = scopeId
 		return nil
 	}
 	return windows.ERROR_INVALID_PARAMETER
@@ -790,7 +797,12 @@ func (addr *RawSockaddrInet) Addr() netip.Addr {
 	case windows.AF_INET:
 		return netip.AddrFrom4((*windows.RawSockaddrInet4)(unsafe.Pointer(addr)).Addr)
 	case windows.AF_INET6:
-		return netip.AddrFrom16((*windows.RawSockaddrInet6)(unsafe.Pointer(addr)).Addr)
+		raw := (*windows.RawSockaddrInet6)(unsafe.Pointer(addr))
+		a := netip.AddrFrom16(raw.Addr)
+		if raw.Scope_id != 0 {
+			a = a.WithZone(strconv.FormatUint(uint64(raw.Scope_id), 10))
+		}
+		return a
 	}
 	return netip.Addr{}
 }

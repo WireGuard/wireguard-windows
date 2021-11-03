@@ -7,11 +7,11 @@ package conf
 
 import (
 	"log"
-	"strconv"
 	"time"
 	"unsafe"
 
 	"golang.zx2c4.com/go118/netip"
+	"golang.zx2c4.com/wireguard/windows/tunnel/winipcfg"
 
 	"golang.org/x/sys/windows"
 	"golang.zx2c4.com/wireguard/windows/services"
@@ -68,18 +68,14 @@ func resolveHostnameOnce(name string) (resolvedIPString string, err error) {
 	defer windows.FreeAddrInfoW(result)
 	var v6 netip.Addr
 	for ; result != nil; result = result.Next {
-		switch result.Family {
-		case windows.AF_INET:
-			return netip.AddrFrom4((*windows.RawSockaddrInet4)(unsafe.Pointer(result.Addr)).Addr).String(), nil
-		case windows.AF_INET6:
-			if v6.IsValid() {
-				continue
-			}
-			a := (*windows.RawSockaddrInet6)(unsafe.Pointer(result.Addr))
-			v6 = netip.AddrFrom16(a.Addr)
-			if a.Scope_id != 0 {
-				v6 = v6.WithZone(strconv.FormatUint(uint64(a.Scope_id), 10))
-			}
+		if result.Family != windows.AF_INET && result.Family != windows.AF_INET6 {
+			continue
+		}
+		addr := (*winipcfg.RawSockaddrInet)(unsafe.Pointer(result.Addr)).Addr()
+		if addr.Is4() {
+			return addr.String(), nil
+		} else if !v6.IsValid() && addr.Is6() {
+			v6 = addr
 		}
 	}
 	if v6.IsValid() {
