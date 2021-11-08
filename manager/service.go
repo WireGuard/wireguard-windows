@@ -55,7 +55,6 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 	}
 
 	services.PrintStarting()
-	checkForPitfalls()
 
 	path, err := os.Executable()
 	if err != nil {

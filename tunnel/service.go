@@ -135,6 +135,8 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 		}
 	}
 
+	evaluateStaticPitfalls()
+
 	log.Println("Watching network interfaces")
 	watcher, err = watchInterface()
 	if err != nil {

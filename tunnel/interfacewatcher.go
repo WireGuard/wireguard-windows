@@ -80,6 +80,7 @@ func (iw *interfaceWatcher) setup(family winipcfg.AddressFamily) {
 		iw.errors <- interfaceWatcherError{services.ErrorSetNetConfig, err}
 		return
 	}
+	evaluateDynamicPitfalls(family, iw.conf, iw.luid)
 
 	iw.started <- family
 }
