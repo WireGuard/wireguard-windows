@@ -5,11 +5,11 @@ go 1.17
 require (
 	github.com/lxn/walk v0.0.0-20210112085537-c389da54e794
 	github.com/lxn/win v0.0.0-20210218163916-a377121e959e
-	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
-	golang.org/x/net v0.0.0-20211105192438-b53810dc28af
-	golang.org/x/sys v0.0.0-20211106132015-ebca88c72f68
+	golang.org/x/crypto v0.0.0-20211108221036-ceb1ce70b4fa
+	golang.org/x/net v0.0.0-20211111083644-e5c967477495
+	golang.org/x/sys v0.0.0-20211110154304-99a53858aa08
 	golang.org/x/text v0.3.8-0.20211105212822-18b340fc7af2
-	golang.zx2c4.com/go118/netip v0.0.0-20211106132939-9d41d90554dd
+	golang.zx2c4.com/go118/netip v0.0.0-20211111135330-a4a02eeacf9d
 )
 
 require (

@@ -36,7 +36,7 @@ func cleanupAddressesOnDisconnectedInterfaces(family winipcfg.AddressFamily, add
 			continue
 		}
 		for address := iface.FirstUnicastAddress; address != nil; address = address.Next {
-			if ip := netip.AddrFromSlice(address.Address.IP()); addrHash[ip] {
+			if ip, _ := netip.AddrFromSlice(address.Address.IP()); addrHash[ip] {
 				prefix := netip.PrefixFrom(ip, int(address.OnLinkPrefixLength))
 				log.Printf("Cleaning up stale address %s from interface ‘%s’", prefix.String(), iface.FriendlyName())
 				iface.LUID.DeleteIPAddress(prefix)

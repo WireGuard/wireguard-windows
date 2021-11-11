@@ -319,7 +319,7 @@ func (luid LUID) DNS() ([]netip.Addr, error) {
 		if addr.LUID == luid {
 			for dns := addr.FirstDNSServerAddress; dns != nil; dns = dns.Next {
 				if ip := dns.Address.IP(); ip != nil {
-					if a := netip.AddrFromSlice(ip); a.IsValid() {
+					if a, ok := netip.AddrFromSlice(ip); ok {
 						r = append(r, a)
 					}
 				} else {
