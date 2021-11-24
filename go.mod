@@ -5,9 +5,9 @@ go 1.17
 require (
 	github.com/lxn/walk v0.0.0-20210112085537-c389da54e794
 	github.com/lxn/win v0.0.0-20210218163916-a377121e959e
-	golang.org/x/crypto v0.0.0-20211108221036-ceb1ce70b4fa
-	golang.org/x/net v0.0.0-20211111083644-e5c967477495
-	golang.org/x/sys v0.0.0-20211110154304-99a53858aa08
+	golang.org/x/crypto v0.0.0-20211117183948-ae814b36b871
+	golang.org/x/net v0.0.0-20211123203042-d83791d6bcd9
+	golang.org/x/sys v0.0.0-20211124211545-fe61309f8881
 	golang.org/x/text v0.3.8-0.20211105212822-18b340fc7af2
 	golang.zx2c4.com/go118/netip v0.0.0-20211111135330-a4a02eeacf9d
 )
@@ -21,5 +21,4 @@ require (
 replace (
 	github.com/lxn/walk => golang.zx2c4.com/wireguard/windows v0.0.0-20210121140954-e7fc19d483bd
 	github.com/lxn/win => golang.zx2c4.com/wireguard/windows v0.0.0-20210224134948-620c54ef6199
-	golang.org/x/sys => golang.zx2c4.com/wireguard/windows v0.0.0-20211029170807-5c05bdce0504
 )

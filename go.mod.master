@@ -15,5 +15,4 @@ require (
 replace (
 	github.com/lxn/walk => golang.zx2c4.com/wireguard/windows pkg/walk
 	github.com/lxn/win => golang.zx2c4.com/wireguard/windows pkg/walk-win
-	golang.org/x/sys => golang.zx2c4.com/wireguard/windows pkg/sys
 )
