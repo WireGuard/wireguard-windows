@@ -1,0 +1,59 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+Date: Tue, 23 Nov 2021 20:04:24 +0100
+Subject: [PATCH] [release-branch.go1.17] runtime: support non-cooperative
+ preemption on windows/arm
+
+This adds support for injecting asynchronous preemption calls on
+windows/arm. This code follows sigctxt.pushCall for POSIX OSes
+on arm, except we subtract 1 from IP, just as in CL 273727.
+
+Updates #10958.
+Updates #24543.
+Updates #49759.
+
+Change-Id: Id0c2aed28662f50631b8c8cede3b4e6f088dafea
+Reviewed-on: https://go-review.googlesource.com/c/go/+/366734
+Trust: Jason A. Donenfeld <Jason@zx2c4.com>
+Reviewed-by: Austin Clements <austin@google.com>
+Reviewed-by: Patrik Nyblom <pnyb@google.com>
+Reviewed-by: Cherry Mui <cherryyz@google.com>
+---
+ src/runtime/os_windows.go | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
+
+diff --git a/src/runtime/os_windows.go b/src/runtime/os_windows.go
+index f0935264ac..faeb6ce552 100644
+--- a/src/runtime/os_windows.go
++++ b/src/runtime/os_windows.go
+@@ -1303,7 +1303,7 @@ func setThreadCPUProfiler(hz int32) {
+ 	atomic.Store((*uint32)(unsafe.Pointer(&getg().m.profilehz)), uint32(hz))
+ }
+ 
+-const preemptMSupported = GOARCH == "386" || GOARCH == "amd64"
++const preemptMSupported = GOARCH != "arm64"
+ 
+ // suspendLock protects simultaneous SuspendThread operations from
+ // suspending each other.
+@@ -1396,8 +1396,20 @@ func preemptM(mp *m) {
+ 				*(*uintptr)(unsafe.Pointer(sp)) = newpc
+ 				c.set_sp(sp)
+ 				c.set_ip(targetPC)
+-			}
+ 
++			case "arm":
++				// Push LR. The injected call is responsible
++				// for restoring LR. gentraceback is aware of
++				// this extra slot. See sigctxt.pushCall in
++				// signal_arm.go, which is similar except we
++				// subtract 1 from IP here.
++				sp := c.sp()
++				sp -= sys.PtrSize
++				c.set_sp(sp)
++				*(*uint32)(unsafe.Pointer(sp)) = uint32(c.lr())
++				c.set_lr(newpc - 1)
++				c.set_ip(targetPC)
++			}
+ 			stdcall2(_SetThreadContext, thread, uintptr(unsafe.Pointer(c)))
+ 		}
+ 	}
