@@ -179,7 +179,9 @@ func (mtw *ManageTunnelsWindow) UpdateFound() {
 	if mtw.updatePage != nil {
 		return
 	}
-	mtw.SetTitle(l18n.Sprintf("%s (out of date)", mtw.Title()))
+	if IsAdmin {
+		mtw.SetTitle(l18n.Sprintf("%s (out of date)", mtw.Title()))
+	}
 	updatePage, err := NewUpdatePage()
 	if err == nil {
 		mtw.updatePage = updatePage
