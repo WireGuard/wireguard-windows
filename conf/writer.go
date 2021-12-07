@@ -88,6 +88,10 @@ func (conf *Config) ToWgQuick() string {
 		if peer.PersistentKeepalive > 0 {
 			output.WriteString(fmt.Sprintf("PersistentKeepalive = %d\n", peer.PersistentKeepalive))
 		}
+
+		if peer.UpdateEndpointIP > 0 {
+			output.WriteString(fmt.Sprintf("UpdateEndpointIP = %d\n", peer.UpdateEndpointIP))
+		}
 	}
 	return output.String()
 }
@@ -137,5 +141,26 @@ func (config *Config) ToDriverConfiguration() (*driver.Interface, uint32) {
 			c.AppendAllowedIP(a)
 		}
 	}
+	return c.Interface()
+}
+
+func PeerUpdateEndpointConfiguration(peer *Peer, newIP string) (*driver.Interface, uint32) {
+	preallocation := unsafe.Sizeof(driver.Interface{}) + uintptr(1)*unsafe.Sizeof(driver.Peer{})
+	var c driver.ConfigBuilder
+	c.Preallocate(uint32(preallocation))
+	c.AppendInterface(&driver.Interface{
+		PeerCount: uint32(1),
+	})
+
+	var endpoint winipcfg.RawSockaddrInet
+	addr, err := netip.ParseAddr(newIP)
+	if err == nil {
+		endpoint.SetAddrPort(netip.AddrPortFrom(addr, peer.Endpoint.Port))
+	}
+	c.AppendPeer(&driver.Peer{
+		Flags:     driver.PeerHasEndpoint | driver.PeerHasPublicKey,
+		PublicKey: peer.PublicKey,
+		Endpoint:  endpoint,
+	})
 	return c.Interface()
 }

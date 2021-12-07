@@ -19,7 +19,7 @@ import (
 
 //sys	internetGetConnectedState(flags *uint32, reserved uint32) (connected bool) = wininet.InternetGetConnectedState
 
-func resolveHostname(name string) (resolvedIPString string, err error) {
+func ResolveHostname(name string) (resolvedIPString string, err error) {
 	maxTries := 10
 	if services.StartedAtBoot() {
 		maxTries *= 4
@@ -90,8 +90,11 @@ func (config *Config) ResolveEndpoints() error {
 		if config.Peers[i].Endpoint.IsEmpty() {
 			continue
 		}
+		if config.Peers[i].UpdateEndpointIP > 0 {
+			config.Peers[i].UnresolvedHost = config.Peers[i].Endpoint.Host
+		}
 		var err error
-		config.Peers[i].Endpoint.Host, err = resolveHostname(config.Peers[i].Endpoint.Host)
+		config.Peers[i].Endpoint.Host, err = ResolveHostname(config.Peers[i].Endpoint.Host)
 		if err != nil {
 			return err
 		}
