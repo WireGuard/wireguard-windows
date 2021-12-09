@@ -80,9 +80,6 @@ func NewRingloggerFromInheritedMappingHandle(handleStr string, tag string) (*Rin
 func newRingloggerFromMappingHandle(mappingHandle windows.Handle, tag string, access uint32) (*Ringlogger, error) {
 	view, err := windows.MapViewOfFile(mappingHandle, access, 0, 0, 0)
 	if err != nil {
-		return nil, err
-	}
-	if err != nil {
 		windows.CloseHandle(mappingHandle)
 		return nil, err
 	}
