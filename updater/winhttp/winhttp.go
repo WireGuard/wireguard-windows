@@ -21,11 +21,13 @@ import (
 type Session struct {
 	handle _HINTERNET
 }
+
 type Connection struct {
 	handle  _HINTERNET
 	session *Session
 	https   bool
 }
+
 type Response struct {
 	handle     _HINTERNET
 	connection *Connection

@@ -79,7 +79,7 @@ func closeAdapter(wireguard *Adapter) {
 // the GUID of the created network adapter, which then influences NLA generation
 // deterministically. If it is set to nil, the GUID is chosen by the system at random,
 // and hence a new NLA entry is created for each new adapter.
-func CreateAdapter(name string, tunnelType string, requestedGUID *windows.GUID) (wireguard *Adapter, err error) {
+func CreateAdapter(name, tunnelType string, requestedGUID *windows.GUID) (wireguard *Adapter, err error) {
 	var name16 *uint16
 	name16, err = windows.UTF16PtrFromString(name)
 	if err != nil {

@@ -18,8 +18,10 @@ import (
 	"golang.zx2c4.com/wireguard/windows/version"
 )
 
-var easterEggIndex = -1
-var showingAboutDialog *walk.Dialog
+var (
+	easterEggIndex     = -1
+	showingAboutDialog *walk.Dialog
+)
 
 func onAbout(owner walk.Form) {
 	showError(runAboutDialog(owner), owner)

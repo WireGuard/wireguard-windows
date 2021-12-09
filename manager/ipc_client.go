@@ -64,7 +64,7 @@ var (
 )
 
 type TunnelChangeCallback struct {
-	cb func(tunnel *Tunnel, state TunnelState, globalState TunnelState, err error)
+	cb func(tunnel *Tunnel, state, globalState TunnelState, err error)
 }
 
 var tunnelChangeCallbacks = make(map[*TunnelChangeCallback]bool)
@@ -93,7 +93,7 @@ type UpdateProgressCallback struct {
 
 var updateProgressCallbacks = make(map[*UpdateProgressCallback]bool)
 
-func InitializeIPCClient(reader *os.File, writer *os.File, events *os.File) {
+func InitializeIPCClient(reader, writer, events *os.File) {
 	rpcDecoder = gob.NewDecoder(reader)
 	rpcEncoder = gob.NewEncoder(writer)
 	go func() {
@@ -431,43 +431,52 @@ func IPCClientUpdate() error {
 	return rpcEncoder.Encode(UpdateMethodType)
 }
 
-func IPCClientRegisterTunnelChange(cb func(tunnel *Tunnel, state TunnelState, globalState TunnelState, err error)) *TunnelChangeCallback {
+func IPCClientRegisterTunnelChange(cb func(tunnel *Tunnel, state, globalState TunnelState, err error)) *TunnelChangeCallback {
 	s := &TunnelChangeCallback{cb}
 	tunnelChangeCallbacks[s] = true
 	return s
 }
+
 func (cb *TunnelChangeCallback) Unregister() {
 	delete(tunnelChangeCallbacks, cb)
 }
+
 func IPCClientRegisterTunnelsChange(cb func()) *TunnelsChangeCallback {
 	s := &TunnelsChangeCallback{cb}
 	tunnelsChangeCallbacks[s] = true
 	return s
 }
+
 func (cb *TunnelsChangeCallback) Unregister() {
 	delete(tunnelsChangeCallbacks, cb)
 }
+
 func IPCClientRegisterManagerStopping(cb func()) *ManagerStoppingCallback {
 	s := &ManagerStoppingCallback{cb}
 	managerStoppingCallbacks[s] = true
 	return s
 }
+
 func (cb *ManagerStoppingCallback) Unregister() {
 	delete(managerStoppingCallbacks, cb)
 }
+
 func IPCClientRegisterUpdateFound(cb func(updateState UpdateState)) *UpdateFoundCallback {
 	s := &UpdateFoundCallback{cb}
 	updateFoundCallbacks[s] = true
 	return s
 }
+
 func (cb *UpdateFoundCallback) Unregister() {
 	delete(updateFoundCallbacks, cb)
 }
+
 func IPCClientRegisterUpdateProgress(cb func(dp updater.DownloadProgress)) *UpdateProgressCallback {
 	s := &UpdateProgressCallback{cb}
 	updateProgressCallbacks[s] = true
 	return s
 }
+
 func (cb *UpdateProgressCallback) Unregister() {
 	delete(updateProgressCallbacks, cb)
 }

@@ -20,10 +20,12 @@ import (
 	"golang.zx2c4.com/wireguard/windows/version"
 )
 
-var noTrayAvailable = false
-var shouldQuitManagerWhenExiting = false
-var startTime = time.Now()
-var IsAdmin = false // A global, because this really is global for the process
+var (
+	noTrayAvailable              = false
+	shouldQuitManagerWhenExiting = false
+	startTime                    = time.Now()
+	IsAdmin                      = false // A global, because this really is global for the process
+)
 
 func RunUI() {
 	runtime.LockOSThread()

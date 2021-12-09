@@ -181,7 +181,7 @@ func (tv *ListView) StyleCell(style *walk.CellStyle) {
 	}
 }
 
-func (tv *ListView) onTunnelChange(tunnel *manager.Tunnel, state manager.TunnelState, globalState manager.TunnelState, err error) {
+func (tv *ListView) onTunnelChange(tunnel *manager.Tunnel, state, globalState manager.TunnelState, err error) {
 	tv.Synchronize(func() {
 		idx := -1
 		for i := range tv.model.tunnels {

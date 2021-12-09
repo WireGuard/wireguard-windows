@@ -24,8 +24,10 @@ import (
 	"golang.zx2c4.com/wireguard/windows/services"
 )
 
-var trackedTunnels = make(map[string]TunnelState)
-var trackedTunnelsLock = sync.Mutex{}
+var (
+	trackedTunnels     = make(map[string]TunnelState)
+	trackedTunnelsLock = sync.Mutex{}
+)
 
 func trackedTunnelsGlobalState() (state TunnelState) {
 	state = TunnelStopped

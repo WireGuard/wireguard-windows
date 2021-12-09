@@ -161,7 +161,7 @@ func (mtw *ManageTunnelsWindow) updateProgressIndicator(globalState manager.Tunn
 	}
 }
 
-func (mtw *ManageTunnelsWindow) onTunnelChange(tunnel *manager.Tunnel, state manager.TunnelState, globalState manager.TunnelState, err error) {
+func (mtw *ManageTunnelsWindow) onTunnelChange(tunnel *manager.Tunnel, state, globalState manager.TunnelState, err error) {
 	mtw.Synchronize(func() {
 		mtw.updateProgressIndicator(globalState)
 

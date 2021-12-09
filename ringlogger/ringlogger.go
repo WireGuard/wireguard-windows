@@ -45,11 +45,11 @@ type Ringlogger struct {
 	readOnly bool
 }
 
-func NewRinglogger(filename string, tag string) (*Ringlogger, error) {
+func NewRinglogger(filename, tag string) (*Ringlogger, error) {
 	if len(tag) > maxTagLength {
 		return nil, windows.ERROR_LABEL_TOO_LONG
 	}
-	file, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE, 0600)
+	file, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE, 0o600)
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +69,7 @@ func NewRinglogger(filename string, tag string) (*Ringlogger, error) {
 	return rl, nil
 }
 
-func NewRingloggerFromInheritedMappingHandle(handleStr string, tag string) (*Ringlogger, error) {
+func NewRingloggerFromInheritedMappingHandle(handleStr, tag string) (*Ringlogger, error) {
 	handle, err := strconv.ParseUint(handleStr, 10, 64)
 	if err != nil {
 		return nil, err

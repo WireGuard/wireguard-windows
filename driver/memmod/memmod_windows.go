@@ -47,7 +47,7 @@ func (module *Module) headerDirectory(idx int) *IMAGE_DATA_DIRECTORY {
 	return &module.headers.OptionalHeader.DataDirectory[idx]
 }
 
-func (module *Module) copySections(address uintptr, size uintptr, oldHeaders *IMAGE_NT_HEADERS) error {
+func (module *Module) copySections(address, size uintptr, oldHeaders *IMAGE_NT_HEADERS) error {
 	sections := module.headers.Sections()
 	for i := range sections {
 		if sections[i].SizeOfRawData == 0 {
@@ -139,7 +139,7 @@ func (module *Module) finalizeSection(sectionData *sectionFinalizeData) error {
 	}
 
 	// determine protection flags based on characteristics
-	var ProtectionFlags = [8]uint32{
+	ProtectionFlags := [8]uint32{
 		windows.PAGE_NOACCESS,          // not writeable, not readable, not executable
 		windows.PAGE_EXECUTE,           // not writeable, not readable, executable
 		windows.PAGE_READONLY,          // not writeable, readable, not executable
@@ -387,10 +387,12 @@ type addressRange struct {
 	end   uintptr
 }
 
-var loadedAddressRanges []addressRange
-var loadedAddressRangesMu sync.RWMutex
-var haveHookedRtlPcToFileHeader sync.Once
-var hookRtlPcToFileHeaderResult error
+var (
+	loadedAddressRanges         []addressRange
+	loadedAddressRangesMu       sync.RWMutex
+	haveHookedRtlPcToFileHeader sync.Once
+	hookRtlPcToFileHeaderResult error
+)
 
 func hookRtlPcToFileHeader() error {
 	var kernelBase windows.Handle

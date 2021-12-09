@@ -11,7 +11,6 @@ import (
 )
 
 func TestWtFwpByteBlobSize(t *testing.T) {
-
 	const actualWtFwpByteBlobSize = unsafe.Sizeof(wtFwpByteBlob{})
 
 	if actualWtFwpByteBlobSize != wtFwpByteBlob_Size {
@@ -21,7 +20,6 @@ func TestWtFwpByteBlobSize(t *testing.T) {
 }
 
 func TestWtFwpByteBlobOffsets(t *testing.T) {
-
 	s := wtFwpByteBlob{}
 	sp := uintptr(unsafe.Pointer(&s))
 
@@ -34,7 +32,6 @@ func TestWtFwpByteBlobOffsets(t *testing.T) {
 }
 
 func TestWtFwpmAction0Size(t *testing.T) {
-
 	const actualWtFwpmAction0Size = unsafe.Sizeof(wtFwpmAction0{})
 
 	if actualWtFwpmAction0Size != wtFwpmAction0_Size {
@@ -44,7 +41,6 @@ func TestWtFwpmAction0Size(t *testing.T) {
 }
 
 func TestWtFwpmAction0Offsets(t *testing.T) {
-
 	s := wtFwpmAction0{}
 	sp := uintptr(unsafe.Pointer(&s))
 
@@ -58,7 +54,6 @@ func TestWtFwpmAction0Offsets(t *testing.T) {
 }
 
 func TestWtFwpBitmapArray64Size(t *testing.T) {
-
 	const actualWtFwpBitmapArray64Size = unsafe.Sizeof(wtFwpBitmapArray64{})
 
 	if actualWtFwpBitmapArray64Size != wtFwpBitmapArray64_Size {
@@ -68,7 +63,6 @@ func TestWtFwpBitmapArray64Size(t *testing.T) {
 }
 
 func TestWtFwpByteArray6Size(t *testing.T) {
-
 	const actualWtFwpByteArray6Size = unsafe.Sizeof(wtFwpByteArray6{})
 
 	if actualWtFwpByteArray6Size != wtFwpByteArray6_Size {
@@ -78,7 +72,6 @@ func TestWtFwpByteArray6Size(t *testing.T) {
 }
 
 func TestWtFwpByteArray16Size(t *testing.T) {
-
 	const actualWtFwpByteArray16Size = unsafe.Sizeof(wtFwpByteArray16{})
 
 	if actualWtFwpByteArray16Size != wtFwpByteArray16_Size {
@@ -88,7 +81,6 @@ func TestWtFwpByteArray16Size(t *testing.T) {
 }
 
 func TestWtFwpConditionValue0Size(t *testing.T) {
-
 	const actualWtFwpConditionValue0Size = unsafe.Sizeof(wtFwpConditionValue0{})
 
 	if actualWtFwpConditionValue0Size != wtFwpConditionValue0_Size {
@@ -98,7 +90,6 @@ func TestWtFwpConditionValue0Size(t *testing.T) {
 }
 
 func TestWtFwpConditionValue0Offsets(t *testing.T) {
-
 	s := wtFwpConditionValue0{}
 	sp := uintptr(unsafe.Pointer(&s))
 
@@ -111,7 +102,6 @@ func TestWtFwpConditionValue0Offsets(t *testing.T) {
 }
 
 func TestWtFwpV4AddrAndMaskSize(t *testing.T) {
-
 	const actualWtFwpV4AddrAndMaskSize = unsafe.Sizeof(wtFwpV4AddrAndMask{})
 
 	if actualWtFwpV4AddrAndMaskSize != wtFwpV4AddrAndMask_Size {
@@ -121,7 +111,6 @@ func TestWtFwpV4AddrAndMaskSize(t *testing.T) {
 }
 
 func TestWtFwpV4AddrAndMaskOffsets(t *testing.T) {
-
 	s := wtFwpV4AddrAndMask{}
 	sp := uintptr(unsafe.Pointer(&s))
 
@@ -135,7 +124,6 @@ func TestWtFwpV4AddrAndMaskOffsets(t *testing.T) {
 }
 
 func TestWtFwpV6AddrAndMaskSize(t *testing.T) {
-
 	const actualWtFwpV6AddrAndMaskSize = unsafe.Sizeof(wtFwpV6AddrAndMask{})
 
 	if actualWtFwpV6AddrAndMaskSize != wtFwpV6AddrAndMask_Size {
@@ -145,7 +133,6 @@ func TestWtFwpV6AddrAndMaskSize(t *testing.T) {
 }
 
 func TestWtFwpV6AddrAndMaskOffsets(t *testing.T) {
-
 	s := wtFwpV6AddrAndMask{}
 	sp := uintptr(unsafe.Pointer(&s))
 
@@ -159,7 +146,6 @@ func TestWtFwpV6AddrAndMaskOffsets(t *testing.T) {
 }
 
 func TestWtFwpValue0Size(t *testing.T) {
-
 	const actualWtFwpValue0Size = unsafe.Sizeof(wtFwpValue0{})
 
 	if actualWtFwpValue0Size != wtFwpValue0_Size {
@@ -168,7 +154,6 @@ func TestWtFwpValue0Size(t *testing.T) {
 }
 
 func TestWtFwpValue0Offsets(t *testing.T) {
-
 	s := wtFwpValue0{}
 	sp := uintptr(unsafe.Pointer(&s))
 
@@ -181,7 +166,6 @@ func TestWtFwpValue0Offsets(t *testing.T) {
 }
 
 func TestWtFwpmDisplayData0Size(t *testing.T) {
-
 	const actualWtFwpmDisplayData0Size = unsafe.Sizeof(wtFwpmDisplayData0{})
 
 	if actualWtFwpmDisplayData0Size != wtFwpmDisplayData0_Size {
@@ -191,7 +175,6 @@ func TestWtFwpmDisplayData0Size(t *testing.T) {
 }
 
 func TestWtFwpmDisplayData0Offsets(t *testing.T) {
-
 	s := wtFwpmDisplayData0{}
 	sp := uintptr(unsafe.Pointer(&s))
 
@@ -205,7 +188,6 @@ func TestWtFwpmDisplayData0Offsets(t *testing.T) {
 }
 
 func TestWtFwpmFilterCondition0Size(t *testing.T) {
-
 	const actualWtFwpmFilterCondition0Size = unsafe.Sizeof(wtFwpmFilterCondition0{})
 
 	if actualWtFwpmFilterCondition0Size != wtFwpmFilterCondition0_Size {
@@ -215,7 +197,6 @@ func TestWtFwpmFilterCondition0Size(t *testing.T) {
 }
 
 func TestWtFwpmFilterCondition0Offsets(t *testing.T) {
-
 	s := wtFwpmFilterCondition0{}
 	sp := uintptr(unsafe.Pointer(&s))
 
@@ -237,7 +218,6 @@ func TestWtFwpmFilterCondition0Offsets(t *testing.T) {
 }
 
 func TestWtFwpmFilter0Size(t *testing.T) {
-
 	const actualWtFwpmFilter0Size = unsafe.Sizeof(wtFwpmFilter0{})
 
 	if actualWtFwpmFilter0Size != wtFwpmFilter0_Size {
@@ -247,7 +227,6 @@ func TestWtFwpmFilter0Size(t *testing.T) {
 }
 
 func TestWtFwpmFilter0Offsets(t *testing.T) {
-
 	s := wtFwpmFilter0{}
 	sp := uintptr(unsafe.Pointer(&s))
 
@@ -364,7 +343,6 @@ func TestWtFwpmFilter0Offsets(t *testing.T) {
 }
 
 func TestWtFwpProvider0Size(t *testing.T) {
-
 	const actualWtFwpProvider0Size = unsafe.Sizeof(wtFwpProvider0{})
 
 	if actualWtFwpProvider0Size != wtFwpProvider0_Size {
@@ -374,7 +352,6 @@ func TestWtFwpProvider0Size(t *testing.T) {
 }
 
 func TestWtFwpProvider0Offsets(t *testing.T) {
-
 	s := wtFwpProvider0{}
 	sp := uintptr(unsafe.Pointer(&s))
 
@@ -412,7 +389,6 @@ func TestWtFwpProvider0Offsets(t *testing.T) {
 }
 
 func TestWtFwpmSession0Size(t *testing.T) {
-
 	const actualWtFwpmSession0Size = unsafe.Sizeof(wtFwpmSession0{})
 
 	if actualWtFwpmSession0Size != wtFwpmSession0_Size {
@@ -422,7 +398,6 @@ func TestWtFwpmSession0Size(t *testing.T) {
 }
 
 func TestWtFwpmSession0Offsets(t *testing.T) {
-
 	s := wtFwpmSession0{}
 	sp := uintptr(unsafe.Pointer(&s))
 
@@ -482,7 +457,6 @@ func TestWtFwpmSession0Offsets(t *testing.T) {
 }
 
 func TestWtFwpmSublayer0Size(t *testing.T) {
-
 	const actualWtFwpmSublayer0Size = unsafe.Sizeof(wtFwpmSublayer0{})
 
 	if actualWtFwpmSublayer0Size != wtFwpmSublayer0_Size {
@@ -492,7 +466,6 @@ func TestWtFwpmSublayer0Size(t *testing.T) {
 }
 
 func TestWtFwpmSublayer0Offsets(t *testing.T) {
-
 	s := wtFwpmSublayer0{}
 	sp := uintptr(unsafe.Pointer(&s))
 

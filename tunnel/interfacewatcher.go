@@ -24,10 +24,12 @@ type interfaceWatcherError struct {
 	serviceError services.Error
 	err          error
 }
+
 type interfaceWatcherEvent struct {
 	luid   winipcfg.LUID
 	family winipcfg.AddressFamily
 }
+
 type interfaceWatcher struct {
 	errors  chan interfaceWatcherError
 	started chan winipcfg.AddressFamily

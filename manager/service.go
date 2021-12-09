@@ -207,7 +207,8 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 					windows.Handle(theirReader.Fd()),
 					windows.Handle(theirWriter.Fd()),
 					windows.Handle(theirEvents.Fd()),
-					theirLogMapping}, runToken)
+					theirLogMapping,
+				}, runToken)
 			} else {
 				err = errors.New("Session has logged out")
 			}

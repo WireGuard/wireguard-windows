@@ -38,7 +38,7 @@ func (t *tempFile) Delete() error {
 		if err != nil {
 			return err
 		}
-		return windows.DeleteFile(name16) //TODO: how does this deal with reparse points?
+		return windows.DeleteFile(name16) // TODO: how does this deal with reparse points?
 	}
 	disposition := byte(1)
 	err := windows.SetFileInformationByHandle(t.originalHandle, windows.FileDispositionInfo, &disposition, 1)

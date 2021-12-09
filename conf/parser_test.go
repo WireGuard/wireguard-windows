@@ -54,6 +54,7 @@ func equal(t *testing.T, expected, actual interface{}) bool {
 	t.Errorf("Failed equals at %s:%d\nactual   %#v\nexpected %#v", fn, line, actual, expected)
 	return false
 }
+
 func lenTest(t *testing.T, actualO interface{}, expected int) bool {
 	actual := reflect.ValueOf(actualO).Len()
 	if reflect.DeepEqual(expected, actual) {
@@ -63,6 +64,7 @@ func lenTest(t *testing.T, actualO interface{}, expected int) bool {
 	t.Errorf("Wrong length at %s:%d\nactual   %#v\nexpected %#v", fn, line, actual, expected)
 	return false
 }
+
 func contains(t *testing.T, list, element interface{}) bool {
 	listValue := reflect.ValueOf(list)
 	for i := 0; i < listValue.Len(); i++ {
