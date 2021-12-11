@@ -957,7 +957,6 @@ func TestIPAddressPrefix(t *testing.T) {
 	offset := uintptr(unsafe.Pointer(&s.PrefixLength)) - sp
 	if offset != ipAddressPrefixPrefixLengthOffset {
 		t.Errorf("IPAddressPrefix.PrefixLength offset is %d although %d is expected", offset, ipAddressPrefixPrefixLengthOffset)
-
 	}
 }
 

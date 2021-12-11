@@ -14,8 +14,10 @@ import (
 	"golang.zx2c4.com/wireguard/windows/conf/dpapi"
 )
 
-const configFileSuffix = ".conf.dpapi"
-const configFileUnencryptedSuffix = ".conf"
+const (
+	configFileSuffix            = ".conf.dpapi"
+	configFileUnencryptedSuffix = ".conf"
+)
 
 func ListConfigNames() ([]string, error) {
 	configFileDir, err := tunnelConfigurationsDirectory()
@@ -40,7 +42,7 @@ func ListConfigNames() ([]string, error) {
 		if err != nil {
 			continue
 		}
-		if info.Mode().Perm()&0444 == 0 {
+		if info.Mode().Perm()&0o444 == 0 {
 			continue
 		}
 		configs[i] = name

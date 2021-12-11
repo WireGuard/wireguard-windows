@@ -54,7 +54,7 @@ func fatalf(format string, v ...interface{}) {
 	fatal(l18n.Sprintf(format, v...))
 }
 
-func info(title string, format string, v ...interface{}) {
+func info(title, format string, v ...interface{}) {
 	if log.Writer() == io.Discard {
 		windows.MessageBox(0, windows.StringToUTF16Ptr(l18n.Sprintf(format, v...)), windows.StringToUTF16Ptr(title), windows.MB_ICONINFORMATION)
 	} else {
@@ -63,7 +63,7 @@ func info(title string, format string, v ...interface{}) {
 }
 
 func usage() {
-	var flags = [...]string{
+	flags := [...]string{
 		l18n.Sprintf("(no argument): elevate and install manager service"),
 		"/installmanagerservice",
 		"/installtunnelservice CONFIG_PATH",

@@ -30,8 +30,10 @@ func InitGlobalLogger(file, tag string) error {
 //go:linkname overrideWrite runtime.overrideWrite
 var overrideWrite func(fd uintptr, p unsafe.Pointer, n int32) int32
 
-var globalBuffer [maxLogLineLength - 1 - maxTagLength - 3]byte
-var globalBufferLocation int
+var (
+	globalBuffer         [maxLogLineLength - 1 - maxTagLength - 3]byte
+	globalBufferLocation int
+)
 
 //go:nosplit
 func globalWrite(fd uintptr, p unsafe.Pointer, n int32) int32 {

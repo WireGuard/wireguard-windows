@@ -16,8 +16,10 @@ type lockedDriverAdapter struct {
 	sync.Mutex
 }
 
-var driverAdapters = make(map[string]*lockedDriverAdapter)
-var driverAdaptersLock sync.RWMutex
+var (
+	driverAdapters     = make(map[string]*lockedDriverAdapter)
+	driverAdaptersLock sync.RWMutex
+)
 
 func findDriverAdapter(tunnelName string) (*lockedDriverAdapter, error) {
 	driverAdaptersLock.RLock()

@@ -27,9 +27,11 @@ type Endpoint struct {
 	Port uint16
 }
 
-type Key [KeyLength]byte
-type HandshakeTime time.Duration
-type Bytes uint64
+type (
+	Key           [KeyLength]byte
+	HandshakeTime time.Duration
+	Bytes         uint64
+)
 
 type Config struct {
 	Name      string

@@ -172,7 +172,7 @@ func (c *Config) maybeAddPeer(p *Peer) {
 	}
 }
 
-func FromWgQuick(s string, name string) (*Config, error) {
+func FromWgQuick(s, name string) (*Config, error) {
 	if !TunnelNameIsValid(name) {
 		return nil, &ParseError{l18n.Sprintf("Tunnel name is not valid"), name}
 	}
@@ -339,7 +339,7 @@ func FromWgQuick(s string, name string) (*Config, error) {
 	return &conf, nil
 }
 
-func FromWgQuickWithUnknownEncoding(s string, name string) (*Config, error) {
+func FromWgQuickWithUnknownEncoding(s, name string) (*Config, error) {
 	c, firstErr := FromWgQuick(s, name)
 	if firstErr == nil {
 		return c, nil

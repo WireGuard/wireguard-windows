@@ -101,7 +101,7 @@ func extractCertificateNames(path string) ([]string, error) {
 	return names, nil
 }
 
-func extractCertificatePolicies(path string, oid string) ([]string, error) {
+func extractCertificatePolicies(path, oid string) ([]string, error) {
 	path16, err := windows.UTF16PtrFromString(path)
 	if err != nil {
 		return nil, err

@@ -24,7 +24,7 @@ const (
 	cSEE_MASK_DEFAULT = 0
 )
 
-func ShellExecute(program string, arguments string, directory string, show int32) (err error) {
+func ShellExecute(program, arguments, directory string, show int32) (err error) {
 	var (
 		program16   *uint16
 		arguments16 *uint16

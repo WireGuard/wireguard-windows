@@ -18,8 +18,10 @@ import (
 	"golang.zx2c4.com/wireguard/windows/conf"
 )
 
-const deterministicGUIDLabel = "Deterministic WireGuard Windows GUID v1 jason@zx2c4.com"
-const fixedGUIDLabel = "Fixed WireGuard Windows GUID v1 jason@zx2c4.com"
+const (
+	deterministicGUIDLabel = "Deterministic WireGuard Windows GUID v1 jason@zx2c4.com"
+	fixedGUIDLabel         = "Fixed WireGuard Windows GUID v1 jason@zx2c4.com"
+)
 
 // Escape hatch for external consumers, not us.
 var UseFixedGUIDInsteadOfDeterministic = false

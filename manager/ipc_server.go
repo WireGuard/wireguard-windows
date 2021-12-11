@@ -23,10 +23,12 @@ import (
 	"golang.zx2c4.com/wireguard/windows/updater"
 )
 
-var managerServices = make(map[*ManagerService]bool)
-var managerServicesLock sync.RWMutex
-var haveQuit uint32
-var quitManagersChan = make(chan struct{}, 1)
+var (
+	managerServices     = make(map[*ManagerService]bool)
+	managerServicesLock sync.RWMutex
+	haveQuit            uint32
+	quitManagersChan    = make(chan struct{}, 1)
+)
 
 type ManagerService struct {
 	events        *os.File
@@ -439,7 +441,7 @@ func (s *ManagerService) ServeConn(reader io.Reader, writer io.Writer) {
 	}
 }
 
-func IPCServerListen(reader *os.File, writer *os.File, events *os.File, elevatedToken windows.Token) {
+func IPCServerListen(reader, writer, events *os.File, elevatedToken windows.Token) {
 	service := &ManagerService{
 		events:        events,
 		elevatedToken: elevatedToken,

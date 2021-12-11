@@ -223,7 +223,7 @@ func (s stringSpan) isValidIPv6() bool {
 	return true
 }
 
-func (s stringSpan) isValidUint(supportHex bool, min uint64, max uint64) bool {
+func (s stringSpan) isValidUint(supportHex bool, min, max uint64) bool {
 	// Bound this around 32 bits, so that we don't have to write overflow logic.
 	if s.len > 10 || s.len == 0 {
 		return false
@@ -455,7 +455,7 @@ func (hsa *highlightSpanArray) append(o *byte, s stringSpan, t highlight) {
 	*hsa = append(*hsa, highlightSpan{t, int((uintptr(unsafe.Pointer(s.s))) - (uintptr(unsafe.Pointer(o)))), s.len})
 }
 
-func (hsa *highlightSpanArray) highlightMultivalueValue(parent stringSpan, s stringSpan, section field) {
+func (hsa *highlightSpanArray) highlightMultivalueValue(parent, s stringSpan, section field) {
 	switch section {
 	case fieldDNS:
 		if s.isValidIPv4() || s.isValidIPv6() {
@@ -488,7 +488,7 @@ func (hsa *highlightSpanArray) highlightMultivalueValue(parent stringSpan, s str
 	}
 }
 
-func (hsa *highlightSpanArray) highlightMultivalue(parent stringSpan, s stringSpan, section field) {
+func (hsa *highlightSpanArray) highlightMultivalue(parent, s stringSpan, section field) {
 	currentSpan := stringSpan{s.s, 0}
 	lenAtLastSpace := 0
 	for i := 0; i < s.len; i++ {
@@ -517,7 +517,7 @@ func (hsa *highlightSpanArray) highlightMultivalue(parent stringSpan, s stringSp
 	}
 }
 
-func (hsa *highlightSpanArray) highlightValue(parent stringSpan, s stringSpan, section field) {
+func (hsa *highlightSpanArray) highlightValue(parent, s stringSpan, section field) {
 	switch section {
 	case fieldPrivateKey:
 		hsa.append(parent.s, s, validateHighlight(s.isValidKey(), highlightPrivateKey))

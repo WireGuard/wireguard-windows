@@ -252,7 +252,7 @@ func (tray *Tray) rebalanceTunnelsMenu() {
 	}
 }
 
-func (tray *Tray) onTunnelChange(tunnel *manager.Tunnel, state manager.TunnelState, globalState manager.TunnelState, err error) {
+func (tray *Tray) onTunnelChange(tunnel *manager.Tunnel, state, globalState manager.TunnelState, err error) {
 	tray.mtw.Synchronize(func() {
 		tray.updateGlobalState(globalState)
 		if err == nil {

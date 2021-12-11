@@ -280,7 +280,7 @@ func (tp *TunnelsPage) updateConfView() {
 
 func (tp *TunnelsPage) importFiles(paths []string) {
 	go func() {
-		syncedMsgBox := func(title string, message string, flags walk.MsgBoxStyle) {
+		syncedMsgBox := func(title, message string, flags walk.MsgBoxStyle) {
 			tp.Synchronize(func() {
 				walk.MsgBox(tp.Form(), title, message, flags)
 			})
@@ -422,7 +422,6 @@ func (tp *TunnelsPage) addTunnel(config *conf.Config) {
 	if err != nil {
 		showErrorCustom(tp.Form(), l18n.Sprintf("Unable to create tunnel"), err.Error())
 	}
-
 }
 
 // Handlers
@@ -519,7 +518,6 @@ func (tp *TunnelsPage) onDelete() {
 	tunnelsToDelete := make([]manager.Tunnel, len(indices))
 	for i, j := range indices {
 		tunnelsToDelete[i] = tp.listView.model.tunnels[j]
-
 	}
 	go func() {
 		tp.listView.SetSuspendTunnelsUpdate(true)

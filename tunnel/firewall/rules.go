@@ -583,7 +583,6 @@ func permitDHCPIPv6(session uintptr, baseObjects *baseObjects, weight uint8) err
 }
 
 func permitNdp(session uintptr, baseObjects *baseObjects, weight uint8) error {
-
 	/* TODO: actually handle the hop limit somehow! The rules should vaguely be:
 	 *  - icmpv6 133: must be outgoing, dst must be FF02::2/128, hop limit must be 255
 	 *  - icmpv6 134: must be incoming, src must be FE80::/10, hop limit must be 255
@@ -986,7 +985,7 @@ func blockAll(session uintptr, baseObjects *baseObjects, weight uint8) error {
 }
 
 // Block all DNS traffic except towards specified DNS servers.
-func blockDNS(except []netip.Addr, session uintptr, baseObjects *baseObjects, weightAllow uint8, weightDeny uint8) error {
+func blockDNS(except []netip.Addr, session uintptr, baseObjects *baseObjects, weightAllow, weightDeny uint8) error {
 	if weightDeny >= weightAllow {
 		return errors.New("The allow weight must be greater than the deny weight")
 	}
