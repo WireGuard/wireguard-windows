@@ -28,12 +28,11 @@ endef
 $(eval $(call download,go.tar.gz,https://go.dev/dl/go1.17.4.linux-amd64.tar.gz,adab2483f644e2f8a10ae93122f0018cef525ca48d0b8764dae87cb5f4fd4206))
 $(eval $(call download,wireguard-nt.zip,https://download.wireguard.com/wireguard-nt/wireguard-nt-0.10.1.zip,772c0b1463d8d2212716f43f06f4594d880dea4f735165bd68e388fc41b81605))
 
-.deps/go/prepared: .distfiles/go.tar.gz $(wildcard go-patches/*.patch)
+.deps/go/prepared: .distfiles/go.tar.gz
 	mkdir -p .deps
 	rm -rf .deps/go
 	bsdtar -C .deps -xf .distfiles/go.tar.gz
 	chmod -R +w .deps/go
-	cat $(filter %.patch,$^) | patch -f -N -r- -p1 -d .deps/go
 	touch $@
 
 .deps/wireguard-nt/prepared: .distfiles/wireguard-nt.zip
