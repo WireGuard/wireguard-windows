@@ -8,10 +8,9 @@ package winipcfg
 import (
 	"encoding/binary"
 	"fmt"
+	"net/netip"
 	"strconv"
 	"unsafe"
-
-	"golang.zx2c4.com/go118/netip"
 
 	"golang.org/x/sys/windows"
 )

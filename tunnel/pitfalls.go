@@ -7,12 +7,12 @@ package tunnel
 
 import (
 	"log"
+	"net/netip"
 	"strings"
 	"unsafe"
 
 	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/svc/mgr"
-	"golang.zx2c4.com/go118/netip"
 	"golang.zx2c4.com/wireguard/windows/conf"
 	"golang.zx2c4.com/wireguard/windows/tunnel/winipcfg"
 )

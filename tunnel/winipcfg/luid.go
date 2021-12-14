@@ -7,9 +7,8 @@ package winipcfg
 
 import (
 	"errors"
+	"net/netip"
 	"strings"
-
-	"golang.zx2c4.com/go118/netip"
 
 	"golang.org/x/sys/windows"
 )

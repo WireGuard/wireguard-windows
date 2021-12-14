@@ -7,10 +7,10 @@ package conf
 
 import (
 	"log"
+	"net/netip"
 	"time"
 	"unsafe"
 
-	"golang.zx2c4.com/go118/netip"
 	"golang.zx2c4.com/wireguard/windows/tunnel/winipcfg"
 
 	"golang.org/x/sys/windows"

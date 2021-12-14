@@ -10,12 +10,11 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net/netip"
 	"os/exec"
 	"path/filepath"
 	"strings"
 	"syscall"
-
-	"golang.zx2c4.com/go118/netip"
 
 	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/registry"

@@ -6,11 +6,10 @@
 package conf
 
 import (
+	"net/netip"
 	"reflect"
 	"runtime"
 	"testing"
-
-	"golang.zx2c4.com/go118/netip"
 )
 
 const testInput = `

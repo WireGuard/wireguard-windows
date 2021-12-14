@@ -8,9 +8,8 @@ package tunnel
 import (
 	"fmt"
 	"log"
+	"net/netip"
 	"time"
-
-	"golang.zx2c4.com/go118/netip"
 
 	"golang.org/x/sys/windows"
 	"golang.zx2c4.com/wireguard/windows/conf"

@@ -7,10 +7,9 @@ package conf
 
 import (
 	"fmt"
+	"net/netip"
 	"strings"
 	"unsafe"
-
-	"golang.zx2c4.com/go118/netip"
 
 	"golang.org/x/sys/windows"
 	"golang.zx2c4.com/wireguard/windows/driver"

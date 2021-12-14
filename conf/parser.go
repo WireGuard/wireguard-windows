@@ -7,10 +7,9 @@ package conf
 
 import (
 	"encoding/base64"
+	"net/netip"
 	"strconv"
 	"strings"
-
-	"golang.zx2c4.com/go118/netip"
 
 	"golang.org/x/sys/windows"
 	"golang.org/x/text/encoding/unicode"

@@ -8,10 +8,9 @@ package firewall
 import (
 	"encoding/binary"
 	"errors"
+	"net/netip"
 	"runtime"
 	"unsafe"
-
-	"golang.zx2c4.com/go118/netip"
 
 	"golang.org/x/sys/windows"
 )

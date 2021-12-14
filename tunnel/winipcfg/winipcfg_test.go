@@ -22,12 +22,11 @@ Some tests in this file require:
 package winipcfg
 
 import (
+	"net/netip"
 	"strings"
 	"syscall"
 	"testing"
 	"time"
-
-	"golang.zx2c4.com/go118/netip"
 
 	"golang.org/x/sys/windows"
 )

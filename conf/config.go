@@ -10,10 +10,9 @@ import (
 	"crypto/subtle"
 	"encoding/base64"
 	"fmt"
+	"net/netip"
 	"strings"
 	"time"
-
-	"golang.zx2c4.com/go118/netip"
 
 	"golang.org/x/crypto/curve25519"
 

@@ -6,9 +6,8 @@
 package ui
 
 import (
+	"net/netip"
 	"strings"
-
-	"golang.zx2c4.com/go118/netip"
 
 	"github.com/lxn/walk"
 	"github.com/lxn/win"
