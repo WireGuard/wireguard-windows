@@ -1,4 +1,4 @@
-GOFLAGS := -tags load_wgnt_from_rsrc -ldflags="-H windowsgui -s -w" -v -trimpath
+GOFLAGS := -tags load_wgnt_from_rsrc -ldflags="-H windowsgui -s -w" -trimpath -buildinfo=false -buildvcs=false -v
 export GOOS := windows
 export PATH := $(CURDIR)/.deps/go/bin:$(PATH)
 
