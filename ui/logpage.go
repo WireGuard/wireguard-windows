@@ -216,6 +216,6 @@ func newLogModel(lp *LogPage) *logModel {
 	return mdl
 }
 
-func (mdl *logModel) Items() interface{} {
+func (mdl *logModel) Items() any {
 	return mdl.items
 }

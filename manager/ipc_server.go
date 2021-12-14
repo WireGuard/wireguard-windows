@@ -461,7 +461,7 @@ func IPCServerListen(reader, writer, events *os.File, elevatedToken windows.Toke
 	}()
 }
 
-func notifyAll(notificationType NotificationType, adminOnly bool, ifaces ...interface{}) {
+func notifyAll(notificationType NotificationType, adminOnly bool, ifaces ...any) {
 	if len(managerServices) == 0 {
 		return
 	}
