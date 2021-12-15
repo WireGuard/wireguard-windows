@@ -63,6 +63,7 @@ func NewRinglogger(filename, tag string) (*Ringlogger, error) {
 	}
 	rl, err := newRingloggerFromMappingHandle(mapping, tag, windows.FILE_MAP_WRITE)
 	if err != nil {
+		windows.CloseHandle(mapping)
 		return nil, err
 	}
 	rl.file = file
@@ -80,10 +81,6 @@ func NewRingloggerFromInheritedMappingHandle(handleStr, tag string) (*Ringlogger
 func newRingloggerFromMappingHandle(mappingHandle windows.Handle, tag string, access uint32) (*Ringlogger, error) {
 	view, err := windows.MapViewOfFile(mappingHandle, access, 0, 0, 0)
 	if err != nil {
-		return nil, err
-	}
-	if err != nil {
-		windows.CloseHandle(mappingHandle)
 		return nil, err
 	}
 	log := (*logMem)(unsafe.Pointer(view))
