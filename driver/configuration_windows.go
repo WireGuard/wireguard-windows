@@ -81,7 +81,7 @@ var (
 
 // SetAdapterState sets the adapter either Up or Down.
 func (wireguard *Adapter) SetAdapterState(adapterState AdapterState) (err error) {
-	r0, _, e1 := syscall.Syscall(procWireGuardSetAdapterState.Addr(), 2, wireguard.handle, uintptr(adapterState), 0)
+	r0, _, e1 := syscall.SyscallN(procWireGuardSetAdapterState.Addr(), wireguard.handle, uintptr(adapterState))
 	if r0 == 0 {
 		err = e1
 	}
@@ -90,7 +90,7 @@ func (wireguard *Adapter) SetAdapterState(adapterState AdapterState) (err error)
 
 // AdapterState returns the current state of the adapter.
 func (wireguard *Adapter) AdapterState() (adapterState AdapterState, err error) {
-	r0, _, e1 := syscall.Syscall(procWireGuardGetAdapterState.Addr(), 2, wireguard.handle, uintptr(unsafe.Pointer(&adapterState)), 0)
+	r0, _, e1 := syscall.SyscallN(procWireGuardGetAdapterState.Addr(), wireguard.handle, uintptr(unsafe.Pointer(&adapterState)))
 	if r0 == 0 {
 		err = e1
 	}
@@ -99,7 +99,7 @@ func (wireguard *Adapter) AdapterState() (adapterState AdapterState, err error) 
 
 // SetConfiguration sets the adapter configuration.
 func (wireguard *Adapter) SetConfiguration(interfaze *Interface, size uint32) (err error) {
-	r0, _, e1 := syscall.Syscall(procWireGuardSetConfiguration.Addr(), 3, wireguard.handle, uintptr(unsafe.Pointer(interfaze)), uintptr(size))
+	r0, _, e1 := syscall.SyscallN(procWireGuardSetConfiguration.Addr(), wireguard.handle, uintptr(unsafe.Pointer(interfaze)), uintptr(size))
 	if r0 == 0 {
 		err = e1
 	}
@@ -114,7 +114,7 @@ func (wireguard *Adapter) Configuration() (interfaze *Interface, err error) {
 	}
 	for {
 		buf := make([]byte, size)
-		r0, _, e1 := syscall.Syscall(procWireGuardGetConfiguration.Addr(), 3, wireguard.handle, uintptr(unsafe.Pointer(&buf[0])), uintptr(unsafe.Pointer(&size)))
+		r0, _, e1 := syscall.SyscallN(procWireGuardGetConfiguration.Addr(), wireguard.handle, uintptr(unsafe.Pointer(&buf[0])), uintptr(unsafe.Pointer(&size)))
 		if r0 != 0 {
 			wireguard.lastGetGuessSize = size
 			return (*Interface)(unsafe.Pointer(&buf[0])), nil
