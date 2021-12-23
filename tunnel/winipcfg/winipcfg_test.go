@@ -64,7 +64,7 @@ func getTestInterface() (*IPAdapterAddresses, error) {
 
 	marker := strings.ToLower(testInterfaceMarker)
 	for _, ifc := range ifcs {
-		if strings.Index(strings.ToLower(ifc.FriendlyName()), marker) != -1 {
+		if strings.Contains(strings.ToLower(ifc.FriendlyName()), marker) {
 			return ifc, nil
 		}
 	}

@@ -167,10 +167,7 @@ func FromWgQuick(s, name string) (*Config, error) {
 	sawPrivateKey := false
 	var peer *Peer
 	for _, line := range lines {
-		pound := strings.IndexByte(line, '#')
-		if pound >= 0 {
-			line = line[:pound]
-		}
+		line, _, _ = strings.Cut(line, "#")
 		line = strings.TrimSpace(line)
 		lineLower := strings.ToLower(line)
 		if len(line) == 0 {

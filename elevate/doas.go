@@ -19,11 +19,11 @@ import (
 func setAllEnv(env []string) {
 	windows.Clearenv()
 	for _, e := range env {
-		kv := strings.SplitN(e, "=", 2)
-		if len(kv) != 2 {
+		k, v, ok := strings.Cut(e, "=")
+		if !ok {
 			continue
 		}
-		windows.Setenv(kv[0], kv[1])
+		windows.Setenv(k, v)
 	}
 }
 

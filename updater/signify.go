@@ -53,17 +53,17 @@ func readFileList(input []byte) (fileList, error) {
 		if len(line) == 0 && index == len(fileLines)-1 {
 			break
 		}
-		components := strings.SplitN(line, "  ", 2)
-		if len(components) != 2 {
+		first, second, ok := strings.Cut(line, "  ")
+		if !ok {
 			return nil, errors.New("File hash line has too few components")
 		}
-		maybeHash, err := hex.DecodeString(components[0])
+		maybeHash, err := hex.DecodeString(first)
 		if err != nil || len(maybeHash) != blake2b.Size256 {
 			return nil, errors.New("File hash is invalid base64 or incorrect number of bytes")
 		}
 		var hash [blake2b.Size256]byte
 		copy(hash[:], maybeHash)
-		fileHashes[components[1]] = hash
+		fileHashes[second] = hash
 	}
 	if len(fileHashes) == 0 {
 		return nil, errors.New("No file hashes found in signed input")
