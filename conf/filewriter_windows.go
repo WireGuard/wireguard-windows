@@ -18,5 +18,6 @@ func writeLockedDownFile(destination string, overwrite bool, contents []byte) er
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
