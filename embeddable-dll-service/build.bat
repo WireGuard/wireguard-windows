@@ -1,6 +1,6 @@
 @echo off
 rem SPDX-License-Identifier: MIT
-rem Copyright (C) 2019-2021 WireGuard LLC. All Rights Reserved.
+rem Copyright (C) 2019-2022 WireGuard LLC. All Rights Reserved.
 
 setlocal
 set BUILDDIR=%~dp0
