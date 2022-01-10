@@ -1,16 +1,15 @@
 /* SPDX-License-Identifier: MIT
  *
- * Copyright (C) 2019-2021 WireGuard LLC. All Rights Reserved.
+ * Copyright (C) 2019-2022 WireGuard LLC. All Rights Reserved.
  */
 
 package conf
 
 import (
 	"encoding/base64"
+	"net/netip"
 	"strconv"
 	"strings"
-
-	"golang.zx2c4.com/go118/netip"
 
 	"golang.org/x/sys/windows"
 	"golang.org/x/text/encoding/unicode"
@@ -182,10 +181,7 @@ func FromWgQuick(s, name string) (*Config, error) {
 	sawPrivateKey := false
 	var peer *Peer
 	for _, line := range lines {
-		pound := strings.IndexByte(line, '#')
-		if pound >= 0 {
-			line = line[:pound]
-		}
+		line, _, _ = strings.Cut(line, "#")
 		line = strings.TrimSpace(line)
 		lineLower := strings.ToLower(line)
 		if len(line) == 0 {

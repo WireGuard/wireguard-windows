@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: MIT
  *
- * Copyright (C) 2019-2021 WireGuard LLC. All Rights Reserved.
+ * Copyright (C) 2019-2022 WireGuard LLC. All Rights Reserved.
  */
 
 package elevate
@@ -130,13 +130,13 @@ func ShellExecute(program, arguments, directory string, show int32) (err error) 
 		return
 	}
 
-	defer syscall.Syscall((*interfacePointer)[releaseOffset], 1, uintptr(unsafe.Pointer(interfacePointer)), 0, 0)
+	defer syscall.SyscallN((*interfacePointer)[releaseOffset], uintptr(unsafe.Pointer(interfacePointer)))
 
 	if program16 == nil {
 		return
 	}
 
-	if ret, _, _ := syscall.Syscall6((*interfacePointer)[shellExecuteOffset], 6,
+	if ret, _, _ := syscall.SyscallN((*interfacePointer)[shellExecuteOffset],
 		uintptr(unsafe.Pointer(interfacePointer)),
 		uintptr(unsafe.Pointer(program16)),
 		uintptr(unsafe.Pointer(arguments16)),

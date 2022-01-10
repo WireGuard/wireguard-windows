@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0
  *
- * Copyright (C) 2020-2021 Jason A. Donenfeld. All Rights Reserved.
+ * Copyright (C) 2020-2022 Jason A. Donenfeld. All Rights Reserved.
  */
 
 #ifndef _CRYPTO_H
@@ -21,7 +21,7 @@ struct blake2b256_state {
 void blake2b256_init(struct blake2b256_state *state);
 void blake2b256_update(struct blake2b256_state *state, const uint8_t *in,
 		       unsigned int inlen);
-void blake2b256_final(struct blake2b256_state *state, uint8_t *out);
+void blake2b256_final(struct blake2b256_state *state, uint8_t out[32]);
 
 bool ed25519_verify(const uint8_t signature[64], const uint8_t public_key[32],
 		    const void *message, size_t message_size);

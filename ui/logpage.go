@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: MIT
  *
- * Copyright (C) 2019-2021 WireGuard LLC. All Rights Reserved.
+ * Copyright (C) 2019-2022 WireGuard LLC. All Rights Reserved.
  */
 
 package ui
@@ -216,6 +216,6 @@ func newLogModel(lp *LogPage) *logModel {
 	return mdl
 }
 
-func (mdl *logModel) Items() interface{} {
+func (mdl *logModel) Items() any {
 	return mdl.items
 }

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright (C) 2020-2021 Jason A. Donenfeld. All Rights Reserved.
+ * Copyright (C) 2020-2022 Jason A. Donenfeld. All Rights Reserved.
  * Copyright (c) 2020, Google Inc.
  */
 
@@ -2239,7 +2239,7 @@ void blake2b256_update(struct blake2b256_state *state, const uint8_t *in,
 	state->buflen += inlen;
 }
 
-void blake2b256_final(struct blake2b256_state *state, uint8_t *out)
+void blake2b256_final(struct blake2b256_state *state, uint8_t out[32])
 {
 	state->t[0] += state->buflen;
 	state->t[1] += (state->t[0] < state->buflen);
@@ -2247,6 +2247,6 @@ void blake2b256_final(struct blake2b256_state *state, uint8_t *out)
 	memset(state->buf + state->buflen, 0, 128 - state->buflen);
 	blake2b256_compress(state, state->buf);
 
-	for (int i = 0; i < 8; ++i)
+	for (int i = 0; i < 4; ++i)
 		store_le64(out + i * sizeof(state->h[i]), state->h[i]);
 }

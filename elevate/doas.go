@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: MIT
  *
- * Copyright (C) 2019-2021 WireGuard LLC. All Rights Reserved.
+ * Copyright (C) 2019-2022 WireGuard LLC. All Rights Reserved.
  */
 
 package elevate
@@ -19,11 +19,11 @@ import (
 func setAllEnv(env []string) {
 	windows.Clearenv()
 	for _, e := range env {
-		kv := strings.SplitN(e, "=", 2)
-		if len(kv) != 2 {
+		k, v, ok := strings.Cut(e, "=")
+		if !ok {
 			continue
 		}
-		windows.Setenv(kv[0], kv[1])
+		windows.Setenv(k, v)
 	}
 }
 

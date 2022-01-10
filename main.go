@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: MIT
  *
- * Copyright (C) 2019-2021 WireGuard LLC. All Rights Reserved.
+ * Copyright (C) 2019-2022 WireGuard LLC. All Rights Reserved.
  */
 
 package main
@@ -41,20 +41,20 @@ func setLogFile() {
 	}
 }
 
-func fatal(v ...interface{}) {
+func fatal(v ...any) {
 	if log.Writer() == io.Discard {
 		windows.MessageBox(0, windows.StringToUTF16Ptr(fmt.Sprint(v...)), windows.StringToUTF16Ptr(l18n.Sprintf("Error")), windows.MB_ICONERROR)
 		os.Exit(1)
 	} else {
-		log.Fatal(append([]interface{}{l18n.Sprintf("Error: ")}, v...))
+		log.Fatal(append([]any{l18n.Sprintf("Error: ")}, v...))
 	}
 }
 
-func fatalf(format string, v ...interface{}) {
+func fatalf(format string, v ...any) {
 	fatal(l18n.Sprintf(format, v...))
 }
 
-func info(title, format string, v ...interface{}) {
+func info(title, format string, v ...any) {
 	if log.Writer() == io.Discard {
 		windows.MessageBox(0, windows.StringToUTF16Ptr(l18n.Sprintf(format, v...)), windows.StringToUTF16Ptr(title), windows.MB_ICONINFORMATION)
 	} else {

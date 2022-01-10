@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: MIT
  *
- * Copyright (C) 2019-2021 WireGuard LLC. All Rights Reserved.
+ * Copyright (C) 2019-2022 WireGuard LLC. All Rights Reserved.
  */
 
 package syntax
@@ -478,10 +478,10 @@ func NewSyntaxEdit(parent walk.Container) (*SyntaxEdit, error) {
 	se.GraphicsEffects().Add(walk.InteractionEffect)
 	se.GraphicsEffects().Add(walk.FocusEffect)
 	se.MustRegisterProperty("Text", walk.NewProperty(
-		func() interface{} {
+		func() any {
 			return se.Text()
 		},
-		func(v interface{}) error {
+		func(v any) error {
 			if s, ok := v.(string); ok {
 				return se.SetText(s)
 			}

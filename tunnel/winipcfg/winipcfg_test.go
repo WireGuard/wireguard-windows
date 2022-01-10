@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: MIT
  *
- * Copyright (C) 2019-2021 WireGuard LLC. All Rights Reserved.
+ * Copyright (C) 2019-2022 WireGuard LLC. All Rights Reserved.
  */
 
 /*
@@ -22,12 +22,11 @@ Some tests in this file require:
 package winipcfg
 
 import (
+	"net/netip"
 	"strings"
 	"syscall"
 	"testing"
 	"time"
-
-	"golang.zx2c4.com/go118/netip"
 
 	"golang.org/x/sys/windows"
 )
@@ -65,7 +64,7 @@ func getTestInterface() (*IPAdapterAddresses, error) {
 
 	marker := strings.ToLower(testInterfaceMarker)
 	for _, ifc := range ifcs {
-		if strings.Index(strings.ToLower(ifc.FriendlyName()), marker) != -1 {
+		if strings.Contains(strings.ToLower(ifc.FriendlyName()), marker) {
 			return ifc, nil
 		}
 	}

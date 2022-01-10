@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: MIT
  *
- * Copyright (C) 2019-2021 WireGuard LLC. All Rights Reserved.
+ * Copyright (C) 2019-2022 WireGuard LLC. All Rights Reserved.
  */
 
 package tunnel
@@ -8,9 +8,8 @@ package tunnel
 import (
 	"fmt"
 	"log"
+	"net/netip"
 	"time"
-
-	"golang.zx2c4.com/go118/netip"
 
 	"golang.org/x/sys/windows"
 	"golang.zx2c4.com/wireguard/windows/conf"

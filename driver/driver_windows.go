@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: MIT
  *
- * Copyright (C) 2017-2021 WireGuard LLC. All Rights Reserved.
+ * Copyright (C) 2017-2022 WireGuard LLC. All Rights Reserved.
  */
 
 package driver
@@ -67,11 +67,11 @@ func setupLogger(dll *lazyDLL) {
 	} else if runtime.GOARCH == "amd64" || runtime.GOARCH == "arm64" {
 		callback = windows.NewCallback(logMessage)
 	}
-	syscall.Syscall(dll.NewProc("WireGuardSetLogger").Addr(), 1, callback, 0, 0)
+	syscall.SyscallN(dll.NewProc("WireGuardSetLogger").Addr(), callback)
 }
 
 func closeAdapter(wireguard *Adapter) {
-	syscall.Syscall(procWireGuardCloseAdapter.Addr(), 1, wireguard.handle, 0, 0)
+	syscall.SyscallN(procWireGuardCloseAdapter.Addr(), wireguard.handle)
 }
 
 // CreateAdapter creates a WireGuard adapter. name is the cosmetic name of the adapter.
@@ -90,7 +90,7 @@ func CreateAdapter(name, tunnelType string, requestedGUID *windows.GUID) (wiregu
 	if err != nil {
 		return
 	}
-	r0, _, e1 := syscall.Syscall(procWireGuardCreateAdapter.Addr(), 3, uintptr(unsafe.Pointer(name16)), uintptr(unsafe.Pointer(tunnelType16)), uintptr(unsafe.Pointer(requestedGUID)))
+	r0, _, e1 := syscall.SyscallN(procWireGuardCreateAdapter.Addr(), uintptr(unsafe.Pointer(name16)), uintptr(unsafe.Pointer(tunnelType16)), uintptr(unsafe.Pointer(requestedGUID)))
 	if r0 == 0 {
 		err = e1
 		return
@@ -107,7 +107,7 @@ func OpenAdapter(name string) (wireguard *Adapter, err error) {
 	if err != nil {
 		return
 	}
-	r0, _, e1 := syscall.Syscall(procWireGuardOpenAdapter.Addr(), 1, uintptr(unsafe.Pointer(name16)), 0, 0)
+	r0, _, e1 := syscall.SyscallN(procWireGuardOpenAdapter.Addr(), uintptr(unsafe.Pointer(name16)))
 	if r0 == 0 {
 		err = e1
 		return
@@ -120,7 +120,7 @@ func OpenAdapter(name string) (wireguard *Adapter, err error) {
 // Close closes a WireGuard adapter.
 func (wireguard *Adapter) Close() (err error) {
 	runtime.SetFinalizer(wireguard, nil)
-	r1, _, e1 := syscall.Syscall(procWireGuardCloseAdapter.Addr(), 1, wireguard.handle, 0, 0)
+	r1, _, e1 := syscall.SyscallN(procWireGuardCloseAdapter.Addr(), wireguard.handle)
 	if r1 == 0 {
 		err = e1
 	}
@@ -129,7 +129,7 @@ func (wireguard *Adapter) Close() (err error) {
 
 // Uninstall removes the driver from the system if no drivers are currently in use.
 func Uninstall() (err error) {
-	r1, _, e1 := syscall.Syscall(procWireGuardDeleteDriver.Addr(), 0, 0, 0, 0)
+	r1, _, e1 := syscall.SyscallN(procWireGuardDeleteDriver.Addr())
 	if r1 == 0 {
 		err = e1
 	}
@@ -146,7 +146,7 @@ const (
 
 // SetLogging enables or disables logging on the WireGuard adapter.
 func (wireguard *Adapter) SetLogging(logState AdapterLogState) (err error) {
-	r1, _, e1 := syscall.Syscall(procWireGuardSetAdapterLogging.Addr(), 2, wireguard.handle, uintptr(logState), 0)
+	r1, _, e1 := syscall.SyscallN(procWireGuardSetAdapterLogging.Addr(), wireguard.handle, uintptr(logState))
 	if r1 == 0 {
 		err = e1
 	}
@@ -155,7 +155,7 @@ func (wireguard *Adapter) SetLogging(logState AdapterLogState) (err error) {
 
 // RunningVersion returns the version of the loaded driver.
 func RunningVersion() (version uint32, err error) {
-	r0, _, e1 := syscall.Syscall(procWireGuardGetRunningDriverVersion.Addr(), 0, 0, 0, 0)
+	r0, _, e1 := syscall.SyscallN(procWireGuardGetRunningDriverVersion.Addr())
 	version = uint32(r0)
 	if version == 0 {
 		err = e1
@@ -165,6 +165,6 @@ func RunningVersion() (version uint32, err error) {
 
 // LUID returns the LUID of the adapter.
 func (wireguard *Adapter) LUID() (luid winipcfg.LUID) {
-	syscall.Syscall(procWireGuardGetAdapterLUID.Addr(), 2, wireguard.handle, uintptr(unsafe.Pointer(&luid)), 0)
+	syscall.SyscallN(procWireGuardGetAdapterLUID.Addr(), wireguard.handle, uintptr(unsafe.Pointer(&luid)))
 	return
 }

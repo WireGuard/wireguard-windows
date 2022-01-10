@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: MIT
  *
- * Copyright (C) 2019-2021 WireGuard LLC. All Rights Reserved.
+ * Copyright (C) 2019-2022 WireGuard LLC. All Rights Reserved.
  */
 
 package conf
@@ -10,10 +10,9 @@ import (
 	"crypto/subtle"
 	"encoding/base64"
 	"fmt"
+	"net/netip"
 	"strings"
 	"time"
-
-	"golang.zx2c4.com/go118/netip"
 
 	"golang.org/x/crypto/curve25519"
 

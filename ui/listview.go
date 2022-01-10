@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: MIT
  *
- * Copyright (C) 2019-2021 WireGuard LLC. All Rights Reserved.
+ * Copyright (C) 2019-2022 WireGuard LLC. All Rights Reserved.
  */
 
 package ui
@@ -32,7 +32,7 @@ func (t *ListModel) RowCount() int {
 	return len(t.tunnels)
 }
 
-func (t *ListModel) Value(row, col int) interface{} {
+func (t *ListModel) Value(row, col int) any {
 	if col != 0 || row < 0 || row >= len(t.tunnels) {
 		return ""
 	}

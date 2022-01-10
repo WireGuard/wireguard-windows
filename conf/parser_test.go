@@ -1,16 +1,15 @@
 /* SPDX-License-Identifier: MIT
  *
- * Copyright (C) 2019-2021 WireGuard LLC. All Rights Reserved.
+ * Copyright (C) 2019-2022 WireGuard LLC. All Rights Reserved.
  */
 
 package conf
 
 import (
+	"net/netip"
 	"reflect"
 	"runtime"
 	"testing"
-
-	"golang.zx2c4.com/go118/netip"
 )
 
 const testInput = `
@@ -46,7 +45,7 @@ func noError(t *testing.T, err error) bool {
 	return false
 }
 
-func equal(t *testing.T, expected, actual interface{}) bool {
+func equal(t *testing.T, expected, actual any) bool {
 	if reflect.DeepEqual(expected, actual) {
 		return true
 	}
@@ -55,7 +54,7 @@ func equal(t *testing.T, expected, actual interface{}) bool {
 	return false
 }
 
-func lenTest(t *testing.T, actualO interface{}, expected int) bool {
+func lenTest(t *testing.T, actualO any, expected int) bool {
 	actual := reflect.ValueOf(actualO).Len()
 	if reflect.DeepEqual(expected, actual) {
 		return true
@@ -65,7 +64,7 @@ func lenTest(t *testing.T, actualO interface{}, expected int) bool {
 	return false
 }
 
-func contains(t *testing.T, list, element interface{}) bool {
+func contains(t *testing.T, list, element any) bool {
 	listValue := reflect.ValueOf(list)
 	for i := 0; i < listValue.Len(); i++ {
 		if reflect.DeepEqual(listValue.Index(i).Interface(), element) {

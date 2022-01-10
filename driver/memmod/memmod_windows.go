@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: MIT
  *
- * Copyright (C) 2017-2021 WireGuard LLC. All Rights Reserved.
+ * Copyright (C) 2017-2022 WireGuard LLC. All Rights Reserved.
  */
 
 package memmod
@@ -233,7 +233,7 @@ func (module *Module) executeTLS() {
 			if f == 0 {
 				break
 			}
-			syscall.Syscall(f, 3, module.codeBase, uintptr(DLL_PROCESS_ATTACH), uintptr(0))
+			syscall.SyscallN(f, module.codeBase, DLL_PROCESS_ATTACH, 0)
 			callback += unsafe.Sizeof(f)
 		}
 	}
@@ -444,7 +444,7 @@ func hookRtlPcToFileHeader() error {
 			}
 		}
 		loadedAddressRangesMu.RUnlock()
-		ret, _, _ := syscall.Syscall(originalRtlPcToFileHeader, 2, pcValue, uintptr(unsafe.Pointer(baseOfImage)), 0)
+		ret, _, _ := syscall.SyscallN(originalRtlPcToFileHeader, pcValue, uintptr(unsafe.Pointer(baseOfImage)))
 		return ret
 	})
 	err = windows.VirtualProtect(uintptr(unsafe.Pointer(thunk)), unsafe.Sizeof(*thunk), oldProtect, &oldProtect)
@@ -605,7 +605,7 @@ func LoadLibrary(data []byte) (module *Module, err error) {
 		module.entry = module.codeBase + uintptr(module.headers.OptionalHeader.AddressOfEntryPoint)
 		if module.isDLL {
 			// Notify library about attaching to process.
-			r0, _, _ := syscall.Syscall(module.entry, 3, module.codeBase, uintptr(DLL_PROCESS_ATTACH), 0)
+			r0, _, _ := syscall.SyscallN(module.entry, module.codeBase, DLL_PROCESS_ATTACH, 0)
 			successful := r0 != 0
 			if !successful {
 				err = windows.ERROR_DLL_INIT_FAILED
@@ -623,7 +623,7 @@ func LoadLibrary(data []byte) (module *Module, err error) {
 func (module *Module) Free() {
 	if module.initialized {
 		// Notify library about detaching from process.
-		syscall.Syscall(module.entry, 3, module.codeBase, uintptr(DLL_PROCESS_DETACH), 0)
+		syscall.SyscallN(module.entry, module.codeBase, DLL_PROCESS_DETACH, 0)
 		module.initialized = false
 	}
 	if module.modules != nil {

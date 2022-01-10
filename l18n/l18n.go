@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: MIT
  *
- * Copyright (C) 2019-2021 WireGuard LLC. All Rights Reserved.
+ * Copyright (C) 2019-2022 WireGuard LLC. All Rights Reserved.
  */
 
 package l18n
@@ -52,7 +52,7 @@ func lang() (tag language.Tag) {
 }
 
 // Sprintf is like fmt.Sprintf, but using language-specific formatting.
-func Sprintf(key message.Reference, a ...interface{}) string {
+func Sprintf(key message.Reference, a ...any) string {
 	return prn().Sprintf(key, a...)
 }
 

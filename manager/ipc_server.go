@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: MIT
  *
- * Copyright (C) 2019-2021 WireGuard LLC. All Rights Reserved.
+ * Copyright (C) 2019-2022 WireGuard LLC. All Rights Reserved.
  */
 
 package manager
@@ -461,7 +461,7 @@ func IPCServerListen(reader, writer, events *os.File, elevatedToken windows.Toke
 	}()
 }
 
-func notifyAll(notificationType NotificationType, adminOnly bool, ifaces ...interface{}) {
+func notifyAll(notificationType NotificationType, adminOnly bool, ifaces ...any) {
 	if len(managerServices) == 0 {
 		return
 	}

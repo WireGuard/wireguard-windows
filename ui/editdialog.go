@@ -1,14 +1,13 @@
 /* SPDX-License-Identifier: MIT
  *
- * Copyright (C) 2019-2021 WireGuard LLC. All Rights Reserved.
+ * Copyright (C) 2019-2022 WireGuard LLC. All Rights Reserved.
  */
 
 package ui
 
 import (
+	"net/netip"
 	"strings"
-
-	"golang.zx2c4.com/go118/netip"
 
 	"github.com/lxn/walk"
 	"github.com/lxn/win"
