@@ -71,7 +71,7 @@ remaster: .deps/go/prepared
 	rm -f go.sum go.mod
 	cp go.mod.master go.mod
 	go get -d
-	sed -i $(shell curl -L 'https://go.dev/dl/?mode=json&include=all' | jq -r '(".windows-amd64.zip",".linux-amd64.tar.gz") as $$suffix | .[-1].files[] | select(.filename|endswith($$suffix)) | ("-e", "s/go[0-9][^ ]*\\\($$suffix)\\([ ,]\\)[a-f0-9]\\+/\(.filename)\\1\(.sha256)/") | @sh') Makefile build.bat
+	sed -i $(shell curl -L 'https://go.dev/dl/?mode=json&include=all' | jq -r '(".windows-amd64.zip",".linux-amd64.tar.gz") as $$suffix | .[0].files[] | select(.filename|endswith($$suffix)) | ("-e", "s/go[0-9][^ ]*\\\($$suffix)\\([ ,]\\)[a-f0-9]\\+/\(.filename)\\1\(.sha256)/") | @sh') Makefile build.bat
 
 fmt: export GOARCH := amd64
 fmt: .deps/go/prepared
