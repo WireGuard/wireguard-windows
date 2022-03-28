@@ -23,6 +23,13 @@ if exist ..\.deps\prepared goto :build
 	call :build_plat amd64 x86_64 amd64 || goto :error
 	call :build_plat arm64 aarch64 arm64 || goto :error
 
+:sign
+	if exist ..\sign.bat call ..\sign.bat
+	if "%SigningCertificate%"=="" goto :success
+	if "%TimestampServer%"=="" goto :success
+	echo [+] Signing
+	signtool sign /sha1 "%SigningCertificate%" /fd sha256 /tr "%TimestampServer%" /td sha256 /d "WireGuard Tunnel" x86\tunnel.dll amd64\tunnel.dll arm64\tunnel.dll || goto :error
+
 :success
 	echo [+] Success
 	exit /b 0
