@@ -17,12 +17,10 @@ import (
 	"golang.zx2c4.com/wireguard/windows/services"
 )
 
-//sys	internetGetConnectedState(flags *uint32, reserved uint32) (connected bool) = wininet.InternetGetConnectedState
-
 func ResolveHostname(name string) (resolvedIPString string, err error) {
 	maxTries := 10
 	if services.StartedAtBoot() {
-		maxTries *= 4
+		maxTries *= 3
 	}
 	for i := 0; i < maxTries; i++ {
 		if i > 0 {
@@ -33,12 +31,11 @@ func ResolveHostname(name string) (resolvedIPString string, err error) {
 			return
 		}
 		if err == windows.WSATRY_AGAIN {
-			log.Printf("Temporary DNS error when resolving %s, sleeping for 4 seconds", name)
+			log.Printf("Temporary DNS error when resolving %s, so sleeping for 4 seconds", name)
 			continue
 		}
-		var state uint32
-		if err == windows.WSAHOST_NOT_FOUND && services.StartedAtBoot() && !internetGetConnectedState(&state, 0) {
-			log.Printf("Host not found when resolving %s, but no Internet connection available, sleeping for 4 seconds", name)
+		if err == windows.WSAHOST_NOT_FOUND && services.StartedAtBoot() {
+			log.Printf("Host not found when resolving %s at boot time, so sleeping for 4 seconds", name)
 			continue
 		}
 		return
