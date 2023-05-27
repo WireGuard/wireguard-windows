@@ -86,3 +86,10 @@ VERSIONINFO_TEMPLATE(
   "WireGuard：快速、現代、安全的 VPN 隧道",
   "https://www.wireguard.com/"
 )
+
+LANGUAGE LANG_PORTUGUESE, SUBLANG_PORTUGUESE_BRAZILIAN
+VERSIONINFO_TEMPLATE(
+  "041004b0", 0x410, 0x4b0,
+  "WireGuard: Túnel VPN rápido, moderno e seguro",
+  "https://www.wireguard.com/"
+)
