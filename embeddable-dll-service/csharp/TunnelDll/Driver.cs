@@ -226,7 +226,7 @@ namespace Tunnel
                 public Win32.IN6_ADDR V6;
                 [FieldOffset(16)]
                 public Win32.ADDRESS_FAMILY AddressFamily;
-                [FieldOffset(20)]
+                [FieldOffset(18)]
                 public byte Cidr;
             }
         }
