@@ -690,7 +690,7 @@ func alignUp(value, alignment uintptr) uintptr {
 }
 
 func a2p(addr uintptr) unsafe.Pointer {
-	return unsafe.Pointer(addr)
+	return unsafe.Add(unsafe.Pointer(nil), addr)
 }
 
 func memcpy(dst, src, size uintptr) {
