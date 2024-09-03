@@ -114,6 +114,12 @@
             ]
         },
         {
+            "id": "WireGuard system tray icon did not appear after 30 seconds.",
+            "message": "WireGuard system tray icon did not appear after 30 seconds.",
+            "translation": "La icona de WireGuard de la safata del sistema no ha aparegut després de 30 segons.",
+            "translatorComment": "Copied from source."
+        },
+        {
             "id": "Now",
             "message": "Now",
             "translation": "Ara",
@@ -410,6 +416,12 @@
             "translatorComment": "Copied from source."
         },
         {
+            "id": "Brackets must contain an IPv6 address",
+            "message": "Brackets must contain an IPv6 address",
+            "translation": "Els claudàtors han de contenir una adreça IPv6",
+            "translatorComment": "Copied from source."
+        },
+        {
             "id": "Invalid MTU",
             "message": "Invalid MTU",
             "translation": "MTU invàlida",
@@ -444,6 +456,12 @@
             ]
         },
         {
+            "id": "Keys must decode to exactly 32 bytes",
+            "message": "Keys must decode to exactly 32 bytes",
+            "translation": "Les claus han de descodificar a exactament 32 bytes",
+            "translatorComment": "Copied from source."
+        },
+        {
             "id": "Number must be a number between 0 and 2^64-1: {Err}",
             "message": "Number must be a number between 0 and 2^64-1: {Err}",
             "translation": "El nombre ha de estar entre 0 i 2^64-1: {Err}",
@@ -472,6 +490,42 @@
             "translatorComment": "Copied from source."
         },
         {
+            "id": "Line must occur in a section",
+            "message": "Line must occur in a section",
+            "translation": "La línia ha d'aparèixer en una secció",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Config key is missing an equals separator",
+            "message": "Config key is missing an equals separator",
+            "translation": "La clau de configuració no té un separador d'igualtat",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Key must have a value",
+            "message": "Key must have a value",
+            "translation": "La clau ha de tenir un valor",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Invalid key for [Interface] section",
+            "message": "Invalid key for [Interface] section",
+            "translation": "La clau no és vàlida per la secció [Interface]",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Invalid key for [Peer] section",
+            "message": "Invalid key for [Peer] section",
+            "translation": "La clau no és vàlida per la secció [Peer]",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "An interface must have a private key",
+            "message": "An interface must have a private key",
+            "translation": "Una interfície ha de tenir una clau privada",
+            "translatorComment": "Copied from source."
+        },
+        {
             "id": "[none specified]",
             "message": "[none specified]",
             "translation": "[no especificat]",
@@ -487,6 +541,24 @@
             "id": "Error in getting configuration",
             "message": "Error in getting configuration",
             "translation": "Error obtenint configuració",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Invalid key for interface section",
+            "message": "Invalid key for interface section",
+            "translation": "La clau no és vàlida per la secció d'interfície",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Protocol version must be 1",
+            "message": "Protocol version must be 1",
+            "translation": "La versió del protocol ha de ser 1",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Invalid key for peer section",
+            "message": "Invalid key for peer section",
+            "translation": "La clau no és vàlida per la secció de parell",
             "translatorComment": "Copied from source."
         },
         {
@@ -512,6 +584,62 @@
             "message": "WireGuard logo image",
             "translation": "Logo de WireGuard",
             "translatorComment": "Copied from source."
+        },
+        {
+            "id": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}-{GOARCH}\nOperating system: {OsName}\nArchitecture: {NativeArch}",
+            "message": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}-{GOARCH}\nOperating system: {OsName}\nArchitecture: {NativeArch}",
+            "translation": "Versió de l'aplicació: {Number}\nVersió de backend Go: {WireGuardGoVersion}\nVersió de Go: {Version_go}-{GOARCH}\nSistema operatiu: {OsName}\nArquitectura: {NativeArch}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Number",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "version.Number"
+                },
+                {
+                    "id": "WireGuardGoVersion",
+                    "string": "%[2]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 2,
+                    "expr": "device.WireGuardGoVersion"
+                },
+                {
+                    "id": "Version_go",
+                    "string": "%[3]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 3,
+                    "expr": "strings.TrimPrefix(runtime.Version(), \"go\")"
+                },
+                {
+                    "id": "GOARCH",
+                    "string": "%[4]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 4,
+                    "expr": "runtime.GOARCH"
+                },
+                {
+                    "id": "OsName",
+                    "string": "%[5]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 5,
+                    "expr": "version.OsName()"
+                },
+                {
+                    "id": "NativeArch",
+                    "string": "%[6]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 6,
+                    "expr": "version.NativeArch()"
+                }
+            ]
         },
         {
             "id": "Close",
@@ -574,6 +702,12 @@
             "translatorComment": "Copied from source."
         },
         {
+            "id": "Scripts:",
+            "message": "Scripts:",
+            "translation": "Scripts:",
+            "translatorComment": "Copied from source."
+        },
+        {
             "id": "Preshared key:",
             "message": "Preshared key:",
             "translation": "Clau precompartida:",
@@ -601,6 +735,268 @@
             "id": "Latest handshake:",
             "message": "Latest handshake:",
             "translation": "Últim handshake:",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Transfer:",
+            "message": "Transfer:",
+            "translation": "Transferència:",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "pre-up",
+            "message": "pre-up",
+            "translation": "preactivació",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "post-up",
+            "message": "post-up",
+            "translation": "postactivació",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "pre-down",
+            "message": "pre-down",
+            "translation": "predesactivació",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "post-down",
+            "message": "post-down",
+            "translation": "postdesactivació",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "disabled, per policy",
+            "message": "disabled, per policy",
+            "translation": "deshabilitat, per política",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "enabled",
+            "message": "enabled",
+            "translation": "habilitat",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "{String} received, {String_1} sent",
+            "message": "{String} received, {String_1} sent",
+            "translation": "{String} rebut, {String_1} enviat",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "String",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "c.RxBytes.String()"
+                },
+                {
+                    "id": "String_1",
+                    "string": "%[2]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 2,
+                    "expr": "c.TxBytes.String()"
+                }
+            ]
+        },
+        {
+            "id": "Failed to determine tunnel state",
+            "message": "Failed to determine tunnel state",
+            "translation": "Error en determinar l'estat del túnel",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Failed to activate tunnel",
+            "message": "Failed to activate tunnel",
+            "translation": "Error en activar el túnel",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Failed to deactivate tunnel",
+            "message": "Failed to deactivate tunnel",
+            "translation": "Error en desactivar el túnel",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Interface: {Name}",
+            "message": "Interface: {Name}",
+            "translation": "Interfície: {Name}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Name",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "config.Name"
+                }
+            ]
+        },
+        {
+            "id": "Peer",
+            "message": "Peer",
+            "translation": "Parell",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Create new tunnel",
+            "message": "Create new tunnel",
+            "translation": "Crear un túnel nou",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Edit tunnel",
+            "message": "Edit tunnel",
+            "translation": "Editar túnel",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "&Name:",
+            "message": "&Name:",
+            "translation": "&Nom:",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "&Public key:",
+            "message": "&Public key:",
+            "translation": "&Clau pública:",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "(unknown)",
+            "message": "(unknown)",
+            "translation": "(desconegut)",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "&Block untunneled traffic (kill-switch)",
+            "message": "&Block untunneled traffic (kill-switch)",
+            "translation": "&Bloquejar el trànsit que no passa pel túnel (kill-switch)",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface or is to the wrong DNS server, with special exceptions for DHCP and NDP.",
+            "message": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface or is to the wrong DNS server, with special exceptions for DHCP and NDP.",
+            "translation": "Quan una configuració té exactament un parell, i aquest parell té adreces IP permeses que continguin almenys 0.0.0.0/0 o ::/0, el servei del túnel activa regles de tallafoc per bloquejar tot el trànsit que no es és ni de la interfície del túnel o cap al servidor DNS equivocat, amb excepció per DHCP i NDP.",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "&Save",
+            "message": "&Save",
+            "translation": "&Desar",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Cancel",
+            "message": "Cancel",
+            "translation": "Cancel·lar",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "&Configuration:",
+            "message": "&Configuration:",
+            "translation": "&Configuració:",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Invalid name",
+            "message": "Invalid name",
+            "translation": "Nom invàlid",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "A name is required.",
+            "message": "A name is required.",
+            "translation": "És necessari un nom.",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Tunnel name ‘{NewName}’ is invalid.",
+            "message": "Tunnel name ‘{NewName}’ is invalid.",
+            "translation": "El nom del túnel ‘{NewName}’ és invàlid.",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "NewName",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "newName"
+                }
+            ]
+        },
+        {
+            "id": "Unable to list existing tunnels",
+            "message": "Unable to list existing tunnels",
+            "translation": "No s'ha pogut llistar els túnels existents",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Tunnel already exists",
+            "message": "Tunnel already exists",
+            "translation": "El túnel ja existeix",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Another tunnel already exists with the name ‘{NewName}’.",
+            "message": "Another tunnel already exists with the name ‘{NewName}’.",
+            "translation": "Ja existeix un altre túnel amb el nom ‘{NewName}’.",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "NewName",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "newName"
+                }
+            ]
+        },
+        {
+            "id": "Unable to create new configuration",
+            "message": "Unable to create new configuration",
+            "translation": "No s'ha pogut crear una nova configuració",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Writing file failed",
+            "message": "Writing file failed",
+            "translation": "Error en escriure el fitxer",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "File ‘{FilePath}’ already exists.\n\nDo you want to overwrite it?",
+            "message": "File ‘{FilePath}’ already exists.\n\nDo you want to overwrite it?",
+            "translation": "El fitxer ‘{FilePath}’ ja existeix.\n\nEl vols sobreescriure?",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "FilePath",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "filePath"
+                }
+            ]
+        },
+        {
+            "id": "Active",
+            "message": "Active",
+            "translation": "Actiu",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Activating",
+            "message": "Activating",
+            "translation": "Activant",
             "translatorComment": "Copied from source."
         },
         {
@@ -658,6 +1054,12 @@
             "translatorComment": "Copied from source."
         },
         {
+            "id": "Text Files (*.txt)|*.txt|All Files (*.*)|*.*",
+            "message": "Text Files (*.txt)|*.txt|All Files (*.*)|*.*",
+            "translation": "Fitxers de text (*.txt)|*.txt|Tots els fitxers (*.*)|*.*",
+            "translatorComment": "Copied from source."
+        },
+        {
             "id": "Export log to file",
             "message": "Export log to file",
             "translation": "Exporta registre a fitxer",
@@ -708,10 +1110,612 @@
             ]
         },
         {
+            "id": "WireGuard Detection Error",
+            "message": "WireGuard Detection Error",
+            "translation": "Error en detectar WireGuard",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Unable to wait for WireGuard window to appear: {Err}",
+            "message": "Unable to wait for WireGuard window to appear: {Err}",
+            "translation": "No ha estat possible esperar que aparegui la finestra de WireGuard: {Err}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Err",
+                    "string": "%[1]v",
+                    "type": "error",
+                    "underlyingType": "interface{Error() string}",
+                    "argNum": 1,
+                    "expr": "err"
+                }
+            ]
+        },
+        {
+            "id": "WireGuard: Deactivated",
+            "message": "WireGuard: Deactivated",
+            "translation": "WireGuard: Desactivat",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Status: Unknown",
+            "message": "Status: Unknown",
+            "translation": "Estat: Desconegut",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Addresses: None",
+            "message": "Addresses: None",
+            "translation": "Adreces: Cap",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "&Manage tunnels…",
+            "message": "&Manage tunnels…",
+            "translation": "&Administrar túnels…",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "&Import tunnel(s) from file…",
+            "message": "&Import tunnel(s) from file…",
+            "translation": "&Importar túnel(s) des d'un fitxer…",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "E&xit",
+            "message": "E&xit",
+            "translation": "&Surt",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "&Tunnels",
+            "message": "&Tunnels",
+            "translation": "&Túnels",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "WireGuard Activated",
+            "message": "WireGuard Activated",
+            "translation": "WireGuard Activat",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "The {Name} tunnel has been activated.",
+            "message": "The {Name} tunnel has been activated.",
+            "translation": "El túnel {Name} ha estat activat.",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Name",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "tunnel.Name"
+                }
+            ]
+        },
+        {
+            "id": "WireGuard Deactivated",
+            "message": "WireGuard Deactivated",
+            "translation": "WireGuard Desactivat",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "The {Name} tunnel has been deactivated.",
+            "message": "The {Name} tunnel has been deactivated.",
+            "translation": "El túnel {Name} ha estat desactivat.",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Name",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "tunnel.Name"
+                }
+            ]
+        },
+        {
+            "id": "WireGuard Tunnel Error",
+            "message": "WireGuard Tunnel Error",
+            "translation": "Error en el túnel de WireGuard",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "WireGuard: {TextForStateglobalState_true}",
+            "message": "WireGuard: {TextForStateglobalState_true}",
+            "translation": "WireGuard: {TextForStateglobalState_true}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "TextForStateglobalState_true",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "textForState(globalState, true)"
+                }
+            ]
+        },
+        {
+            "id": "Status: {StateText}",
+            "message": "Status: {StateText}",
+            "translation": "Estat: {StateText}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "StateText",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "stateText"
+                }
+            ]
+        },
+        {
+            "id": "Addresses: {EnumerationSeparator}",
+            "message": "Addresses: {EnumerationSeparator}",
+            "translation": "Adreces: {EnumerationSeparator}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "EnumerationSeparator",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "strings.Join(addrs, l18n.EnumerationSeparator())"
+                }
+            ]
+        },
+        {
+            "id": "An Update is Available!",
+            "message": "An Update is Available!",
+            "translation": "Hi ha una actualització disponible!",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "WireGuard Update Available",
+            "message": "WireGuard Update Available",
+            "translation": "Actualització de WireGuard disponible",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "An update to WireGuard is now available. You are advised to update as soon as possible.",
+            "message": "An update to WireGuard is now available. You are advised to update as soon as possible.",
+            "translation": "Hi ha una actualització de WireGuard. Es recomana actualitzar el més aviat millor.",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Tunnels",
+            "message": "Tunnels",
+            "translation": "Túnels",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "&Edit",
+            "message": "&Edit",
+            "translation": "&Editar",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Add &empty tunnel…",
+            "message": "Add &empty tunnel…",
+            "translation": "Afegir &túnel buit…",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Add Tunnel",
+            "message": "Add Tunnel",
+            "translation": "Afegir túnel",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Remove selected tunnel(s)",
+            "message": "Remove selected tunnel(s)",
+            "translation": "Eliminar túnel(s) seleccionats",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Export all tunnels to zip",
+            "message": "Export all tunnels to zip",
+            "translation": "Exportar túnels a zip",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "&Toggle",
+            "message": "&Toggle",
+            "translation": "&Alterna",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Export all tunnels to &zip…",
+            "message": "Export all tunnels to &zip…",
+            "translation": "Exportar tots els túnels a &zip…",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Edit &selected tunnel…",
+            "message": "Edit &selected tunnel…",
+            "translation": "Editar túnels &seleccionats…",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "&Remove selected tunnel(s)",
+            "message": "&Remove selected tunnel(s)",
+            "translation": "&Eliminar túnel(s) seleccionats",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "no configuration files were found",
+            "message": "no configuration files were found",
+            "translation": "no s'han trobat fitxers de configuració",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Could not import selected configuration: {LastErr}",
+            "message": "Could not import selected configuration: {LastErr}",
+            "translation": "No s'ha pogut importar la configuració seleccionada: {LastErr}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "LastErr",
+                    "string": "%[1]v",
+                    "type": "error",
+                    "underlyingType": "interface{Error() string}",
+                    "argNum": 1,
+                    "expr": "lastErr"
+                }
+            ]
+        },
+        {
+            "id": "Could not enumerate existing tunnels: {LastErr}",
+            "message": "Could not enumerate existing tunnels: {LastErr}",
+            "translation": "No s'han pogut enumerar els túnels existents: {LastErr}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "LastErr",
+                    "string": "%[1]v",
+                    "type": "error",
+                    "underlyingType": "interface{Error() string}",
+                    "argNum": 1,
+                    "expr": "lastErr"
+                }
+            ]
+        },
+        {
+            "id": "Another tunnel already exists with the name ‘{Name}’",
+            "message": "Another tunnel already exists with the name ‘{Name}’",
+            "translation": "Ja existeix un altre túnel amb el nom ‘{Name}’",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Name",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "unparsedConfig.Name"
+                }
+            ]
+        },
+        {
+            "id": "Unable to import configuration: {LastErr}",
+            "message": "Unable to import configuration: {LastErr}",
+            "translation": "No s'ha pogut importar la configuració: {LastErr}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "LastErr",
+                    "string": "%[1]v",
+                    "type": "error",
+                    "underlyingType": "interface{Error() string}",
+                    "argNum": 1,
+                    "expr": "lastErr"
+                }
+            ]
+        },
+        {
+            "id": "Imported tunnels",
+            "message": "Imported tunnels",
+            "translation": "Túnels importats",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Imported {M} tunnels",
+            "message": "Imported {M} tunnels",
+            "translation": {
+                "select": {
+                    "feature": "plural",
+                    "arg": "M",
+                    "cases": {
+                        "one": {
+                            "msg": "{M} túnel importat"
+                        },
+                        "other": {
+                            "msg": "{M} túnels importats"
+                        }
+                    }
+                }
+            },
+            "placeholders": [
+                {
+                    "id": "M",
+                    "string": "%[1]d",
+                    "type": "int",
+                    "underlyingType": "int",
+                    "argNum": 1,
+                    "expr": "m"
+                }
+            ]
+        },
+        {
+            "id": "Imported {M} of {N} tunnels",
+            "message": "Imported {M} of {N} tunnels",
+            "translation": {
+                "select": {
+                    "feature": "plural",
+                    "arg": "N",
+                    "cases": {
+                        "one": {
+                            "msg": "{M} de {N} túnel importat"
+                        },
+                        "other": {
+                            "msg": "{M} de {N} túnels importats"
+                        }
+                    }
+                }
+            },
+            "placeholders": [
+                {
+                    "id": "M",
+                    "string": "%[1]d",
+                    "type": "int",
+                    "underlyingType": "int",
+                    "argNum": 1,
+                    "expr": "m"
+                },
+                {
+                    "id": "N",
+                    "string": "%[2]d",
+                    "type": "int",
+                    "underlyingType": "int",
+                    "argNum": 2,
+                    "expr": "n"
+                }
+            ]
+        },
+        {
+            "id": "Unable to create tunnel",
+            "message": "Unable to create tunnel",
+            "translation": "No s'ha pogut crear el túnel",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Delete {TunnelCount} tunnels",
+            "message": "Delete {TunnelCount} tunnels",
+            "translation": {
+                "select": {
+                    "feature": "plural",
+                    "arg": "TunnelCount",
+                    "cases": {
+                        "one": {
+                            "msg": "Eliminar {TunnelCount} túnel"
+                        },
+                        "other": {
+                            "msg": "Eliminar {TunnelCount} túnels"
+                        }
+                    }
+                }
+            },
+            "placeholders": [
+                {
+                    "id": "TunnelCount",
+                    "string": "%[1]d",
+                    "type": "int",
+                    "underlyingType": "int",
+                    "argNum": 1,
+                    "expr": "tunnelCount"
+                }
+            ]
+        },
+        {
+            "id": "Are you sure you would like to delete {TunnelCount} tunnels?",
+            "message": "Are you sure you would like to delete {TunnelCount} tunnels?",
+            "translation": {
+                "select": {
+                    "feature": "plural",
+                    "arg": "TunnelCount",
+                    "cases": {
+                        "one": {
+                            "msg": "Estàs segur que vols eliminar {TunnelCount} túnel?"
+                        },
+                        "other": {
+                            "msg": "Estàs segur que vols eliminar {TunnelCount} túnels?"
+                        }
+                    }
+                }
+            },
+            "placeholders": [
+                {
+                    "id": "TunnelCount",
+                    "string": "%[1]d",
+                    "type": "int",
+                    "underlyingType": "int",
+                    "argNum": 1,
+                    "expr": "tunnelCount"
+                }
+            ]
+        },
+        {
+            "id": "Delete tunnel ‘{TunnelName}’",
+            "message": "Delete tunnel ‘{TunnelName}’",
+            "translation": "Eliminar túnel ‘{TunnelName}’",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "TunnelName",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "tunnelName"
+                }
+            ]
+        },
+        {
+            "id": "Are you sure you would like to delete tunnel ‘{TunnelName}’?",
+            "message": "Are you sure you would like to delete tunnel ‘{TunnelName}’?",
+            "translation": "Estàs segur que vols eliminar el túnel ‘{TunnelName}’?",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "TunnelName",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "tunnelName"
+                }
+            ]
+        },
+        {
+            "id": "{Question} You cannot undo this action.",
+            "message": "{Question} You cannot undo this action.",
+            "translation": "{Question} Aquesta acció no es pot desfer.",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Question",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "question"
+                }
+            ]
+        },
+        {
+            "id": "Unable to delete tunnel",
+            "message": "Unable to delete tunnel",
+            "translation": "No s'ha pogut eliminar el túnel",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "A tunnel was unable to be removed: {Error}",
+            "message": "A tunnel was unable to be removed: {Error}",
+            "translation": "Un túnel no ha estat capaç de ser eliminat: {Error}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Error",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "errors[0].Error()"
+                }
+            ]
+        },
+        {
+            "id": "Unable to delete tunnels",
+            "message": "Unable to delete tunnels",
+            "translation": "No s'ha pogut eliminar els túnels",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "{Lenerrors} tunnels were unable to be removed.",
+            "message": "{Lenerrors} tunnels were unable to be removed.",
+            "translation": {
+                "select": {
+                    "feature": "plural",
+                    "arg": "Lenerrors",
+                    "cases": {
+                        "one": {
+                            "msg": "No s'ha pogut eliminar {Lenerrors} túnel."
+                        },
+                        "other": {
+                            "msg": "No s'ha pogut eliminar {Lenerrors} túnels."
+                        }
+                    }
+                }
+            },
+            "placeholders": [
+                {
+                    "id": "Lenerrors",
+                    "string": "%[1]d",
+                    "type": "int",
+                    "underlyingType": "int",
+                    "argNum": 1,
+                    "expr": "len(errors)"
+                }
+            ]
+        },
+        {
+            "id": "Configuration Files (*.zip, *.conf)|*.zip;*.conf|All Files (*.*)|*.*",
+            "message": "Configuration Files (*.zip, *.conf)|*.zip;*.conf|All Files (*.*)|*.*",
+            "translation": "Fitxers de configuració (*.zip, *.conf)|*.zip;*.conf|Tots els fitxers (*.*)|*.*",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Import tunnel(s) from file",
+            "message": "Import tunnel(s) from file",
+            "translation": "Importar túnel(s) des d'un fitxer",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Configuration ZIP Files (*.zip)|*.zip",
+            "message": "Configuration ZIP Files (*.zip)|*.zip",
+            "translation": "Fitxers ZIP de configuració (*.zip)|*.zip",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Export tunnels to zip",
+            "message": "Export tunnels to zip",
+            "translation": "Exportar túnels a zip",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "{Title} (unsigned build, no updates)",
+            "message": "{Title} (unsigned build, no updates)",
+            "translation": "{Title} (compilació no signada, sense actualitzacions)",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Title",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "mtw.Title()"
+                }
+            ]
+        },
+        {
             "id": "Error Exiting WireGuard",
             "message": "Error Exiting WireGuard",
             "translation": "Error al sortir de WireGuard",
             "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Unable to exit service due to: {Err}. You may want to stop WireGuard from the service manager.",
+            "message": "Unable to exit service due to: {Err}. You may want to stop WireGuard from the service manager.",
+            "translation": "No s'ha pogut sortir del servei a causa de l'error: {Err}. Pot intentar aturar WireGuard des de l'administrador de serveis.",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Err",
+                    "string": "%[1]v",
+                    "type": "error",
+                    "underlyingType": "interface{Error() string}",
+                    "argNum": 1,
+                    "expr": "err"
+                }
+            ]
         },
         {
             "id": "An update to WireGuard is available. It is highly advisable to update without delay.",
@@ -720,9 +1724,21 @@
             "translatorComment": "Copied from source."
         },
         {
+            "id": "Status: Waiting for user",
+            "message": "Status: Waiting for user",
+            "translation": "Estat: Esperant a l'usuari",
+            "translatorComment": "Copied from source."
+        },
+        {
             "id": "Update Now",
             "message": "Update Now",
             "translation": "Actualitza ara",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Status: Waiting for updater service",
+            "message": "Status: Waiting for updater service",
+            "translation": "Estat: Esperant el servei d'actualitzacions",
             "translatorComment": "Copied from source."
         },
         {
@@ -746,6 +1762,86 @@
             "message": "Status: Complete!",
             "translation": "Estat: Completat!",
             "translatorComment": "Copied from source."
+        },
+        {
+            "id": "http2: Framer {F}: failed to decode just-written frame",
+            "message": "http2: Framer {F}: failed to decode just-written frame",
+            "translation": "http2: Framer {F}: failed to decode just-written frame",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "F",
+                    "string": "%[1]p",
+                    "type": "*net/http.http2Framer",
+                    "underlyingType": "*net/http.http2Framer",
+                    "argNum": 1,
+                    "expr": "f"
+                }
+            ]
+        },
+        {
+            "id": "http2: Framer {F}: wrote {Http2summarizeFramefr}",
+            "message": "http2: Framer {F}: wrote {Http2summarizeFramefr}",
+            "translation": "http2: Framer {F}: wrote {Http2summarizeFramefr}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "F",
+                    "string": "%[1]p",
+                    "type": "*net/http.http2Framer",
+                    "underlyingType": "*net/http.http2Framer",
+                    "argNum": 1,
+                    "expr": "f"
+                },
+                {
+                    "id": "Http2summarizeFramefr",
+                    "string": "%[2]v",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 2,
+                    "expr": "http2summarizeFrame(fr)"
+                }
+            ]
+        },
+        {
+            "id": "http2: Framer {Fr}: read {Http2summarizeFramef}",
+            "message": "http2: Framer {Fr}: read {Http2summarizeFramef}",
+            "translation": "http2: Framer {Fr}: read {Http2summarizeFramef}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Fr",
+                    "string": "%[1]p",
+                    "type": "*net/http.http2Framer",
+                    "underlyingType": "*net/http.http2Framer",
+                    "argNum": 1,
+                    "expr": "fr"
+                },
+                {
+                    "id": "Http2summarizeFramef",
+                    "string": "%[2]v",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 2,
+                    "expr": "http2summarizeFrame(f)"
+                }
+            ]
+        },
+        {
+            "id": "http2: decoded hpack field {HeaderField}",
+            "message": "http2: decoded hpack field {HeaderField}",
+            "translation": "http2: decoded hpack field {HeaderField}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "HeaderField",
+                    "string": "%+[1]v",
+                    "type": "vendor/golang.org/x/net/http2/hpack.HeaderField",
+                    "underlyingType": "struct{Name string; Value string; Sensitive bool}",
+                    "argNum": 1,
+                    "expr": "hf"
+                }
+            ]
         }
     ]
 }

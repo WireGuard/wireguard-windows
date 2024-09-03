@@ -618,6 +618,12 @@
             "translatorComment": "Copied from source."
         },
         {
+            "id": "Preshared key:",
+            "message": "Preshared key:",
+            "translation": "ਪਹਿਲਾਂ-ਸਾਂਝੀ ਕੀਤੀ ਕੁੰਜੀ:",
+            "translatorComment": "Copied from source."
+        },
+        {
             "id": "Allowed IPs:",
             "message": "Allowed IPs:",
             "translation": "ਮਨਜ਼ੂਰ ਕੀਤੇ IP:",
@@ -630,9 +636,27 @@
             "translatorComment": "Copied from source."
         },
         {
+            "id": "Persistent keepalive:",
+            "message": "Persistent keepalive:",
+            "translation": "ਸਥਿਰ ਲਗਾਤਾਰ ਜਾਰੀ ਰੱਖੋ:",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Latest handshake:",
+            "message": "Latest handshake:",
+            "translation": "ਆਖਰੀ ਹੈਂਡ-ਸ਼ੇਕ:",
+            "translatorComment": "Copied from source."
+        },
+        {
             "id": "Transfer:",
             "message": "Transfer:",
             "translation": "ਟਰਾਂਸਫਰ:",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "disabled, per policy",
+            "message": "disabled, per policy",
+            "translation": "ਅਸਮਰੱਥ ਹੈ, ਹਰ ਪਾਲਸੀ",
             "translatorComment": "Copied from source."
         },
         {

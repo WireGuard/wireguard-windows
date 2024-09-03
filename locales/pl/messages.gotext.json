@@ -806,7 +806,7 @@
         {
             "id": "enabled",
             "message": "enabled",
-            "translation": "włączyć",
+            "translation": "włączone",
             "translatorComment": "Copied from source."
         },
         {
@@ -1110,7 +1110,7 @@
         {
             "id": "{ErrMsg}\n\nPlease consult the log for more information.",
             "message": "{ErrMsg}\n\nPlease consult the log for more information.",
-            "translation": "{ErrMsg}\n\nAby uzyskać więcej informacji, zapoznaj się z logiem.",
+            "translation": "{ErrMsg}\n\nAby uzyskać więcej informacji, zapoznaj się z dziennikiem.",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1188,7 +1188,7 @@
         {
             "id": "&Import tunnel(s) from file…",
             "message": "&Import tunnel(s) from file…",
-            "translation": "&Importuj tunel (tunele) z pliku…",
+            "translation": "&Importuj tunel(e) z pliku…",
             "translatorComment": "Copied from source."
         },
         {
@@ -1228,7 +1228,7 @@
         {
             "id": "WireGuard Deactivated",
             "message": "WireGuard Deactivated",
-            "translation": "WireGuard Dezaktywowany",
+            "translation": "WireGuard dezaktywowany",
             "translatorComment": "Copied from source."
         },
         {
@@ -1340,13 +1340,13 @@
         {
             "id": "Add Tunnel",
             "message": "Add Tunnel",
-            "translation": "Dodaj Tunel",
+            "translation": "Dodaj tunel",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Remove selected tunnel(s)",
             "message": "Remove selected tunnel(s)",
-            "translation": "Usuń wybrany tunel (tunele)",
+            "translation": "Usuń wybrany(-e) tunel(e)",
             "translatorComment": "Copied from source."
         },
         {
@@ -1376,7 +1376,7 @@
         {
             "id": "&Remove selected tunnel(s)",
             "message": "&Remove selected tunnel(s)",
-            "translation": "&Usuń wybrany tunel (tunele)",
+            "translation": "&Usuń wybrany(-e) tunel(e)",
             "translatorComment": "Copied from source."
         },
         {
@@ -1498,7 +1498,7 @@
                     "arg": "N",
                     "cases": {
                         "one": {
-                            "msg": "Zaimportowano {M} z {N} tunel"
+                            "msg": "Zaimportowano {M} z {N} tunelu"
                         },
                         "few": {
                             "msg": "Zaimportowano {M} z {N} tunele"
@@ -1724,7 +1724,7 @@
         {
             "id": "Import tunnel(s) from file",
             "message": "Import tunnel(s) from file",
-            "translation": "Importuj tunel (tunele) z pliku",
+            "translation": "Importuj tunel(e) z pliku",
             "translatorComment": "Copied from source."
         },
         {
@@ -1764,7 +1764,7 @@
         {
             "id": "Unable to exit service due to: {Err}. You may want to stop WireGuard from the service manager.",
             "message": "Unable to exit service due to: {Err}. You may want to stop WireGuard from the service manager.",
-            "translation": "Nie można wyłączyć usługi ze względu na: {Err}. Jeśli chcesz wyłączyć WireGuard możesz to zrobić z poziomu menedżera usług.",
+            "translation": "Nie można wyłączyć usługi ze względu na: {Err}. Jeśli chcesz wyłączyć WireGuard, możesz to zrobić z poziomu menedżera usług.",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {

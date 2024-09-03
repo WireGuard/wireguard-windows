@@ -10,7 +10,7 @@
         {
             "id": "(no argument): elevate and install manager service",
             "message": "(no argument): elevate and install manager service",
-            "translation": "(argüman verilmediyse): gerekli izinleri al ve yönetim hizmetini kur",
+            "translation": "(parametre belirtilmediyse): gerekli izinleri al ve yönetim hizmetini yükle",
             "translatorComment": "Copied from source."
         },
         {
@@ -62,13 +62,13 @@
         {
             "id": "You must use the native version of WireGuard on this computer.",
             "message": "You must use the native version of WireGuard on this computer.",
-            "translation": "Bu bilgisayarda WireGuard'ın yerel sürümünü kullanmanız gerek.",
+            "translation": "Bu bilgisayarda WireGuard'ın yerel sürümünü kullanmalısınız.",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Unable to open current process token: {Err}",
             "message": "Unable to open current process token: {Err}",
-            "translation": "Şu anki işlem jetonu açılamadı: {Err}",
+            "translation": "Geçerli işlem jetonu açılamadı: {Err}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -84,7 +84,7 @@
         {
             "id": "WireGuard may only be used by users who are a member of the Builtin {AdminGroupName} group.",
             "message": "WireGuard may only be used by users who are a member of the Builtin {AdminGroupName} group.",
-            "translation": "WireGuard sadece sisteme yerleşik {AdminGroupName} grubunun üyeleri tarafından kullanılabilir.",
+            "translation": "WireGuard'ı sadece yerleşik {AdminGroupName} grubunun üyeleri kullanabilir.",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -100,7 +100,7 @@
         {
             "id": "WireGuard is running, but the UI is only accessible from desktops of the Builtin {AdminGroupName} group.",
             "message": "WireGuard is running, but the UI is only accessible from desktops of the Builtin {AdminGroupName} group.",
-            "translation": "WireGuard çalışıyor, fakat kullanıcı arayüzü sadece sisteme yerleşik {AdminGroupName} grubunun üyesi olan kullanıcılar tarafından masaüstünde erişilebilir.",
+            "translation": "WireGuard çalışıyor fakat kullanıcı arayüzüne sadece yerleşik {AdminGroupName} grubunun bilgisayarlarından erişilebilir.",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -116,7 +116,7 @@
         {
             "id": "WireGuard system tray icon did not appear after 30 seconds.",
             "message": "WireGuard system tray icon did not appear after 30 seconds.",
-            "translation": "WireGuard sistem tepsisi ikonu 30 saniye sonunda belirmedi.",
+            "translation": "WireGuard sistem tepsisi simgesi 30 saniye sonunda belirmedi.",
             "translatorComment": "Copied from source."
         },
         {
@@ -128,7 +128,7 @@
         {
             "id": "System clock wound backward!",
             "message": "System clock wound backward!",
-            "translation": "Sistem saati geriye sarılmış!",
+            "translation": "Sistem saati geri alınmış!",
             "translatorComment": "Copied from source."
         },
         {
@@ -400,13 +400,13 @@
         {
             "id": "Invalid network prefix length",
             "message": "Invalid network prefix length",
-            "translation": "Ağ öneki uzunluğu geçersiz",
+            "translation": "Geçersiz ağ öneki uzunluğu",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Missing port from endpoint",
             "message": "Missing port from endpoint",
-            "translation": "Uç nokta port ayarı eksik",
+            "translation": "Uç nokta portu eksik",
             "translatorComment": "Copied from source."
         },
         {
@@ -418,7 +418,7 @@
         {
             "id": "Brackets must contain an IPv6 address",
             "message": "Brackets must contain an IPv6 address",
-            "translation": "Parantezler bir IPv6 adresi içermelidir",
+            "translation": "Köşeli parantezler IPv6 adresi içermelidir",
             "translatorComment": "Copied from source."
         },
         {
@@ -436,7 +436,7 @@
         {
             "id": "Invalid persistent keepalive",
             "message": "Invalid persistent keepalive",
-            "translation": "Geçersiz kalıcı açık bırakma",
+            "translation": "Geçersiz sürekli keepalive",
             "translatorComment": "Copied from source."
         },
         {
@@ -458,13 +458,13 @@
         {
             "id": "Keys must decode to exactly 32 bytes",
             "message": "Keys must decode to exactly 32 bytes",
-            "translation": "Anahtarlar çözüldüğünde tam 32 byte olmalı",
+            "translation": "Anahtarlar çözüldüğünde tam 32 bayt olmalıdır",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Number must be a number between 0 and 2^64-1: {Err}",
             "message": "Number must be a number between 0 and 2^64-1: {Err}",
-            "translation": "Sayı 0 ve 2^64-1 arasında bir sayı olmalı: {Err}",
+            "translation": "Sayı 0 ile 2^64-1 arasında olmalıdır: {Err}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -492,13 +492,13 @@
         {
             "id": "Line must occur in a section",
             "message": "Line must occur in a section",
-            "translation": "Satır bir bölümde olmalı",
+            "translation": "Satır bir bölüm içinde olmalıdır",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Config key is missing an equals separator",
             "message": "Config key is missing an equals separator",
-            "translation": "Yapılandırma anahtarında eşittir operatörü eksik",
+            "translation": "Yapılandırma anahtarında eşittir ayracı eksik",
             "translatorComment": "Copied from source."
         },
         {
@@ -522,25 +522,25 @@
         {
             "id": "An interface must have a private key",
             "message": "An interface must have a private key",
-            "translation": "Bir arabirim gizli anahtara sahip olmalıdır",
+            "translation": "Arabirimde gizli anahtar bulunmalıdır",
             "translatorComment": "Copied from source."
         },
         {
             "id": "[none specified]",
             "message": "[none specified]",
-            "translation": "[hiçbir şey belirtilmemiş}",
+            "translation": "[belirtilmedi]",
             "translatorComment": "Copied from source."
         },
         {
             "id": "All peers must have public keys",
             "message": "All peers must have public keys",
-            "translation": "Tüm eşler açık anahtarlara sahip olmalı",
+            "translation": "Tüm eşlerin ortak anahtarları olmalıdır",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Error in getting configuration",
             "message": "Error in getting configuration",
-            "translation": "Yapılandırma bilgisi alınırken hata oluştu",
+            "translation": "Yapılandırma alınırken hata oluştu",
             "translatorComment": "Copied from source."
         },
         {
@@ -552,7 +552,7 @@
         {
             "id": "Protocol version must be 1",
             "message": "Protocol version must be 1",
-            "translation": "Protokol sürümü 1 olmak zorunda",
+            "translation": "Protokol sürümü 1 olmalıdır",
             "translatorComment": "Copied from source."
         },
         {
@@ -582,13 +582,13 @@
         {
             "id": "WireGuard logo image",
             "message": "WireGuard logo image",
-            "translation": "WireGuard logo resmi",
+            "translation": "WireGuard logosu",
             "translatorComment": "Copied from source."
         },
         {
             "id": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}-{GOARCH}\nOperating system: {OsName}\nArchitecture: {NativeArch}",
             "message": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}-{GOARCH}\nOperating system: {OsName}\nArchitecture: {NativeArch}",
-            "translation": "Uygulama sürümü: {Number}\nGo arkauç sürümü: {WireGuardGoVersion}\nGo sürümü: {Version_go}-{GOARCH}\nİşletim sistemi: {OsName}\nMimari: {NativeArch}",
+            "translation": "Uygulama sürümü: {Number}\nGo arka uç sürümü: {WireGuardGoVersion}\nGo sürümü: {Version_go}-{GOARCH}\nİşletim sistemi: {OsName}\nMimari: {NativeArch}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -674,7 +674,7 @@
         {
             "id": "Public key:",
             "message": "Public key:",
-            "translation": "Açık anahtar:",
+            "translation": "Ortak anahtar:",
             "translatorComment": "Copied from source."
         },
         {
@@ -704,19 +704,19 @@
         {
             "id": "Scripts:",
             "message": "Scripts:",
-            "translation": "Komut dosyaları:",
+            "translation": "Betikler:",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Preshared key:",
             "message": "Preshared key:",
-            "translation": "Önceden paylaşılmış anahtar:",
+            "translation": "Önceden paylaşılan anahtar:",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Allowed IPs:",
             "message": "Allowed IPs:",
-            "translation": "İzin verilen IP'ler:",
+            "translation": "İzin verilen IP’ler:",
             "translatorComment": "Copied from source."
         },
         {
@@ -728,7 +728,7 @@
         {
             "id": "Persistent keepalive:",
             "message": "Persistent keepalive:",
-            "translation": "Kalıcı açık tutma:",
+            "translation": "Sürekli keepalive:",
             "translatorComment": "Copied from source."
         },
         {
@@ -746,31 +746,31 @@
         {
             "id": "pre-up",
             "message": "pre-up",
-            "translation": "bağlantı-öncesi",
+            "translation": "bağlantı öncesi",
             "translatorComment": "Copied from source."
         },
         {
             "id": "post-up",
             "message": "post-up",
-            "translation": "bağlantı-sonrası",
+            "translation": "bağlantı sonrası",
             "translatorComment": "Copied from source."
         },
         {
             "id": "pre-down",
             "message": "pre-down",
-            "translation": "bağlantı-kesme-öncesi",
+            "translation": "bağlantı kesme öncesi",
             "translatorComment": "Copied from source."
         },
         {
             "id": "post-down",
             "message": "post-down",
-            "translation": "bağlantı-kesme-sonrası",
+            "translation": "bağlantı kesme sonrası",
             "translatorComment": "Copied from source."
         },
         {
             "id": "disabled, per policy",
             "message": "disabled, per policy",
-            "translation": "ilke gereği kapalı",
+            "translation": "ilke gereği devre dışı",
             "translatorComment": "Copied from source."
         },
         {
@@ -864,7 +864,7 @@
         {
             "id": "&Public key:",
             "message": "&Public key:",
-            "translation": "&Açık anahtar:",
+            "translation": "&Ortak anahtar:",
             "translatorComment": "Copied from source."
         },
         {
@@ -876,13 +876,13 @@
         {
             "id": "&Block untunneled traffic (kill-switch)",
             "message": "&Block untunneled traffic (kill-switch)",
-            "translation": "&Tünelden geçmeyen trafiği durdur (kill-switch)",
+            "translation": "&Tünelden geçmeyen trafiği engelle (kill switch)",
             "translatorComment": "Copied from source."
         },
         {
             "id": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface or is to the wrong DNS server, with special exceptions for DHCP and NDP.",
             "message": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface or is to the wrong DNS server, with special exceptions for DHCP and NDP.",
-            "translation": "Bir yapılandırmada tam bir eş varsa, ve bu eş 0.0.0.0/0 veya ::/0 arasından en az birini içeren izin verilen IPler listesine sahipse, tünel hizmeti DHCP ve NDP için bazı özel istisnalar hariç tünel arabirimine gitmeyen veya bu arabirimden gelmeyen, veya yanlış DNS sunucusuna giden tüm trafiği durdurmak için güvenlik duvarında bir ilke kümesi ayarlar.",
+            "translation": "Yapılandırmada tek bir eş varsa ve bu eşin izinli IP listesinde 0.0.0.0/0 veya ::/0 bulunuyorsa tünel hizmeti, DHCP ve NDP'ye ait istisnalar dışında tünel arabirimine gitmeyen veya bu arabirimden gelmeyen veya yanlış DNS sunucusuna giden tüm trafiği engellemek için güvenlik duvarına bir kural kümesi ekler.",
             "translatorComment": "Copied from source."
         },
         {
@@ -912,13 +912,13 @@
         {
             "id": "A name is required.",
             "message": "A name is required.",
-            "translation": "Bir isim gerekli.",
+            "translation": "Bir isim girmelisiniz.",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Tunnel name ‘{NewName}’ is invalid.",
             "message": "Tunnel name ‘{NewName}’ is invalid.",
-            "translation": "`{NewName}` geçersiz bir tünel ismi.",
+            "translation": "‘{NewName}’ geçersiz bir tünel ismi.",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -934,7 +934,7 @@
         {
             "id": "Unable to list existing tunnels",
             "message": "Unable to list existing tunnels",
-            "translation": "Mevcut tüneller listelenemiyor",
+            "translation": "Mevcut tüneller listelenemedi",
             "translatorComment": "Copied from source."
         },
         {
@@ -962,7 +962,7 @@
         {
             "id": "Unable to create new configuration",
             "message": "Unable to create new configuration",
-            "translation": "Yeni yapılandırma oluşturulamıyor",
+            "translation": "Yeni yapılandırma oluşturulamadı",
             "translatorComment": "Copied from source."
         },
         {
@@ -1002,7 +1002,7 @@
         {
             "id": "Inactive",
             "message": "Inactive",
-            "translation": "Etkin değil",
+            "translation": "Devre dışı",
             "translatorComment": "Copied from source."
         },
         {
@@ -1026,25 +1026,25 @@
         {
             "id": "&Copy",
             "message": "&Copy",
-            "translation": "Kopyala (&c)",
+            "translation": "&Kopyala",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Select &all",
             "message": "Select &all",
-            "translation": "&tümünü seç",
+            "translation": "&Tümünü seç",
             "translatorComment": "Copied from source."
         },
         {
             "id": "&Save to file…",
             "message": "&Save to file…",
-            "translation": "Dosyaya kaydet (&s)…",
+            "translation": "&Dosyaya kaydet…",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Time",
             "message": "Time",
-            "translation": "Zaman",
+            "translation": "Saat",
             "translatorComment": "Copied from source."
         },
         {
@@ -1056,19 +1056,19 @@
         {
             "id": "Text Files (*.txt)|*.txt|All Files (*.*)|*.*",
             "message": "Text Files (*.txt)|*.txt|All Files (*.*)|*.*",
-            "translation": "Metin Dosyaları (*.txt)|*.txt|Tüm Dosyalar (*.*)|*.*",
+            "translation": "Metin dosyaları (*.txt)|*.txt|Tüm dosyalar (*.*)|*.*",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Export log to file",
             "message": "Export log to file",
-            "translation": "Günlük dosyasını dışa aktar",
+            "translation": "Günlüğü dosyaya aktar",
             "translatorComment": "Copied from source."
         },
         {
             "id": "&About WireGuard…",
             "message": "&About WireGuard…",
-            "translation": "WireGuard Hakkında (&a)…",
+            "translation": "&WireGuard hakkında…",
             "translatorComment": "Copied from source."
         },
         {
@@ -1080,7 +1080,7 @@
         {
             "id": "{ErrMsg}\n\nPlease consult the log for more information.",
             "message": "{ErrMsg}\n\nPlease consult the log for more information.",
-            "translation": "{ErrMsg}\n\nLütfen daha fazla bilgi için günlüğe göz atın.",
+            "translation": "{ErrMsg}\n\nDaha fazla bilgi için lütfen günlüğe göz atın.",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1152,25 +1152,25 @@
         {
             "id": "&Manage tunnels…",
             "message": "&Manage tunnels…",
-            "translation": "Tünelleri yönet (&m)…",
+            "translation": "&Tünelleri yönet…",
             "translatorComment": "Copied from source."
         },
         {
             "id": "&Import tunnel(s) from file…",
             "message": "&Import tunnel(s) from file…",
-            "translation": "Dosyadan tünelleri içe aktar (&i)…",
+            "translation": "Tünelleri dosyadan &içe aktar…",
             "translatorComment": "Copied from source."
         },
         {
             "id": "E&xit",
             "message": "E&xit",
-            "translation": "Çık (&x)",
+            "translation": "Çı&kış",
             "translatorComment": "Copied from source."
         },
         {
             "id": "&Tunnels",
             "message": "&Tunnels",
-            "translation": "Tüneller (&t)",
+            "translation": "&Tüneller",
             "translatorComment": "Copied from source."
         },
         {
@@ -1286,7 +1286,7 @@
         {
             "id": "An update to WireGuard is now available. You are advised to update as soon as possible.",
             "message": "An update to WireGuard is now available. You are advised to update as soon as possible.",
-            "translation": "WireGuard için bir güncelleme mevcut. İlk fırsatta güncelleme yapmanız tavsiye edilir.",
+            "translation": "Yeni bir WireGuard güncellemesi yayımlandı. İlk fırsatta güncelleme yapmanız tavsiye edilir.",
             "translatorComment": "Copied from source."
         },
         {
@@ -1298,19 +1298,19 @@
         {
             "id": "&Edit",
             "message": "&Edit",
-            "translation": "&Edit",
+            "translation": "&Düzenle",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Add &empty tunnel…",
             "message": "Add &empty tunnel…",
-            "translation": "Boş tünel ekle (&e)…",
+            "translation": "Boş tünel &ekle…",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Add Tunnel",
             "message": "Add Tunnel",
-            "translation": "Tünel Ekle",
+            "translation": "Tünel ekle",
             "translatorComment": "Copied from source."
         },
         {
@@ -1328,7 +1328,7 @@
         {
             "id": "&Toggle",
             "message": "&Toggle",
-            "translation": "&Değiştir",
+            "translation": "&Aç/kapat",
             "translatorComment": "Copied from source."
         },
         {
@@ -1374,7 +1374,7 @@
         {
             "id": "Could not enumerate existing tunnels: {LastErr}",
             "message": "Could not enumerate existing tunnels: {LastErr}",
-            "translation": "Mevcut tüneller numaralandırılamadı: {LastErr}",
+            "translation": "Mevcut tüneller sıralanamadı: {LastErr}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1406,7 +1406,7 @@
         {
             "id": "Unable to import configuration: {LastErr}",
             "message": "Unable to import configuration: {LastErr}",
-            "translation": "Yapılandırma içe aktarılamıyor: {LastErr}",
+            "translation": "Yapılandırma içe aktarılamadı: {LastErr}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1492,7 +1492,7 @@
         {
             "id": "Unable to create tunnel",
             "message": "Unable to create tunnel",
-            "translation": "Tünel oluşturulamıyor",
+            "translation": "Tünel oluşturulamadı",
             "translatorComment": "Copied from source."
         },
         {
@@ -1602,7 +1602,7 @@
         {
             "id": "Unable to delete tunnel",
             "message": "Unable to delete tunnel",
-            "translation": "Tünel silinemiyor",
+            "translation": "Tünel silinemedi",
             "translatorComment": "Copied from source."
         },
         {
@@ -1624,7 +1624,7 @@
         {
             "id": "Unable to delete tunnels",
             "message": "Unable to delete tunnels",
-            "translation": "Tüneller silinemiyor",
+            "translation": "Tüneller silinemedi",
             "translatorComment": "Copied from source."
         },
         {
@@ -1658,7 +1658,7 @@
         {
             "id": "Configuration Files (*.zip, *.conf)|*.zip;*.conf|All Files (*.*)|*.*",
             "message": "Configuration Files (*.zip, *.conf)|*.zip;*.conf|All Files (*.*)|*.*",
-            "translation": "Yapılandırma Dosyaları (*.zip, *.conf)|*.zip;*.conf|Tüm Dosyalar (*.*)|*.*",
+            "translation": "Yapılandırma dosyaları (*.zip, *.conf)|*.zip;*.conf|Tüm dosyalar (*.*)|*.*",
             "translatorComment": "Copied from source."
         },
         {
@@ -1670,7 +1670,7 @@
         {
             "id": "Configuration ZIP Files (*.zip)|*.zip",
             "message": "Configuration ZIP Files (*.zip)|*.zip",
-            "translation": "Yapılandırma ZIP Dosyası (*.zip)|*.zip",
+            "translation": "Yapılandırma ZIP dosyaları (*.zip)|*.zip",
             "translatorComment": "Copied from source."
         },
         {
@@ -1704,7 +1704,7 @@
         {
             "id": "Unable to exit service due to: {Err}. You may want to stop WireGuard from the service manager.",
             "message": "Unable to exit service due to: {Err}. You may want to stop WireGuard from the service manager.",
-            "translation": "Hizmet şu nedenden dolayı kapatılamıyor: {Err}. WireGuard'ı hizmet yöneticisinden durdurabilirsiniz.",
+            "translation": "Şu nedenden dolayı hizmetten çıkılamadı: {Err}. WireGuard'ı hizmet yöneticisinden durdurabilirsiniz.",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1720,7 +1720,7 @@
         {
             "id": "An update to WireGuard is available. It is highly advisable to update without delay.",
             "message": "An update to WireGuard is available. It is highly advisable to update without delay.",
-            "translation": "WireGuard için bir güncelleme mevcut. Bekletmeden güncelleme yapmanız önemle tavsiye edilir.",
+            "translation": "Yeni bir WireGuard güncellemesi yayımlandı. Vakit kaybetmeden güncelleme yapmanız tavsiye edilir.",
             "translatorComment": "Copied from source."
         },
         {
@@ -1732,7 +1732,7 @@
         {
             "id": "Update Now",
             "message": "Update Now",
-            "translation": "Şimdi Güncelle",
+            "translation": "Şimdi güncelle",
             "translatorComment": "Copied from source."
         },
         {

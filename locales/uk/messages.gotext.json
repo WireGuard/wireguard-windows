@@ -132,6 +132,176 @@
             "translatorComment": "Copied from source."
         },
         {
+            "id": "{Years} year(s)",
+            "message": "{Years} year(s)",
+            "translation": {
+                "select": {
+                    "feature": "plural",
+                    "arg": "Years",
+                    "cases": {
+                        "one": {
+                            "msg": "{Years} рік"
+                        },
+                        "few": {
+                            "msg": "{Years} роки"
+                        },
+                        "many": {
+                            "msg": "{Years} років"
+                        },
+                        "other": {
+                            "msg": "{Years} років"
+                        }
+                    }
+                }
+            },
+            "placeholders": [
+                {
+                    "id": "Years",
+                    "string": "%[1]d",
+                    "type": "int64",
+                    "underlyingType": "int64",
+                    "argNum": 1,
+                    "expr": "years"
+                }
+            ]
+        },
+        {
+            "id": "{Days} day(s)",
+            "message": "{Days} day(s)",
+            "translation": {
+                "select": {
+                    "feature": "plural",
+                    "arg": "Days",
+                    "cases": {
+                        "one": {
+                            "msg": "{Days} день"
+                        },
+                        "few": {
+                            "msg": "{Days} дні"
+                        },
+                        "many": {
+                            "msg": "{Days} днів"
+                        },
+                        "other": {
+                            "msg": "{Days} днів"
+                        }
+                    }
+                }
+            },
+            "placeholders": [
+                {
+                    "id": "Days",
+                    "string": "%[1]d",
+                    "type": "int64",
+                    "underlyingType": "int64",
+                    "argNum": 1,
+                    "expr": "days"
+                }
+            ]
+        },
+        {
+            "id": "{Hours} hour(s)",
+            "message": "{Hours} hour(s)",
+            "translation": {
+                "select": {
+                    "feature": "plural",
+                    "arg": "Hours",
+                    "cases": {
+                        "one": {
+                            "msg": "{Hours} година"
+                        },
+                        "few": {
+                            "msg": "{Hours} години"
+                        },
+                        "many": {
+                            "msg": "{Hours} години"
+                        },
+                        "other": {
+                            "msg": "{Hours} годин"
+                        }
+                    }
+                }
+            },
+            "placeholders": [
+                {
+                    "id": "Hours",
+                    "string": "%[1]d",
+                    "type": "int64",
+                    "underlyingType": "int64",
+                    "argNum": 1,
+                    "expr": "hours"
+                }
+            ]
+        },
+        {
+            "id": "{Minutes} minute(s)",
+            "message": "{Minutes} minute(s)",
+            "translation": {
+                "select": {
+                    "feature": "plural",
+                    "arg": "Minutes",
+                    "cases": {
+                        "one": {
+                            "msg": "{Minutes} хвилина"
+                        },
+                        "few": {
+                            "msg": "{Minutes} хвилини"
+                        },
+                        "many": {
+                            "msg": "{Minutes} хвилин"
+                        },
+                        "other": {
+                            "msg": "{Minutes} хвилин"
+                        }
+                    }
+                }
+            },
+            "placeholders": [
+                {
+                    "id": "Minutes",
+                    "string": "%[1]d",
+                    "type": "int64",
+                    "underlyingType": "int64",
+                    "argNum": 1,
+                    "expr": "minutes"
+                }
+            ]
+        },
+        {
+            "id": "{Seconds} second(s)",
+            "message": "{Seconds} second(s)",
+            "translation": {
+                "select": {
+                    "feature": "plural",
+                    "arg": "Seconds",
+                    "cases": {
+                        "one": {
+                            "msg": "{Seconds} секунда"
+                        },
+                        "few": {
+                            "msg": "{Seconds} секунди"
+                        },
+                        "many": {
+                            "msg": "{Seconds} секунд"
+                        },
+                        "other": {
+                            "msg": "{Seconds} секунд"
+                        }
+                    }
+                }
+            },
+            "placeholders": [
+                {
+                    "id": "Seconds",
+                    "string": "%[1]d",
+                    "type": "int64",
+                    "underlyingType": "int64",
+                    "argNum": 1,
+                    "expr": "seconds"
+                }
+            ]
+        },
+        {
             "id": "{Timestamp} ago",
             "message": "{Timestamp} ago",
             "translation": "{Timestamp} тому",
@@ -214,7 +384,7 @@
         {
             "id": "{Float64b__1024__1024__1024__1024} TiB",
             "message": "{Float64b__1024__1024__1024__1024} TiB",
-            "translation": "{Float64b__1024__1024__1024__1024} ТБ",
+            "translation": "{Float64b__1024__1024__1024__1024} TiB",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -820,6 +990,396 @@
             ]
         },
         {
+            "id": "Unable to create new configuration",
+            "message": "Unable to create new configuration",
+            "translation": "Неможливо створити нову конфігурацію",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Writing file failed",
+            "message": "Writing file failed",
+            "translation": "Помилка запису файлу",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "File ‘{FilePath}’ already exists.\n\nDo you want to overwrite it?",
+            "message": "File ‘{FilePath}’ already exists.\n\nDo you want to overwrite it?",
+            "translation": "Файл \"{FilePath}\" вже існує.\n\nВи хочете перезаписати його?",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "FilePath",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "filePath"
+                }
+            ]
+        },
+        {
+            "id": "Active",
+            "message": "Active",
+            "translation": "Активний",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Activating",
+            "message": "Activating",
+            "translation": "Активується",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Inactive",
+            "message": "Inactive",
+            "translation": "Неактивний",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Deactivating",
+            "message": "Deactivating",
+            "translation": "Вимикається",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Unknown state",
+            "message": "Unknown state",
+            "translation": "Невідомий стан",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Log",
+            "message": "Log",
+            "translation": "Лог",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "&Copy",
+            "message": "&Copy",
+            "translation": "&Скопіювати",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Select &all",
+            "message": "Select &all",
+            "translation": "Обрати &все",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "&Save to file…",
+            "message": "&Save to file…",
+            "translation": "&Зберегти у файл…",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Time",
+            "message": "Time",
+            "translation": "Час",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Log message",
+            "message": "Log message",
+            "translation": "Повідомлення з логу",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Text Files (*.txt)|*.txt|All Files (*.*)|*.*",
+            "message": "Text Files (*.txt)|*.txt|All Files (*.*)|*.*",
+            "translation": "Текстові файли (*.txt)|*.txt|Усі файли (*.*)|*.*",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Export log to file",
+            "message": "Export log to file",
+            "translation": "Експортувати лог у файл",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "&About WireGuard…",
+            "message": "&About WireGuard…",
+            "translation": "&Про WireGuard…",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Tunnel Error",
+            "message": "Tunnel Error",
+            "translation": "Помилка тунелю",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "{ErrMsg}\n\nPlease consult the log for more information.",
+            "message": "{ErrMsg}\n\nPlease consult the log for more information.",
+            "translation": "{ErrMsg}\n\nБудь ласка, зверніться до логу для отримання додаткової інформації.",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "ErrMsg",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "errMsg"
+                }
+            ]
+        },
+        {
+            "id": "{Title} (out of date)",
+            "message": "{Title} (out of date)",
+            "translation": "{Title} (застарілий)",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Title",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "mtw.Title()"
+                }
+            ]
+        },
+        {
+            "id": "WireGuard Detection Error",
+            "message": "WireGuard Detection Error",
+            "translation": "Помилка виявлення WireGuard",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Unable to wait for WireGuard window to appear: {Err}",
+            "message": "Unable to wait for WireGuard window to appear: {Err}",
+            "translation": "Не вдалося дочекатися появи вікна WireGuard: {Err}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Err",
+                    "string": "%[1]v",
+                    "type": "error",
+                    "underlyingType": "interface{Error() string}",
+                    "argNum": 1,
+                    "expr": "err"
+                }
+            ]
+        },
+        {
+            "id": "WireGuard: Deactivated",
+            "message": "WireGuard: Deactivated",
+            "translation": "WireGuard: Вимкнений",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Status: Unknown",
+            "message": "Status: Unknown",
+            "translation": "Статус: Невідомий",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Addresses: None",
+            "message": "Addresses: None",
+            "translation": "Адреси: немає",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "&Manage tunnels…",
+            "message": "&Manage tunnels…",
+            "translation": "&Керування тунелями…",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "&Import tunnel(s) from file…",
+            "message": "&Import tunnel(s) from file…",
+            "translation": "&Імпортувати тунель з файлу…",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "E&xit",
+            "message": "E&xit",
+            "translation": "Ви&йти",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "&Tunnels",
+            "message": "&Tunnels",
+            "translation": "&Тунелі",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "WireGuard Activated",
+            "message": "WireGuard Activated",
+            "translation": "WireGuard активовано",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "The {Name} tunnel has been activated.",
+            "message": "The {Name} tunnel has been activated.",
+            "translation": "Тунель {Name} активовано.",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Name",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "tunnel.Name"
+                }
+            ]
+        },
+        {
+            "id": "WireGuard Deactivated",
+            "message": "WireGuard Deactivated",
+            "translation": "WireGuard деактивовано",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "The {Name} tunnel has been deactivated.",
+            "message": "The {Name} tunnel has been deactivated.",
+            "translation": "Тунель {Name} було деактивовано.",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Name",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "tunnel.Name"
+                }
+            ]
+        },
+        {
+            "id": "WireGuard Tunnel Error",
+            "message": "WireGuard Tunnel Error",
+            "translation": "Помилка тунелю WireGuard",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "WireGuard: {TextForStateglobalState_true}",
+            "message": "WireGuard: {TextForStateglobalState_true}",
+            "translation": "WireGuard: {TextForStateglobalState_true}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "TextForStateglobalState_true",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "textForState(globalState, true)"
+                }
+            ]
+        },
+        {
+            "id": "Status: {StateText}",
+            "message": "Status: {StateText}",
+            "translation": "Статус: {StateText}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "StateText",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "stateText"
+                }
+            ]
+        },
+        {
+            "id": "Addresses: {EnumerationSeparator}",
+            "message": "Addresses: {EnumerationSeparator}",
+            "translation": "Адреси: {EnumerationSeparator}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "EnumerationSeparator",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "strings.Join(addrs, l18n.EnumerationSeparator())"
+                }
+            ]
+        },
+        {
+            "id": "An Update is Available!",
+            "message": "An Update is Available!",
+            "translation": "Доступно оновлення!",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "WireGuard Update Available",
+            "message": "WireGuard Update Available",
+            "translation": "Доступне оновлення WireGuard",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "An update to WireGuard is now available. You are advised to update as soon as possible.",
+            "message": "An update to WireGuard is now available. You are advised to update as soon as possible.",
+            "translation": "Оновлення до WireGuard доступне. Рекомендуємо оновити якомога швидше.",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Tunnels",
+            "message": "Tunnels",
+            "translation": "Тунелі",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "&Edit",
+            "message": "&Edit",
+            "translation": "&Редагувати",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Add &empty tunnel…",
+            "message": "Add &empty tunnel…",
+            "translation": "Додати &пустий тунель…",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Add Tunnel",
+            "message": "Add Tunnel",
+            "translation": "Додати тунель",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Remove selected tunnel(s)",
+            "message": "Remove selected tunnel(s)",
+            "translation": "Видалити обрані тунелі",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Export all tunnels to zip",
+            "message": "Export all tunnels to zip",
+            "translation": "Експортувати всі тунелі в zip",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "&Toggle",
+            "message": "&Toggle",
+            "translation": "&Перемкнути",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Export all tunnels to &zip…",
+            "message": "Export all tunnels to &zip…",
+            "translation": "Експортувати всі тунелі в &zip…",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Edit &selected tunnel…",
+            "message": "Edit &selected tunnel…",
+            "translation": "Редагувати &вибраний тунель…",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "&Remove selected tunnel(s)",
+            "message": "&Remove selected tunnel(s)",
+            "translation": "&Видалити обрані тунелі",
+            "translatorComment": "Copied from source."
+        },
+        {
             "id": "no configuration files were found",
             "message": "no configuration files were found",
             "translation": "не знайдено файлів конфігурації",
@@ -926,6 +1486,420 @@
                     "underlyingType": "int",
                     "argNum": 1,
                     "expr": "m"
+                }
+            ]
+        },
+        {
+            "id": "Imported {M} of {N} tunnels",
+            "message": "Imported {M} of {N} tunnels",
+            "translation": {
+                "select": {
+                    "feature": "plural",
+                    "arg": "N",
+                    "cases": {
+                        "one": {
+                            "msg": "Імпортовано {M} з {N} тунелів"
+                        },
+                        "few": {
+                            "msg": "Імпортовано {M} з {N} тунелів"
+                        },
+                        "many": {
+                            "msg": "Імпортовано {M} з {N} тунелів"
+                        },
+                        "other": {
+                            "msg": "Імпортовано {M} з {N} тунелів"
+                        }
+                    }
+                }
+            },
+            "placeholders": [
+                {
+                    "id": "M",
+                    "string": "%[1]d",
+                    "type": "int",
+                    "underlyingType": "int",
+                    "argNum": 1,
+                    "expr": "m"
+                },
+                {
+                    "id": "N",
+                    "string": "%[2]d",
+                    "type": "int",
+                    "underlyingType": "int",
+                    "argNum": 2,
+                    "expr": "n"
+                }
+            ]
+        },
+        {
+            "id": "Unable to create tunnel",
+            "message": "Unable to create tunnel",
+            "translation": "Не вдалося створити тунель",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Delete {TunnelCount} tunnels",
+            "message": "Delete {TunnelCount} tunnels",
+            "translation": {
+                "select": {
+                    "feature": "plural",
+                    "arg": "TunnelCount",
+                    "cases": {
+                        "one": {
+                            "msg": "Видалити {TunnelCount} тунель"
+                        },
+                        "few": {
+                            "msg": "Видалити {TunnelCount} тунелі"
+                        },
+                        "many": {
+                            "msg": "Видалити {TunnelCount} тунелів"
+                        },
+                        "other": {
+                            "msg": "Видалити {TunnelCount} тунелів"
+                        }
+                    }
+                }
+            },
+            "placeholders": [
+                {
+                    "id": "TunnelCount",
+                    "string": "%[1]d",
+                    "type": "int",
+                    "underlyingType": "int",
+                    "argNum": 1,
+                    "expr": "tunnelCount"
+                }
+            ]
+        },
+        {
+            "id": "Are you sure you would like to delete {TunnelCount} tunnels?",
+            "message": "Are you sure you would like to delete {TunnelCount} tunnels?",
+            "translation": {
+                "select": {
+                    "feature": "plural",
+                    "arg": "TunnelCount",
+                    "cases": {
+                        "one": {
+                            "msg": "Ви впевнені, що хочете видалити {TunnelCount} тунель?"
+                        },
+                        "few": {
+                            "msg": "Ви впевнені, що хочете видалити {TunnelCount} тунелі?"
+                        },
+                        "many": {
+                            "msg": "Ви впевнені, що хочете видалити {TunnelCount} тунелів?"
+                        },
+                        "other": {
+                            "msg": "Ви впевнені, що хочете видалити {TunnelCount} тунелі?"
+                        }
+                    }
+                }
+            },
+            "placeholders": [
+                {
+                    "id": "TunnelCount",
+                    "string": "%[1]d",
+                    "type": "int",
+                    "underlyingType": "int",
+                    "argNum": 1,
+                    "expr": "tunnelCount"
+                }
+            ]
+        },
+        {
+            "id": "Delete tunnel ‘{TunnelName}’",
+            "message": "Delete tunnel ‘{TunnelName}’",
+            "translation": "Видалити тунель '{TunnelName}'",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "TunnelName",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "tunnelName"
+                }
+            ]
+        },
+        {
+            "id": "Are you sure you would like to delete tunnel ‘{TunnelName}’?",
+            "message": "Are you sure you would like to delete tunnel ‘{TunnelName}’?",
+            "translation": "Ви впевнені, що бажаєте видалити тунель '{TunnelName}'?",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "TunnelName",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "tunnelName"
+                }
+            ]
+        },
+        {
+            "id": "{Question} You cannot undo this action.",
+            "message": "{Question} You cannot undo this action.",
+            "translation": "{Question} Цю дію не можна буде скасувати.",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Question",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "question"
+                }
+            ]
+        },
+        {
+            "id": "Unable to delete tunnel",
+            "message": "Unable to delete tunnel",
+            "translation": "Неможливо видалити тунель",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "A tunnel was unable to be removed: {Error}",
+            "message": "A tunnel was unable to be removed: {Error}",
+            "translation": "Тунель не вдалося видалити: {Error}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Error",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "errors[0].Error()"
+                }
+            ]
+        },
+        {
+            "id": "Unable to delete tunnels",
+            "message": "Unable to delete tunnels",
+            "translation": "Неможливо видалити тунелі",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "{Lenerrors} tunnels were unable to be removed.",
+            "message": "{Lenerrors} tunnels were unable to be removed.",
+            "translation": {
+                "select": {
+                    "feature": "plural",
+                    "arg": "Lenerrors",
+                    "cases": {
+                        "one": {
+                            "msg": "{Lenerrors} тунель не вдалося видалити."
+                        },
+                        "few": {
+                            "msg": "{Lenerrors} тунелі не вдалося видалити."
+                        },
+                        "many": {
+                            "msg": "{Lenerrors} тунелів не вдалося видалити."
+                        },
+                        "other": {
+                            "msg": "{Lenerrors} тунелів не вдалося видалити."
+                        }
+                    }
+                }
+            },
+            "placeholders": [
+                {
+                    "id": "Lenerrors",
+                    "string": "%[1]d",
+                    "type": "int",
+                    "underlyingType": "int",
+                    "argNum": 1,
+                    "expr": "len(errors)"
+                }
+            ]
+        },
+        {
+            "id": "Configuration Files (*.zip, *.conf)|*.zip;*.conf|All Files (*.*)|*.*",
+            "message": "Configuration Files (*.zip, *.conf)|*.zip;*.conf|All Files (*.*)|*.*",
+            "translation": "Файли конфігурації (*.zip, *.conf)|*.zip;*.conf|Всі файли (*.*)|*.*",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Import tunnel(s) from file",
+            "message": "Import tunnel(s) from file",
+            "translation": "Імпортувати тунелі з файлу",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Configuration ZIP Files (*.zip)|*.zip",
+            "message": "Configuration ZIP Files (*.zip)|*.zip",
+            "translation": "ZIP-файли конфігурації (*.zip) | *.zip",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Export tunnels to zip",
+            "message": "Export tunnels to zip",
+            "translation": "Експортувати тунелі в zip",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "{Title} (unsigned build, no updates)",
+            "message": "{Title} (unsigned build, no updates)",
+            "translation": "{Title} (непідписані збірки, немає оновлень)",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Title",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "mtw.Title()"
+                }
+            ]
+        },
+        {
+            "id": "Error Exiting WireGuard",
+            "message": "Error Exiting WireGuard",
+            "translation": "Помилка при виході з WireGuard",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Unable to exit service due to: {Err}. You may want to stop WireGuard from the service manager.",
+            "message": "Unable to exit service due to: {Err}. You may want to stop WireGuard from the service manager.",
+            "translation": "Не вдалося зупинити службу через: {Err}. Ви можете зупинити її вручну через менеджер сервісів.",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Err",
+                    "string": "%[1]v",
+                    "type": "error",
+                    "underlyingType": "interface{Error() string}",
+                    "argNum": 1,
+                    "expr": "err"
+                }
+            ]
+        },
+        {
+            "id": "An update to WireGuard is available. It is highly advisable to update without delay.",
+            "message": "An update to WireGuard is available. It is highly advisable to update without delay.",
+            "translation": "Доступне оновлення WireGuard, доцільне оновлення без затримок.",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Status: Waiting for user",
+            "message": "Status: Waiting for user",
+            "translation": "Статус: Очікування користувача",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Update Now",
+            "message": "Update Now",
+            "translation": "Оновити зараз",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Status: Waiting for updater service",
+            "message": "Status: Waiting for updater service",
+            "translation": "Статус: Очікування на службу оновлення",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Error: {Err}. Please try again.",
+            "message": "Error: {Err}. Please try again.",
+            "translation": "Помилка: {Err}. Будь ласка, спробуйте ще раз.",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Err",
+                    "string": "%[1]v",
+                    "type": "error",
+                    "underlyingType": "interface{Error() string}",
+                    "argNum": 1,
+                    "expr": "err"
+                }
+            ]
+        },
+        {
+            "id": "Status: Complete!",
+            "message": "Status: Complete!",
+            "translation": "Стан: Завершено",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "http2: Framer {F}: failed to decode just-written frame",
+            "message": "http2: Framer {F}: failed to decode just-written frame",
+            "translation": "http2: Framer {F}: failed to decode just-written frame",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "F",
+                    "string": "%[1]p",
+                    "type": "*net/http.http2Framer",
+                    "underlyingType": "*net/http.http2Framer",
+                    "argNum": 1,
+                    "expr": "f"
+                }
+            ]
+        },
+        {
+            "id": "http2: Framer {F}: wrote {Http2summarizeFramefr}",
+            "message": "http2: Framer {F}: wrote {Http2summarizeFramefr}",
+            "translation": "http2: Framer {F}: wrote {Http2summarizeFramefr}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "F",
+                    "string": "%[1]p",
+                    "type": "*net/http.http2Framer",
+                    "underlyingType": "*net/http.http2Framer",
+                    "argNum": 1,
+                    "expr": "f"
+                },
+                {
+                    "id": "Http2summarizeFramefr",
+                    "string": "%[2]v",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 2,
+                    "expr": "http2summarizeFrame(fr)"
+                }
+            ]
+        },
+        {
+            "id": "http2: Framer {Fr}: read {Http2summarizeFramef}",
+            "message": "http2: Framer {Fr}: read {Http2summarizeFramef}",
+            "translation": "http2: Framer {Fr}: read {Http2summarizeFramef}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Fr",
+                    "string": "%[1]p",
+                    "type": "*net/http.http2Framer",
+                    "underlyingType": "*net/http.http2Framer",
+                    "argNum": 1,
+                    "expr": "fr"
+                },
+                {
+                    "id": "Http2summarizeFramef",
+                    "string": "%[2]v",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 2,
+                    "expr": "http2summarizeFrame(f)"
+                }
+            ]
+        },
+        {
+            "id": "http2: decoded hpack field {HeaderField}",
+            "message": "http2: decoded hpack field {HeaderField}",
+            "translation": "http2: decoded hpack field {HeaderField}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "HeaderField",
+                    "string": "%+[1]v",
+                    "type": "vendor/golang.org/x/net/http2/hpack.HeaderField",
+                    "underlyingType": "struct{Name string; Value string; Sensitive bool}",
+                    "argNum": 1,
+                    "expr": "hf"
                 }
             ]
         }

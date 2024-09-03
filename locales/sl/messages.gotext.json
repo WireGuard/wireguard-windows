@@ -692,7 +692,7 @@
         {
             "id": "&Deactivate",
             "message": "&Deactivate",
-            "translation": "&Deaktiviraj",
+            "translation": "&Dezaktiviraj",
             "translatorComment": "Copied from source."
         },
         {
@@ -788,13 +788,13 @@
         {
             "id": "pre-down",
             "message": "pre-down",
-            "translation": "pred-deaktivacijo",
+            "translation": "pred-dezaktivacijo",
             "translatorComment": "Copied from source."
         },
         {
             "id": "post-down",
             "message": "post-down",
-            "translation": "po-deaktivaciji",
+            "translation": "po-dezaktivaciji",
             "translatorComment": "Copied from source."
         },
         {
@@ -848,7 +848,7 @@
         {
             "id": "Failed to deactivate tunnel",
             "message": "Failed to deactivate tunnel",
-            "translation": "Napaka pri deaktiviranju tunela",
+            "translation": "Napaka pri dezaktiviranju tunela",
             "translatorComment": "Copied from source."
         },
         {
@@ -1038,7 +1038,7 @@
         {
             "id": "Deactivating",
             "message": "Deactivating",
-            "translation": "Se deaktivira",
+            "translation": "Se dezaktivira",
             "translatorComment": "Copied from source."
         },
         {
@@ -1164,7 +1164,7 @@
         {
             "id": "WireGuard: Deactivated",
             "message": "WireGuard: Deactivated",
-            "translation": "WireGuard: Deaktiviran",
+            "translation": "WireGuard: Dezaktiviran",
             "translatorComment": "Copied from source."
         },
         {
@@ -1228,13 +1228,13 @@
         {
             "id": "WireGuard Deactivated",
             "message": "WireGuard Deactivated",
-            "translation": "WireGuard deaktiviran",
+            "translation": "WireGuard dezaktiviran",
             "translatorComment": "Copied from source."
         },
         {
             "id": "The {Name} tunnel has been deactivated.",
             "message": "The {Name} tunnel has been deactivated.",
-            "translation": "Tunel {Name} je bil deaktiviran.",
+            "translation": "Tunel {Name} je bil dezaktiviran.",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {

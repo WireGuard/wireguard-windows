@@ -465,7 +465,7 @@
         {
             "id": "Two commas in a row",
             "message": "Two commas in a row",
-            "translation": "一行中有两个逗号",
+            "translation": "存在多余的逗号",
             "translatorComment": "Copied from source."
         },
         {

@@ -8,6 +8,36 @@
             "translatorComment": "Copied from source."
         },
         {
+            "id": "Usage: {Args0} [\n{String}]",
+            "message": "Usage: {Args0} [\n{String}]",
+            "translation": "Sử dụng: {Args0} [\n{String}]",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Args0",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "os.Args[0]"
+                },
+                {
+                    "id": "String",
+                    "string": "%[2]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 2,
+                    "expr": "builder.String()"
+                }
+            ]
+        },
+        {
+            "id": "Command Line Options",
+            "message": "Command Line Options",
+            "translation": "Tùy chọn dòng lệnh",
+            "translatorComment": "Copied from source."
+        },
+        {
             "id": "Now",
             "message": "Now",
             "translation": "Vừa xong",
@@ -155,9 +185,95 @@
             ]
         },
         {
+            "id": "{Bytes} B",
+            "message": "{Bytes} B",
+            "translation": "{Bytes} B",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Bytes",
+                    "string": "%[1]d",
+                    "type": "golang.zx2c4.com/wireguard/windows/conf.Bytes",
+                    "underlyingType": "uint64",
+                    "argNum": 1,
+                    "expr": "b"
+                }
+            ]
+        },
+        {
+            "id": "{Float64b__1024} KiB",
+            "message": "{Float64b__1024} KiB",
+            "translation": "{Float64b__1024} KiB",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Float64b__1024",
+                    "string": "%.2[1]f",
+                    "type": "float64",
+                    "underlyingType": "float64",
+                    "argNum": 1,
+                    "expr": "float64(b) / 1024"
+                }
+            ]
+        },
+        {
+            "id": "{Float64b__1024__1024} MiB",
+            "message": "{Float64b__1024__1024} MiB",
+            "translation": "{Float64b__1024__1024} MiB",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Float64b__1024__1024",
+                    "string": "%.2[1]f",
+                    "type": "float64",
+                    "underlyingType": "float64",
+                    "argNum": 1,
+                    "expr": "float64(b) / (1024 * 1024)"
+                }
+            ]
+        },
+        {
+            "id": "{Float64b__1024__1024__1024} GiB",
+            "message": "{Float64b__1024__1024__1024} GiB",
+            "translation": "{Float64b__1024__1024__1024} GiB",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Float64b__1024__1024__1024",
+                    "string": "%.2[1]f",
+                    "type": "float64",
+                    "underlyingType": "float64",
+                    "argNum": 1,
+                    "expr": "float64(b) / (1024 * 1024 * 1024)"
+                }
+            ]
+        },
+        {
+            "id": "{Float64b__1024__1024__1024__1024} TiB",
+            "message": "{Float64b__1024__1024__1024__1024} TiB",
+            "translation": "{Float64b__1024__1024__1024__1024} TiB",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Float64b__1024__1024__1024__1024",
+                    "string": "%.2[1]f",
+                    "type": "float64",
+                    "underlyingType": "float64",
+                    "argNum": 1,
+                    "expr": "float64(b) / (1024 * 1024 * 1024) / 1024"
+                }
+            ]
+        },
+        {
             "id": "Invalid IP address",
             "message": "Invalid IP address",
             "translation": "Địa chỉ IP không hợp lệ",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Invalid MTU",
+            "message": "Invalid MTU",
+            "translation": "Khoá không hợp lệ",
             "translatorComment": "Copied from source."
         },
         {
@@ -167,10 +283,50 @@
             "translatorComment": "Copied from source."
         },
         {
+            "id": "Invalid key: {Err}",
+            "message": "Invalid key: {Err}",
+            "translation": "Khoá không hợp lệ: {Err}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Err",
+                    "string": "%[1]v",
+                    "type": "error",
+                    "underlyingType": "interface{Error() string}",
+                    "argNum": 1,
+                    "expr": "err"
+                }
+            ]
+        },
+        {
             "id": "Tunnel name is not valid",
             "message": "Tunnel name is not valid",
             "translation": "Tên VPN không hợp lệ",
             "translatorComment": "Copied from source."
+        },
+        {
+            "id": "[none specified]",
+            "message": "[none specified]",
+            "translation": "Ko có Chỉ định",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Error in getting configuration",
+            "message": "Error in getting configuration",
+            "translation": "Lỗi khi lưu cấu hình",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "[EnumerationSeparator]",
+            "message": "[EnumerationSeparator]",
+            "translation": ",",
+            "comment": "Text to insert between items when listing - most western languages will translate ‘[EnumerationSeparator]’ into ‘, ’ to produce lists like ‘apple, orange, strawberry’. Eastern languages might translate into ‘、’ to produce lists like ‘リンゴ、オレンジ、イチゴ’."
+        },
+        {
+            "id": "[UnitSeparator]",
+            "message": "[UnitSeparator]",
+            "translation": ",",
+            "comment": "Text to insert when combining units of a measure - most languages will translate ‘[UnitSeparator]’ into ‘ ’ (space) to produce lists like ‘2 minuti 30 sekund’, or empty string ‘’ to produce ‘2分30秒’."
         },
         {
             "id": "About WireGuard",
@@ -194,6 +350,18 @@
             "id": "Status:",
             "message": "Status:",
             "translation": "Trạng thái:",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "&Deactivate",
+            "message": "&Deactivate",
+            "translation": "Đã hủy kích hoạt",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "&Activate",
+            "message": "&Activate",
+            "translation": "Kích hoạt",
             "translatorComment": "Copied from source."
         },
         {

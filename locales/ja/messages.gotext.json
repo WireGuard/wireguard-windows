@@ -867,7 +867,7 @@
         {
             "id": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface or is to the wrong DNS server, with special exceptions for DHCP and NDP.",
             "message": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface or is to the wrong DNS server, with special exceptions for DHCP and NDP.",
-            "translation": "ピアが1つだけ設定されていて、Allowed IPs に 0.0.0.0/0 または :: / 0 が含まれている場合、トンネルサービスはトンネルインターフェイスを通らないトラフィックや間違った DNS サーバーに向かう通信をブロックするファイアウォールルールを追加します。\nDHCP と NDP には特別な例外があります。",
+            "translation": "ピアが1つだけ設定されており、かつAllowed IPs に 0.0.0.0/0 や ::/0 が含まれている場合、トンネルサービスはトンネルインターフェイスを通らないトラフィックや間違った DNS サーバーに向かう通信をブロックするファイアウォールルールを追加します。\nDHCP と NDP には特別な例外があります。",
             "translatorComment": "Copied from source."
         },
         {
@@ -1155,7 +1155,7 @@
         {
             "id": "&Tunnels",
             "message": "&Tunnels",
-            "translation": "& トンネル",
+            "translation": "トンネル(&T)",
             "translatorComment": "Copied from source."
         },
         {
