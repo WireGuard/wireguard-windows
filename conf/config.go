@@ -58,10 +58,12 @@ type Peer struct {
 	AllowedIPs          []netip.Prefix
 	Endpoint            Endpoint
 	PersistentKeepalive uint16
+	UpdateEndpointIP    uint16
 
 	RxBytes           Bytes
 	TxBytes           Bytes
 	LastHandshakeTime HandshakeTime
+	UnresolvedHost    string
 }
 
 func (conf *Config) IntersectsWith(other *Config) bool {
