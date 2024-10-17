@@ -25,10 +25,10 @@ if exist ..\.deps\prepared goto :build
 
 :sign
 	if exist ..\sign.bat call ..\sign.bat
-	if "%SigningCertificate%"=="" goto :success
+	if "%SigningProvider%"=="" goto :success
 	if "%TimestampServer%"=="" goto :success
 	echo [+] Signing
-	signtool sign /sha1 "%SigningCertificate%" /fd sha256 /tr "%TimestampServer%" /td sha256 /d "WireGuard Tunnel" x86\tunnel.dll amd64\tunnel.dll arm64\tunnel.dll || goto :error
+	signtool sign %SigningProvider% /fd sha256 /tr "%TimestampServer%" /td sha256 /d "WireGuard Tunnel" x86\tunnel.dll amd64\tunnel.dll arm64\tunnel.dll || goto :error
 
 :success
 	echo [+] Success

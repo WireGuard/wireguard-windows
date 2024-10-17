@@ -40,10 +40,10 @@ if exist .deps\prepared goto :build
 	call :msi x86 i686 x86 || goto :error
 	call :msi amd64 x86_64 x64 || goto :error
 	call :msi arm64 aarch64 arm64 || goto :error
-	if "%SigningCertificate%"=="" goto :success
+	if "%SigningProvider%"=="" goto :success
 	if "%TimestampServer%"=="" goto :success
 	echo [+] Signing
-	signtool sign /sha1 "%SigningCertificate%" /fd sha256 /tr "%TimestampServer%" /td sha256 /d "WireGuard Setup" "dist\wireguard-*-%WIREGUARD_VERSION%.msi" || goto :error
+	signtool sign %SigningProvider% /fd sha256 /tr "%TimestampServer%" /td sha256 /d "WireGuard Setup" "dist\wireguard-*-%WIREGUARD_VERSION%.msi" || goto :error
 
 :success
 	echo [+] Success.
@@ -61,10 +61,10 @@ if exist .deps\prepared goto :build
 	if not exist "%~1" mkdir "%~1"
 	echo [+] Compiling %1
 	%CC% %CFLAGS% %LDFLAGS% -o "%~1\customactions.dll" customactions.c %LDLIBS% || exit /b 1
-	if "%SigningCertificate%"=="" goto :skipsign
+	if "%SigningProvider%"=="" goto :skipsign
 	if "%TimestampServer%"=="" goto :skipsign
 	echo [+] Signing %1
-	signtool sign /sha1 "%SigningCertificate%" /fd sha256 /tr "%TimestampServer%" /td sha256 /d "WireGuard Setup Custom Actions" "%~1\customactions.dll" || exit /b 1
+	signtool sign %SigningProvider% /fd sha256 /tr "%TimestampServer%" /td sha256 /d "WireGuard Setup Custom Actions" "%~1\customactions.dll" || exit /b 1
 :skipsign
 	"%WIX%bin\candle" %WIX_CANDLE_FLAGS% -dWIREGUARD_PLATFORM="%~1" -out "%~1\wireguard.wixobj" -arch %3 wireguard.wxs || exit /b %errorlevel%
 	echo [+] Linking %1
