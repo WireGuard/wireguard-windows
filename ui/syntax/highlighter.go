@@ -24,6 +24,7 @@ const (
 	highlightPort
 	highlightMTU
 	highlightKeepalive
+	highlightUpdateEndpointIP
 	highlightComment
 	highlightDelimiter
 	highlightTable
@@ -268,6 +269,13 @@ func (s stringSpan) isValidPersistentKeepAlive() bool {
 	return s.isValidUint(false, 0, 65535)
 }
 
+func (s stringSpan) isValidUpdateEndpointIP() bool {
+	if s.isSame("off") {
+		return true
+	}
+	return s.isValidUint(false, 0, 65535)
+}
+
 // It's probably not worthwhile to try to validate a bash expression. So instead we just demand non-zero length.
 func (s stringSpan) isValidPrePostUpDown() bool {
 	return s.len != 0
@@ -376,6 +384,7 @@ const (
 	fieldAllowedIPs
 	fieldEndpoint
 	fieldPersistentKeepalive
+	fieldUpdateEndpointIP
 	fieldInvalid
 )
 
@@ -413,6 +422,8 @@ func (s stringSpan) field() field {
 		return fieldEndpoint
 	case s.isCaselessSame("PersistentKeepalive"):
 		return fieldPersistentKeepalive
+	case s.isCaselessSame("UpdateEndpointIP"):
+		return fieldUpdateEndpointIP
 	case s.isCaselessSame("PreUp"):
 		return fieldPreUp
 	case s.isCaselessSame("PostUp"):
@@ -524,6 +535,8 @@ func (hsa *highlightSpanArray) highlightValue(parent, s stringSpan, section fiel
 		hsa.append(parent.s, s, validateHighlight(s.isValidPort(), highlightPort))
 	case fieldPersistentKeepalive:
 		hsa.append(parent.s, s, validateHighlight(s.isValidPersistentKeepAlive(), highlightKeepalive))
+	case fieldUpdateEndpointIP:
+		hsa.append(parent.s, s, validateHighlight(s.isValidUpdateEndpointIP(), highlightUpdateEndpointIP))
 	case fieldEndpoint:
 		if !s.isValidEndpoint() {
 			hsa.append(parent.s, s, highlightError)
