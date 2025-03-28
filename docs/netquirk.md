@@ -8,7 +8,7 @@ The tunnel service takes all the allowed IPs from each peer, deduplicates them, 
 
 ### Firewall Considerations for `/0` Allowed IPs
 
-If an interface has only one peer, and that peer contains an Allowed IP in `/0`, then WireGuard enables a so-called "kill-switch", which adds firewall rules to do the following:
+If an interface has a peer that contains an Allowed IP in `/0`, then WireGuard enables a so-called "kill-switch", which adds firewall rules to do the following:
 
 - Packets from the tunnel service itself are permitted, so that WireGuard packets can flow successfully.
 - If the configuration specifies DNS servers, then packets sent to port `53` are only permitted if they are to one of those DNS servers. This is to prevent Windows' [ordinary multihomed DNS resolution behavior](https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2008-R2-and-2008/dd197552%28v%3Dws.10%29), so that DNS queries only go to the DNS server specified, rather than multiple DNS servers.
@@ -19,6 +19,9 @@ If an interface has only one peer, and that peer contains an Allowed IP in `/0`,
 This prevents traffic from leaking outside the tunnel.
 
 If you'd like to use a default route _without_ having these restrictive kill-switch semantics, one may use the routes `0.0.0.0/1` and `128.0.0.0/1` in place of `0.0.0.0/0`, as well as `::/1` and `8000::/1` in place of `::/0`. This achieves nearly the same thing, but does not activate the above firewalling semantics. (The UI's editor has a checkbox that toggles this.)  And users without the need for a `/0` route at all do not have to worry about this, and instead fall back to ordinary Windows routing and DNS behavior.
+
+Should you require the same level of protection for a subrange of allowed IPs in split tunnel scenario, repeat the first address of a range on the list of allowed IPs (e.g. change `10.15.20.0/24, 2001:0db8:85a3:0000::/64` to `10.15.20.0/24, 10.15.20.0, 2001:0db8:85a3:0000::/64, 2001:0db8:85a3:0000::`). The single allowed IPs `/32` and `/128` are always protected by firewall rules.
+> TODO: Revise the paragraph above and integrate it into this document better.
 
 ### Considerations for non-`/0` Allowed IPs
 
