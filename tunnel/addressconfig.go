@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"log"
 	"net/netip"
+	"strings"
 	"time"
 
 	"golang.org/x/sys/windows"
@@ -143,16 +144,59 @@ startOver:
 	return nil
 }
 
-func enableFirewall(conf *conf.Config, luid winipcfg.LUID) error {
-	doNotRestrict := true
-	if len(conf.Peers) == 1 && !conf.Interface.TableOff {
-		for _, allowedip := range conf.Peers[0].AllowedIPs {
-			if allowedip.Bits() == 0 && allowedip == allowedip.Masked() {
-				doNotRestrict = false
-				break
+func restrictedRoutes(conf *conf.Config) map[netip.Prefix]bool {
+	restrictedRoutes := make(map[netip.Prefix]bool, len(conf.Peers)*3)
+	if conf.Interface.TableOff {
+		return restrictedRoutes
+	}
+	allRoutes := make(map[netip.Addr]int, len(conf.Peers)*3)
+	for _, peer := range conf.Peers {
+		for _, allowedip := range peer.AllowedIPs {
+			prefix := allowedip.Masked().Addr()
+			bits := allowedip.Bits()
+			if bits == 0 && allowedip == allowedip.Masked() {
+				restrictedRoutes[allowedip.Masked()] = true
+			}
+			if bits2, ok := allRoutes[prefix]; !ok || bits < bits2 {
+				allRoutes[prefix] = bits
 			}
 		}
 	}
+	if len(restrictedRoutes) > 0 {
+		return restrictedRoutes
+	}
+	for _, peer := range conf.Peers {
+		for _, allowedip := range peer.AllowedIPs {
+			prefix := allowedip.Masked().Addr()
+			bits := allowedip.Bits()
+			if bits == prefix.BitLen() {
+				if bits2, ok := allRoutes[prefix]; ok {
+					restrictedRoutes[netip.PrefixFrom(prefix, bits2)] = true
+				} else {
+					restrictedRoutes[netip.PrefixFrom(prefix, bits)] = true
+				}
+			}
+		}
+	}
+	return restrictedRoutes
+}
+
+func enableFirewall(conf *conf.Config, luid winipcfg.LUID) error {
+	restrictedRoutesMap := restrictedRoutes(conf)
+	restrictedRoutes := make([]netip.Prefix, 0, len(restrictedRoutesMap))
+	for key := range restrictedRoutesMap {
+		restrictedRoutes = append(restrictedRoutes, key)
+	}
+	// TODO: Consult zx2c4 whether logging the routes from the config is acceptable data leakage.
+	// WireGuard routes may be seen using `route print` by non-priviledged user locally anyway.
+	// But, the problem might be sharing the log for troubleshooting.
+	if len(restrictedRoutes) > 0 {
+		addrStrings := make([]string, len(restrictedRoutes))
+		for i, address := range restrictedRoutes {
+			addrStrings[i] = address.String()
+		}
+		log.Printf("Restricted routes: %s", strings.Join(addrStrings, ", "))
+	}
 	log.Println("Enabling firewall rules")
-	return firewall.EnableFirewall(uint64(luid), doNotRestrict, conf.Interface.DNS)
+	return firewall.EnableFirewall(uint64(luid), restrictedRoutes, conf.Interface.DNS)
 }

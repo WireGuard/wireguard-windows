@@ -895,8 +895,51 @@ func permitHyperV(session uintptr, baseObjects *baseObjects, weight uint8) error
 	return nil
 }
 
-// Block all traffic except what is explicitly permitted by other rules.
-func blockAll(session uintptr, baseObjects *baseObjects, weight uint8) error {
+// Block all traffic on restritced routes except what is explicitly permitted by other rules.
+func blockRoutes(routes []netip.Prefix, session uintptr, baseObjects *baseObjects, weight uint8) error {
+	allOnesV4 := netip.AddrFrom4([4]byte{0xff, 0xff, 0xff, 0xff})
+	storedPointersV4 := make([]*wtFwpV4AddrAndMask, 0, len(routes))
+	denyConditionsV4 := make([]wtFwpmFilterCondition0, 0, len(routes))
+	for _, a := range routes {
+		if !a.Addr().Is4() {
+			continue
+		}
+		address := wtFwpV4AddrAndMask{
+			addr: binary.BigEndian.Uint32(a.Addr().AsSlice()),
+			mask: binary.BigEndian.Uint32(netip.PrefixFrom(allOnesV4, a.Bits()).Masked().Addr().AsSlice()),
+		}
+		denyConditionsV4 = append(denyConditionsV4, wtFwpmFilterCondition0{
+			fieldKey:  cFWPM_CONDITION_IP_REMOTE_ADDRESS,
+			matchType: cFWP_MATCH_EQUAL,
+			conditionValue: wtFwpConditionValue0{
+				_type: cFWP_V4_ADDR_MASK,
+				value: uintptr(unsafe.Pointer(&address)),
+			},
+		})
+		storedPointersV4 = append(storedPointersV4, &address)
+	}
+
+	storedPointersV6 := make([]*wtFwpV6AddrAndMask, 0, len(routes))
+	denyConditionsV6 := make([]wtFwpmFilterCondition0, 0, len(routes))
+	for _, a := range routes {
+		if !a.Addr().Is6() {
+			continue
+		}
+		address := wtFwpV6AddrAndMask{
+			addr:         a.Addr().As16(),
+			prefixLength: uint8(a.Bits()),
+		}
+		denyConditionsV6 = append(denyConditionsV6, wtFwpmFilterCondition0{
+			fieldKey:  cFWPM_CONDITION_IP_REMOTE_ADDRESS,
+			matchType: cFWP_MATCH_EQUAL,
+			conditionValue: wtFwpConditionValue0{
+				_type: cFWP_V6_ADDR_MASK,
+				value: uintptr(unsafe.Pointer(&address)),
+			},
+		})
+		storedPointersV6 = append(storedPointersV6, &address)
+	}
+
 	filter := wtFwpmFilter0{
 		providerKey: &baseObjects.provider,
 		subLayerKey: baseObjects.filters,
@@ -907,12 +950,14 @@ func blockAll(session uintptr, baseObjects *baseObjects, weight uint8) error {
 	}
 
 	filterID := uint64(0)
+	filter.numFilterConditions = uint32(len(denyConditionsV4))
+	filter.filterCondition = (*wtFwpmFilterCondition0)(unsafe.Pointer(&denyConditionsV4[0]))
 
 	//
 	// #1 Block outbound traffic on IPv4.
 	//
 	{
-		displayData, err := createWtFwpmDisplayData0("Block all outbound (IPv4)", "")
+		displayData, err := createWtFwpmDisplayData0("Block restricted routes outbound (IPv4)", "")
 		if err != nil {
 			return wrapErr(err)
 		}
@@ -930,7 +975,7 @@ func blockAll(session uintptr, baseObjects *baseObjects, weight uint8) error {
 	// #2 Block inbound traffic on IPv4.
 	//
 	{
-		displayData, err := createWtFwpmDisplayData0("Block all inbound (IPv4)", "")
+		displayData, err := createWtFwpmDisplayData0("Block restricted routes inbound (IPv4)", "")
 		if err != nil {
 			return wrapErr(err)
 		}
@@ -944,11 +989,14 @@ func blockAll(session uintptr, baseObjects *baseObjects, weight uint8) error {
 		}
 	}
 
+	filter.numFilterConditions = uint32(len(denyConditionsV6))
+	filter.filterCondition = (*wtFwpmFilterCondition0)(unsafe.Pointer(&denyConditionsV6[0]))
+
 	//
 	// #3 Block outbound traffic on IPv6.
 	//
 	{
-		displayData, err := createWtFwpmDisplayData0("Block all outbound (IPv6)", "")
+		displayData, err := createWtFwpmDisplayData0("Block restricted routes outbound (IPv6)", "")
 		if err != nil {
 			return wrapErr(err)
 		}
@@ -966,7 +1014,7 @@ func blockAll(session uintptr, baseObjects *baseObjects, weight uint8) error {
 	// #4 Block inbound traffic on IPv6.
 	//
 	{
-		displayData, err := createWtFwpmDisplayData0("Block all inbound (IPv6)", "")
+		displayData, err := createWtFwpmDisplayData0("Block restricted routes inbound (IPv6)", "")
 		if err != nil {
 			return wrapErr(err)
 		}
@@ -979,6 +1027,9 @@ func blockAll(session uintptr, baseObjects *baseObjects, weight uint8) error {
 			return wrapErr(err)
 		}
 	}
+
+	runtime.KeepAlive(storedPointersV4)
+	runtime.KeepAlive(storedPointersV6)
 
 	return nil
 }
