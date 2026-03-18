@@ -822,18 +822,6 @@ func permitNdp(session uintptr, baseObjects *baseObjects, weight uint8) error {
 }
 
 func permitHyperV(session uintptr, baseObjects *baseObjects, weight uint8) error {
-	//
-	// Only applicable on Win8+.
-	//
-	{
-		major, minor, _ := windows.RtlGetNtVersionNumbers()
-		win8plus := major > 6 || (major == 6 && minor >= 3)
-
-		if !win8plus {
-			return nil
-		}
-	}
-
 	condition := wtFwpmFilterCondition0{
 		fieldKey:  cFWPM_CONDITION_L2_FLAGS,
 		matchType: cFWP_MATCH_EQUAL,

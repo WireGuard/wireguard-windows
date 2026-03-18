@@ -94,6 +94,14 @@
 		</Feature>
 
 		<!--
+			Abort early if running under old Windows
+		-->
+		<CustomAction Id="CheckWinVer" BinaryKey="customactions.dll" DllEntry="CheckWinVer" />
+		<InstallExecuteSequence>
+			<Custom Action="CheckWinVer" After="FindRelatedProducts">NOT REMOVE</Custom>
+		</InstallExecuteSequence>
+
+		<!--
 			Abort early if running under Wow64
 		-->
 		<CustomAction Id="CheckWow64" BinaryKey="customactions.dll" DllEntry="CheckWow64" />
