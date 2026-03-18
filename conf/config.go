@@ -93,6 +93,27 @@ func (conf *Config) IntersectsWith(other *Config) bool {
 	return false
 }
 
+func (conf *Config) Is6() bool {
+	for _, address := range conf.Interface.Addresses {
+		if address.Addr().Is6() {
+			return true
+		}
+	}
+	for _, dns := range conf.Interface.DNS {
+		if dns.Is6() {
+			return true
+		}
+	}
+	for _, peer := range conf.Peers {
+		for _, allowedip := range peer.AllowedIPs {
+			if allowedip.Addr().Is6() {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 func (e *Endpoint) String() string {
 	if strings.IndexByte(e.Host, ':') != -1 {
 		return fmt.Sprintf("[%s]:%d", e.Host, e.Port)
