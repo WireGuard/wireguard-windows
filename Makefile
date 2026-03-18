@@ -25,7 +25,7 @@ define download =
 	if ! mv $$@.unverified $$@; then rm -f $$@.unverified; exit 1; fi
 endef
 
-$(eval $(call download,go.tar.gz,https://go.dev/dl/go1.20.14.linux-amd64.tar.gz,ff445e48af27f93f66bd949ae060d97991c83e11289009d311f25426258f9c44))
+$(eval $(call download,go.tar.gz,https://go.dev/dl/go1.26.1.linux-amd64.tar.gz,031f088e5d955bab8657ede27ad4e3bc5b7c1ba281f05f245bcc304f327c987a))
 $(eval $(call download,wireguard-nt.zip,https://download.wireguard.com/wireguard-nt/wireguard-nt-0.10.1.zip,772c0b1463d8d2212716f43f06f4594d880dea4f735165bd68e388fc41b81605))
 
 .deps/go/prepared: .distfiles/go.tar.gz
@@ -70,7 +70,7 @@ remaster: export GOPROXY := direct
 remaster: .deps/go/prepared
 	rm -f go.sum go.mod
 	cp go.mod.master go.mod
-	go get -d
+	go get
 	sed -i $(shell curl -L 'https://go.dev/dl/?mode=json&include=all' | jq -r '(".windows-amd64.zip",".linux-amd64.tar.gz") as $$suffix | .[0].files[] | select(.filename|endswith($$suffix)) | ("-e", "s/go[0-9][^ ]*\\\($$suffix)\\([ ,]\\)[a-f0-9]\\+/\(.filename)\\1\(.sha256)/") | @sh') Makefile build.bat
 
 fmt: export GOARCH := amd64
