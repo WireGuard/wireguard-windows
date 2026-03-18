@@ -23,10 +23,11 @@
 #include "constants.h"
 
 static char msi_filename[MAX_PATH];
-static volatile bool msi_filename_is_set, prompts = true;
+static volatile bool msi_filename_is_set;
 static volatile size_t g_current, g_total;
 static HWND progress;
 static HANDLE filehandle = INVALID_HANDLE_VALUE;
+static bool no_prompts;
 
 static wchar_t *L(const char *a)
 {
@@ -208,7 +209,7 @@ out:
 	if (security_attributes.lpSecurityDescriptor)
 		LocalFree(security_attributes.lpSecurityDescriptor);
 
-	if (ret && prompts) {
+	if (ret && !no_prompts) {
 		ShowWindow(progress, SW_SHOWDEFAULT);
 		if (MessageBoxA(progress, "Something went wrong when downloading the WireGuard installer. Would you like to open your web browser to the MSI download page?", "Download Error", MB_YESNO | MB_ICONWARNING) == IDYES)
 			ShellExecuteA(progress, NULL, "https://" server msi_path, NULL, NULL, SW_SHOWNORMAL);
@@ -294,7 +295,7 @@ static void parse_command_line(void)
 		return;
 	for (int i = 1; i < argc; ++i) {
 		if (wcsicmp(argv[i], L"/noprompt") == 0)
-			prompts = false;
+			no_prompts = true;
 	}
 	LocalFree(argv);
 }
