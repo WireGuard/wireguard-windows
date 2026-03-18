@@ -6,12 +6,12 @@ CFLAGS ?= -Os
 DEPLOYMENT_HOST ?= winvm
 DEPLOYMENT_PATH ?= Desktop
 
-CFLAGS += -std=gnu11 -DWINVER=0x0601 -D_WIN32_WINNT=0x0601 -flto
+CFLAGS += -std=gnu11 -DWINVER=0x0A00 -D_WIN32_WINNT=0x0A00 -flto
 CFLAGS += -Wall -Wextra
 CFLAGS += -MMD -MP
 LDLIBS += -lkernel32 -lwinhttp -lntdll -lshlwapi -lmsi -lcomctl32 -luser32 -lshell32 -lwintrust -lbcrypt
 LDFLAGS += -s -flto -Wl,--dynamicbase -Wl,--nxcompat -Wl,--tsaware -mwindows
-LDFLAGS += -Wl,--major-os-version=6 -Wl,--minor-os-version=1 -Wl,--major-subsystem-version=6 -Wl,--minor-subsystem-version=1
+LDFLAGS += -Wl,--major-os-version=10 -Wl,--minor-os-version=0 -Wl,--major-subsystem-version=10 -Wl,--minor-subsystem-version=0
 # The use of -Wl,/delayload: here implies we're using llvm-mingw
 LDFLAGS += -Wl,/delayload:winhttp.dll -Wl,/delayload:msi.dll -Wl,/delayload:wintrust.dll -Wl,/delayload:advapi32.dll -Wl,/delayload:shell32.dll -Wl,/delayload:shlwapi.dll -Wl,/delayload:gdi32.dll -Wl,/delayload:user32.dll -Wl,/delayload:comctl32.dll -Wl,/delayload:bcrypt.dll
 TARGET := wireguard-installer.exe
