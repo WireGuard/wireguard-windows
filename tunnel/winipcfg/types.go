@@ -757,7 +757,7 @@ func (addr *RawSockaddrInet) SetAddrPort(addrPort netip.AddrPort) error {
 		addr4.Family = windows.AF_INET
 		addr4.Addr = addrPort.Addr().As4()
 		addr4.Port = htons(addrPort.Port())
-		for i := 0; i < 8; i++ {
+		for i := range 8 {
 			addr4.Zero[i] = 0
 		}
 		return nil

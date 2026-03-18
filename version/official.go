@@ -8,6 +8,7 @@ package version
 import (
 	"errors"
 	"os"
+	"slices"
 	"unsafe"
 
 	"golang.org/x/sys/windows"
@@ -32,12 +33,7 @@ func IsRunningOfficialVersion() bool {
 	if err != nil {
 		return false
 	}
-	for _, name := range names {
-		if name == officialCommonName {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(names, officialCommonName)
 }
 
 func IsRunningEVSigned() bool {
@@ -50,12 +46,7 @@ func IsRunningEVSigned() bool {
 	if err != nil {
 		return false
 	}
-	for _, policy := range policies {
-		if policy == evPolicyOid {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(policies, evPolicyOid)
 }
 
 func extractCertificateNames(path string) ([]string, error) {

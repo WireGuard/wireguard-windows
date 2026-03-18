@@ -216,7 +216,7 @@ func (s *ManagerService) Tunnels() ([]Tunnel, error) {
 		return nil, err
 	}
 	tunnels := make([]Tunnel, len(names))
-	for i := 0; i < len(tunnels); i++ {
+	for i := range tunnels {
 		tunnels[i].Name = names[i]
 	}
 	return tunnels, nil

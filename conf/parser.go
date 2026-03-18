@@ -133,7 +133,7 @@ func parseKeyBase64(s string) (*Key, error) {
 
 func splitList(s string) ([]string, error) {
 	var out []string
-	for _, split := range strings.Split(s, ",") {
+	for split := range strings.SplitSeq(s, ",") {
 		trim := strings.TrimSpace(split)
 		if len(trim) == 0 {
 			return nil, &ParseError{l18n.Sprintf("Two commas in a row"), s}

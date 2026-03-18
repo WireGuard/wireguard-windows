@@ -194,7 +194,7 @@ func trackTunnelService(tunnelName string, service *mgr.Service) {
 		trackedTunnelsLock.Unlock()
 	}()
 
-	for i := 0; i < 20; i++ {
+	for i := range 20 {
 		if i > 0 {
 			time.Sleep(time.Second / 5)
 		}

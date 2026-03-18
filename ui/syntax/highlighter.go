@@ -103,7 +103,7 @@ func (s stringSpan) isValidKey() bool {
 	if s.len != 44 || *s.at(43) != '=' {
 		return false
 	}
-	for i := 0; i < 42; i++ {
+	for i := range 42 {
 		if !isDecimal(*s.at(i)) && !isAlphabet(*s.at(i)) && *s.at(i) != '/' && *s.at(i) != '+' {
 			return false
 		}

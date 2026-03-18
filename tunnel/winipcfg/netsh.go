@@ -71,7 +71,7 @@ func (luid LUID) fallbackSetDNSForFamily(family AddressFamily, dnses []netip.Add
 		return err
 	}
 	cmds = append(cmds, fmt.Sprintf(templateFlush, ipif.InterfaceIndex))
-	for i := 0; i < len(dnses); i++ {
+	for i := range dnses {
 		if dnses[i].Is4() && family == windows.AF_INET {
 			cmds = append(cmds, fmt.Sprintf(netshCmdTemplateAdd4, ipif.InterfaceIndex, dnses[i].String()))
 		} else if dnses[i].Is6() && family == windows.AF_INET6 {

@@ -152,7 +152,7 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 	}
 
 	log.Println("Creating network adapter")
-	for i := 0; i < 15; i++ {
+	for i := range 15 {
 		if i > 0 {
 			time.Sleep(time.Second)
 			log.Printf("Retrying adapter creation after failure because system just booted (T+%v): %v", windows.DurationSinceBoot(), err)

@@ -7,6 +7,7 @@ package conf
 
 import (
 	"reflect"
+	"slices"
 	"testing"
 )
 
@@ -27,13 +28,7 @@ func TestStorage(t *testing.T) {
 		t.Errorf("Unable to list configs: %s", err.Error())
 	}
 
-	found := false
-	for _, name := range configs {
-		if name == "golangTest" {
-			found = true
-			break
-		}
-	}
+	found := slices.Contains(configs, "golangTest")
 	if !found {
 		t.Error("Unable to find saved config in list")
 	}
@@ -82,13 +77,7 @@ func TestStorage(t *testing.T) {
 	if err != nil {
 		t.Errorf("Unable to list configs: %s", err.Error())
 	}
-	found = false
-	for _, name := range configs {
-		if name == "golangTest" {
-			found = true
-			break
-		}
-	}
+	found = slices.Contains(configs, "golangTest")
 	if found {
 		t.Error("Config wasn't actually deleted")
 	}

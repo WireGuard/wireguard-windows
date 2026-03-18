@@ -76,10 +76,7 @@ func monitorMTU(family winipcfg.AddressFamily, ourLUID winipcfg.LUID) ([]winipcf
 			if err != nil {
 				return err
 			}
-			iface.NLMTU = mtu - 80
-			if iface.NLMTU < minMTU {
-				iface.NLMTU = minMTU
-			}
+			iface.NLMTU = max(mtu-80, minMTU)
 			err = iface.Set()
 			if err != nil {
 				return err

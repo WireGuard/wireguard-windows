@@ -134,7 +134,7 @@ func (lp *LogPage) onCopy() {
 	if len(selectedItemIndexes) == 0 {
 		return
 	}
-	for i := 0; i < len(selectedItemIndexes); i++ {
+	for i := range selectedItemIndexes {
 		logItem := lp.model.items[selectedItemIndexes[i]]
 		logLines.WriteString(fmt.Sprintf("%s: %s\r\n", logItem.Stamp.Format("2006-01-02 15:04:05.000"), logItem.Line))
 	}

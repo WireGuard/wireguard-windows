@@ -21,7 +21,7 @@ func TestThreads(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		for i := 0; i < 1024; i++ {
+		for i := range 1024 {
 			fmt.Fprintf(rl, "bla bla bla %d", i)
 		}
 		rl.Close()

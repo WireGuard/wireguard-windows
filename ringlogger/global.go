@@ -40,10 +40,7 @@ func globalWrite(fd uintptr, p unsafe.Pointer, n int32) int32 {
 	b := (*[1 << 30]byte)(p)[:n]
 	for len(b) > 0 {
 		amountAvailable := len(globalBuffer) - globalBufferLocation
-		amountToCopy := len(b)
-		if amountToCopy > amountAvailable {
-			amountToCopy = amountAvailable
-		}
+		amountToCopy := min(len(b), amountAvailable)
 		copy(globalBuffer[globalBufferLocation:], b[:amountToCopy])
 		b = b[amountToCopy:]
 		globalBufferLocation += amountToCopy
