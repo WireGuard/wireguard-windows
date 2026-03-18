@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0
  *
- * Copyright (C) 2020-2022 Jason A. Donenfeld. All Rights Reserved.
+ * Copyright (C) 2020-2026 Jason A. Donenfeld. All Rights Reserved.
  */
 
 #ifndef _FILELIST_H
