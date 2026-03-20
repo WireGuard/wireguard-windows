@@ -18,25 +18,21 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.25'
+          go-version: '1.26'
 
       - name: Install cross-compilation toolchains
         run: |
           sudo apt-get update
-          sudo apt-get install -y mingw-w64 imagemagick
+          sudo apt-get install -y mingw-w64 imagemagick libarchive-tools
 
       - name: Download WireGuardNT
         run: |
-          mkdir -p .deps
-          curl -Lo wireguard-nt.zip https://download.wireguard.com/wireguard-nt/wireguard-nt-0.10.1.zip
-          echo "772c0b1463d8d2212716f43f06f4594d880dea4f735165bd68e388fc41b81605  wireguard-nt.zip" | sha256sum -c
-          unzip -d .deps wireguard-nt.zip
-          # The zip may extract into a versioned subdirectory
-          if [ ! -d .deps/wireguard-nt ] && [ -d .deps/wireguard-nt-* ]; then
-            mv .deps/wireguard-nt-* .deps/wireguard-nt
-          fi
+          mkdir -p .deps .distfiles
+          curl -Lo .distfiles/wireguard-nt.zip https://download.wireguard.com/wireguard-nt/wireguard-nt-0.10.1.zip
+          echo "772c0b1463d8d2212716f43f06f4594d880dea4f735165bd68e388fc41b81605  .distfiles/wireguard-nt.zip" | sha256sum -c
+          bsdtar -C .deps -xf .distfiles/wireguard-nt.zip
           # Verify the expected structure exists
-          ls -la .deps/wireguard-nt/bin/ || { echo "WireGuardNT directory structure unexpected"; find .deps -type f | head -20; exit 1; }
+          ls .deps/wireguard-nt/bin/amd64/wireguard.dll || { echo "WireGuardNT directory structure unexpected:"; find .deps -type f | head -30; exit 1; }
 
       - name: Render icons
         run: |
