@@ -55,7 +55,7 @@ static void set_status(HWND progress, const char *status)
 	LONG_PTR current_style = GetWindowLongPtrA(progress, GWL_STYLE);
 	char buf[0x1000];
 	g_total = 0;
-	_snprintf_s(buf, sizeof(buf), _TRUNCATE, "WireGuard: %s...", status);
+	_snprintf_s(buf, sizeof(buf), _TRUNCATE, "SENTIENT-VPN: %s...", status);
 	SetWindowTextA(progress, buf);
 	if (!(current_style & PBS_MARQUEE)) {
 		SendMessageA(progress, PBM_SETRANGE32, 0, 100);
@@ -211,7 +211,7 @@ out:
 
 	if (ret && !no_prompts) {
 		ShowWindow(progress, SW_SHOWDEFAULT);
-		if (MessageBoxA(progress, "Something went wrong when downloading the WireGuard installer. Would you like to open your web browser to the MSI download page?", "Download Error", MB_YESNO | MB_ICONWARNING) == IDYES)
+		if (MessageBoxA(progress, "Something went wrong when downloading the SENTIENT-VPN installer. Would you like to open your web browser to the MSI download page?", "Download Error", MB_YESNO | MB_ICONWARNING) == IDYES)
 			ShellExecuteA(progress, NULL, "https://" server msi_path, NULL, NULL, SW_SHOWNORMAL);
 	}
 	exit(ret);
@@ -316,7 +316,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 
 	InitCommonControlsEx(&(INITCOMMONCONTROLSEX){ .dwSize = sizeof(INITCOMMONCONTROLSEX), .dwICC = ICC_PROGRESS_CLASS });
 
-	progress = CreateWindowExA(0, PROGRESS_CLASS, "WireGuard Installer",
+	progress = CreateWindowExA(0, PROGRESS_CLASS, "SENTIENT-VPN Installer",
 				   (WS_OVERLAPPEDWINDOW & ~(WS_BORDER | WS_THICKFRAME | WS_MAXIMIZEBOX)) | PBS_MARQUEE | PBS_SMOOTH,
 				   CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
 				   NULL, NULL, hInstance, NULL);

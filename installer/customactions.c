@@ -14,8 +14,8 @@
 #include <stdbool.h>
 #include <tchar.h>
 
-#define MANAGER_SERVICE_NAME TEXT("WireGuardManager")
-#define TUNNEL_SERVICE_PREFIX TEXT("WireGuardTunnel$")
+#define MANAGER_SERVICE_NAME TEXT("SentientVPNManager")
+#define TUNNEL_SERVICE_PREFIX TEXT("SentientVPNTunnel$")
 
 enum log_level { LOG_LEVEL_INFO, LOG_LEVEL_WARN, LOG_LEVEL_ERR, LOG_LEVEL_MSIERR };
 
@@ -38,15 +38,15 @@ static void log_messagef(MSIHANDLE installer, enum log_level level, const TCHAR 
 
 	switch (level) {
 	case LOG_LEVEL_INFO:
-		template = TEXT("WireGuard: [1]");
+		template = TEXT("SENTIENT-VPN: [1]");
 		type = INSTALLMESSAGE_INFO;
 		break;
 	case LOG_LEVEL_WARN:
-		template = TEXT("WireGuard warning: [1]");
+		template = TEXT("SENTIENT-VPN warning: [1]");
 		type = INSTALLMESSAGE_INFO;
 		break;
 	case LOG_LEVEL_ERR:
-		template = TEXT("WireGuard error: [1]");
+		template = TEXT("SENTIENT-VPN error: [1]");
 		type = INSTALLMESSAGE_ERROR;
 		break;
 	case LOG_LEVEL_MSIERR:
@@ -114,7 +114,7 @@ __declspec(dllexport) UINT __stdcall CheckWow64(MSIHANDLE installer)
 		if (!is_wow64_process)
 			goto out;
 	}
-	log_messagef(installer, LOG_LEVEL_MSIERR, TEXT("You must use the native version of WireGuard on this computer."));
+	log_messagef(installer, LOG_LEVEL_MSIERR, TEXT("You must use the native version of SENTIENT-VPN on this computer."));
 	ret = ERROR_INSTALL_FAILURE;
 out:
 	if (is_com_initialized)
@@ -256,10 +256,10 @@ __declspec(dllexport) UINT __stdcall LaunchApplicationAndAbort(MSIHANDLE install
 		log_errorf(installer, LOG_LEVEL_WARN, ret, TEXT("MsiGetProperty(\"WireGuardFolder\") failed"));
 		goto out;
 	}
-	if (!path[0] || !PathAppend(path, TEXT("wireguard.exe")))
+	if (!path[0] || !PathAppend(path, TEXT("sentient-vpn.exe")))
 		goto out;
 	log_messagef(installer, LOG_LEVEL_INFO, TEXT("Launching %1"), path);
-	if (!CreateProcess(path, TEXT("wireguard"), NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi)) {
+	if (!CreateProcess(path, TEXT("sentient-vpn"), NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi)) {
 		log_errorf(installer, LOG_LEVEL_WARN, GetLastError(), TEXT("Failed to create \"%1\" process"), path);
 		goto out;
 	}
@@ -365,7 +365,7 @@ __declspec(dllexport) UINT __stdcall KillWireGuardProcesses(MSIHANDLE installer)
 
 	if (PathCombine(executable, process_path, TEXT("wg.exe")) && calculate_file_id(executable, &file_ids[file_ids_len]))
 		++file_ids_len;
-	if (PathCombine(executable, process_path, TEXT("wireguard.exe")) && calculate_file_id(executable, &file_ids[file_ids_len]))
+	if (PathCombine(executable, process_path, TEXT("sentient-vpn.exe")) && calculate_file_id(executable, &file_ids[file_ids_len]))
 		++file_ids_len;
 	if (!file_ids_len)
 		goto out;
@@ -375,7 +375,7 @@ __declspec(dllexport) UINT __stdcall KillWireGuardProcesses(MSIHANDLE installer)
 		goto out;
 
 	for (bool ret = Process32First(snapshot, &entry); ret; ret = Process32Next(snapshot, &entry)) {
-		if (_tcsicmp(entry.szExeFile, TEXT("wireguard.exe")) && _tcsicmp(entry.szExeFile, TEXT("wg.exe")))
+		if (_tcsicmp(entry.szExeFile, TEXT("sentient-vpn.exe")) && _tcsicmp(entry.szExeFile, TEXT("wg.exe")))
 			continue;
 		process = OpenProcess(PROCESS_TERMINATE | PROCESS_QUERY_LIMITED_INFORMATION, false, entry.th32ProcessID);
 		if (!process)
@@ -480,7 +480,7 @@ __declspec(dllexport) UINT __stdcall RemoveConfigFolder(MSIHANDLE installer)
 	if (!path[0] || !PathAppend(path, TEXT("Data")))
 		goto out;
 	remove_directory_recursive(installer, path, 10);
-	RegDeleteKey(HKEY_LOCAL_MACHINE, TEXT("Software\\WireGuard")); // Assumes no WOW.
+	RegDeleteKey(HKEY_LOCAL_MACHINE, TEXT("Software\\SENTIENT-VPN")); // Assumes no WOW.
 out:
 	if (is_com_initialized)
 		CoUninitialize();
@@ -508,7 +508,7 @@ __declspec(dllexport) UINT __stdcall RemoveAdapters(MSIHANDLE installer)
 		log_errorf(installer, LOG_LEVEL_WARN, ret, TEXT("MsiGetProperty(\"CustomActionData\") failed"));
 		goto out;
 	}
-	if (!path[0] || !PathAppend(path, TEXT("wireguard.exe")))
+	if (!path[0] || !PathAppend(path, TEXT("sentient-vpn.exe")))
 		goto out;
 
 	if (!CreatePipe(&pipe, &si.hStdOutput, NULL, 0)) {
@@ -519,7 +519,7 @@ __declspec(dllexport) UINT __stdcall RemoveAdapters(MSIHANDLE installer)
 		log_errorf(installer, LOG_LEVEL_WARN, GetLastError(), TEXT("SetHandleInformation failed"));
 		goto cleanup_pipe_w;
 	}
-	if (!CreateProcess(path, TEXT("wireguard /removedriver"), NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi)) {
+	if (!CreateProcess(path, TEXT("sentient-vpn /removedriver"), NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi)) {
 		log_errorf(installer, LOG_LEVEL_WARN, GetLastError(), TEXT("Failed to create \"%1\" process"), path);
 		goto cleanup_pipe_w;
 	}

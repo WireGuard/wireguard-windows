@@ -1,0 +1,101 @@
+name: Build SENTIENT-VPN
+
+on:
+  push:
+    branches: [ main, master, 'claude/**' ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.26'
+
+      - name: Install cross-compilation toolchains
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mingw-w64 imagemagick
+
+      - name: Download WireGuardNT
+        run: |
+          mkdir -p .deps
+          curl -Lo wireguard-nt.zip https://download.wireguard.com/wireguard-nt/wireguard-nt-0.10.1.zip
+          echo "772c0b1463d8d2212716f43f06f4594d880dea4f735165bd68e388fc41b81605  wireguard-nt.zip" | sha256sum -c
+          unzip -d .deps wireguard-nt.zip
+          mv .deps/wireguard-nt-0.10.1 .deps/wireguard-nt 2>/dev/null || true
+
+      - name: Render icons
+        run: |
+          for svg in ui/icon/*.svg; do
+            ico="${svg%.svg}.ico"
+            convert -background none "$svg" -define icon:auto-resize="256,192,128,96,64,48,40,32,24,20,16" -compress zip "$ico"
+          done
+
+      - name: Extract version
+        id: version
+        run: |
+          VERSION=$(sed -n 's/^\s*Number\s*=\s*"\([0-9.]\+\)"$/\1/p' version/version.go)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          IFS='.' read -r a b c d <<< "${VERSION}.0.0.0"
+          echo "version_array=${a},${b},${c},${d}" >> "$GITHUB_OUTPUT"
+
+      - name: Build amd64
+        env:
+          GOOS: windows
+          GOARCH: amd64
+          CGO_ENABLED: 0
+        run: |
+          x86_64-w64-mingw32-windres \
+            -DWIREGUARD_VERSION_ARRAY=${{ steps.version.outputs.version_array }} \
+            -DWIREGUARD_VERSION_STR=${{ steps.version.outputs.version }} \
+            -I .deps/wireguard-nt/bin/amd64 \
+            -i resources.rc -o resources_amd64.syso -O coff -c 65001
+          mkdir -p amd64
+          go build -tags load_wgnt_from_rsrc -ldflags="-H windowsgui -s -w" -trimpath -buildvcs=false -v -o amd64/sentient-vpn.exe
+
+      - name: Build x86
+        env:
+          GOOS: windows
+          GOARCH: 386
+          CGO_ENABLED: 0
+        run: |
+          i686-w64-mingw32-windres \
+            -DWIREGUARD_VERSION_ARRAY=${{ steps.version.outputs.version_array }} \
+            -DWIREGUARD_VERSION_STR=${{ steps.version.outputs.version }} \
+            -I .deps/wireguard-nt/bin/x86 \
+            -i resources.rc -o resources_386.syso -O coff -c 65001
+          mkdir -p x86
+          go build -tags load_wgnt_from_rsrc -ldflags="-H windowsgui -s -w" -trimpath -buildvcs=false -v -o x86/sentient-vpn.exe
+
+      - name: Build arm64
+        env:
+          GOOS: windows
+          GOARCH: arm64
+          CGO_ENABLED: 0
+        run: |
+          aarch64-w64-mingw32-windres \
+            -DWIREGUARD_VERSION_ARRAY=${{ steps.version.outputs.version_array }} \
+            -DWIREGUARD_VERSION_STR=${{ steps.version.outputs.version }} \
+            -I .deps/wireguard-nt/bin/arm64 \
+            -i resources.rc -o resources_arm64.syso -O coff -c 65001 || echo "arm64 windres not available, skipping resource compilation"
+          mkdir -p arm64
+          go build -tags load_wgnt_from_rsrc -ldflags="-H windowsgui -s -w" -trimpath -buildvcs=false -v -o arm64/sentient-vpn.exe || echo "arm64 build skipped (cross-compiler may not be available)"
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sentient-vpn-${{ steps.version.outputs.version }}
+          path: |
+            amd64/sentient-vpn.exe
+            x86/sentient-vpn.exe
+            arm64/sentient-vpn.exe
+          if-no-files-found: warn

@@ -40,7 +40,7 @@ func NewUpdatePage() (*UpdatePage, error) {
 	if err != nil {
 		return nil, err
 	}
-	instructions.SetText(l18n.Sprintf("An update to WireGuard is available. It is highly advisable to update without delay."))
+	instructions.SetText(l18n.Sprintf("An update to SENTIENT-VPN is available. It is highly advisable to update without delay."))
 	instructions.SetMinMaxSize(walk.Size{1, 0}, walk.Size{0, 0})
 
 	status, err := walk.NewTextLabel(up)

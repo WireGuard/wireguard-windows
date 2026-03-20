@@ -52,7 +52,7 @@ func RootDirectory(create bool) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	root = filepath.Join(root, "WireGuard")
+	root = filepath.Join(root, "SENTIENT-VPN")
 	if !create {
 		return filepath.Join(root, "Data"), nil
 	}

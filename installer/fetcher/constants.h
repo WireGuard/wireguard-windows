@@ -7,7 +7,7 @@
 #define _CONSTANTS_H
 
 #define release_public_key_base64 "RWRNqGKtBXftKTKPpBPGDMe8jHLnFQ0EdRy8Wg0apV6vTDFLAODD83G4"
-#define msi_arch_prefix "wireguard-%s-"
+#define msi_arch_prefix "sentient-vpn-%s-"
 #define msi_suffix ".msi"
 #define server "download.wireguard.com"
 #define port (443)

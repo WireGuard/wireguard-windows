@@ -25,16 +25,16 @@
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
 	<Product
 		Id="*"
-		Name="WireGuard"
+		Name="SENTIENT-VPN"
 		Language="1033"
 		Version="$(var.WIREGUARD_VERSION)"
-		Manufacturer="WireGuard LLC"
+		Manufacturer="SENTIENT-VPN"
 		UpgradeCode="$(var.UpgradeCode)">
 		<Package
 			InstallerVersion="500"
 			Compressed="yes"
 			InstallScope="perMachine"
-			Description="WireGuard: Fast, Modern, Secure VPN Tunnel"
+			Description="SENTIENT-VPN: Fast, Modern, Secure VPN Tunnel"
 			ReadOnly="yes" />
 
 		<MediaTemplate EmbedCab="yes" CompressionLevel="high" />
@@ -43,7 +43,7 @@
 		<Binary Id="customactions.dll" SourceFile="$(var.WIREGUARD_PLATFORM)\customactions.dll" />
 
 		<Property Id="ARPPRODUCTICON" Value="wireguard.ico" />
-		<Property Id="ARPURLINFOABOUT" Value="https://www.wireguard.com/" />
+		<Property Id="ARPURLINFOABOUT" Value="https://www.sentient-vpn.com/" />
 		<Property Id="ARPNOMODIFY" Value="yes" />
 		<Property Id="DISABLEADVTSHORTCUTS" Value="yes" />
 		<Property Id="DISABLEROLLBACK" Value="yes" />
@@ -65,7 +65,7 @@
 		-->
 		<Directory Id="TARGETDIR" Name="SourceDir">
 			<Directory Id="$(var.PlatformProgramFilesFolder)">
-				<Directory Id="WireGuardFolder" Name="WireGuard" />
+				<Directory Id="WireGuardFolder" Name="SENTIENT-VPN" />
 			</Directory>
 			<Directory Id="ProgramMenuFolder" />
 		</Directory>
@@ -75,8 +75,8 @@
 		-->
 		<ComponentGroup Id="WireGuardComponents">
 			<Component Directory="WireGuardFolder" Id="WireGuardExecutable" Guid="c3508d23-3362-47ce-9220-321bdb1a1acc">
-				<File Source="..\$(var.WIREGUARD_PLATFORM)\wireguard.exe" KeyPath="yes">
-					<Shortcut Id="WireGuardStartMenuShortcut" Directory="ProgramMenuFolder" Name="WireGuard" Description="WireGuard: Fast, Modern, Secure VPN Tunnel" WorkingDirectory="WireGuardFolder" Advertise="yes" />
+				<File Source="..\$(var.WIREGUARD_PLATFORM)\sentient-vpn.exe" KeyPath="yes">
+					<Shortcut Id="WireGuardStartMenuShortcut" Directory="ProgramMenuFolder" Name="SENTIENT-VPN" Description="SENTIENT-VPN: Fast, Modern, Secure VPN Tunnel" WorkingDirectory="WireGuardFolder" Advertise="yes" />
 				</File>
 				<ServiceControl Id="DummyService.3AA0C492_29F4_4342_B608_DB95B2DECB13" Name="DummyService.3AA0C492_29F4_4342_B608_DB95B2DECB13" /><!-- A dummy to make WiX create ServiceControl table for us. -->
 			</Component>
@@ -89,7 +89,7 @@
 		<!--
 			Features
 		-->
-		<Feature Id="WireGuardFeature" Title="WireGuard" Level="1">
+		<Feature Id="WireGuardFeature" Title="SENTIENT-VPN" Level="1">
 			<ComponentGroupRef Id="WireGuardComponents" />
 		</Feature>
 

@@ -349,5 +349,5 @@ loop:
 }
 
 func Run() error {
-	return svc.Run("WireGuardManager", &managerService{})
+	return svc.Run("SentientVPNManager", &managerService{})
 }
