@@ -47,7 +47,7 @@ jobs:
         run: |
           VERSION=$(sed -n 's/^\s*Number\s*=\s*"\([0-9.]\+\)"$/\1/p' version/version.go)
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          IFS='.' read -r a b c d <<< "${VERSION}.0.0.0"
+          IFS='.' read -r a b c d _ <<< "${VERSION}.0.0.0"
           echo "version_array=${a},${b},${c},${d}" >> "$GITHUB_OUTPUT"
 
       - name: Build amd64
