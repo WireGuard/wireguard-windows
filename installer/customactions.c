@@ -136,7 +136,16 @@ __declspec(dllexport) UINT __stdcall CheckWow64(MSIHANDLE installer)
 			log_errorf(installer, LOG_LEVEL_ERR, ret, TEXT("Failed to determine Wow64 status from IsWow64Process2"));
 			goto out;
 		}
-		if (process_machine == IMAGE_FILE_MACHINE_UNKNOWN)
+		#if defined(_AMD64_)
+		#define IMAGE_FILE_MACHINE_THIS IMAGE_FILE_MACHINE_AMD64
+		#elif defined(_X86_)
+		#define IMAGE_FILE_MACHINE_THIS IMAGE_FILE_MACHINE_I386
+		#elif defined(_ARM64_)
+		#define IMAGE_FILE_MACHINE_THIS IMAGE_FILE_MACHINE_ARM64
+		#else
+		#error "Unsupported MSI architecture"
+		#endif
+		if (process_machine == IMAGE_FILE_MACHINE_UNKNOWN && native_machine == IMAGE_FILE_MACHINE_THIS)
 			goto out;
 	} else {
 		if (!IsWow64Process(GetCurrentProcess(), &is_wow64_process)) {
