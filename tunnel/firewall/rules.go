@@ -15,9 +15,7 @@ import (
 	"golang.org/x/sys/windows"
 )
 
-//
 // Known addresses.
-//
 var (
 	linkLocal = wtFwpV6AddrAndMask{[16]uint8{0xfe, 0x80}, 10}
 

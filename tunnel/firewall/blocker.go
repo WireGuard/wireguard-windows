@@ -15,9 +15,7 @@ import (
 
 type wfpObjectInstaller func(uintptr) error
 
-//
 // Fundamental WireGuard specific WFP objects.
-//
 type baseObjects struct {
 	provider windows.GUID
 	filters  windows.GUID
