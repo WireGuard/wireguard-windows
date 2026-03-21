@@ -13,6 +13,7 @@ SOURCE_FILES := $(call rwildcard,,*.go) .deps/go/prepared go.mod go.sum
 RESOURCE_FILES := resources.rc version/version.go manifest.xml $(patsubst %.svg,%.ico,$(wildcard ui/icon/*.svg)) .deps/wireguard-nt/prepared
 
 DEPLOYMENT_HOST ?= winvm
+DEPLOYMENT_ARCH ?= amd64
 DEPLOYMENT_PATH ?= Desktop
 
 all: amd64/wireguard.exe x86/wireguard.exe arm64/wireguard.exe
@@ -87,7 +88,7 @@ crowdin:
 	find locales -name messages.gotext.json -exec bash -c '[[ $$(jq ".messages | length" {}) -ne 0 ]] || rm -rf "$$(dirname {})"' \;
 	@$(MAKE) --no-print-directory generate
 
-deploy: amd64/wireguard.exe
+deploy: $(DEPLOYMENT_ARCH)/wireguard.exe
 	-ssh $(DEPLOYMENT_HOST) -- 'taskkill /im wireguard.exe /f'
 	scp $< $(DEPLOYMENT_HOST):$(DEPLOYMENT_PATH)
 
