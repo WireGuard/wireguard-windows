@@ -75,7 +75,7 @@ func writeLockedDownFile(destination string, overwrite bool, contents []byte) er
 		} else {
 			return 0
 		}
-	}(), fileNameLength: uint32(len(destination16) - 1)}
+	}(), fileNameLength: uint32((len(destination16) - 1) * 2)}
 	if len(destination16) > len(fileRenameInfo.fileName) {
 		deleteIt()
 		return windows.ERROR_BUFFER_OVERFLOW
