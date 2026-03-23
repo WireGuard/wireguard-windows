@@ -138,7 +138,7 @@ func (iw *interfaceWatcher) Configure(adapter *driver.Adapter, conf *conf.Config
 
 	iw.adapter, iw.conf, iw.luid = adapter, conf, luid
 	for _, event := range iw.storedEvents {
-		if event.luid == luid {
+		if event.luid == luid && (event.family != windows.AF_INET6 || conf.Is6()) {
 			iw.setup(event.family)
 		}
 	}
