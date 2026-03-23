@@ -242,7 +242,7 @@ static LRESULT CALLBACK wndproc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 		int chars = GetWindowTextA(progress, buf, sizeof(buf));
 		if (chars) {
 			start = buf + chars;
-			if (start[-1] == '.' && start[-2] == '.' && start[-3] == '.')
+			if (chars >= 3 && start[-1] == '.' && start[-2] == '.' && start[-3] == '.')
 				start -= 3;
 			else if ((paren = memchr(buf, '(', chars)) && paren > buf)
 				start = paren - 1;
