@@ -60,8 +60,8 @@ C:\Projects\wireguard-windows\installer> build
 Add a file called `sign.bat` in the root of this repository with these contents, or similar:
 
 ```text
-set SigningProvider=/sha1 8BC932FDFF15B892E8364C49B383210810E4709D
-set TimestampServer=http://timestamp.entrust.net/rfc3161ts2
+set SigningProvider=/sha1 1b3afa5e2a76bb51f00020002dccadb165689c33
+set TimestampServer=http://timestamp.digicert.com
 ```
 
 After, run the above `build` commands as usual, from a shell that has [`signtool.exe`](https://docs.microsoft.com/en-us/windows/desktop/SecCrypto/signtool) in its `PATH`, such as the Visual Studio 2017 command prompt.
