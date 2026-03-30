@@ -62,10 +62,11 @@ func NewSession(userAgent string) (session *Session, err error) {
 	if err != nil {
 		return
 	}
-	var enableHttp2 uint32 = _WINHTTP_PROTOCOL_FLAG_HTTP2
-	err = winHttpSetOption(session.handle, _WINHTTP_OPTION_ENABLE_HTTP_PROTOCOL, unsafe.Pointer(&enableHttp2), uint32(unsafe.Sizeof(enableHttp2)))
+	var enableHttp uint32 = _WINHTTP_PROTOCOL_FLAG_HTTP2 | _WINHTTP_PROTOCOL_FLAG_HTTP3
+	err = winHttpSetOption(session.handle, _WINHTTP_OPTION_ENABLE_HTTP_PROTOCOL, unsafe.Pointer(&enableHttp), uint32(unsafe.Sizeof(enableHttp)))
 	if err != nil {
-		return
+		enableHttp = _WINHTTP_PROTOCOL_FLAG_HTTP2
+		_ = winHttpSetOption(session.handle, _WINHTTP_OPTION_ENABLE_HTTP_PROTOCOL, unsafe.Pointer(&enableHttp), uint32(unsafe.Sizeof(enableHttp)))
 	}
 
 	runtime.SetFinalizer(session, func(session *Session) {

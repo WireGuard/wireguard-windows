@@ -73,7 +73,7 @@ static void set_progress(HWND progress, size_t current, size_t total)
 
 static DWORD __stdcall download_thread(void *param)
 {
-	DWORD ret = 1, bytes_read, bytes_written, enable_http2 = WINHTTP_PROTOCOL_FLAG_HTTP2;
+	DWORD ret = 1, bytes_read, bytes_written, enable_http;
 	HINTERNET session = NULL, connection = NULL, request = NULL;
 	uint8_t hash[32], computed_hash[32], buf[512 * 1024];
 	char download_path[MAX_FILENAME_LEN + sizeof(msi_path)], random_filename[65];
@@ -104,9 +104,11 @@ static DWORD __stdcall download_thread(void *param)
 	session = WinHttpOpen(L(useragent()), WINHTTP_ACCESS_TYPE_AUTOMATIC_PROXY, NULL, NULL, 0);
 	if (!session)
 		goto out;
-	if (!WinHttpSetOption(session, WINHTTP_OPTION_ENABLE_HTTP_PROTOCOL, &enable_http2, sizeof(enable_http2)))
-		goto out;
-
+	enable_http = WINHTTP_PROTOCOL_FLAG_HTTP2 | WINHTTP_PROTOCOL_FLAG_HTTP3;
+	if (!WinHttpSetOption(session, WINHTTP_OPTION_ENABLE_HTTP_PROTOCOL, &enable_http, sizeof(enable_http))) {
+		enable_http = WINHTTP_PROTOCOL_FLAG_HTTP2;
+		WinHttpSetOption(session, WINHTTP_OPTION_ENABLE_HTTP_PROTOCOL, &enable_http, sizeof(enable_http));
+	}
 	connection = WinHttpConnect(session, L(server), port, 0);
 	if (!connection)
 		goto out;
