@@ -35,7 +35,7 @@ deploy: $(TARGET)
 
 sign: deploy
 	ssh $(DEPLOYMENT_HOST) '"C:\Program Files (x86)\Windows Kits\10\App Certification Kit\signtool.exe"' sign /sha1 $(SIGNING_CERTIFICATE) /fd sha256 /tr $(TIMESTAMP_SERVER) /td sha256 /d '"WireGuard Installer"' '$(DEPLOYMENT_PATH)\$(TARGET)'
-	scp -T '$(DEPLOYMENT_HOST):$(DEPLOYMENT_PATH)\$(TARGET)' .
+	scp -T '$(DEPLOYMENT_HOST):$(DEPLOYMENT_PATH)/$(TARGET)' .
 
 .PHONY: clean deploy sign
 
