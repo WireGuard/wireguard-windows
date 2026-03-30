@@ -64,6 +64,11 @@ startOver:
 
 	foundDefault4 := false
 	foundDefault6 := false
+	foundRoute4 := false
+	foundRoute6 := false
+	foundAddress4 := false
+	foundAddress6 := false
+
 	for _, peer := range conf.Peers {
 		for _, allowedip := range peer.AllowedIPs {
 			route := winipcfg.RouteData{
@@ -71,11 +76,13 @@ startOver:
 				Metric:      0,
 			}
 			if allowedip.Addr().Is4() {
+				foundRoute4 = true
 				if allowedip.Bits() == 0 {
 					foundDefault4 = true
 				}
 				route.NextHop = netip.IPv4Unspecified()
 			} else if allowedip.Addr().Is6() {
+				foundRoute6 = true
 				if allowedip.Bits() == 0 {
 					foundDefault6 = true
 				}
@@ -91,7 +98,8 @@ startOver:
 		deduplicatedRoutes = append(deduplicatedRoutes, &r)
 	}
 
-	if !conf.Interface.TableOff {
+	if !conf.Interface.TableOff &&
+	   ((foundRoute4 && family == windows.AF_INET) || (foundRoute6 && family == windows.AF_INET6)) {
 		err = luid.SetRoutesForFamily(family, deduplicatedRoutes)
 		if err == windows.ERROR_NOT_FOUND && retryOnFailure {
 			goto startOver
@@ -100,15 +108,24 @@ startOver:
 		}
 	}
 
-	err = luid.SetIPAddressesForFamily(family, conf.Interface.Addresses)
-	if err == windows.ERROR_OBJECT_ALREADY_EXISTS {
-		cleanupAddressesOnDisconnectedInterfaces(family, conf.Interface.Addresses)
-		err = luid.SetIPAddressesForFamily(family, conf.Interface.Addresses)
+	for _, addr := range conf.Interface.Addresses {
+		if addr.Addr().Is4() {
+			foundAddress4 = true
+		} else if addr.Addr().Is6() {
+			foundAddress6 = true
+		}
 	}
-	if err == windows.ERROR_NOT_FOUND && retryOnFailure {
-		goto startOver
-	} else if err != nil {
-		return fmt.Errorf("unable to set ips: %w", err)
+	if (foundAddress4 && family == windows.AF_INET) || (foundAddress6 && family == windows.AF_INET6) {
+		err = luid.SetIPAddressesForFamily(family, conf.Interface.Addresses)
+		if err == windows.ERROR_OBJECT_ALREADY_EXISTS {
+			cleanupAddressesOnDisconnectedInterfaces(family, conf.Interface.Addresses)
+			err = luid.SetIPAddressesForFamily(family, conf.Interface.Addresses)
+		}
+		if err == windows.ERROR_NOT_FOUND && retryOnFailure {
+			goto startOver
+		} else if err != nil {
+			return fmt.Errorf("unable to set ips: %w", err)
+		}
 	}
 
 	var ipif *winipcfg.MibIPInterfaceRow
@@ -120,7 +137,9 @@ startOver:
 	ipif.DadTransmits = 0
 	ipif.ManagedAddressConfigurationSupported = false
 	ipif.OtherStatefulConfigurationSupported = false
-	if conf.Interface.MTU > 0 {
+	if conf.Interface.MTU > 0 &&
+	   (((foundAddress4 || foundRoute4) && family == windows.AF_INET) ||
+	    ((foundAddress6 || foundRoute6) && family == windows.AF_INET6)) {
 		ipif.NLMTU = uint32(conf.Interface.MTU)
 	}
 	if (family == windows.AF_INET && foundDefault4) || (family == windows.AF_INET6 && foundDefault6) {
