@@ -108,6 +108,20 @@ func parsePersistentKeepalive(s string) (uint16, error) {
 	return uint16(m), nil
 }
 
+func parseUpdateEndpointIP(s string) (uint16, error) {
+	if s == "off" {
+		return 0, nil
+	}
+	m, err := strconv.Atoi(s)
+	if err != nil {
+		return 0, err
+	}
+	if m < 0 || m > 65535 {
+		return 0, &ParseError{l18n.Sprintf("Invalid update endpoint IP"), s}
+	}
+	return uint16(m), nil
+}
+
 func parseTableOff(s string) (bool, error) {
 	if s == "off" {
 		return true, nil
@@ -290,6 +304,12 @@ func FromWgQuick(s, name string) (*Config, error) {
 					return nil, err
 				}
 				peer.PersistentKeepalive = p
+			case "updateendpointip":
+				p, err := parseUpdateEndpointIP(val)
+				if err != nil {
+					return nil, err
+				}
+				peer.UpdateEndpointIP = p
 			case "endpoint":
 				e, err := parseEndpoint(val)
 				if err != nil {
@@ -373,6 +393,12 @@ func FromDriverConfiguration(interfaze *driver.Interface, existingConfig *Config
 		}
 		if p.Flags&driver.PeerHasPersistentKeepalive != 0 {
 			peer.PersistentKeepalive = p.PersistentKeepalive
+		}
+		for i := range existingConfig.Peers {
+			if existingConfig.Peers[i].PublicKey == peer.PublicKey && existingConfig.Peers[i].UpdateEndpointIP > 0 {
+				// Get UpdateEndpointIP option from config as it is cannot be retrieved from the driver
+				peer.UpdateEndpointIP = existingConfig.Peers[i].UpdateEndpointIP
+			}
 		}
 		peer.TxBytes = Bytes(p.TxBytes)
 		peer.RxBytes = Bytes(p.RxBytes)
