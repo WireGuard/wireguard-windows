@@ -21,7 +21,7 @@ if exist .deps\prepared goto :render
 	rem Mirror of https://sourceforge.net/projects/ezwinports/files/make-4.2.1-without-guile-w32-bin.zip
 	call :download make.zip https://download.wireguard.com/windows-toolchain/distfiles/make-4.2.1-without-guile-w32-bin.zip 30641be9602712be76212b99df7209f4f8f518ba764cf564262bc9d6e4047cc7 "--strip-components 1 bin" || goto :error
 	call :download wireguard-tools.zip https://git.zx2c4.com/wireguard-tools/snapshot/wireguard-tools-06a99cce2c9998f53eb30d2f258a9e5ff286445b.zip b7a73e027cee3127f3cccba8ad3a08ea61ccd42d3ea5c28c548a8e0ec9e10cf6 "--exclude wg-quick --strip-components 1" || goto :error
-	call :download wireguard-nt.zip https://download.wireguard.com/wireguard-nt/wireguard-nt-0.10.1.zip 772c0b1463d8d2212716f43f06f4594d880dea4f735165bd68e388fc41b81605 || goto :error
+	call :download wireguard-nt.zip https://download.wireguard.com/wireguard-nt/wireguard-nt-0.11.zip 55741efb41e4fa1fb1ce5b8a87f984898685a040d812c96f0ce6fa3175595087 || goto :error
 	copy /y NUL prepared > NUL || goto :error
 	cd .. || goto :error
 
