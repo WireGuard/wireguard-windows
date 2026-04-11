@@ -75,6 +75,7 @@ type ConfView struct {
 	tunnelChangedCB *manager.TunnelChangeCallback
 	tunnel          *manager.Tunnel
 	updateTicker    *time.Ticker
+	quit            chan struct{}
 }
 
 func (lsl *labelStatusLine) widgets() (walk.Widget, walk.Widget) {
@@ -548,24 +549,30 @@ func NewConfView(parent walk.Container) (*ConfView, error) {
 	}
 	cv.SetDoubleBuffering(true)
 	cv.updateTicker = time.NewTicker(time.Second)
+	cv.quit = make(chan struct{})
 	go func() {
-		for range cv.updateTicker.C {
-			if !cv.Visible() || !cv.Form().Visible() || win.IsIconic(cv.Form().Handle()) {
-				continue
-			}
-			if cv.tunnel != nil {
-				tunnel := cv.tunnel
-				var state manager.TunnelState
-				var config conf.Config
-				if state, _ = tunnel.State(); state == manager.TunnelStarted {
-					config, _ = tunnel.RuntimeConfig()
+		for {
+			select {
+			case <-cv.updateTicker.C:
+				if !cv.Visible() || !cv.Form().Visible() || win.IsIconic(cv.Form().Handle()) {
+					continue
 				}
-				if config.Name == "" {
-					config, _ = tunnel.StoredConfig()
+				if cv.tunnel != nil {
+					tunnel := cv.tunnel
+					var state manager.TunnelState
+					var config conf.Config
+					if state, _ = tunnel.State(); state == manager.TunnelStarted {
+						config, _ = tunnel.RuntimeConfig()
+					}
+					if config.Name == "" {
+						config, _ = tunnel.StoredConfig()
+					}
+					cv.Synchronize(func() {
+						cv.setTunnel(tunnel, &config, state)
+					})
 				}
-				cv.Synchronize(func() {
-					cv.setTunnel(tunnel, &config, state)
-				})
+			case <-cv.quit:
+				return
 			}
 		}
 	}()
@@ -582,6 +589,7 @@ func (cv *ConfView) Dispose() {
 	}
 	if cv.updateTicker != nil {
 		cv.updateTicker.Stop()
+		close(cv.quit)
 		cv.updateTicker = nil
 	}
 	cv.ScrollView.Dispose()

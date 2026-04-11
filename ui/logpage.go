@@ -39,7 +39,7 @@ func NewLogPage() (*LogPage, error) {
 	disposables.Add(lp)
 
 	lp.Disposing().Attach(func() {
-		lp.model.quit <- true
+		close(lp.model.quit)
 	})
 
 	lp.SetTitle(l18n.Sprintf("Log"))
@@ -174,12 +174,12 @@ func (lp *LogPage) onSave() {
 type logModel struct {
 	walk.ReflectTableModelBase
 	lp    *LogPage
-	quit  chan bool
+	quit  chan struct{}
 	items []ringlogger.FollowLine
 }
 
 func newLogModel(lp *LogPage) *logModel {
-	mdl := &logModel{lp: lp, quit: make(chan bool)}
+	mdl := &logModel{lp: lp, quit: make(chan struct{})}
 	go func() {
 		ticker := time.NewTicker(time.Second)
 		cursor := ringlogger.CursorAll
@@ -208,7 +208,7 @@ func newLogModel(lp *LogPage) *logModel {
 
 			case <-mdl.quit:
 				ticker.Stop()
-				break
+				return
 			}
 		}
 	}()
