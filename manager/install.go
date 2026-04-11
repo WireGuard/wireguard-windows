@@ -42,7 +42,7 @@ func InstallManager() error {
 	}
 	path, err := os.Executable()
 	if err != nil {
-		return nil
+		return err
 	}
 
 	// TODO: Do we want to bail if executable isn't being run from the right location?
@@ -124,7 +124,7 @@ func InstallTunnel(configPath string) error {
 	}
 	path, err := os.Executable()
 	if err != nil {
-		return nil
+		return err
 	}
 
 	name, err := conf.NameFromPath(configPath)
