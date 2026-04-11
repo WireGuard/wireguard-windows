@@ -183,7 +183,7 @@ func (response *Response) Read(p []byte) (n int, err error) {
 	var bytesRead uint32
 	err = winHttpReadData(response.handle, &p[0], uint32(len(p)), &bytesRead)
 	if err != nil {
-		return 0, nil
+		return
 	}
 	if bytesRead == 0 || int(bytesRead) < 0 {
 		return 0, io.EOF
