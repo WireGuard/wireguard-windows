@@ -168,7 +168,7 @@ func (response *Response) Length() (length uint64, err error) {
 	if err != nil {
 		return
 	}
-	length, err = strconv.ParseUint(windows.UTF16ToString(numBuf[:numLen]), 10, 64)
+	length, err = strconv.ParseUint(windows.UTF16ToString(numBuf[:numLen/2]), 10, 64)
 	if err != nil {
 		return
 	}
