@@ -113,6 +113,7 @@ func trackService(service *mgr.Service, callback func(status uint32) bool) error
 	if err != nil {
 		return err
 	}
+	defer runtime.KeepAlive(state)
 	defer windows.UnsubscribeServiceChangeNotifications(subscription)
 	status, err := service.Query()
 	if err == nil {
@@ -121,7 +122,6 @@ func trackService(service *mgr.Service, callback func(status uint32) bool) error
 		}
 	}
 	state.done.Wait()
-	runtime.KeepAlive(state.cb)
 	return nil
 }
 
