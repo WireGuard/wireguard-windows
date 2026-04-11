@@ -278,7 +278,7 @@ func (s stringSpan) isValidScope() bool {
 		return false
 	}
 	for i := 0; i < s.len; i++ {
-		if isAlphabet(*s.at(i)) && !isDecimal(*s.at(i)) && *s.at(i) != '_' && *s.at(i) != '=' && *s.at(i) != '+' && *s.at(i) != '.' && *s.at(i) != '-' {
+		if !isAlphabet(*s.at(i)) && !isDecimal(*s.at(i)) && *s.at(i) != '_' && *s.at(i) != '=' && *s.at(i) != '+' && *s.at(i) != '.' && *s.at(i) != '-' {
 			return false
 		}
 	}
