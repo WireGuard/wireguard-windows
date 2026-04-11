@@ -223,7 +223,8 @@ func (conf *Config) DeduplicateNetworkEntries() {
 	}
 	conf.Interface.DNS = conf.Interface.DNS[:i]
 
-	for _, peer := range conf.Peers {
+	for peerIdx := range conf.Peers {
+		peer := &conf.Peers[peerIdx]
 		m = make(map[string]bool, len(peer.AllowedIPs))
 		i = 0
 		for _, addr := range peer.AllowedIPs {
