@@ -350,7 +350,7 @@ func (tp *TunnelsPage) importFiles(paths []string) {
 
 		existingTunnelList, err := manager.IPCClientTunnels()
 		if err != nil {
-			syncedMsgBox(l18n.Sprintf("Error"), l18n.Sprintf("Could not enumerate existing tunnels: %v", lastErr), walk.MsgBoxIconWarning)
+			syncedMsgBox(l18n.Sprintf("Error"), l18n.Sprintf("Could not enumerate existing tunnels: %v", err), walk.MsgBoxIconWarning)
 			return
 		}
 		existingLowerTunnels := make(map[string]bool, len(existingTunnelList))
