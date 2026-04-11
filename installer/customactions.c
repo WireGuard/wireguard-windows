@@ -257,7 +257,7 @@ __declspec(dllexport) UINT __stdcall EvaluateWireGuardServices(MSIHANDLE install
 			ret = GetLastError();
 			if (ret != ERROR_MORE_DATA) {
 				log_errorf(installer, LOG_LEVEL_ERR, ret, TEXT("EnumServicesStatusEx failed"));
-				break;
+				goto out;
 			}
 		}
 
