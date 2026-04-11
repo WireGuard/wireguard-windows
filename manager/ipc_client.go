@@ -67,31 +67,46 @@ type TunnelChangeCallback struct {
 	cb func(tunnel *Tunnel, state, globalState TunnelState, err error)
 }
 
-var tunnelChangeCallbacks = make(map[*TunnelChangeCallback]bool)
+var (
+	tunnelChangeCallbacks     = make(map[*TunnelChangeCallback]bool)
+	tunnelChangeCallbacksLock sync.RWMutex
+)
 
 type TunnelsChangeCallback struct {
 	cb func()
 }
 
-var tunnelsChangeCallbacks = make(map[*TunnelsChangeCallback]bool)
+var (
+	tunnelsChangeCallbacks     = make(map[*TunnelsChangeCallback]bool)
+	tunnelsChangeCallbacksLock sync.RWMutex
+)
 
 type ManagerStoppingCallback struct {
 	cb func()
 }
 
-var managerStoppingCallbacks = make(map[*ManagerStoppingCallback]bool)
+var (
+	managerStoppingCallbacks     = make(map[*ManagerStoppingCallback]bool)
+	managerStoppingCallbacksLock sync.RWMutex
+)
 
 type UpdateFoundCallback struct {
 	cb func(updateState UpdateState)
 }
 
-var updateFoundCallbacks = make(map[*UpdateFoundCallback]bool)
+var (
+	updateFoundCallbacks     = make(map[*UpdateFoundCallback]bool)
+	updateFoundCallbacksLock sync.RWMutex
+)
 
 type UpdateProgressCallback struct {
 	cb func(dp updater.DownloadProgress)
 }
 
-var updateProgressCallbacks = make(map[*UpdateProgressCallback]bool)
+var (
+	updateProgressCallbacks     = make(map[*UpdateProgressCallback]bool)
+	updateProgressCallbacksLock sync.RWMutex
+)
 
 func InitializeIPCClient(reader, writer, events *os.File) {
 	rpcDecoder = gob.NewDecoder(reader)
@@ -134,26 +149,34 @@ func InitializeIPCClient(reader, writer, events *os.File) {
 					continue
 				}
 				t := &Tunnel{tunnel}
+				tunnelChangeCallbacksLock.RLock()
 				for cb := range tunnelChangeCallbacks {
 					cb.cb(t, state, globalState, retErr)
 				}
+				tunnelChangeCallbacksLock.RUnlock()
 			case TunnelsChangeNotificationType:
+				tunnelsChangeCallbacksLock.RLock()
 				for cb := range tunnelsChangeCallbacks {
 					cb.cb()
 				}
+				tunnelsChangeCallbacksLock.RUnlock()
 			case ManagerStoppingNotificationType:
+				managerStoppingCallbacksLock.RLock()
 				for cb := range managerStoppingCallbacks {
 					cb.cb()
 				}
+				managerStoppingCallbacksLock.RUnlock()
 			case UpdateFoundNotificationType:
 				var state UpdateState
 				err = decoder.Decode(&state)
 				if err != nil {
 					continue
 				}
+				updateFoundCallbacksLock.RLock()
 				for cb := range updateFoundCallbacks {
 					cb.cb(state)
 				}
+				updateFoundCallbacksLock.RUnlock()
 			case UpdateProgressNotificationType:
 				var dp updater.DownloadProgress
 				err = decoder.Decode(&dp.Activity)
@@ -180,9 +203,11 @@ func InitializeIPCClient(reader, writer, events *os.File) {
 				if err != nil {
 					continue
 				}
+				updateProgressCallbacksLock.RLock()
 				for cb := range updateProgressCallbacks {
 					cb.cb(dp)
 				}
+				updateProgressCallbacksLock.RUnlock()
 			}
 		}
 	}()
@@ -433,50 +458,70 @@ func IPCClientUpdate() error {
 
 func IPCClientRegisterTunnelChange(cb func(tunnel *Tunnel, state, globalState TunnelState, err error)) *TunnelChangeCallback {
 	s := &TunnelChangeCallback{cb}
+	tunnelChangeCallbacksLock.Lock()
 	tunnelChangeCallbacks[s] = true
+	tunnelChangeCallbacksLock.Unlock()
 	return s
 }
 
 func (cb *TunnelChangeCallback) Unregister() {
+	tunnelChangeCallbacksLock.Lock()
 	delete(tunnelChangeCallbacks, cb)
+	tunnelChangeCallbacksLock.Unlock()
 }
 
 func IPCClientRegisterTunnelsChange(cb func()) *TunnelsChangeCallback {
 	s := &TunnelsChangeCallback{cb}
+	tunnelsChangeCallbacksLock.Lock()
 	tunnelsChangeCallbacks[s] = true
+	tunnelsChangeCallbacksLock.Unlock()
 	return s
 }
 
 func (cb *TunnelsChangeCallback) Unregister() {
+	tunnelsChangeCallbacksLock.Lock()
 	delete(tunnelsChangeCallbacks, cb)
+	tunnelsChangeCallbacksLock.Unlock()
 }
 
 func IPCClientRegisterManagerStopping(cb func()) *ManagerStoppingCallback {
 	s := &ManagerStoppingCallback{cb}
+	managerStoppingCallbacksLock.Lock()
 	managerStoppingCallbacks[s] = true
+	managerStoppingCallbacksLock.Unlock()
 	return s
 }
 
 func (cb *ManagerStoppingCallback) Unregister() {
+	managerStoppingCallbacksLock.Lock()
 	delete(managerStoppingCallbacks, cb)
+	managerStoppingCallbacksLock.Unlock()
 }
 
 func IPCClientRegisterUpdateFound(cb func(updateState UpdateState)) *UpdateFoundCallback {
 	s := &UpdateFoundCallback{cb}
+	updateFoundCallbacksLock.Lock()
 	updateFoundCallbacks[s] = true
+	updateFoundCallbacksLock.Unlock()
 	return s
 }
 
 func (cb *UpdateFoundCallback) Unregister() {
+	updateFoundCallbacksLock.Lock()
 	delete(updateFoundCallbacks, cb)
+	updateFoundCallbacksLock.Unlock()
 }
 
 func IPCClientRegisterUpdateProgress(cb func(dp updater.DownloadProgress)) *UpdateProgressCallback {
 	s := &UpdateProgressCallback{cb}
+	updateProgressCallbacksLock.Lock()
 	updateProgressCallbacks[s] = true
+	updateProgressCallbacksLock.Unlock()
 	return s
 }
 
 func (cb *UpdateProgressCallback) Unregister() {
+	updateProgressCallbacksLock.Lock()
 	delete(updateProgressCallbacks, cb)
+	updateProgressCallbacksLock.Unlock()
 }

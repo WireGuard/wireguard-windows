@@ -11,20 +11,13 @@ import (
 	"golang.org/x/sys/windows"
 )
 
-var haveStartedWatchingConfigDir bool
-
 func startWatchingConfigDir() {
-	if haveStartedWatchingConfigDir {
-		return
-	}
-	haveStartedWatchingConfigDir = true
 	go func() {
 		h := windows.InvalidHandle
 		defer func() {
 			if h != windows.InvalidHandle {
 				windows.FindCloseChangeNotification(h)
 			}
-			haveStartedWatchingConfigDir = false
 		}()
 	startover:
 		configFileDir, err := tunnelConfigurationsDirectory()
@@ -45,9 +38,11 @@ func startWatchingConfigDir() {
 				goto startover
 			}
 
+			storeCallbacksLock.RLock()
 			for cb := range storeCallbacks {
 				cb.cb()
 			}
+			storeCallbacksLock.RUnlock()
 
 			err = windows.FindNextChangeNotification(h)
 			if err != nil {
