@@ -9,6 +9,7 @@ import (
 	"crypto/rand"
 	"crypto/subtle"
 	"encoding/base64"
+	"encoding/binary"
 	"fmt"
 	"net/netip"
 	"strings"
@@ -244,6 +245,7 @@ func (conf *Config) Redact() {
 	conf.Interface.PrivateKey = Key{}
 	for i := range conf.Peers {
 		conf.Peers[i].PublicKey = Key{}
+		binary.LittleEndian.PutUint64(conf.Peers[i].PublicKey[:8], uint64(i))
 		conf.Peers[i].PresharedKey = Key{}
 	}
 }
