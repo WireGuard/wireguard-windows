@@ -47,8 +47,8 @@ func cleanupAddressesOnDisconnectedInterfaces(family winipcfg.AddressFamily, add
 func configureInterface(family winipcfg.AddressFamily, conf *conf.Config, luid winipcfg.LUID) error {
 	retryOnFailure := services.StartedAtBoot()
 	tryTimes := 0
-startOver:
 	var err error
+startOver:
 	if tryTimes > 0 {
 		log.Printf("Retrying interface configuration after failure because system just booted (T+%v): %v", windows.DurationSinceBoot(), err)
 		time.Sleep(time.Second)
