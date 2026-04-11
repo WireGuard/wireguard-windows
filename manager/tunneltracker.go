@@ -156,7 +156,7 @@ func trackTunnelService(tunnelName string, service *mgr.Service) {
 
 	checkForDisabled := func() (shouldReturn bool) {
 		config, err := service.Config()
-		if err == windows.ERROR_SERVICE_MARKED_FOR_DELETE || (err != nil && config.StartType == windows.SERVICE_DISABLED) {
+		if err == windows.ERROR_SERVICE_MARKED_FOR_DELETE || (err == nil && config.StartType == windows.SERVICE_DISABLED) {
 			log.Printf("[%s] Found disabled service via timeout, so deleting", tunnelName)
 			service.Delete()
 			trackedTunnelsLock.Lock()
