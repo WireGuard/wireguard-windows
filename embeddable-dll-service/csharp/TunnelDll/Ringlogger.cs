@@ -184,7 +184,7 @@ namespace Tunnel
                 i = _log.NextIndex;
             for (UInt32 l = 0; l < _log.LineCount; ++l, ++i)
             {
-                if (!all && i % _log.LineCount == _log.NextIndex % _log.LineCount)
+                if (!all && i == _log.NextIndex)
                     break;
                 var entry = _log[i];
                 if (entry.Timestamp.IsEmpty)
@@ -193,7 +193,7 @@ namespace Tunnel
                         continue;
                     break;
                 }
-                cursor = (i + 1) % _log.LineCount;
+                cursor = i + 1;
                 var text = entry.ToString();
                 if (text == null)
                     continue;

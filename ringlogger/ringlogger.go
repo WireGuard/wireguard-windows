@@ -198,7 +198,7 @@ func (rl *Ringlogger) FollowFromCursor(cursor uint32) (followLines []FollowLine,
 
 	for range maxLines {
 		line := &log.lines[i%maxLines]
-		if cursor != CursorAll && i%maxLines == log.nextIndex%maxLines {
+		if cursor != CursorAll && i == log.nextIndex {
 			break
 		}
 		if line.timeNs == 0 {
@@ -214,7 +214,7 @@ func (rl *Ringlogger) FollowFromCursor(cursor uint32) (followLines []FollowLine,
 			followLines = append(followLines, FollowLine{string(line.line[:index]), time.Unix(0, line.timeNs)})
 		}
 		i++
-		nextCursor = i % maxLines
+		nextCursor = i
 	}
 	return
 }
