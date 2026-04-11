@@ -120,6 +120,7 @@ func permitTunInterface(session uintptr, baseObjects *baseObjects, weight uint8,
 		}
 	}
 
+	runtime.KeepAlive(ifLUID)
 	return nil
 }
 
@@ -153,12 +154,13 @@ func permitWireGuardService(session uintptr, baseObjects *baseObjects, weight ui
 		return wrapErr(err)
 	}
 
+	sdBlob := wtFwpByteBlob{sd.Length(), (*byte)(unsafe.Pointer(sd))}
 	conditions[1] = wtFwpmFilterCondition0{
 		fieldKey:  cFWPM_CONDITION_ALE_USER_ID,
 		matchType: cFWP_MATCH_EQUAL,
 		conditionValue: wtFwpConditionValue0{
 			_type: cFWP_SECURITY_DESCRIPTOR_TYPE,
-			value: uintptr(unsafe.Pointer(&wtFwpByteBlob{sd.Length(), (*byte)(unsafe.Pointer(sd))})),
+			value: uintptr(unsafe.Pointer(&sdBlob)),
 		},
 	}
 
@@ -251,6 +253,8 @@ func permitWireGuardService(session uintptr, baseObjects *baseObjects, weight ui
 		}
 	}
 
+	runtime.KeepAlive(sdBlob)
+	runtime.KeepAlive(sd)
 	return nil
 }
 
