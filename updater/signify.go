@@ -59,7 +59,7 @@ func readFileList(input []byte) (fileList, error) {
 		}
 		maybeHash, err := hex.DecodeString(first)
 		if err != nil || len(maybeHash) != blake2b.Size256 {
-			return nil, errors.New("File hash is invalid base64 or incorrect number of bytes")
+			return nil, errors.New("File hash is invalid hex or incorrect number of bytes")
 		}
 		var hash [blake2b.Size256]byte
 		copy(hash[:], maybeHash)
