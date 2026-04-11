@@ -288,6 +288,7 @@ out:
 __declspec(dllexport) UINT __stdcall LaunchApplicationAndAbort(MSIHANDLE installer)
 {
 	UINT ret = ERROR_INSTALL_FAILURE;
+	bool is_com_initialized = SUCCEEDED(CoInitialize(NULL));
 	TCHAR path[MAX_PATH];
 	DWORD path_len = _countof(path);
 	PROCESS_INFORMATION pi;
@@ -308,6 +309,8 @@ __declspec(dllexport) UINT __stdcall LaunchApplicationAndAbort(MSIHANDLE install
 	CloseHandle(pi.hProcess);
 	CloseHandle(pi.hThread);
 out:
+	if (is_com_initialized)
+		CoUninitialize();
 	return ERROR_INSTALL_USEREXIT;
 }
 
