@@ -95,7 +95,7 @@ func DoAsSystem(f func() error) error {
 
 		var duplicatedToken windows.Token
 		err = windows.DuplicateTokenEx(winlogonToken, 0, nil, windows.SecurityImpersonation, windows.TokenImpersonation, &duplicatedToken)
-		windows.CloseHandle(winlogonProcess)
+		winlogonToken.Close()
 		if err != nil {
 			return err
 		}
