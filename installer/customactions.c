@@ -575,7 +575,7 @@ __declspec(dllexport) UINT __stdcall RemoveAdapters(MSIHANDLE installer)
 		buf[offset + size_read] = '\0';
 		nl = strchr(buf, '\n');
 		if (!nl) {
-			offset = size_read;
+			offset += size_read;
 			continue;
 		}
 		nl[0] = '\0';
