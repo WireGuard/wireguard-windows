@@ -142,7 +142,9 @@ func (s *ManagerService) WaitForStop(tunnelName string) error {
 	for {
 		service, err := m.OpenService(serviceName)
 		if err == nil || err == windows.ERROR_SERVICE_MARKED_FOR_DELETE {
-			service.Close()
+			if err == nil {
+				service.Close()
+			}
 			time.Sleep(time.Second / 3)
 		} else {
 			return nil

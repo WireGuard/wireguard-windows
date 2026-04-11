@@ -70,12 +70,15 @@ func InstallManager() error {
 		if err != nil {
 			return err
 		}
+
 		for {
 			service, err = m.OpenService(serviceName)
-			if err != nil {
+			if err != nil && err != windows.ERROR_SERVICE_MARKED_FOR_DELETE {
 				break
 			}
-			service.Close()
+			if err == nil {
+				service.Close()
+			}
 			time.Sleep(time.Second / 3)
 		}
 	}
@@ -154,7 +157,9 @@ func InstallTunnel(configPath string) error {
 			if err != nil && err != windows.ERROR_SERVICE_MARKED_FOR_DELETE {
 				break
 			}
-			service.Close()
+			if err == nil {
+				service.Close()
+			}
 			time.Sleep(time.Second / 3)
 		}
 	}
