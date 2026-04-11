@@ -44,10 +44,6 @@ func trackedTunnelsGlobalState() (state TunnelState) {
 	return
 }
 
-var serviceTrackerCallbackPtr = windows.NewCallback(func(notifier *windows.SERVICE_NOTIFY) uintptr {
-	return 0
-})
-
 type serviceSubscriptionState struct {
 	service *mgr.Service
 	cb      func(status uint32) bool
