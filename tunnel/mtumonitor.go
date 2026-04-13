@@ -15,7 +15,7 @@ func findDefaultLUID(family winipcfg.AddressFamily, ourLUID winipcfg.LUID, lastL
 	if err != nil {
 		return err
 	}
-	lowestMetric := ^uint32(0)
+	lowestMetric := ^uint64(0)
 	index := uint32(0)
 	luid := winipcfg.LUID(0)
 	for i := range r {
@@ -32,8 +32,9 @@ func findDefaultLUID(family winipcfg.AddressFamily, ourLUID winipcfg.LUID, lastL
 			continue
 		}
 
-		if r[i].Metric+iface.Metric < lowestMetric {
-			lowestMetric = r[i].Metric + iface.Metric
+		combinedMetric := uint64(r[i].Metric) + uint64(iface.Metric)
+		if combinedMetric < lowestMetric {
+			lowestMetric = combinedMetric
 			index = r[i].InterfaceIndex
 			luid = r[i].InterfaceLUID
 		}
