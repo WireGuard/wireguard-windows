@@ -147,7 +147,7 @@ func DownloadVerifyAndExecute(userToken uintptr) (progress chan DownloadProgress
 		}
 		defer response.Close()
 		length, err := response.Length()
-		if err == nil && length >= 0 {
+		if err == nil {
 			dp.BytesTotal = length
 			progress <- dp
 		}
