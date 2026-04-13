@@ -12,9 +12,9 @@ type StoreCallback struct {
 }
 
 var (
-	storeCallbacks      = make(map[*StoreCallback]bool)
-	storeCallbacksLock  sync.RWMutex
-	watchConfigDirOnce  sync.Once
+	storeCallbacks     = make(map[*StoreCallback]bool)
+	storeCallbacksLock sync.RWMutex
+	watchConfigDirOnce sync.Once
 )
 
 func RegisterStoreChangeCallback(cb func()) *StoreCallback {

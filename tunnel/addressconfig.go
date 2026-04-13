@@ -99,7 +99,7 @@ startOver:
 	}
 
 	if !conf.Interface.TableOff &&
-	   ((foundRoute4 && family == windows.AF_INET) || (foundRoute6 && family == windows.AF_INET6)) {
+		((foundRoute4 && family == windows.AF_INET) || (foundRoute6 && family == windows.AF_INET6)) {
 		err = luid.SetRoutesForFamily(family, deduplicatedRoutes)
 		if err == windows.ERROR_NOT_FOUND && retryOnFailure {
 			goto startOver
@@ -138,8 +138,8 @@ startOver:
 	ipif.ManagedAddressConfigurationSupported = false
 	ipif.OtherStatefulConfigurationSupported = false
 	if conf.Interface.MTU > 0 &&
-	   (((foundAddress4 || foundRoute4) && family == windows.AF_INET) ||
-	    ((foundAddress6 || foundRoute6) && family == windows.AF_INET6)) {
+		(((foundAddress4 || foundRoute4) && family == windows.AF_INET) ||
+			((foundAddress6 || foundRoute6) && family == windows.AF_INET6)) {
 		ipif.NLMTU = uint32(conf.Interface.MTU)
 	}
 	if (family == windows.AF_INET && foundDefault4) || (family == windows.AF_INET6 && foundDefault6) {
