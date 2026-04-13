@@ -7,10 +7,14 @@ package winipcfg
 
 import (
 	"errors"
+	"fmt"
 	"net/netip"
 	"strings"
 
 	"golang.org/x/sys/windows"
+	"golang.org/x/sys/windows/registry"
+	"golang.org/x/sys/windows/svc"
+	"golang.org/x/sys/windows/svc/mgr"
 )
 
 // LUID represents a network interface.
@@ -370,15 +374,37 @@ func (luid LUID) SetDNS(family AddressFamily, servers []netip.Addr, domains []st
 	}
 
 	// For < Windows 10 1809
-	err = luid.fallbackSetDNSForFamily(family, servers)
+	var regPath string
+	switch family {
+	case windows.AF_INET:
+		regPath = fmt.Sprintf("SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\%v", guid)
+	case windows.AF_INET6:
+		regPath = fmt.Sprintf("SYSTEM\\CurrentControlSet\\Services\\Tcpip6\\Parameters\\Interfaces\\%v", guid)
+	}
+	key, err := registry.OpenKey(registry.LOCAL_MACHINE, regPath, registry.SET_VALUE)
 	if err != nil {
-		return err
+		return fmt.Errorf("opening interface registry key: %w", err)
 	}
-	if len(domains) > 0 {
-		return luid.fallbackSetDNSDomain(domains[0])
-	} else {
-		return luid.fallbackSetDNSDomain("")
+	defer key.Close()
+	if err := key.SetStringValue("NameServer", strings.Join(filteredServers, ",")); err != nil {
+		return fmt.Errorf("setting NameServer registry value: %w", err)
 	}
+	if err := key.SetStringValue("SearchList", strings.Join(domains, ",")); err != nil {
+		return fmt.Errorf("setting SearchList registry value: %w", err)
+	}
+	scm, err := mgr.Connect()
+	if err != nil {
+		return nil
+	}
+	defer scm.Disconnect()
+	s := mgr.Service{Name: "dnscache"}
+	s.Handle, err = windows.OpenService(scm.Handle, windows.StringToUTF16Ptr(s.Name), windows.SERVICE_PAUSE_CONTINUE)
+	if err != nil {
+		return nil
+	}
+	defer s.Close()
+	s.Control(svc.ParamChange)
+	return nil
 }
 
 // FlushDNS method clears all DNS servers associated with the adapter.
