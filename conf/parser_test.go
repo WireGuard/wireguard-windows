@@ -80,7 +80,7 @@ func TestFromWgQuick(t *testing.T) {
 	conf, err := FromWgQuick(testInput, "test")
 	if noError(t, err) {
 		lenTest(t, conf.Interface.Addresses, 2)
-		contains(t, conf.Interface.Addresses, netip.PrefixFrom(netip.AddrFrom4([4]byte{0, 10, 0, 1}), 16))
+		contains(t, conf.Interface.Addresses, netip.PrefixFrom(netip.AddrFrom4([4]byte{10, 10, 0, 1}), 16))
 		contains(t, conf.Interface.Addresses, netip.PrefixFrom(netip.AddrFrom4([4]byte{10, 192, 122, 1}), 24))
 		equal(t, "yAnz5TF+lXXJte14tji3zlMNq+hd2rYUIgJBgB3fBmk=", conf.Interface.PrivateKey.String())
 		equal(t, uint16(51820), conf.Interface.ListenPort)
