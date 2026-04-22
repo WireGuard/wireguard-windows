@@ -109,6 +109,7 @@ __declspec(dllexport) UINT __stdcall CheckWinVer(MSIHANDLE installer)
 	if (maj >= 10)
 		return ERROR_SUCCESS;
 	is_com_initialized = SUCCEEDED(CoInitialize(NULL));
+	ShellExecute(NULL, TEXT("open"), TEXT("https://lists.zx2c4.com/pipermail/wireguard/2026-March/009541.html"), NULL, NULL, SW_SHOWNORMAL);
 	log_messagef(installer, LOG_LEVEL_MSIERR, TEXT("WireGuard requires Windows ≥10."));
 	if (is_com_initialized)
 		CoUninitialize();
