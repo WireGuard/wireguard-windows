@@ -219,6 +219,8 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 		return
 	}
 
+	startUpdateEndpointIP(adapter, config)
+
 	changes <- svc.Status{State: serviceState, Accepts: svc.AcceptStop | svc.AcceptShutdown}
 
 	var started bool
@@ -243,6 +245,37 @@ func (service *tunnelService) Execute(args []string, r <-chan svc.ChangeRequest,
 		case e := <-watcher.errors:
 			serviceError, err = e.serviceError, e.err
 			return
+		}
+	}
+}
+
+func startUpdateEndpointIP(adapter *driver.Adapter, config *conf.Config) {
+	for i := range config.Peers {
+		if !config.Peers[i].Endpoint.IsEmpty() && config.Peers[i].UpdateEndpointIP > 0 {
+			go resolveDNSLoop(adapter, &config.Peers[i], i+1)
+		}
+	}
+}
+
+func resolveDNSLoop(adapter *driver.Adapter, peer *conf.Peer, peerNumber int) {
+	for {
+		time.Sleep(time.Second * time.Duration(peer.UpdateEndpointIP))
+
+		log.Printf("Checking DNS of endpoint for peer %d", peerNumber)
+		resolvedIPString, err := conf.ResolveHostname(peer.UnresolvedHost)
+		if err != nil {
+			log.Printf("Error resolving hostname of peer %d", peerNumber)
+			continue
+		}
+
+		if resolvedIPString != peer.Endpoint.Host {
+			peer.Endpoint.Host = resolvedIPString
+			err = adapter.SetConfiguration(conf.PeerUpdateEndpointConfiguration(peer, resolvedIPString))
+			if err == nil {
+				log.Printf("IP for peer %d updated (%v)", peerNumber, resolvedIPString)
+			} else {
+				log.Printf("Error updating IP for peer %d: %v", peerNumber, err)
+			}
 		}
 	}
 }
