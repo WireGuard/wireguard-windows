@@ -52,6 +52,9 @@ func ListConfigNames() ([]string, error) {
 }
 
 func LoadFromName(name string) (*Config, error) {
+	if !TunnelNameIsValid(name) {
+		return nil, errors.New("Tunnel name is not valid")
+	}
 	configFileDir, err := tunnelConfigurationsDirectory()
 	if err != nil {
 		return nil, err
