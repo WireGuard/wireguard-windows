@@ -104,11 +104,8 @@ static DWORD __stdcall download_thread(void *param)
 	session = WinHttpOpen(L(useragent()), WINHTTP_ACCESS_TYPE_AUTOMATIC_PROXY, NULL, NULL, 0);
 	if (!session)
 		goto out;
-	enable_http = WINHTTP_PROTOCOL_FLAG_HTTP2 | WINHTTP_PROTOCOL_FLAG_HTTP3;
-	if (!WinHttpSetOption(session, WINHTTP_OPTION_ENABLE_HTTP_PROTOCOL, &enable_http, sizeof(enable_http))) {
-		enable_http = WINHTTP_PROTOCOL_FLAG_HTTP2;
-		WinHttpSetOption(session, WINHTTP_OPTION_ENABLE_HTTP_PROTOCOL, &enable_http, sizeof(enable_http));
-	}
+	enable_http = WINHTTP_PROTOCOL_FLAG_HTTP2;
+	WinHttpSetOption(session, WINHTTP_OPTION_ENABLE_HTTP_PROTOCOL, &enable_http, sizeof(enable_http));
 	connection = WinHttpConnect(session, L(server), port, 0);
 	if (!connection)
 		goto out;
