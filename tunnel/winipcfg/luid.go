@@ -381,7 +381,7 @@ func (luid LUID) SetDNS(family AddressFamily, servers []netip.Addr, domains []st
 	case windows.AF_INET6:
 		regPath = fmt.Sprintf("SYSTEM\\CurrentControlSet\\Services\\Tcpip6\\Parameters\\Interfaces\\%v", guid)
 	}
-	key, err := registry.OpenKey(registry.LOCAL_MACHINE, regPath, registry.SET_VALUE)
+	key, _, err := registry.CreateKey(registry.LOCAL_MACHINE, regPath, registry.SET_VALUE)
 	if err != nil {
 		return fmt.Errorf("opening interface registry key: %w", err)
 	}
