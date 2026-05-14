@@ -49,7 +49,7 @@ func TestWriteText(t *testing.T) {
 	if len(os.Args) != 3 {
 		t.Fatal("Should pass exactly one argument")
 	}
-	fmt.Fprintf(rl, os.Args[2])
+	fmt.Fprint(rl, os.Args[2])
 	rl.Close()
 }
 
