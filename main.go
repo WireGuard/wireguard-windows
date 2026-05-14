@@ -47,7 +47,7 @@ func fatal(v ...any) {
 		windows.MessageBox(0, windows.StringToUTF16Ptr(fmt.Sprint(v...)), windows.StringToUTF16Ptr(l18n.Sprintf("Error")), windows.MB_ICONERROR)
 		os.Exit(1)
 	} else {
-		log.Fatal(append([]any{l18n.Sprintf("Error: ")}, v...))
+		log.Fatal(append([]any{l18n.Sprintf("Error: ")}, v...)...)
 	}
 }
 
