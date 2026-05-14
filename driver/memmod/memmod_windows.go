@@ -668,6 +668,14 @@ func (module *Module) Free() {
 		module.runtimeFuncs = nil
 	}
 	if module.codeBase != 0 {
+		loadedAddressRangesMu.Lock()
+		for i := range loadedAddressRanges {
+			if loadedAddressRanges[i].start == module.codeBase {
+				loadedAddressRanges = append(loadedAddressRanges[:i], loadedAddressRanges[i+1:]...)
+				break
+			}
+		}
+		loadedAddressRangesMu.Unlock()
 		windows.VirtualFree(module.codeBase, 0, windows.MEM_RELEASE)
 		module.codeBase = 0
 	}
