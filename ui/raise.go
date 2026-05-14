@@ -68,12 +68,15 @@ func WaitForRaiseUIThenQuit() {
 	}, 0, 0, win.WINEVENT_SKIPOWNPROCESS|win.WINEVENT_OUTOFCONTEXT)
 	if err != nil {
 		showErrorCustom(nil, l18n.Sprintf("WireGuard Detection Error"), l18n.Sprintf("Unable to wait for WireGuard window to appear: %v", err))
+		os.Exit(1)
 	}
 	for {
 		var msg win.MSG
-		if m := win.GetMessage(&msg, 0, 0, 0); m != 0 {
-			win.TranslateMessage(&msg)
-			win.DispatchMessage(&msg)
+		m := win.GetMessage(&msg, 0, 0, 0)
+		if m <= 0 {
+			os.Exit(int(-m))
 		}
+		win.TranslateMessage(&msg)
+		win.DispatchMessage(&msg)
 	}
 }
