@@ -6,6 +6,8 @@
 package tunnel
 
 import (
+	"sync"
+
 	"golang.org/x/sys/windows"
 	"golang.zx2c4.com/wireguard/windows/tunnel/winipcfg"
 )
@@ -54,10 +56,13 @@ func monitorMTU(family winipcfg.AddressFamily, ourLUID winipcfg.LUID) ([]winipcf
 	} else if family == windows.AF_INET6 {
 		minMTU = 1280
 	}
+	var mu sync.Mutex
 	lastLUID := winipcfg.LUID(0)
 	lastIndex := ^uint32(0)
 	lastMTU := uint32(0)
 	doIt := func() error {
+		mu.Lock()
+		defer mu.Unlock()
 		err := findDefaultLUID(family, ourLUID, &lastLUID, &lastIndex)
 		if err != nil {
 			return err
