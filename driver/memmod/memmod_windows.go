@@ -374,7 +374,7 @@ func (module *Module) buildNameExports() error {
 		return errors.New("No export table found")
 	}
 	exports := (*IMAGE_EXPORT_DIRECTORY)(a2p(module.codeBase + uintptr(directory.VirtualAddress)))
-	if exports.NumberOfNames == 0 || exports.NumberOfFunctions == 0 {
+	if exports.NumberOfFunctions == 0 {
 		return errors.New("No functions exported")
 	}
 	if exports.NumberOfNames == 0 {
