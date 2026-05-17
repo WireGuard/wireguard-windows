@@ -37,6 +37,7 @@ type Module struct {
 	nameExports   map[string]uint16
 	entry         uintptr
 	blockedMemory *addressList
+	runtimeFuncs  *windows.RUNTIME_FUNCTION
 }
 
 func (module *Module) BaseAddr() uintptr {
@@ -170,7 +171,10 @@ func (module *Module) registerExceptionHandlers() {
 		return
 	}
 	runtimeFuncs := (*windows.RUNTIME_FUNCTION)(unsafe.Pointer(module.codeBase + uintptr(directory.VirtualAddress)))
-	windows.RtlAddFunctionTable(runtimeFuncs, uint32(uintptr(directory.Size)/unsafe.Sizeof(*runtimeFuncs)), module.codeBase)
+	if !windows.RtlAddFunctionTable(runtimeFuncs, uint32(uintptr(directory.Size)/unsafe.Sizeof(*runtimeFuncs)), module.codeBase) {
+		return
+	}
+	module.runtimeFuncs = runtimeFuncs
 }
 
 func (module *Module) finalizeSections() error {
@@ -658,6 +662,10 @@ func (module *Module) Free() {
 			windows.FreeLibrary(handle)
 		}
 		module.modules = nil
+	}
+	if module.runtimeFuncs != nil {
+		windows.RtlDeleteFunctionTable(module.runtimeFuncs)
+		module.runtimeFuncs = nil
 	}
 	if module.codeBase != 0 {
 		windows.VirtualFree(module.codeBase, 0, windows.MEM_RELEASE)
