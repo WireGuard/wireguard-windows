@@ -27,20 +27,10 @@ const (
 var allowedNameFormat = regexp.MustCompile("^[a-zA-Z0-9_=+.-]{1,32}$")
 
 func isReserved(name string) bool {
-	if len(name) == 0 {
-		return false
-	}
+	name, _, _ = strings.Cut(name, ".")
 	for _, reserved := range reservedNames {
 		if strings.EqualFold(name, reserved) {
 			return true
-		}
-		for i := len(name) - 1; i >= 0; i-- {
-			if name[i] == '.' {
-				if strings.EqualFold(name[:i], reserved) {
-					return true
-				}
-				break
-			}
 		}
 	}
 	return false
