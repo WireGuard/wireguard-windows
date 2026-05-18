@@ -162,6 +162,7 @@ func trackTunnelService(tunnelName string, service *mgr.Service) {
 			trackedTunnelsLock.Lock()
 			trackedTunnels[tunnelName] = TunnelStopped
 			trackedTunnelsLock.Unlock()
+			releaseDriverAdapter(tunnelName)
 			IPCServerNotifyTunnelChange(tunnelName, TunnelStopped, nil)
 			return true
 		}
@@ -198,6 +199,9 @@ func trackTunnelService(tunnelName string, service *mgr.Service) {
 			trackedTunnelsLock.Lock()
 			trackedTunnels[tunnelName] = state
 			trackedTunnelsLock.Unlock()
+			if state == TunnelStopped {
+				releaseDriverAdapter(tunnelName)
+			}
 			IPCServerNotifyTunnelChange(tunnelName, state, tunnelError)
 			lastState = state
 		}
@@ -210,6 +214,7 @@ func trackTunnelService(tunnelName string, service *mgr.Service) {
 		trackedTunnelsLock.Lock()
 		trackedTunnels[tunnelName] = TunnelStopped
 		trackedTunnelsLock.Unlock()
+		releaseDriverAdapter(tunnelName)
 		IPCServerNotifyTunnelChange(tunnelName, TunnelStopped, fmt.Errorf("Unable to continue monitoring service, so stopping: %w", err))
 		service.Control(svc.Stop)
 	}

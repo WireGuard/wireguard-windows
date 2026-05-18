@@ -57,5 +57,6 @@ func releaseDriverAdapter(tunnelName string) {
 	}
 	driverAdapter.Lock()
 	delete(driverAdapters, tunnelName)
+	driverAdapter.Adapter.Close()
 	driverAdapter.Unlock()
 }
