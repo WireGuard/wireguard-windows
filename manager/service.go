@@ -9,7 +9,6 @@ import (
 	"errors"
 	"log"
 	"os"
-	"runtime"
 	"strconv"
 	"sync"
 	"time"
@@ -78,7 +77,6 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 
 	startProcess := func(session uint32) {
 		defer func() {
-			runtime.UnlockOSThread()
 			procsLock.Lock()
 			delete(aliveSessions, session)
 			procsLock.Unlock()
@@ -193,6 +191,12 @@ func (service *managerService) Execute(args []string, r <-chan svc.ChangeRequest
 			IPCServerListen(ourReader, ourWriter, ourEvents, elevatedToken)
 			theirLogMapping, err := ringlogger.Global.ExportInheritableMappingHandle()
 			if err != nil {
+				ourReader.Close()
+				theirWriter.Close()
+				theirReader.Close()
+				ourWriter.Close()
+				theirEvents.Close()
+				ourEvents.Close()
 				log.Printf("Unable to export inheritable mapping handle for logging: %v", err)
 				return
 			}
