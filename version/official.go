@@ -127,13 +127,13 @@ func extractCertificatePolicies(path, oid string) ([]string, error) {
 		var decodedLen uint32
 		err = windows.CryptDecodeObject(windows.X509_ASN_ENCODING|windows.PKCS_7_ASN_ENCODING, ext.ObjId, ext.Value.Data, ext.Value.Size, 0, nil, &decodedLen)
 		if err != nil {
-			return nil, err
+			continue
 		}
 		bytes := make([]byte, decodedLen)
 		certPoliciesInfo := (*windows.CertPoliciesInfo)(unsafe.Pointer(&bytes[0]))
 		err = windows.CryptDecodeObject(windows.X509_ASN_ENCODING|windows.PKCS_7_ASN_ENCODING, ext.ObjId, ext.Value.Data, ext.Value.Size, 0, unsafe.Pointer(&bytes[0]), &decodedLen)
 		if err != nil {
-			return nil, err
+			continue
 		}
 		for i := uintptr(0); i < uintptr(certPoliciesInfo.Count); i++ {
 			cp := (*windows.CertPolicyInfo)(unsafe.Add(unsafe.Pointer(certPoliciesInfo.PolicyInfos), i*unsafe.Sizeof(*certPoliciesInfo.PolicyInfos)))
