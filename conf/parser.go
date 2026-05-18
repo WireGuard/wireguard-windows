@@ -167,33 +167,37 @@ func FromWgQuick(s, name string) (*Config, error) {
 	sawPrivateKey := false
 	var peer *Peer
 	for _, line := range lines {
-		line, _, _ = strings.Cut(line, "#")
-		line = strings.TrimSpace(line)
-		lineLower := strings.ToLower(line)
-		if len(line) == 0 {
+		stripped, _, _ := strings.Cut(line, "#")
+		stripped = strings.TrimSpace(stripped)
+		if len(stripped) == 0 {
 			continue
 		}
-		if lineLower == "[interface]" {
+		key, val, hasValue := strings.Cut(stripped, "=")
+		key = strings.ToLower(strings.TrimSpace(key))
+		if key == "[interface]" && !hasValue {
 			conf.maybeAddPeer(peer)
 			parserState = inInterfaceSection
 			continue
 		}
-		if lineLower == "[peer]" {
+		if key == "[peer]" && !hasValue {
 			conf.maybeAddPeer(peer)
 			peer = &Peer{}
 			parserState = inPeerSection
 			continue
 		}
 		if parserState == notInASection {
-			return nil, &ParseError{l18n.Sprintf("Line must occur in a section"), line}
+			return nil, &ParseError{l18n.Sprintf("Line must occur in a section"), stripped}
 		}
-		equals := strings.IndexByte(line, '=')
-		if equals < 0 {
-			return nil, &ParseError{l18n.Sprintf("Config key is missing an equals separator"), line}
+		if !hasValue {
+			return nil, &ParseError{l18n.Sprintf("Config key is missing an equals separator"), stripped}
 		}
-		key, val := strings.TrimSpace(lineLower[:equals]), strings.TrimSpace(line[equals+1:])
+		switch key {
+		case "preup", "postup", "predown", "postdown":
+			_, val, _ = strings.Cut(line, "=")
+		}
+		val = strings.TrimSpace(val)
 		if len(val) == 0 {
-			return nil, &ParseError{l18n.Sprintf("Key must have a value"), line}
+			return nil, &ParseError{l18n.Sprintf("Key must have a value"), stripped}
 		}
 		if parserState == inInterfaceSection {
 			switch key {
