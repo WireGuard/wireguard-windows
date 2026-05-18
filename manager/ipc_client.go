@@ -123,29 +123,29 @@ func InitializeIPCClient(reader, writer, events *os.File) {
 			case TunnelChangeNotificationType:
 				var tunnel string
 				err := decoder.Decode(&tunnel)
-				if err != nil || len(tunnel) == 0 {
-					continue
+				if err != nil {
+					return
 				}
 				var state TunnelState
 				err = decoder.Decode(&state)
 				if err != nil {
-					continue
+					return
 				}
 				var globalState TunnelState
 				err = decoder.Decode(&globalState)
 				if err != nil {
-					continue
+					return
 				}
 				var errStr string
 				err = decoder.Decode(&errStr)
 				if err != nil {
-					continue
+					return
 				}
 				var retErr error
 				if len(errStr) > 0 {
 					retErr = errors.New(errStr)
 				}
-				if state == TunnelUnknown {
+				if len(tunnel) == 0 || state == TunnelUnknown {
 					continue
 				}
 				t := &Tunnel{tunnel}
@@ -170,7 +170,7 @@ func InitializeIPCClient(reader, writer, events *os.File) {
 				var state UpdateState
 				err = decoder.Decode(&state)
 				if err != nil {
-					continue
+					return
 				}
 				updateFoundCallbacksLock.RLock()
 				for cb := range updateFoundCallbacks {
@@ -181,27 +181,27 @@ func InitializeIPCClient(reader, writer, events *os.File) {
 				var dp updater.DownloadProgress
 				err = decoder.Decode(&dp.Activity)
 				if err != nil {
-					continue
+					return
 				}
 				err = decoder.Decode(&dp.BytesDownloaded)
 				if err != nil {
-					continue
+					return
 				}
 				err = decoder.Decode(&dp.BytesTotal)
 				if err != nil {
-					continue
+					return
 				}
 				var errStr string
 				err = decoder.Decode(&errStr)
 				if err != nil {
-					continue
+					return
 				}
 				if len(errStr) > 0 {
 					dp.Error = errors.New(errStr)
 				}
 				err = decoder.Decode(&dp.Complete)
 				if err != nil {
-					continue
+					return
 				}
 				updateProgressCallbacksLock.RLock()
 				for cb := range updateProgressCallbacks {
