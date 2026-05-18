@@ -47,10 +47,9 @@ func launchUIProcess(executable string, args []string, workingDirectory string, 
 		StartupInfo:             windows.StartupInfo{Cb: uint32(unsafe.Sizeof(windows.StartupInfoEx{}))},
 		ProcThreadAttributeList: attributeList.List(),
 	}
-	if len(handles) == 0 {
-		handles = []windows.Handle{0}
+	if len(handles) != 0 {
+		attributeList.Update(windows.PROC_THREAD_ATTRIBUTE_HANDLE_LIST, unsafe.Pointer(&handles[0]), uintptr(len(handles))*unsafe.Sizeof(handles[0]))
 	}
-	attributeList.Update(windows.PROC_THREAD_ATTRIBUTE_HANDLE_LIST, unsafe.Pointer(&handles[0]), uintptr(len(handles))*unsafe.Sizeof(handles[0]))
 	pi := new(windows.ProcessInformation)
 	err = windows.CreateProcessAsUser(token, executable16, args16, nil, nil, true, windows.CREATE_DEFAULT_ERROR_MODE|windows.CREATE_UNICODE_ENVIRONMENT|windows.EXTENDED_STARTUPINFO_PRESENT, environmentBlock, workingDirectory16, &si.StartupInfo, pi)
 	if err != nil {
