@@ -33,22 +33,26 @@ func prn() *message.Printer {
 	return printer
 }
 
-// lang returns the user preferred UI language we have most confident translation in the default catalog available.
-func lang() (tag language.Tag) {
-	tag = language.English
-	confidence := language.No
-	languages, err := windows.GetUserPreferredUILanguages(windows.MUI_LANGUAGE_NAME)
+func lang() language.Tag {
+	languages, err := windows.GetThreadPreferredUILanguages(windows.MUI_LANGUAGE_NAME | windows.MUI_UI_FALLBACK)
 	if err != nil {
-		return
+		return language.English
 	}
-	for i := range languages {
-		t, _, c := message.DefaultCatalog.Matcher().Match(message.MatchLanguage(languages[i]))
-		if c > confidence {
-			tag = t
-			confidence = c
+	available := message.DefaultCatalog.Languages()
+	for _, l := range languages {
+		t, err := language.Parse(l)
+		if err != nil {
+			continue
+		}
+		for ; !t.IsRoot(); t = t.Parent() {
+			for _, a := range available {
+				if a == t {
+					return a
+				}
+			}
 		}
 	}
-	return
+	return language.English
 }
 
 // Sprintf is like fmt.Sprintf, but using language-specific formatting.
