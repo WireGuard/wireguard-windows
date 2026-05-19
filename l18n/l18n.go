@@ -13,13 +13,19 @@ import (
 	"golang.org/x/text/message"
 )
 
+type prnContext struct {
+	printer              *message.Printer
+	enumerationSeparator string
+	unitSeparator        string
+}
+
 var (
-	printer     *message.Printer
+	printer     *prnContext
 	printerLock sync.Mutex
 )
 
 // prn returns the printer for user preferred UI language.
-func prn() *message.Printer {
+func prn() *prnContext {
 	if printer != nil {
 		return printer
 	}
@@ -28,7 +34,35 @@ func prn() *message.Printer {
 		printerLock.Unlock()
 		return printer
 	}
-	printer = message.NewPrinter(lang())
+	lang, enumSep, unitSep := lang(), ", ", ", "
+	base, _ := lang.Base()
+	if faBase, _ := language.Persian.Base(); base == faBase {
+		enumSep = "\u060c "
+		unitSep = "\u060c "
+	} else if frBase, _ := language.French.Base(); base == frBase {
+		unitSep = " "
+	} else if itBase, _ := language.Italian.Base(); base == itBase {
+		unitSep = " "
+	} else if jaBase, _ := language.Japanese.Base(); base == jaBase {
+		unitSep = " "
+	} else if nlBase, _ := language.Dutch.Base(); base == nlBase {
+		unitSep = " "
+	} else if skBase, _ := language.Slovak.Base(); base == skBase {
+		unitSep = " "
+	} else if slBase, _ := language.Slovenian.Base(); base == slBase {
+		unitSep = " "
+	} else if viBase, _ := language.Vietnamese.Base(); base == viBase {
+		enumSep = ","
+		unitSep = ","
+	} else if zhBase, _ := language.Chinese.Base(); base == zhBase {
+		enumSep = "\u3001"
+		unitSep = " "
+	}
+	printer = &prnContext{
+		printer:              message.NewPrinter(lang),
+		enumerationSeparator: enumSep,
+		unitSeparator:        unitSep,
+	}
 	printerLock.Unlock()
 	return printer
 }
@@ -57,17 +91,14 @@ func lang() language.Tag {
 
 // Sprintf is like fmt.Sprintf, but using language-specific formatting.
 func Sprintf(key message.Reference, a ...any) string {
-	return prn().Sprintf(key, a...)
+	return prn().printer.Sprintf(key, a...)
 }
 
 // EnumerationSeparator returns enumeration separator. For English and western languages,
 // enumeration separator is a comma followed by a space (i.e. ", "). For Chinese, it returns
 // "\u3001".
 func EnumerationSeparator() string {
-	// BUG: We could just use `Sprintf(", " /* ...translator instructions... */)` and let the
-	// individual locale catalog handle its translation. Unfortunately, the gotext utility tries to
-	// be nice to translators and skips all strings without letters when updating catalogs.
-	return Sprintf("[EnumerationSeparator]" /* Text to insert between items when listing - most western languages will translate ‘[EnumerationSeparator]’ into ‘, ’ to produce lists like ‘apple, orange, strawberry’. Eastern languages might translate into ‘、’ to produce lists like ‘リンゴ、オレンジ、イチゴ’. */)
+	return prn().enumerationSeparator
 }
 
 // UnitSeparator returns the separator to use when concatenating multiple units of the same metric
@@ -75,8 +106,5 @@ func EnumerationSeparator() string {
 // separator is a comma followed by a space (i.e. ", "). For Slovenian and Japanese, it returns
 // just space.
 func UnitSeparator() string {
-	// BUG: We could just use `Sprintf(", " /* ...translator instructions... */)` and let the
-	// individual locale catalog handle its translation. Unfortunately, the gotext utility tries to
-	// be nice to translators and skips all strings without letters when updating catalogs.
-	return Sprintf("[UnitSeparator]" /* Text to insert when combining units of a measure - most languages will translate ‘[UnitSeparator]’ into ‘ ’ (space) to produce lists like ‘2 minuti 30 sekund’, or empty string ‘’ to produce ‘2分30秒’. */)
+	return prn().unitSeparator
 }
