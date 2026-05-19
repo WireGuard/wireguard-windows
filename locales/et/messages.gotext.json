@@ -8,6 +8,12 @@
             "translatorComment": "Copied from source."
         },
         {
+            "id": "Error:",
+            "message": "Error:",
+            "translation": "Viga:",
+            "translatorComment": "Copied from source."
+        },
+        {
             "id": "(no argument): elevate and install manager service",
             "message": "(no argument): elevate and install manager service",
             "translation": "(tühi muutuja): paigalda haldusteenus ülemõigustega",
@@ -62,7 +68,7 @@
         {
             "id": "You must use the native version of WireGuard on this computer.",
             "message": "You must use the native version of WireGuard on this computer.",
-            "translation": "Peate kasutama antud arvutiga sobivat WireGuard'i versiooni.",
+            "translation": "Selles arvutis tuleb kasutada WireGuard'i kohalikku (native) versiooni.",
             "translatorComment": "Copied from source."
         },
         {
@@ -392,15 +398,9 @@
             ]
         },
         {
-            "id": "Invalid IP address",
-            "message": "Invalid IP address",
-            "translation": "Sobimatu IP-aadress",
-            "translatorComment": "Copied from source."
-        },
-        {
-            "id": "Invalid network prefix length",
-            "message": "Invalid network prefix length",
-            "translation": "Sobimatu alamvõrgu maski pikkus",
+            "id": "Invalid IP address:",
+            "message": "Invalid IP address:",
+            "translation": "Sobimatu IP-aadress:",
             "translatorComment": "Copied from source."
         },
         {
@@ -460,22 +460,6 @@
             "message": "Keys must decode to exactly 32 bytes",
             "translation": "Võtmed peavad dekodeerima täpselt 32 baidi suuruseks",
             "translatorComment": "Copied from source."
-        },
-        {
-            "id": "Number must be a number between 0 and 2^64-1: {Err}",
-            "message": "Number must be a number between 0 and 2^64-1: {Err}",
-            "translation": "Number peab olema väärtus 0 ja 2^64-1 vahel: {Err}",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "Err",
-                    "string": "%[1]v",
-                    "type": "error",
-                    "underlyingType": "interface{Error() string}",
-                    "argNum": 1,
-                    "expr": "err"
-                }
-            ]
         },
         {
             "id": "Two commas in a row",
@@ -538,39 +522,15 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Error in getting configuration",
-            "message": "Error in getting configuration",
-            "translation": "Seadistuste saamisel ilmnes viga",
-            "translatorComment": "Copied from source."
-        },
-        {
-            "id": "Invalid key for interface section",
-            "message": "Invalid key for interface section",
-            "translation": "Sobimatu võti liidese lõigus",
-            "translatorComment": "Copied from source."
-        },
-        {
-            "id": "Protocol version must be 1",
-            "message": "Protocol version must be 1",
-            "translation": "Protokolli versioon peab olema 1",
-            "translatorComment": "Copied from source."
-        },
-        {
-            "id": "Invalid key for peer section",
-            "message": "Invalid key for peer section",
-            "translation": "Sobimatu võti partneri lõigus",
-            "translatorComment": "Copied from source."
-        },
-        {
             "id": "[EnumerationSeparator]",
             "message": "[EnumerationSeparator]",
-            "translation": ", ",
+            "translation": "",
             "comment": "Text to insert between items when listing - most western languages will translate ‘[EnumerationSeparator]’ into ‘, ’ to produce lists like ‘apple, orange, strawberry’. Eastern languages might translate into ‘、’ to produce lists like ‘リンゴ、オレンジ、イチゴ’."
         },
         {
             "id": "[UnitSeparator]",
             "message": "[UnitSeparator]",
-            "translation": ", ",
+            "translation": "",
             "comment": "Text to insert when combining units of a measure - most languages will translate ‘[UnitSeparator]’ into ‘ ’ (space) to produce lists like ‘2 minuti 30 sekund’, or empty string ‘’ to produce ‘2分30秒’."
         },
         {
@@ -586,9 +546,9 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}-{GOARCH}\nOperating system: {OsName}\nArchitecture: {NativeArch}",
-            "message": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}-{GOARCH}\nOperating system: {OsName}\nArchitecture: {NativeArch}",
-            "translation": "Programmi versioon: {Number}\nGo taustsüsteemi versioon: {WireGuardGoVersion}\nGo versioon: {Version_go}-{GOARCH}\nOperatsioonisüsteem: {OsName}\nArhitektuur: {NativeArch}",
+            "id": "App version: {Number}\nDriver version: {Version}\nGo version: {Version_go}\nOperating system: {OsName}\nArchitecture: {Arch}",
+            "message": "App version: {Number}\nDriver version: {Version}\nGo version: {Version_go}\nOperating system: {OsName}\nArchitecture: {Arch}",
+            "translation": "Rakenduse versioon: {Number}\nDraiveri versioon: {Version}\nGo versioon: {Version_go}\nOperatsioonisüsteem: {OsName}\nArhitektuur: {Arch}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -600,12 +560,12 @@
                     "expr": "version.Number"
                 },
                 {
-                    "id": "WireGuardGoVersion",
+                    "id": "Version",
                     "string": "%[2]s",
                     "type": "string",
                     "underlyingType": "string",
                     "argNum": 2,
-                    "expr": "device.WireGuardGoVersion"
+                    "expr": "driver.Version()"
                 },
                 {
                     "id": "Version_go",
@@ -616,28 +576,20 @@
                     "expr": "strings.TrimPrefix(runtime.Version(), \"go\")"
                 },
                 {
-                    "id": "GOARCH",
+                    "id": "OsName",
                     "string": "%[4]s",
                     "type": "string",
                     "underlyingType": "string",
                     "argNum": 4,
-                    "expr": "runtime.GOARCH"
+                    "expr": "version.OsName()"
                 },
                 {
-                    "id": "OsName",
+                    "id": "Arch",
                     "string": "%[5]s",
                     "type": "string",
                     "underlyingType": "string",
                     "argNum": 5,
-                    "expr": "version.OsName()"
-                },
-                {
-                    "id": "NativeArch",
-                    "string": "%[6]s",
-                    "type": "string",
-                    "underlyingType": "string",
-                    "argNum": 6,
-                    "expr": "version.NativeArch()"
+                    "expr": "version.Arch()"
                 }
             ]
         },
@@ -648,9 +600,9 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "♥ &Donate!",
-            "message": "♥ &Donate!",
-            "translation": "♥ &Anneta!",
+            "id": "♥ \u0026Donate!",
+            "message": "♥ \u0026Donate!",
+            "translation": "♥ \u0026Anneta!",
             "translatorComment": "Copied from source."
         },
         {
@@ -660,15 +612,15 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Deactivate",
-            "message": "&Deactivate",
-            "translation": "&Ühendu lahti",
+            "id": "\u0026Deactivate",
+            "message": "\u0026Deactivate",
+            "translation": "\u0026Ühendu lahti",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Activate",
-            "message": "&Activate",
-            "translation": "&Ühenda",
+            "id": "\u0026Activate",
+            "message": "\u0026Activate",
+            "translation": "\u0026Ühenda",
             "translatorComment": "Copied from source."
         },
         {
@@ -705,6 +657,12 @@
             "id": "Scripts:",
             "message": "Scripts:",
             "translation": "Skriptid:",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Table:",
+            "message": "Table:",
+            "translation": "Tabel:",
             "translatorComment": "Copied from source."
         },
         {
@@ -746,31 +704,37 @@
         {
             "id": "pre-up",
             "message": "pre-up",
-            "translation": "enne ühendumist",
+            "translation": "enne ühendamist",
             "translatorComment": "Copied from source."
         },
         {
             "id": "post-up",
             "message": "post-up",
-            "translation": "pärast ühendumist",
+            "translation": "pärast ühendamist",
             "translatorComment": "Copied from source."
         },
         {
             "id": "pre-down",
             "message": "pre-down",
-            "translation": "enne lahti ühendumist",
+            "translation": "enne lahtiühendamist",
             "translatorComment": "Copied from source."
         },
         {
             "id": "post-down",
             "message": "post-down",
-            "translation": "pärast lahti ühendumist",
+            "translation": "pärast lahtiühendamist",
             "translatorComment": "Copied from source."
         },
         {
             "id": "disabled, per policy",
             "message": "disabled, per policy",
-            "translation": "keelatud, poliitika põhiselt",
+            "translation": "keelatud reegli järgi",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "off",
+            "message": "off",
+            "translation": "väljas",
             "translatorComment": "Copied from source."
         },
         {
@@ -856,15 +820,15 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Name:",
-            "message": "&Name:",
-            "translation": "&Nimi:",
+            "id": "\u0026Name:",
+            "message": "\u0026Name:",
+            "translation": "\u0026Nimi:",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Public key:",
-            "message": "&Public key:",
-            "translation": "&Avalik võti:",
+            "id": "\u0026Public key:",
+            "message": "\u0026Public key:",
+            "translation": "\u0026Avalik võti:",
             "translatorComment": "Copied from source."
         },
         {
@@ -874,21 +838,21 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Block untunneled traffic (kill-switch)",
-            "message": "&Block untunneled traffic (kill-switch)",
-            "translation": "&Keela tunneldamata liiklus (kaitselüliti)",
+            "id": "\u0026Block untunneled traffic (kill-switch)",
+            "message": "\u0026Block untunneled traffic (kill-switch)",
+            "translation": "\u0026Keela tunneldamata liiklus (kaitselüliti)",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface or is to the wrong DNS server, with special exceptions for DHCP and NDP.",
-            "message": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface or is to the wrong DNS server, with special exceptions for DHCP and NDP.",
-            "translation": "Kui seadistuses on ainult üks partner ning sellel partneril on lubatud IP-aadresside seas määratud vähemalt üks 0.0.0.0/0 või ::/0 aadress, siis tunneliteenus lülitab sisse tulemüürireeglistiku, mis keelab kogu liikluse, mis pole pärit tunneliliidesest ega suundu selle poole või liigub vale DNS-serveri suunas. DHCP ja NDP jaoks on loodud erandid.",
+            "id": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, and the interface does not have table off, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface or is to the wrong DNS server, with special exceptions for DHCP and NDP.",
+            "message": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, and the interface does not have table off, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface or is to the wrong DNS server, with special exceptions for DHCP and NDP.",
+            "translation": "Kui seadistuses on täpselt üks partner ja selle partneri lubatud IP-aadressid sisaldavad vähemalt üht aadressidest 0.0.0.0/0 või ::/0 ning liideses ei ole table off, siis tunneliteenus rakendab tulemüüri reeglistiku, mis keelab kogu liikluse, mis ei ole tunneliliideselt ega sinna, või on valele DNS-serverile, eranditega DHCP ja NDP jaoks.",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Save",
-            "message": "&Save",
-            "translation": "&Salvesta",
+            "id": "\u0026Save",
+            "message": "\u0026Save",
+            "translation": "\u0026Salvesta",
             "translatorComment": "Copied from source."
         },
         {
@@ -898,9 +862,9 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Configuration:",
-            "message": "&Configuration:",
-            "translation": "&Seadistus:",
+            "id": "\u0026Configuration:",
+            "message": "\u0026Configuration:",
+            "translation": "\u0026Seadistus:",
             "translatorComment": "Copied from source."
         },
         {
@@ -1024,21 +988,21 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Copy",
-            "message": "&Copy",
-            "translation": "&Kopeeri",
+            "id": "\u0026Copy",
+            "message": "\u0026Copy",
+            "translation": "\u0026Kopeeri",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Select &all",
-            "message": "Select &all",
-            "translation": "Vali &kõik",
+            "id": "Select \u0026all",
+            "message": "Select \u0026all",
+            "translation": "Vali \u0026kõik",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Save to file…",
-            "message": "&Save to file…",
-            "translation": "&Salvesta faili…",
+            "id": "\u0026Save to file…",
+            "message": "\u0026Save to file…",
+            "translation": "\u0026Salvesta faili…",
             "translatorComment": "Copied from source."
         },
         {
@@ -1066,9 +1030,9 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&About WireGuard…",
-            "message": "&About WireGuard…",
-            "translation": "WireGu&ard'ist…",
+            "id": "\u0026About WireGuard…",
+            "message": "\u0026About WireGuard…",
+            "translation": "WireGu\u0026ard'ist…",
             "translatorComment": "Copied from source."
         },
         {
@@ -1150,27 +1114,27 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Manage tunnels…",
-            "message": "&Manage tunnels…",
-            "translation": "&Halda tunneleid…",
+            "id": "\u0026Manage tunnels…",
+            "message": "\u0026Manage tunnels…",
+            "translation": "\u0026Halda tunneleid…",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Import tunnel(s) from file…",
-            "message": "&Import tunnel(s) from file…",
-            "translation": "&Impordi tunnel(id) failist…",
+            "id": "\u0026Import tunnel(s) from file…",
+            "message": "\u0026Import tunnel(s) from file…",
+            "translation": "\u0026Impordi tunnel(id) failist…",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "E&xit",
-            "message": "E&xit",
-            "translation": "Sul&e",
+            "id": "E\u0026xit",
+            "message": "E\u0026xit",
+            "translation": "Sul\u0026e",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Tunnels",
-            "message": "&Tunnels",
-            "translation": "&Tunnelid",
+            "id": "\u0026Tunnels",
+            "message": "\u0026Tunnels",
+            "translation": "\u0026Tunnelid",
             "translatorComment": "Copied from source."
         },
         {
@@ -1296,15 +1260,15 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Edit",
-            "message": "&Edit",
-            "translation": "&Muuda",
+            "id": "\u0026Edit",
+            "message": "\u0026Edit",
+            "translation": "\u0026Muuda",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Add &empty tunnel…",
-            "message": "Add &empty tunnel…",
-            "translation": "Lisa tühi tunn&el…",
+            "id": "Add \u0026empty tunnel…",
+            "message": "Add \u0026empty tunnel…",
+            "translation": "Lisa tühi tunn\u0026el…",
             "translatorComment": "Copied from source."
         },
         {
@@ -1326,33 +1290,33 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Toggle",
-            "message": "&Toggle",
-            "translation": "Lüli&tu ümber",
+            "id": "\u0026Toggle",
+            "message": "\u0026Toggle",
+            "translation": "Lüli\u0026tu ümber",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Export all tunnels to &zip…",
-            "message": "Export all tunnels to &zip…",
-            "translation": "Ekspordi kõik tunnelid &zip-faili…",
+            "id": "Export all tunnels to \u0026zip…",
+            "message": "Export all tunnels to \u0026zip…",
+            "translation": "Ekspordi kõik tunnelid \u0026zip-faili…",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Edit &selected tunnel…",
-            "message": "Edit &selected tunnel…",
-            "translation": "Muuda &valitud tunnelit…",
+            "id": "Edit \u0026selected tunnel…",
+            "message": "Edit \u0026selected tunnel…",
+            "translation": "Muuda \u0026valitud tunnelit…",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Remove selected tunnel(s)",
-            "message": "&Remove selected tunnel(s)",
-            "translation": "&Eemalda valitud tunnel(id)",
+            "id": "\u0026Remove selected tunnel(s)",
+            "message": "\u0026Remove selected tunnel(s)",
+            "translation": "\u0026Eemalda valitud tunnel(id)",
             "translatorComment": "Copied from source."
         },
         {
             "id": "no configuration files were found",
             "message": "no configuration files were found",
-            "translation": "ühtegi seadistusfaili ei leitud",
+            "translation": "seadistusfaile ei leitud",
             "translatorComment": "Copied from source."
         },
         {
@@ -1372,18 +1336,18 @@
             ]
         },
         {
-            "id": "Could not enumerate existing tunnels: {LastErr}",
-            "message": "Could not enumerate existing tunnels: {LastErr}",
-            "translation": "Pole võimeline loetlema olemasolevaid tunneleid: {LastErr}",
+            "id": "Could not enumerate existing tunnels: {Err}",
+            "message": "Could not enumerate existing tunnels: {Err}",
+            "translation": "Olemasolevate tunnelite loetlemine ebaõnnestus: {Err}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
-                    "id": "LastErr",
+                    "id": "Err",
                     "string": "%[1]v",
                     "type": "error",
                     "underlyingType": "interface{Error() string}",
                     "argNum": 1,
-                    "expr": "lastErr"
+                    "expr": "err"
                 }
             ]
         },
@@ -1437,7 +1401,7 @@
                             "msg": "Imporditud {M} tunnel"
                         },
                         "other": {
-                            "msg": "Importitud {M} tunnelit"
+                            "msg": "Imporditud {M} tunnelit"
                         }
                     }
                 }
@@ -1736,6 +1700,18 @@
             "translatorComment": "Copied from source."
         },
         {
+            "id": "Please ask the system administrator to update.",
+            "message": "Please ask the system administrator to update.",
+            "translation": "Palun paluge süsteemiadministraatoril uuendada.",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Status: Waiting for administrator",
+            "message": "Status: Waiting for administrator",
+            "translation": "Staatus: Ootan administraatori järel",
+            "translatorComment": "Copied from source."
+        },
+        {
             "id": "Status: Waiting for updater service",
             "message": "Status: Waiting for updater service",
             "translation": "Staatus: Ootan uuendusteenuse järel",
@@ -1762,86 +1738,6 @@
             "message": "Status: Complete!",
             "translation": "Staatus: Valmis!",
             "translatorComment": "Copied from source."
-        },
-        {
-            "id": "http2: Framer {F}: failed to decode just-written frame",
-            "message": "http2: Framer {F}: failed to decode just-written frame",
-            "translation": "http2: Kadeerija {F}: värske kaadri dekodeerimine ebaõnnestus",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "F",
-                    "string": "%[1]p",
-                    "type": "*net/http.http2Framer",
-                    "underlyingType": "*net/http.http2Framer",
-                    "argNum": 1,
-                    "expr": "f"
-                }
-            ]
-        },
-        {
-            "id": "http2: Framer {F}: wrote {Http2summarizeFramefr}",
-            "message": "http2: Framer {F}: wrote {Http2summarizeFramefr}",
-            "translation": "http2: Kadeerija {F}: kirjutas {Http2summarizeFramefr}",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "F",
-                    "string": "%[1]p",
-                    "type": "*net/http.http2Framer",
-                    "underlyingType": "*net/http.http2Framer",
-                    "argNum": 1,
-                    "expr": "f"
-                },
-                {
-                    "id": "Http2summarizeFramefr",
-                    "string": "%[2]v",
-                    "type": "string",
-                    "underlyingType": "string",
-                    "argNum": 2,
-                    "expr": "http2summarizeFrame(fr)"
-                }
-            ]
-        },
-        {
-            "id": "http2: Framer {Fr}: read {Http2summarizeFramef}",
-            "message": "http2: Framer {Fr}: read {Http2summarizeFramef}",
-            "translation": "http2: Kadeerija {Fr}: luges {Http2summarizeFramef}",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "Fr",
-                    "string": "%[1]p",
-                    "type": "*net/http.http2Framer",
-                    "underlyingType": "*net/http.http2Framer",
-                    "argNum": 1,
-                    "expr": "fr"
-                },
-                {
-                    "id": "Http2summarizeFramef",
-                    "string": "%[2]v",
-                    "type": "string",
-                    "underlyingType": "string",
-                    "argNum": 2,
-                    "expr": "http2summarizeFrame(f)"
-                }
-            ]
-        },
-        {
-            "id": "http2: decoded hpack field {HeaderField}",
-            "message": "http2: decoded hpack field {HeaderField}",
-            "translation": "http2: dekodeeritud hpack väli {HeaderField}",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "HeaderField",
-                    "string": "%+[1]v",
-                    "type": "vendor/golang.org/x/net/http2/hpack.HeaderField",
-                    "underlyingType": "struct{Name string; Value string; Sensitive bool}",
-                    "argNum": 1,
-                    "expr": "hf"
-                }
-            ]
         }
     ]
 }

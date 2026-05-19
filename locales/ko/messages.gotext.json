@@ -8,6 +8,12 @@
             "translatorComment": "Copied from source."
         },
         {
+            "id": "Error:",
+            "message": "Error:",
+            "translation": "오류:",
+            "translatorComment": "Copied from source."
+        },
+        {
             "id": "(no argument): elevate and install manager service",
             "message": "(no argument): elevate and install manager service",
             "translation": "(인수 없음): 관리자 서비스 상승 및 설치",
@@ -40,7 +46,7 @@
         {
             "id": "Command Line Options",
             "message": "Command Line Options",
-            "translation": "커맨드 라인 옵션",
+            "translation": "명령줄 옵션",
             "translatorComment": "Copied from source."
         },
         {
@@ -62,7 +68,7 @@
         {
             "id": "You must use the native version of WireGuard on this computer.",
             "message": "You must use the native version of WireGuard on this computer.",
-            "translation": "이 컴퓨터에서는 기본 버전의 WireGuard를 사용해야 합니다.",
+            "translation": "이 컴퓨터에서 네이티브 버전의 WireGuard를 사용해야 합니다.",
             "translatorComment": "Copied from source."
         },
         {
@@ -100,7 +106,7 @@
         {
             "id": "WireGuard is running, but the UI is only accessible from desktops of the Builtin {AdminGroupName} group.",
             "message": "WireGuard is running, but the UI is only accessible from desktops of the Builtin {AdminGroupName} group.",
-            "translation": "WireGuard가 실행 중이나 UI는 Builtin의 데스크톱에서만 액세스할 수 있습니다{AdminGroupName} 그룹.",
+            "translation": "WireGuard가 실행 중이나 UI는 Builtin {AdminGroupName} 그룹의 데스크톱에서만 액세스할 수 있습니다.",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -377,15 +383,9 @@
             ]
         },
         {
-            "id": "Invalid IP address",
-            "message": "Invalid IP address",
-            "translation": "잘못된 IP 주소",
-            "translatorComment": "Copied from source."
-        },
-        {
-            "id": "Invalid network prefix length",
-            "message": "Invalid network prefix length",
-            "translation": "잘못된 네트워크 접두사 길이",
+            "id": "Invalid IP address:",
+            "message": "Invalid IP address:",
+            "translation": "잘못된 IP 주소:",
             "translatorComment": "Copied from source."
         },
         {
@@ -447,25 +447,9 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Number must be a number between 0 and 2^64-1: {Err}",
-            "message": "Number must be a number between 0 and 2^64-1: {Err}",
-            "translation": "숫자는 다음 사이의 숫자여야 합니다 0 그리고 2^64-1: {Err}",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "Err",
-                    "string": "%[1]v",
-                    "type": "error",
-                    "underlyingType": "interface{Error() string}",
-                    "argNum": 1,
-                    "expr": "err"
-                }
-            ]
-        },
-        {
             "id": "Two commas in a row",
             "message": "Two commas in a row",
-            "translation": "엔드포인트에서 포트가 누락됨",
+            "translation": "연속된 쉼표 두 개",
             "translatorComment": "Copied from source."
         },
         {
@@ -477,7 +461,7 @@
         {
             "id": "Line must occur in a section",
             "message": "Line must occur in a section",
-            "translation": "행은 섹션에 있어야 함",
+            "translation": "줄은 섹션 내에 위치해야 함",
             "translatorComment": "Copied from source."
         },
         {
@@ -495,13 +479,13 @@
         {
             "id": "Invalid key for [Interface] section",
             "message": "Invalid key for [Interface] section",
-            "translation": "[Interface] 구간에 대한 잘못된 키",
+            "translation": "[Interface] 섹션의 잘못된 키",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid key for [Peer] section",
             "message": "Invalid key for [Peer] section",
-            "translation": "[Peer] 구간에 대한 잘못된 키",
+            "translation": "[Peer] 섹션의 잘못된 키",
             "translatorComment": "Copied from source."
         },
         {
@@ -513,7 +497,7 @@
         {
             "id": "[none specified]",
             "message": "[none specified]",
-            "translation": "[특정되지 않음]",
+            "translation": "[지정되지 않음]",
             "translatorComment": "Copied from source."
         },
         {
@@ -523,45 +507,21 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Error in getting configuration",
-            "message": "Error in getting configuration",
-            "translation": "구성을 가져오는 중 오류가 발생",
-            "translatorComment": "Copied from source."
-        },
-        {
-            "id": "Invalid key for interface section",
-            "message": "Invalid key for interface section",
-            "translation": "인터페이스 섹션의 키가 잘못됨",
-            "translatorComment": "Copied from source."
-        },
-        {
-            "id": "Protocol version must be 1",
-            "message": "Protocol version must be 1",
-            "translation": "프로토콜 버전은 1이어야 합니다.",
-            "translatorComment": "Copied from source."
-        },
-        {
-            "id": "Invalid key for peer section",
-            "message": "Invalid key for peer section",
-            "translation": "피어 섹션의 키가 잘못됨",
-            "translatorComment": "Copied from source."
-        },
-        {
             "id": "[EnumerationSeparator]",
             "message": "[EnumerationSeparator]",
-            "translation": ", ",
+            "translation": "",
             "comment": "Text to insert between items when listing - most western languages will translate ‘[EnumerationSeparator]’ into ‘, ’ to produce lists like ‘apple, orange, strawberry’. Eastern languages might translate into ‘、’ to produce lists like ‘リンゴ、オレンジ、イチゴ’."
         },
         {
             "id": "[UnitSeparator]",
             "message": "[UnitSeparator]",
-            "translation": ", ",
+            "translation": "",
             "comment": "Text to insert when combining units of a measure - most languages will translate ‘[UnitSeparator]’ into ‘ ’ (space) to produce lists like ‘2 minuti 30 sekund’, or empty string ‘’ to produce ‘2分30秒’."
         },
         {
             "id": "About WireGuard",
             "message": "About WireGuard",
-            "translation": "WireGuard에 관하여",
+            "translation": "WireGuard 정보",
             "translatorComment": "Copied from source."
         },
         {
@@ -571,9 +531,9 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}-{GOARCH}\nOperating system: {OsName}\nArchitecture: {NativeArch}",
-            "message": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}-{GOARCH}\nOperating system: {OsName}\nArchitecture: {NativeArch}",
-            "translation": "앱 버전: {Number}\nGo 백엔드 버전: {WireGuardGoVersion}\nGo 버전: {Version_go}-{GOARCH}\n운영체제: {OsName}\n아키텍처: {NativeArch}",
+            "id": "App version: {Number}\nDriver version: {Version}\nGo version: {Version_go}\nOperating system: {OsName}\nArchitecture: {Arch}",
+            "message": "App version: {Number}\nDriver version: {Version}\nGo version: {Version_go}\nOperating system: {OsName}\nArchitecture: {Arch}",
+            "translation": "앱 버전: {Number}\n드라이버 버전: {Version}\nGo 버전: {Version_go}\n운영 체제: {OsName}\n아키텍처: {Arch}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -585,12 +545,12 @@
                     "expr": "version.Number"
                 },
                 {
-                    "id": "WireGuardGoVersion",
+                    "id": "Version",
                     "string": "%[2]s",
                     "type": "string",
                     "underlyingType": "string",
                     "argNum": 2,
-                    "expr": "device.WireGuardGoVersion"
+                    "expr": "driver.Version()"
                 },
                 {
                     "id": "Version_go",
@@ -601,28 +561,20 @@
                     "expr": "strings.TrimPrefix(runtime.Version(), \"go\")"
                 },
                 {
-                    "id": "GOARCH",
+                    "id": "OsName",
                     "string": "%[4]s",
                     "type": "string",
                     "underlyingType": "string",
                     "argNum": 4,
-                    "expr": "runtime.GOARCH"
+                    "expr": "version.OsName()"
                 },
                 {
-                    "id": "OsName",
+                    "id": "Arch",
                     "string": "%[5]s",
                     "type": "string",
                     "underlyingType": "string",
                     "argNum": 5,
-                    "expr": "version.OsName()"
-                },
-                {
-                    "id": "NativeArch",
-                    "string": "%[6]s",
-                    "type": "string",
-                    "underlyingType": "string",
-                    "argNum": 6,
-                    "expr": "version.NativeArch()"
+                    "expr": "version.Arch()"
                 }
             ]
         },
@@ -633,9 +585,9 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "♥ &Donate!",
-            "message": "♥ &Donate!",
-            "translation": "♥ &기부하기!",
+            "id": "♥ \u0026Donate!",
+            "message": "♥ \u0026Donate!",
+            "translation": "♥ \u0026기부하기!",
             "translatorComment": "Copied from source."
         },
         {
@@ -645,15 +597,15 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Deactivate",
-            "message": "&Deactivate",
-            "translation": "&비활성화하기",
+            "id": "\u0026Deactivate",
+            "message": "\u0026Deactivate",
+            "translation": "비활성화(\u0026D)",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Activate",
-            "message": "&Activate",
-            "translation": "&활성화하기",
+            "id": "\u0026Activate",
+            "message": "\u0026Activate",
+            "translation": "활성화(\u0026A)",
             "translatorComment": "Copied from source."
         },
         {
@@ -693,6 +645,12 @@
             "translatorComment": "Copied from source."
         },
         {
+            "id": "Table:",
+            "message": "Table:",
+            "translation": "테이블:",
+            "translatorComment": "Copied from source."
+        },
+        {
             "id": "Preshared key:",
             "message": "Preshared key:",
             "translation": "사전 공유 키:",
@@ -719,7 +677,7 @@
         {
             "id": "Latest handshake:",
             "message": "Latest handshake:",
-            "translation": "마지막 정보교환:",
+            "translation": "최근 핸드셰이크:",
             "translatorComment": "Copied from source."
         },
         {
@@ -731,31 +689,37 @@
         {
             "id": "pre-up",
             "message": "pre-up",
-            "translation": "사전-준비",
+            "translation": "연결 전",
             "translatorComment": "Copied from source."
         },
         {
             "id": "post-up",
             "message": "post-up",
-            "translation": "게시-하기",
+            "translation": "연결 후",
             "translatorComment": "Copied from source."
         },
         {
             "id": "pre-down",
             "message": "pre-down",
-            "translation": "준비-해제",
+            "translation": "연결 해제 전",
             "translatorComment": "Copied from source."
         },
         {
             "id": "post-down",
             "message": "post-down",
-            "translation": "게시-중단",
+            "translation": "연결 해제 후",
             "translatorComment": "Copied from source."
         },
         {
             "id": "disabled, per policy",
             "message": "disabled, per policy",
-            "translation": "비활성화됨, 정책에 따라",
+            "translation": "비활성화됨, 정책에 따름",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "off",
+            "message": "off",
+            "translation": "꺼짐",
             "translatorComment": "Copied from source."
         },
         {
@@ -841,39 +805,39 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Name:",
-            "message": "&Name:",
-            "translation": "&이름:",
+            "id": "\u0026Name:",
+            "message": "\u0026Name:",
+            "translation": "이름(\u0026N):",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Public key:",
-            "message": "&Public key:",
-            "translation": "&공개 키:",
+            "id": "\u0026Public key:",
+            "message": "\u0026Public key:",
+            "translation": "공개 키(\u0026P):",
             "translatorComment": "Copied from source."
         },
         {
             "id": "(unknown)",
             "message": "(unknown)",
-            "translation": "(알수없음)",
+            "translation": "(알 수 없음)",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Block untunneled traffic (kill-switch)",
-            "message": "&Block untunneled traffic (kill-switch)",
-            "translation": "&Block 터널 없는 교통 (킬-스위치)",
+            "id": "\u0026Block untunneled traffic (kill-switch)",
+            "message": "\u0026Block untunneled traffic (kill-switch)",
+            "translation": "\u0026VPN 우회 강제 (터널 외 차단)",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface or is to the wrong DNS server, with special exceptions for DHCP and NDP.",
-            "message": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface or is to the wrong DNS server, with special exceptions for DHCP and NDP.",
-            "translation": "구성에 단일 피어가 하나 있고, 해당 피어의 허용된 IP에 0.0.0.0/0 또는 ::/0 중 하나 이상이 포함된 경우, 터널 서비스는 터널 인터페이스로의 또는 터널 인터페이스에서의 트래픽이 아닌 모든 트래픽과 잘못된 DNS 서버로의 트래픽을 차단하는 방화벽 규칙 집합을 활성화합니다. DHCP 및 NDP에 대한 특별 예외가 적용됩니다.",
+            "id": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, and the interface does not have table off, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface or is to the wrong DNS server, with special exceptions for DHCP and NDP.",
+            "message": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, and the interface does not have table off, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface or is to the wrong DNS server, with special exceptions for DHCP and NDP.",
+            "translation": "구성에 단일 피어가 하나 있고, 해당 피어의 허용된 IP에 0.0.0.0/0 또는 ::/0 중 하나 이상이 포함되어 있으며, 인터페이스에 table off가 설정되어 있지 않은 경우, 터널 서비스는 터널 인터페이스로의 또는 터널 인터페이스에서의 트래픽이 아니거나 잘못된 DNS 서버로 향하는 모든 트래픽을 차단하는 방화벽 규칙 집합을 활성화합니다. DHCP 및 NDP에 대한 특별 예외가 적용됩니다.",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Save",
-            "message": "&Save",
-            "translation": "&저장",
+            "id": "\u0026Save",
+            "message": "\u0026Save",
+            "translation": "저장(\u0026S)",
             "translatorComment": "Copied from source."
         },
         {
@@ -883,9 +847,9 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Configuration:",
-            "message": "&Configuration:",
-            "translation": "&환경설정:",
+            "id": "\u0026Configuration:",
+            "message": "\u0026Configuration:",
+            "translation": "구성(\u0026C):",
             "translatorComment": "Copied from source."
         },
         {
@@ -897,13 +861,13 @@
         {
             "id": "A name is required.",
             "message": "A name is required.",
-            "translation": "이름은 필수 항목 입니다.",
+            "translation": "이름은 필수 항목입니다.",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Tunnel name ‘{NewName}’ is invalid.",
             "message": "Tunnel name ‘{NewName}’ is invalid.",
-            "translation": "터널명 ‘{NewName}’ 무효입니다.",
+            "translation": "‘{NewName}’ 터널 이름이 잘못되었습니다.",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -925,13 +889,13 @@
         {
             "id": "Tunnel already exists",
             "message": "Tunnel already exists",
-            "translation": "이름이 이미 있음",
+            "translation": "이미 존재하는 터널",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Another tunnel already exists with the name ‘{NewName}’.",
             "message": "Another tunnel already exists with the name ‘{NewName}’.",
-            "translation": "이름과 함께 또 다른 터널이 이미 존재합니다 ‘{NewName}’.",
+            "translation": "‘{NewName}’ 터널 이름이 이미 존재합니다.",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -947,7 +911,7 @@
         {
             "id": "Unable to create new configuration",
             "message": "Unable to create new configuration",
-            "translation": "구성을 가져올 수 없음",
+            "translation": "새 구성을 생성할 수 없음",
             "translatorComment": "Copied from source."
         },
         {
@@ -959,7 +923,7 @@
         {
             "id": "File ‘{FilePath}’ already exists.\n\nDo you want to overwrite it?",
             "message": "File ‘{FilePath}’ already exists.\n\nDo you want to overwrite it?",
-            "translation": "파일 ‘{FilePath}’ 이미 존재합니다.\n\nDo you want to overwrite it?",
+            "translation": "‘{FilePath}’ 파일이 이미 존재합니다.\n\n덮어쓰시겠습니까?",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1009,21 +973,21 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Copy",
-            "message": "&Copy",
-            "translation": "&복사",
+            "id": "\u0026Copy",
+            "message": "\u0026Copy",
+            "translation": "복사(\u0026C)",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Select &all",
-            "message": "Select &all",
-            "translation": "전체 &선택",
+            "id": "Select \u0026all",
+            "message": "Select \u0026all",
+            "translation": "전체 선택(\u0026A)",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Save to file…",
-            "message": "&Save to file…",
-            "translation": "&파일에 저장…",
+            "id": "\u0026Save to file…",
+            "message": "\u0026Save to file…",
+            "translation": "파일로 저장(\u0026S)…",
             "translatorComment": "Copied from source."
         },
         {
@@ -1051,9 +1015,9 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&About WireGuard…",
-            "message": "&About WireGuard…",
-            "translation": "&WireGuard에 관하여…",
+            "id": "\u0026About WireGuard…",
+            "message": "\u0026About WireGuard…",
+            "translation": "WireGuard 정보(\u0026A)…",
             "translatorComment": "Copied from source."
         },
         {
@@ -1135,27 +1099,27 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Manage tunnels…",
-            "message": "&Manage tunnels…",
-            "translation": "&터널 관리…",
+            "id": "\u0026Manage tunnels…",
+            "message": "\u0026Manage tunnels…",
+            "translation": "터널 관리(\u0026M)…",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Import tunnel(s) from file…",
-            "message": "&Import tunnel(s) from file…",
-            "translation": "&파일에서 터널(s) 불러오기…",
+            "id": "\u0026Import tunnel(s) from file…",
+            "message": "\u0026Import tunnel(s) from file…",
+            "translation": "파일에서 터널 가져오기(\u0026I)…",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "E&xit",
-            "message": "E&xit",
-            "translation": "종료&",
+            "id": "E\u0026xit",
+            "message": "E\u0026xit",
+            "translation": "종료(\u0026X)",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Tunnels",
-            "message": "&Tunnels",
-            "translation": "&터널",
+            "id": "\u0026Tunnels",
+            "message": "\u0026Tunnels",
+            "translation": "터널(\u0026T)",
             "translatorComment": "Copied from source."
         },
         {
@@ -1167,7 +1131,7 @@
         {
             "id": "The {Name} tunnel has been activated.",
             "message": "The {Name} tunnel has been activated.",
-            "translation": "다음 {Name} 터널이 활성화되었습니다.",
+            "translation": "{Name} 터널이 활성화되었습니다.",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1189,7 +1153,7 @@
         {
             "id": "The {Name} tunnel has been deactivated.",
             "message": "The {Name} tunnel has been deactivated.",
-            "translation": "다음 {Name} 터널이 비활성화되었습니다.",
+            "translation": "{Name} 터널이 비활성화되었습니다.",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1281,15 +1245,15 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Edit",
-            "message": "&Edit",
-            "translation": "&편집",
+            "id": "\u0026Edit",
+            "message": "\u0026Edit",
+            "translation": "편집(\u0026E)",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Add &empty tunnel…",
-            "message": "Add &empty tunnel…",
-            "translation": "&빈 터널 추가…",
+            "id": "Add \u0026empty tunnel…",
+            "message": "Add \u0026empty tunnel…",
+            "translation": "빈 터널 추가(\u0026E)…",
             "translatorComment": "Copied from source."
         },
         {
@@ -1301,37 +1265,37 @@
         {
             "id": "Remove selected tunnel(s)",
             "message": "Remove selected tunnel(s)",
-            "translation": "선택한 터널(s) 제거",
+            "translation": "선택한 터널 제거",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Export all tunnels to zip",
             "message": "Export all tunnels to zip",
-            "translation": "터널들을 Zip 파일에 내보내기",
+            "translation": "모든 터널 zip으로 내보내기",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Toggle",
-            "message": "&Toggle",
-            "translation": "&토글",
+            "id": "\u0026Toggle",
+            "message": "\u0026Toggle",
+            "translation": "활성/비활성(\u0026T)",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Export all tunnels to &zip…",
-            "message": "Export all tunnels to &zip…",
-            "translation": "모든 터널을 &zip으로 내보내기…",
+            "id": "Export all tunnels to \u0026zip…",
+            "message": "Export all tunnels to \u0026zip…",
+            "translation": "모든 터널 zip으로 내보내기(\u0026Z)…",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Edit &selected tunnel…",
-            "message": "Edit &selected tunnel…",
-            "translation": "편집 &선택한 터널…",
+            "id": "Edit \u0026selected tunnel…",
+            "message": "Edit \u0026selected tunnel…",
+            "translation": "선택한 터널 편집(\u0026S)…",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Remove selected tunnel(s)",
-            "message": "&Remove selected tunnel(s)",
-            "translation": "&선택한 터널(s) 제거",
+            "id": "\u0026Remove selected tunnel(s)",
+            "message": "\u0026Remove selected tunnel(s)",
+            "translation": "선택한 터널 제거(\u0026R)",
             "translatorComment": "Copied from source."
         },
         {
@@ -1357,25 +1321,25 @@
             ]
         },
         {
-            "id": "Could not enumerate existing tunnels: {LastErr}",
-            "message": "Could not enumerate existing tunnels: {LastErr}",
-            "translation": "기존 터널을 열거할 수 없음: {LastErr}",
+            "id": "Could not enumerate existing tunnels: {Err}",
+            "message": "Could not enumerate existing tunnels: {Err}",
+            "translation": "기존 터널을 열거할 수 없음: {Err}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
-                    "id": "LastErr",
+                    "id": "Err",
                     "string": "%[1]v",
                     "type": "error",
                     "underlyingType": "interface{Error() string}",
                     "argNum": 1,
-                    "expr": "lastErr"
+                    "expr": "err"
                 }
             ]
         },
         {
             "id": "Another tunnel already exists with the name ‘{Name}’",
             "message": "Another tunnel already exists with the name ‘{Name}’",
-            "translation": "이름과 함께 또 다른 터널이 이미 존재합니다 ‘{Name}’",
+            "translation": "‘{Name}’ 이름의 터널이 이미 존재합니다",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1407,7 +1371,7 @@
         {
             "id": "Imported tunnels",
             "message": "Imported tunnels",
-            "translation": "터널을 가져옴",
+            "translation": "터널 가져오기 완료",
             "translatorComment": "Copied from source."
         },
         {
@@ -1419,7 +1383,7 @@
                     "arg": "M",
                     "cases": {
                         "other": {
-                            "msg": "터널 {M} 가져옴"
+                            "msg": "터널 {M}개를 가져왔습니다"
                         }
                     }
                 }
@@ -1444,7 +1408,7 @@
                     "arg": "N",
                     "cases": {
                         "other": {
-                            "msg": "터널 {M} 의 {N} 가져옴"
+                            "msg": "터널 {N}개 중 {M}개를 가져왔습니다"
                         }
                     }
                 }
@@ -1483,7 +1447,7 @@
                     "arg": "TunnelCount",
                     "cases": {
                         "other": {
-                            "msg": "터널 {TunnelCount} 삭제"
+                            "msg": "터널 {TunnelCount}개 삭제"
                         }
                     }
                 }
@@ -1508,7 +1472,7 @@
                     "arg": "TunnelCount",
                     "cases": {
                         "other": {
-                            "msg": "삭제하고 싶은 게 확실해 {TunnelCount} 터널?"
+                            "msg": "터널 {TunnelCount}개를 삭제하시겠습니까?"
                         }
                     }
                 }
@@ -1527,7 +1491,7 @@
         {
             "id": "Delete tunnel ‘{TunnelName}’",
             "message": "Delete tunnel ‘{TunnelName}’",
-            "translation": "터널 삭제 ‘{TunnelName}’",
+            "translation": "‘{TunnelName}’ 터널 삭제",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1543,7 +1507,7 @@
         {
             "id": "Are you sure you would like to delete tunnel ‘{TunnelName}’?",
             "message": "Are you sure you would like to delete tunnel ‘{TunnelName}’?",
-            "translation": "터널을 삭제하고 싶은 것이 확실합니까 ‘{TunnelName}’?",
+            "translation": "‘{TunnelName}’ 터널을 삭제하시겠습니까?",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1634,19 +1598,19 @@
         {
             "id": "Import tunnel(s) from file",
             "message": "Import tunnel(s) from file",
-            "translation": "파일에서 터널(s) 불러오기",
+            "translation": "파일에서 터널 가져오기",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Configuration ZIP Files (*.zip)|*.zip",
             "message": "Configuration ZIP Files (*.zip)|*.zip",
-            "translation": "형상 ZIP 파일 (*.zip)|*.zip",
+            "translation": "구성 ZIP 파일 (*.zip)|*.zip",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Export tunnels to zip",
             "message": "Export tunnels to zip",
-            "translation": "터널들을 Zip 파일에 내보내기",
+            "translation": "터널 zip으로 내보내기",
             "translatorComment": "Copied from source."
         },
         {
@@ -1668,13 +1632,13 @@
         {
             "id": "Error Exiting WireGuard",
             "message": "Error Exiting WireGuard",
-            "translation": "WireGuard 오류로 종료중",
+            "translation": "WireGuard 종료 오류",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Unable to exit service due to: {Err}. You may want to stop WireGuard from the service manager.",
             "message": "Unable to exit service due to: {Err}. You may want to stop WireGuard from the service manager.",
-            "translation": "다음 원인으로 인해 서비스를 종료할 수 없: {Err}. 서비스 관리자에서 WireGuard를 중지할 수 있습니다.",
+            "translation": "다음 원인으로 인해 서비스를 종료할 수 없음: {Err}. 서비스 관리자에서 WireGuard를 중지할 수 있습니다.",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1706,6 +1670,18 @@
             "translatorComment": "Copied from source."
         },
         {
+            "id": "Please ask the system administrator to update.",
+            "message": "Please ask the system administrator to update.",
+            "translation": "시스템 관리자에게 업데이트를 요청하세요.",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Status: Waiting for administrator",
+            "message": "Status: Waiting for administrator",
+            "translation": "상태: 관리자를 기다리는 중",
+            "translatorComment": "Copied from source."
+        },
+        {
             "id": "Status: Waiting for updater service",
             "message": "Status: Waiting for updater service",
             "translation": "상태: 업데이터 서비스를 기다리는 중",
@@ -1732,86 +1708,6 @@
             "message": "Status: Complete!",
             "translation": "상태: 완료!",
             "translatorComment": "Copied from source."
-        },
-        {
-            "id": "http2: Framer {F}: failed to decode just-written frame",
-            "message": "http2: Framer {F}: failed to decode just-written frame",
-            "translation": "http2: 프레이머 {F}: 방금 작성된 프레임을 디코딩하는 데 실패",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "F",
-                    "string": "%[1]p",
-                    "type": "*net/http.http2Framer",
-                    "underlyingType": "*net/http.http2Framer",
-                    "argNum": 1,
-                    "expr": "f"
-                }
-            ]
-        },
-        {
-            "id": "http2: Framer {F}: wrote {Http2summarizeFramefr}",
-            "message": "http2: Framer {F}: wrote {Http2summarizeFramefr}",
-            "translation": "http2: 프레이머 {F}: {Http2summarizeFramefr} 을(를) 작성함",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "F",
-                    "string": "%[1]p",
-                    "type": "*net/http.http2Framer",
-                    "underlyingType": "*net/http.http2Framer",
-                    "argNum": 1,
-                    "expr": "f"
-                },
-                {
-                    "id": "Http2summarizeFramefr",
-                    "string": "%[2]v",
-                    "type": "string",
-                    "underlyingType": "string",
-                    "argNum": 2,
-                    "expr": "http2summarizeFrame(fr)"
-                }
-            ]
-        },
-        {
-            "id": "http2: Framer {Fr}: read {Http2summarizeFramef}",
-            "message": "http2: Framer {Fr}: read {Http2summarizeFramef}",
-            "translation": "http2: 프레이머 {Fr}: {Http2summarizeFramef} 을(를) 읽음",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "Fr",
-                    "string": "%[1]p",
-                    "type": "*net/http.http2Framer",
-                    "underlyingType": "*net/http.http2Framer",
-                    "argNum": 1,
-                    "expr": "fr"
-                },
-                {
-                    "id": "Http2summarizeFramef",
-                    "string": "%[2]v",
-                    "type": "string",
-                    "underlyingType": "string",
-                    "argNum": 2,
-                    "expr": "http2summarizeFrame(f)"
-                }
-            ]
-        },
-        {
-            "id": "http2: decoded hpack field {HeaderField}",
-            "message": "http2: decoded hpack field {HeaderField}",
-            "translation": "http2: 디코딩된 Hpack 필드 {HeaderField}",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "HeaderField",
-                    "string": "%+[1]v",
-                    "type": "vendor/golang.org/x/net/http2/hpack.HeaderField",
-                    "underlyingType": "struct{Name string; Value string; Sensitive bool}",
-                    "argNum": 1,
-                    "expr": "hf"
-                }
-            ]
         }
     ]
 }

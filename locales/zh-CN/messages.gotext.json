@@ -8,6 +8,12 @@
             "translatorComment": "Copied from source."
         },
         {
+            "id": "Error:",
+            "message": "Error:",
+            "translation": "错误:",
+            "translatorComment": "Copied from source."
+        },
+        {
             "id": "(no argument): elevate and install manager service",
             "message": "(no argument): elevate and install manager service",
             "translation": "(无参数): 提升并安装管理服务",
@@ -355,7 +361,7 @@
         {
             "id": "{Why}: {Offender}",
             "message": "{Why}: {Offender}",
-            "translation": "{Why}: {Offender}",
+            "translation": "{Why}：{Offender}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -377,15 +383,9 @@
             ]
         },
         {
-            "id": "Invalid IP address",
-            "message": "Invalid IP address",
-            "translation": "IP地址无效",
-            "translatorComment": "Copied from source."
-        },
-        {
-            "id": "Invalid network prefix length",
-            "message": "Invalid network prefix length",
-            "translation": "网络前缀长度无效",
+            "id": "Invalid IP address:",
+            "message": "Invalid IP address:",
+            "translation": "无效的 IP 地址:",
             "translatorComment": "Copied from source."
         },
         {
@@ -445,22 +445,6 @@
             "message": "Keys must decode to exactly 32 bytes",
             "translation": "解码后的密钥长度必须为32字节",
             "translatorComment": "Copied from source."
-        },
-        {
-            "id": "Number must be a number between 0 and 2^64-1: {Err}",
-            "message": "Number must be a number between 0 and 2^64-1: {Err}",
-            "translation": "数值必须介于 0 至 2^64-1 之间: {Err}",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "Err",
-                    "string": "%[1]v",
-                    "type": "error",
-                    "underlyingType": "interface{Error() string}",
-                    "argNum": 1,
-                    "expr": "err"
-                }
-            ]
         },
         {
             "id": "Two commas in a row",
@@ -523,40 +507,18 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Error in getting configuration",
-            "message": "Error in getting configuration",
-            "translation": "获取配置时出错",
-            "translatorComment": "Copied from source."
-        },
-        {
-            "id": "Invalid key for interface section",
-            "message": "Invalid key for interface section",
-            "translation": "接口段落的键无效",
-            "translatorComment": "Copied from source."
-        },
-        {
-            "id": "Protocol version must be 1",
-            "message": "Protocol version must be 1",
-            "translation": "协议版本必须为 1",
-            "translatorComment": "Copied from source."
-        },
-        {
-            "id": "Invalid key for peer section",
-            "message": "Invalid key for peer section",
-            "translation": "节点段落的键无效",
-            "translatorComment": "Copied from source."
-        },
-        {
             "id": "[EnumerationSeparator]",
             "message": "[EnumerationSeparator]",
             "translation": "、",
-            "comment": "Text to insert between items when listing - most western languages will translate ‘[EnumerationSeparator]’ into ‘, ’ to produce lists like ‘apple, orange, strawberry’. Eastern languages might translate into ‘、’ to produce lists like ‘リンゴ、オレンジ、イチゴ’."
+            "comment": "Text to insert between items when listing - most western languages will translate ‘[EnumerationSeparator]’ into ‘, ’ to produce lists like ‘apple, orange, strawberry’. Eastern languages might translate into ‘、’ to produce lists like ‘リンゴ、オレンジ、イチゴ’.",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "[UnitSeparator]",
             "message": "[UnitSeparator]",
             "translation": " ",
-            "comment": "Text to insert when combining units of a measure - most languages will translate ‘[UnitSeparator]’ into ‘ ’ (space) to produce lists like ‘2 minuti 30 sekund’, or empty string ‘’ to produce ‘2分30秒’."
+            "comment": "Text to insert when combining units of a measure - most languages will translate ‘[UnitSeparator]’ into ‘ ’ (space) to produce lists like ‘2 minuti 30 sekund’, or empty string ‘’ to produce ‘2分30秒’.",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "About WireGuard",
@@ -571,9 +533,9 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}-{GOARCH}\nOperating system: {OsName}\nArchitecture: {NativeArch}",
-            "message": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}-{GOARCH}\nOperating system: {OsName}\nArchitecture: {NativeArch}",
-            "translation": "应用版本: {Number}\nGo 后端版本: {WireGuardGoVersion}\nGo 语言版本: {Version_go}-{GOARCH}\n操作系统: {OsName}\n架构: {NativeArch}",
+            "id": "App version: {Number}\nDriver version: {Version}\nGo version: {Version_go}\nOperating system: {OsName}\nArchitecture: {Arch}",
+            "message": "App version: {Number}\nDriver version: {Version}\nGo version: {Version_go}\nOperating system: {OsName}\nArchitecture: {Arch}",
+            "translation": "应用版本: {Number}\n驱动版本: {Version}\nGo 语言版本: {Version_go}\n操作系统: {OsName}\n架构: {Arch}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -585,12 +547,12 @@
                     "expr": "version.Number"
                 },
                 {
-                    "id": "WireGuardGoVersion",
+                    "id": "Version",
                     "string": "%[2]s",
                     "type": "string",
                     "underlyingType": "string",
                     "argNum": 2,
-                    "expr": "device.WireGuardGoVersion"
+                    "expr": "driver.Version()"
                 },
                 {
                     "id": "Version_go",
@@ -601,28 +563,20 @@
                     "expr": "strings.TrimPrefix(runtime.Version(), \"go\")"
                 },
                 {
-                    "id": "GOARCH",
+                    "id": "OsName",
                     "string": "%[4]s",
                     "type": "string",
                     "underlyingType": "string",
                     "argNum": 4,
-                    "expr": "runtime.GOARCH"
+                    "expr": "version.OsName()"
                 },
                 {
-                    "id": "OsName",
+                    "id": "Arch",
                     "string": "%[5]s",
                     "type": "string",
                     "underlyingType": "string",
                     "argNum": 5,
-                    "expr": "version.OsName()"
-                },
-                {
-                    "id": "NativeArch",
-                    "string": "%[6]s",
-                    "type": "string",
-                    "underlyingType": "string",
-                    "argNum": 6,
-                    "expr": "version.NativeArch()"
+                    "expr": "version.Arch()"
                 }
             ]
         },
@@ -633,9 +587,9 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "♥ &Donate!",
-            "message": "♥ &Donate!",
-            "translation": "♥ 捐助! (&D)",
+            "id": "♥ \u0026Donate!",
+            "message": "♥ \u0026Donate!",
+            "translation": "♥ 捐助! (\u0026D)",
             "translatorComment": "Copied from source."
         },
         {
@@ -645,15 +599,15 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Deactivate",
-            "message": "&Deactivate",
-            "translation": "断开 (&D)",
+            "id": "\u0026Deactivate",
+            "message": "\u0026Deactivate",
+            "translation": "断开 (\u0026D)",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Activate",
-            "message": "&Activate",
-            "translation": "连接 (&A)",
+            "id": "\u0026Activate",
+            "message": "\u0026Activate",
+            "translation": "连接 (\u0026A)",
             "translatorComment": "Copied from source."
         },
         {
@@ -690,6 +644,12 @@
             "id": "Scripts:",
             "message": "Scripts:",
             "translation": "脚本:",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Table:",
+            "message": "Table:",
+            "translation": "路由表:",
             "translatorComment": "Copied from source."
         },
         {
@@ -755,7 +715,13 @@
         {
             "id": "disabled, per policy",
             "message": "disabled, per policy",
-            "translation": "已禁用（依管理策略）",
+            "translation": "已根据策略禁用",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "off",
+            "message": "off",
+            "translation": "关闭",
             "translatorComment": "Copied from source."
         },
         {
@@ -841,15 +807,15 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Name:",
-            "message": "&Name:",
-            "translation": "名称 (&N):",
+            "id": "\u0026Name:",
+            "message": "\u0026Name:",
+            "translation": "名称 (\u0026N):",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Public key:",
-            "message": "&Public key:",
-            "translation": "公钥 (&P):",
+            "id": "\u0026Public key:",
+            "message": "\u0026Public key:",
+            "translation": "公钥 (\u0026P):",
             "translatorComment": "Copied from source."
         },
         {
@@ -859,21 +825,21 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Block untunneled traffic (kill-switch)",
-            "message": "&Block untunneled traffic (kill-switch)",
-            "translation": "拦截未经隧道的流量 (kill-switch) (&B)",
+            "id": "\u0026Block untunneled traffic (kill-switch)",
+            "message": "\u0026Block untunneled traffic (kill-switch)",
+            "translation": "拦截未经隧道的流量 (kill-switch) (\u0026B)",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface or is to the wrong DNS server, with special exceptions for DHCP and NDP.",
-            "message": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface or is to the wrong DNS server, with special exceptions for DHCP and NDP.",
-            "translation": "只有一个节点，且该节点允许的 IP 中包含 0.0.0.0/0 或 ::/0 时，使用防火墙规则拦截所有未通过隧道，或是发往错误的 DNS 服务器的流量。DHCP 和 NDP 流量不受影响。",
+            "id": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, and the interface does not have table off, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface or is to the wrong DNS server, with special exceptions for DHCP and NDP.",
+            "message": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, and the interface does not have table off, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface or is to the wrong DNS server, with special exceptions for DHCP and NDP.",
+            "translation": "只有一个节点，该节点允许的 IP 中包含 0.0.0.0/0 或 ::/0，且接口未设置 table off 时，使用防火墙规则拦截所有未通过隧道或发往错误 DNS 服务器的流量。DHCP 和 NDP 流量不受影响。",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Save",
-            "message": "&Save",
-            "translation": "保存 (&S)",
+            "id": "\u0026Save",
+            "message": "\u0026Save",
+            "translation": "保存 (\u0026S)",
             "translatorComment": "Copied from source."
         },
         {
@@ -883,9 +849,9 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Configuration:",
-            "message": "&Configuration:",
-            "translation": "配置 (&C):",
+            "id": "\u0026Configuration:",
+            "message": "\u0026Configuration:",
+            "translation": "配置 (\u0026C):",
             "translatorComment": "Copied from source."
         },
         {
@@ -1009,21 +975,21 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Copy",
-            "message": "&Copy",
-            "translation": "复制 (&C)",
+            "id": "\u0026Copy",
+            "message": "\u0026Copy",
+            "translation": "复制 (\u0026C)",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Select &all",
-            "message": "Select &all",
-            "translation": "全选 (&A)",
+            "id": "Select \u0026all",
+            "message": "Select \u0026all",
+            "translation": "全选 (\u0026A)",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Save to file…",
-            "message": "&Save to file…",
-            "translation": "导出… (&S)",
+            "id": "\u0026Save to file…",
+            "message": "\u0026Save to file…",
+            "translation": "导出… (\u0026S)",
             "translatorComment": "Copied from source."
         },
         {
@@ -1051,9 +1017,9 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&About WireGuard…",
-            "message": "&About WireGuard…",
-            "translation": "关于 WireGuard… (&A)",
+            "id": "\u0026About WireGuard…",
+            "message": "\u0026About WireGuard…",
+            "translation": "关于 WireGuard… (\u0026A)",
             "translatorComment": "Copied from source."
         },
         {
@@ -1135,27 +1101,27 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Manage tunnels…",
-            "message": "&Manage tunnels…",
-            "translation": "管理隧道… (&M)",
+            "id": "\u0026Manage tunnels…",
+            "message": "\u0026Manage tunnels…",
+            "translation": "管理隧道… (\u0026M)",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Import tunnel(s) from file…",
-            "message": "&Import tunnel(s) from file…",
-            "translation": "从文件导入隧道… (&I)",
+            "id": "\u0026Import tunnel(s) from file…",
+            "message": "\u0026Import tunnel(s) from file…",
+            "translation": "从文件导入隧道… (\u0026I)",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "E&xit",
-            "message": "E&xit",
-            "translation": "退出 (&E)",
+            "id": "E\u0026xit",
+            "message": "E\u0026xit",
+            "translation": "退出 (\u0026E)",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Tunnels",
-            "message": "&Tunnels",
-            "translation": "隧道 (&T)",
+            "id": "\u0026Tunnels",
+            "message": "\u0026Tunnels",
+            "translation": "隧道 (\u0026T)",
             "translatorComment": "Copied from source."
         },
         {
@@ -1281,15 +1247,15 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Edit",
-            "message": "&Edit",
-            "translation": "编辑 (&E)",
+            "id": "\u0026Edit",
+            "message": "\u0026Edit",
+            "translation": "编辑 (\u0026E)",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Add &empty tunnel…",
-            "message": "Add &empty tunnel…",
-            "translation": "新建空隧道… (&E)",
+            "id": "Add \u0026empty tunnel…",
+            "message": "Add \u0026empty tunnel…",
+            "translation": "新建空隧道… (\u0026E)",
             "translatorComment": "Copied from source."
         },
         {
@@ -1311,27 +1277,27 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Toggle",
-            "message": "&Toggle",
-            "translation": "切换连接状态 (&T)",
+            "id": "\u0026Toggle",
+            "message": "\u0026Toggle",
+            "translation": "切换连接状态 (\u0026T)",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Export all tunnels to &zip…",
-            "message": "Export all tunnels to &zip…",
-            "translation": "导出所有隧道 (ZIP 压缩包)… (&Z)",
+            "id": "Export all tunnels to \u0026zip…",
+            "message": "Export all tunnels to \u0026zip…",
+            "translation": "导出所有隧道 (ZIP 压缩包)… (\u0026Z)",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Edit &selected tunnel…",
-            "message": "Edit &selected tunnel…",
-            "translation": "编辑所选隧道… (&E)",
+            "id": "Edit \u0026selected tunnel…",
+            "message": "Edit \u0026selected tunnel…",
+            "translation": "编辑所选隧道… (\u0026E)",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Remove selected tunnel(s)",
-            "message": "&Remove selected tunnel(s)",
-            "translation": "删除所选隧道 (&R)",
+            "id": "\u0026Remove selected tunnel(s)",
+            "message": "\u0026Remove selected tunnel(s)",
+            "translation": "删除所选隧道 (\u0026R)",
             "translatorComment": "Copied from source."
         },
         {
@@ -1357,18 +1323,18 @@
             ]
         },
         {
-            "id": "Could not enumerate existing tunnels: {LastErr}",
-            "message": "Could not enumerate existing tunnels: {LastErr}",
-            "translation": "无法列出现有隧道: {LastErr}",
+            "id": "Could not enumerate existing tunnels: {Err}",
+            "message": "Could not enumerate existing tunnels: {Err}",
+            "translation": "无法列出现有隧道: {Err}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
-                    "id": "LastErr",
+                    "id": "Err",
                     "string": "%[1]v",
                     "type": "error",
                     "underlyingType": "interface{Error() string}",
                     "argNum": 1,
-                    "expr": "lastErr"
+                    "expr": "err"
                 }
             ]
         },
@@ -1706,6 +1672,18 @@
             "translatorComment": "Copied from source."
         },
         {
+            "id": "Please ask the system administrator to update.",
+            "message": "Please ask the system administrator to update.",
+            "translation": "请联系系统管理员进行更新。",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Status: Waiting for administrator",
+            "message": "Status: Waiting for administrator",
+            "translation": "状态: 等待管理员",
+            "translatorComment": "Copied from source."
+        },
+        {
             "id": "Status: Waiting for updater service",
             "message": "Status: Waiting for updater service",
             "translation": "状态: 等待更新服务",
@@ -1732,86 +1710,6 @@
             "message": "Status: Complete!",
             "translation": "状态: 完成！",
             "translatorComment": "Copied from source."
-        },
-        {
-            "id": "http2: Framer {F}: failed to decode just-written frame",
-            "message": "http2: Framer {F}: failed to decode just-written frame",
-            "translation": "http2: 成帧器 {F}: 解码刚写入的帧失败",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "F",
-                    "string": "%[1]p",
-                    "type": "*net/http.http2Framer",
-                    "underlyingType": "*net/http.http2Framer",
-                    "argNum": 1,
-                    "expr": "f"
-                }
-            ]
-        },
-        {
-            "id": "http2: Framer {F}: wrote {Http2summarizeFramefr}",
-            "message": "http2: Framer {F}: wrote {Http2summarizeFramefr}",
-            "translation": "http2: 成帧器 {F}: 写入了 {Http2summarizeFramefr}",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "F",
-                    "string": "%[1]p",
-                    "type": "*net/http.http2Framer",
-                    "underlyingType": "*net/http.http2Framer",
-                    "argNum": 1,
-                    "expr": "f"
-                },
-                {
-                    "id": "Http2summarizeFramefr",
-                    "string": "%[2]v",
-                    "type": "string",
-                    "underlyingType": "string",
-                    "argNum": 2,
-                    "expr": "http2summarizeFrame(fr)"
-                }
-            ]
-        },
-        {
-            "id": "http2: Framer {Fr}: read {Http2summarizeFramef}",
-            "message": "http2: Framer {Fr}: read {Http2summarizeFramef}",
-            "translation": "http2: 成帧器 {Fr}: 读取了 {Http2summarizeFramef}",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "Fr",
-                    "string": "%[1]p",
-                    "type": "*net/http.http2Framer",
-                    "underlyingType": "*net/http.http2Framer",
-                    "argNum": 1,
-                    "expr": "fr"
-                },
-                {
-                    "id": "Http2summarizeFramef",
-                    "string": "%[2]v",
-                    "type": "string",
-                    "underlyingType": "string",
-                    "argNum": 2,
-                    "expr": "http2summarizeFrame(f)"
-                }
-            ]
-        },
-        {
-            "id": "http2: decoded hpack field {HeaderField}",
-            "message": "http2: decoded hpack field {HeaderField}",
-            "translation": "http2: 解码的 hpack 字段 {HeaderField}",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "HeaderField",
-                    "string": "%+[1]v",
-                    "type": "vendor/golang.org/x/net/http2/hpack.HeaderField",
-                    "underlyingType": "struct{Name string; Value string; Sensitive bool}",
-                    "argNum": 1,
-                    "expr": "hf"
-                }
-            ]
         }
     ]
 }

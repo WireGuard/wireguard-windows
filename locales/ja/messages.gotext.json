@@ -8,9 +8,15 @@
             "translatorComment": "Copied from source."
         },
         {
+            "id": "Error:",
+            "message": "Error:",
+            "translation": "エラー:",
+            "translatorComment": "Copied from source."
+        },
+        {
             "id": "(no argument): elevate and install manager service",
             "message": "(no argument): elevate and install manager service",
-            "translation": "(引数なし): 管理者権限でmanagerサービスをインストールする",
+            "translation": "(引数なし): 管理者権限でmanagerサービスをインストールしてください",
             "translatorComment": "Copied from source."
         },
         {
@@ -377,15 +383,9 @@
             ]
         },
         {
-            "id": "Invalid IP address",
-            "message": "Invalid IP address",
-            "translation": "無効な IP アドレス",
-            "translatorComment": "Copied from source."
-        },
-        {
-            "id": "Invalid network prefix length",
-            "message": "Invalid network prefix length",
-            "translation": "無効なネットワークプレフィックス長",
+            "id": "Invalid IP address:",
+            "message": "Invalid IP address:",
+            "translation": "無効な IP アドレス:",
             "translatorComment": "Copied from source."
         },
         {
@@ -445,22 +445,6 @@
             "message": "Keys must decode to exactly 32 bytes",
             "translation": "鍵は 32 バイトでなければなりません",
             "translatorComment": "Copied from source."
-        },
-        {
-            "id": "Number must be a number between 0 and 2^64-1: {Err}",
-            "message": "Number must be a number between 0 and 2^64-1: {Err}",
-            "translation": "数値は0から2の64乗-1の範囲内の値でなければなりません: {Err}",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "Err",
-                    "string": "%[1]v",
-                    "type": "error",
-                    "underlyingType": "interface{Error() string}",
-                    "argNum": 1,
-                    "expr": "err"
-                }
-            ]
         },
         {
             "id": "Two commas in a row",
@@ -523,40 +507,18 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Error in getting configuration",
-            "message": "Error in getting configuration",
-            "translation": "設定の読込中にエラーが発生しました",
-            "translatorComment": "Copied from source."
-        },
-        {
-            "id": "Invalid key for interface section",
-            "message": "Invalid key for interface section",
-            "translation": "無効な Interface セクションのキー項目",
-            "translatorComment": "Copied from source."
-        },
-        {
-            "id": "Protocol version must be 1",
-            "message": "Protocol version must be 1",
-            "translation": "プロトコルバージョンは 1 でなければなりません",
-            "translatorComment": "Copied from source."
-        },
-        {
-            "id": "Invalid key for peer section",
-            "message": "Invalid key for peer section",
-            "translation": "無効な Peer セクションのキー項目",
-            "translatorComment": "Copied from source."
-        },
-        {
             "id": "[EnumerationSeparator]",
             "message": "[EnumerationSeparator]",
-            "translation": ", ",
-            "comment": "Text to insert between items when listing - most western languages will translate ‘[EnumerationSeparator]’ into ‘, ’ to produce lists like ‘apple, orange, strawberry’. Eastern languages might translate into ‘、’ to produce lists like ‘リンゴ、オレンジ、イチゴ’."
+            "translation": "、",
+            "comment": "Text to insert between items when listing - most western languages will translate ‘[EnumerationSeparator]’ into ‘, ’ to produce lists like ‘apple, orange, strawberry’. Eastern languages might translate into ‘、’ to produce lists like ‘リンゴ、オレンジ、イチゴ’.",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "[UnitSeparator]",
             "message": "[UnitSeparator]",
             "translation": " ",
-            "comment": "Text to insert when combining units of a measure - most languages will translate ‘[UnitSeparator]’ into ‘ ’ (space) to produce lists like ‘2 minuti 30 sekund’, or empty string ‘’ to produce ‘2分30秒’."
+            "comment": "Text to insert when combining units of a measure - most languages will translate ‘[UnitSeparator]’ into ‘ ’ (space) to produce lists like ‘2 minuti 30 sekund’, or empty string ‘’ to produce ‘2分30秒’.",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "About WireGuard",
@@ -571,9 +533,9 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}-{GOARCH}\nOperating system: {OsName}\nArchitecture: {NativeArch}",
-            "message": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}-{GOARCH}\nOperating system: {OsName}\nArchitecture: {NativeArch}",
-            "translation": "アプリ バージョン: {Number}\nGo バックエンド バージョン: {WireGuardGoVersion}\nGo バージョン: {Version_go}-{GOARCH}\nOS: {OsName}\nアーキテクチャ: {NativeArch}",
+            "id": "App version: {Number}\nDriver version: {Version}\nGo version: {Version_go}\nOperating system: {OsName}\nArchitecture: {Arch}",
+            "message": "App version: {Number}\nDriver version: {Version}\nGo version: {Version_go}\nOperating system: {OsName}\nArchitecture: {Arch}",
+            "translation": "アプリのバージョン: {Number}\nドライバーのバージョン: {Version}\nGo のバージョン: {Version_go}\nOS: {OsName}\nアーキテクチャ: {Arch}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -585,12 +547,12 @@
                     "expr": "version.Number"
                 },
                 {
-                    "id": "WireGuardGoVersion",
+                    "id": "Version",
                     "string": "%[2]s",
                     "type": "string",
                     "underlyingType": "string",
                     "argNum": 2,
-                    "expr": "device.WireGuardGoVersion"
+                    "expr": "driver.Version()"
                 },
                 {
                     "id": "Version_go",
@@ -601,28 +563,20 @@
                     "expr": "strings.TrimPrefix(runtime.Version(), \"go\")"
                 },
                 {
-                    "id": "GOARCH",
+                    "id": "OsName",
                     "string": "%[4]s",
                     "type": "string",
                     "underlyingType": "string",
                     "argNum": 4,
-                    "expr": "runtime.GOARCH"
+                    "expr": "version.OsName()"
                 },
                 {
-                    "id": "OsName",
+                    "id": "Arch",
                     "string": "%[5]s",
                     "type": "string",
                     "underlyingType": "string",
                     "argNum": 5,
-                    "expr": "version.OsName()"
-                },
-                {
-                    "id": "NativeArch",
-                    "string": "%[6]s",
-                    "type": "string",
-                    "underlyingType": "string",
-                    "argNum": 6,
-                    "expr": "version.NativeArch()"
+                    "expr": "version.Arch()"
                 }
             ]
         },
@@ -633,9 +587,9 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "♥ &Donate!",
-            "message": "♥ &Donate!",
-            "translation": "♥ 寄付のお願い!(&D)",
+            "id": "♥ \u0026Donate!",
+            "message": "♥ \u0026Donate!",
+            "translation": "♥ 寄付のお願い!(\u0026D)",
             "translatorComment": "Copied from source."
         },
         {
@@ -645,15 +599,15 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Deactivate",
-            "message": "&Deactivate",
-            "translation": "無効化(&D)",
+            "id": "\u0026Deactivate",
+            "message": "\u0026Deactivate",
+            "translation": "無効化(\u0026D)",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Activate",
-            "message": "&Activate",
-            "translation": "有効化(&A)",
+            "id": "\u0026Activate",
+            "message": "\u0026Activate",
+            "translation": "有効化(\u0026A)",
             "translatorComment": "Copied from source."
         },
         {
@@ -690,6 +644,12 @@
             "id": "Scripts:",
             "message": "Scripts:",
             "translation": "スクリプト:",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Table:",
+            "message": "Table:",
+            "translation": "テーブル：",
             "translatorComment": "Copied from source."
         },
         {
@@ -731,31 +691,37 @@
         {
             "id": "pre-up",
             "message": "pre-up",
-            "translation": "pre-up",
+            "translation": "接続前",
             "translatorComment": "Copied from source."
         },
         {
             "id": "post-up",
             "message": "post-up",
-            "translation": "post-up",
+            "translation": "接続後",
             "translatorComment": "Copied from source."
         },
         {
             "id": "pre-down",
             "message": "pre-down",
-            "translation": "pre-down",
+            "translation": "切断前",
             "translatorComment": "Copied from source."
         },
         {
             "id": "post-down",
             "message": "post-down",
-            "translation": "post-down",
+            "translation": "切断後",
             "translatorComment": "Copied from source."
         },
         {
             "id": "disabled, per policy",
             "message": "disabled, per policy",
-            "translation": "ポリシーにより無効です",
+            "translation": "ポリシーにより無効",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "off",
+            "message": "off",
+            "translation": "オフ",
             "translatorComment": "Copied from source."
         },
         {
@@ -841,15 +807,15 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Name:",
-            "message": "&Name:",
-            "translation": "名前(&N):",
+            "id": "\u0026Name:",
+            "message": "\u0026Name:",
+            "translation": "名前(\u0026N):",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Public key:",
-            "message": "&Public key:",
-            "translation": "公開鍵(&P):",
+            "id": "\u0026Public key:",
+            "message": "\u0026Public key:",
+            "translation": "公開鍵(\u0026P):",
             "translatorComment": "Copied from source."
         },
         {
@@ -859,21 +825,21 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Block untunneled traffic (kill-switch)",
-            "message": "&Block untunneled traffic (kill-switch)",
-            "translation": "トンネルを通らないトラフィックのブロック（キルスイッチ）(&B)",
+            "id": "\u0026Block untunneled traffic (kill-switch)",
+            "message": "\u0026Block untunneled traffic (kill-switch)",
+            "translation": "トンネルを通らないトラフィックのブロック（キルスイッチ）(\u0026B)",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface or is to the wrong DNS server, with special exceptions for DHCP and NDP.",
-            "message": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface or is to the wrong DNS server, with special exceptions for DHCP and NDP.",
-            "translation": "ピアが1つだけ設定されており、かつAllowed IPs に 0.0.0.0/0 や ::/0 が含まれている場合、トンネルサービスはトンネルインターフェイスを通らないトラフィックや間違った DNS サーバーに向かう通信をブロックするファイアウォールルールを追加します。\nDHCP と NDP には特別な例外があります。",
+            "id": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, and the interface does not have table off, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface or is to the wrong DNS server, with special exceptions for DHCP and NDP.",
+            "message": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, and the interface does not have table off, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface or is to the wrong DNS server, with special exceptions for DHCP and NDP.",
+            "translation": "ピアがひとつだけ設定されており、そのピアの Allowed IPs に 0.0.0.0/0 または ::/0 の少なくともどちらかが含まれており、かつインターフェースに Table = off が設定されていない場合、トンネルサービスは特別に DHCP と NDP を除き、トンネルインターフェースを経由しないトラフィックや誤った DNS サーバ向けのトラフィックをブロックするファイアウォールルールセットを適用します。",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Save",
-            "message": "&Save",
-            "translation": "保存(&S)",
+            "id": "\u0026Save",
+            "message": "\u0026Save",
+            "translation": "保存(\u0026S)",
             "translatorComment": "Copied from source."
         },
         {
@@ -883,9 +849,9 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Configuration:",
-            "message": "&Configuration:",
-            "translation": "設定(&C):",
+            "id": "\u0026Configuration:",
+            "message": "\u0026Configuration:",
+            "translation": "設定(\u0026C):",
             "translatorComment": "Copied from source."
         },
         {
@@ -1009,21 +975,21 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Copy",
-            "message": "&Copy",
-            "translation": "コピー(&C)",
+            "id": "\u0026Copy",
+            "message": "\u0026Copy",
+            "translation": "コピー(\u0026C)",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Select &all",
-            "message": "Select &all",
-            "translation": "すべて選択(&A)",
+            "id": "Select \u0026all",
+            "message": "Select \u0026all",
+            "translation": "すべて選択(\u0026A)",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Save to file…",
-            "message": "&Save to file…",
-            "translation": "ファイルに保存…(&S)",
+            "id": "\u0026Save to file…",
+            "message": "\u0026Save to file…",
+            "translation": "ファイルに保存…(\u0026S)",
             "translatorComment": "Copied from source."
         },
         {
@@ -1051,9 +1017,9 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&About WireGuard…",
-            "message": "&About WireGuard…",
-            "translation": "WireGuardについて…(&A)",
+            "id": "\u0026About WireGuard…",
+            "message": "\u0026About WireGuard…",
+            "translation": "WireGuardについて…(\u0026A)",
             "translatorComment": "Copied from source."
         },
         {
@@ -1135,27 +1101,27 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Manage tunnels…",
-            "message": "&Manage tunnels…",
-            "translation": "トンネルの管理…(&M)",
+            "id": "\u0026Manage tunnels…",
+            "message": "\u0026Manage tunnels…",
+            "translation": "トンネルの管理…(\u0026M)",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Import tunnel(s) from file…",
-            "message": "&Import tunnel(s) from file…",
-            "translation": "トンネルをファイルからインポート…(&I)",
+            "id": "\u0026Import tunnel(s) from file…",
+            "message": "\u0026Import tunnel(s) from file…",
+            "translation": "トンネルをファイルからインポート…(\u0026I)",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "E&xit",
-            "message": "E&xit",
-            "translation": "終了(&X)",
+            "id": "E\u0026xit",
+            "message": "E\u0026xit",
+            "translation": "終了(\u0026X)",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Tunnels",
-            "message": "&Tunnels",
-            "translation": "トンネル(&T)",
+            "id": "\u0026Tunnels",
+            "message": "\u0026Tunnels",
+            "translation": "トンネル(\u0026T)",
             "translatorComment": "Copied from source."
         },
         {
@@ -1281,15 +1247,15 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Edit",
-            "message": "&Edit",
-            "translation": "編集(&E)",
+            "id": "\u0026Edit",
+            "message": "\u0026Edit",
+            "translation": "編集(\u0026E)",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Add &empty tunnel…",
-            "message": "Add &empty tunnel…",
-            "translation": "空のトンネルを追加…(&E)",
+            "id": "Add \u0026empty tunnel…",
+            "message": "Add \u0026empty tunnel…",
+            "translation": "空のトンネルを追加…(\u0026E)",
             "translatorComment": "Copied from source."
         },
         {
@@ -1311,33 +1277,33 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Toggle",
-            "message": "&Toggle",
-            "translation": "切り替え(&T)",
+            "id": "\u0026Toggle",
+            "message": "\u0026Toggle",
+            "translation": "切り替え(\u0026T)",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Export all tunnels to &zip…",
-            "message": "Export all tunnels to &zip…",
-            "translation": "すべてのトンネルをzipにエクスポート…(&Z)",
+            "id": "Export all tunnels to \u0026zip…",
+            "message": "Export all tunnels to \u0026zip…",
+            "translation": "すべてのトンネルをzipにエクスポート…(\u0026Z)",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Edit &selected tunnel…",
-            "message": "Edit &selected tunnel…",
-            "translation": "選択したトンネルの編集…(&S)",
+            "id": "Edit \u0026selected tunnel…",
+            "message": "Edit \u0026selected tunnel…",
+            "translation": "選択したトンネルの編集…(\u0026S)",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Remove selected tunnel(s)",
-            "message": "&Remove selected tunnel(s)",
-            "translation": "選択したトンネルの削除(&R)",
+            "id": "\u0026Remove selected tunnel(s)",
+            "message": "\u0026Remove selected tunnel(s)",
+            "translation": "選択したトンネルの削除(\u0026R)",
             "translatorComment": "Copied from source."
         },
         {
             "id": "no configuration files were found",
             "message": "no configuration files were found",
-            "translation": "設定ファイルが見つかりません",
+            "translation": "設定ファイルが見つかりませんでした",
             "translatorComment": "Copied from source."
         },
         {
@@ -1357,18 +1323,18 @@
             ]
         },
         {
-            "id": "Could not enumerate existing tunnels: {LastErr}",
-            "message": "Could not enumerate existing tunnels: {LastErr}",
-            "translation": "既存のトンネルを表示できませんでした: {LastErr}",
+            "id": "Could not enumerate existing tunnels: {Err}",
+            "message": "Could not enumerate existing tunnels: {Err}",
+            "translation": "既存のトンネルを表示できませんでした: {Err}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
-                    "id": "LastErr",
+                    "id": "Err",
                     "string": "%[1]v",
                     "type": "error",
                     "underlyingType": "interface{Error() string}",
                     "argNum": 1,
-                    "expr": "lastErr"
+                    "expr": "err"
                 }
             ]
         },
@@ -1706,6 +1672,18 @@
             "translatorComment": "Copied from source."
         },
         {
+            "id": "Please ask the system administrator to update.",
+            "message": "Please ask the system administrator to update.",
+            "translation": "システム管理者に更新を依頼してください。",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Status: Waiting for administrator",
+            "message": "Status: Waiting for administrator",
+            "translation": "状態: 管理者からの応答待ち",
+            "translatorComment": "Copied from source."
+        },
+        {
             "id": "Status: Waiting for updater service",
             "message": "Status: Waiting for updater service",
             "translation": "状態: アップデータサービスを待機中",
@@ -1732,86 +1710,6 @@
             "message": "Status: Complete!",
             "translation": "状態: 完了！",
             "translatorComment": "Copied from source."
-        },
-        {
-            "id": "http2: Framer {F}: failed to decode just-written frame",
-            "message": "http2: Framer {F}: failed to decode just-written frame",
-            "translation": "http2: Framer {F}: just-writtenフレームのデコードに失敗",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "F",
-                    "string": "%[1]p",
-                    "type": "*net/http.http2Framer",
-                    "underlyingType": "*net/http.http2Framer",
-                    "argNum": 1,
-                    "expr": "f"
-                }
-            ]
-        },
-        {
-            "id": "http2: Framer {F}: wrote {Http2summarizeFramefr}",
-            "message": "http2: Framer {F}: wrote {Http2summarizeFramefr}",
-            "translation": "http2: Framer {F}: {Http2summarizeFramefr} を書き込みました",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "F",
-                    "string": "%[1]p",
-                    "type": "*net/http.http2Framer",
-                    "underlyingType": "*net/http.http2Framer",
-                    "argNum": 1,
-                    "expr": "f"
-                },
-                {
-                    "id": "Http2summarizeFramefr",
-                    "string": "%[2]v",
-                    "type": "string",
-                    "underlyingType": "string",
-                    "argNum": 2,
-                    "expr": "http2summarizeFrame(fr)"
-                }
-            ]
-        },
-        {
-            "id": "http2: Framer {Fr}: read {Http2summarizeFramef}",
-            "message": "http2: Framer {Fr}: read {Http2summarizeFramef}",
-            "translation": "http2: Framer {Fr}: {Http2summarizeFramef} を読み込みました",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "Fr",
-                    "string": "%[1]p",
-                    "type": "*net/http.http2Framer",
-                    "underlyingType": "*net/http.http2Framer",
-                    "argNum": 1,
-                    "expr": "fr"
-                },
-                {
-                    "id": "Http2summarizeFramef",
-                    "string": "%[2]v",
-                    "type": "string",
-                    "underlyingType": "string",
-                    "argNum": 2,
-                    "expr": "http2summarizeFrame(f)"
-                }
-            ]
-        },
-        {
-            "id": "http2: decoded hpack field {HeaderField}",
-            "message": "http2: decoded hpack field {HeaderField}",
-            "translation": "http2: hpack フィールド {HeaderField} をデコードしました",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "HeaderField",
-                    "string": "%+[1]v",
-                    "type": "vendor/golang.org/x/net/http2/hpack.HeaderField",
-                    "underlyingType": "struct{Name string; Value string; Sensitive bool}",
-                    "argNum": 1,
-                    "expr": "hf"
-                }
-            ]
         }
     ]
 }

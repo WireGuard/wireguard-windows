@@ -8,6 +8,12 @@
             "translatorComment": "Copied from source."
         },
         {
+            "id": "Error:",
+            "message": "Error:",
+            "translation": "Kesalahan:",
+            "translatorComment": "Copied from source."
+        },
+        {
             "id": "(no argument): elevate and install manager service",
             "message": "(no argument): elevate and install manager service",
             "translation": "(tidak ada argumen): naikkan akses dan instal servis manajer",
@@ -140,7 +146,7 @@
                     "arg": "Years",
                     "cases": {
                         "other": {
-                            "msg": "{Years} tahun\n{Years} tahun"
+                            "msg": "{Years} tahun"
                         }
                     }
                 }
@@ -165,7 +171,7 @@
                     "arg": "Days",
                     "cases": {
                         "other": {
-                            "msg": "{Days} Hari"
+                            "msg": "{Days} hari"
                         }
                     }
                 }
@@ -377,21 +383,15 @@
             ]
         },
         {
-            "id": "Invalid IP address",
-            "message": "Invalid IP address",
-            "translation": "Alamat IP tidak valid",
-            "translatorComment": "Copied from source."
-        },
-        {
-            "id": "Invalid network prefix length",
-            "message": "Invalid network prefix length",
-            "translation": "Network prefix tidak valid",
+            "id": "Invalid IP address:",
+            "message": "Invalid IP address:",
+            "translation": "Alamat IP tidak valid:",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Missing port from endpoint",
             "message": "Missing port from endpoint",
-            "translation": "Port belum terisi dari endpoint",
+            "translation": "Port tidak ada pada endpoint",
             "translatorComment": "Copied from source."
         },
         {
@@ -403,7 +403,7 @@
         {
             "id": "Brackets must contain an IPv6 address",
             "message": "Brackets must contain an IPv6 address",
-            "translation": "Dalam Kurung harus berisi alamat IPv6",
+            "translation": "Tanda kurung harus berisi alamat IPv6",
             "translatorComment": "Copied from source."
         },
         {
@@ -427,7 +427,7 @@
         {
             "id": "Invalid key: {Err}",
             "message": "Invalid key: {Err}",
-            "translation": "Kunci tidak sah:{Err}",
+            "translation": "Kunci tidak valid: {Err}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -447,22 +447,6 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Number must be a number between 0 and 2^64-1: {Err}",
-            "message": "Number must be a number between 0 and 2^64-1: {Err}",
-            "translation": "Nomor harus diantara 0 sampai dengan 2^64-1:{Err}",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "Err",
-                    "string": "%[1]v",
-                    "type": "error",
-                    "underlyingType": "interface{Error() string}",
-                    "argNum": 1,
-                    "expr": "err"
-                }
-            ]
-        },
-        {
             "id": "Two commas in a row",
             "message": "Two commas in a row",
             "translation": "Dua koma dalam satu baris",
@@ -477,13 +461,13 @@
         {
             "id": "Line must occur in a section",
             "message": "Line must occur in a section",
-            "translation": "Garis harus muncul perbagian",
+            "translation": "Baris harus berada dalam suatu bagian",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Config key is missing an equals separator",
             "message": "Config key is missing an equals separator",
-            "translation": "Kunci konfigurasi tidak valid, tidak memiliki pemisah dan sama dengan",
+            "translation": "Kunci konfigurasi tidak memiliki pemisah tanda sama dengan",
             "translatorComment": "Copied from source."
         },
         {
@@ -513,7 +497,7 @@
         {
             "id": "[none specified]",
             "message": "[none specified]",
-            "translation": "Tidak Ditetapkan",
+            "translation": "[tidak ditetapkan]",
             "translatorComment": "Copied from source."
         },
         {
@@ -523,39 +507,15 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Error in getting configuration",
-            "message": "Error in getting configuration",
-            "translation": "Eror ketika mendapatkan konfigurasi",
-            "translatorComment": "Copied from source."
-        },
-        {
-            "id": "Invalid key for interface section",
-            "message": "Invalid key for interface section",
-            "translation": "Kunci tidak valid pada bagian [Interface]",
-            "translatorComment": "Copied from source."
-        },
-        {
-            "id": "Protocol version must be 1",
-            "message": "Protocol version must be 1",
-            "translation": "Versi protokol harus 1",
-            "translatorComment": "Copied from source."
-        },
-        {
-            "id": "Invalid key for peer section",
-            "message": "Invalid key for peer section",
-            "translation": "Kunci tidak valid pada bagian [Peer]",
-            "translatorComment": "Copied from source."
-        },
-        {
             "id": "[EnumerationSeparator]",
             "message": "[EnumerationSeparator]",
-            "translation": ", ",
+            "translation": "",
             "comment": "Text to insert between items when listing - most western languages will translate ‘[EnumerationSeparator]’ into ‘, ’ to produce lists like ‘apple, orange, strawberry’. Eastern languages might translate into ‘、’ to produce lists like ‘リンゴ、オレンジ、イチゴ’."
         },
         {
             "id": "[UnitSeparator]",
             "message": "[UnitSeparator]",
-            "translation": ", ",
+            "translation": "",
             "comment": "Text to insert when combining units of a measure - most languages will translate ‘[UnitSeparator]’ into ‘ ’ (space) to produce lists like ‘2 minuti 30 sekund’, or empty string ‘’ to produce ‘2分30秒’."
         },
         {
@@ -571,9 +531,9 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}-{GOARCH}\nOperating system: {OsName}\nArchitecture: {NativeArch}",
-            "message": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}-{GOARCH}\nOperating system: {OsName}\nArchitecture: {NativeArch}",
-            "translation": "Versi Aplikasi: {Number}\nVersi back-end Go: {WireGuardGoVersion}\nVersi Go: {Version_go}--{GOARCH}\nSistem Operasi: {OsName}\nArsitektur: {NativeArch}",
+            "id": "App version: {Number}\nDriver version: {Version}\nGo version: {Version_go}\nOperating system: {OsName}\nArchitecture: {Arch}",
+            "message": "App version: {Number}\nDriver version: {Version}\nGo version: {Version_go}\nOperating system: {OsName}\nArchitecture: {Arch}",
+            "translation": "Versi aplikasi: {Number}\nVersi driver: {Version}\nVersi Go: {Version_go}\nSistem operasi: {OsName}\nArsitektur: {Arch}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -585,12 +545,12 @@
                     "expr": "version.Number"
                 },
                 {
-                    "id": "WireGuardGoVersion",
+                    "id": "Version",
                     "string": "%[2]s",
                     "type": "string",
                     "underlyingType": "string",
                     "argNum": 2,
-                    "expr": "device.WireGuardGoVersion"
+                    "expr": "driver.Version()"
                 },
                 {
                     "id": "Version_go",
@@ -601,28 +561,20 @@
                     "expr": "strings.TrimPrefix(runtime.Version(), \"go\")"
                 },
                 {
-                    "id": "GOARCH",
+                    "id": "OsName",
                     "string": "%[4]s",
                     "type": "string",
                     "underlyingType": "string",
                     "argNum": 4,
-                    "expr": "runtime.GOARCH"
+                    "expr": "version.OsName()"
                 },
                 {
-                    "id": "OsName",
+                    "id": "Arch",
                     "string": "%[5]s",
                     "type": "string",
                     "underlyingType": "string",
                     "argNum": 5,
-                    "expr": "version.OsName()"
-                },
-                {
-                    "id": "NativeArch",
-                    "string": "%[6]s",
-                    "type": "string",
-                    "underlyingType": "string",
-                    "argNum": 6,
-                    "expr": "version.NativeArch()"
+                    "expr": "version.Arch()"
                 }
             ]
         },
@@ -633,9 +585,9 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "♥ &Donate!",
-            "message": "♥ &Donate!",
-            "translation": "♥ &Donasi!",
+            "id": "♥ \u0026Donate!",
+            "message": "♥ \u0026Donate!",
+            "translation": "♥ \u0026Donasi!",
             "translatorComment": "Copied from source."
         },
         {
@@ -645,15 +597,15 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Deactivate",
-            "message": "&Deactivate",
-            "translation": "&Nonaktifkan",
+            "id": "\u0026Deactivate",
+            "message": "\u0026Deactivate",
+            "translation": "\u0026Nonaktifkan",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Activate",
-            "message": "&Activate",
-            "translation": "&Aktifkan",
+            "id": "\u0026Activate",
+            "message": "\u0026Activate",
+            "translation": "\u0026Aktifkan",
             "translatorComment": "Copied from source."
         },
         {
@@ -665,7 +617,7 @@
         {
             "id": "Listen port:",
             "message": "Listen port:",
-            "translation": "Port Pendengar:",
+            "translation": "Port pendengar:",
             "translatorComment": "Copied from source."
         },
         {
@@ -693,9 +645,15 @@
             "translatorComment": "Copied from source."
         },
         {
+            "id": "Table:",
+            "message": "Table:",
+            "translation": "Tabel:",
+            "translatorComment": "Copied from source."
+        },
+        {
             "id": "Preshared key:",
             "message": "Preshared key:",
-            "translation": "Preshared key:",
+            "translation": "Kunci prabagi:",
             "translatorComment": "Copied from source."
         },
         {
@@ -709,6 +667,273 @@
             "message": "Endpoint:",
             "translation": "Endpoint:",
             "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Persistent keepalive:",
+            "message": "Persistent keepalive:",
+            "translation": "Keepalive persisten:",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Latest handshake:",
+            "message": "Latest handshake:",
+            "translation": "Handshake terakhir:",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Transfer:",
+            "message": "Transfer:",
+            "translation": "Pemindahan:",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "pre-up",
+            "message": "pre-up",
+            "translation": "pra-aktivasi",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "post-up",
+            "message": "post-up",
+            "translation": "pasca-aktivasi",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "pre-down",
+            "message": "pre-down",
+            "translation": "pra-deaktivasi",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "post-down",
+            "message": "post-down",
+            "translation": "pasca-deaktivasi",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "disabled, per policy",
+            "message": "disabled, per policy",
+            "translation": "dinonaktifkan, sesuai kebijakan",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "off",
+            "message": "off",
+            "translation": "mati",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "enabled",
+            "message": "enabled",
+            "translation": "diaktifkan",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "{String} received, {String_1} sent",
+            "message": "{String} received, {String_1} sent",
+            "translation": "{String} diterima, {String_1} terkirim",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "String",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "c.RxBytes.String()"
+                },
+                {
+                    "id": "String_1",
+                    "string": "%[2]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 2,
+                    "expr": "c.TxBytes.String()"
+                }
+            ]
+        },
+        {
+            "id": "Failed to determine tunnel state",
+            "message": "Failed to determine tunnel state",
+            "translation": "Gagal menentukan status tunnel",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Failed to activate tunnel",
+            "message": "Failed to activate tunnel",
+            "translation": "Gagal mengaktifkan tunnel",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Failed to deactivate tunnel",
+            "message": "Failed to deactivate tunnel",
+            "translation": "Gagal menonaktifkan tunnel",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Interface: {Name}",
+            "message": "Interface: {Name}",
+            "translation": "Antarmuka: {Name}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Name",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "config.Name"
+                }
+            ]
+        },
+        {
+            "id": "Peer",
+            "message": "Peer",
+            "translation": ""
+        },
+        {
+            "id": "Create new tunnel",
+            "message": "Create new tunnel",
+            "translation": "Buat tunnel baru",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Edit tunnel",
+            "message": "Edit tunnel",
+            "translation": "Ubah tunnel",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "\u0026Name:",
+            "message": "\u0026Name:",
+            "translation": "\u0026Nama:",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "\u0026Public key:",
+            "message": "\u0026Public key:",
+            "translation": "\u0026Kunci publik:",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "(unknown)",
+            "message": "(unknown)",
+            "translation": "(tidak diketahui)",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "\u0026Block untunneled traffic (kill-switch)",
+            "message": "\u0026Block untunneled traffic (kill-switch)",
+            "translation": "\u0026Blokir lalu lintas di luar tunnel (kill-switch)",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, and the interface does not have table off, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface or is to the wrong DNS server, with special exceptions for DHCP and NDP.",
+            "message": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, and the interface does not have table off, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface or is to the wrong DNS server, with special exceptions for DHCP and NDP.",
+            "translation": "Ketika konfigurasi memiliki tepat satu peer, dan peer tersebut memiliki allowed IPs yang mencakup setidaknya salah satu dari 0.0.0.0/0 atau ::/0, dan interface tidak memiliki table off, maka servis tunnel mengaktifkan kumpulan aturan firewall untuk memblokir semua lalu lintas yang bukan menuju atau berasal dari antarmuka tunnel atau yang menuju ke server DNS yang salah, dengan pengecualian khusus untuk DHCP dan NDP.",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "\u0026Save",
+            "message": "\u0026Save",
+            "translation": "\u0026Simpan",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Cancel",
+            "message": "Cancel",
+            "translation": "Batal",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "\u0026Configuration:",
+            "message": "\u0026Configuration:",
+            "translation": "\u0026Konfigurasi:",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Invalid name",
+            "message": "Invalid name",
+            "translation": "Nama tidak valid",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "A name is required.",
+            "message": "A name is required.",
+            "translation": "Nama wajib diisi.",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Tunnel name ‘{NewName}’ is invalid.",
+            "message": "Tunnel name ‘{NewName}’ is invalid.",
+            "translation": "Nama tunnel ‘{NewName}’ tidak valid.",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "NewName",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "newName"
+                }
+            ]
+        },
+        {
+            "id": "Unable to list existing tunnels",
+            "message": "Unable to list existing tunnels",
+            "translation": "Tidak dapat menampilkan daftar tunnel yang ada",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Tunnel already exists",
+            "message": "Tunnel already exists",
+            "translation": "Tunnel sudah ada",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Another tunnel already exists with the name ‘{NewName}’.",
+            "message": "Another tunnel already exists with the name ‘{NewName}’.",
+            "translation": "Tunnel lain dengan nama ‘{NewName}’ sudah ada.",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "NewName",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "newName"
+                }
+            ]
+        },
+        {
+            "id": "Unable to create new configuration",
+            "message": "Unable to create new configuration",
+            "translation": "Tidak dapat membuat konfigurasi baru",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Writing file failed",
+            "message": "Writing file failed",
+            "translation": "Penulisan berkas gagal",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "File ‘{FilePath}’ already exists.\n\nDo you want to overwrite it?",
+            "message": "File ‘{FilePath}’ already exists.\n\nDo you want to overwrite it?",
+            "translation": "Berkas ‘{FilePath}’ sudah ada.\n\nApakah Anda ingin menimpanya?",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "FilePath",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "filePath"
+                }
+            ]
         },
         {
             "id": "Active",
@@ -747,21 +972,21 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Copy",
-            "message": "&Copy",
-            "translation": "Salin",
+            "id": "\u0026Copy",
+            "message": "\u0026Copy",
+            "translation": "\u0026Salin",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Select &all",
-            "message": "Select &all",
-            "translation": "Pilih semua",
+            "id": "Select \u0026all",
+            "message": "Select \u0026all",
+            "translation": "Pilih semu\u0026a",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Save to file…",
-            "message": "&Save to file…",
-            "translation": "Menyimpan ke dalam berkas…",
+            "id": "\u0026Save to file…",
+            "message": "\u0026Save to file…",
+            "translation": "\u0026Simpan ke berkas…",
             "translatorComment": "Copied from source."
         },
         {
@@ -779,25 +1004,25 @@
         {
             "id": "Text Files (*.txt)|*.txt|All Files (*.*)|*.*",
             "message": "Text Files (*.txt)|*.txt|All Files (*.*)|*.*",
-            "translation": "Berkas Txt (*.Txt)|*.Txt|Semua berkas (*.*)|*.*",
+            "translation": "Berkas Teks (*.txt)|*.txt|Semua Berkas (*.*)|*.*",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Export log to file",
             "message": "Export log to file",
-            "translation": "Ekspor log kedalam file",
+            "translation": "Ekspor log ke berkas",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&About WireGuard…",
-            "message": "&About WireGuard…",
-            "translation": "&Tentang WireGuard…",
+            "id": "\u0026About WireGuard…",
+            "message": "\u0026About WireGuard…",
+            "translation": "\u0026Tentang WireGuard…",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Tunnel Error",
             "message": "Tunnel Error",
-            "translation": "Tunnel eror",
+            "translation": "Kesalahan Tunnel",
             "translatorComment": "Copied from source."
         },
         {
@@ -835,7 +1060,7 @@
         {
             "id": "WireGuard Detection Error",
             "message": "WireGuard Detection Error",
-            "translation": "Deteksi eror WireGuard",
+            "translation": "Kesalahan Deteksi WireGuard",
             "translatorComment": "Copied from source."
         },
         {
@@ -873,27 +1098,77 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Manage tunnels…",
-            "message": "&Manage tunnels…",
-            "translation": "&Manajer Tunnel…",
+            "id": "\u0026Manage tunnels…",
+            "message": "\u0026Manage tunnels…",
+            "translation": "\u0026Manajer Tunnel…",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Import tunnel(s) from file…",
-            "message": "&Import tunnel(s) from file…",
-            "translation": "&Impor tunnel dari file…",
+            "id": "\u0026Import tunnel(s) from file…",
+            "message": "\u0026Import tunnel(s) from file…",
+            "translation": "\u0026Impor tunnel dari berkas…",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "E&xit",
-            "message": "E&xit",
-            "translation": "&Keluar",
+            "id": "E\u0026xit",
+            "message": "E\u0026xit",
+            "translation": "\u0026Keluar",
             "translatorComment": "Copied from source."
+        },
+        {
+            "id": "\u0026Tunnels",
+            "message": "\u0026Tunnels",
+            "translation": "\u0026Tunnel",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "WireGuard Activated",
+            "message": "WireGuard Activated",
+            "translation": "WireGuard Diaktifkan",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "The {Name} tunnel has been activated.",
+            "message": "The {Name} tunnel has been activated.",
+            "translation": "Tunnel {Name} telah diaktifkan.",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Name",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "tunnel.Name"
+                }
+            ]
+        },
+        {
+            "id": "WireGuard Deactivated",
+            "message": "WireGuard Deactivated",
+            "translation": "WireGuard Dinonaktifkan",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "The {Name} tunnel has been deactivated.",
+            "message": "The {Name} tunnel has been deactivated.",
+            "translation": "Tunnel {Name} telah dinonaktifkan.",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Name",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "tunnel.Name"
+                }
+            ]
         },
         {
             "id": "WireGuard Tunnel Error",
             "message": "WireGuard Tunnel Error",
-            "translation": "Wireguard Tunnel Eror",
+            "translation": "Kesalahan Tunnel WireGuard",
             "translatorComment": "Copied from source."
         },
         {
@@ -929,21 +1204,103 @@
             ]
         },
         {
-            "id": "Export all tunnels to &zip…",
-            "message": "Export all tunnels to &zip…",
-            "translation": "Ekspor semua tunnel ke &zip…",
+            "id": "Addresses: {EnumerationSeparator}",
+            "message": "Addresses: {EnumerationSeparator}",
+            "translation": "Alamat: {EnumerationSeparator}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "EnumerationSeparator",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "strings.Join(addrs, l18n.EnumerationSeparator())"
+                }
+            ]
+        },
+        {
+            "id": "An Update is Available!",
+            "message": "An Update is Available!",
+            "translation": "Pembaruan Tersedia!",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Edit &selected tunnel…",
-            "message": "Edit &selected tunnel…",
-            "translation": "Ubah tunnel &terpilih…",
+            "id": "WireGuard Update Available",
+            "message": "WireGuard Update Available",
+            "translation": "Pembaruan WireGuard Tersedia",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Remove selected tunnel(s)",
-            "message": "&Remove selected tunnel(s)",
-            "translation": "&Hapus tunnel terpilih",
+            "id": "An update to WireGuard is now available. You are advised to update as soon as possible.",
+            "message": "An update to WireGuard is now available. You are advised to update as soon as possible.",
+            "translation": "Pembaruan untuk WireGuard kini tersedia. Anda disarankan untuk memperbarui sesegera mungkin.",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Tunnels",
+            "message": "Tunnels",
+            "translation": "Tunnel",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "\u0026Edit",
+            "message": "\u0026Edit",
+            "translation": "\u0026Ubah",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Add \u0026empty tunnel…",
+            "message": "Add \u0026empty tunnel…",
+            "translation": "Tambah tunnel \u0026kosong…",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Add Tunnel",
+            "message": "Add Tunnel",
+            "translation": "Tambah Tunnel",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Remove selected tunnel(s)",
+            "message": "Remove selected tunnel(s)",
+            "translation": "Hapus tunnel terpilih",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Export all tunnels to zip",
+            "message": "Export all tunnels to zip",
+            "translation": "Ekspor semua tunnel ke zip",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "\u0026Toggle",
+            "message": "\u0026Toggle",
+            "translation": "\u0026Alihkan",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Export all tunnels to \u0026zip…",
+            "message": "Export all tunnels to \u0026zip…",
+            "translation": "Ekspor semua tunnel ke \u0026zip…",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Edit \u0026selected tunnel…",
+            "message": "Edit \u0026selected tunnel…",
+            "translation": "Ubah tunnel \u0026terpilih…",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "\u0026Remove selected tunnel(s)",
+            "message": "\u0026Remove selected tunnel(s)",
+            "translation": "\u0026Hapus tunnel terpilih",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "no configuration files were found",
+            "message": "no configuration files were found",
+            "translation": "tidak ditemukan berkas konfigurasi",
             "translatorComment": "Copied from source."
         },
         {
@@ -961,6 +1318,395 @@
                     "expr": "lastErr"
                 }
             ]
+        },
+        {
+            "id": "Could not enumerate existing tunnels: {Err}",
+            "message": "Could not enumerate existing tunnels: {Err}",
+            "translation": "Tidak dapat mencatat tunnel yang ada: {Err}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Err",
+                    "string": "%[1]v",
+                    "type": "error",
+                    "underlyingType": "interface{Error() string}",
+                    "argNum": 1,
+                    "expr": "err"
+                }
+            ]
+        },
+        {
+            "id": "Another tunnel already exists with the name ‘{Name}’",
+            "message": "Another tunnel already exists with the name ‘{Name}’",
+            "translation": "Tunnel lain dengan nama ‘{Name}’ sudah ada",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Name",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "unparsedConfig.Name"
+                }
+            ]
+        },
+        {
+            "id": "Unable to import configuration: {LastErr}",
+            "message": "Unable to import configuration: {LastErr}",
+            "translation": "Tidak dapat mengimpor konfigurasi: {LastErr}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "LastErr",
+                    "string": "%[1]v",
+                    "type": "error",
+                    "underlyingType": "interface{Error() string}",
+                    "argNum": 1,
+                    "expr": "lastErr"
+                }
+            ]
+        },
+        {
+            "id": "Imported tunnels",
+            "message": "Imported tunnels",
+            "translation": "Tunnel yang diimpor",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Imported {M} tunnels",
+            "message": "Imported {M} tunnels",
+            "translation": {
+                "select": {
+                    "feature": "plural",
+                    "arg": "M",
+                    "cases": {
+                        "other": {
+                            "msg": "Mengimpor {M} tunnel"
+                        }
+                    }
+                }
+            },
+            "placeholders": [
+                {
+                    "id": "M",
+                    "string": "%[1]d",
+                    "type": "int",
+                    "underlyingType": "int",
+                    "argNum": 1,
+                    "expr": "m"
+                }
+            ]
+        },
+        {
+            "id": "Imported {M} of {N} tunnels",
+            "message": "Imported {M} of {N} tunnels",
+            "translation": {
+                "select": {
+                    "feature": "plural",
+                    "arg": "N",
+                    "cases": {
+                        "other": {
+                            "msg": "Mengimpor {M} dari {N} tunnel"
+                        }
+                    }
+                }
+            },
+            "placeholders": [
+                {
+                    "id": "M",
+                    "string": "%[1]d",
+                    "type": "int",
+                    "underlyingType": "int",
+                    "argNum": 1,
+                    "expr": "m"
+                },
+                {
+                    "id": "N",
+                    "string": "%[2]d",
+                    "type": "int",
+                    "underlyingType": "int",
+                    "argNum": 2,
+                    "expr": "n"
+                }
+            ]
+        },
+        {
+            "id": "Unable to create tunnel",
+            "message": "Unable to create tunnel",
+            "translation": "Tidak dapat membuat tunnel",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Delete {TunnelCount} tunnels",
+            "message": "Delete {TunnelCount} tunnels",
+            "translation": {
+                "select": {
+                    "feature": "plural",
+                    "arg": "TunnelCount",
+                    "cases": {
+                        "other": {
+                            "msg": "Hapus {TunnelCount} tunnel"
+                        }
+                    }
+                }
+            },
+            "placeholders": [
+                {
+                    "id": "TunnelCount",
+                    "string": "%[1]d",
+                    "type": "int",
+                    "underlyingType": "int",
+                    "argNum": 1,
+                    "expr": "tunnelCount"
+                }
+            ]
+        },
+        {
+            "id": "Are you sure you would like to delete {TunnelCount} tunnels?",
+            "message": "Are you sure you would like to delete {TunnelCount} tunnels?",
+            "translation": {
+                "select": {
+                    "feature": "plural",
+                    "arg": "TunnelCount",
+                    "cases": {
+                        "other": {
+                            "msg": "Apakah Anda yakin ingin menghapus {TunnelCount} tunnel?"
+                        }
+                    }
+                }
+            },
+            "placeholders": [
+                {
+                    "id": "TunnelCount",
+                    "string": "%[1]d",
+                    "type": "int",
+                    "underlyingType": "int",
+                    "argNum": 1,
+                    "expr": "tunnelCount"
+                }
+            ]
+        },
+        {
+            "id": "Delete tunnel ‘{TunnelName}’",
+            "message": "Delete tunnel ‘{TunnelName}’",
+            "translation": "Hapus tunnel ‘{TunnelName}’",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "TunnelName",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "tunnelName"
+                }
+            ]
+        },
+        {
+            "id": "Are you sure you would like to delete tunnel ‘{TunnelName}’?",
+            "message": "Are you sure you would like to delete tunnel ‘{TunnelName}’?",
+            "translation": "Apakah Anda yakin ingin menghapus tunnel ‘{TunnelName}’?",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "TunnelName",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "tunnelName"
+                }
+            ]
+        },
+        {
+            "id": "{Question} You cannot undo this action.",
+            "message": "{Question} You cannot undo this action.",
+            "translation": "{Question} Anda tidak dapat membatalkan tindakan ini.",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Question",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "question"
+                }
+            ]
+        },
+        {
+            "id": "Unable to delete tunnel",
+            "message": "Unable to delete tunnel",
+            "translation": "Tidak dapat menghapus tunnel",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "A tunnel was unable to be removed: {Error}",
+            "message": "A tunnel was unable to be removed: {Error}",
+            "translation": "Sebuah tunnel tidak dapat dihapus: {Error}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Error",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "errors[0].Error()"
+                }
+            ]
+        },
+        {
+            "id": "Unable to delete tunnels",
+            "message": "Unable to delete tunnels",
+            "translation": "Tidak dapat menghapus tunnel",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "{Lenerrors} tunnels were unable to be removed.",
+            "message": "{Lenerrors} tunnels were unable to be removed.",
+            "translation": {
+                "select": {
+                    "feature": "plural",
+                    "arg": "Lenerrors",
+                    "cases": {
+                        "other": {
+                            "msg": "{Lenerrors} tunnel tidak dapat dihapus."
+                        }
+                    }
+                }
+            },
+            "placeholders": [
+                {
+                    "id": "Lenerrors",
+                    "string": "%[1]d",
+                    "type": "int",
+                    "underlyingType": "int",
+                    "argNum": 1,
+                    "expr": "len(errors)"
+                }
+            ]
+        },
+        {
+            "id": "Configuration Files (*.zip, *.conf)|*.zip;*.conf|All Files (*.*)|*.*",
+            "message": "Configuration Files (*.zip, *.conf)|*.zip;*.conf|All Files (*.*)|*.*",
+            "translation": "Berkas Konfigurasi (*.zip, *.conf)|*.zip;*.conf|Semua Berkas (*.*)|*.*",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Import tunnel(s) from file",
+            "message": "Import tunnel(s) from file",
+            "translation": "Impor tunnel dari berkas",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Configuration ZIP Files (*.zip)|*.zip",
+            "message": "Configuration ZIP Files (*.zip)|*.zip",
+            "translation": "Berkas ZIP Konfigurasi (*.zip)|*.zip",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Export tunnels to zip",
+            "message": "Export tunnels to zip",
+            "translation": "Ekspor tunnel ke zip",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "{Title} (unsigned build, no updates)",
+            "message": "{Title} (unsigned build, no updates)",
+            "translation": "{Title} (build tidak ditandatangani, tanpa pembaruan)",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Title",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "mtw.Title()"
+                }
+            ]
+        },
+        {
+            "id": "Error Exiting WireGuard",
+            "message": "Error Exiting WireGuard",
+            "translation": "Kesalahan Saat Keluar dari WireGuard",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Unable to exit service due to: {Err}. You may want to stop WireGuard from the service manager.",
+            "message": "Unable to exit service due to: {Err}. You may want to stop WireGuard from the service manager.",
+            "translation": "Tidak dapat keluar dari servis karena: {Err}. Anda mungkin perlu menghentikan WireGuard melalui manajer servis.",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Err",
+                    "string": "%[1]v",
+                    "type": "error",
+                    "underlyingType": "interface{Error() string}",
+                    "argNum": 1,
+                    "expr": "err"
+                }
+            ]
+        },
+        {
+            "id": "An update to WireGuard is available. It is highly advisable to update without delay.",
+            "message": "An update to WireGuard is available. It is highly advisable to update without delay.",
+            "translation": "Pembaruan untuk WireGuard tersedia. Sangat disarankan untuk memperbarui tanpa penundaan.",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Status: Waiting for user",
+            "message": "Status: Waiting for user",
+            "translation": "Status: Menunggu pengguna",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Update Now",
+            "message": "Update Now",
+            "translation": "Perbarui Sekarang",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Please ask the system administrator to update.",
+            "message": "Please ask the system administrator to update.",
+            "translation": "Silakan minta administrator sistem untuk memperbarui.",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Status: Waiting for administrator",
+            "message": "Status: Waiting for administrator",
+            "translation": "Status: Menunggu administrator",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Status: Waiting for updater service",
+            "message": "Status: Waiting for updater service",
+            "translation": "Status: Menunggu servis pembaru",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Error: {Err}. Please try again.",
+            "message": "Error: {Err}. Please try again.",
+            "translation": "Kesalahan: {Err}. Silakan coba lagi.",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Err",
+                    "string": "%[1]v",
+                    "type": "error",
+                    "underlyingType": "interface{Error() string}",
+                    "argNum": 1,
+                    "expr": "err"
+                }
+            ]
+        },
+        {
+            "id": "Status: Complete!",
+            "message": "Status: Complete!",
+            "translation": "Status: Selesai!",
+            "translatorComment": "Copied from source."
         }
     ]
 }

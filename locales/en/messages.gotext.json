@@ -9,6 +9,13 @@
             "fuzzy": true
         },
         {
+            "id": "Error:",
+            "message": "Error:",
+            "translation": "Error:",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        },
+        {
             "id": "(no argument): elevate and install manager service",
             "message": "(no argument): elevate and install manager service",
             "translation": "(no argument): elevate and install manager service",
@@ -65,9 +72,9 @@
             "fuzzy": true
         },
         {
-            "id": "You must use the 64-bit version of WireGuard on this computer.",
-            "message": "You must use the 64-bit version of WireGuard on this computer.",
-            "translation": "You must use the 64-bit version of WireGuard on this computer.",
+            "id": "You must use the native version of WireGuard on this computer.",
+            "message": "You must use the native version of WireGuard on this computer.",
+            "translation": "You must use the native version of WireGuard on this computer.",
             "translatorComment": "Copied from source.",
             "fuzzy": true
         },
@@ -411,16 +418,9 @@
             "fuzzy": true
         },
         {
-            "id": "Invalid IP address",
-            "message": "Invalid IP address",
-            "translation": "Invalid IP address",
-            "translatorComment": "Copied from source.",
-            "fuzzy": true
-        },
-        {
-            "id": "Invalid network prefix length",
-            "message": "Invalid network prefix length",
-            "translation": "Invalid network prefix length",
+            "id": "Invalid IP address:",
+            "message": "Invalid IP address:",
+            "translation": "Invalid IP address:",
             "translatorComment": "Copied from source.",
             "fuzzy": true
         },
@@ -488,23 +488,6 @@
             "message": "Keys must decode to exactly 32 bytes",
             "translation": "Keys must decode to exactly 32 bytes",
             "translatorComment": "Copied from source.",
-            "fuzzy": true
-        },
-        {
-            "id": "Number must be a number between 0 and 2^64-1: {Err}",
-            "message": "Number must be a number between 0 and 2^64-1: {Err}",
-            "translation": "Number must be a number between 0 and 2^64-1: {Err}",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "Err",
-                    "string": "%[1]v",
-                    "type": "error",
-                    "underlyingType": "interface{Error() string}",
-                    "argNum": 1,
-                    "expr": "err"
-                }
-            ],
             "fuzzy": true
         },
         {
@@ -578,44 +561,20 @@
             "fuzzy": true
         },
         {
-            "id": "Error in getting configuration",
-            "message": "Error in getting configuration",
-            "translation": "Error in getting configuration",
-            "translatorComment": "Copied from source.",
-            "fuzzy": true
-        },
-        {
-            "id": "Invalid key for interface section",
-            "message": "Invalid key for interface section",
-            "translation": "Invalid key for interface section",
-            "translatorComment": "Copied from source.",
-            "fuzzy": true
-        },
-        {
-            "id": "Protocol version must be 1",
-            "message": "Protocol version must be 1",
-            "translation": "Protocol version must be 1",
-            "translatorComment": "Copied from source.",
-            "fuzzy": true
-        },
-        {
-            "id": "Invalid key for peer section",
-            "message": "Invalid key for peer section",
-            "translation": "Invalid key for peer section",
-            "translatorComment": "Copied from source.",
-            "fuzzy": true
-        },
-        {
             "id": "[EnumerationSeparator]",
             "message": "[EnumerationSeparator]",
-            "translation": ", ",
-            "comment": "Text to insert between items when listing - most western languages will translate ‘[EnumerationSeparator]’ into ‘, ’ to produce lists like ‘apple, orange, strawberry’. Eastern languages might translate into ‘、’ to produce lists like ‘リンゴ、オレンジ、イチゴ’."
+            "translation": "[EnumerationSeparator]",
+            "comment": "Text to insert between items when listing - most western languages will translate ‘[EnumerationSeparator]’ into ‘, ’ to produce lists like ‘apple, orange, strawberry’. Eastern languages might translate into ‘、’ to produce lists like ‘リンゴ、オレンジ、イチゴ’.",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
         },
         {
             "id": "[UnitSeparator]",
             "message": "[UnitSeparator]",
-            "translation": ", ",
-            "comment": "Text to insert when combining units of a measure - most languages will translate ‘[UnitSeparator]’ into ‘ ’ (space) to produce lists like ‘2 minuti 30 sekund’, or empty string ‘’ to produce ‘2分30秒’."
+            "translation": "[UnitSeparator]",
+            "comment": "Text to insert when combining units of a measure - most languages will translate ‘[UnitSeparator]’ into ‘ ’ (space) to produce lists like ‘2 minuti 30 sekund’, or empty string ‘’ to produce ‘2分30秒’.",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
         },
         {
             "id": "About WireGuard",
@@ -632,9 +591,9 @@
             "fuzzy": true
         },
         {
-            "id": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}\nOperating system: {OsName}\nArchitecture: {GOARCH}",
-            "message": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}\nOperating system: {OsName}\nArchitecture: {GOARCH}",
-            "translation": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}\nOperating system: {OsName}\nArchitecture: {GOARCH}",
+            "id": "App version: {Number}\nDriver version: {Version}\nGo version: {Version_go}\nOperating system: {OsName}\nArchitecture: {Arch}",
+            "message": "App version: {Number}\nDriver version: {Version}\nGo version: {Version_go}\nOperating system: {OsName}\nArchitecture: {Arch}",
+            "translation": "App version: {Number}\nDriver version: {Version}\nGo version: {Version_go}\nOperating system: {OsName}\nArchitecture: {Arch}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -646,12 +605,12 @@
                     "expr": "version.Number"
                 },
                 {
-                    "id": "WireGuardGoVersion",
+                    "id": "Version",
                     "string": "%[2]s",
                     "type": "string",
                     "underlyingType": "string",
                     "argNum": 2,
-                    "expr": "device.WireGuardGoVersion"
+                    "expr": "driver.Version()"
                 },
                 {
                     "id": "Version_go",
@@ -670,12 +629,12 @@
                     "expr": "version.OsName()"
                 },
                 {
-                    "id": "GOARCH",
+                    "id": "Arch",
                     "string": "%[5]s",
                     "type": "string",
                     "underlyingType": "string",
                     "argNum": 5,
-                    "expr": "runtime.GOARCH"
+                    "expr": "version.Arch()"
                 }
             ],
             "fuzzy": true
@@ -751,6 +710,20 @@
             "fuzzy": true
         },
         {
+            "id": "Scripts:",
+            "message": "Scripts:",
+            "translation": "Scripts:",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        },
+        {
+            "id": "Table:",
+            "message": "Table:",
+            "translation": "Table:",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        },
+        {
             "id": "Preshared key:",
             "message": "Preshared key:",
             "translation": "Preshared key:",
@@ -789,6 +762,48 @@
             "id": "Transfer:",
             "message": "Transfer:",
             "translation": "Transfer:",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        },
+        {
+            "id": "pre-up",
+            "message": "pre-up",
+            "translation": "pre-up",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        },
+        {
+            "id": "post-up",
+            "message": "post-up",
+            "translation": "post-up",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        },
+        {
+            "id": "pre-down",
+            "message": "pre-down",
+            "translation": "pre-down",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        },
+        {
+            "id": "post-down",
+            "message": "post-down",
+            "translation": "post-down",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        },
+        {
+            "id": "disabled, per policy",
+            "message": "disabled, per policy",
+            "translation": "disabled, per policy",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        },
+        {
+            "id": "off",
+            "message": "off",
+            "translation": "off",
             "translatorComment": "Copied from source.",
             "fuzzy": true
         },
@@ -912,9 +927,9 @@
             "fuzzy": true
         },
         {
-            "id": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface, with special exceptions for DHCP and NDP.",
-            "message": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface, with special exceptions for DHCP and NDP.",
-            "translation": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface, with special exceptions for DHCP and NDP.",
+            "id": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, and the interface does not have table off, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface or is to the wrong DNS server, with special exceptions for DHCP and NDP.",
+            "message": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, and the interface does not have table off, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface or is to the wrong DNS server, with special exceptions for DHCP and NDP.",
+            "translation": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, and the interface does not have table off, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface or is to the wrong DNS server, with special exceptions for DHCP and NDP.",
             "translatorComment": "Copied from source.",
             "fuzzy": true
         },
@@ -1238,61 +1253,10 @@
             "fuzzy": true
         },
         {
-            "id": "WireGuard Tunnel Error",
-            "message": "WireGuard Tunnel Error",
-            "translation": "WireGuard Tunnel Error",
+            "id": "\u0026Tunnels",
+            "message": "\u0026Tunnels",
+            "translation": "\u0026Tunnels",
             "translatorComment": "Copied from source.",
-            "fuzzy": true
-        },
-        {
-            "id": "WireGuard: {TextForStateglobalState_true}",
-            "message": "WireGuard: {TextForStateglobalState_true}",
-            "translation": "WireGuard: {TextForStateglobalState_true}",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "TextForStateglobalState_true",
-                    "string": "%[1]s",
-                    "type": "string",
-                    "underlyingType": "string",
-                    "argNum": 1,
-                    "expr": "textForState(globalState, true)"
-                }
-            ],
-            "fuzzy": true
-        },
-        {
-            "id": "Status: {StateText}",
-            "message": "Status: {StateText}",
-            "translation": "Status: {StateText}",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "StateText",
-                    "string": "%[1]s",
-                    "type": "string",
-                    "underlyingType": "string",
-                    "argNum": 1,
-                    "expr": "stateText"
-                }
-            ],
-            "fuzzy": true
-        },
-        {
-            "id": "Addresses: {String}",
-            "message": "Addresses: {String}",
-            "translation": "Addresses: {String}",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "String",
-                    "string": "%[1]s",
-                    "type": "string",
-                    "underlyingType": "string",
-                    "argNum": 1,
-                    "expr": "sb.String()"
-                }
-            ],
             "fuzzy": true
         },
         {
@@ -1339,6 +1303,64 @@
                     "underlyingType": "string",
                     "argNum": 1,
                     "expr": "tunnel.Name"
+                }
+            ],
+            "fuzzy": true
+        },
+        {
+            "id": "WireGuard Tunnel Error",
+            "message": "WireGuard Tunnel Error",
+            "translation": "WireGuard Tunnel Error",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        },
+        {
+            "id": "WireGuard: {TextForStateglobalState_true}",
+            "message": "WireGuard: {TextForStateglobalState_true}",
+            "translation": "WireGuard: {TextForStateglobalState_true}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "TextForStateglobalState_true",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "textForState(globalState, true)"
+                }
+            ],
+            "fuzzy": true
+        },
+        {
+            "id": "Status: {StateText}",
+            "message": "Status: {StateText}",
+            "translation": "Status: {StateText}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "StateText",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "stateText"
+                }
+            ],
+            "fuzzy": true
+        },
+        {
+            "id": "Addresses: {EnumerationSeparator}",
+            "message": "Addresses: {EnumerationSeparator}",
+            "translation": "Addresses: {EnumerationSeparator}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "EnumerationSeparator",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "strings.Join(addrs, l18n.EnumerationSeparator())"
                 }
             ],
             "fuzzy": true
@@ -1435,6 +1457,13 @@
             "fuzzy": true
         },
         {
+            "id": "no configuration files were found",
+            "message": "no configuration files were found",
+            "translation": "no configuration files were found",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        },
+        {
             "id": "Could not import selected configuration: {LastErr}",
             "message": "Could not import selected configuration: {LastErr}",
             "translation": "Could not import selected configuration: {LastErr}",
@@ -1452,18 +1481,18 @@
             "fuzzy": true
         },
         {
-            "id": "Could not enumerate existing tunnels: {LastErr}",
-            "message": "Could not enumerate existing tunnels: {LastErr}",
-            "translation": "Could not enumerate existing tunnels: {LastErr}",
+            "id": "Could not enumerate existing tunnels: {Err}",
+            "message": "Could not enumerate existing tunnels: {Err}",
+            "translation": "Could not enumerate existing tunnels: {Err}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
-                    "id": "LastErr",
+                    "id": "Err",
                     "string": "%[1]v",
                     "type": "error",
                     "underlyingType": "interface{Error() string}",
                     "argNum": 1,
-                    "expr": "lastErr"
+                    "expr": "err"
                 }
             ],
             "fuzzy": true
@@ -1837,6 +1866,20 @@
             "fuzzy": true
         },
         {
+            "id": "Please ask the system administrator to update.",
+            "message": "Please ask the system administrator to update.",
+            "translation": "Please ask the system administrator to update.",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        },
+        {
+            "id": "Status: Waiting for administrator",
+            "message": "Status: Waiting for administrator",
+            "translation": "Status: Waiting for administrator",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        },
+        {
             "id": "Status: Waiting for updater service",
             "message": "Status: Waiting for updater service",
             "translation": "Status: Waiting for updater service",
@@ -1865,90 +1908,6 @@
             "message": "Status: Complete!",
             "translation": "Status: Complete!",
             "translatorComment": "Copied from source.",
-            "fuzzy": true
-        },
-        {
-            "id": "http2: Framer {F}: failed to decode just-written frame",
-            "message": "http2: Framer {F}: failed to decode just-written frame",
-            "translation": "http2: Framer {F}: failed to decode just-written frame",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "F",
-                    "string": "%[1]p",
-                    "type": "*net/http.http2Framer",
-                    "underlyingType": "*net/http.http2Framer",
-                    "argNum": 1,
-                    "expr": "f"
-                }
-            ],
-            "fuzzy": true
-        },
-        {
-            "id": "http2: Framer {F}: wrote {Http2summarizeFramefr}",
-            "message": "http2: Framer {F}: wrote {Http2summarizeFramefr}",
-            "translation": "http2: Framer {F}: wrote {Http2summarizeFramefr}",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "F",
-                    "string": "%[1]p",
-                    "type": "*net/http.http2Framer",
-                    "underlyingType": "*net/http.http2Framer",
-                    "argNum": 1,
-                    "expr": "f"
-                },
-                {
-                    "id": "Http2summarizeFramefr",
-                    "string": "%[2]v",
-                    "type": "string",
-                    "underlyingType": "string",
-                    "argNum": 2,
-                    "expr": "http2summarizeFrame(fr)"
-                }
-            ],
-            "fuzzy": true
-        },
-        {
-            "id": "http2: Framer {Fr}: read {Http2summarizeFramef}",
-            "message": "http2: Framer {Fr}: read {Http2summarizeFramef}",
-            "translation": "http2: Framer {Fr}: read {Http2summarizeFramef}",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "Fr",
-                    "string": "%[1]p",
-                    "type": "*net/http.http2Framer",
-                    "underlyingType": "*net/http.http2Framer",
-                    "argNum": 1,
-                    "expr": "fr"
-                },
-                {
-                    "id": "Http2summarizeFramef",
-                    "string": "%[2]v",
-                    "type": "string",
-                    "underlyingType": "string",
-                    "argNum": 2,
-                    "expr": "http2summarizeFrame(f)"
-                }
-            ],
-            "fuzzy": true
-        },
-        {
-            "id": "http2: decoded hpack field {HeaderField}",
-            "message": "http2: decoded hpack field {HeaderField}",
-            "translation": "http2: decoded hpack field {HeaderField}",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "HeaderField",
-                    "string": "%+[1]v",
-                    "type": "vendor/golang.org/x/net/http2/hpack.HeaderField",
-                    "underlyingType": "struct{Name string; Value string; Sensitive bool}",
-                    "argNum": 1,
-                    "expr": "hf"
-                }
-            ],
             "fuzzy": true
         }
     ]

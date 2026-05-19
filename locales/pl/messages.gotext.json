@@ -8,6 +8,12 @@
             "translatorComment": "Copied from source."
         },
         {
+            "id": "Error:",
+            "message": "Error:",
+            "translation": "Błąd:",
+            "translatorComment": "Copied from source."
+        },
+        {
             "id": "(no argument): elevate and install manager service",
             "message": "(no argument): elevate and install manager service",
             "translation": "(brak argumentu): Podnieś uprawnienia i zainstaluj usługę menedżera",
@@ -62,7 +68,7 @@
         {
             "id": "You must use the native version of WireGuard on this computer.",
             "message": "You must use the native version of WireGuard on this computer.",
-            "translation": "Należy użyć natywnej wersji WireGuard na tym komputerze.",
+            "translation": "Na tym komputerze należy używać natywnej wersji WireGuard.",
             "translatorComment": "Copied from source."
         },
         {
@@ -139,14 +145,14 @@
                     "feature": "plural",
                     "arg": "Years",
                     "cases": {
-                        "one": {
-                            "msg": "{Years} rok"
-                        },
                         "few": {
                             "msg": "{Years} lata"
                         },
                         "many": {
                             "msg": "{Years} lat"
+                        },
+                        "one": {
+                            "msg": "{Years} rok"
                         },
                         "other": {
                             "msg": "{Years} lat"
@@ -173,14 +179,14 @@
                     "feature": "plural",
                     "arg": "Days",
                     "cases": {
-                        "one": {
-                            "msg": "{Days} dzień"
-                        },
                         "few": {
                             "msg": "{Days} dni"
                         },
                         "many": {
                             "msg": "{Days} dni"
+                        },
+                        "one": {
+                            "msg": "{Days} dzień"
                         },
                         "other": {
                             "msg": "{Days} dni"
@@ -207,14 +213,14 @@
                     "feature": "plural",
                     "arg": "Hours",
                     "cases": {
-                        "one": {
-                            "msg": "{Hours} godzina"
-                        },
                         "few": {
                             "msg": "{Hours} godziny"
                         },
                         "many": {
                             "msg": "{Hours} godzin"
+                        },
+                        "one": {
+                            "msg": "{Hours} godzina"
                         },
                         "other": {
                             "msg": "{Hours} godzin"
@@ -241,14 +247,14 @@
                     "feature": "plural",
                     "arg": "Minutes",
                     "cases": {
-                        "one": {
-                            "msg": "{Minutes} minuta"
-                        },
                         "few": {
                             "msg": "{Minutes} minuty"
                         },
                         "many": {
                             "msg": "{Minutes} minut"
+                        },
+                        "one": {
+                            "msg": "{Minutes} minuta"
                         },
                         "other": {
                             "msg": "{Minutes} minut"
@@ -275,14 +281,14 @@
                     "feature": "plural",
                     "arg": "Seconds",
                     "cases": {
-                        "one": {
-                            "msg": "{Seconds} sekunda"
-                        },
                         "few": {
                             "msg": "{Seconds} sekundy"
                         },
                         "many": {
                             "msg": "{Seconds} sekund"
+                        },
+                        "one": {
+                            "msg": "{Seconds} sekunda"
                         },
                         "other": {
                             "msg": "{Seconds} sekund"
@@ -422,15 +428,9 @@
             ]
         },
         {
-            "id": "Invalid IP address",
-            "message": "Invalid IP address",
-            "translation": "Nieprawidłowy adres IP",
-            "translatorComment": "Copied from source."
-        },
-        {
-            "id": "Invalid network prefix length",
-            "message": "Invalid network prefix length",
-            "translation": "Nieprawidłowa długość prefiksu sieci",
+            "id": "Invalid IP address:",
+            "message": "Invalid IP address:",
+            "translation": "Nieprawidłowy adres IP:",
             "translatorComment": "Copied from source."
         },
         {
@@ -490,22 +490,6 @@
             "message": "Keys must decode to exactly 32 bytes",
             "translation": "Klucze muszą zostać zdekodowane do dokładnie 32 bajtów",
             "translatorComment": "Copied from source."
-        },
-        {
-            "id": "Number must be a number between 0 and 2^64-1: {Err}",
-            "message": "Number must be a number between 0 and 2^64-1: {Err}",
-            "translation": "Liczba musi zawierać się w przedziale 0 - 2^64-1: {Err}",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "Err",
-                    "string": "%[1]v",
-                    "type": "error",
-                    "underlyingType": "interface{Error() string}",
-                    "argNum": 1,
-                    "expr": "err"
-                }
-            ]
         },
         {
             "id": "Two commas in a row",
@@ -568,39 +552,15 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Error in getting configuration",
-            "message": "Error in getting configuration",
-            "translation": "Błąd podczas pobierania konfiguracji",
-            "translatorComment": "Copied from source."
-        },
-        {
-            "id": "Invalid key for interface section",
-            "message": "Invalid key for interface section",
-            "translation": "Nieprawidłowy klucz dla sekcji interface",
-            "translatorComment": "Copied from source."
-        },
-        {
-            "id": "Protocol version must be 1",
-            "message": "Protocol version must be 1",
-            "translation": "Wersja protokołu musi być 1",
-            "translatorComment": "Copied from source."
-        },
-        {
-            "id": "Invalid key for peer section",
-            "message": "Invalid key for peer section",
-            "translation": "Nieprawidłowy klucz dla sekcji peer",
-            "translatorComment": "Copied from source."
-        },
-        {
             "id": "[EnumerationSeparator]",
             "message": "[EnumerationSeparator]",
-            "translation": ", ",
+            "translation": "",
             "comment": "Text to insert between items when listing - most western languages will translate ‘[EnumerationSeparator]’ into ‘, ’ to produce lists like ‘apple, orange, strawberry’. Eastern languages might translate into ‘、’ to produce lists like ‘リンゴ、オレンジ、イチゴ’."
         },
         {
             "id": "[UnitSeparator]",
             "message": "[UnitSeparator]",
-            "translation": ", ",
+            "translation": "",
             "comment": "Text to insert when combining units of a measure - most languages will translate ‘[UnitSeparator]’ into ‘ ’ (space) to produce lists like ‘2 minuti 30 sekund’, or empty string ‘’ to produce ‘2分30秒’."
         },
         {
@@ -616,9 +576,9 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}-{GOARCH}\nOperating system: {OsName}\nArchitecture: {NativeArch}",
-            "message": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}-{GOARCH}\nOperating system: {OsName}\nArchitecture: {NativeArch}",
-            "translation": "Wersja aplikacji: {Number}\nWersja implementacji w jęz. Go: {WireGuardGoVersion}\nWersja jęz. Go: {Version_go}-{GOARCH}\nSystem operacyjny: {OsName}\nArchitektura: {NativeArch}",
+            "id": "App version: {Number}\nDriver version: {Version}\nGo version: {Version_go}\nOperating system: {OsName}\nArchitecture: {Arch}",
+            "message": "App version: {Number}\nDriver version: {Version}\nGo version: {Version_go}\nOperating system: {OsName}\nArchitecture: {Arch}",
+            "translation": "Wersja aplikacji: {Number}\nWersja sterownika: {Version}\nWersja Go: {Version_go}\nSystem operacyjny: {OsName}\nArchitektura: {Arch}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -630,12 +590,12 @@
                     "expr": "version.Number"
                 },
                 {
-                    "id": "WireGuardGoVersion",
+                    "id": "Version",
                     "string": "%[2]s",
                     "type": "string",
                     "underlyingType": "string",
                     "argNum": 2,
-                    "expr": "device.WireGuardGoVersion"
+                    "expr": "driver.Version()"
                 },
                 {
                     "id": "Version_go",
@@ -646,28 +606,20 @@
                     "expr": "strings.TrimPrefix(runtime.Version(), \"go\")"
                 },
                 {
-                    "id": "GOARCH",
+                    "id": "OsName",
                     "string": "%[4]s",
                     "type": "string",
                     "underlyingType": "string",
                     "argNum": 4,
-                    "expr": "runtime.GOARCH"
+                    "expr": "version.OsName()"
                 },
                 {
-                    "id": "OsName",
+                    "id": "Arch",
                     "string": "%[5]s",
                     "type": "string",
                     "underlyingType": "string",
                     "argNum": 5,
-                    "expr": "version.OsName()"
-                },
-                {
-                    "id": "NativeArch",
-                    "string": "%[6]s",
-                    "type": "string",
-                    "underlyingType": "string",
-                    "argNum": 6,
-                    "expr": "version.NativeArch()"
+                    "expr": "version.Arch()"
                 }
             ]
         },
@@ -678,9 +630,9 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "♥ &Donate!",
-            "message": "♥ &Donate!",
-            "translation": "♥ &Wpłać!",
+            "id": "♥ \u0026Donate!",
+            "message": "♥ \u0026Donate!",
+            "translation": "♥ \u0026Wpłać!",
             "translatorComment": "Copied from source."
         },
         {
@@ -690,15 +642,15 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Deactivate",
-            "message": "&Deactivate",
-            "translation": "&Dezaktywuj",
+            "id": "\u0026Deactivate",
+            "message": "\u0026Deactivate",
+            "translation": "\u0026Dezaktywuj",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Activate",
-            "message": "&Activate",
-            "translation": "&Aktywuj",
+            "id": "\u0026Activate",
+            "message": "\u0026Activate",
+            "translation": "\u0026Aktywuj",
             "translatorComment": "Copied from source."
         },
         {
@@ -738,6 +690,12 @@
             "translatorComment": "Copied from source."
         },
         {
+            "id": "Table:",
+            "message": "Table:",
+            "translation": "Tablica:",
+            "translatorComment": "Copied from source."
+        },
+        {
             "id": "Preshared key:",
             "message": "Preshared key:",
             "translation": "Klucz wstępnie udostępniony:",
@@ -770,37 +728,43 @@
         {
             "id": "Transfer:",
             "message": "Transfer:",
-            "translation": "Transfer:",
+            "translation": "Przesyłanie:",
             "translatorComment": "Copied from source."
         },
         {
             "id": "pre-up",
             "message": "pre-up",
-            "translation": "przed włączeniem",
+            "translation": "przed uruchomieniem",
             "translatorComment": "Copied from source."
         },
         {
             "id": "post-up",
             "message": "post-up",
-            "translation": "po włączeniu",
+            "translation": "po uruchomieniu",
             "translatorComment": "Copied from source."
         },
         {
             "id": "pre-down",
             "message": "pre-down",
-            "translation": "przed wyłączeniem",
+            "translation": "przed zatrzymaniem",
             "translatorComment": "Copied from source."
         },
         {
             "id": "post-down",
             "message": "post-down",
-            "translation": "po wyłączeniu",
+            "translation": "po zatrzymaniu",
             "translatorComment": "Copied from source."
         },
         {
             "id": "disabled, per policy",
             "message": "disabled, per policy",
-            "translation": "wyłączone, według zasad grupy",
+            "translation": "wyłączone zgodnie z zasadami",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "off",
+            "message": "off",
+            "translation": "wyłączone",
             "translatorComment": "Copied from source."
         },
         {
@@ -886,15 +850,15 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Name:",
-            "message": "&Name:",
-            "translation": "&Nazwa:",
+            "id": "\u0026Name:",
+            "message": "\u0026Name:",
+            "translation": "\u0026Nazwa:",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Public key:",
-            "message": "&Public key:",
-            "translation": "&Klucz publiczny:",
+            "id": "\u0026Public key:",
+            "message": "\u0026Public key:",
+            "translation": "\u0026Klucz publiczny:",
             "translatorComment": "Copied from source."
         },
         {
@@ -904,21 +868,21 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Block untunneled traffic (kill-switch)",
-            "message": "&Block untunneled traffic (kill-switch)",
-            "translation": "&Zablokuj niezabezpieczony ruch (wyłącznik awaryjny)",
+            "id": "\u0026Block untunneled traffic (kill-switch)",
+            "message": "\u0026Block untunneled traffic (kill-switch)",
+            "translation": "\u0026Zablokuj niezabezpieczony ruch (wyłącznik awaryjny)",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface or is to the wrong DNS server, with special exceptions for DHCP and NDP.",
-            "message": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface or is to the wrong DNS server, with special exceptions for DHCP and NDP.",
-            "translation": "Jeżeli konfiguracja ma dokładnie jednego peera i ma w liście dozwolonych IP przynajmniej jeden adres 0.0.0.0/0 lub ::/0, wtedy usługa tunelowania dołącza do zapory sieciowej zestaw zasad, żeby zablokować ruch, który nie jest z interfejsu sieciowego lub jest skierowany do złego serwera DNS, z wyjątkiem dla serwera DHCP i NDP.",
+            "id": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, and the interface does not have table off, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface or is to the wrong DNS server, with special exceptions for DHCP and NDP.",
+            "message": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, and the interface does not have table off, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface or is to the wrong DNS server, with special exceptions for DHCP and NDP.",
+            "translation": "Gdy konfiguracja ma dokładnie jednego peera, a ma on dozwolone adresy IP zawierające co najmniej jeden z adresów 0.0.0.0/0 lub ::/0, a interfejs nie ma tabeli wyłączonej, usługa tunelowania uruchamia zestaw reguł zapory, aby zablokować cały ruch, który nie jest kierowany do ani z interfejsu tunelu lub jest kierowany do niewłaściwego serwera DNS, ze szczególnymi wyjątkami dla protokołów DHCP i NDP.",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Save",
-            "message": "&Save",
-            "translation": "&Zapisz",
+            "id": "\u0026Save",
+            "message": "\u0026Save",
+            "translation": "\u0026Zapisz",
             "translatorComment": "Copied from source."
         },
         {
@@ -928,9 +892,9 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Configuration:",
-            "message": "&Configuration:",
-            "translation": "&Konfiguracja:",
+            "id": "\u0026Configuration:",
+            "message": "\u0026Configuration:",
+            "translation": "\u0026Konfiguracja:",
             "translatorComment": "Copied from source."
         },
         {
@@ -964,7 +928,7 @@
         {
             "id": "Unable to list existing tunnels",
             "message": "Unable to list existing tunnels",
-            "translation": "Nie można wylistować istniejących tuneli",
+            "translation": "Nie można wyświetlić listy istniejących tuneli",
             "translatorComment": "Copied from source."
         },
         {
@@ -1054,21 +1018,21 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Copy",
-            "message": "&Copy",
-            "translation": "&Kopiuj",
+            "id": "\u0026Copy",
+            "message": "\u0026Copy",
+            "translation": "\u0026Kopiuj",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Select &all",
-            "message": "Select &all",
-            "translation": "Wybierz &wszystko",
+            "id": "Select \u0026all",
+            "message": "Select \u0026all",
+            "translation": "Wybierz \u0026wszystko",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Save to file…",
-            "message": "&Save to file…",
-            "translation": "&Zapisz do pliku…",
+            "id": "\u0026Save to file…",
+            "message": "\u0026Save to file…",
+            "translation": "\u0026Zapisz do pliku…",
             "translatorComment": "Copied from source."
         },
         {
@@ -1080,7 +1044,7 @@
         {
             "id": "Log message",
             "message": "Log message",
-            "translation": "Wiadomości dziennika",
+            "translation": "Komunikat dziennika",
             "translatorComment": "Copied from source."
         },
         {
@@ -1096,9 +1060,9 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&About WireGuard…",
-            "message": "&About WireGuard…",
-            "translation": "&Informacje o WireGuard…",
+            "id": "\u0026About WireGuard…",
+            "message": "\u0026About WireGuard…",
+            "translation": "\u0026Informacje o WireGuard…",
             "translatorComment": "Copied from source."
         },
         {
@@ -1180,33 +1144,33 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Manage tunnels…",
-            "message": "&Manage tunnels…",
-            "translation": "&Zarządzaj tunelami…",
+            "id": "\u0026Manage tunnels…",
+            "message": "\u0026Manage tunnels…",
+            "translation": "\u0026Zarządzaj tunelami…",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Import tunnel(s) from file…",
-            "message": "&Import tunnel(s) from file…",
-            "translation": "&Importuj tunel(e) z pliku…",
+            "id": "\u0026Import tunnel(s) from file…",
+            "message": "\u0026Import tunnel(s) from file…",
+            "translation": "\u0026Importuj tunel(e) z pliku…",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "E&xit",
-            "message": "E&xit",
-            "translation": "W&yjście",
+            "id": "E\u0026xit",
+            "message": "E\u0026xit",
+            "translation": "W\u0026yjdź",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Tunnels",
-            "message": "&Tunnels",
-            "translation": "&Tunele",
+            "id": "\u0026Tunnels",
+            "message": "\u0026Tunnels",
+            "translation": "\u0026Tunele",
             "translatorComment": "Copied from source."
         },
         {
             "id": "WireGuard Activated",
             "message": "WireGuard Activated",
-            "translation": "WireGuard Aktywny",
+            "translation": "WireGuard aktywowany",
             "translatorComment": "Copied from source."
         },
         {
@@ -1326,15 +1290,15 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Edit",
-            "message": "&Edit",
-            "translation": "&Edytuj",
+            "id": "\u0026Edit",
+            "message": "\u0026Edit",
+            "translation": "\u0026Edytuj",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Add &empty tunnel…",
-            "message": "Add &empty tunnel…",
-            "translation": "Dodaj &pusty tunel…",
+            "id": "Add \u0026empty tunnel…",
+            "message": "Add \u0026empty tunnel…",
+            "translation": "Dodaj \u0026pusty tunel…",
             "translatorComment": "Copied from source."
         },
         {
@@ -1356,33 +1320,33 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Toggle",
-            "message": "&Toggle",
-            "translation": "&Przełącz",
+            "id": "\u0026Toggle",
+            "message": "\u0026Toggle",
+            "translation": "\u0026Przełącz",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Export all tunnels to &zip…",
-            "message": "Export all tunnels to &zip…",
-            "translation": "Eksportuj wszystkie tunele do archiwum &ZIP…",
+            "id": "Export all tunnels to \u0026zip…",
+            "message": "Export all tunnels to \u0026zip…",
+            "translation": "Eksportuj wszystkie tunele do archiwum \u0026ZIP…",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Edit &selected tunnel…",
-            "message": "Edit &selected tunnel…",
-            "translation": "Edytuj &wybrany tunel…",
+            "id": "Edit \u0026selected tunnel…",
+            "message": "Edit \u0026selected tunnel…",
+            "translation": "Edytuj \u0026wybrany tunel…",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Remove selected tunnel(s)",
-            "message": "&Remove selected tunnel(s)",
-            "translation": "&Usuń wybrany(-e) tunel(e)",
+            "id": "\u0026Remove selected tunnel(s)",
+            "message": "\u0026Remove selected tunnel(s)",
+            "translation": "\u0026Usuń wybrany(-e) tunel(e)",
             "translatorComment": "Copied from source."
         },
         {
             "id": "no configuration files were found",
             "message": "no configuration files were found",
-            "translation": "brak plików konfiguracyjnych",
+            "translation": "nie znaleziono plików konfiguracyjnych",
             "translatorComment": "Copied from source."
         },
         {
@@ -1402,18 +1366,18 @@
             ]
         },
         {
-            "id": "Could not enumerate existing tunnels: {LastErr}",
-            "message": "Could not enumerate existing tunnels: {LastErr}",
-            "translation": "Nie można wskazać istniejących tuneli: {LastErr}",
+            "id": "Could not enumerate existing tunnels: {Err}",
+            "message": "Could not enumerate existing tunnels: {Err}",
+            "translation": "Nie można wyliczyć istniejących tuneli: {Err}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
-                    "id": "LastErr",
+                    "id": "Err",
                     "string": "%[1]v",
                     "type": "error",
                     "underlyingType": "interface{Error() string}",
                     "argNum": 1,
-                    "expr": "lastErr"
+                    "expr": "err"
                 }
             ]
         },
@@ -1463,14 +1427,14 @@
                     "feature": "plural",
                     "arg": "M",
                     "cases": {
-                        "one": {
-                            "msg": "Zaimportowano {M} tunel"
-                        },
                         "few": {
                             "msg": "Zaimportowano {M} tunele"
                         },
                         "many": {
                             "msg": "Zaimportowano {M} tuneli"
+                        },
+                        "one": {
+                            "msg": "Zaimportowano {M} tunel"
                         },
                         "other": {
                             "msg": "Zaimportowano {M} tuneli"
@@ -1497,14 +1461,14 @@
                     "feature": "plural",
                     "arg": "N",
                     "cases": {
-                        "one": {
-                            "msg": "Zaimportowano {M} z {N} tunelu"
-                        },
                         "few": {
                             "msg": "Zaimportowano {M} z {N} tuneli"
                         },
                         "many": {
                             "msg": "Zaimportowano {M} z {N} tuneli"
+                        },
+                        "one": {
+                            "msg": "Zaimportowano {M} z {N} tunelu"
                         },
                         "other": {
                             "msg": "Zaimportowano {M} z {N} tuneli"
@@ -1545,14 +1509,14 @@
                     "feature": "plural",
                     "arg": "TunnelCount",
                     "cases": {
-                        "one": {
-                            "msg": "Usuń {TunnelCount} tunel"
-                        },
                         "few": {
                             "msg": "Usuń {TunnelCount} tunele"
                         },
                         "many": {
                             "msg": "Usuń {TunnelCount} tuneli"
+                        },
+                        "one": {
+                            "msg": "Usuń {TunnelCount} tunel"
                         },
                         "other": {
                             "msg": "Usuń {TunnelCount} tuneli"
@@ -1579,14 +1543,14 @@
                     "feature": "plural",
                     "arg": "TunnelCount",
                     "cases": {
-                        "one": {
-                            "msg": "Czy na pewno chcesz usunąć {TunnelCount} tunel?"
-                        },
                         "few": {
                             "msg": "Czy na pewno chcesz usunąć {TunnelCount} tunele?"
                         },
                         "many": {
                             "msg": "Czy na pewno chcesz usunąć {TunnelCount} tuneli?"
+                        },
+                        "one": {
+                            "msg": "Czy na pewno chcesz usunąć {TunnelCount} tunel?"
                         },
                         "other": {
                             "msg": "Czy na pewno chcesz usunąć {TunnelCount} tuneli?"
@@ -1689,14 +1653,14 @@
                     "feature": "plural",
                     "arg": "Lenerrors",
                     "cases": {
-                        "one": {
-                            "msg": "{Lenerrors} tunel nie może zostać usunięty."
-                        },
                         "few": {
                             "msg": "{Lenerrors} tunele nie mogą być usunięte."
                         },
                         "many": {
                             "msg": "{Lenerrors} tunele nie mogą być usunięte."
+                        },
+                        "one": {
+                            "msg": "{Lenerrors} tunel nie może zostać usunięty."
                         },
                         "other": {
                             "msg": "{Lenerrors} tunele nie mogą być usunięte."
@@ -1796,6 +1760,18 @@
             "translatorComment": "Copied from source."
         },
         {
+            "id": "Please ask the system administrator to update.",
+            "message": "Please ask the system administrator to update.",
+            "translation": "Poproś administratora systemu o przeprowadzenie aktualizacji.",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Status: Waiting for administrator",
+            "message": "Status: Waiting for administrator",
+            "translation": "Status: Czekam na administratora",
+            "translatorComment": "Copied from source."
+        },
+        {
             "id": "Status: Waiting for updater service",
             "message": "Status: Waiting for updater service",
             "translation": "Status: Czekam na usługę aktualizacji",
@@ -1822,86 +1798,6 @@
             "message": "Status: Complete!",
             "translation": "Status: Ukończone!",
             "translatorComment": "Copied from source."
-        },
-        {
-            "id": "http2: Framer {F}: failed to decode just-written frame",
-            "message": "http2: Framer {F}: failed to decode just-written frame",
-            "translation": "http2: Framer {F}: nie mógł zdekodować właśnie zapisanej ramki",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "F",
-                    "string": "%[1]p",
-                    "type": "*net/http.http2Framer",
-                    "underlyingType": "*net/http.http2Framer",
-                    "argNum": 1,
-                    "expr": "f"
-                }
-            ]
-        },
-        {
-            "id": "http2: Framer {F}: wrote {Http2summarizeFramefr}",
-            "message": "http2: Framer {F}: wrote {Http2summarizeFramefr}",
-            "translation": "http2: Framer {F}: zapis {Http2summarizeFramefr}",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "F",
-                    "string": "%[1]p",
-                    "type": "*net/http.http2Framer",
-                    "underlyingType": "*net/http.http2Framer",
-                    "argNum": 1,
-                    "expr": "f"
-                },
-                {
-                    "id": "Http2summarizeFramefr",
-                    "string": "%[2]v",
-                    "type": "string",
-                    "underlyingType": "string",
-                    "argNum": 2,
-                    "expr": "http2summarizeFrame(fr)"
-                }
-            ]
-        },
-        {
-            "id": "http2: Framer {Fr}: read {Http2summarizeFramef}",
-            "message": "http2: Framer {Fr}: read {Http2summarizeFramef}",
-            "translation": "http2: Framer {Fr}: odczyt {Http2summarizeFramef}",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "Fr",
-                    "string": "%[1]p",
-                    "type": "*net/http.http2Framer",
-                    "underlyingType": "*net/http.http2Framer",
-                    "argNum": 1,
-                    "expr": "fr"
-                },
-                {
-                    "id": "Http2summarizeFramef",
-                    "string": "%[2]v",
-                    "type": "string",
-                    "underlyingType": "string",
-                    "argNum": 2,
-                    "expr": "http2summarizeFrame(f)"
-                }
-            ]
-        },
-        {
-            "id": "http2: decoded hpack field {HeaderField}",
-            "message": "http2: decoded hpack field {HeaderField}",
-            "translation": "http2: zdekodwanie hpack nie powiodło się {HeaderField}",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "HeaderField",
-                    "string": "%+[1]v",
-                    "type": "vendor/golang.org/x/net/http2/hpack.HeaderField",
-                    "underlyingType": "struct{Name string; Value string; Sensitive bool}",
-                    "argNum": 1,
-                    "expr": "hf"
-                }
-            ]
         }
     ]
 }

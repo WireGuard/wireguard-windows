@@ -8,6 +8,12 @@
             "translatorComment": "Copied from source."
         },
         {
+            "id": "Error:",
+            "message": "Error:",
+            "translation": "Eroare:",
+            "translatorComment": "Copied from source."
+        },
+        {
             "id": "(no argument): elevate and install manager service",
             "message": "(no argument): elevate and install manager service",
             "translation": "(fără argument): obținere drept administrativ și instalare serviciu de gestionare",
@@ -62,7 +68,7 @@
         {
             "id": "You must use the native version of WireGuard on this computer.",
             "message": "You must use the native version of WireGuard on this computer.",
-            "translation": "Trebuie să utilizezi versiunea nativă a WireGuard pe acest calculator.",
+            "translation": "Pe acest calculator trebuie să utilizezi versiunea nativă a WireGuard.",
             "translatorComment": "Copied from source."
         },
         {
@@ -139,11 +145,11 @@
                     "feature": "plural",
                     "arg": "Years",
                     "cases": {
-                        "one": {
-                            "msg": "{Years} an"
-                        },
                         "few": {
                             "msg": "{Years} ani"
+                        },
+                        "one": {
+                            "msg": "{Years} an"
                         },
                         "other": {
                             "msg": "{Years} de ani"
@@ -170,11 +176,11 @@
                     "feature": "plural",
                     "arg": "Days",
                     "cases": {
-                        "one": {
-                            "msg": "{Days} zi"
-                        },
                         "few": {
                             "msg": "{Days} zile"
+                        },
+                        "one": {
+                            "msg": "{Days} zi"
                         },
                         "other": {
                             "msg": "{Days} de zile"
@@ -201,11 +207,11 @@
                     "feature": "plural",
                     "arg": "Hours",
                     "cases": {
-                        "one": {
-                            "msg": "{Hours} oră"
-                        },
                         "few": {
                             "msg": "{Hours} ore"
+                        },
+                        "one": {
+                            "msg": "{Hours} oră"
                         },
                         "other": {
                             "msg": "{Hours} de ore"
@@ -232,11 +238,11 @@
                     "feature": "plural",
                     "arg": "Minutes",
                     "cases": {
-                        "one": {
-                            "msg": "{Minutes} minut"
-                        },
                         "few": {
                             "msg": "{Minutes} minute"
+                        },
+                        "one": {
+                            "msg": "{Minutes} minut"
                         },
                         "other": {
                             "msg": "{Minutes} de minute"
@@ -263,11 +269,11 @@
                     "feature": "plural",
                     "arg": "Seconds",
                     "cases": {
-                        "one": {
-                            "msg": "{Seconds} secundă"
-                        },
                         "few": {
                             "msg": "{Seconds} secunde"
+                        },
+                        "one": {
+                            "msg": "{Seconds} secundă"
                         },
                         "other": {
                             "msg": "{Seconds} de secunde"
@@ -407,15 +413,9 @@
             ]
         },
         {
-            "id": "Invalid IP address",
-            "message": "Invalid IP address",
-            "translation": "Adresă IP invalidă",
-            "translatorComment": "Copied from source."
-        },
-        {
-            "id": "Invalid network prefix length",
-            "message": "Invalid network prefix length",
-            "translation": "Lungimea prefixului de rețea este invalidă",
+            "id": "Invalid IP address:",
+            "message": "Invalid IP address:",
+            "translation": "Adresă IP invalidă:",
             "translatorComment": "Copied from source."
         },
         {
@@ -475,22 +475,6 @@
             "message": "Keys must decode to exactly 32 bytes",
             "translation": "Rezultatul decodificat de chei trebuie să aibă exact 32 de octeți",
             "translatorComment": "Copied from source."
-        },
-        {
-            "id": "Number must be a number between 0 and 2^64-1: {Err}",
-            "message": "Number must be a number between 0 and 2^64-1: {Err}",
-            "translation": "Numărul trebuie să fie cuprins între 0 și 2^64-1: {Err}",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "Err",
-                    "string": "%[1]v",
-                    "type": "error",
-                    "underlyingType": "interface{Error() string}",
-                    "argNum": 1,
-                    "expr": "err"
-                }
-            ]
         },
         {
             "id": "Two commas in a row",
@@ -553,39 +537,15 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Error in getting configuration",
-            "message": "Error in getting configuration",
-            "translation": "Eroare la obținerea configurației",
-            "translatorComment": "Copied from source."
-        },
-        {
-            "id": "Invalid key for interface section",
-            "message": "Invalid key for interface section",
-            "translation": "Cheie invalidă pentru secțiunea interfeței",
-            "translatorComment": "Copied from source."
-        },
-        {
-            "id": "Protocol version must be 1",
-            "message": "Protocol version must be 1",
-            "translation": "Versiunea de protocol trebuie să fie 1",
-            "translatorComment": "Copied from source."
-        },
-        {
-            "id": "Invalid key for peer section",
-            "message": "Invalid key for peer section",
-            "translation": "Cheie invalidă pentru secțiunea perechii",
-            "translatorComment": "Copied from source."
-        },
-        {
             "id": "[EnumerationSeparator]",
             "message": "[EnumerationSeparator]",
-            "translation": ", ",
+            "translation": "",
             "comment": "Text to insert between items when listing - most western languages will translate ‘[EnumerationSeparator]’ into ‘, ’ to produce lists like ‘apple, orange, strawberry’. Eastern languages might translate into ‘、’ to produce lists like ‘リンゴ、オレンジ、イチゴ’."
         },
         {
             "id": "[UnitSeparator]",
             "message": "[UnitSeparator]",
-            "translation": ", ",
+            "translation": "",
             "comment": "Text to insert when combining units of a measure - most languages will translate ‘[UnitSeparator]’ into ‘ ’ (space) to produce lists like ‘2 minuti 30 sekund’, or empty string ‘’ to produce ‘2分30秒’."
         },
         {
@@ -601,9 +561,9 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}-{GOARCH}\nOperating system: {OsName}\nArchitecture: {NativeArch}",
-            "message": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}-{GOARCH}\nOperating system: {OsName}\nArchitecture: {NativeArch}",
-            "translation": "Versiunea aplicației: {Number}\nVersiunea bibliotecii Go: {WireGuardGoVersion}\nVersiunea Go: {Version_go}-{GOARCH}\nSistem de operare: {OsName}\nArhitectură: {NativeArch}",
+            "id": "App version: {Number}\nDriver version: {Version}\nGo version: {Version_go}\nOperating system: {OsName}\nArchitecture: {Arch}",
+            "message": "App version: {Number}\nDriver version: {Version}\nGo version: {Version_go}\nOperating system: {OsName}\nArchitecture: {Arch}",
+            "translation": "Versiunea aplicației: {Number}\nVersiunea driverului: {Version}\nVersiunea Go: {Version_go}\nSistem de operare: {OsName}\nArhitectură: {Arch}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -615,12 +575,12 @@
                     "expr": "version.Number"
                 },
                 {
-                    "id": "WireGuardGoVersion",
+                    "id": "Version",
                     "string": "%[2]s",
                     "type": "string",
                     "underlyingType": "string",
                     "argNum": 2,
-                    "expr": "device.WireGuardGoVersion"
+                    "expr": "driver.Version()"
                 },
                 {
                     "id": "Version_go",
@@ -631,28 +591,20 @@
                     "expr": "strings.TrimPrefix(runtime.Version(), \"go\")"
                 },
                 {
-                    "id": "GOARCH",
+                    "id": "OsName",
                     "string": "%[4]s",
                     "type": "string",
                     "underlyingType": "string",
                     "argNum": 4,
-                    "expr": "runtime.GOARCH"
+                    "expr": "version.OsName()"
                 },
                 {
-                    "id": "OsName",
+                    "id": "Arch",
                     "string": "%[5]s",
                     "type": "string",
                     "underlyingType": "string",
                     "argNum": 5,
-                    "expr": "version.OsName()"
-                },
-                {
-                    "id": "NativeArch",
-                    "string": "%[6]s",
-                    "type": "string",
-                    "underlyingType": "string",
-                    "argNum": 6,
-                    "expr": "version.NativeArch()"
+                    "expr": "version.Arch()"
                 }
             ]
         },
@@ -663,9 +615,9 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "♥ &Donate!",
-            "message": "♥ &Donate!",
-            "translation": "♥ &Donează!",
+            "id": "♥ \u0026Donate!",
+            "message": "♥ \u0026Donate!",
+            "translation": "♥ \u0026Donează!",
             "translatorComment": "Copied from source."
         },
         {
@@ -675,15 +627,15 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Deactivate",
-            "message": "&Deactivate",
-            "translation": "&Dezactivare",
+            "id": "\u0026Deactivate",
+            "message": "\u0026Deactivate",
+            "translation": "\u0026Dezactivare",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Activate",
-            "message": "&Activate",
-            "translation": "&Activare",
+            "id": "\u0026Activate",
+            "message": "\u0026Activate",
+            "translation": "\u0026Activare",
             "translatorComment": "Copied from source."
         },
         {
@@ -720,6 +672,12 @@
             "id": "Scripts:",
             "message": "Scripts:",
             "translation": "Scripturi:",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Table:",
+            "message": "Table:",
+            "translation": "Tabel:",
             "translatorComment": "Copied from source."
         },
         {
@@ -761,31 +719,37 @@
         {
             "id": "pre-up",
             "message": "pre-up",
-            "translation": "pre-pornire",
+            "translation": "pre-activare",
             "translatorComment": "Copied from source."
         },
         {
             "id": "post-up",
             "message": "post-up",
-            "translation": "post-pornire",
+            "translation": "post-activare",
             "translatorComment": "Copied from source."
         },
         {
             "id": "pre-down",
             "message": "pre-down",
-            "translation": "pre-oprire",
+            "translation": "pre-dezactivare",
             "translatorComment": "Copied from source."
         },
         {
             "id": "post-down",
             "message": "post-down",
-            "translation": "post-oprire",
+            "translation": "post-dezactivare",
             "translatorComment": "Copied from source."
         },
         {
             "id": "disabled, per policy",
             "message": "disabled, per policy",
             "translation": "dezactivat, conform politicii",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "off",
+            "message": "off",
+            "translation": "oprit",
             "translatorComment": "Copied from source."
         },
         {
@@ -871,15 +835,15 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Name:",
-            "message": "&Name:",
-            "translation": "&Nume:",
+            "id": "\u0026Name:",
+            "message": "\u0026Name:",
+            "translation": "\u0026Nume:",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Public key:",
-            "message": "&Public key:",
-            "translation": "Cheie &publică:",
+            "id": "\u0026Public key:",
+            "message": "\u0026Public key:",
+            "translation": "Cheie \u0026publică:",
             "translatorComment": "Copied from source."
         },
         {
@@ -889,21 +853,21 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Block untunneled traffic (kill-switch)",
-            "message": "&Block untunneled traffic (kill-switch)",
-            "translation": "&Blochează traficul care nu trece prin tunel (întrerupător de activitate)",
+            "id": "\u0026Block untunneled traffic (kill-switch)",
+            "message": "\u0026Block untunneled traffic (kill-switch)",
+            "translation": "\u0026Blochează traficul care nu trece prin tunel (întrerupător de activitate)",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface or is to the wrong DNS server, with special exceptions for DHCP and NDP.",
-            "message": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface or is to the wrong DNS server, with special exceptions for DHCP and NDP.",
-            "translation": "Când o configurație conține exact o pereche, iar acea pereche are IP-uri permise care conțin cel puțin o variantă dintre 0.0.0.0/0 sau ::/0, atunci serviciul tunelului activează un set de reguli al paravanului de protecție pentru a bloca întregul trafic care nu provine de la interfața tunelului sau care este direcționat către serverul DNS greșit, existând excepții speciale pentru DHCP și NDP.",
+            "id": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, and the interface does not have table off, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface or is to the wrong DNS server, with special exceptions for DHCP and NDP.",
+            "message": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, and the interface does not have table off, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface or is to the wrong DNS server, with special exceptions for DHCP and NDP.",
+            "translation": "Când o configurație conține exact o pereche, iar acea pereche are IP-uri permise care conțin cel puțin o variantă dintre 0.0.0.0/0 sau ::/0, iar interfața nu are table off, atunci serviciul tunelului activează un set de reguli al paravanului de protecție pentru a bloca întregul trafic care nu provine de la interfața tunelului, nu este destinat acesteia sau este îndreptat către un server DNS greșit, existând excepții speciale pentru DHCP și NDP.",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Save",
-            "message": "&Save",
-            "translation": "&Salvare",
+            "id": "\u0026Save",
+            "message": "\u0026Save",
+            "translation": "\u0026Salvare",
             "translatorComment": "Copied from source."
         },
         {
@@ -913,9 +877,9 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Configuration:",
-            "message": "&Configuration:",
-            "translation": "&Configurație:",
+            "id": "\u0026Configuration:",
+            "message": "\u0026Configuration:",
+            "translation": "\u0026Configurație:",
             "translatorComment": "Copied from source."
         },
         {
@@ -1039,21 +1003,21 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Copy",
-            "message": "&Copy",
-            "translation": "&Copiere",
+            "id": "\u0026Copy",
+            "message": "\u0026Copy",
+            "translation": "\u0026Copiere",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Select &all",
-            "message": "Select &all",
-            "translation": "Selectare &totală",
+            "id": "Select \u0026all",
+            "message": "Select \u0026all",
+            "translation": "Selectare \u0026totală",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Save to file…",
-            "message": "&Save to file…",
-            "translation": "&Salvare în fișier…",
+            "id": "\u0026Save to file…",
+            "message": "\u0026Save to file…",
+            "translation": "\u0026Salvare în fișier…",
             "translatorComment": "Copied from source."
         },
         {
@@ -1081,9 +1045,9 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&About WireGuard…",
-            "message": "&About WireGuard…",
-            "translation": "&Despre WireGuard…",
+            "id": "\u0026About WireGuard…",
+            "message": "\u0026About WireGuard…",
+            "translation": "\u0026Despre WireGuard…",
             "translatorComment": "Copied from source."
         },
         {
@@ -1165,27 +1129,27 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Manage tunnels…",
-            "message": "&Manage tunnels…",
-            "translation": "&Gestionare tuneluri…",
+            "id": "\u0026Manage tunnels…",
+            "message": "\u0026Manage tunnels…",
+            "translation": "\u0026Gestionare tuneluri…",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Import tunnel(s) from file…",
-            "message": "&Import tunnel(s) from file…",
-            "translation": "&Importare tunel(uri) din fișier…",
+            "id": "\u0026Import tunnel(s) from file…",
+            "message": "\u0026Import tunnel(s) from file…",
+            "translation": "\u0026Importare tunel(uri) din fișier…",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "E&xit",
-            "message": "E&xit",
-            "translation": "Ie&șire",
+            "id": "E\u0026xit",
+            "message": "E\u0026xit",
+            "translation": "Ie\u0026șire",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Tunnels",
-            "message": "&Tunnels",
-            "translation": "&Tuneluri",
+            "id": "\u0026Tunnels",
+            "message": "\u0026Tunnels",
+            "translation": "\u0026Tuneluri",
             "translatorComment": "Copied from source."
         },
         {
@@ -1311,15 +1275,15 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Edit",
-            "message": "&Edit",
-            "translation": "&Editare",
+            "id": "\u0026Edit",
+            "message": "\u0026Edit",
+            "translation": "\u0026Editare",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Add &empty tunnel…",
-            "message": "Add &empty tunnel…",
-            "translation": "Adăugare tunel &gol…",
+            "id": "Add \u0026empty tunnel…",
+            "message": "Add \u0026empty tunnel…",
+            "translation": "Adăugare tunel \u0026gol…",
             "translatorComment": "Copied from source."
         },
         {
@@ -1341,27 +1305,27 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Toggle",
-            "message": "&Toggle",
-            "translation": "&Comutare",
+            "id": "\u0026Toggle",
+            "message": "\u0026Toggle",
+            "translation": "\u0026Comutare",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Export all tunnels to &zip…",
-            "message": "Export all tunnels to &zip…",
-            "translation": "Exportă toate tunelurile în &zip…",
+            "id": "Export all tunnels to \u0026zip…",
+            "message": "Export all tunnels to \u0026zip…",
+            "translation": "Exportă toate tunelurile în \u0026zip…",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Edit &selected tunnel…",
-            "message": "Edit &selected tunnel…",
-            "translation": "Editare tunel &selectat…",
+            "id": "Edit \u0026selected tunnel…",
+            "message": "Edit \u0026selected tunnel…",
+            "translation": "Editare tunel \u0026selectat…",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Remove selected tunnel(s)",
-            "message": "&Remove selected tunnel(s)",
-            "translation": "&Eliminare tunel(uri) selectat(e)",
+            "id": "\u0026Remove selected tunnel(s)",
+            "message": "\u0026Remove selected tunnel(s)",
+            "translation": "\u0026Eliminare tunel(uri) selectat(e)",
             "translatorComment": "Copied from source."
         },
         {
@@ -1387,18 +1351,18 @@
             ]
         },
         {
-            "id": "Could not enumerate existing tunnels: {LastErr}",
-            "message": "Could not enumerate existing tunnels: {LastErr}",
-            "translation": "Tunelurile existente nu au putut fi enumerate: {LastErr}",
+            "id": "Could not enumerate existing tunnels: {Err}",
+            "message": "Could not enumerate existing tunnels: {Err}",
+            "translation": "Tunelurile existente nu au putut fi enumerate: {Err}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
-                    "id": "LastErr",
+                    "id": "Err",
                     "string": "%[1]v",
                     "type": "error",
                     "underlyingType": "interface{Error() string}",
                     "argNum": 1,
-                    "expr": "lastErr"
+                    "expr": "err"
                 }
             ]
         },
@@ -1448,11 +1412,11 @@
                     "feature": "plural",
                     "arg": "M",
                     "cases": {
-                        "one": {
-                            "msg": "Importat {M} tunel"
-                        },
                         "few": {
                             "msg": "Importat {M} tuneluri"
+                        },
+                        "one": {
+                            "msg": "Importat {M} tunel"
                         },
                         "other": {
                             "msg": "Importat {M} de tuneluri"
@@ -1479,11 +1443,11 @@
                     "feature": "plural",
                     "arg": "N",
                     "cases": {
-                        "one": {
-                            "msg": "Importat {M} din {N} tunel"
-                        },
                         "few": {
                             "msg": "Importat {M} din {N} tuneluri"
+                        },
+                        "one": {
+                            "msg": "Importat {M} din {N} tunel"
                         },
                         "other": {
                             "msg": "Importat {M} din {N} de tuneluri"
@@ -1524,11 +1488,11 @@
                     "feature": "plural",
                     "arg": "TunnelCount",
                     "cases": {
-                        "one": {
-                            "msg": "Ștergere {TunnelCount} tunel"
-                        },
                         "few": {
                             "msg": "Ștergere {TunnelCount} tuneluri"
+                        },
+                        "one": {
+                            "msg": "Ștergere {TunnelCount} tunel"
                         },
                         "other": {
                             "msg": "Ștergere {TunnelCount} de tuneluri"
@@ -1555,11 +1519,11 @@
                     "feature": "plural",
                     "arg": "TunnelCount",
                     "cases": {
-                        "one": {
-                            "msg": "Ești sigur că dorești să ștergi {TunnelCount} tunel?"
-                        },
                         "few": {
                             "msg": "Ești sigur că dorești să ștergi {TunnelCount} tuneluri?"
+                        },
+                        "one": {
+                            "msg": "Ești sigur că dorești să ștergi {TunnelCount} tunel?"
                         },
                         "other": {
                             "msg": "Ești sigur că dorești să ștergi {TunnelCount} de tuneluri?"
@@ -1662,11 +1626,11 @@
                     "feature": "plural",
                     "arg": "Lenerrors",
                     "cases": {
-                        "one": {
-                            "msg": "{Lenerrors} tunel nu a putut fi eliminat."
-                        },
                         "few": {
                             "msg": "{Lenerrors} tuneluri nu au putut fi eliminate."
+                        },
+                        "one": {
+                            "msg": "{Lenerrors} tunel nu a putut fi eliminat."
                         },
                         "other": {
                             "msg": "{Lenerrors} de tuneluri nu au putut fi eliminate."
@@ -1766,6 +1730,18 @@
             "translatorComment": "Copied from source."
         },
         {
+            "id": "Please ask the system administrator to update.",
+            "message": "Please ask the system administrator to update.",
+            "translation": "Solicită administratorului de sistem să efectueze actualizarea.",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Status: Waiting for administrator",
+            "message": "Status: Waiting for administrator",
+            "translation": "Stare: se așteaptă administratorul",
+            "translatorComment": "Copied from source."
+        },
+        {
             "id": "Status: Waiting for updater service",
             "message": "Status: Waiting for updater service",
             "translation": "Stare: se așteaptă serviciul de actualizare",
@@ -1792,86 +1768,6 @@
             "message": "Status: Complete!",
             "translation": "Stare: finalizată!",
             "translatorComment": "Copied from source."
-        },
-        {
-            "id": "http2: Framer {F}: failed to decode just-written frame",
-            "message": "http2: Framer {F}: failed to decode just-written frame",
-            "translation": "http2: Framer {F}: decodificarea cadrului recent scris a eșuat",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "F",
-                    "string": "%[1]p",
-                    "type": "*net/http.http2Framer",
-                    "underlyingType": "*net/http.http2Framer",
-                    "argNum": 1,
-                    "expr": "f"
-                }
-            ]
-        },
-        {
-            "id": "http2: Framer {F}: wrote {Http2summarizeFramefr}",
-            "message": "http2: Framer {F}: wrote {Http2summarizeFramefr}",
-            "translation": "http2: Framer {F}: a scris {Http2summarizeFramefr}",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "F",
-                    "string": "%[1]p",
-                    "type": "*net/http.http2Framer",
-                    "underlyingType": "*net/http.http2Framer",
-                    "argNum": 1,
-                    "expr": "f"
-                },
-                {
-                    "id": "Http2summarizeFramefr",
-                    "string": "%[2]v",
-                    "type": "string",
-                    "underlyingType": "string",
-                    "argNum": 2,
-                    "expr": "http2summarizeFrame(fr)"
-                }
-            ]
-        },
-        {
-            "id": "http2: Framer {Fr}: read {Http2summarizeFramef}",
-            "message": "http2: Framer {Fr}: read {Http2summarizeFramef}",
-            "translation": "http2: Framer {Fr}: a citit {Http2summarizeFramef}",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "Fr",
-                    "string": "%[1]p",
-                    "type": "*net/http.http2Framer",
-                    "underlyingType": "*net/http.http2Framer",
-                    "argNum": 1,
-                    "expr": "fr"
-                },
-                {
-                    "id": "Http2summarizeFramef",
-                    "string": "%[2]v",
-                    "type": "string",
-                    "underlyingType": "string",
-                    "argNum": 2,
-                    "expr": "http2summarizeFrame(f)"
-                }
-            ]
-        },
-        {
-            "id": "http2: decoded hpack field {HeaderField}",
-            "message": "http2: decoded hpack field {HeaderField}",
-            "translation": "http2: câmp hpack decodificat {HeaderField}",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "HeaderField",
-                    "string": "%+[1]v",
-                    "type": "vendor/golang.org/x/net/http2/hpack.HeaderField",
-                    "underlyingType": "struct{Name string; Value string; Sensitive bool}",
-                    "argNum": 1,
-                    "expr": "hf"
-                }
-            ]
         }
     ]
 }

@@ -8,6 +8,18 @@
             "translatorComment": "Copied from source."
         },
         {
+            "id": "Error:",
+            "message": "Error:",
+            "translation": "ਗ਼ਲਤੀ:",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "(no argument): elevate and install manager service",
+            "message": "(no argument): elevate and install manager service",
+            "translation": "(ਕੋਈ ਆਰਗੂਮੈਂਟ ਨਹੀਂ): ਅਧਿਕਾਰ ਉਚਾਈ ਅਤੇ ਮੈਨੇਜਰ ਸੇਵਾ ਇੰਸਟਾਲ ਕਰੋ",
+            "translatorComment": "Copied from source."
+        },
+        {
             "id": "Usage: {Args0} [\n{String}]",
             "message": "Usage: {Args0} [\n{String}]",
             "translation": "ਵਰਤੋਂ: {Args0} [\n{String}]",
@@ -56,7 +68,7 @@
         {
             "id": "You must use the native version of WireGuard on this computer.",
             "message": "You must use the native version of WireGuard on this computer.",
-            "translation": "ਤੁਹਾਨੂੰ ਇਸ ਕੰਪਿਊਟਰ ਉੱਤੇ WireGuard ਦਾ ਮੂਲ ਵਰਜ਼ਨ ਵਰਤਣਾ ਚਾਹੀਦਾ ਹੈ।",
+            "translation": "ਤੁਹਾਨੂੰ ਇਸ ਕੰਪਿਊਟਰ ਉੱਤੇ WireGuard ਦਾ ਨੇਟਿਵ ਵਰਜ਼ਨ ਵਰਤਣਾ ਚਾਹੀਦਾ ਹੈ।",
             "translatorComment": "Copied from source."
         },
         {
@@ -386,21 +398,27 @@
             ]
         },
         {
-            "id": "Invalid IP address",
-            "message": "Invalid IP address",
-            "translation": "ਅਵੈਧ IP ਸਿਰਨਾਵਾਂ",
-            "translatorComment": "Copied from source."
-        },
-        {
-            "id": "Invalid network prefix length",
-            "message": "Invalid network prefix length",
-            "translation": "ਗਲਤ ਨੈੱਟਵਰਕ ਅਗੇਤਰ ਲੰਬਾਈ",
+            "id": "Invalid IP address:",
+            "message": "Invalid IP address:",
+            "translation": "ਅਵੈਧ IP ਸਿਰਨਾਵਾਂ:",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Missing port from endpoint",
             "message": "Missing port from endpoint",
             "translation": "ਐਂਡਪੁਆਇੰਟ ਤੋਂ ਪੋਰਟ ਗੁੰਮ ਹੈ",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Invalid endpoint host",
+            "message": "Invalid endpoint host",
+            "translation": "ਅਵੈਧ ਐਂਡਪੁਆਇੰਟ ਹੋਸਟ",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Brackets must contain an IPv6 address",
+            "message": "Brackets must contain an IPv6 address",
+            "translation": "ਬਰੈਕਟਾਂ ਵਿੱਚ IPv6 ਸਿਰਨਾਵਾਂ ਹੋਣਾ ਚਾਹੀਦਾ ਹੈ",
             "translatorComment": "Copied from source."
         },
         {
@@ -444,22 +462,6 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Number must be a number between 0 and 2^64-1: {Err}",
-            "message": "Number must be a number between 0 and 2^64-1: {Err}",
-            "translation": "ਨੰਬਰ 0 ਅਤੇ 2^64-1 ਦੇ ਵਿਚਾਲੇ ਹੋਣਾ ਚਾਹੀਦਾ ਹੈ: {Err}",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "Err",
-                    "string": "%[1]v",
-                    "type": "error",
-                    "underlyingType": "interface{Error() string}",
-                    "argNum": 1,
-                    "expr": "err"
-                }
-            ]
-        },
-        {
             "id": "Two commas in a row",
             "message": "Two commas in a row",
             "translation": "ਇੱਕ ਕਤਾਰ ਵਿੱਚ ਦੋ ਕੌਮੇ ਹਨ",
@@ -478,15 +480,57 @@
             "translatorComment": "Copied from source."
         },
         {
+            "id": "Config key is missing an equals separator",
+            "message": "Config key is missing an equals separator",
+            "translation": "ਸੰਰਚਨਾ ਕੁੰਜੀ ਵਿੱਚ ਬਰਾਬਰ ਦਾ ਵੱਖਰੇਵਾਂ-ਚਿੰਨ੍ਹ ਗੁੰਮ ਹੈ",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Key must have a value",
+            "message": "Key must have a value",
+            "translation": "ਕੁੰਜੀ ਕੋਲ ਮੁੱਲ ਹੋਣਾ ਚਾਹੀਦਾ ਹੈ",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Invalid key for [Interface] section",
+            "message": "Invalid key for [Interface] section",
+            "translation": "[Interface] ਭਾਗ ਲਈ ਅਵੈਧ ਕੁੰਜੀ",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Invalid key for [Peer] section",
+            "message": "Invalid key for [Peer] section",
+            "translation": "[Peer] ਭਾਗ ਲਈ ਅਵੈਧ ਕੁੰਜੀ",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "An interface must have a private key",
+            "message": "An interface must have a private key",
+            "translation": "ਇੰਟਰਫੇਸ ਕੋਲ ਪ੍ਰਾਈਵੇਟ ਕੁੰਜੀ ਹੋਣੀ ਚਾਹੀਦੀ ਹੈ",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "[none specified]",
+            "message": "[none specified]",
+            "translation": "[ਕੋਈ ਨਹੀਂ ਦਿੱਤਾ]",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "All peers must have public keys",
+            "message": "All peers must have public keys",
+            "translation": "ਸਾਰੇ ਪੀਅਰਾਂ ਕੋਲ ਪਬਲਿਕ ਕੁੰਜੀਆਂ ਹੋਣੀਆਂ ਚਾਹੀਦੀਆਂ ਹਨ",
+            "translatorComment": "Copied from source."
+        },
+        {
             "id": "[EnumerationSeparator]",
             "message": "[EnumerationSeparator]",
-            "translation": ", ",
+            "translation": "",
             "comment": "Text to insert between items when listing - most western languages will translate ‘[EnumerationSeparator]’ into ‘, ’ to produce lists like ‘apple, orange, strawberry’. Eastern languages might translate into ‘、’ to produce lists like ‘リンゴ、オレンジ、イチゴ’."
         },
         {
             "id": "[UnitSeparator]",
             "message": "[UnitSeparator]",
-            "translation": ", ",
+            "translation": "",
             "comment": "Text to insert when combining units of a measure - most languages will translate ‘[UnitSeparator]’ into ‘ ’ (space) to produce lists like ‘2 minuti 30 sekund’, or empty string ‘’ to produce ‘2分30秒’."
         },
         {
@@ -496,9 +540,15 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}-{GOARCH}\nOperating system: {OsName}\nArchitecture: {NativeArch}",
-            "message": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}-{GOARCH}\nOperating system: {OsName}\nArchitecture: {NativeArch}",
-            "translation": "ਐਪ ਦਾ ਵਰਜ਼ਨ: {Number}\nਗੋ ਬੈਕਐਂਡ ਦਾ ਵਰਜ਼ਨ: {WireGuardGoVersion}\nਗੋ ਦਾ ਵਰਜ਼ਨ: {Version_go}-{GOARCH}\nਓਪਰੇਟਿੰਗ ਸਿਸਟਮ: {OsName}\nਢਾਂਚਾ: {NativeArch}",
+            "id": "WireGuard logo image",
+            "message": "WireGuard logo image",
+            "translation": "ਵਾਇਰਗਾਰਡ ਲੋਗੋ ਚਿੱਤਰ",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "App version: {Number}\nDriver version: {Version}\nGo version: {Version_go}\nOperating system: {OsName}\nArchitecture: {Arch}",
+            "message": "App version: {Number}\nDriver version: {Version}\nGo version: {Version_go}\nOperating system: {OsName}\nArchitecture: {Arch}",
+            "translation": "ਐਪ ਦਾ ਵਰਜ਼ਨ: {Number}\nਡਰਾਈਵਰ ਦਾ ਵਰਜ਼ਨ: {Version}\nਗੋ ਦਾ ਵਰਜ਼ਨ: {Version_go}\nਓਪਰੇਟਿੰਗ ਸਿਸਟਮ: {OsName}\nਢਾਂਚਾ: {Arch}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -510,12 +560,12 @@
                     "expr": "version.Number"
                 },
                 {
-                    "id": "WireGuardGoVersion",
+                    "id": "Version",
                     "string": "%[2]s",
                     "type": "string",
                     "underlyingType": "string",
                     "argNum": 2,
-                    "expr": "device.WireGuardGoVersion"
+                    "expr": "driver.Version()"
                 },
                 {
                     "id": "Version_go",
@@ -526,28 +576,20 @@
                     "expr": "strings.TrimPrefix(runtime.Version(), \"go\")"
                 },
                 {
-                    "id": "GOARCH",
+                    "id": "OsName",
                     "string": "%[4]s",
                     "type": "string",
                     "underlyingType": "string",
                     "argNum": 4,
-                    "expr": "runtime.GOARCH"
+                    "expr": "version.OsName()"
                 },
                 {
-                    "id": "OsName",
+                    "id": "Arch",
                     "string": "%[5]s",
                     "type": "string",
                     "underlyingType": "string",
                     "argNum": 5,
-                    "expr": "version.OsName()"
-                },
-                {
-                    "id": "NativeArch",
-                    "string": "%[6]s",
-                    "type": "string",
-                    "underlyingType": "string",
-                    "argNum": 6,
-                    "expr": "version.NativeArch()"
+                    "expr": "version.Arch()"
                 }
             ]
         },
@@ -558,9 +600,9 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "♥ &Donate!",
-            "message": "♥ &Donate!",
-            "translation": "♥ ਦਾਨ ਦਿਓ(&D)!",
+            "id": "♥ \u0026Donate!",
+            "message": "♥ \u0026Donate!",
+            "translation": "♥ ਦਾਨ ਦਿਓ(\u0026D)!",
             "translatorComment": "Copied from source."
         },
         {
@@ -570,15 +612,15 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Deactivate",
-            "message": "&Deactivate",
-            "translation": "ਨਾ-ਸਰਗਰਮ ਕਰੋ(&D)",
+            "id": "\u0026Deactivate",
+            "message": "\u0026Deactivate",
+            "translation": "ਨਾ-ਸਰਗਰਮ ਕਰੋ(\u0026D)",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Activate",
-            "message": "&Activate",
-            "translation": "ਸਰਗਰਮ ਕਰੋ(&A)",
+            "id": "\u0026Activate",
+            "message": "\u0026Activate",
+            "translation": "ਸਰਗਰਮ ਕਰੋ(\u0026A)",
             "translatorComment": "Copied from source."
         },
         {
@@ -618,6 +660,12 @@
             "translatorComment": "Copied from source."
         },
         {
+            "id": "Table:",
+            "message": "Table:",
+            "translation": "ਟੇਬਲ:",
+            "translatorComment": "Copied from source."
+        },
+        {
             "id": "Preshared key:",
             "message": "Preshared key:",
             "translation": "ਪਹਿਲਾਂ-ਸਾਂਝੀ ਕੀਤੀ ਕੁੰਜੀ:",
@@ -654,9 +702,39 @@
             "translatorComment": "Copied from source."
         },
         {
+            "id": "pre-up",
+            "message": "pre-up",
+            "translation": "ਸਰਗਰਮ ਕਰਨ ਤੋਂ ਪਹਿਲਾਂ",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "post-up",
+            "message": "post-up",
+            "translation": "ਸਰਗਰਮ ਕਰਨ ਤੋਂ ਬਾਅਦ",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "pre-down",
+            "message": "pre-down",
+            "translation": "ਨਾ-ਸਰਗਰਮ ਕਰਨ ਤੋਂ ਪਹਿਲਾਂ",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "post-down",
+            "message": "post-down",
+            "translation": "ਨਾ-ਸਰਗਰਮ ਕਰਨ ਤੋਂ ਬਾਅਦ",
+            "translatorComment": "Copied from source."
+        },
+        {
             "id": "disabled, per policy",
             "message": "disabled, per policy",
-            "translation": "ਅਸਮਰੱਥ ਹੈ, ਹਰ ਪਾਲਸੀ",
+            "translation": "ਪਾਲਿਸੀ ਮੁਤਾਬਕ ਅਸਮਰੱਥ",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "off",
+            "message": "off",
+            "translation": "ਬੰਦ",
             "translatorComment": "Copied from source."
         },
         {
@@ -742,15 +820,15 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Name:",
-            "message": "&Name:",
-            "translation": "ਨਾਂ(&N):",
+            "id": "\u0026Name:",
+            "message": "\u0026Name:",
+            "translation": "ਨਾਂ(\u0026N):",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Public key:",
-            "message": "&Public key:",
-            "translation": "ਪਬਲਿਕ ਕੁੰਜੀ(&P):",
+            "id": "\u0026Public key:",
+            "message": "\u0026Public key:",
+            "translation": "ਪਬਲਿਕ ਕੁੰਜੀ(\u0026P):",
             "translatorComment": "Copied from source."
         },
         {
@@ -760,15 +838,21 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Block untunneled traffic (kill-switch)",
-            "message": "&Block untunneled traffic (kill-switch)",
-            "translation": "ਬਿਨਾਂ-ਟਨਲ ਵਾਲੇ ਟਰੈਫਿਕ ਉੱਤੇ ਪਾਬੰਦੀ ਲਾਓ (&B) (kill-switch)",
+            "id": "\u0026Block untunneled traffic (kill-switch)",
+            "message": "\u0026Block untunneled traffic (kill-switch)",
+            "translation": "ਬਿਨਾਂ-ਟਨਲ ਵਾਲੇ ਟਰੈਫਿਕ ਉੱਤੇ ਪਾਬੰਦੀ ਲਾਓ (\u0026B) (kill-switch)",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Save",
-            "message": "&Save",
-            "translation": "ਸੰਭਾਲੋ(&S)",
+            "id": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, and the interface does not have table off, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface or is to the wrong DNS server, with special exceptions for DHCP and NDP.",
+            "message": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, and the interface does not have table off, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface or is to the wrong DNS server, with special exceptions for DHCP and NDP.",
+            "translation": "ਜਦੋਂ ਸੰਰਚਨਾ ਕੋਲ ਠੀਕ ਇੱਕ ਪੀਅਰ ਹੋਵੇ, ਅਤੇ ਉਸ ਪੀਅਰ ਕੋਲ ਮਨਜ਼ੂਰ ਕੀਤੇ IP ਵਿੱਚ 0.0.0.0/0 ਜਾਂ ::/0 ਵਿੱਚੋਂ ਘੱਟੋ-ਘੱਟ ਇੱਕ ਮੌਜੂਦ ਹੋਵੇ, ਅਤੇ ਇੰਟਰਫੇਸ ਵਿੱਚ table off ਨਾ ਹੋਵੇ, ਤਾਂ ਟਨਲ ਸੇਵਾ ਫਾਇਰਵਾਲ ਨਿਯਮਾਵਲੀ ਨੂੰ ਜੋੜਦੀ ਹੈ, ਜੋ ਕਿ ਉਹ ਸਾਰਾ ਟਰੈਫਿਕ ਰੋਕ ਦਿੰਦੀ ਹੈ, ਜੋ ਨਾ ਤਾਂ ਟਨਲ ਇੰਟਰਫੇਸ ਵੱਲ ਜਾਂਦਾ ਹੈ ਤੇ ਨਾ ਹੀ ਉਸ ਤੋਂ ਆਉਂਦਾ ਹੈ ਜਾਂ ਜੋ ਗ਼ਲਤ DNS ਸਰਵਰ ਵੱਲ ਜਾਂਦਾ ਹੈ, DHCP ਅਤੇ NDP ਲਈ ਖਾਸ ਅਪਵਾਦ ਨਾਲ।",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "\u0026Save",
+            "message": "\u0026Save",
+            "translation": "ਸੰਭਾਲੋ(\u0026S)",
             "translatorComment": "Copied from source."
         },
         {
@@ -778,9 +862,9 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Configuration:",
-            "message": "&Configuration:",
-            "translation": "ਸੰਰਚਨਾ(&C):",
+            "id": "\u0026Configuration:",
+            "message": "\u0026Configuration:",
+            "translation": "ਸੰਰਚਨਾ(\u0026C):",
             "translatorComment": "Copied from source."
         },
         {
@@ -793,6 +877,28 @@
             "id": "A name is required.",
             "message": "A name is required.",
             "translation": "ਨਾਂ ਚਾਹੀਦਾ ਹੈ।",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Tunnel name ‘{NewName}’ is invalid.",
+            "message": "Tunnel name ‘{NewName}’ is invalid.",
+            "translation": "ਟਨਲ ਦਾ ਨਾਂ ‘{NewName}’ ਅਵੈਧ ਹੈ।",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "NewName",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "newName"
+                }
+            ]
+        },
+        {
+            "id": "Unable to list existing tunnels",
+            "message": "Unable to list existing tunnels",
+            "translation": "ਮੌਜੂਦਾ ਟਨਲਾਂ ਦੀ ਸੂਚੀ ਬਣਾਉਣ ਲਈ ਅਸਮਰੱਥ",
             "translatorComment": "Copied from source."
         },
         {
@@ -882,21 +988,21 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Copy",
-            "message": "&Copy",
-            "translation": "ਕਾਪੀ ਕਰੋ(&C)",
+            "id": "\u0026Copy",
+            "message": "\u0026Copy",
+            "translation": "ਕਾਪੀ ਕਰੋ(\u0026C)",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Select &all",
-            "message": "Select &all",
-            "translation": "ਸਾਰੇ ਚੁਣੋ(&a)",
+            "id": "Select \u0026all",
+            "message": "Select \u0026all",
+            "translation": "ਸਾਰੇ ਚੁਣੋ(\u0026a)",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Save to file…",
-            "message": "&Save to file…",
-            "translation": "ਫ਼ਾਇਲ ਵਿੱਚ ਸੰਭਾਲੋ(&S)…",
+            "id": "\u0026Save to file…",
+            "message": "\u0026Save to file…",
+            "translation": "ਫ਼ਾਇਲ ਵਿੱਚ ਸੰਭਾਲੋ(\u0026S)…",
             "translatorComment": "Copied from source."
         },
         {
@@ -924,9 +1030,9 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&About WireGuard…",
-            "message": "&About WireGuard…",
-            "translation": "ਵਾਇਰਗਾਰਡ ਬਾਰੇ(&A)…",
+            "id": "\u0026About WireGuard…",
+            "message": "\u0026About WireGuard…",
+            "translation": "ਵਾਇਰਗਾਰਡ ਬਾਰੇ(\u0026A)…",
             "translatorComment": "Copied from source."
         },
         {
@@ -938,7 +1044,7 @@
         {
             "id": "{ErrMsg}\n\nPlease consult the log for more information.",
             "message": "{ErrMsg}\n\nPlease consult the log for more information.",
-            "translation": "{ErrMsg}\n\nPlease consult the log for more information.",
+            "translation": "{ErrMsg}\n\nਹੋਰ ਜਾਣਕਾਰੀ ਲਈ ਲਾਗ ਵੇਖੋ ਜੀ।",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -954,7 +1060,7 @@
         {
             "id": "{Title} (out of date)",
             "message": "{Title} (out of date)",
-            "translation": "{Title} (out of date)",
+            "translation": "{Title} (ਪੁਰਾਣਾ ਹੈ)",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -972,6 +1078,22 @@
             "message": "WireGuard Detection Error",
             "translation": "WireGuard ਖੋਜ ਗ਼ਲਤੀ",
             "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Unable to wait for WireGuard window to appear: {Err}",
+            "message": "Unable to wait for WireGuard window to appear: {Err}",
+            "translation": "WireGuard ਵਿੰਡੋ ਦੇ ਵਿਖਾਈ ਦੇਣ ਦੀ ਉਡੀਕ ਕਰਨ ਲਈ ਅਸਮਰੱਥ: {Err}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Err",
+                    "string": "%[1]v",
+                    "type": "error",
+                    "underlyingType": "interface{Error() string}",
+                    "argNum": 1,
+                    "expr": "err"
+                }
+            ]
         },
         {
             "id": "WireGuard: Deactivated",
@@ -992,27 +1114,27 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Manage tunnels…",
-            "message": "&Manage tunnels…",
-            "translation": "ਟਨਲਾਂ ਦਾ ਇੰਤਜ਼ਾਮ ਕਰੋ(&M)…",
+            "id": "\u0026Manage tunnels…",
+            "message": "\u0026Manage tunnels…",
+            "translation": "ਟਨਲਾਂ ਦਾ ਇੰਤਜ਼ਾਮ ਕਰੋ(\u0026M)…",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Import tunnel(s) from file…",
-            "message": "&Import tunnel(s) from file…",
-            "translation": "ਫ਼ਾਇਲ ਤੋਂ ਟਨਲਾਂ ਦਰਾਮਦ ਕਰੋ(&I)…",
+            "id": "\u0026Import tunnel(s) from file…",
+            "message": "\u0026Import tunnel(s) from file…",
+            "translation": "ਫ਼ਾਇਲ ਤੋਂ ਟਨਲਾਂ ਦਰਾਮਦ ਕਰੋ(\u0026I)…",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "E&xit",
-            "message": "E&xit",
-            "translation": "ਬਾਹਰ(&x)",
+            "id": "E\u0026xit",
+            "message": "E\u0026xit",
+            "translation": "ਬਾਹਰ(\u0026x)",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Tunnels",
-            "message": "&Tunnels",
-            "translation": "ਟਨਲ(&T)",
+            "id": "\u0026Tunnels",
+            "message": "\u0026Tunnels",
+            "translation": "ਟਨਲਾਂ(\u0026T)",
             "translatorComment": "Copied from source."
         },
         {
@@ -1100,7 +1222,7 @@
         {
             "id": "Addresses: {EnumerationSeparator}",
             "message": "Addresses: {EnumerationSeparator}",
-            "translation": "ਸਿਰਨਾਵੇਂ: {EnumerationSeparator}",
+            "translation": "ਸਿਰਨਾਵੇ: {EnumerationSeparator}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1138,15 +1260,15 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Edit",
-            "message": "&Edit",
-            "translation": "ਸੋਧੋ(&E)",
+            "id": "\u0026Edit",
+            "message": "\u0026Edit",
+            "translation": "ਸੋਧੋ(\u0026E)",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Add &empty tunnel…",
-            "message": "Add &empty tunnel…",
-            "translation": "…ਖਾਲੀ ਟਨਲ ਜੋੜੋ(&e)",
+            "id": "Add \u0026empty tunnel…",
+            "message": "Add \u0026empty tunnel…",
+            "translation": "…ਖਾਲੀ ਟਨਲ ਜੋੜੋ(\u0026e)",
             "translatorComment": "Copied from source."
         },
         {
@@ -1168,27 +1290,27 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Toggle",
-            "message": "&Toggle",
-            "translation": "ਪਲਟੋ(&T)",
+            "id": "\u0026Toggle",
+            "message": "\u0026Toggle",
+            "translation": "ਪਲਟੋ(\u0026T)",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Export all tunnels to &zip…",
-            "message": "Export all tunnels to &zip…",
+            "id": "Export all tunnels to \u0026zip…",
+            "message": "Export all tunnels to \u0026zip…",
             "translation": "ਸਾਰੀਆਂ ਟਨਲਾਂ ਨੂੰ ਜ਼ਿੱਪ ਵਜੋਂ ਬਰਾਮਦ ਕਰੋ…",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Edit &selected tunnel…",
-            "message": "Edit &selected tunnel…",
-            "translation": "ਚੁਣੀ ਟਨਲ ਸੋਧੋ(&s)…",
+            "id": "Edit \u0026selected tunnel…",
+            "message": "Edit \u0026selected tunnel…",
+            "translation": "ਚੁਣੀ ਟਨਲ ਸੋਧੋ(\u0026s)…",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Remove selected tunnel(s)",
-            "message": "&Remove selected tunnel(s)",
-            "translation": "ਚੁਣੀਆਂ ਟਨਲਾਂ ਨੂੰ ਹਟਾਓ(&R)",
+            "id": "\u0026Remove selected tunnel(s)",
+            "message": "\u0026Remove selected tunnel(s)",
+            "translation": "ਚੁਣੀਆਂ ਟਨਲਾਂ ਨੂੰ ਹਟਾਓ(\u0026R)",
             "translatorComment": "Copied from source."
         },
         {
@@ -1196,6 +1318,38 @@
             "message": "no configuration files were found",
             "translation": "ਕੋਈ ਸੰਰਚਨਾ ਫ਼ਾਇਲਾਂ ਨਹੀਂ ਲੱਭੀਆਂ",
             "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Could not import selected configuration: {LastErr}",
+            "message": "Could not import selected configuration: {LastErr}",
+            "translation": "ਚੁਣੀ ਸੰਰਚਨਾ ਨੂੰ ਇੰਪੋਰਟ ਨਹੀਂ ਕੀਤਾ ਜਾ ਸਕਿਆ: {LastErr}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "LastErr",
+                    "string": "%[1]v",
+                    "type": "error",
+                    "underlyingType": "interface{Error() string}",
+                    "argNum": 1,
+                    "expr": "lastErr"
+                }
+            ]
+        },
+        {
+            "id": "Could not enumerate existing tunnels: {Err}",
+            "message": "Could not enumerate existing tunnels: {Err}",
+            "translation": "ਮੌਜੂਦਾ ਟਨਲਾਂ ਦੀ ਗਿਣਤੀ ਨਹੀਂ ਕੀਤੀ ਜਾ ਸਕੀ: {Err}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Err",
+                    "string": "%[1]v",
+                    "type": "error",
+                    "underlyingType": "interface{Error() string}",
+                    "argNum": 1,
+                    "expr": "err"
+                }
+            ]
         },
         {
             "id": "Another tunnel already exists with the name ‘{Name}’",
@@ -1260,6 +1414,42 @@
                     "underlyingType": "int",
                     "argNum": 1,
                     "expr": "m"
+                }
+            ]
+        },
+        {
+            "id": "Imported {M} of {N} tunnels",
+            "message": "Imported {M} of {N} tunnels",
+            "translation": {
+                "select": {
+                    "feature": "plural",
+                    "arg": "N",
+                    "cases": {
+                        "one": {
+                            "msg": "{N} ਵਿੱਚੋਂ {M} ਟਨਲ ਇੰਪੋਰਟ ਕੀਤੀ"
+                        },
+                        "other": {
+                            "msg": "{N} ਵਿੱਚੋਂ {M} ਟਨਲਾਂ ਇੰਪੋਰਟ ਕੀਤੀਆਂ"
+                        }
+                    }
+                }
+            },
+            "placeholders": [
+                {
+                    "id": "M",
+                    "string": "%[1]d",
+                    "type": "int",
+                    "underlyingType": "int",
+                    "argNum": 1,
+                    "expr": "m"
+                },
+                {
+                    "id": "N",
+                    "string": "%[2]d",
+                    "type": "int",
+                    "underlyingType": "int",
+                    "argNum": 2,
+                    "expr": "n"
                 }
             ]
         },
@@ -1402,6 +1592,34 @@
             "translatorComment": "Copied from source."
         },
         {
+            "id": "{Lenerrors} tunnels were unable to be removed.",
+            "message": "{Lenerrors} tunnels were unable to be removed.",
+            "translation": {
+                "select": {
+                    "feature": "plural",
+                    "arg": "Lenerrors",
+                    "cases": {
+                        "one": {
+                            "msg": "{Lenerrors} ਟਨਲ ਨੂੰ ਹਟਾਉਣ ਲਈ ਅਸਮਰੱਥ ਹੈ।"
+                        },
+                        "other": {
+                            "msg": "{Lenerrors} ਟਨਲਾਂ ਨੂੰ ਹਟਾਉਣ ਲਈ ਅਸਮਰੱਥ ਹੈ।"
+                        }
+                    }
+                }
+            },
+            "placeholders": [
+                {
+                    "id": "Lenerrors",
+                    "string": "%[1]d",
+                    "type": "int",
+                    "underlyingType": "int",
+                    "argNum": 1,
+                    "expr": "len(errors)"
+                }
+            ]
+        },
+        {
             "id": "Configuration Files (*.zip, *.conf)|*.zip;*.conf|All Files (*.*)|*.*",
             "message": "Configuration Files (*.zip, *.conf)|*.zip;*.conf|All Files (*.*)|*.*",
             "translation": "ਸੰਰਚਨਾ ਫ਼ਾਇਲਾਂ (*.zip, *.conf)|*.zip;*.conf|ਸਾਰੀਆਂ ਫ਼ਾਇਲਾਂ (*.*)|*.*",
@@ -1418,6 +1636,28 @@
             "message": "Configuration ZIP Files (*.zip)|*.zip",
             "translation": "ਸੰਰਚਨਾ ਜ਼ਿੱਪ ਫਾਇਲਾਂ (*.zip)|*.zip",
             "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Export tunnels to zip",
+            "message": "Export tunnels to zip",
+            "translation": "ਟਨਲਾਂ ਨੂੰ ਜ਼ਿੱਪ ਵਜੋਂ ਬਰਾਮਦ ਕਰੋ",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "{Title} (unsigned build, no updates)",
+            "message": "{Title} (unsigned build, no updates)",
+            "translation": "{Title} (ਅਣ-ਦਸਤਖ਼ਤੀ ਬਿਲਡ, ਕੋਈ ਅੱਪਡੇਟ ਨਹੀਂ)",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Title",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "mtw.Title()"
+                }
+            ]
         },
         {
             "id": "Error Exiting WireGuard",
@@ -1457,6 +1697,18 @@
             "id": "Update Now",
             "message": "Update Now",
             "translation": "ਹੁਣੇ ਅੱਪਡੇਟ ਕਰੋ",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Please ask the system administrator to update.",
+            "message": "Please ask the system administrator to update.",
+            "translation": "ਅੱਪਡੇਟ ਕਰਨ ਲਈ ਸਿਸਟਮ ਪਰਸ਼ਾਸਕ ਨੂੰ ਪੁੱਛੋ ਜੀ।",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Status: Waiting for administrator",
+            "message": "Status: Waiting for administrator",
+            "translation": "ਹਾਲਤ: ਪਰਸ਼ਾਸਕ ਲਈ ਉਡੀਕ ਕੀਤੀ ਜਾ ਰਹੀ ਹੈ",
             "translatorComment": "Copied from source."
         },
         {

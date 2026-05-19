@@ -52,10 +52,80 @@ VERSIONINFO_TEMPLATE(
   "https://www.wireguard.com/"
 )
 
+LANGUAGE LANG_ARABIC, SUBLANG_DEFAULT
+VERSIONINFO_TEMPLATE(
+  "040104b0", 0x401, 0x4b0,
+  "WireGuard: نفق VPN سريع وحديث وآمن",
+  "https://www.wireguard.com/"
+)
+
+LANGUAGE LANG_CATALAN, SUBLANG_DEFAULT
+VERSIONINFO_TEMPLATE(
+  "040304b0", 0x403, 0x4b0,
+  "WireGuard: túnel VPN ràpid, modern i segur",
+  "https://www.wireguard.com/"
+)
+
+LANGUAGE LANG_CZECH, SUBLANG_DEFAULT
+VERSIONINFO_TEMPLATE(
+  "040504b0", 0x405, 0x4b0,
+  "WireGuard: rychlý, moderní a bezpečný VPN tunel",
+  "https://www.wireguard.com/"
+)
+
+LANGUAGE LANG_DANISH, SUBLANG_DEFAULT
+VERSIONINFO_TEMPLATE(
+  "040604b0", 0x406, 0x4b0,
+  "WireGuard: hurtig, moderne og sikker VPN-tunnel",
+  "https://www.wireguard.com/"
+)
+
+LANGUAGE LANG_GERMAN, SUBLANG_DEFAULT
+VERSIONINFO_TEMPLATE(
+  "040704b0", 0x407, 0x4b0,
+  "WireGuard: schneller, moderner, sicherer VPN-Tunnel",
+  "https://www.wireguard.com/"
+)
+
+LANGUAGE LANG_GREEK, SUBLANG_DEFAULT
+VERSIONINFO_TEMPLATE(
+  "040804b0", 0x408, 0x4b0,
+  "WireGuard: γρήγορη, σύγχρονη και ασφαλής σήραγγα VPN",
+  "https://www.wireguard.com/"
+)
+
+LANGUAGE LANG_HUNGARIAN, SUBLANG_DEFAULT
+VERSIONINFO_TEMPLATE(
+  "040e04b0", 0x40e, 0x4b0,
+  "WireGuard: gyors, modern, biztonságos VPN-alagút",
+  "https://www.wireguard.com/"
+)
+
+LANGUAGE LANG_SPANISH, SUBLANG_DEFAULT
+VERSIONINFO_TEMPLATE(
+  "040a04b0", 0x40a, 0x4b0,
+  "WireGuard: túnel VPN rápido, moderno y seguro",
+  "https://www.wireguard.com/"
+)
+
+LANGUAGE LANG_FINNISH, SUBLANG_DEFAULT
+VERSIONINFO_TEMPLATE(
+  "040b04b0", 0x40b, 0x4b0,
+  "WireGuard: nopea, nykyaikainen ja turvallinen VPN-tunneli",
+  "https://www.wireguard.com/"
+)
+
 LANGUAGE LANG_FRENCH, SUBLANG_DEFAULT
 VERSIONINFO_TEMPLATE(
   "040c04b0", 0x40c, 0x4b0,
   "WireGuard: tunnel VPN rapide, moderne, sécurisé",
+  "https://www.wireguard.com/"
+)
+
+LANGUAGE LANG_HEBREW, SUBLANG_DEFAULT
+VERSIONINFO_TEMPLATE(
+  "040d04b0", 0x40d, 0x4b0,
+  "WireGuard: מנהרת VPN מהירה, מודרנית ובטוחה",
   "https://www.wireguard.com/"
 )
 
@@ -73,6 +143,83 @@ VERSIONINFO_TEMPLATE(
   "https://www.wireguard.com/"
 )
 
+LANGUAGE LANG_KOREAN, SUBLANG_DEFAULT
+VERSIONINFO_TEMPLATE(
+  "041204b0", 0x412, 0x4b0,
+  "WireGuard: 빠르고 현대적이며 안전한 VPN 터널",
+  "https://www.wireguard.com/"
+)
+
+LANGUAGE LANG_DUTCH, SUBLANG_DEFAULT
+VERSIONINFO_TEMPLATE(
+  "041304b0", 0x413, 0x4b0,
+  "WireGuard: snelle, moderne, veilige VPN-tunnel",
+  "https://www.wireguard.com/"
+)
+
+LANGUAGE LANG_NORWEGIAN, SUBLANG_NORWEGIAN_BOKMAL
+VERSIONINFO_TEMPLATE(
+  "041404b0", 0x414, 0x4b0,
+  "WireGuard: rask, moderne, sikker VPN-tunnel",
+  "https://www.wireguard.com/"
+)
+
+LANGUAGE LANG_NORWEGIAN, SUBLANG_NORWEGIAN_NYNORSK
+VERSIONINFO_TEMPLATE(
+  "081404b0", 0x814, 0x4b0,
+  "WireGuard: rask, moderne, sikker VPN-tunnel",
+  "https://www.wireguard.com/"
+)
+
+LANGUAGE LANG_POLISH, SUBLANG_DEFAULT
+VERSIONINFO_TEMPLATE(
+  "041504b0", 0x415, 0x4b0,
+  "WireGuard: szybki, nowoczesny, bezpieczny tunel VPN",
+  "https://www.wireguard.com/"
+)
+
+LANGUAGE LANG_PORTUGUESE, SUBLANG_PORTUGUESE_BRAZILIAN
+VERSIONINFO_TEMPLATE(
+  "041604b0", 0x416, 0x4b0,
+  "WireGuard: túnel VPN rápido, moderno e seguro",
+  "https://www.wireguard.com/"
+)
+
+LANGUAGE LANG_PORTUGUESE, SUBLANG_PORTUGUESE
+VERSIONINFO_TEMPLATE(
+  "081604b0", 0x816, 0x4b0,
+  "WireGuard: túnel VPN rápido, moderno e seguro",
+  "https://www.wireguard.com/"
+)
+
+LANGUAGE LANG_ROMANIAN, SUBLANG_DEFAULT
+VERSIONINFO_TEMPLATE(
+  "041804b0", 0x418, 0x4b0,
+  "WireGuard: tunel VPN rapid, modern și sigur",
+  "https://www.wireguard.com/"
+)
+
+LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
+VERSIONINFO_TEMPLATE(
+  "041904b0", 0x419, 0x4b0,
+  "WireGuard: быстрый, современный и безопасный VPN-туннель",
+  "https://www.wireguard.com/"
+)
+
+LANGUAGE LANG_SERBIAN, SUBLANG_SERBIAN_CYRILLIC
+VERSIONINFO_TEMPLATE(
+  "0c1a04b0", 0xc1a, 0x4b0,
+  "WireGuard: брз, модеран и безбедан VPN тунел",
+  "https://www.wireguard.com/"
+)
+
+LANGUAGE LANG_SLOVAK, SUBLANG_DEFAULT
+VERSIONINFO_TEMPLATE(
+  "041b04b0", 0x41b, 0x4b0,
+  "WireGuard: rýchly, moderný a bezpečný VPN tunel",
+  "https://www.wireguard.com/"
+)
+
 LANGUAGE LANG_SLOVENIAN, SUBLANG_DEFAULT
 VERSIONINFO_TEMPLATE(
   "042404b0", 0x424, 0x4b0,
@@ -80,9 +227,93 @@ VERSIONINFO_TEMPLATE(
   "https://www.wireguard.com/"
 )
 
+LANGUAGE LANG_SWEDISH, SUBLANG_DEFAULT
+VERSIONINFO_TEMPLATE(
+  "041d04b0", 0x41d, 0x4b0,
+  "WireGuard: snabb, modern, säker VPN-tunnel",
+  "https://www.wireguard.com/"
+)
+
+LANGUAGE LANG_TURKISH, SUBLANG_DEFAULT
+VERSIONINFO_TEMPLATE(
+  "041f04b0", 0x41f, 0x4b0,
+  "WireGuard: hızlı, modern ve güvenli VPN tüneli",
+  "https://www.wireguard.com/"
+)
+
+LANGUAGE LANG_INDONESIAN, SUBLANG_DEFAULT
+VERSIONINFO_TEMPLATE(
+  "042104b0", 0x421, 0x4b0,
+  "WireGuard: terowongan VPN cepat, modern, dan aman",
+  "https://www.wireguard.com/"
+)
+
+LANGUAGE LANG_UKRAINIAN, SUBLANG_DEFAULT
+VERSIONINFO_TEMPLATE(
+  "042204b0", 0x422, 0x4b0,
+  "WireGuard: швидкий, сучасний і безпечний VPN-тунель",
+  "https://www.wireguard.com/"
+)
+
+LANGUAGE LANG_ESTONIAN, SUBLANG_DEFAULT
+VERSIONINFO_TEMPLATE(
+  "042504b0", 0x425, 0x4b0,
+  "WireGuard: kiire, kaasaegne ja turvaline VPN-tunnel",
+  "https://www.wireguard.com/"
+)
+
+LANGUAGE LANG_PERSIAN, SUBLANG_DEFAULT
+VERSIONINFO_TEMPLATE(
+  "042904b0", 0x429, 0x4b0,
+  "WireGuard: تونل VPN سریع، مدرن و امن",
+  "https://www.wireguard.com/"
+)
+
+LANGUAGE LANG_VIETNAMESE, SUBLANG_DEFAULT
+VERSIONINFO_TEMPLATE(
+  "042a04b0", 0x42a, 0x4b0,
+  "WireGuard: đường hầm VPN nhanh, hiện đại, an toàn",
+  "https://www.wireguard.com/"
+)
+
+LANGUAGE LANG_AFRIKAANS, SUBLANG_DEFAULT
+VERSIONINFO_TEMPLATE(
+  "043604b0", 0x436, 0x4b0,
+  "WireGuard: vinnige, moderne, veilige VPN-tonnel",
+  "https://www.wireguard.com/"
+)
+
+LANGUAGE LANG_HINDI, SUBLANG_DEFAULT
+VERSIONINFO_TEMPLATE(
+  "043904b0", 0x439, 0x4b0,
+  "WireGuard: तेज़, आधुनिक, सुरक्षित VPN सुरंग",
+  "https://www.wireguard.com/"
+)
+
+LANGUAGE LANG_PUNJABI, SUBLANG_DEFAULT
+VERSIONINFO_TEMPLATE(
+  "044604b0", 0x446, 0x4b0,
+  "WireGuard: ਤੇਜ਼, ਅਜੋਕੀ ਅਤੇ ਸੁਰੱਖਿਅਤ VPN ਟਨਲ",
+  "https://www.wireguard.com/"
+)
+
+LANGUAGE LANG_SINHALESE, SUBLANG_DEFAULT
+VERSIONINFO_TEMPLATE(
+  "045b04b0", 0x45b, 0x4b0,
+  "WireGuard: වේගවත්, නවීන, ආරක්ෂිත VPN උමං මාර්ගය",
+  "https://www.wireguard.com/"
+)
+
 LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_TRADITIONAL
 VERSIONINFO_TEMPLATE(
   "040404b0", 0x404, 0x4b0,
   "WireGuard：快速、現代、安全的 VPN 隧道",
+  "https://www.wireguard.com/"
+)
+
+LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
+VERSIONINFO_TEMPLATE(
+  "080404b0", 0x804, 0x4b0,
+  "WireGuard：快速、现代、安全的 VPN 隧道",
   "https://www.wireguard.com/"
 )

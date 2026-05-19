@@ -8,6 +8,12 @@
             "translatorComment": "Copied from source."
         },
         {
+            "id": "Error:",
+            "message": "Error:",
+            "translation": "දෝෂය:",
+            "translatorComment": "Copied from source."
+        },
+        {
             "id": "(no argument): elevate and install manager service",
             "message": "(no argument): elevate and install manager service",
             "translation": "(තර්කයක් නැත): කළමනාකරු සේවාව ඉහළ නැංවීම සහ ස්ථාපනය කිරීම",
@@ -392,15 +398,9 @@
             ]
         },
         {
-            "id": "Invalid IP address",
-            "message": "Invalid IP address",
-            "translation": "අ.ජා.කෙ. වලංගු නොවේ",
-            "translatorComment": "Copied from source."
-        },
-        {
-            "id": "Invalid network prefix length",
-            "message": "Invalid network prefix length",
-            "translation": "වලංගු නොවන ජාල උපසර්ග දිග",
+            "id": "Invalid IP address:",
+            "message": "Invalid IP address:",
+            "translation": "වලංගු නොවන අ.ජා.කෙ. ලිපිනය:",
             "translatorComment": "Copied from source."
         },
         {
@@ -460,22 +460,6 @@
             "message": "Keys must decode to exactly 32 bytes",
             "translation": "යතුරු හරියටම බයිට් 32කට විකේතනය කළ යුතුය",
             "translatorComment": "Copied from source."
-        },
-        {
-            "id": "Number must be a number between 0 and 2^64-1: {Err}",
-            "message": "Number must be a number between 0 and 2^64-1: {Err}",
-            "translation": "අංකය 0 සහ 2^64-1: {Err}අතර අංකයක් විය යුතුය",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "Err",
-                    "string": "%[1]v",
-                    "type": "error",
-                    "underlyingType": "interface{Error() string}",
-                    "argNum": 1,
-                    "expr": "err"
-                }
-            ]
         },
         {
             "id": "Two commas in a row",
@@ -538,39 +522,15 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Error in getting configuration",
-            "message": "Error in getting configuration",
-            "translation": "වින්‍යාසය ලබා ගැනීමේ දෝෂයකි",
-            "translatorComment": "Copied from source."
-        },
-        {
-            "id": "Invalid key for interface section",
-            "message": "Invalid key for interface section",
-            "translation": "අතුරු මුහුණත කොටස සඳහා වලංගු නොවන යතුර",
-            "translatorComment": "Copied from source."
-        },
-        {
-            "id": "Protocol version must be 1",
-            "message": "Protocol version must be 1",
-            "translation": "කෙටුම්පතෙහි අනු. 1 විය යුතුය",
-            "translatorComment": "Copied from source."
-        },
-        {
-            "id": "Invalid key for peer section",
-            "message": "Invalid key for peer section",
-            "translation": "සම වයසේ කොටස සඳහා වලංගු නොවන යතුරක්",
-            "translatorComment": "Copied from source."
-        },
-        {
             "id": "[EnumerationSeparator]",
             "message": "[EnumerationSeparator]",
-            "translation": ", ",
+            "translation": "",
             "comment": "Text to insert between items when listing - most western languages will translate ‘[EnumerationSeparator]’ into ‘, ’ to produce lists like ‘apple, orange, strawberry’. Eastern languages might translate into ‘、’ to produce lists like ‘リンゴ、オレンジ、イチゴ’."
         },
         {
             "id": "[UnitSeparator]",
             "message": "[UnitSeparator]",
-            "translation": ", ",
+            "translation": "",
             "comment": "Text to insert when combining units of a measure - most languages will translate ‘[UnitSeparator]’ into ‘ ’ (space) to produce lists like ‘2 minuti 30 sekund’, or empty string ‘’ to produce ‘2分30秒’."
         },
         {
@@ -586,9 +546,9 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}-{GOARCH}\nOperating system: {OsName}\nArchitecture: {NativeArch}",
-            "message": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}-{GOARCH}\nOperating system: {OsName}\nArchitecture: {NativeArch}",
-            "translation": "යෙදුම් අනුවාදය: {Number}\nGo backend අනුවාදය: {WireGuardGoVersion}\nGo අනුවාදය: {Version_go}-{GOARCH}\nමෙහෙයුම් පද්ධතිය: {OsName}\nගෘහ නිර්මාණ ශිල්පය: {NativeArch}",
+            "id": "App version: {Number}\nDriver version: {Version}\nGo version: {Version_go}\nOperating system: {OsName}\nArchitecture: {Arch}",
+            "message": "App version: {Number}\nDriver version: {Version}\nGo version: {Version_go}\nOperating system: {OsName}\nArchitecture: {Arch}",
+            "translation": "යෙදුම් අනුවාදය: {Number}\nධාවක අනුවාදය: {Version}\nGo අනුවාදය: {Version_go}\nමෙහෙයුම් පද්ධතිය: {OsName}\nගෘහ නිර්මාණ ශිල්පය: {Arch}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -600,12 +560,12 @@
                     "expr": "version.Number"
                 },
                 {
-                    "id": "WireGuardGoVersion",
+                    "id": "Version",
                     "string": "%[2]s",
                     "type": "string",
                     "underlyingType": "string",
                     "argNum": 2,
-                    "expr": "device.WireGuardGoVersion"
+                    "expr": "driver.Version()"
                 },
                 {
                     "id": "Version_go",
@@ -616,28 +576,20 @@
                     "expr": "strings.TrimPrefix(runtime.Version(), \"go\")"
                 },
                 {
-                    "id": "GOARCH",
+                    "id": "OsName",
                     "string": "%[4]s",
                     "type": "string",
                     "underlyingType": "string",
                     "argNum": 4,
-                    "expr": "runtime.GOARCH"
+                    "expr": "version.OsName()"
                 },
                 {
-                    "id": "OsName",
+                    "id": "Arch",
                     "string": "%[5]s",
                     "type": "string",
                     "underlyingType": "string",
                     "argNum": 5,
-                    "expr": "version.OsName()"
-                },
-                {
-                    "id": "NativeArch",
-                    "string": "%[6]s",
-                    "type": "string",
-                    "underlyingType": "string",
-                    "argNum": 6,
-                    "expr": "version.NativeArch()"
+                    "expr": "version.Arch()"
                 }
             ]
         },
@@ -648,9 +600,9 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "♥ &Donate!",
-            "message": "♥ &Donate!",
-            "translation": "♥ &පරිත්‍යාග!",
+            "id": "♥ \u0026Donate!",
+            "message": "♥ \u0026Donate!",
+            "translation": "♥ \u0026පරිත්‍යාග!",
             "translatorComment": "Copied from source."
         },
         {
@@ -660,15 +612,15 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Deactivate",
-            "message": "&Deactivate",
-            "translation": "&අක්‍රිය කරන්න",
+            "id": "\u0026Deactivate",
+            "message": "\u0026Deactivate",
+            "translation": "\u0026අක්‍රිය කරන්න",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Activate",
-            "message": "&Activate",
-            "translation": "&සක්රිය කරන්න",
+            "id": "\u0026Activate",
+            "message": "\u0026Activate",
+            "translation": "\u0026සක්රිය කරන්න",
             "translatorComment": "Copied from source."
         },
         {
@@ -705,6 +657,12 @@
             "id": "Scripts:",
             "message": "Scripts:",
             "translation": "ස්ක්‍රිප්ට්:",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Table:",
+            "message": "Table:",
+            "translation": "වගුව:",
             "translatorComment": "Copied from source."
         },
         {
@@ -746,31 +704,37 @@
         {
             "id": "pre-up",
             "message": "pre-up",
-            "translation": "පූර්ව-අප්",
+            "translation": "සම්බන්ධතාවට පෙර",
             "translatorComment": "Copied from source."
         },
         {
             "id": "post-up",
             "message": "post-up",
-            "translation": "පශ්චාත්-අප්",
+            "translation": "සම්බන්ධතාවෙන් පසු",
             "translatorComment": "Copied from source."
         },
         {
             "id": "pre-down",
             "message": "pre-down",
-            "translation": "පෙර-පහළට",
+            "translation": "විසන්ධියට පෙර",
             "translatorComment": "Copied from source."
         },
         {
             "id": "post-down",
             "message": "post-down",
-            "translation": "පශ්චාත්-පහළ",
+            "translation": "විසන්ධියෙන් පසු",
             "translatorComment": "Copied from source."
         },
         {
             "id": "disabled, per policy",
             "message": "disabled, per policy",
-            "translation": "ආබාධිත, ප්රතිපත්තිය අනුව",
+            "translation": "ප්‍රතිපත්ති අනුව අබල කර ඇත",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "off",
+            "message": "off",
+            "translation": "අක්‍රියයි",
             "translatorComment": "Copied from source."
         },
         {
@@ -856,15 +820,15 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Name:",
-            "message": "&Name:",
-            "translation": "&නම:",
+            "id": "\u0026Name:",
+            "message": "\u0026Name:",
+            "translation": "\u0026නම:",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Public key:",
-            "message": "&Public key:",
-            "translation": "&පොදු යතුර:",
+            "id": "\u0026Public key:",
+            "message": "\u0026Public key:",
+            "translation": "\u0026පොදු යතුර:",
             "translatorComment": "Copied from source."
         },
         {
@@ -874,21 +838,21 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Block untunneled traffic (kill-switch)",
-            "message": "&Block untunneled traffic (kill-switch)",
-            "translation": "&උමං මාර්ග රහිත ගමනාගමනය අවහිර කරන්න (මරන්න-ස්විච්)",
+            "id": "\u0026Block untunneled traffic (kill-switch)",
+            "message": "\u0026Block untunneled traffic (kill-switch)",
+            "translation": "\u0026උමං මාර්ග රහිත ගමනාගමනය අවහිර කරන්න (මරන්න-ස්විච්)",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface or is to the wrong DNS server, with special exceptions for DHCP and NDP.",
-            "message": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface or is to the wrong DNS server, with special exceptions for DHCP and NDP.",
-            "translation": "වින්‍යාසයකට හරියටම එක් මිතුරෙකු සිටින විට සහ එම සම වයසේ මිතුරෙකුට අවම වශයෙන් 0.0.0.0/0 හෝ ::/0 න් එකක් අඩංගු අවසර ලත් IPs තිබේ නම්, එවිට උමං සේවාව ෆයර්වෝල් නීති පද්ධතියක් සමඟ සම්බන්ධ වන අතර එමඟින් එම ස්ථානයට හෝ ඉන් පිටතට නොවන සියලුම ගමනාගමනය අවහිර කරයි. DHCP සහ NDP සඳහා විශේෂ ව්‍යතිරේක සහිතව උමං අතුරුමුහුණත හෝ වැරදි DNS සේවාදායකය වෙත වේ.",
+            "id": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, and the interface does not have table off, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface or is to the wrong DNS server, with special exceptions for DHCP and NDP.",
+            "message": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, and the interface does not have table off, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface or is to the wrong DNS server, with special exceptions for DHCP and NDP.",
+            "translation": "වින්‍යාසයකට හරියටම එක් සම වයසේ මිතුරෙකු සිටින විට සහ එම සම වයසේ මිතුරාට 0.0.0.0/0 හෝ ::/0 න් අවම වශයෙන් එකක් අඩංගු ඉඩදුන් අ.ජා.කෙ. තිබේ නම් සහ අතුරුමුහුණතේ table off විකල්පය සකසා නැත්නම්, උමං සේවාව DHCP සහ NDP සඳහා විශේෂ ව්‍යතිරේක සහිතව, උමං අතුරුමුහුණතට හෝ එයින් නොවන හෝ වැරදි ව.නා.ප. සේවාදායකයකට යන සියලු ගමනාගමනය අවහිර කිරීමට ෆයර්වෝල් රීති සමුදායක් යොදවයි.",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Save",
-            "message": "&Save",
-            "translation": "&සුරකින්න",
+            "id": "\u0026Save",
+            "message": "\u0026Save",
+            "translation": "\u0026සුරකින්න",
             "translatorComment": "Copied from source."
         },
         {
@@ -898,9 +862,9 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Configuration:",
-            "message": "&Configuration:",
-            "translation": "&වින්‍යාසය:",
+            "id": "\u0026Configuration:",
+            "message": "\u0026Configuration:",
+            "translation": "\u0026වින්‍යාසය:",
             "translatorComment": "Copied from source."
         },
         {
@@ -1024,21 +988,21 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Copy",
-            "message": "&Copy",
-            "translation": "&පිටපතක්",
+            "id": "\u0026Copy",
+            "message": "\u0026Copy",
+            "translation": "\u0026පිටපතක්",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Select &all",
-            "message": "Select &all",
-            "translation": "&සියල්ල තෝරන්න",
+            "id": "Select \u0026all",
+            "message": "Select \u0026all",
+            "translation": "\u0026සියල්ල තෝරන්න",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Save to file…",
-            "message": "&Save to file…",
-            "translation": "&ගොනුවකට සුරකින්න…",
+            "id": "\u0026Save to file…",
+            "message": "\u0026Save to file…",
+            "translation": "\u0026ගොනුවකට සුරකින්න…",
             "translatorComment": "Copied from source."
         },
         {
@@ -1066,9 +1030,9 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&About WireGuard…",
-            "message": "&About WireGuard…",
-            "translation": "&වයර්ගාඩ් ගැන…",
+            "id": "\u0026About WireGuard…",
+            "message": "\u0026About WireGuard…",
+            "translation": "\u0026වයර්ගාඩ් ගැන…",
             "translatorComment": "Copied from source."
         },
         {
@@ -1150,27 +1114,27 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Manage tunnels…",
-            "message": "&Manage tunnels…",
-            "translation": "&උමං…කළමනාකරණය කරන්න",
+            "id": "\u0026Manage tunnels…",
+            "message": "\u0026Manage tunnels…",
+            "translation": "\u0026උමං…කළමනාකරණය කරන්න",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Import tunnel(s) from file…",
-            "message": "&Import tunnel(s) from file…",
-            "translation": "…ගොනුවෙන් උමං(ය) &ආයාත කරන්න",
+            "id": "\u0026Import tunnel(s) from file…",
+            "message": "\u0026Import tunnel(s) from file…",
+            "translation": "…ගොනුවෙන් උමං(ය) \u0026ආයාත කරන්න",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "E&xit",
-            "message": "E&xit",
-            "translation": "පි&ටවන්න",
+            "id": "E\u0026xit",
+            "message": "E\u0026xit",
+            "translation": "පි\u0026ටවන්න",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Tunnels",
-            "message": "&Tunnels",
-            "translation": "&උමං මාර්ග",
+            "id": "\u0026Tunnels",
+            "message": "\u0026Tunnels",
+            "translation": "උමං මාර්ග (\u0026T)",
             "translatorComment": "Copied from source."
         },
         {
@@ -1222,6 +1186,21 @@
             "message": "WireGuard Tunnel Error",
             "translation": "WireGuard උමං දෝෂය",
             "translatorComment": "Copied from source."
+        },
+        {
+            "id": "WireGuard: {TextForStateglobalState_true}",
+            "message": "WireGuard: {TextForStateglobalState_true}",
+            "translation": "",
+            "placeholders": [
+                {
+                    "id": "TextForStateglobalState_true",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "textForState(globalState, true)"
+                }
+            ]
         },
         {
             "id": "Status: {StateText}",
@@ -1280,14 +1259,14 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Edit",
-            "message": "&Edit",
-            "translation": "&සංස්කරණය",
+            "id": "\u0026Edit",
+            "message": "\u0026Edit",
+            "translation": "\u0026සංස්කරණය",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Add &empty tunnel…",
-            "message": "Add &empty tunnel…",
+            "id": "Add \u0026empty tunnel…",
+            "message": "Add \u0026empty tunnel…",
             "translation": "හිස් උමං…එකතු කරන්න",
             "translatorComment": "Copied from source."
         },
@@ -1310,33 +1289,33 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Toggle",
-            "message": "&Toggle",
-            "translation": "&ටොගල් කරන්න",
+            "id": "\u0026Toggle",
+            "message": "\u0026Toggle",
+            "translation": "\u0026ටොගල් කරන්න",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Export all tunnels to &zip…",
-            "message": "Export all tunnels to &zip…",
-            "translation": "සියලුම උමං &zip…වෙත අපනයනය කරන්න",
+            "id": "Export all tunnels to \u0026zip…",
+            "message": "Export all tunnels to \u0026zip…",
+            "translation": "සියලුම උමං \u0026zip…වෙත අපනයනය කරන්න",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Edit &selected tunnel…",
-            "message": "Edit &selected tunnel…",
-            "translation": "සංස්කරණය &තෝරාගත් උමග…",
+            "id": "Edit \u0026selected tunnel…",
+            "message": "Edit \u0026selected tunnel…",
+            "translation": "සංස්කරණය \u0026තෝරාගත් උමග…",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Remove selected tunnel(s)",
-            "message": "&Remove selected tunnel(s)",
-            "translation": "&තෝරාගත් උමං(ය) ඉවත් කරන්න",
+            "id": "\u0026Remove selected tunnel(s)",
+            "message": "\u0026Remove selected tunnel(s)",
+            "translation": "\u0026තෝරාගත් උමං(ය) ඉවත් කරන්න",
             "translatorComment": "Copied from source."
         },
         {
             "id": "no configuration files were found",
             "message": "no configuration files were found",
-            "translation": "වින්‍යාස ගොනු කිසිවක් හමු නොවිණි",
+            "translation": "වින්‍යාස ගොනු කිසිවක් හමු නොවීය",
             "translatorComment": "Copied from source."
         },
         {
@@ -1356,18 +1335,18 @@
             ]
         },
         {
-            "id": "Could not enumerate existing tunnels: {LastErr}",
-            "message": "Could not enumerate existing tunnels: {LastErr}",
-            "translation": "පවතින උමං මාර්ග ගණනය කළ නොහැක: {LastErr}",
+            "id": "Could not enumerate existing tunnels: {Err}",
+            "message": "Could not enumerate existing tunnels: {Err}",
+            "translation": "පවතින උමං ගණනය කළ නොහැකි විය: {Err}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
-                    "id": "LastErr",
+                    "id": "Err",
                     "string": "%[1]v",
                     "type": "error",
                     "underlyingType": "interface{Error() string}",
                     "argNum": 1,
-                    "expr": "lastErr"
+                    "expr": "err"
                 }
             ]
         },
@@ -1720,6 +1699,18 @@
             "translatorComment": "Copied from source."
         },
         {
+            "id": "Please ask the system administrator to update.",
+            "message": "Please ask the system administrator to update.",
+            "translation": "කරුණාකර යාවත්කාලීන කිරීමට පද්ධති පරිපාලකගෙන් ඉල්ලා සිටින්න.",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Status: Waiting for administrator",
+            "message": "Status: Waiting for administrator",
+            "translation": "තත්‍වය: පරිපාලක සඳහා රැඳෙමින්",
+            "translatorComment": "Copied from source."
+        },
+        {
             "id": "Status: Waiting for updater service",
             "message": "Status: Waiting for updater service",
             "translation": "තත්‍වය: යාවත්කාල සේවාව සඳහා රැඳෙමින්",
@@ -1746,86 +1737,6 @@
             "message": "Status: Complete!",
             "translation": "තත්‍වය: සම්පූර්ණයි!",
             "translatorComment": "Copied from source."
-        },
-        {
-            "id": "http2: Framer {F}: failed to decode just-written frame",
-            "message": "http2: Framer {F}: failed to decode just-written frame",
-            "translation": "http2: Framer {F}: ලියන ලද රාමුව විකේතනය කිරීමට අසමත් විය",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "F",
-                    "string": "%[1]p",
-                    "type": "*net/http.http2Framer",
-                    "underlyingType": "*net/http.http2Framer",
-                    "argNum": 1,
-                    "expr": "f"
-                }
-            ]
-        },
-        {
-            "id": "http2: Framer {F}: wrote {Http2summarizeFramefr}",
-            "message": "http2: Framer {F}: wrote {Http2summarizeFramefr}",
-            "translation": "http2: රාමු {F}: ලිව්වේ {Http2summarizeFramefr}",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "F",
-                    "string": "%[1]p",
-                    "type": "*net/http.http2Framer",
-                    "underlyingType": "*net/http.http2Framer",
-                    "argNum": 1,
-                    "expr": "f"
-                },
-                {
-                    "id": "Http2summarizeFramefr",
-                    "string": "%[2]v",
-                    "type": "string",
-                    "underlyingType": "string",
-                    "argNum": 2,
-                    "expr": "http2summarizeFrame(fr)"
-                }
-            ]
-        },
-        {
-            "id": "http2: Framer {Fr}: read {Http2summarizeFramef}",
-            "message": "http2: Framer {Fr}: read {Http2summarizeFramef}",
-            "translation": "http2: රාමු {Fr}: කියවන්න {Http2summarizeFramef}",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "Fr",
-                    "string": "%[1]p",
-                    "type": "*net/http.http2Framer",
-                    "underlyingType": "*net/http.http2Framer",
-                    "argNum": 1,
-                    "expr": "fr"
-                },
-                {
-                    "id": "Http2summarizeFramef",
-                    "string": "%[2]v",
-                    "type": "string",
-                    "underlyingType": "string",
-                    "argNum": 2,
-                    "expr": "http2summarizeFrame(f)"
-                }
-            ]
-        },
-        {
-            "id": "http2: decoded hpack field {HeaderField}",
-            "message": "http2: decoded hpack field {HeaderField}",
-            "translation": "http2: විකේතනය කළ hpack ක්ෂේත්‍ර {HeaderField}",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "HeaderField",
-                    "string": "%+[1]v",
-                    "type": "vendor/golang.org/x/net/http2/hpack.HeaderField",
-                    "underlyingType": "struct{Name string; Value string; Sensitive bool}",
-                    "argNum": 1,
-                    "expr": "hf"
-                }
-            ]
         }
     ]
 }

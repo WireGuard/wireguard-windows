@@ -8,6 +8,12 @@
             "translatorComment": "Copied from source."
         },
         {
+            "id": "Error:",
+            "message": "Error:",
+            "translation": "Napaka:",
+            "translatorComment": "Copied from source."
+        },
+        {
             "id": "(no argument): elevate and install manager service",
             "message": "(no argument): elevate and install manager service",
             "translation": "(brez argumenta): povzdigni na skrbniške pravice in namesti skrbniško storitev",
@@ -62,7 +68,7 @@
         {
             "id": "You must use the native version of WireGuard on this computer.",
             "message": "You must use the native version of WireGuard on this computer.",
-            "translation": "Na temu računalniku morate uporabiti enako-arhitekturno različico WireGuarda.",
+            "translation": "Na tem računalniku morate uporabljati izvorno različico WireGuarda.",
             "translatorComment": "Copied from source."
         },
         {
@@ -139,17 +145,17 @@
                     "feature": "plural",
                     "arg": "Years",
                     "cases": {
-                        "one": {
-                            "msg": "{Years} leto"
-                        },
-                        "two": {
-                            "msg": "{Years} leti"
-                        },
                         "few": {
                             "msg": "{Years} leta"
                         },
+                        "one": {
+                            "msg": "{Years} leto"
+                        },
                         "other": {
                             "msg": "{Years} let"
+                        },
+                        "two": {
+                            "msg": "{Years} leti"
                         }
                     }
                 }
@@ -173,17 +179,17 @@
                     "feature": "plural",
                     "arg": "Days",
                     "cases": {
-                        "one": {
-                            "msg": "{Days} dan"
-                        },
-                        "two": {
-                            "msg": "{Days} dneva"
-                        },
                         "few": {
                             "msg": "{Days} dni"
                         },
+                        "one": {
+                            "msg": "{Days} dan"
+                        },
                         "other": {
                             "msg": "{Days} dni"
+                        },
+                        "two": {
+                            "msg": "{Days} dneva"
                         }
                     }
                 }
@@ -207,17 +213,17 @@
                     "feature": "plural",
                     "arg": "Hours",
                     "cases": {
-                        "one": {
-                            "msg": "{Hours} uro"
-                        },
-                        "two": {
-                            "msg": "{Hours} uri"
-                        },
                         "few": {
                             "msg": "{Hours} ure"
                         },
+                        "one": {
+                            "msg": "{Hours} uro"
+                        },
                         "other": {
                             "msg": "{Hours} ur"
+                        },
+                        "two": {
+                            "msg": "{Hours} uri"
                         }
                     }
                 }
@@ -241,17 +247,17 @@
                     "feature": "plural",
                     "arg": "Minutes",
                     "cases": {
-                        "one": {
-                            "msg": "{Minutes} minuto"
-                        },
-                        "two": {
-                            "msg": "{Minutes} minuti"
-                        },
                         "few": {
                             "msg": "{Minutes} minute"
                         },
+                        "one": {
+                            "msg": "{Minutes} minuto"
+                        },
                         "other": {
                             "msg": "{Minutes} minut"
+                        },
+                        "two": {
+                            "msg": "{Minutes} minuti"
                         }
                     }
                 }
@@ -275,17 +281,17 @@
                     "feature": "plural",
                     "arg": "Seconds",
                     "cases": {
-                        "one": {
-                            "msg": "{Seconds} sekundo"
-                        },
-                        "two": {
-                            "msg": "{Seconds} sekundi"
-                        },
                         "few": {
                             "msg": "{Seconds} sekunde"
                         },
+                        "one": {
+                            "msg": "{Seconds} sekundo"
+                        },
                         "other": {
                             "msg": "{Seconds} sekund"
+                        },
+                        "two": {
+                            "msg": "{Seconds} sekundi"
                         }
                     }
                 }
@@ -422,15 +428,9 @@
             ]
         },
         {
-            "id": "Invalid IP address",
-            "message": "Invalid IP address",
-            "translation": "Napačen naslov IP",
-            "translatorComment": "Copied from source."
-        },
-        {
-            "id": "Invalid network prefix length",
-            "message": "Invalid network prefix length",
-            "translation": "Napačna dolžina predpone omrežja",
+            "id": "Invalid IP address:",
+            "message": "Invalid IP address:",
+            "translation": "Napačen naslov IP:",
             "translatorComment": "Copied from source."
         },
         {
@@ -490,22 +490,6 @@
             "message": "Keys must decode to exactly 32 bytes",
             "translation": "Dekodirani ključi morajo biti natanko 32 bajtov",
             "translatorComment": "Copied from source."
-        },
-        {
-            "id": "Number must be a number between 0 and 2^64-1: {Err}",
-            "message": "Number must be a number between 0 and 2^64-1: {Err}",
-            "translation": "Številka mora biti število med 0 in 2^64-1: {Err}",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "Err",
-                    "string": "%[1]v",
-                    "type": "error",
-                    "underlyingType": "interface{Error() string}",
-                    "argNum": 1,
-                    "expr": "err"
-                }
-            ]
         },
         {
             "id": "Two commas in a row",
@@ -568,40 +552,17 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Error in getting configuration",
-            "message": "Error in getting configuration",
-            "translation": "Napaka pri branju konfiguracije",
-            "translatorComment": "Copied from source."
-        },
-        {
-            "id": "Invalid key for interface section",
-            "message": "Invalid key for interface section",
-            "translation": "Napačen ključ za odsek vmesnika",
-            "translatorComment": "Copied from source."
-        },
-        {
-            "id": "Protocol version must be 1",
-            "message": "Protocol version must be 1",
-            "translation": "Verzija protokola mora biti 1",
-            "translatorComment": "Copied from source."
-        },
-        {
-            "id": "Invalid key for peer section",
-            "message": "Invalid key for peer section",
-            "translation": "Napačen ključ za odsek vrstnika",
-            "translatorComment": "Copied from source."
-        },
-        {
             "id": "[EnumerationSeparator]",
             "message": "[EnumerationSeparator]",
-            "translation": ", ",
+            "translation": "",
             "comment": "Text to insert between items when listing - most western languages will translate ‘[EnumerationSeparator]’ into ‘, ’ to produce lists like ‘apple, orange, strawberry’. Eastern languages might translate into ‘、’ to produce lists like ‘リンゴ、オレンジ、イチゴ’."
         },
         {
             "id": "[UnitSeparator]",
             "message": "[UnitSeparator]",
             "translation": " ",
-            "comment": "Text to insert when combining units of a measure - most languages will translate ‘[UnitSeparator]’ into ‘ ’ (space) to produce lists like ‘2 minuti 30 sekund’, or empty string ‘’ to produce ‘2分30秒’."
+            "comment": "Text to insert when combining units of a measure - most languages will translate ‘[UnitSeparator]’ into ‘ ’ (space) to produce lists like ‘2 minuti 30 sekund’, or empty string ‘’ to produce ‘2分30秒’.",
+            "translatorComment": "Copied from source."
         },
         {
             "id": "About WireGuard",
@@ -616,9 +577,9 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}-{GOARCH}\nOperating system: {OsName}\nArchitecture: {NativeArch}",
-            "message": "App version: {Number}\nGo backend version: {WireGuardGoVersion}\nGo version: {Version_go}-{GOARCH}\nOperating system: {OsName}\nArchitecture: {NativeArch}",
-            "translation": "Verzija aplikacije: {Number}\nVerzija wireguard-go: {WireGuardGoVersion}\nVerzija Go: {Version_go}-{GOARCH}\nOperacijski sistem: {OsName}\nArhitektura: {NativeArch}",
+            "id": "App version: {Number}\nDriver version: {Version}\nGo version: {Version_go}\nOperating system: {OsName}\nArchitecture: {Arch}",
+            "message": "App version: {Number}\nDriver version: {Version}\nGo version: {Version_go}\nOperating system: {OsName}\nArchitecture: {Arch}",
+            "translation": "Različica aplikacije: {Number}\nRazličica gonilnika: {Version}\nRazličica Go: {Version_go}\nOperacijski sistem: {OsName}\nArhitektura: {Arch}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -630,12 +591,12 @@
                     "expr": "version.Number"
                 },
                 {
-                    "id": "WireGuardGoVersion",
+                    "id": "Version",
                     "string": "%[2]s",
                     "type": "string",
                     "underlyingType": "string",
                     "argNum": 2,
-                    "expr": "device.WireGuardGoVersion"
+                    "expr": "driver.Version()"
                 },
                 {
                     "id": "Version_go",
@@ -646,28 +607,20 @@
                     "expr": "strings.TrimPrefix(runtime.Version(), \"go\")"
                 },
                 {
-                    "id": "GOARCH",
+                    "id": "OsName",
                     "string": "%[4]s",
                     "type": "string",
                     "underlyingType": "string",
                     "argNum": 4,
-                    "expr": "runtime.GOARCH"
+                    "expr": "version.OsName()"
                 },
                 {
-                    "id": "OsName",
+                    "id": "Arch",
                     "string": "%[5]s",
                     "type": "string",
                     "underlyingType": "string",
                     "argNum": 5,
-                    "expr": "version.OsName()"
-                },
-                {
-                    "id": "NativeArch",
-                    "string": "%[6]s",
-                    "type": "string",
-                    "underlyingType": "string",
-                    "argNum": 6,
-                    "expr": "version.NativeArch()"
+                    "expr": "version.Arch()"
                 }
             ]
         },
@@ -678,9 +631,9 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "♥ &Donate!",
-            "message": "♥ &Donate!",
-            "translation": "♥ &Doniraj!",
+            "id": "♥ \u0026Donate!",
+            "message": "♥ \u0026Donate!",
+            "translation": "♥ \u0026Doniraj!",
             "translatorComment": "Copied from source."
         },
         {
@@ -690,15 +643,15 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Deactivate",
-            "message": "&Deactivate",
-            "translation": "&Dezaktiviraj",
+            "id": "\u0026Deactivate",
+            "message": "\u0026Deactivate",
+            "translation": "\u0026Dezaktiviraj",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Activate",
-            "message": "&Activate",
-            "translation": "&Aktiviraj",
+            "id": "\u0026Activate",
+            "message": "\u0026Activate",
+            "translation": "\u0026Aktiviraj",
             "translatorComment": "Copied from source."
         },
         {
@@ -734,7 +687,13 @@
         {
             "id": "Scripts:",
             "message": "Scripts:",
-            "translation": "Skripta:",
+            "translation": "Skripte:",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Table:",
+            "message": "Table:",
+            "translation": "Tabela:",
             "translatorComment": "Copied from source."
         },
         {
@@ -776,31 +735,37 @@
         {
             "id": "pre-up",
             "message": "pre-up",
-            "translation": "pred-aktivacijo",
+            "translation": "pred vzpostavitvijo",
             "translatorComment": "Copied from source."
         },
         {
             "id": "post-up",
             "message": "post-up",
-            "translation": "po-aktivaciji",
+            "translation": "po vzpostavitvi",
             "translatorComment": "Copied from source."
         },
         {
             "id": "pre-down",
             "message": "pre-down",
-            "translation": "pred-dezaktivacijo",
+            "translation": "pred prekinitvijo",
             "translatorComment": "Copied from source."
         },
         {
             "id": "post-down",
             "message": "post-down",
-            "translation": "po-dezaktivaciji",
+            "translation": "po prekinitvi",
             "translatorComment": "Copied from source."
         },
         {
             "id": "disabled, per policy",
             "message": "disabled, per policy",
-            "translation": "onemogočeno, zaradi politike",
+            "translation": "onemogočeno glede na pravilnik",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "off",
+            "message": "off",
+            "translation": "izklopljeno",
             "translatorComment": "Copied from source."
         },
         {
@@ -886,15 +851,15 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Name:",
-            "message": "&Name:",
-            "translation": "&Ime:",
+            "id": "\u0026Name:",
+            "message": "\u0026Name:",
+            "translation": "\u0026Ime:",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Public key:",
-            "message": "&Public key:",
-            "translation": "&Javni ključ:",
+            "id": "\u0026Public key:",
+            "message": "\u0026Public key:",
+            "translation": "\u0026Javni ključ:",
             "translatorComment": "Copied from source."
         },
         {
@@ -904,21 +869,21 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Block untunneled traffic (kill-switch)",
-            "message": "&Block untunneled traffic (kill-switch)",
-            "translation": "&Blokiraj promet izven tunela (varovalka)",
+            "id": "\u0026Block untunneled traffic (kill-switch)",
+            "message": "\u0026Block untunneled traffic (kill-switch)",
+            "translation": "\u0026Blokiraj promet izven tunela (varovalka)",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface or is to the wrong DNS server, with special exceptions for DHCP and NDP.",
-            "message": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface or is to the wrong DNS server, with special exceptions for DHCP and NDP.",
-            "translation": "Kadar ima konfiguracija natanko enega vrstnika in njegov spisek dovoljenih IP-jev vsebuje vsaj enega izmed 0.0.0.0/0 ali ::/0, bo storitev tunela vzpostavila pravila požarnega zidu, ki bodo blokirala ves promet, ki ni niti za niti iz vmesnika tunela oz. za napačen strežnik DNS, s posebnimi izjemami za DHCP and NDP.",
+            "id": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, and the interface does not have table off, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface or is to the wrong DNS server, with special exceptions for DHCP and NDP.",
+            "message": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, and the interface does not have table off, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface or is to the wrong DNS server, with special exceptions for DHCP and NDP.",
+            "translation": "Kadar ima konfiguracija natanko enega vrstnika in njegov spisek dovoljenih IP-jev vsebuje vsaj enega izmed 0.0.0.0/0 ali ::/0, vmesnik pa nima nastavljene možnosti table off, takrat storitev tunela vzpostavi pravila požarnega zidu, ki blokirajo ves promet, ki ni niti za niti iz vmesnika tunela ali pa je usmerjen na napačen strežnik DNS, s posebnimi izjemami za DHCP in NDP.",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Save",
-            "message": "&Save",
-            "translation": "&Shrani",
+            "id": "\u0026Save",
+            "message": "\u0026Save",
+            "translation": "\u0026Shrani",
             "translatorComment": "Copied from source."
         },
         {
@@ -928,9 +893,9 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Configuration:",
-            "message": "&Configuration:",
-            "translation": "&Konfiguracija:",
+            "id": "\u0026Configuration:",
+            "message": "\u0026Configuration:",
+            "translation": "\u0026Konfiguracija:",
             "translatorComment": "Copied from source."
         },
         {
@@ -1054,21 +1019,21 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Copy",
-            "message": "&Copy",
-            "translation": "&Kopiraj",
+            "id": "\u0026Copy",
+            "message": "\u0026Copy",
+            "translation": "\u0026Kopiraj",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Select &all",
-            "message": "Select &all",
-            "translation": "&Izberi vse",
+            "id": "Select \u0026all",
+            "message": "Select \u0026all",
+            "translation": "\u0026Izberi vse",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Save to file…",
-            "message": "&Save to file…",
-            "translation": "&Shrani v datoteko …",
+            "id": "\u0026Save to file…",
+            "message": "\u0026Save to file…",
+            "translation": "\u0026Shrani v datoteko …",
             "translatorComment": "Copied from source."
         },
         {
@@ -1096,9 +1061,9 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&About WireGuard…",
-            "message": "&About WireGuard…",
-            "translation": "O WireGu&ardu …",
+            "id": "\u0026About WireGuard…",
+            "message": "\u0026About WireGuard…",
+            "translation": "O WireGu\u0026ardu …",
             "translatorComment": "Copied from source."
         },
         {
@@ -1180,27 +1145,27 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Manage tunnels…",
-            "message": "&Manage tunnels…",
-            "translation": "&Upravljaj tunele …",
+            "id": "\u0026Manage tunnels…",
+            "message": "\u0026Manage tunnels…",
+            "translation": "\u0026Upravljaj tunele …",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Import tunnel(s) from file…",
-            "message": "&Import tunnel(s) from file…",
-            "translation": "&Uvozi tunel(e) iz datoteke…",
+            "id": "\u0026Import tunnel(s) from file…",
+            "message": "\u0026Import tunnel(s) from file…",
+            "translation": "\u0026Uvozi tunel(e) iz datoteke…",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "E&xit",
-            "message": "E&xit",
-            "translation": "I&zhod",
+            "id": "E\u0026xit",
+            "message": "E\u0026xit",
+            "translation": "I\u0026zhod",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Tunnels",
-            "message": "&Tunnels",
-            "translation": "&Tuneli",
+            "id": "\u0026Tunnels",
+            "message": "\u0026Tunnels",
+            "translation": "\u0026Tuneli",
             "translatorComment": "Copied from source."
         },
         {
@@ -1326,15 +1291,15 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Edit",
-            "message": "&Edit",
-            "translation": "&Uredi",
+            "id": "\u0026Edit",
+            "message": "\u0026Edit",
+            "translation": "\u0026Uredi",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Add &empty tunnel…",
-            "message": "Add &empty tunnel…",
-            "translation": "Dodaj &prazen tunel …",
+            "id": "Add \u0026empty tunnel…",
+            "message": "Add \u0026empty tunnel…",
+            "translation": "Dodaj \u0026prazen tunel …",
             "translatorComment": "Copied from source."
         },
         {
@@ -1356,33 +1321,33 @@
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Toggle",
-            "message": "&Toggle",
-            "translation": "&Preklopi",
+            "id": "\u0026Toggle",
+            "message": "\u0026Toggle",
+            "translation": "\u0026Preklopi",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Export all tunnels to &zip…",
-            "message": "Export all tunnels to &zip…",
-            "translation": "Izvozi vse tunele v &zip …",
+            "id": "Export all tunnels to \u0026zip…",
+            "message": "Export all tunnels to \u0026zip…",
+            "translation": "Izvozi vse tunele v \u0026zip …",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "Edit &selected tunnel…",
-            "message": "Edit &selected tunnel…",
-            "translation": "Uredi &izbran tunel …",
+            "id": "Edit \u0026selected tunnel…",
+            "message": "Edit \u0026selected tunnel…",
+            "translation": "Uredi \u0026izbran tunel …",
             "translatorComment": "Copied from source."
         },
         {
-            "id": "&Remove selected tunnel(s)",
-            "message": "&Remove selected tunnel(s)",
-            "translation": "Odst&rani izbrane tunele",
+            "id": "\u0026Remove selected tunnel(s)",
+            "message": "\u0026Remove selected tunnel(s)",
+            "translation": "Odst\u0026rani izbrane tunele",
             "translatorComment": "Copied from source."
         },
         {
             "id": "no configuration files were found",
             "message": "no configuration files were found",
-            "translation": "ni najdenih konfiguracijskih datotek",
+            "translation": "ni bilo najdene nobene konfiguracijske datoteke",
             "translatorComment": "Copied from source."
         },
         {
@@ -1402,18 +1367,18 @@
             ]
         },
         {
-            "id": "Could not enumerate existing tunnels: {LastErr}",
-            "message": "Could not enumerate existing tunnels: {LastErr}",
-            "translation": "Napaka pri preštevanju obstoječih tunelov: {LastErr}",
+            "id": "Could not enumerate existing tunnels: {Err}",
+            "message": "Could not enumerate existing tunnels: {Err}",
+            "translation": "Napaka pri pripravi seznama obstoječih tunelov: {Err}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
-                    "id": "LastErr",
+                    "id": "Err",
                     "string": "%[1]v",
                     "type": "error",
                     "underlyingType": "interface{Error() string}",
                     "argNum": 1,
-                    "expr": "lastErr"
+                    "expr": "err"
                 }
             ]
         },
@@ -1463,17 +1428,17 @@
                     "feature": "plural",
                     "arg": "M",
                     "cases": {
-                        "one": {
-                            "msg": "Uvožen {M} tunel"
-                        },
-                        "two": {
-                            "msg": "Uvožena {M} tunela"
-                        },
                         "few": {
                             "msg": "Uvoženi {M} tuneli"
                         },
+                        "one": {
+                            "msg": "Uvožen {M} tunel"
+                        },
                         "other": {
                             "msg": "Uvoženo {M} tunelov"
+                        },
+                        "two": {
+                            "msg": "Uvožena {M} tunela"
                         }
                     }
                 }
@@ -1497,17 +1462,17 @@
                     "feature": "plural",
                     "arg": "N",
                     "cases": {
-                        "one": {
-                            "msg": "Uvožen {M} od {N} tunelov"
-                        },
-                        "two": {
-                            "msg": "Uvožena {M} od {N} tunelov"
-                        },
                         "few": {
                             "msg": "Uvoženi {M} od {N} tunelov"
                         },
+                        "one": {
+                            "msg": "Uvožen {M} od {N} tunelov"
+                        },
                         "other": {
                             "msg": "Uvoženo {M} od {N} tunelov"
+                        },
+                        "two": {
+                            "msg": "Uvožena {M} od {N} tunelov"
                         }
                     }
                 }
@@ -1545,17 +1510,17 @@
                     "feature": "plural",
                     "arg": "TunnelCount",
                     "cases": {
-                        "one": {
-                            "msg": "Izbriši {TunnelCount} tunel"
-                        },
-                        "two": {
-                            "msg": "Izbriši {TunnelCount} tunela"
-                        },
                         "few": {
                             "msg": "Izbriši {TunnelCount} tunele"
                         },
+                        "one": {
+                            "msg": "Izbriši {TunnelCount} tunel"
+                        },
                         "other": {
                             "msg": "Izbriši {TunnelCount} tunelov"
+                        },
+                        "two": {
+                            "msg": "Izbriši {TunnelCount} tunela"
                         }
                     }
                 }
@@ -1579,17 +1544,17 @@
                     "feature": "plural",
                     "arg": "TunnelCount",
                     "cases": {
-                        "one": {
-                            "msg": "Ali ste prepričani, da želite izbrisati {TunnelCount} tunel?"
-                        },
-                        "two": {
-                            "msg": "Ali ste prepričani, da želite izbrisati {TunnelCount} tunela?"
-                        },
                         "few": {
                             "msg": "Ali ste prepričani, da želite izbrisati {TunnelCount} tunele?"
                         },
+                        "one": {
+                            "msg": "Ali ste prepričani, da želite izbrisati {TunnelCount} tunel?"
+                        },
                         "other": {
                             "msg": "Ali ste prepričani, da želite izbrisati {TunnelCount} tunelov?"
+                        },
+                        "two": {
+                            "msg": "Ali ste prepričani, da želite izbrisati {TunnelCount} tunela?"
                         }
                     }
                 }
@@ -1689,16 +1654,16 @@
                     "feature": "plural",
                     "arg": "Lenerrors",
                     "cases": {
-                        "one": {
-                            "msg": "{Lenerrors} tunela ni bilo mogoče odstraniti."
-                        },
-                        "two": {
-                            "msg": "{Lenerrors} tunelov ni bilo mogoče odstraniti."
-                        },
                         "few": {
                             "msg": "{Lenerrors} tunelov ni bilo mogoče odstraniti."
                         },
+                        "one": {
+                            "msg": "{Lenerrors} tunela ni bilo mogoče odstraniti."
+                        },
                         "other": {
+                            "msg": "{Lenerrors} tunelov ni bilo mogoče odstraniti."
+                        },
+                        "two": {
                             "msg": "{Lenerrors} tunelov ni bilo mogoče odstraniti."
                         }
                     }
@@ -1796,6 +1761,18 @@
             "translatorComment": "Copied from source."
         },
         {
+            "id": "Please ask the system administrator to update.",
+            "message": "Please ask the system administrator to update.",
+            "translation": "Za posodobitev prosite skrbnika sistema.",
+            "translatorComment": "Copied from source."
+        },
+        {
+            "id": "Status: Waiting for administrator",
+            "message": "Status: Waiting for administrator",
+            "translation": "Status: Čaka na skrbnika",
+            "translatorComment": "Copied from source."
+        },
+        {
             "id": "Status: Waiting for updater service",
             "message": "Status: Waiting for updater service",
             "translation": "Status: Čaka na servis za posodobitev",
@@ -1822,86 +1799,6 @@
             "message": "Status: Complete!",
             "translation": "Status: Končano!",
             "translatorComment": "Copied from source."
-        },
-        {
-            "id": "http2: Framer {F}: failed to decode just-written frame",
-            "message": "http2: Framer {F}: failed to decode just-written frame",
-            "translation": "http2: Framer {F}: napaka pri dekodiranju ravnokar zapisanega okvirja",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "F",
-                    "string": "%[1]p",
-                    "type": "*net/http.http2Framer",
-                    "underlyingType": "*net/http.http2Framer",
-                    "argNum": 1,
-                    "expr": "f"
-                }
-            ]
-        },
-        {
-            "id": "http2: Framer {F}: wrote {Http2summarizeFramefr}",
-            "message": "http2: Framer {F}: wrote {Http2summarizeFramefr}",
-            "translation": "http2: Framer {F}: zapisano {Http2summarizeFramefr}",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "F",
-                    "string": "%[1]p",
-                    "type": "*net/http.http2Framer",
-                    "underlyingType": "*net/http.http2Framer",
-                    "argNum": 1,
-                    "expr": "f"
-                },
-                {
-                    "id": "Http2summarizeFramefr",
-                    "string": "%[2]v",
-                    "type": "string",
-                    "underlyingType": "string",
-                    "argNum": 2,
-                    "expr": "http2summarizeFrame(fr)"
-                }
-            ]
-        },
-        {
-            "id": "http2: Framer {Fr}: read {Http2summarizeFramef}",
-            "message": "http2: Framer {Fr}: read {Http2summarizeFramef}",
-            "translation": "http2: Framer {Fr}: prebrano {Http2summarizeFramef}",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "Fr",
-                    "string": "%[1]p",
-                    "type": "*net/http.http2Framer",
-                    "underlyingType": "*net/http.http2Framer",
-                    "argNum": 1,
-                    "expr": "fr"
-                },
-                {
-                    "id": "Http2summarizeFramef",
-                    "string": "%[2]v",
-                    "type": "string",
-                    "underlyingType": "string",
-                    "argNum": 2,
-                    "expr": "http2summarizeFrame(f)"
-                }
-            ]
-        },
-        {
-            "id": "http2: decoded hpack field {HeaderField}",
-            "message": "http2: decoded hpack field {HeaderField}",
-            "translation": "http2: dekodirano polje hpack {HeaderField}",
-            "translatorComment": "Copied from source.",
-            "placeholders": [
-                {
-                    "id": "HeaderField",
-                    "string": "%+[1]v",
-                    "type": "vendor/golang.org/x/net/http2/hpack.HeaderField",
-                    "underlyingType": "struct{Name string; Value string; Sensitive bool}",
-                    "argNum": 1,
-                    "expr": "hf"
-                }
-            ]
         }
     ]
 }

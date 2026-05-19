@@ -1,28 +1,28 @@
 {
-    "language": "ru",
+    "language": "hu",
     "messages": [
         {
             "id": "Error",
             "message": "Error",
-            "translation": "Ошибка",
+            "translation": "Hiba",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Error:",
             "message": "Error:",
-            "translation": "Ошибка:",
+            "translation": "Hiba:",
             "translatorComment": "Copied from source."
         },
         {
             "id": "(no argument): elevate and install manager service",
             "message": "(no argument): elevate and install manager service",
-            "translation": "(нет аргумента): получить права администратора и установить административную службу",
+            "translation": "(argumentum nélkül): jogosultságok emelése és a kezelőszolgáltatás telepítése",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Usage: {Args0} [\n{String}]",
             "message": "Usage: {Args0} [\n{String}]",
-            "translation": "Использование: {Args0} [\n{String}]",
+            "translation": "Használat: {Args0} [\n{String}]",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -46,13 +46,13 @@
         {
             "id": "Command Line Options",
             "message": "Command Line Options",
-            "translation": "Параметры командной строки",
+            "translation": "Parancssori beállítások",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Unable to determine whether the process is running under WOW64: {Err}",
             "message": "Unable to determine whether the process is running under WOW64: {Err}",
-            "translation": "Не удалось определить, работает ли процесс под WOW64: {Err}",
+            "translation": "Nem állapítható meg, hogy a folyamat WOW64 alatt fut-e: {Err}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -68,13 +68,13 @@
         {
             "id": "You must use the native version of WireGuard on this computer.",
             "message": "You must use the native version of WireGuard on this computer.",
-            "translation": "На этом компьютере необходимо использовать собственную версию WireGuard.",
+            "translation": "Ezen a számítógépen a WireGuard natív változatát kell használnia.",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Unable to open current process token: {Err}",
             "message": "Unable to open current process token: {Err}",
-            "translation": "Не удалось получить токен текущего процесса: {Err}",
+            "translation": "Az aktuális folyamat tokenje nem nyitható meg: {Err}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -90,7 +90,7 @@
         {
             "id": "WireGuard may only be used by users who are a member of the Builtin {AdminGroupName} group.",
             "message": "WireGuard may only be used by users who are a member of the Builtin {AdminGroupName} group.",
-            "translation": "WireGuard может использоваться только пользователями, входящими во встроенную группу {AdminGroupName}.",
+            "translation": "A WireGuardot csak a beépített {AdminGroupName} csoport tagjai használhatják.",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -106,7 +106,7 @@
         {
             "id": "WireGuard is running, but the UI is only accessible from desktops of the Builtin {AdminGroupName} group.",
             "message": "WireGuard is running, but the UI is only accessible from desktops of the Builtin {AdminGroupName} group.",
-            "translation": "WireGuard запущен, но пользовательский интерфейс доступен только с рабочих столов группы {AdminGroupName}.",
+            "translation": "A WireGuard fut, de a felhasználói felület csak a beépített {AdminGroupName} csoport asztalairól érhető el.",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -122,19 +122,19 @@
         {
             "id": "WireGuard system tray icon did not appear after 30 seconds.",
             "message": "WireGuard system tray icon did not appear after 30 seconds.",
-            "translation": "Значок в системном трее WireGuard не появился после 30 секунд.",
+            "translation": "A WireGuard tálcaikonja 30 másodperc alatt sem jelent meg.",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Now",
             "message": "Now",
-            "translation": "Сейчас",
+            "translation": "Most",
             "translatorComment": "Copied from source."
         },
         {
             "id": "System clock wound backward!",
             "message": "System clock wound backward!",
-            "translation": "Системные часы отстают!",
+            "translation": "A rendszeróra visszaállt!",
             "translatorComment": "Copied from source."
         },
         {
@@ -145,17 +145,11 @@
                     "feature": "plural",
                     "arg": "Years",
                     "cases": {
-                        "few": {
-                            "msg": "{Years} года"
-                        },
-                        "many": {
-                            "msg": "{Years} лет"
-                        },
                         "one": {
-                            "msg": "{Years} год"
+                            "msg": "{Years} év"
                         },
                         "other": {
-                            "msg": "{Years} лет"
+                            "msg": "{Years} év"
                         }
                     }
                 }
@@ -179,17 +173,11 @@
                     "feature": "plural",
                     "arg": "Days",
                     "cases": {
-                        "few": {
-                            "msg": "{Days} дня"
-                        },
-                        "many": {
-                            "msg": "{Days} дней"
-                        },
                         "one": {
-                            "msg": "{Days} день"
+                            "msg": "{Days} nap"
                         },
                         "other": {
-                            "msg": "{Days} дней"
+                            "msg": "{Days} nap"
                         }
                     }
                 }
@@ -213,17 +201,11 @@
                     "feature": "plural",
                     "arg": "Hours",
                     "cases": {
-                        "few": {
-                            "msg": "{Hours} часа"
-                        },
-                        "many": {
-                            "msg": "{Hours} часов"
-                        },
                         "one": {
-                            "msg": "{Hours} час"
+                            "msg": "{Hours} óra"
                         },
                         "other": {
-                            "msg": "{Hours} часов"
+                            "msg": "{Hours} óra"
                         }
                     }
                 }
@@ -247,17 +229,11 @@
                     "feature": "plural",
                     "arg": "Minutes",
                     "cases": {
-                        "few": {
-                            "msg": "{Minutes} минуты"
-                        },
-                        "many": {
-                            "msg": "{Minutes} минут"
-                        },
                         "one": {
-                            "msg": "{Minutes} минута"
+                            "msg": "{Minutes} perc"
                         },
                         "other": {
-                            "msg": "{Minutes} минут"
+                            "msg": "{Minutes} perc"
                         }
                     }
                 }
@@ -281,17 +257,11 @@
                     "feature": "plural",
                     "arg": "Seconds",
                     "cases": {
-                        "few": {
-                            "msg": "{Seconds} секунды"
-                        },
-                        "many": {
-                            "msg": "{Seconds} секунд"
-                        },
                         "one": {
-                            "msg": "{Seconds} секунда"
+                            "msg": "{Seconds} másodperc"
                         },
                         "other": {
-                            "msg": "{Seconds} секунд"
+                            "msg": "{Seconds} másodperc"
                         }
                     }
                 }
@@ -310,7 +280,7 @@
         {
             "id": "{Timestamp} ago",
             "message": "{Timestamp} ago",
-            "translation": "{Timestamp} назад",
+            "translation": "{Timestamp} ezelőtt",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -326,8 +296,7 @@
         {
             "id": "{Bytes} B",
             "message": "{Bytes} B",
-            "translation": "{Bytes} Б",
-            "translatorComment": "Copied from source.",
+            "translation": "",
             "placeholders": [
                 {
                     "id": "Bytes",
@@ -342,8 +311,7 @@
         {
             "id": "{Float64b__1024} KiB",
             "message": "{Float64b__1024} KiB",
-            "translation": "{Float64b__1024} КиБ",
-            "translatorComment": "Copied from source.",
+            "translation": "",
             "placeholders": [
                 {
                     "id": "Float64b__1024",
@@ -358,8 +326,7 @@
         {
             "id": "{Float64b__1024__1024} MiB",
             "message": "{Float64b__1024__1024} MiB",
-            "translation": "{Float64b__1024__1024} МиБ",
-            "translatorComment": "Copied from source.",
+            "translation": "",
             "placeholders": [
                 {
                     "id": "Float64b__1024__1024",
@@ -374,8 +341,7 @@
         {
             "id": "{Float64b__1024__1024__1024} GiB",
             "message": "{Float64b__1024__1024__1024} GiB",
-            "translation": "{Float64b__1024__1024__1024} ГиБ",
-            "translatorComment": "Copied from source.",
+            "translation": "",
             "placeholders": [
                 {
                     "id": "Float64b__1024__1024__1024",
@@ -390,8 +356,7 @@
         {
             "id": "{Float64b__1024__1024__1024__1024} TiB",
             "message": "{Float64b__1024__1024__1024__1024} TiB",
-            "translation": "{Float64b__1024__1024__1024__1024} ТиБ",
-            "translatorComment": "Copied from source.",
+            "translation": "",
             "placeholders": [
                 {
                     "id": "Float64b__1024__1024__1024__1024",
@@ -406,8 +371,7 @@
         {
             "id": "{Why}: {Offender}",
             "message": "{Why}: {Offender}",
-            "translation": "{Why}: {Offender}",
-            "translatorComment": "Copied from source.",
+            "translation": "",
             "placeholders": [
                 {
                     "id": "Why",
@@ -430,49 +394,49 @@
         {
             "id": "Invalid IP address:",
             "message": "Invalid IP address:",
-            "translation": "Недопустимый IP-адрес:",
+            "translation": "Érvénytelen IP-cím:",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Missing port from endpoint",
             "message": "Missing port from endpoint",
-            "translation": "Порт сервера не указан",
+            "translation": "Hiányzik a port a végpontból",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid endpoint host",
             "message": "Invalid endpoint host",
-            "translation": "Неверный IP-адрес сервера",
+            "translation": "Érvénytelen végponti gazdagép",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Brackets must contain an IPv6 address",
             "message": "Brackets must contain an IPv6 address",
-            "translation": "В скобках должен быть адрес IPv6",
+            "translation": "A szögletes zárójeleknek IPv6-címet kell tartalmazniuk",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid MTU",
             "message": "Invalid MTU",
-            "translation": "Недопустимый MTU",
+            "translation": "Érvénytelen MTU",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid port",
             "message": "Invalid port",
-            "translation": "Недопустимый порт",
+            "translation": "Érvénytelen port",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid persistent keepalive",
             "message": "Invalid persistent keepalive",
-            "translation": "Недопустимое значение поддержания соединения",
+            "translation": "Érvénytelen folyamatos keepalive",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid key: {Err}",
             "message": "Invalid key: {Err}",
-            "translation": "Недопустимый ключ: {Err}",
+            "translation": "Érvénytelen kulcs: {Err}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -488,67 +452,67 @@
         {
             "id": "Keys must decode to exactly 32 bytes",
             "message": "Keys must decode to exactly 32 bytes",
-            "translation": "Ключи должны декодироваться ровно в 32 байта",
+            "translation": "A kulcsoknak pontosan 32 bájtra kell dekódolódniuk",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Two commas in a row",
             "message": "Two commas in a row",
-            "translation": "Две запятые подряд",
+            "translation": "Két vessző egymás után",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Tunnel name is not valid",
             "message": "Tunnel name is not valid",
-            "translation": "Неправильное имя туннеля",
+            "translation": "Az alagútnév érvénytelen",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Line must occur in a section",
             "message": "Line must occur in a section",
-            "translation": "Строка должна быть в секции",
+            "translation": "A sornak egy szakaszon belül kell szerepelnie",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Config key is missing an equals separator",
             "message": "Config key is missing an equals separator",
-            "translation": "В ключе конфигурации отсутствует разделитель",
+            "translation": "A konfigurációs kulcsból hiányzik az egyenlőségjel-elválasztó",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Key must have a value",
             "message": "Key must have a value",
-            "translation": "Ключ должен иметь значение",
+            "translation": "A kulcsnak értékkel kell rendelkeznie",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid key for [Interface] section",
             "message": "Invalid key for [Interface] section",
-            "translation": "Неверный ключ для секции [Interface]",
+            "translation": "Érvénytelen kulcs az [Interface] szakaszhoz",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid key for [Peer] section",
             "message": "Invalid key for [Peer] section",
-            "translation": "Неверный ключ для секции [Peer]",
+            "translation": "Érvénytelen kulcs a [Peer] szakaszhoz",
             "translatorComment": "Copied from source."
         },
         {
             "id": "An interface must have a private key",
             "message": "An interface must have a private key",
-            "translation": "Для интерфейса должен быть задан приватный ключ",
+            "translation": "Az interfésznek rendelkeznie kell egy privát kulccsal",
             "translatorComment": "Copied from source."
         },
         {
             "id": "[none specified]",
             "message": "[none specified]",
-            "translation": "[не указан]",
+            "translation": "[nincs megadva]",
             "translatorComment": "Copied from source."
         },
         {
             "id": "All peers must have public keys",
             "message": "All peers must have public keys",
-            "translation": "Все пиры должны иметь открытые ключи",
+            "translation": "Minden társnak rendelkeznie kell nyilvános kulccsal",
             "translatorComment": "Copied from source."
         },
         {
@@ -566,19 +530,19 @@
         {
             "id": "About WireGuard",
             "message": "About WireGuard",
-            "translation": "О WireGuard",
+            "translation": "A WireGuard névjegye",
             "translatorComment": "Copied from source."
         },
         {
             "id": "WireGuard logo image",
             "message": "WireGuard logo image",
-            "translation": "Логотип WireGuard",
+            "translation": "WireGuard logó kép",
             "translatorComment": "Copied from source."
         },
         {
             "id": "App version: {Number}\nDriver version: {Version}\nGo version: {Version_go}\nOperating system: {OsName}\nArchitecture: {Arch}",
             "message": "App version: {Number}\nDriver version: {Version}\nGo version: {Version_go}\nOperating system: {OsName}\nArchitecture: {Arch}",
-            "translation": "Версия приложения: {Number}\nВерсия драйвера: {Version}\nВерсия Go: {Version_go}\nОперационная система: {OsName}\nАрхитектура: {Arch}",
+            "translation": "Alkalmazás verziója: {Number}\nIllesztőprogram verziója: {Version}\nGo verziója: {Version_go}\nOperációs rendszer: {OsName}\nArchitektúra: {Arch}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -626,157 +590,156 @@
         {
             "id": "Close",
             "message": "Close",
-            "translation": "Закрыть",
+            "translation": "Bezárás",
             "translatorComment": "Copied from source."
         },
         {
             "id": "♥ \u0026Donate!",
             "message": "♥ \u0026Donate!",
-            "translation": "♥ \u0026Пожертвовать!",
+            "translation": "♥ \u0026Adományozzon!",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Status:",
             "message": "Status:",
-            "translation": "Статус:",
+            "translation": "Állapot:",
             "translatorComment": "Copied from source."
         },
         {
             "id": "\u0026Deactivate",
             "message": "\u0026Deactivate",
-            "translation": "\u0026Отключить",
+            "translation": "\u0026Deaktiválás",
             "translatorComment": "Copied from source."
         },
         {
             "id": "\u0026Activate",
             "message": "\u0026Activate",
-            "translation": "\u0026Подключить",
+            "translation": "\u0026Aktiválás",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Public key:",
             "message": "Public key:",
-            "translation": "Открытый ключ:",
+            "translation": "Nyilvános kulcs:",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Listen port:",
             "message": "Listen port:",
-            "translation": "Порт:",
+            "translation": "Figyelőport:",
             "translatorComment": "Copied from source."
         },
         {
             "id": "MTU:",
             "message": "MTU:",
-            "translation": "MTU:",
-            "translatorComment": "Copied from source."
+            "translation": ""
         },
         {
             "id": "Addresses:",
             "message": "Addresses:",
-            "translation": "IP-адреса:",
+            "translation": "Címek:",
             "translatorComment": "Copied from source."
         },
         {
             "id": "DNS servers:",
             "message": "DNS servers:",
-            "translation": "DNS-серверы:",
+            "translation": "DNS-kiszolgálók:",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Scripts:",
             "message": "Scripts:",
-            "translation": "Сценарии:",
+            "translation": "Parancsfájlok:",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Table:",
             "message": "Table:",
-            "translation": "Таблица:",
+            "translation": "Tábla:",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Preshared key:",
             "message": "Preshared key:",
-            "translation": "Общий ключ:",
+            "translation": "Előmegosztott kulcs:",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Allowed IPs:",
             "message": "Allowed IPs:",
-            "translation": "Разрешенные IP-адреса:",
+            "translation": "Engedélyezett IP-címek:",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Endpoint:",
             "message": "Endpoint:",
-            "translation": "IP-адрес сервера:",
+            "translation": "Végpont:",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Persistent keepalive:",
             "message": "Persistent keepalive:",
-            "translation": "Поддерживание соединения:",
+            "translation": "Folyamatos keepalive:",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Latest handshake:",
             "message": "Latest handshake:",
-            "translation": "Последнее рукопожатие:",
+            "translation": "Utolsó kézfogás:",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Transfer:",
             "message": "Transfer:",
-            "translation": "Передача:",
+            "translation": "Átvitel:",
             "translatorComment": "Copied from source."
         },
         {
             "id": "pre-up",
             "message": "pre-up",
-            "translation": "до подключения",
+            "translation": "kapcsolat előtt",
             "translatorComment": "Copied from source."
         },
         {
             "id": "post-up",
             "message": "post-up",
-            "translation": "после подключения",
+            "translation": "kapcsolat után",
             "translatorComment": "Copied from source."
         },
         {
             "id": "pre-down",
             "message": "pre-down",
-            "translation": "до отключения",
+            "translation": "bontás előtt",
             "translatorComment": "Copied from source."
         },
         {
             "id": "post-down",
             "message": "post-down",
-            "translation": "после отключения",
+            "translation": "bontás után",
             "translatorComment": "Copied from source."
         },
         {
             "id": "disabled, per policy",
             "message": "disabled, per policy",
-            "translation": "отключено политикой",
+            "translation": "letiltva, házirend szerint",
             "translatorComment": "Copied from source."
         },
         {
             "id": "off",
             "message": "off",
-            "translation": "выкл.",
+            "translation": "ki",
             "translatorComment": "Copied from source."
         },
         {
             "id": "enabled",
             "message": "enabled",
-            "translation": "включено",
+            "translation": "engedélyezve",
             "translatorComment": "Copied from source."
         },
         {
             "id": "{String} received, {String_1} sent",
             "message": "{String} received, {String_1} sent",
-            "translation": "Получено {String}, отправлено {String_1}",
+            "translation": "{String} fogadva, {String_1} küldve",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -800,25 +763,25 @@
         {
             "id": "Failed to determine tunnel state",
             "message": "Failed to determine tunnel state",
-            "translation": "Не удалось определить состояние туннеля",
+            "translation": "Nem sikerült meghatározni az alagút állapotát",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Failed to activate tunnel",
             "message": "Failed to activate tunnel",
-            "translation": "Не удалось подключить туннель",
+            "translation": "Nem sikerült aktiválni az alagutat",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Failed to deactivate tunnel",
             "message": "Failed to deactivate tunnel",
-            "translation": "Не удалось отключить туннель",
+            "translation": "Nem sikerült deaktiválni az alagutat",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Interface: {Name}",
             "message": "Interface: {Name}",
-            "translation": "Интерфейс: {Name}",
+            "translation": "Interfész: {Name}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -834,85 +797,85 @@
         {
             "id": "Peer",
             "message": "Peer",
-            "translation": "Пир",
+            "translation": "Társ",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Create new tunnel",
             "message": "Create new tunnel",
-            "translation": "Создать туннель",
+            "translation": "Új alagút létrehozása",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Edit tunnel",
             "message": "Edit tunnel",
-            "translation": "Редактировать туннель",
+            "translation": "Alagút szerkesztése",
             "translatorComment": "Copied from source."
         },
         {
             "id": "\u0026Name:",
             "message": "\u0026Name:",
-            "translation": "\u0026Имя:",
+            "translation": "\u0026Név:",
             "translatorComment": "Copied from source."
         },
         {
             "id": "\u0026Public key:",
             "message": "\u0026Public key:",
-            "translation": "\u0026Открытый ключ:",
+            "translation": "\u0026Nyilvános kulcs:",
             "translatorComment": "Copied from source."
         },
         {
             "id": "(unknown)",
             "message": "(unknown)",
-            "translation": "(неизвестно)",
+            "translation": "(ismeretlen)",
             "translatorComment": "Copied from source."
         },
         {
             "id": "\u0026Block untunneled traffic (kill-switch)",
             "message": "\u0026Block untunneled traffic (kill-switch)",
-            "translation": "\u0026Блокировать трафик, идущий мимо туннеля (kill-switch)",
+            "translation": "Az alagúton kívüli forgalom le\u0026tiltása (kill-switch)",
             "translatorComment": "Copied from source."
         },
         {
             "id": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, and the interface does not have table off, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface or is to the wrong DNS server, with special exceptions for DHCP and NDP.",
             "message": "When a configuration has exactly one peer, and that peer has an allowed IPs containing at least one of 0.0.0.0/0 or ::/0, and the interface does not have table off, then the tunnel service engages a firewall ruleset to block all traffic that is neither to nor from the tunnel interface or is to the wrong DNS server, with special exceptions for DHCP and NDP.",
-            "translation": "Если конфигурация имеет ровно один пир, а этот пир имеет разрешенные IP, содержащие хотя бы один из 0.0.0.0/0 или ::/0, и для интерфейса не задано table off, то туннельный сервис использует набор правил брандмауэра для блокирования всего трафика, который не проходит через туннель или направлен к неверному DNS-серверу, за исключением DHCP и NDP.",
+            "translation": "Ha egy konfiguráció pontosan egy társat tartalmaz, és ennek a társnak az engedélyezett IP-címei között szerepel a 0.0.0.0/0 vagy a ::/0 közül legalább az egyik, valamint az interfész table beállítása nem off, akkor az alagútszolgáltatás olyan tűzfalszabály-készletet aktivál, amely letiltja az összes olyan forgalmat, amely nem az alagútinterfészen keresztül halad, vagy amely a nem megfelelő DNS-kiszolgálóhoz irányul, kivéve a DHCP és NDP forgalmat.",
             "translatorComment": "Copied from source."
         },
         {
             "id": "\u0026Save",
             "message": "\u0026Save",
-            "translation": "\u0026Сохранить",
+            "translation": "\u0026Mentés",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Cancel",
             "message": "Cancel",
-            "translation": "Отмена",
+            "translation": "Mégse",
             "translatorComment": "Copied from source."
         },
         {
             "id": "\u0026Configuration:",
             "message": "\u0026Configuration:",
-            "translation": "\u0026Конфигурация:",
+            "translation": "\u0026Konfiguráció:",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Invalid name",
             "message": "Invalid name",
-            "translation": "Недопустимое имя",
+            "translation": "Érvénytelen név",
             "translatorComment": "Copied from source."
         },
         {
             "id": "A name is required.",
             "message": "A name is required.",
-            "translation": "Требуется имя.",
+            "translation": "Egy név megadása kötelező.",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Tunnel name ‘{NewName}’ is invalid.",
             "message": "Tunnel name ‘{NewName}’ is invalid.",
-            "translation": "Имя туннеля ‘{NewName}’ недопустимо.",
+            "translation": "A(z) „{NewName}” alagútnév érvénytelen.",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -928,19 +891,19 @@
         {
             "id": "Unable to list existing tunnels",
             "message": "Unable to list existing tunnels",
-            "translation": "Не удалось отобразить туннели",
+            "translation": "A meglévő alagutak nem listázhatók",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Tunnel already exists",
             "message": "Tunnel already exists",
-            "translation": "Туннель уже существует",
+            "translation": "Az alagút már létezik",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Another tunnel already exists with the name ‘{NewName}’.",
             "message": "Another tunnel already exists with the name ‘{NewName}’.",
-            "translation": "Туннель с именем ’{NewName}’ уже существует.",
+            "translation": "Már létezik egy másik alagút „{NewName}” néven.",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -956,19 +919,19 @@
         {
             "id": "Unable to create new configuration",
             "message": "Unable to create new configuration",
-            "translation": "Не удалось создать новую конфигурацию",
+            "translation": "Új konfiguráció nem hozható létre",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Writing file failed",
             "message": "Writing file failed",
-            "translation": "Ошибка при записи в файл",
+            "translation": "A fájl írása sikertelen",
             "translatorComment": "Copied from source."
         },
         {
             "id": "File ‘{FilePath}’ already exists.\n\nDo you want to overwrite it?",
             "message": "File ‘{FilePath}’ already exists.\n\nDo you want to overwrite it?",
-            "translation": "Файл ‘{FilePath}’ уже существует!\n\nВы хотите перезаписать его?",
+            "translation": "A(z) „{FilePath}” fájl már létezik.\n\nFelül szeretné írni?",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -984,97 +947,97 @@
         {
             "id": "Active",
             "message": "Active",
-            "translation": "Подключен",
+            "translation": "Aktív",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Activating",
             "message": "Activating",
-            "translation": "Подключение",
+            "translation": "Aktiválás folyamatban",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Inactive",
             "message": "Inactive",
-            "translation": "Отключен",
+            "translation": "Inaktív",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Deactivating",
             "message": "Deactivating",
-            "translation": "Отключение",
+            "translation": "Deaktiválás folyamatban",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Unknown state",
             "message": "Unknown state",
-            "translation": "Неизвестное состояние",
+            "translation": "Ismeretlen állapot",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Log",
             "message": "Log",
-            "translation": "Журнал",
+            "translation": "Napló",
             "translatorComment": "Copied from source."
         },
         {
             "id": "\u0026Copy",
             "message": "\u0026Copy",
-            "translation": "\u0026Копировать",
+            "translation": "\u0026Másolás",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Select \u0026all",
             "message": "Select \u0026all",
-            "translation": "Выбрать \u0026все",
+            "translation": "Összes ki\u0026jelölése",
             "translatorComment": "Copied from source."
         },
         {
             "id": "\u0026Save to file…",
             "message": "\u0026Save to file…",
-            "translation": "\u0026Сохранить в файл…",
+            "translation": "\u0026Mentés fájlba…",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Time",
             "message": "Time",
-            "translation": "Время",
+            "translation": "Idő",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Log message",
             "message": "Log message",
-            "translation": "Сообщение журнала",
+            "translation": "Naplóüzenet",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Text Files (*.txt)|*.txt|All Files (*.*)|*.*",
             "message": "Text Files (*.txt)|*.txt|All Files (*.*)|*.*",
-            "translation": "Текстовые файлы (*.txt)|*.txt|Все файлы (*.*)|*.*",
+            "translation": "Szövegfájlok (*.txt)|*.txt|Minden fájl (*.*)|*.*",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Export log to file",
             "message": "Export log to file",
-            "translation": "Экспорт журнала в файл",
+            "translation": "Napló exportálása fájlba",
             "translatorComment": "Copied from source."
         },
         {
             "id": "\u0026About WireGuard…",
             "message": "\u0026About WireGuard…",
-            "translation": "\u0026О WireGuard…",
+            "translation": "A WireGu\u0026ard névjegye…",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Tunnel Error",
             "message": "Tunnel Error",
-            "translation": "Ошибка туннеля",
+            "translation": "Alagúthiba",
             "translatorComment": "Copied from source."
         },
         {
             "id": "{ErrMsg}\n\nPlease consult the log for more information.",
             "message": "{ErrMsg}\n\nPlease consult the log for more information.",
-            "translation": "{ErrMsg}\n\nОбратитесь к журналу для получения дополнительной информации.",
+            "translation": "{ErrMsg}\n\nTovábbi információkért tekintse meg a naplót.",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1090,7 +1053,7 @@
         {
             "id": "{Title} (out of date)",
             "message": "{Title} (out of date)",
-            "translation": "{Title} (устарел)",
+            "translation": "{Title} (elavult)",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1106,13 +1069,13 @@
         {
             "id": "WireGuard Detection Error",
             "message": "WireGuard Detection Error",
-            "translation": "Ошибка обнаружения WireGuard",
+            "translation": "WireGuard észlelési hiba",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Unable to wait for WireGuard window to appear: {Err}",
             "message": "Unable to wait for WireGuard window to appear: {Err}",
-            "translation": "Не удалось дождаться появления окна WireGuard: {Err}",
+            "translation": "Nem lehet várni a WireGuard ablak megjelenésére: {Err}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1128,55 +1091,55 @@
         {
             "id": "WireGuard: Deactivated",
             "message": "WireGuard: Deactivated",
-            "translation": "WireGuard: деактивирован",
+            "translation": "WireGuard: Deaktiválva",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Status: Unknown",
             "message": "Status: Unknown",
-            "translation": "Статус: неизвестен",
+            "translation": "Állapot: Ismeretlen",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Addresses: None",
             "message": "Addresses: None",
-            "translation": "Адреса: нет",
+            "translation": "Címek: Nincs",
             "translatorComment": "Copied from source."
         },
         {
             "id": "\u0026Manage tunnels…",
             "message": "\u0026Manage tunnels…",
-            "translation": "\u0026Управление туннелями…",
+            "translation": "Alagutak \u0026kezelése…",
             "translatorComment": "Copied from source."
         },
         {
             "id": "\u0026Import tunnel(s) from file…",
             "message": "\u0026Import tunnel(s) from file…",
-            "translation": "\u0026Импорт туннелей из файла…",
+            "translation": "Alagút/alagutak \u0026importálása fájlból…",
             "translatorComment": "Copied from source."
         },
         {
             "id": "E\u0026xit",
             "message": "E\u0026xit",
-            "translation": "Вы\u0026ход",
+            "translation": "\u0026Kilépés",
             "translatorComment": "Copied from source."
         },
         {
             "id": "\u0026Tunnels",
             "message": "\u0026Tunnels",
-            "translation": "\u0026Туннели",
+            "translation": "\u0026Alagutak",
             "translatorComment": "Copied from source."
         },
         {
             "id": "WireGuard Activated",
             "message": "WireGuard Activated",
-            "translation": "WireGuard включен",
+            "translation": "WireGuard aktiválva",
             "translatorComment": "Copied from source."
         },
         {
             "id": "The {Name} tunnel has been activated.",
             "message": "The {Name} tunnel has been activated.",
-            "translation": "Туннель {Name} подключен.",
+            "translation": "A(z) {Name} alagút aktiválva lett.",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1192,13 +1155,13 @@
         {
             "id": "WireGuard Deactivated",
             "message": "WireGuard Deactivated",
-            "translation": "WireGuard выключен",
+            "translation": "WireGuard deaktiválva",
             "translatorComment": "Copied from source."
         },
         {
             "id": "The {Name} tunnel has been deactivated.",
             "message": "The {Name} tunnel has been deactivated.",
-            "translation": "Туннель {Name} отключен.",
+            "translation": "A(z) {Name} alagút deaktiválva lett.",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1214,14 +1177,13 @@
         {
             "id": "WireGuard Tunnel Error",
             "message": "WireGuard Tunnel Error",
-            "translation": "Ошибка туннеля WireGuard",
+            "translation": "WireGuard alagúthiba",
             "translatorComment": "Copied from source."
         },
         {
             "id": "WireGuard: {TextForStateglobalState_true}",
             "message": "WireGuard: {TextForStateglobalState_true}",
-            "translation": "WireGuard: {TextForStateglobalState_true}",
-            "translatorComment": "Copied from source.",
+            "translation": "",
             "placeholders": [
                 {
                     "id": "TextForStateglobalState_true",
@@ -1236,7 +1198,7 @@
         {
             "id": "Status: {StateText}",
             "message": "Status: {StateText}",
-            "translation": "Статус: {StateText}",
+            "translation": "Állapot: {StateText}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1252,7 +1214,7 @@
         {
             "id": "Addresses: {EnumerationSeparator}",
             "message": "Addresses: {EnumerationSeparator}",
-            "translation": "Адреса: {EnumerationSeparator}",
+            "translation": "Címek: {EnumerationSeparator}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1268,91 +1230,91 @@
         {
             "id": "An Update is Available!",
             "message": "An Update is Available!",
-            "translation": "Доступно обновление!",
+            "translation": "Frissítés érhető el!",
             "translatorComment": "Copied from source."
         },
         {
             "id": "WireGuard Update Available",
             "message": "WireGuard Update Available",
-            "translation": "Доступно обновление WireGuard",
+            "translation": "WireGuard frissítés érhető el",
             "translatorComment": "Copied from source."
         },
         {
             "id": "An update to WireGuard is now available. You are advised to update as soon as possible.",
             "message": "An update to WireGuard is now available. You are advised to update as soon as possible.",
-            "translation": "Доступно обновление для WireGuard. Рекомендуется обновить его как можно скорее.",
+            "translation": "A WireGuardhoz frissítés érhető el. Javasoljuk, hogy mielőbb frissítsen.",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Tunnels",
             "message": "Tunnels",
-            "translation": "Туннели",
+            "translation": "Alagutak",
             "translatorComment": "Copied from source."
         },
         {
             "id": "\u0026Edit",
             "message": "\u0026Edit",
-            "translation": "\u0026Редактировать",
+            "translation": "S\u0026zerkesztés",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Add \u0026empty tunnel…",
             "message": "Add \u0026empty tunnel…",
-            "translation": "Добавить \u0026пустой туннель…",
+            "translation": "Üres alagút \u0026hozzáadása…",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Add Tunnel",
             "message": "Add Tunnel",
-            "translation": "Добавить туннель",
+            "translation": "Alagút hozzáadása",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Remove selected tunnel(s)",
             "message": "Remove selected tunnel(s)",
-            "translation": "Удалить выбранные туннели",
+            "translation": "Kijelölt alagút/alagutak eltávolítása",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Export all tunnels to zip",
             "message": "Export all tunnels to zip",
-            "translation": "Экспорт всех туннелей в zip-архив",
+            "translation": "Összes alagút exportálása zip fájlba",
             "translatorComment": "Copied from source."
         },
         {
             "id": "\u0026Toggle",
             "message": "\u0026Toggle",
-            "translation": "\u0026Переключить",
+            "translation": "\u0026Váltás",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Export all tunnels to \u0026zip…",
             "message": "Export all tunnels to \u0026zip…",
-            "translation": "Экспорт всех туннелей в \u0026zip-архив…",
+            "translation": "Összes alagút exportálása \u0026zip fájlba…",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Edit \u0026selected tunnel…",
             "message": "Edit \u0026selected tunnel…",
-            "translation": "Редактировать \u0026выбранный туннель…",
+            "translation": "\u0026Kijelölt alagút szerkesztése…",
             "translatorComment": "Copied from source."
         },
         {
             "id": "\u0026Remove selected tunnel(s)",
             "message": "\u0026Remove selected tunnel(s)",
-            "translation": "\u0026Удалить выбранные туннели",
+            "translation": "Kijelölt alagút/alagutak \u0026eltávolítása",
             "translatorComment": "Copied from source."
         },
         {
             "id": "no configuration files were found",
             "message": "no configuration files were found",
-            "translation": "файлы конфигурации не найдены",
+            "translation": "nem található konfigurációs fájl",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Could not import selected configuration: {LastErr}",
             "message": "Could not import selected configuration: {LastErr}",
-            "translation": "Невозможно импортировать конфигурацию: {LastErr}",
+            "translation": "A kijelölt konfigurációt nem sikerült importálni: {LastErr}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1368,7 +1330,7 @@
         {
             "id": "Could not enumerate existing tunnels: {Err}",
             "message": "Could not enumerate existing tunnels: {Err}",
-            "translation": "Не удалось получить список существующих туннелей: {Err}",
+            "translation": "A meglévő alagutakat nem sikerült felsorolni: {Err}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1384,7 +1346,7 @@
         {
             "id": "Another tunnel already exists with the name ‘{Name}’",
             "message": "Another tunnel already exists with the name ‘{Name}’",
-            "translation": "Туннель с именем ’{Name}’ уже существует",
+            "translation": "Már létezik egy másik alagút „{Name}” néven",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1400,7 +1362,7 @@
         {
             "id": "Unable to import configuration: {LastErr}",
             "message": "Unable to import configuration: {LastErr}",
-            "translation": "Невозможно импортировать конфигурацию: {LastErr}",
+            "translation": "A konfiguráció nem importálható: {LastErr}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1416,7 +1378,7 @@
         {
             "id": "Imported tunnels",
             "message": "Imported tunnels",
-            "translation": "Импортированные туннели",
+            "translation": "Importált alagutak",
             "translatorComment": "Copied from source."
         },
         {
@@ -1427,17 +1389,11 @@
                     "feature": "plural",
                     "arg": "M",
                     "cases": {
-                        "few": {
-                            "msg": "Импортированы {M} туннеля"
-                        },
-                        "many": {
-                            "msg": "Импортировано {M} туннелей"
-                        },
                         "one": {
-                            "msg": "Импортирован {M} туннель"
+                            "msg": "{M} alagút importálva"
                         },
                         "other": {
-                            "msg": "Импортировано {M} туннелей"
+                            "msg": "{M} alagút importálva"
                         }
                     }
                 }
@@ -1461,17 +1417,11 @@
                     "feature": "plural",
                     "arg": "N",
                     "cases": {
-                        "few": {
-                            "msg": "Импортированы {M} из {N} туннелей"
-                        },
-                        "many": {
-                            "msg": "Импортировано {M} из {N} туннелей"
-                        },
                         "one": {
-                            "msg": "Импортирован {M} из {N} туннелей"
+                            "msg": "{M}/{N} alagút importálva"
                         },
                         "other": {
-                            "msg": "Импортировано {M} из {N} туннелей"
+                            "msg": "{M}/{N} alagút importálva"
                         }
                     }
                 }
@@ -1498,7 +1448,7 @@
         {
             "id": "Unable to create tunnel",
             "message": "Unable to create tunnel",
-            "translation": "Не удалось создать туннель",
+            "translation": "Az alagút nem hozható létre",
             "translatorComment": "Copied from source."
         },
         {
@@ -1509,17 +1459,11 @@
                     "feature": "plural",
                     "arg": "TunnelCount",
                     "cases": {
-                        "few": {
-                            "msg": "Удалить {TunnelCount} туннеля"
-                        },
-                        "many": {
-                            "msg": "Удалить {TunnelCount} туннелей"
-                        },
                         "one": {
-                            "msg": "Удалить {TunnelCount} туннель"
+                            "msg": "{TunnelCount} alagút törlése"
                         },
                         "other": {
-                            "msg": "Удалить {TunnelCount} туннелей"
+                            "msg": "{TunnelCount} alagút törlése"
                         }
                     }
                 }
@@ -1543,17 +1487,11 @@
                     "feature": "plural",
                     "arg": "TunnelCount",
                     "cases": {
-                        "few": {
-                            "msg": "Вы уверены, что хотите удалить {TunnelCount} туннеля?"
-                        },
-                        "many": {
-                            "msg": "Вы уверены, что хотите удалить {TunnelCount} туннелей?"
-                        },
                         "one": {
-                            "msg": "Вы уверены, что хотите удалить {TunnelCount} туннель?"
+                            "msg": "Biztosan törölni szeretne {TunnelCount} alagutat?"
                         },
                         "other": {
-                            "msg": "Вы уверены, что хотите удалить {TunnelCount} туннелей?"
+                            "msg": "Biztosan törölni szeretne {TunnelCount} alagutat?"
                         }
                     }
                 }
@@ -1572,7 +1510,7 @@
         {
             "id": "Delete tunnel ‘{TunnelName}’",
             "message": "Delete tunnel ‘{TunnelName}’",
-            "translation": "Удалить туннель ‘{TunnelName}’",
+            "translation": "A(z) „{TunnelName}” alagút törlése",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1588,7 +1526,7 @@
         {
             "id": "Are you sure you would like to delete tunnel ‘{TunnelName}’?",
             "message": "Are you sure you would like to delete tunnel ‘{TunnelName}’?",
-            "translation": "Вы уверены, что хотите удалить ‘{TunnelName}’ туннель?",
+            "translation": "Biztosan törölni szeretné a(z) „{TunnelName}” alagutat?",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1604,7 +1542,7 @@
         {
             "id": "{Question} You cannot undo this action.",
             "message": "{Question} You cannot undo this action.",
-            "translation": "{Question} Данное действие невозможно отменить.",
+            "translation": "{Question} Ezt a műveletet nem lehet visszavonni.",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1620,13 +1558,13 @@
         {
             "id": "Unable to delete tunnel",
             "message": "Unable to delete tunnel",
-            "translation": "Не удалось удалить туннель",
+            "translation": "Az alagút nem törölhető",
             "translatorComment": "Copied from source."
         },
         {
             "id": "A tunnel was unable to be removed: {Error}",
             "message": "A tunnel was unable to be removed: {Error}",
-            "translation": "Невозможно удалить туннель: {Error}",
+            "translation": "Egy alagutat nem sikerült eltávolítani: {Error}",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1642,7 +1580,7 @@
         {
             "id": "Unable to delete tunnels",
             "message": "Unable to delete tunnels",
-            "translation": "Не удалось удалить туннели",
+            "translation": "Az alagutak nem törölhetők",
             "translatorComment": "Copied from source."
         },
         {
@@ -1653,17 +1591,11 @@
                     "feature": "plural",
                     "arg": "Lenerrors",
                     "cases": {
-                        "few": {
-                            "msg": "{Lenerrors} туннеля не удалось удалить."
-                        },
-                        "many": {
-                            "msg": "{Lenerrors} туннелей не удалось удалить."
-                        },
                         "one": {
-                            "msg": "{Lenerrors} туннель не удалось удалить."
+                            "msg": "{Lenerrors} alagutat nem sikerült eltávolítani."
                         },
                         "other": {
-                            "msg": "{Lenerrors} туннелей не удалось удалить."
+                            "msg": "{Lenerrors} alagutat nem sikerült eltávolítani."
                         }
                     }
                 }
@@ -1682,31 +1614,31 @@
         {
             "id": "Configuration Files (*.zip, *.conf)|*.zip;*.conf|All Files (*.*)|*.*",
             "message": "Configuration Files (*.zip, *.conf)|*.zip;*.conf|All Files (*.*)|*.*",
-            "translation": "Файлы конфигурации (*.zip, *.conf)|*.zip;*.conf|Все файлы (*.*)|*.*",
+            "translation": "Konfigurációs fájlok (*.zip, *.conf)|*.zip;*.conf|Minden fájl (*.*)|*.*",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Import tunnel(s) from file",
             "message": "Import tunnel(s) from file",
-            "translation": "Импорт туннелей из файла",
+            "translation": "Alagút/alagutak importálása fájlból",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Configuration ZIP Files (*.zip)|*.zip",
             "message": "Configuration ZIP Files (*.zip)|*.zip",
-            "translation": "ZIP-файлы конфигурации (*.zip)|*.zip",
+            "translation": "Konfigurációs ZIP-fájlok (*.zip)|*.zip",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Export tunnels to zip",
             "message": "Export tunnels to zip",
-            "translation": "Экспорт туннелей в zip-архив",
+            "translation": "Alagutak exportálása zip fájlba",
             "translatorComment": "Copied from source."
         },
         {
             "id": "{Title} (unsigned build, no updates)",
             "message": "{Title} (unsigned build, no updates)",
-            "translation": "{Title} (неподписанная сборка, нет обновлений)",
+            "translation": "{Title} (aláíratlan build, nincsenek frissítések)",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1722,13 +1654,13 @@
         {
             "id": "Error Exiting WireGuard",
             "message": "Error Exiting WireGuard",
-            "translation": "Ошибка при завершении WireGuard",
+            "translation": "Hiba a WireGuardból való kilépéskor",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Unable to exit service due to: {Err}. You may want to stop WireGuard from the service manager.",
             "message": "Unable to exit service due to: {Err}. You may want to stop WireGuard from the service manager.",
-            "translation": "Не удалось завершить службу: {Err}. Вы можете остановить WireGuard вручную из оснастки Службы.",
+            "translation": "A szolgáltatásból nem lehet kilépni a következő miatt: {Err}. Érdemes lehet a WireGuardot a szolgáltatáskezelőből leállítani.",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1744,43 +1676,43 @@
         {
             "id": "An update to WireGuard is available. It is highly advisable to update without delay.",
             "message": "An update to WireGuard is available. It is highly advisable to update without delay.",
-            "translation": "Доступно обновление WireGuard. Настоятельно рекомендуем обновить приложение.",
+            "translation": "A WireGuardhoz frissítés érhető el. Erősen ajánlott haladéktalanul frissíteni.",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Status: Waiting for user",
             "message": "Status: Waiting for user",
-            "translation": "Статус: ожидание пользователя",
+            "translation": "Állapot: Várakozás felhasználói műveletre",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Update Now",
             "message": "Update Now",
-            "translation": "Обновить сейчас",
+            "translation": "Frissítés most",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Please ask the system administrator to update.",
             "message": "Please ask the system administrator to update.",
-            "translation": "Обратитесь к системному администратору для обновления.",
+            "translation": "Kérje meg a rendszergazdát a frissítésre.",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Status: Waiting for administrator",
             "message": "Status: Waiting for administrator",
-            "translation": "Статус: ожидание администратора",
+            "translation": "Állapot: Várakozás rendszergazdára",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Status: Waiting for updater service",
             "message": "Status: Waiting for updater service",
-            "translation": "Статус: ожидание обновления",
+            "translation": "Állapot: Várakozás a frissítőszolgáltatásra",
             "translatorComment": "Copied from source."
         },
         {
             "id": "Error: {Err}. Please try again.",
             "message": "Error: {Err}. Please try again.",
-            "translation": "Ошибка: {Err}. Попробуйте еще раз.",
+            "translation": "Hiba: {Err}. Próbálja meg újra.",
             "translatorComment": "Copied from source.",
             "placeholders": [
                 {
@@ -1796,7 +1728,7 @@
         {
             "id": "Status: Complete!",
             "message": "Status: Complete!",
-            "translation": "Статус: завершено!",
+            "translation": "Állapot: Befejezve!",
             "translatorComment": "Copied from source."
         }
     ]
