@@ -215,6 +215,11 @@ namespace Tunnel
                 public UInt32 AllowedIPsCount;
             };
 
+            private enum IoctlAllowedIPFlags : UInt32
+            {
+                Remove = 1 << 0
+            };
+
             [StructLayout(LayoutKind.Explicit, Pack = 8, Size = 24)]
             private unsafe struct IoctlAllowedIP
             {
@@ -226,8 +231,10 @@ namespace Tunnel
                 public Win32.IN6_ADDR V6;
                 [FieldOffset(16)]
                 public Win32.ADDRESS_FAMILY AddressFamily;
-                [FieldOffset(20)]
+                [FieldOffset(18)]
                 public byte Cidr;
+                [FieldOffset(20)]
+                public IoctlAllowedIPFlags Flags;
             }
         }
     }
