@@ -375,6 +375,7 @@ func (tp *TunnelsPage) importFiles(paths []string) {
 				lastErr = err
 				continue
 			}
+			existingLowerTunnels[strings.ToLower(unparsedConfig.Name)] = true
 			configCount++
 		}
 		tp.listView.SetSuspendTunnelsUpdate(false)
