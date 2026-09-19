@@ -175,7 +175,7 @@ func (se *SyntaxEdit) evaluateUntunneledBlocking(cfg string, spans []highlightSp
 		}
 	}
 	if tableOff {
-		return
+		goto done
 	}
 
 	if seen00v4 || seen00v6 {
