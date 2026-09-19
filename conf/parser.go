@@ -186,6 +186,7 @@ func FromWgQuick(s, name string) (*Config, error) {
 		key = strings.ToLower(strings.TrimSpace(key))
 		if key == "[interface]" && !hasValue {
 			conf.maybeAddPeer(peer)
+			peer = nil
 			parserState = inInterfaceSection
 			h := &conf.Interface.Comments.Header
 			h.Before = append(h.Before, pendingComments...)
