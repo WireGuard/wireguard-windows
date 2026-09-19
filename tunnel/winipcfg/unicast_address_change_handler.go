@@ -52,6 +52,7 @@ func RegisterUnicastAddressChangeCallback(callback func(notificationType MibNoti
 
 // Unregister unregisters the callback.
 func (callback *UnicastAddressChangeCallback) Unregister() error {
+	defer callback.wait.Wait()
 	unicastAddressChangeAddRemoveMutex.Lock()
 	defer unicastAddressChangeAddRemoveMutex.Unlock()
 
@@ -59,8 +60,6 @@ func (callback *UnicastAddressChangeCallback) Unregister() error {
 	delete(unicastAddressChangeCallbacks, callback)
 	removeIt := len(unicastAddressChangeCallbacks) == 0 && unicastAddressChangeHandle != 0
 	unicastAddressChangeMutex.Unlock()
-
-	callback.wait.Wait()
 
 	if removeIt {
 		err := cancelMibChangeNotify2(unicastAddressChangeHandle)
