@@ -39,7 +39,7 @@ if exist ..\.deps\prepared goto :build
 	set GOARCH=%~3
 	mkdir %1 >NUL 2>&1
 	echo [+] Building library %1
-	go build -buildmode c-shared -ldflags="-w -s" -trimpath -v -o "%~1/tunnel.dll" || exit /b 1
+	go -C .. build -overlay .overlay/overlay.json -buildmode c-shared -ldflags="-w -s" -trimpath -v -o "%BUILDDIR%%~1/tunnel.dll" ./embeddable-dll-service || exit /b 1
 	del "%~1\tunnel.h"
 	goto :eof
 

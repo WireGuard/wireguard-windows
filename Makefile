@@ -1,5 +1,6 @@
-GOFLAGS := -tags load_wgnt_from_rsrc -ldflags="-H windowsgui -s -w" -trimpath -buildvcs=false -v
+GOFLAGS := -overlay .overlay/overlay.json -tags load_wgnt_from_rsrc -ldflags="-H windowsgui -s -w" -trimpath -buildvcs=false -v
 export GOOS := windows
+export PWD := $(CURDIR)
 export PATH := $(CURDIR)/.deps/go/bin:$(PATH)
 
 VERSION := $(shell sed -n 's/^\s*Number\s*=\s*"\([0-9.]\+\)"$$/\1/p' version/version.go)
@@ -9,7 +10,7 @@ comma := ,
 RCFLAGS := -DWIREGUARD_VERSION_ARRAY=$(subst $(space),$(comma),$(wordlist 1,4,$(subst .,$(space),$(VERSION)) 0 0 0 0)) -DWIREGUARD_VERSION_STR=$(VERSION) -O coff -c 65001
 
 rwildcard=$(foreach d,$(filter-out .deps,$(wildcard $1*)),$(call rwildcard,$d/,$2) $(filter $(subst *,%,$2),$d))
-SOURCE_FILES := $(call rwildcard,,*.go) .deps/go/prepared go.mod go.sum
+SOURCE_FILES := $(call rwildcard,,*.go) $(call rwildcard,.overlay/,*) .deps/go/prepared go.mod go.sum
 RESOURCE_FILES := resources.rc version/version.go manifest.xml $(patsubst %.svg,%.ico,$(wildcard ui/icon/*.svg)) .deps/wireguard-nt/prepared
 
 DEPLOYMENT_HOST ?= winvm
