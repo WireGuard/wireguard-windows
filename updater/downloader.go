@@ -6,7 +6,7 @@
 package updater
 
 import (
-	"crypto/hmac"
+	"crypto/subtle"
 	"errors"
 	"fmt"
 	"hash"
@@ -161,7 +161,7 @@ func DownloadVerifyAndExecute(userToken uintptr) (progress chan DownloadProgress
 			progress <- DownloadProgress{Error: err}
 			return
 		}
-		if !hmac.Equal(hasher.Sum(nil), update.hash[:]) {
+		if subtle.ConstantTimeCompare(hasher.Sum(nil), update.hash[:]) != 1 {
 			progress <- DownloadProgress{Error: errors.New("The downloaded update has the wrong hash")}
 			return
 		}
