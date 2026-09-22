@@ -4,7 +4,7 @@ rem Copyright (C) 2019-2026 WireGuard LLC. All Rights Reserved.
 
 setlocal enabledelayedexpansion
 set BUILDDIR=%~dp0
-set PATH=%BUILDDIR%.deps\bin;%BUILDDIR%.deps;%PATH%
+set PATH=%BUILDDIR%.deps\go\bin;%BUILDDIR%.deps\bin;%BUILDDIR%.deps;%PATH%
 set PATHEXT=.exe
 cd /d %BUILDDIR% || exit /b 1
 
@@ -13,7 +13,7 @@ if exist .deps\prepared goto :render
 	rmdir /s /q .deps 2> NUL
 	mkdir .deps || goto :error
 	cd .deps || goto :error
-	call :download go.zip https://go.dev/dl/go1.27.1.windows-amd64.zip a3911b5e0e1b1053f25ed0675f4c1c6aad1e2bfcf253df2b9be4caabd2edd95d "--strip-components 1" || goto :error
+	call :download go.zip https://go.dev/dl/go1.27.1.windows-amd64.zip a3911b5e0e1b1053f25ed0675f4c1c6aad1e2bfcf253df2b9be4caabd2edd95d || goto :error
 	rem Mirror of https://github.com/mstorsjo/llvm-mingw/releases/download/20260311/llvm-mingw-20260311-ucrt-x86_64.zip
 	call :download llvm-mingw-ucrt.zip https://download.wireguard.com/windows-toolchain/distfiles/llvm-mingw-20260311-ucrt-x86_64.zip dd4c67d98959479c7be2fb6709ba074475991590848cb9d0eb2620be06b182e1 "--strip-components 1" || goto :error
 	rem Mirror of https://imagemagick.org/download/binaries/ImageMagick-7.0.8-42-portable-Q16-x64.zip
@@ -36,7 +36,7 @@ if exist .deps\prepared goto :render
 	set GOOS=windows
 	set GOARM=7
 	set GOPATH=%BUILDDIR%.deps\gopath
-	set GOROOT=%BUILDDIR%.deps
+	set GOROOT=%BUILDDIR%.deps\go
 	if "%GoGenerate%"=="yes" (
 		echo [+] Regenerating files
 		go generate ./... || exit /b 1
