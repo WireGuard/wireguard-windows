@@ -6,6 +6,7 @@
 package conf
 
 import (
+	"crypto/ecdh"
 	"crypto/rand"
 	"crypto/subtle"
 	"encoding/base64"
@@ -14,8 +15,6 @@ import (
 	"net/netip"
 	"strings"
 	"time"
-
-	"golang.org/x/crypto/curve25519"
 
 	"golang.zx2c4.com/wireguard/windows/l18n"
 )
@@ -131,9 +130,11 @@ func (k *Key) IsZero() bool {
 }
 
 func (k *Key) Public() *Key {
-	var p [KeyLength]byte
-	curve25519.ScalarBaseMult(&p, (*[KeyLength]byte)(k))
-	return (*Key)(&p)
+	key, err := ecdh.X25519().NewPrivateKey(k[:])
+	if err != nil {
+		panic(err)
+	}
+	return (*Key)(key.PublicKey().Bytes())
 }
 
 func NewPresharedKey() *Key {
