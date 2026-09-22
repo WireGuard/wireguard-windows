@@ -136,23 +136,17 @@ func (k *Key) Public() *Key {
 	return (*Key)(&p)
 }
 
-func NewPresharedKey() (*Key, error) {
+func NewPresharedKey() *Key {
 	var k [KeyLength]byte
-	_, err := rand.Read(k[:])
-	if err != nil {
-		return nil, err
-	}
-	return (*Key)(&k), nil
+	rand.Read(k[:])
+	return (*Key)(&k)
 }
 
-func NewPrivateKey() (*Key, error) {
-	k, err := NewPresharedKey()
-	if err != nil {
-		return nil, err
-	}
+func NewPrivateKey() *Key {
+	k := NewPresharedKey()
 	k[0] &= 248
 	k[31] = (k[31] & 127) | 64
-	return k, nil
+	return k
 }
 
 func NewPrivateKeyFromString(b64 string) (*Key, error) {

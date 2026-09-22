@@ -35,10 +35,7 @@ func WireGuardTunnelService(confFile16 *uint16) bool {
 func WireGuardGenerateKeypair(publicKey, privateKey *byte) {
 	publicKeyArray := (*[32]byte)(unsafe.Pointer(publicKey))
 	privateKeyArray := (*[32]byte)(unsafe.Pointer(privateKey))
-	n, err := rand.Read(privateKeyArray[:])
-	if err != nil || n != len(privateKeyArray) {
-		panic("Unable to generate random bytes")
-	}
+	rand.Read(privateKeyArray[:])
 	privateKeyArray[0] &= 248
 	privateKeyArray[31] = (privateKeyArray[31] & 127) | 64
 

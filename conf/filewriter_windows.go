@@ -19,10 +19,7 @@ var encryptedFileSd unsafe.Pointer
 
 func randomFileName() string {
 	var randBytes [32]byte
-	_, err := rand.Read(randBytes[:])
-	if err != nil {
-		panic(err)
-	}
+	rand.Read(randBytes[:])
 	return hex.EncodeToString(randBytes[:]) + ".tmp"
 }
 

@@ -60,7 +60,7 @@ func newEditDialog(owner walk.Form, tunnel *manager.Tunnel) (*EditDialog, error)
 
 	if tunnel == nil {
 		// Creating a new tunnel, create a new private key and use the default template
-		pk, _ := conf.NewPrivateKey()
+		pk := conf.NewPrivateKey()
 		dlg.config = conf.Config{Interface: conf.Interface{PrivateKey: *pk}}
 	} else {
 		dlg.config, _ = tunnel.StoredConfig()

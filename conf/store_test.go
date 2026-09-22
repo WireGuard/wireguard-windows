@@ -43,10 +43,7 @@ func TestStorage(t *testing.T) {
 		t.Error("Loaded config is not the same as saved config")
 	}
 
-	k, err := NewPrivateKey()
-	if err != nil {
-		t.Errorf("Unable to generate new private key: %s", err.Error())
-	}
+	k := NewPrivateKey()
 	c.Interface.PrivateKey = *k
 
 	err = c.Save(false)

@@ -8,7 +8,6 @@ package updater
 import (
 	"crypto/rand"
 	"encoding/hex"
-	"errors"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -82,13 +81,7 @@ func runMsi(msi *tempFile, userToken uintptr) error {
 
 func msiTempFile() (*tempFile, error) {
 	var randBytes [32]byte
-	n, err := rand.Read(randBytes[:])
-	if err != nil {
-		return nil, err
-	}
-	if n != int(len(randBytes)) {
-		return nil, errors.New("Unable to generate random bytes")
-	}
+	rand.Read(randBytes[:])
 	sd, err := windows.SecurityDescriptorFromString("O:SYD:PAI(A;;FA;;;SY)(A;;FR;;;BA)")
 	if err != nil {
 		return nil, err
